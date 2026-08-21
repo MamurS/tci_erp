@@ -1,0 +1,50 @@
+{
+  "app": {
+    "title": "TCI ERP",
+    "company": "Mosaic Insurance Group"
+  },
+  "nav": {
+    "dashboard": "Boshqaruv paneli",
+    "buyers": "Xaridorlar",
+    "limits": "Kredit limitlari",
+    "policyholders": "Sug'urta qildiruvchilar",
+    "policies": "Polislar",
+    "declarations": "Deklaratsiyalar",
+    "claims": "Zararlar",
+    "admin": "Administratsiya"
+  },
+  "auth": {
+    "signInTitle": "Tizimga kirish",
+    "signInSubtitle": "Savdo kreditlarini sug'urtalash ERP",
+    "email": "Elektron pochta",
+    "password": "Parol",
+    "signIn": "Kirish",
+    "signingIn": "Kirilmoqda…",
+    "signOut": "Chiqish",
+    "noSelfSignup": "Hisoblarni administrator yaratadi.",
+    "errors": {
+      "invalidCredentials": "Pochta yoki parol noto'g'ri",
+      "generic": "Kirish amalga oshmadi. Qayta urinib ko'ring."
+    }
+  },
+  "roles": {
+    "admin": "Administrator",
+    "senior_underwriter": "Katta anderrayter",
+    "underwriter": "Anderrayter",
+    "policyholder": "Sug'urta qildiruvchi",
+    "unassigned": "Rol tayinlanmagan"
+  },
+  "common": {
+    "loading": "Yuklanmoqda…",
+    "language": "Til",
+    "comingSoon": "Bo'lim ishlab chiqilmoqda",
+    "comingSoonHint": "U keyingi bosqichda amalga oshiriladi.",
+    "notFound": "Sahifa topilmadi",
+    "backHome": "Bosh sahifaga",
+    "noAccess": "Sizda ushbu bo'limga ruxsat yo'q"
+  },
+  "dashboard": {
+    "welcome": "Xush kelibsiz, {{email}}",
+    "roleLabel": "Sizning rolingiz"
+  }
+}

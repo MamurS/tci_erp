@@ -1,0 +1,50 @@
+{
+  "app": {
+    "title": "TCI ERP",
+    "company": "Mosaic Insurance Group"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "buyers": "Buyers",
+    "limits": "Credit Limits",
+    "policyholders": "Policyholders",
+    "policies": "Policies",
+    "declarations": "Declarations",
+    "claims": "Claims",
+    "admin": "Admin"
+  },
+  "auth": {
+    "signInTitle": "Sign in",
+    "signInSubtitle": "Trade Credit Insurance ERP",
+    "email": "Email",
+    "password": "Password",
+    "signIn": "Sign in",
+    "signingIn": "Signing in…",
+    "signOut": "Sign out",
+    "noSelfSignup": "Accounts are created by the administrator.",
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "generic": "Sign-in failed. Please try again."
+    }
+  },
+  "roles": {
+    "admin": "Administrator",
+    "senior_underwriter": "Senior underwriter",
+    "underwriter": "Underwriter",
+    "policyholder": "Policyholder",
+    "unassigned": "No role assigned"
+  },
+  "common": {
+    "loading": "Loading…",
+    "language": "Language",
+    "comingSoon": "This section is under construction",
+    "comingSoonHint": "It will be implemented in an upcoming phase.",
+    "notFound": "Page not found",
+    "backHome": "Back to home",
+    "noAccess": "You do not have access to this section"
+  },
+  "dashboard": {
+    "welcome": "Welcome, {{email}}",
+    "roleLabel": "Your role"
+  }
+}
