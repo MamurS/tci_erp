@@ -41,10 +41,201 @@
     "comingSoonHint": "Он будет реализован на следующем этапе.",
     "notFound": "Страница не найдена",
     "backHome": "На главную",
-    "noAccess": "У вас нет доступа к этому разделу"
+    "noAccess": "У вас нет доступа к этому разделу",
+    "save": "Сохранить",
+    "saving": "Сохранение…",
+    "cancel": "Отмена",
+    "edit": "Изменить",
+    "delete": "Удалить",
+    "confirmDelete": "Подтвердить удаление",
+    "yes": "Да",
+    "no": "Нет",
+    "notSelected": "Не выбрано",
+    "saveFailed": "Не удалось сохранить. Попробуйте ещё раз."
   },
   "dashboard": {
     "welcome": "Добро пожаловать, {{email}}",
     "roleLabel": "Ваша роль"
+  },
+  "buyers": {
+    "subtitle": "Реестр покупателей (дебиторов) на кредитной оценке",
+    "addBuyer": "Добавить покупателя",
+    "editBuyer": "Изменить покупателя",
+    "searchPlaceholder": "Поиск по названию…",
+    "allCountries": "Все страны",
+    "allIndustries": "Все отрасли",
+    "empty": "Покупатели не найдены",
+    "emptyHint": "Добавьте первого покупателя, чтобы начать ввод финансовой отчётности.",
+    "latestStatement": "Последняя отчётность",
+    "createdAt": "Создан",
+    "notFound": "Покупатель не найден",
+    "backToList": "К списку покупателей",
+    "basicInfo": "Основная информация",
+    "tabs": {
+      "overview": "Обзор",
+      "financials": "Финансы",
+      "rating": "Рейтинг и лимит"
+    },
+    "ratingStub": {
+      "title": "Модуль в разработке",
+      "hint": "Автоматический расчёт кредитного рейтинга и лимита будет подключён здесь через API аналитического сервиса."
+    },
+    "ratingSummary": {
+      "title": "Кредитный рейтинг и лимит",
+      "pending": "Не оценён",
+      "hint": "Сводка по рейтингу и лимиту появится здесь после подключения аналитического модуля."
+    },
+    "fields": {
+      "name": "Название",
+      "country": "Страна",
+      "industry": "Отрасль",
+      "registrationNumber": "Регистрационный номер",
+      "website": "Сайт",
+      "notes": "Примечания"
+    }
+  },
+  "fin": {
+    "noStatements": "Финансовая отчётность ещё не введена",
+    "noStatementsHint": "Введите первую отчётность, чтобы открыть вертикальный/горизонтальный анализ и коэффициенты.",
+    "addStatement": "Добавить отчётность",
+    "editStatement": "Изменить отчётность",
+    "manageStatements": "Отчётности",
+    "periods": "Периоды",
+    "mixedCurrencyWarning": "Выбранные отчётности различаются валютой или единицами измерения — показатели не сопоставимы напрямую (конвертация на этом этапе не выполняется).",
+    "showEmptyLines": "Показать пустые строки",
+    "annualizedFootnote": "аннуализировано (квартальные потоковые показатели ×4)",
+    "lineHeader": "Статья",
+    "ratioHeader": "Показатель",
+    "amount": "Сумма",
+    "shareOfBase": "% от итога",
+    "deltaVs": "Δ% к {{period}}",
+    "balanceSheetTitle": "Бухгалтерский баланс",
+    "incomeStatementTitle": "Отчёт о прибылях и убытках",
+    "tabs": {
+      "balance": "Баланс",
+      "pnl": "ОПиУ",
+      "ratios": "Коэффициенты"
+    },
+    "fields": {
+      "period": "Период",
+      "periodEnd": "Конец периода",
+      "kind": "Тип",
+      "currency": "Валюта",
+      "unit": "Ед. изм.",
+      "audited": "Аудировано",
+      "fiscalYear": "Финансовый год",
+      "fiscalQuarter": "Квартал",
+      "source": "Источник"
+    },
+    "kinds": {
+      "annual": "Годовая",
+      "quarterly": "Квартальная"
+    },
+    "units": {
+      "units": "Единицы",
+      "thousands": "Тысячи",
+      "millions": "Миллионы"
+    },
+    "unitsShort": {
+      "units": "ед.",
+      "thousands": "тыс.",
+      "millions": "млн"
+    },
+    "form": {
+      "expensesPositiveHint": "Расходы вводятся положительными числами.",
+      "periodEndRequired": "Укажите дату окончания периода.",
+      "duplicatePeriod": "Отчётность за этот период уже существует."
+    },
+    "warnings": {
+      "subtotalMismatch": "≠ сумме составляющих ({{expected}})",
+      "balanceEquation": "Итого активы не равны итогу капитала и обязательств."
+    },
+    "sections": {
+      "nonCurrentAssets": "Внеоборотные активы",
+      "currentAssets": "Оборотные активы",
+      "totalAssets": "Активы",
+      "equity": "Капитал",
+      "nonCurrentLiabilities": "Долгосрочные обязательства",
+      "currentLiabilities": "Краткосрочные обязательства",
+      "totalLiabilities": "Итого",
+      "profitAndLoss": "Прибыли и убытки"
+    },
+    "lines": {
+      "property_plant_equipment": "Основные средства",
+      "intangible_assets": "Нематериальные активы",
+      "goodwill": "Гудвил",
+      "investment_property": "Инвестиционная недвижимость",
+      "long_term_investments": "Долгосрочные финансовые вложения",
+      "deferred_tax_assets": "Отложенные налоговые активы",
+      "other_non_current_assets": "Прочие внеоборотные активы",
+      "total_non_current_assets": "Итого внеоборотные активы",
+      "inventories": "Запасы",
+      "trade_receivables": "Торговая дебиторская задолженность",
+      "other_receivables": "Прочая дебиторская задолженность",
+      "short_term_investments": "Краткосрочные финансовые вложения",
+      "cash_and_equivalents": "Денежные средства и эквиваленты",
+      "other_current_assets": "Прочие оборотные активы",
+      "total_current_assets": "Итого оборотные активы",
+      "total_assets": "Итого активы",
+      "share_capital": "Уставный капитал",
+      "retained_earnings": "Нераспределённая прибыль",
+      "other_reserves": "Прочие резервы",
+      "non_controlling_interests": "Неконтролирующие доли",
+      "total_equity": "Итого капитал",
+      "long_term_borrowings": "Долгосрочные кредиты и займы",
+      "deferred_tax_liabilities": "Отложенные налоговые обязательства",
+      "long_term_provisions": "Долгосрочные оценочные обязательства",
+      "other_non_current_liabilities": "Прочие долгосрочные обязательства",
+      "total_non_current_liabilities": "Итого долгосрочные обязательства",
+      "short_term_borrowings": "Краткосрочные кредиты и займы",
+      "trade_payables": "Торговая кредиторская задолженность",
+      "other_payables": "Прочая кредиторская задолженность",
+      "current_tax_liabilities": "Обязательства по текущему налогу",
+      "short_term_provisions": "Краткосрочные оценочные обязательства",
+      "other_current_liabilities": "Прочие краткосрочные обязательства",
+      "total_current_liabilities": "Итого краткосрочные обязательства",
+      "total_liabilities": "Итого обязательства",
+      "total_equity_and_liabilities": "Итого капитал и обязательства",
+      "revenue": "Выручка",
+      "cost_of_sales": "Себестоимость продаж",
+      "gross_profit": "Валовая прибыль",
+      "distribution_expenses": "Коммерческие расходы",
+      "administrative_expenses": "Административные расходы",
+      "other_operating_income": "Прочие операционные доходы",
+      "other_operating_expenses": "Прочие операционные расходы",
+      "operating_profit": "Операционная прибыль",
+      "finance_income": "Финансовые доходы",
+      "finance_costs": "Финансовые расходы",
+      "other_non_operating": "Прочие внереализационные статьи",
+      "profit_before_tax": "Прибыль до налогообложения",
+      "income_tax": "Расход по налогу на прибыль",
+      "net_profit": "Чистая прибыль",
+      "depreciation_amortization": "Амортизация (справочно)"
+    },
+    "ratioGroups": {
+      "profitability": "Рентабельность",
+      "solvency": "Кредитоспособность и платёжеспособность",
+      "efficiency": "Эффективность"
+    },
+    "ratios": {
+      "gross_margin": "Валовая рентабельность",
+      "operating_margin": "Операционная рентабельность",
+      "net_margin": "Чистая рентабельность",
+      "ebitda_margin": "Рентабельность по EBITDA",
+      "roa": "Рентабельность активов (ROA)",
+      "roe": "Рентабельность капитала (ROE)",
+      "current_ratio": "Коэффициент текущей ликвидности",
+      "quick_ratio": "Коэффициент быстрой ликвидности",
+      "cash_ratio": "Коэффициент абсолютной ликвидности",
+      "debt_to_equity": "Долг / собственный капитал",
+      "liabilities_to_assets": "Обязательства / активы",
+      "interest_coverage": "Покрытие процентов",
+      "net_debt_to_ebitda": "Чистый долг / EBITDA",
+      "asset_turnover": "Оборачиваемость активов",
+      "receivables_days": "Оборачиваемость дебиторской задолженности, дн.",
+      "inventory_days": "Оборачиваемость запасов, дн.",
+      "payables_days": "Оборачиваемость кредиторской задолженности, дн.",
+      "working_capital_cycle": "Цикл оборотного капитала, дн."
+    }
   }
 }

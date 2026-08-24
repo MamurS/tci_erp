@@ -4,7 +4,7 @@ import { AppShell } from './components/layout/AppShell'
 import { LoginPage } from './pages/LoginPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { NotFoundPage } from './pages/NotFoundPage'
-import { BuyersPage } from './features/buyers'
+import { BuyerDetailPage, BuyersPage, StatementFormPage } from './features/buyers'
 import { LimitsPage } from './features/limits'
 import { PolicyholdersPage } from './features/policyholders'
 import { PoliciesPage } from './features/policies'
@@ -20,6 +20,9 @@ export default function App() {
         <Route element={<AppShell />}>
           <Route index element={<DashboardPage />} />
           <Route path="buyers" element={<BuyersPage />} />
+          <Route path="buyers/:id" element={<BuyerDetailPage />} />
+          <Route path="buyers/:id/statements/new" element={<StatementFormPage />} />
+          <Route path="buyers/:id/statements/:statementId/edit" element={<StatementFormPage />} />
           <Route path="limits" element={<LimitsPage />} />
           <Route path="policyholders" element={<PolicyholdersPage />} />
           <Route path="policies" element={<PoliciesPage />} />

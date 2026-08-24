@@ -1,4 +1,6 @@
 import { useTranslation } from 'react-i18next'
+import { EmptyState } from './primitives'
+import { PageHeader } from './primitives'
 
 interface StubPageProps {
   /** i18n key of the section title, e.g. "nav.buyers" */
@@ -9,12 +11,9 @@ interface StubPageProps {
 export function StubPage({ titleKey }: StubPageProps) {
   const { t } = useTranslation()
   return (
-    <div className="page">
-      <h1 className="page-title">{t(titleKey)}</h1>
-      <div className="stub-card">
-        <p className="stub-title">{t('common.comingSoon')}</p>
-        <p className="stub-hint">{t('common.comingSoonHint')}</p>
-      </div>
+    <div>
+      <PageHeader title={t(titleKey)} />
+      <EmptyState title={t('common.comingSoon')} hint={t('common.comingSoonHint')} />
     </div>
   )
 }

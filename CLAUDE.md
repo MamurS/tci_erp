@@ -68,8 +68,9 @@ Underwriting authority: decisions above a user's authority limit must route to a
 
 ## Current status / roadmap
 
-- [ ] Phase 0: scaffold (repo, Vite app, Supabase project, auth, roles, i18n, layout)
-- [ ] Phase 1: buyers registry + credit limit requests/decisions (UI will be modeled on screenshots of our legacy system — to be provided)
+- [x] Phase 0: scaffold (repo, Vite app, Supabase project, auth, roles, i18n, layout)
+- [x] Phase 1a: Financial Analysis — design system, buyers registry, IFRS statement spreading (BS/P&L), vertical/horizontal analysis, ratios (see DESIGN.md)
+- [ ] Phase 1b: credit limit requests/decisions (UI will be modeled on screenshots of our legacy system — to be provided)
 - [ ] Phase 2: policyholders, quotations, policies
 - [ ] Phase 3: declarations, premium booking, overdues
 - [ ] Phase 4: claims & recoveries

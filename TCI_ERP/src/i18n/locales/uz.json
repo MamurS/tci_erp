@@ -41,10 +41,201 @@
     "comingSoonHint": "U keyingi bosqichda amalga oshiriladi.",
     "notFound": "Sahifa topilmadi",
     "backHome": "Bosh sahifaga",
-    "noAccess": "Sizda ushbu bo'limga ruxsat yo'q"
+    "noAccess": "Sizda ushbu bo'limga ruxsat yo'q",
+    "save": "Saqlash",
+    "saving": "Saqlanmoqda…",
+    "cancel": "Bekor qilish",
+    "edit": "Tahrirlash",
+    "delete": "O'chirish",
+    "confirmDelete": "O'chirishni tasdiqlash",
+    "yes": "Ha",
+    "no": "Yo'q",
+    "notSelected": "Tanlanmagan",
+    "saveFailed": "Saqlab bo'lmadi. Qayta urinib ko'ring."
   },
   "dashboard": {
     "welcome": "Xush kelibsiz, {{email}}",
     "roleLabel": "Sizning rolingiz"
+  },
+  "buyers": {
+    "subtitle": "Kredit bahosidagi xaridorlar (debitorlar) reyestri",
+    "addBuyer": "Xaridor qo'shish",
+    "editBuyer": "Xaridorni tahrirlash",
+    "searchPlaceholder": "Nomi bo'yicha qidirish…",
+    "allCountries": "Barcha mamlakatlar",
+    "allIndustries": "Barcha tarmoqlar",
+    "empty": "Xaridorlar topilmadi",
+    "emptyHint": "Moliyaviy hisobot kiritishni boshlash uchun birinchi xaridorni qo'shing.",
+    "latestStatement": "Oxirgi hisobot",
+    "createdAt": "Yaratilgan",
+    "notFound": "Xaridor topilmadi",
+    "backToList": "Xaridorlar ro'yxatiga",
+    "basicInfo": "Asosiy ma'lumotlar",
+    "tabs": {
+      "overview": "Umumiy",
+      "financials": "Moliya",
+      "rating": "Reyting va limit"
+    },
+    "ratingStub": {
+      "title": "Modul ishlab chiqilmoqda",
+      "hint": "Kredit reytingi va limitini avtomatik hisoblash bu yerga analitik xizmat API orqali ulanadi."
+    },
+    "ratingSummary": {
+      "title": "Kredit reytingi va limiti",
+      "pending": "Baholanmagan",
+      "hint": "Reyting va limit bo'yicha xulosa analitik modul ulangach shu yerda ko'rinadi."
+    },
+    "fields": {
+      "name": "Nomi",
+      "country": "Mamlakat",
+      "industry": "Tarmoq",
+      "registrationNumber": "Ro'yxatga olish raqami",
+      "website": "Veb-sayt",
+      "notes": "Izohlar"
+    }
+  },
+  "fin": {
+    "noStatements": "Moliyaviy hisobot hali kiritilmagan",
+    "noStatementsHint": "Vertikal/gorizontal tahlil va koeffitsientlarni ochish uchun birinchi hisobotni kiriting.",
+    "addStatement": "Hisobot qo'shish",
+    "editStatement": "Hisobotni tahrirlash",
+    "manageStatements": "Hisobotlar",
+    "periods": "Davrlar",
+    "mixedCurrencyWarning": "Tanlangan hisobotlar valyuta yoki o'lchov birligi bo'yicha farq qiladi — ko'rsatkichlar bevosita taqqoslanmaydi (bu bosqichda konvertatsiya qilinmaydi).",
+    "showEmptyLines": "Bo'sh qatorlarni ko'rsatish",
+    "annualizedFootnote": "yillik hisobga keltirilgan (choraklik oqim ko'rsatkichlari ×4)",
+    "lineHeader": "Modda",
+    "ratioHeader": "Ko'rsatkich",
+    "amount": "Summa",
+    "shareOfBase": "Jamiga %",
+    "deltaVs": "Δ% {{period}} ga",
+    "balanceSheetTitle": "Buxgalteriya balansi",
+    "incomeStatementTitle": "Foyda va zararlar hisoboti",
+    "tabs": {
+      "balance": "Balans",
+      "pnl": "FvZ",
+      "ratios": "Koeffitsientlar"
+    },
+    "fields": {
+      "period": "Davr",
+      "periodEnd": "Davr oxiri",
+      "kind": "Turi",
+      "currency": "Valyuta",
+      "unit": "O'lchov birligi",
+      "audited": "Auditdan o'tgan",
+      "fiscalYear": "Moliyaviy yil",
+      "fiscalQuarter": "Chorak",
+      "source": "Manba"
+    },
+    "kinds": {
+      "annual": "Yillik",
+      "quarterly": "Choraklik"
+    },
+    "units": {
+      "units": "Birliklar",
+      "thousands": "Minglar",
+      "millions": "Millionlar"
+    },
+    "unitsShort": {
+      "units": "birlik",
+      "thousands": "ming",
+      "millions": "mln"
+    },
+    "form": {
+      "expensesPositiveHint": "Xarajatlar musbat son sifatida kiritiladi.",
+      "periodEndRequired": "Davr tugash sanasini kiriting.",
+      "duplicatePeriod": "Ushbu davr uchun hisobot allaqachon mavjud."
+    },
+    "warnings": {
+      "subtotalMismatch": "≠ tarkibiy qismlar yig'indisiga ({{expected}})",
+      "balanceEquation": "Jami aktivlar jami kapital va majburiyatlarga teng emas."
+    },
+    "sections": {
+      "nonCurrentAssets": "Uzoq muddatli aktivlar",
+      "currentAssets": "Joriy aktivlar",
+      "totalAssets": "Aktivlar",
+      "equity": "Kapital",
+      "nonCurrentLiabilities": "Uzoq muddatli majburiyatlar",
+      "currentLiabilities": "Qisqa muddatli majburiyatlar",
+      "totalLiabilities": "Jami",
+      "profitAndLoss": "Foyda va zararlar"
+    },
+    "lines": {
+      "property_plant_equipment": "Asosiy vositalar",
+      "intangible_assets": "Nomoddiy aktivlar",
+      "goodwill": "Gudvil",
+      "investment_property": "Investitsiya mulki",
+      "long_term_investments": "Uzoq muddatli investitsiyalar",
+      "deferred_tax_assets": "Kechiktirilgan soliq aktivlari",
+      "other_non_current_assets": "Boshqa uzoq muddatli aktivlar",
+      "total_non_current_assets": "Jami uzoq muddatli aktivlar",
+      "inventories": "Tovar-moddiy zaxiralar",
+      "trade_receivables": "Savdo debitorlik qarzlari",
+      "other_receivables": "Boshqa debitorlik qarzlari",
+      "short_term_investments": "Qisqa muddatli investitsiyalar",
+      "cash_and_equivalents": "Pul mablag'lari va ekvivalentlari",
+      "other_current_assets": "Boshqa joriy aktivlar",
+      "total_current_assets": "Jami joriy aktivlar",
+      "total_assets": "Jami aktivlar",
+      "share_capital": "Ustav kapitali",
+      "retained_earnings": "Taqsimlanmagan foyda",
+      "other_reserves": "Boshqa zaxiralar",
+      "non_controlling_interests": "Nazorat qilmaydigan ulushlar",
+      "total_equity": "Jami kapital",
+      "long_term_borrowings": "Uzoq muddatli kredit va qarzlar",
+      "deferred_tax_liabilities": "Kechiktirilgan soliq majburiyatlari",
+      "long_term_provisions": "Uzoq muddatli baholash majburiyatlari",
+      "other_non_current_liabilities": "Boshqa uzoq muddatli majburiyatlar",
+      "total_non_current_liabilities": "Jami uzoq muddatli majburiyatlar",
+      "short_term_borrowings": "Qisqa muddatli kredit va qarzlar",
+      "trade_payables": "Savdo kreditorlik qarzlari",
+      "other_payables": "Boshqa kreditorlik qarzlari",
+      "current_tax_liabilities": "Joriy soliq majburiyatlari",
+      "short_term_provisions": "Qisqa muddatli baholash majburiyatlari",
+      "other_current_liabilities": "Boshqa qisqa muddatli majburiyatlar",
+      "total_current_liabilities": "Jami qisqa muddatli majburiyatlar",
+      "total_liabilities": "Jami majburiyatlar",
+      "total_equity_and_liabilities": "Jami kapital va majburiyatlar",
+      "revenue": "Tushum",
+      "cost_of_sales": "Sotilgan mahsulot tannarxi",
+      "gross_profit": "Yalpi foyda",
+      "distribution_expenses": "Tijorat xarajatlari",
+      "administrative_expenses": "Ma'muriy xarajatlar",
+      "other_operating_income": "Boshqa operatsion daromadlar",
+      "other_operating_expenses": "Boshqa operatsion xarajatlar",
+      "operating_profit": "Operatsion foyda",
+      "finance_income": "Moliyaviy daromadlar",
+      "finance_costs": "Moliyaviy xarajatlar",
+      "other_non_operating": "Boshqa nooperatsion moddalar",
+      "profit_before_tax": "Soliqqacha foyda",
+      "income_tax": "Foyda solig'i xarajati",
+      "net_profit": "Sof foyda",
+      "depreciation_amortization": "Amortizatsiya (ma'lumot uchun)"
+    },
+    "ratioGroups": {
+      "profitability": "Rentabellik",
+      "solvency": "Kreditga layoqat va to'lov qobiliyati",
+      "efficiency": "Samaradorlik"
+    },
+    "ratios": {
+      "gross_margin": "Yalpi rentabellik",
+      "operating_margin": "Operatsion rentabellik",
+      "net_margin": "Sof rentabellik",
+      "ebitda_margin": "EBITDA rentabelligi",
+      "roa": "Aktivlar rentabelligi (ROA)",
+      "roe": "Kapital rentabelligi (ROE)",
+      "current_ratio": "Joriy likvidlik koeffitsienti",
+      "quick_ratio": "Tezkor likvidlik koeffitsienti",
+      "cash_ratio": "Mutlaq likvidlik koeffitsienti",
+      "debt_to_equity": "Qarz / o'z kapitali",
+      "liabilities_to_assets": "Majburiyatlar / aktivlar",
+      "interest_coverage": "Foizlarni qoplash",
+      "net_debt_to_ebitda": "Sof qarz / EBITDA",
+      "asset_turnover": "Aktivlar aylanmasi",
+      "receivables_days": "Debitorlik qarzi aylanishi, kun",
+      "inventory_days": "Zaxiralar aylanishi, kun",
+      "payables_days": "Kreditorlik qarzi aylanishi, kun",
+      "working_capital_cycle": "Aylanma kapital sikli, kun"
+    }
   }
 }

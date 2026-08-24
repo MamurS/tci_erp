@@ -41,10 +41,201 @@
     "comingSoonHint": "It will be implemented in an upcoming phase.",
     "notFound": "Page not found",
     "backHome": "Back to home",
-    "noAccess": "You do not have access to this section"
+    "noAccess": "You do not have access to this section",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirmDelete": "Confirm deletion",
+    "yes": "Yes",
+    "no": "No",
+    "notSelected": "Not selected",
+    "saveFailed": "Save failed. Please try again."
   },
   "dashboard": {
     "welcome": "Welcome, {{email}}",
     "roleLabel": "Your role"
+  },
+  "buyers": {
+    "subtitle": "Register of buyers (debtors) under credit assessment",
+    "addBuyer": "Add buyer",
+    "editBuyer": "Edit buyer",
+    "searchPlaceholder": "Search by name…",
+    "allCountries": "All countries",
+    "allIndustries": "All industries",
+    "empty": "No buyers found",
+    "emptyHint": "Add the first buyer to start entering financial statements.",
+    "latestStatement": "Latest statement",
+    "createdAt": "Created",
+    "notFound": "Buyer not found",
+    "backToList": "Back to buyers",
+    "basicInfo": "Basic information",
+    "tabs": {
+      "overview": "Overview",
+      "financials": "Financials",
+      "rating": "Rating & Limit"
+    },
+    "ratingStub": {
+      "title": "Module under development",
+      "hint": "Automatic credit rating and credit limit calculation will be connected here via the analytics API."
+    },
+    "ratingSummary": {
+      "title": "Credit rating & limit",
+      "pending": "Not assessed",
+      "hint": "The rating and limit summary will appear here once the analytics module is connected."
+    },
+    "fields": {
+      "name": "Name",
+      "country": "Country",
+      "industry": "Industry",
+      "registrationNumber": "Registration number",
+      "website": "Website",
+      "notes": "Notes"
+    }
+  },
+  "fin": {
+    "noStatements": "No financial statements yet",
+    "noStatementsHint": "Enter the first statement to unlock vertical/horizontal analysis and ratios.",
+    "addStatement": "Add statement",
+    "editStatement": "Edit statement",
+    "manageStatements": "Statements",
+    "periods": "Periods",
+    "mixedCurrencyWarning": "Displayed statements differ in currency or unit — figures are not directly comparable (no conversion is applied in this phase).",
+    "showEmptyLines": "Show empty lines",
+    "annualizedFootnote": "annualized (quarterly flow figures ×4)",
+    "lineHeader": "Line item",
+    "ratioHeader": "Ratio",
+    "amount": "Amount",
+    "shareOfBase": "% of total",
+    "deltaVs": "Δ% vs {{period}}",
+    "balanceSheetTitle": "Balance sheet",
+    "incomeStatementTitle": "Profit & loss",
+    "tabs": {
+      "balance": "Balance Sheet",
+      "pnl": "P&L",
+      "ratios": "Ratios"
+    },
+    "fields": {
+      "period": "Period",
+      "periodEnd": "Period end",
+      "kind": "Type",
+      "currency": "Currency",
+      "unit": "Unit",
+      "audited": "Audited",
+      "fiscalYear": "Fiscal year",
+      "fiscalQuarter": "Quarter",
+      "source": "Source"
+    },
+    "kinds": {
+      "annual": "Annual",
+      "quarterly": "Quarterly"
+    },
+    "units": {
+      "units": "Units",
+      "thousands": "Thousands",
+      "millions": "Millions"
+    },
+    "unitsShort": {
+      "units": "units",
+      "thousands": "'000",
+      "millions": "mln"
+    },
+    "form": {
+      "expensesPositiveHint": "Enter expenses as positive numbers.",
+      "periodEndRequired": "Period end date is required.",
+      "duplicatePeriod": "A statement for this period already exists."
+    },
+    "warnings": {
+      "subtotalMismatch": "≠ sum of components ({{expected}})",
+      "balanceEquation": "Total assets do not equal total equity and liabilities."
+    },
+    "sections": {
+      "nonCurrentAssets": "Non-current assets",
+      "currentAssets": "Current assets",
+      "totalAssets": "Assets",
+      "equity": "Equity",
+      "nonCurrentLiabilities": "Non-current liabilities",
+      "currentLiabilities": "Current liabilities",
+      "totalLiabilities": "Total",
+      "profitAndLoss": "Profit and loss"
+    },
+    "lines": {
+      "property_plant_equipment": "Property, plant and equipment",
+      "intangible_assets": "Intangible assets",
+      "goodwill": "Goodwill",
+      "investment_property": "Investment property",
+      "long_term_investments": "Long-term investments",
+      "deferred_tax_assets": "Deferred tax assets",
+      "other_non_current_assets": "Other non-current assets",
+      "total_non_current_assets": "Total non-current assets",
+      "inventories": "Inventories",
+      "trade_receivables": "Trade receivables",
+      "other_receivables": "Other receivables",
+      "short_term_investments": "Short-term investments",
+      "cash_and_equivalents": "Cash and cash equivalents",
+      "other_current_assets": "Other current assets",
+      "total_current_assets": "Total current assets",
+      "total_assets": "Total assets",
+      "share_capital": "Share capital",
+      "retained_earnings": "Retained earnings",
+      "other_reserves": "Other reserves",
+      "non_controlling_interests": "Non-controlling interests",
+      "total_equity": "Total equity",
+      "long_term_borrowings": "Long-term borrowings",
+      "deferred_tax_liabilities": "Deferred tax liabilities",
+      "long_term_provisions": "Long-term provisions",
+      "other_non_current_liabilities": "Other non-current liabilities",
+      "total_non_current_liabilities": "Total non-current liabilities",
+      "short_term_borrowings": "Short-term borrowings",
+      "trade_payables": "Trade payables",
+      "other_payables": "Other payables",
+      "current_tax_liabilities": "Current tax liabilities",
+      "short_term_provisions": "Short-term provisions",
+      "other_current_liabilities": "Other current liabilities",
+      "total_current_liabilities": "Total current liabilities",
+      "total_liabilities": "Total liabilities",
+      "total_equity_and_liabilities": "Total equity and liabilities",
+      "revenue": "Revenue",
+      "cost_of_sales": "Cost of sales",
+      "gross_profit": "Gross profit",
+      "distribution_expenses": "Distribution expenses",
+      "administrative_expenses": "Administrative expenses",
+      "other_operating_income": "Other operating income",
+      "other_operating_expenses": "Other operating expenses",
+      "operating_profit": "Operating profit",
+      "finance_income": "Finance income",
+      "finance_costs": "Finance costs",
+      "other_non_operating": "Other non-operating items",
+      "profit_before_tax": "Profit before tax",
+      "income_tax": "Income tax expense",
+      "net_profit": "Net profit",
+      "depreciation_amortization": "Depreciation and amortization (memo)"
+    },
+    "ratioGroups": {
+      "profitability": "Profitability",
+      "solvency": "Creditworthiness & solvency",
+      "efficiency": "Efficiency"
+    },
+    "ratios": {
+      "gross_margin": "Gross margin",
+      "operating_margin": "Operating margin",
+      "net_margin": "Net margin",
+      "ebitda_margin": "EBITDA margin",
+      "roa": "Return on assets (ROA)",
+      "roe": "Return on equity (ROE)",
+      "current_ratio": "Current ratio",
+      "quick_ratio": "Quick ratio",
+      "cash_ratio": "Cash ratio",
+      "debt_to_equity": "Debt / equity",
+      "liabilities_to_assets": "Total liabilities / total assets",
+      "interest_coverage": "Interest coverage",
+      "net_debt_to_ebitda": "Net debt / EBITDA",
+      "asset_turnover": "Asset turnover",
+      "receivables_days": "Receivables days (DSO)",
+      "inventory_days": "Inventory days (DIO)",
+      "payables_days": "Payables days (DPO)",
+      "working_capital_cycle": "Working capital cycle, days"
+    }
   }
 }

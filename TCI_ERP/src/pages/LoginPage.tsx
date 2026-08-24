@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../auth/AuthContext'
+import { Button, Card, Field, Input } from '../components/ui'
 import { LanguageSwitcher } from '../components/layout/LanguageSwitcher'
 
 export function LoginPage() {
@@ -31,48 +32,50 @@ export function LoginPage() {
   }
 
   return (
-    <div className="login-page">
-      <div className="login-lang">
+    <div className="relative flex min-h-screen items-center justify-center bg-slate-50 p-4">
+      <div className="absolute top-4 right-4">
         <LanguageSwitcher />
       </div>
-      <form className="login-card" onSubmit={(e) => void handleSubmit(e)}>
-        <h1 className="login-title">{t('auth.signInTitle')}</h1>
-        <p className="login-subtitle">{t('auth.signInSubtitle')}</p>
+      <Card className="w-full max-w-sm p-8">
+        <form className="flex flex-col gap-4" onSubmit={(e) => void handleSubmit(e)}>
+          <div>
+            <h1 className="text-xl font-semibold text-slate-900">{t('auth.signInTitle')}</h1>
+            <p className="mt-0.5 text-[13px] text-slate-500">{t('auth.signInSubtitle')}</p>
+          </div>
 
-        <label className="field">
-          <span className="field-label">{t('auth.email')}</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="email"
-            required
-          />
-        </label>
+          <Field label={t('auth.email')}>
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              required
+            />
+          </Field>
 
-        <label className="field">
-          <span className="field-label">{t('auth.password')}</span>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
-            required
-          />
-        </label>
+          <Field label={t('auth.password')}>
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+          </Field>
 
-        {error && (
-          <p className="form-error" role="alert">
-            {error}
-          </p>
-        )}
+          {error && (
+            <p className="text-[13px] text-neg-500" role="alert">
+              {error}
+            </p>
+          )}
 
-        <button type="submit" className="btn btn-primary" disabled={submitting}>
-          {submitting ? t('auth.signingIn') : t('auth.signIn')}
-        </button>
+          <Button type="submit" disabled={submitting} className="justify-center">
+            {submitting ? t('auth.signingIn') : t('auth.signIn')}
+          </Button>
 
-        <p className="login-note">{t('auth.noSelfSignup')}</p>
-      </form>
+          <p className="text-center text-xs text-slate-400">{t('auth.noSelfSignup')}</p>
+        </form>
+      </Card>
     </div>
   )
 }
