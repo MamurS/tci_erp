@@ -114,6 +114,10 @@ export interface StatementHeaderInput {
   unit: 'units' | 'thousands' | 'millions'
   audited: boolean
   source: string | null
+  accounting_basis?: 'ifrs' | 'local'
+  /** Primary template (the balance-sheet form) when accounting_basis='local'. */
+  template_id?: string | null
+  mapping_status?: 'n/a' | 'mapped' | 'stale'
 }
 
 export interface StatementSaveInput {

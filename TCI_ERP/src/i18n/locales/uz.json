@@ -236,6 +236,84 @@
       "inventory_days": "Zaxiralar aylanishi, kun",
       "payables_days": "Kreditorlik qarzi aylanishi, kun",
       "working_capital_cycle": "Aylanma kapital sikli, kun"
+    },
+    "local": {
+      "basis": "Hisob standarti",
+      "basisIfrs": "XMHS (IFRS)",
+      "basisLocal": "Mahalliy shakl (BHMS)",
+      "noTemplates": "Mahalliy shablonlar mavjud emas.",
+      "noTemplatesForCountry": "Bu mamlakat uchun mahalliy shablonlar hali yo‘q",
+      "enterAsReported": "Raqamlarni rasmiy shakldagidek aynan kiriting.",
+      "crossCheckTitle": "XMHS mapping tekshiruvi:",
+      "crossCheckItem": "{{line}}-satr: shaklda {{local}}, hisoblangan {{column}} = {{computed}}",
+      "badgeLocal": "UZ BHMS",
+      "badgeIfrs": "XMHS",
+      "mappedIndicator": "Mahalliy shakldan o‘girilgan:",
+      "viewSource": "asl shakl",
+      "sourceTitle": "Asl mahalliy hisobot",
+      "mappingStatus": {
+        "mapped": "o‘girilgan",
+        "stale": "eskirgan"
+      }
+    },
+    "localSections": {
+      "assets_long_term": "I. Uzoq muddatli aktivlar",
+      "assets_current": "II. Joriy aktivlar",
+      "equity": "I. O‘z mablag‘lari manbalari",
+      "liabilities_long_term": "II. Majburiyatlar — uzoq muddatli",
+      "liabilities_current": "II. Majburiyatlar — joriy",
+      "operating": "Asosiy faoliyat",
+      "financial": "Moliyaviy faoliyat",
+      "result": "Moliyaviy natija"
+    }
+  },
+  "rating": {
+    "needStatements": "Reytingni hisoblash uchun kamida bitta moliyaviy hisobot kiriting.",
+    "statement": "Hisobot",
+    "calculate": "Hisoblash",
+    "calculating": "Hisoblanmoqda…",
+    "serviceUnavailable": "Analitik xizmat mavjud emas. Keyinroq urinib ko‘ring.",
+    "gradeTitle": "Kredit reytingi",
+    "scaleHint": "1–100 shkala, kam — yaxshi",
+    "coverage": "Ma’lumotlar qamrovi: omillar vaznining {{pct}}i",
+    "limitTitle": "Tavsiya etilgan kredit limiti",
+    "model": "Model",
+    "models": {
+      "benchmark": "Bazel (benchmark)",
+      "equity_based": "Kapitalga asoslangan",
+      "none": "Yo‘q"
+    },
+    "trace": "Hisob-kitob izi",
+    "componentsTitle": "Reyting komponenti",
+    "value": "Qiymat",
+    "score": "Ball",
+    "weight": "Vazn",
+    "band": "Diapazon",
+    "historyTitle": "Baholashlar tarixi",
+    "historyDate": "Sana",
+    "engine": "Dvijok",
+    "factors": {
+      "net_profitability": "Sof rentabellik",
+      "equity_ratio": "O‘z kapitali ulushi",
+      "debt_to_assets": "Qarzning aktivlarga nisbati",
+      "total_assets_dynamic": "Aktivlar dinamikasi",
+      "current_ratio": "Joriy likvidlik",
+      "interest_coverage": "Foizlarni qoplash",
+      "interest_coverage_dynamic": "Foizlarni qoplash dinamikasi",
+      "debt_to_equity": "Moliyaviy leveraj",
+      "cash_conversion_cycle": "Pul aylanish sikli",
+      "revenue_usd": "Biznes ko‘lami (tushum)",
+      "age_years": "Kompaniya yoshi",
+      "debt_to_ebit": "Qarzning EBITga nisbati",
+      "revenue_dynamic": "Tushum dinamikasi"
+    },
+    "adjustments": {
+      "weak_equity_dominance": "Zaif kapitallashuv ustun",
+      "negative_equity": "Manfiy o‘z kapitali",
+      "negative_equity_with_loss": "Manfiy kapital va zarar",
+      "new_company": "Qisqa faoliyat tarixi",
+      "litigation_pressure": "Sud yuklamasi",
+      "insufficient_data": "Ma’lumotlar yetarli emas"
     }
   }
 }

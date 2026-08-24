@@ -59,3 +59,26 @@ Connect the GitHub repo to Cloudflare Pages with:
 - **Environment variables:** `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 
 SPA routing is handled by `public/_redirects` (`/* /index.html 200`), which is copied into `dist` at build time.
+
+## Analytics service (rating & credit limit)
+
+The Rating & Limit tab calls a separate FastAPI service in
+`services/analytics/` (localhost only for now). Start it before using the
+tab:
+
+```bash
+cd services/analytics
+uv sync
+uv run uvicorn app.main:app --port 8000
+```
+
+Run its tests:
+
+```bash
+cd services/analytics
+uv run pytest
+```
+
+Frontend configuration: `VITE_ANALYTICS_API_URL` in `.env`
+(default `http://localhost:8000`). When the service is down the tab shows
+"Analytics service unavailable" — the rest of the app is unaffected.

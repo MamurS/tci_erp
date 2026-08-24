@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, EmptyState, Modal, Spinner, Table, Tabs } from '../../../components/ui'
-import { useDeleteStatement, useStatements } from '../api'
+import { useBuyer, useDeleteStatement, useStatements } from '../api'
 import type { StatementBundle } from '../types'
 import { statementPeriodLabel } from '../types'
+import { LocalSourceModal } from './LocalSourceModal'
 import {
   balanceSheetColumns,
   defaultSelection,
@@ -22,9 +23,11 @@ type SubTab = 'balance' | 'pnl' | 'ratios'
 export function FinancialsTab({ buyerId }: { buyerId: string }) {
   const { t } = useTranslation()
   const { data: statements, isLoading } = useStatements(buyerId)
+  const { data: buyer } = useBuyer(buyerId)
 
   const [subTab, setSubTab] = useState<SubTab>('balance')
   const [manageOpen, setManageOpen] = useState(false)
+  const [sourceStatement, setSourceStatement] = useState<StatementBundle | null>(null)
   /** null = default (last 3). */
   const [selectedIds, setSelectedIds] = useState<string[] | null>(null)
 
@@ -75,6 +78,24 @@ export function FinancialsTab({ buyerId }: { buyerId: string }) {
         </div>
       )}
 
+      {displayed.some((s) => s.accounting_basis === 'local') && (
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-accent-100 bg-accent-50 px-4 py-2 text-[13px] text-accent-700">
+          <span>{t('fin.local.mappedIndicator')}</span>
+          {displayed
+            .filter((s) => s.accounting_basis === 'local')
+            .map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setSourceStatement(s)}
+                className="font-medium underline decoration-accent-500/50 underline-offset-2 hover:decoration-accent-700"
+              >
+                {statementPeriodLabel(s)} — {t('fin.local.viewSource')}
+              </button>
+            ))}
+        </div>
+      )}
+
       <Tabs
         size="sm"
         tabs={[
@@ -114,6 +135,15 @@ export function FinancialsTab({ buyerId }: { buyerId: string }) {
         buyerId={buyerId}
         statements={all}
       />
+
+      {sourceStatement && (
+        <LocalSourceModal
+          open
+          onClose={() => setSourceStatement(null)}
+          statement={sourceStatement}
+          countryCode={buyer?.country_code ?? ''}
+        />
+      )}
     </div>
   )
 }
@@ -206,7 +236,21 @@ function ManageStatementsModal({
         <tbody>
           {ordered.map((s) => (
             <tr key={s.id}>
-              <td className="font-medium">{statementPeriodLabel(s)}</td>
+              <td className="font-medium">
+                {statementPeriodLabel(s)}
+                <span className="ml-2 inline-flex gap-1">
+                  <Badge tone={s.accounting_basis === 'local' ? 'accent' : 'neutral'}>
+                    {s.accounting_basis === 'local'
+                      ? t('fin.local.badgeLocal')
+                      : t('fin.local.badgeIfrs')}
+                  </Badge>
+                  {s.accounting_basis === 'local' && s.mapping_status !== 'n/a' && (
+                    <Badge tone={s.mapping_status === 'mapped' ? 'pos' : 'warn'}>
+                      {t(`fin.local.mappingStatus.${s.mapping_status}`)}
+                    </Badge>
+                  )}
+                </span>
+              </td>
               <td>{s.period_end_date}</td>
               <td>{t(`fin.kinds.${s.statement_kind}`)}</td>
               <td>{s.currency_code}</td>

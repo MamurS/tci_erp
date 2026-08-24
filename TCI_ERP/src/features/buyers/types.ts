@@ -85,6 +85,9 @@ export type IncomeStatementKey = (typeof INCOME_STATEMENT_KEYS)[number]
 export type BalanceSheetValues = Record<BalanceSheetKey, number | null>
 export type IncomeStatementValues = Record<IncomeStatementKey, number | null>
 
+export type AccountingBasis = 'ifrs' | 'local'
+export type MappingStatus = 'n/a' | 'mapped' | 'stale'
+
 export interface FinancialStatement {
   id: string
   buyer_id: string
@@ -96,6 +99,9 @@ export interface FinancialStatement {
   unit: StatementUnit
   audited: boolean
   source: string | null
+  accounting_basis: AccountingBasis
+  template_id: string | null
+  mapping_status: MappingStatus
   created_at: string
   updated_at: string
 }

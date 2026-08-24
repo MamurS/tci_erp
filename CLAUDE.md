@@ -70,7 +70,9 @@ Underwriting authority: decisions above a user's authority limit must route to a
 
 - [x] Phase 0: scaffold (repo, Vite app, Supabase project, auth, roles, i18n, layout)
 - [x] Phase 1a: Financial Analysis — design system, buyers registry, IFRS statement spreading (BS/P&L), vertical/horizontal analysis, ratios (see DESIGN.md)
-- [ ] Phase 1b: credit limit requests/decisions (UI will be modeled on screenshots of our legacy system — to be provided)
+- [x] Phase 1b: Local forms & mapping — UZ NAS templates (F1/F2), local entry, IFRS mapping algorithm with cross-checks
+- [x] Phase 1c: Rating & Limit v1 — services/analytics (FastAPI over credit_engine), credit_assessments history, functional tab
+- [ ] Phase 1d: credit limit requests/decisions (UI will be modeled on screenshots of our legacy system — to be provided)
 - [ ] Phase 2: policyholders, quotations, policies
 - [ ] Phase 3: declarations, premium booking, overdues
 - [ ] Phase 4: claims & recoveries

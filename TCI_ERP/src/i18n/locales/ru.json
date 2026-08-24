@@ -236,6 +236,84 @@
       "inventory_days": "Оборачиваемость запасов, дн.",
       "payables_days": "Оборачиваемость кредиторской задолженности, дн.",
       "working_capital_cycle": "Цикл оборотного капитала, дн."
+    },
+    "local": {
+      "basis": "Стандарт учёта",
+      "basisIfrs": "МСФО",
+      "basisLocal": "Локальная форма (НСБУ)",
+      "noTemplates": "Локальные шаблоны недоступны.",
+      "noTemplatesForCountry": "Для этой страны локальных шаблонов пока нет",
+      "enterAsReported": "Вводите цифры ровно так, как они указаны в официальной форме.",
+      "crossCheckTitle": "Сверка с МСФО-маппингом:",
+      "crossCheckItem": "стр. {{line}}: в форме {{local}}, расчёт {{column}} = {{computed}}",
+      "badgeLocal": "УЗ НСБУ",
+      "badgeIfrs": "МСФО",
+      "mappedIndicator": "Смэппировано из локальной формы:",
+      "viewSource": "исходная форма",
+      "sourceTitle": "Исходная локальная отчётность",
+      "mappingStatus": {
+        "mapped": "смэппировано",
+        "stale": "устарело"
+      }
+    },
+    "localSections": {
+      "assets_long_term": "I. Долгосрочные активы",
+      "assets_current": "II. Текущие активы",
+      "equity": "I. Источники собственных средств",
+      "liabilities_long_term": "II. Обязательства — долгосрочные",
+      "liabilities_current": "II. Обязательства — текущие",
+      "operating": "Основная деятельность",
+      "financial": "Финансовая деятельность",
+      "result": "Финансовый результат"
+    }
+  },
+  "rating": {
+    "needStatements": "Введите хотя бы одну финансовую отчётность для расчёта рейтинга.",
+    "statement": "Отчётность",
+    "calculate": "Рассчитать",
+    "calculating": "Расчёт…",
+    "serviceUnavailable": "Аналитический сервис недоступен. Попробуйте позже.",
+    "gradeTitle": "Кредитный рейтинг",
+    "scaleHint": "Шкала 1–100, меньше — лучше",
+    "coverage": "Покрытие данными: {{pct}} весов факторов",
+    "limitTitle": "Рекомендуемый кредитный лимит",
+    "model": "Модель",
+    "models": {
+      "benchmark": "Базельская (benchmark)",
+      "equity_based": "От капитала",
+      "none": "Нет"
+    },
+    "trace": "Трассировка расчёта",
+    "componentsTitle": "Компонент рейтинга",
+    "value": "Значение",
+    "score": "Балл",
+    "weight": "Вес",
+    "band": "Диапазон",
+    "historyTitle": "История оценок",
+    "historyDate": "Дата",
+    "engine": "Движок",
+    "factors": {
+      "net_profitability": "Чистая рентабельность",
+      "equity_ratio": "Доля собственного капитала",
+      "debt_to_assets": "Долг к активам",
+      "total_assets_dynamic": "Динамика активов",
+      "current_ratio": "Текущая ликвидность",
+      "interest_coverage": "Покрытие процентов",
+      "interest_coverage_dynamic": "Динамика покрытия процентов",
+      "debt_to_equity": "Финансовый левередж",
+      "cash_conversion_cycle": "Цикл оборота денежных средств",
+      "revenue_usd": "Масштаб бизнеса (выручка)",
+      "age_years": "Возраст компании",
+      "debt_to_ebit": "Долг к EBIT",
+      "revenue_dynamic": "Динамика выручки"
+    },
+    "adjustments": {
+      "weak_equity_dominance": "Доминирует слабая капитализация",
+      "negative_equity": "Отрицательный капитал",
+      "negative_equity_with_loss": "Отрицательный капитал с убытком",
+      "new_company": "Короткая операционная история",
+      "litigation_pressure": "Судебная нагрузка",
+      "insufficient_data": "Недостаточно данных"
     }
   }
 }

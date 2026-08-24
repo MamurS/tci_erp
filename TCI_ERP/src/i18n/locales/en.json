@@ -236,6 +236,84 @@
       "inventory_days": "Inventory days (DIO)",
       "payables_days": "Payables days (DPO)",
       "working_capital_cycle": "Working capital cycle, days"
+    },
+    "local": {
+      "basis": "Accounting basis",
+      "basisIfrs": "IFRS",
+      "basisLocal": "Local form (NAS)",
+      "noTemplates": "No statutory templates available.",
+      "noTemplatesForCountry": "No statutory templates for this country yet",
+      "enterAsReported": "Enter figures exactly as reported on the official form.",
+      "crossCheckTitle": "IFRS mapping cross-check:",
+      "crossCheckItem": "line {{line}}: reported {{local}}, mapped {{column}} = {{computed}}",
+      "badgeLocal": "UZ NAS",
+      "badgeIfrs": "IFRS",
+      "mappedIndicator": "Mapped from a local statutory form:",
+      "viewSource": "view source",
+      "sourceTitle": "Original local statement",
+      "mappingStatus": {
+        "mapped": "mapped",
+        "stale": "stale"
+      }
+    },
+    "localSections": {
+      "assets_long_term": "I. Long-term assets",
+      "assets_current": "II. Current assets",
+      "equity": "I. Sources of own funds",
+      "liabilities_long_term": "II. Liabilities — long-term",
+      "liabilities_current": "II. Liabilities — current",
+      "operating": "Operating activity",
+      "financial": "Financing activity",
+      "result": "Financial result"
+    }
+  },
+  "rating": {
+    "needStatements": "Enter at least one financial statement to calculate a rating.",
+    "statement": "Statement",
+    "calculate": "Calculate",
+    "calculating": "Calculating…",
+    "serviceUnavailable": "Analytics service unavailable. Try again later.",
+    "gradeTitle": "Credit rating",
+    "scaleHint": "Scale 1–100, lower is better",
+    "coverage": "Data coverage: {{pct}} of factor weight",
+    "limitTitle": "Suggested credit limit",
+    "model": "Model",
+    "models": {
+      "benchmark": "Benchmark (Basel-style)",
+      "equity_based": "Equity-based",
+      "none": "None"
+    },
+    "trace": "Calculation trace",
+    "componentsTitle": "Rating component",
+    "value": "Value",
+    "score": "Score",
+    "weight": "Weight",
+    "band": "Band",
+    "historyTitle": "Assessment history",
+    "historyDate": "Date",
+    "engine": "Engine",
+    "factors": {
+      "net_profitability": "Net profitability",
+      "equity_ratio": "Equity ratio",
+      "debt_to_assets": "Debt to assets",
+      "total_assets_dynamic": "Total assets trend",
+      "current_ratio": "Current liquidity",
+      "interest_coverage": "Interest coverage",
+      "interest_coverage_dynamic": "Interest coverage trend",
+      "debt_to_equity": "Financial leverage",
+      "cash_conversion_cycle": "Cash conversion cycle",
+      "revenue_usd": "Business scale (revenue)",
+      "age_years": "Company age",
+      "debt_to_ebit": "Debt to EBIT",
+      "revenue_dynamic": "Revenue trend"
+    },
+    "adjustments": {
+      "weak_equity_dominance": "Weak capitalization dominates",
+      "negative_equity": "Negative equity",
+      "negative_equity_with_loss": "Negative equity with a net loss",
+      "new_company": "Short operating history",
+      "litigation_pressure": "Litigation exposure",
+      "insufficient_data": "Insufficient data"
     }
   }
 }

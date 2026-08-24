@@ -15,6 +15,7 @@ import { refName, useBuyer, useUpdateBuyer } from './api'
 import { BuyerFormModal } from './BuyerFormModal'
 import { countryFlag } from '../../lib/countryFlag'
 import { FinancialsTab } from './financials/FinancialsTab'
+import { RatingTab } from './rating/RatingTab'
 import { EM_DASH } from '../../lib/format'
 
 const TAB_KEYS = ['overview', 'financials', 'rating'] as const
@@ -76,9 +77,7 @@ export function BuyerDetailPage() {
       <div className="mt-5">
         {activeTab === 'overview' && <OverviewTab buyerId={id} />}
         {activeTab === 'financials' && <FinancialsTab buyerId={id} />}
-        {activeTab === 'rating' && (
-          <EmptyState title={t('buyers.ratingStub.title')} hint={t('buyers.ratingStub.hint')} />
-        )}
+        {activeTab === 'rating' && <RatingTab buyerId={id} />}
       </div>
     </div>
   )

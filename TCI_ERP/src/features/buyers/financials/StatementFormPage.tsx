@@ -33,6 +33,9 @@ import { BALANCE_SHEET_SECTIONS, INCOME_STATEMENT_SECTIONS } from './lines'
 import type { LineDef, SectionDef } from './lines'
 import { validateBalanceSheet, validateIncomeStatement } from './validation'
 import type { ValidationWarning } from './validation'
+import { LocalStatementForm } from './LocalStatementForm'
+import type { LocalFormState } from './LocalStatementForm'
+import { useCreateLocalStatement, useTemplates, useUpdateLocalStatement } from './localApi'
 
 /** Permissive numeric parsing: "1 234,56" and "1234.56" both accepted. */
 function parseAmount(raw: string): number | null {
@@ -72,6 +75,13 @@ export function StatementFormPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const [basis, setBasis] = useState<'ifrs' | 'local'>('ifrs')
+  const [localState, setLocalState] = useState<LocalFormState | null>(null)
+  const { data: templates } = useTemplates(buyer?.country_code)
+  const createLocalStatement = useCreateLocalStatement(buyerId)
+  const updateLocalStatement = useUpdateLocalStatement(buyerId, statementId ?? '')
+  const localAvailable = Boolean(templates?.length)
+
   useEffect(() => {
     if (existing) {
       setKind(existing.statement_kind)
@@ -82,6 +92,7 @@ export function StatementFormPage() {
       setUnit(existing.unit)
       setAudited(existing.audited)
       setSource(existing.source ?? '')
+      setBasis(existing.accounting_basis)
       setBs({ ...emptyBalanceSheet(), ...existing.balance_sheets })
       setPnl({ ...emptyIncomeStatement(), ...existing.income_statements })
     }
@@ -97,6 +108,7 @@ export function StatementFormPage() {
     }
     setSaving(true)
     setError(null)
+    const primaryTemplate = templates?.find((x) => x.form_kind === 'balance_sheet')
     const header: StatementHeaderInput = {
       buyer_id: buyerId,
       statement_kind: kind,
@@ -107,9 +119,20 @@ export function StatementFormPage() {
       unit,
       audited,
       source: source.trim() || null,
+      accounting_basis: basis,
+      template_id: basis === 'local' ? (primaryTemplate?.id ?? null) : null,
+      mapping_status: basis === 'local' ? 'stale' : 'n/a',
     }
     try {
-      if (isEdit) {
+      if (basis === 'local') {
+        if (!localState?.ready) return
+        const input = { header, ...localState.buildInput() }
+        if (isEdit) {
+          await updateLocalStatement.mutateAsync(input)
+        } else {
+          await createLocalStatement.mutateAsync(input)
+        }
+      } else if (isEdit) {
         await updateStatement.mutateAsync({ header, balanceSheet: bs, incomeStatement: pnl })
       } else {
         await createStatement.mutateAsync({ header, balanceSheet: bs, incomeStatement: pnl })
@@ -154,6 +177,36 @@ export function StatementFormPage() {
           {error}
         </div>
       )}
+
+      {/* Accounting basis (fixed after creation) */}
+      <Card className="mb-5 flex flex-wrap items-center gap-4 p-5">
+        <span className="text-[13px] font-medium text-slate-600">{t('fin.local.basis')}</span>
+        <div className="flex gap-1.5">
+          {(['ifrs', 'local'] as const).map((b) => (
+            <button
+              key={b}
+              type="button"
+              disabled={isEdit || (b === 'local' && !localAvailable)}
+              onClick={() => setBasis(b)}
+              className={`rounded-md border px-3 py-1.5 text-[13px] font-medium transition-colors ${
+                basis === b
+                  ? 'border-accent-600 bg-accent-50 text-accent-700'
+                  : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
+              } ${isEdit || (b === 'local' && !localAvailable) ? 'cursor-not-allowed opacity-50' : ''}`}
+            >
+              {b === 'ifrs' ? t('fin.local.basisIfrs') : t('fin.local.basisLocal')}
+            </button>
+          ))}
+        </div>
+        {basis === 'local' && (
+          <span className="text-[13px] text-slate-500">
+            {(templates ?? []).map((x) => x.code).join(' + ')}
+          </span>
+        )}
+        {!localAvailable && !isEdit && (
+          <span className="text-xs text-slate-400">{t('fin.local.noTemplatesForCountry')}</span>
+        )}
+      </Card>
 
       {/* Header fields */}
       <Card className="mb-5 grid grid-cols-2 gap-3 p-5 md:grid-cols-4">
@@ -216,23 +269,31 @@ export function StatementFormPage() {
         </label>
       </Card>
 
-      <div className="grid gap-5 xl:grid-cols-2">
-        <StatementSectionGrid
-          title={t('fin.balanceSheetTitle')}
-          sections={BALANCE_SHEET_SECTIONS}
-          values={bs}
-          warnings={bsWarnings}
-          onChange={(key, value) => setBs((prev) => ({ ...prev, [key]: value }))}
+      {basis === 'local' ? (
+        <LocalStatementForm
+          countryCode={buyer?.country_code ?? ''}
+          existing={existing}
+          onStateChange={setLocalState}
         />
-        <StatementSectionGrid
-          title={t('fin.incomeStatementTitle')}
-          sections={INCOME_STATEMENT_SECTIONS}
-          values={pnl}
-          warnings={pnlWarnings}
-          onChange={(key, value) => setPnl((prev) => ({ ...prev, [key]: value }))}
-          hint={t('fin.form.expensesPositiveHint')}
-        />
-      </div>
+      ) : (
+        <div className="grid gap-5 xl:grid-cols-2">
+          <StatementSectionGrid
+            title={t('fin.balanceSheetTitle')}
+            sections={BALANCE_SHEET_SECTIONS}
+            values={bs}
+            warnings={bsWarnings}
+            onChange={(key, value) => setBs((prev) => ({ ...prev, [key]: value }))}
+          />
+          <StatementSectionGrid
+            title={t('fin.incomeStatementTitle')}
+            sections={INCOME_STATEMENT_SECTIONS}
+            values={pnl}
+            warnings={pnlWarnings}
+            onChange={(key, value) => setPnl((prev) => ({ ...prev, [key]: value }))}
+            hint={t('fin.form.expensesPositiveHint')}
+          />
+        </div>
+      )}
     </div>
   )
 }
