@@ -35,23 +35,24 @@ class TestEndToEnd:
         assert '"rating"' in payload and '"commentary"' in payload
 
     def test_deterministic(self, healthy_company) -> None:  # type: ignore[no-untyped-def]
-        a = assess(healthy_company, language="ru")
-        b = assess(healthy_company, language="ru")
+        a = assess(healthy_company)
+        b = assess(healthy_company)
         assert a == b
 
 
 class TestCommentary:
-    @pytest.mark.parametrize("lang", ["en", "ru", "uz"])
-    def test_all_sections_render_in_all_languages(self, healthy_company, lang) -> None:  # type: ignore[no-untyped-def]
-        result = assess(healthy_company, language=lang)
+    def test_all_draft_sections_render(self, healthy_company) -> None:  # type: ignore[no-untyped-def]
+        result = assess(healthy_company)
         for section in ("income_statement", "balance_sheet", "financial_ratios", "conclusion"):
             text = result.commentary[section]
             assert text and "{" not in text, f"unrendered placeholder in {section}: {text}"
 
-    def test_default_language_is_russian(self, healthy_company) -> None:  # type: ignore[no-untyped-def]
+    def test_draft_language_is_english(self, healthy_company) -> None:  # type: ignore[no-untyped-def]
+        # The deterministic draft is the English factual anchor; user-facing
+        # languages are produced by the AI narrative layer only.
         result = assess(healthy_company)
-        assert result.language == "ru"
-        assert "Выручка" in result.commentary["income_statement"]
+        assert result.language == "en"
+        assert "Revenue" in result.commentary["income_statement"]
 
     def test_conclusion_mentions_rating_and_limit(self, healthy_company) -> None:  # type: ignore[no-untyped-def]
         result = assess(healthy_company, language="en")
@@ -114,6 +115,3 @@ class TestCommentary:
         assert "Operating cash flow was positive" in cash_flow
         assert "Capital expenditures" in cash_flow
         assert "Free cash flow is positive" in cash_flow
-
-        ru = assess(with_cf, language="ru").commentary["cash_flow"]
-        assert "Свободный денежный поток положительный" in ru

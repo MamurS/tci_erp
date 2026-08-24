@@ -21,11 +21,17 @@ def assess(
     *,
     rating_config: RatingConfig | None = None,
     limit_config: LimitConfig | None = None,
-    language: str = "ru",
+    language: str = "en",
 ) -> CreditAssessment:
     """Assess a company: ratios -> rating -> limit -> findings -> commentary.
 
     The latest period is the assessed one; earlier periods feed dynamics.
+
+    ``commentary`` is the deterministic ENGLISH DRAFT - the factual anchor
+    for the AI narrative layer (`credit_engine.narrative`), not end-user
+    text. Final polished/translated commentary is produced by `narrate()`;
+    when the AI service is unavailable the ERP shows the structured rating,
+    limit and findings without narrative text.
     """
     ratio_reports = build_ratio_reports(company)
     latest = ratio_reports[-1]

@@ -128,11 +128,53 @@ components; the recommendation uses the benchmark when computable.
 ### 4. Findings & commentary (`commentary/`)
 
 * `Finding` objects — language-independent, machine-readable strengths /
-  weaknesses / adjustments / limit rationale. This is what the ERP stores.
-* Narrative paragraphs (income statement, balance sheet, ratios,
-  conclusion) rendered deterministically in **en / ru / uz** from one
-  message catalog. Identical input → identical text; adding a language is
-  one dictionary.
+  weaknesses / adjustments / limit rationale. This is what the ERP stores,
+  and it renders **independently of the AI layer** — the justification for
+  the rating and limit is always available.
+* A deterministic **English draft** covering income statement (revenue,
+  gross profit, opex, margins, interest, net result), balance sheet
+  (structure, current asset composition, equity, debt, payables, NWC),
+  ratios with qualitative labels tied to the scoring tables, cash flow
+  (CFO / capex / FCF, when provided) and a conclusion. The draft is the
+  factual anchor for the AI layer, not end-user text.
+
+### 5. AI narrative layer (`narrative.py`)
+
+User-facing commentary in **any language** is produced by one Claude API
+call per report (`narrate(assessment, "ru", completer)`): the model
+receives the structured fact sheet + the English draft and rewrites it as
+a professional underwriter would, directly in the target language.
+Polish + translation in a single step avoids meaning drift and halves cost.
+
+Guardrails (the legacy system relied on hope; this one checks):
+
+* The prompt pins every figure to the fact sheet / draft.
+* **Programmatic number validation**: every digit sequence in the model
+  output must already exist in the facts (robust to locale reformatting,
+  e.g. `21.4%` vs `21,4 %`). A violation triggers one retry with the
+  rejection reason; a second failure fails the request.
+* **Availability policy**: any failure (API down, malformed reply, failed
+  validation) raises `NarrativeUnavailableError`
+  (`message_key = "commentary.service_unavailable"`). The ERP then shows
+  "service unavailable, try again later" for the narrative — while the
+  rating, limit, factor breakdown and adjustments render as usual.
+
+The Claude client is injected behind a one-method `Completer` protocol:
+tests run on a fake, and the provider can later be swapped for an
+open-source model without touching the engine. `AnthropicCompleter` is the
+production adapter (`pip install credit-engine[ai]`, default model
+`claude-opus-5`; note that sampling parameters like temperature are
+removed on Claude 5 models — stylistic variation comes from the model).
+
+```python
+from credit_engine import AnthropicCompleter, NarrativeUnavailableError, assess, narrate
+
+assessment = assess(company)                      # pure, always works
+try:
+    commentary = await narrate(assessment, "ru", AnthropicCompleter())
+except NarrativeUnavailableError:
+    commentary = None                             # show "service unavailable"
+```
 
 ### Missing-data policy (explicit by design)
 
