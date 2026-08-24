@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <style media="screen">
+
+        body, html {
+          margin: 0;
+          padding: 0;
+          height: 100%;
+          width: 100%;
+          size: A4;
+          font-family: 'Arial', sans-serif;
+        }
+
+        @page {
+                size: A4;
+                margin: 0;
+                width: 210mm;
+                height: 297mm;
+            }
+
+        .outer-frame {
+          background-color: #ffdcb2;
+          padding: 20px;
+          height: 1402px;
+          width: 100%;
+          box-sizing: border-box;
+        }
+
+        .inner-frame {
+          background-color: #3a7ca5;
+          height: 100%;
+          width: 100%;
+          padding: 3px;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .top-white-block {
+          background-color: white;
+          height: 84px;
+          width: 100%;
+          box-sizing: border-box;
+          margin-top: -36px;
+          margin-bottom: 4px;
+        }
+
+        .middle-white-block {
+          box-sizing: border-box;
+          background-color: white;
+          height: 1229.5px;
+          width: 100%;
+          margin-top: 2.5px;
+          margin-bottom: -10.5px;
+          padding-top: 26px;
+          padding-bottom: 26px;
+          padding-left: 25px;
+          padding-right: 25px;
+        }
+
+        .bottom-white-block {
+          /* display: flex; */
+          background-color: white;
+          width: 100%;
+          height: 35px;
+          /* align-items: center; */
+          text-align: right;
+          vertical-align;
+        }
+
+        .bottom-white-block p {
+            text-align: right;
+            padding-right: 20px;
+            padding-top: 8px;
+            /* padding-bottom: 40px; */
+            /* font-style: italic; */
+            font-weight: bold;
+            color: #646464;
+        }
+
+        .logo {
+          float: left;
+        }
+
+        .title {
+          text-align: center;
+          font-size: 36px;
+          word-spacing: 10px;
+          letter-spacing: 3px;
+          text-transform: uppercase;
+          color: #f7941d;
+          padding-top: 24px;
+          font-family: serif;
+        }
+
+        .info {
+            font-size: 16pt;
+            margin: 0;
+            padding: 10px;
+        }
+
+        #tableMargin {
+            margin-bottom: 33pt;
+        }
+
+        .paragraph {
+            line-height: 1.5;
+            white-space: pre-line;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .main-text {
+          font-size: 11pt;
+        }
+
+        .page-number {
+
+            /* margin-right: 20px; */
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .footer p {
+            text-align: right;
+            padding-right: 120px;
+            padding-bottom: 40px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="outer-frame">
+        <div class="inner-frame">
+
+            <div class="top-white-block">
+                <p class="title">{{ title }}</p>
+
+            </div>
+
+            <div class="middle-white-block">
+                {% if current_period %}
+                  <p class="info">{{ subtitle | replace(")", ". " + reporting_period + " - " + current_period + ")")}}</p>
+                {% else %}
+                  <p class="info">{{ subtitle }}</p>
+                {% endif %}
+                <p class="paragraph">{{ balance_paragraph | replace('/n', '<br>') }}</p>
+
+            </div>
+
+            <div class="bottom-white-block">
+
+                <p class="main-text page-number">{{ page }} {{ page_number }}</p>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

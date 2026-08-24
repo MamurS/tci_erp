@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <style media="screen">
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            size: A4;
+            font-family: 'Arial', sans-serif;
+        }
+
+        @page {
+                size: A4;
+                margin: 0;
+                width: 210mm;
+                height: 297mm;
+            }
+
+        .outer-frame {
+            background-color: #ffdcb2;
+            padding: 20px;
+            height: 1402px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .inner-frame {
+            background-color: #3a7ca5;
+            height: 100%;
+            width: 100%;
+            padding: 3px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-white-block {
+            background-color: white;
+            height: 84px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: -36px;
+            margin-bottom: 4px;
+        }
+
+        .middle-white-block {
+            box-sizing: border-box;
+            background-color: white;
+            height: 1229.5px;
+            width: 100%;
+            margin-top: 2.5px;
+            margin-bottom: -10.5px;
+            padding-top: 26px;
+            padding-bottom: 26px;
+            padding-left: 25px;
+            padding-right: 25px;
+        }
+
+        .bottom-white-block {
+            /* display: flex; */
+            background-color: white;
+            width: 100%;
+            height: 35px;
+            /* align-items: center; */
+            text-align: right;
+            vertical-align: top;
+        }
+
+        .bottom-white-block p {
+            text-align: right;
+            padding-right: 20px;
+            padding-top: 8px;
+            /* padding-bottom: 40px; */
+            /* font-style: italic; */
+            font-weight: bold;
+            color: #646464;
+        }
+
+        .logo {
+            float: left;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 36px;
+            word-spacing: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #f7941d;
+            padding-top: 24px;
+            font-family: serif;
+        }
+
+        .info {
+            font-size: 16pt;
+            text-transform: uppercase;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .paragraph {
+            line-height: 1.3;
+            white-space: pre-line;
+        }
+
+        .main-text {
+            font-size: 11pt;
+        }
+
+        thead {
+            font-weight: bold;
+            vertical-align: top;
+            background-color: #fff4e4;
+            border-color: #fff4e4;
+        }
+
+        td, th {
+            text-align: right;
+        }
+
+        table td:nth-child(1) {
+            width: 190px;
+            font-weight: bold;
+        }
+
+        table td:nth-child(5),
+        table td:nth-child(6),
+        table td:nth-child(7),
+        table td:nth-child(8),
+        table td:nth-child(9) {
+            width: 100px;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #fff4e4
+        }
+
+        .middle-white-block table {
+            font-size: 8pt;
+        }
+
+        .page-number {
+
+            /* margin-right: 20px; */
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .footer p {
+            text-align: right;
+            padding-right: 120px;
+            padding-bottom: 40px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="outer-frame">
+        <div class="inner-frame">
+
+            <div class="top-white-block">
+
+                <p class="title">{{ title }}</p>
+
+            </div>
+
+            <div class="middle-white-block">
+
+                <p class="info">{{ subtitle }}</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>{{ table_1_column_1 }}</th><!-- table_1_column_1 -->
+                            <th>{{ table_1_column_2 }}</th><!-- table_1_column_2 -->
+                            <th>{{ table_1_column_3 }}</th><!-- table_1_column_3 -->
+                            <th>{{ table_1_column_4 }}</th><!-- table_1_column_4 -->
+                            <th style="border-left: 1px solid #3a7ca5; border-right: 1px solid #3a7ca5;">{{ table_1_column_5 }}</th><!-- table_1_column_5 -->
+                            <th>{{ table_1_column_6 }} ({{ currency }})</th><!-- table_1_column_6 -->
+                            <th>{{ table_1_column_7 }}</th><!-- table_1_column_7 -->
+                            <th>{{ table_1_column_8 }}</th><!-- table_1_column_8 -->
+                            <th>{{ table_1_column_9 }}</th><!-- table_1_column_9 -->
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for row in group_structure_matrix %}
+                            {% if row[1] == target_company_registration_identifier %}
+                                <tr>
+                                    <td style="border-left: 1px solid #3a7ca5; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;"><span style="font-size: 14px;">{{ row[0] }}</span></td>
+                                    <td style="border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ row[1] }}</td>
+                                    <td style="border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ row[2] }}</td>
+                                    <td style="border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ row[3] }}</td>
+                                    <td style="border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5; border-left: 1px solid #3a7ca5; border-right: 1px solid #3a7ca5;">{{ row[4] | float_format }}</td>
+                                    <td style="border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ row[5] | integer_format }}</td>
+                                    <td style="border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ row[6] | float_format }}</td>
+                                    <td style="border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ row[7] | float_format }}</td>
+                                    <td style="border-right: 1px solid #3a7ca5; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ row[8] | float_format }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td><span style="font-size: 14px;">{{ row[0] }}</span></td>
+                                    <td>{{ row[1] }}</td>
+                                    <td>{{ row[2] }}</td>
+                                    <td>{{ row[3] }}</td>
+                                    <td style="border-left: 1px solid #3a7ca5; border-right: 1px solid #3a7ca5;">{{ row[4] | float_format }}</td>
+                                    <td>{{ row[5] | integer_format }}</td>
+                                    <td>{{ row[6] | float_format }}</td>
+                                    <td>{{ row[7] | float_format }}</td>
+                                    <td>{{ row[8] | float_format }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="bottom-white-block">
+                <p class="main-text page-number">{{ page }} {{ page_number }}</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

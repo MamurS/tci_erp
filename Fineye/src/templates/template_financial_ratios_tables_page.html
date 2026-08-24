@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <style media="screen">
+
+        body, html {
+          margin: 0;
+          padding: 0;
+          height: 100%;
+          width: 100%;
+          size: A4;
+          font-family: 'Arial', sans-serif;
+        }
+
+        @page {
+                size: A4;
+                margin: 0;
+                width: 210mm;
+                height: 297mm;
+            }
+
+        .outer-frame {
+          background-color: #ffdcb2;
+          padding: 20px;
+          height: 1402px;
+          width: 100%;
+          box-sizing: border-box;
+        }
+
+        .inner-frame {
+          background-color: #3a7ca5;
+          height: 100%;
+          width: 100%;
+          padding: 3px;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .top-white-block {
+          background-color: white;
+          height: 84px;
+          width: 100%;
+          box-sizing: border-box;
+          margin-top: -36px;
+          margin-bottom: 4px;
+        }
+
+        .middle-white-block {
+          box-sizing: border-box;
+          background-color: white;
+          height: 1229.5px;
+          width: 100%;
+          margin-top: 2.5px;
+          margin-bottom: -10.5px;
+          padding-top: 26px;
+          padding-bottom: 26px;
+          padding-left: 25px;
+          padding-right: 25px;
+        }
+
+        .bottom-white-block {
+          /* display: flex; */
+          background-color: white;
+          width: 100%;
+          height: 35px;
+          /* align-items: center; */
+          text-align: right;
+          vertical-align;
+        }
+
+        .bottom-white-block p {
+            text-align: right;
+            padding-right: 20px;
+            padding-top: 8px;
+            /* padding-bottom: 40px; */
+            /* font-style: italic; */
+            font-weight: bold;
+            color: #646464;
+        }
+
+        .logo {
+          float: left;
+        }
+
+        .title {
+          text-align: center;
+          font-size: 36px;
+          word-spacing: 10px;
+          letter-spacing: 3px;
+          text-transform: uppercase;
+          color: #f7941d;
+          padding-top: 24px;
+          font-family: serif;
+        }
+
+        .info {
+            font-size: 16pt;
+            text-transform: uppercase;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .paragraph {
+            line-height: 1.3;
+            white-space: pre-line;
+        }
+
+        .main-text {
+          font-size: 11pt;
+        }
+
+        thead {
+            font-weight: bold;
+            vertical-align: top;
+            background-color: #fff4e4;
+            border-color: #fff4e4;
+        }
+
+        td, th {
+            text-align: right;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #fff4e4;
+        }
+
+        table td:nth-child(1) {
+            width: 160px;
+            font-weight: bold;
+        }
+
+        table td:nth-child(2) {
+            width: 135px;
+        }
+
+        table td:nth-child(3) {
+            width: 135px;
+        }
+
+        table td:nth-child(4) {
+            width: 135px;
+        }
+
+        table td:nth-child(5) {
+            width: 135px;
+        }
+
+        table td:nth-child(6) {
+            width: 135px;
+        }
+
+        .page-number {
+            /*margin-right: 20px;*/
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            text-align: center;
+            width: 100%;
+        }
+
+        .footer p {
+            text-align: right;
+            padding-right: 120px;
+            padding-bottom: 40px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="outer-frame">
+        <div class="inner-frame">
+
+            <div class="top-white-block">
+
+                <p class="title">{{ title }}</p>
+
+            </div>
+
+            <div class="middle-white-block">
+
+                <p class="info">{{ subtitle }}</p>
+
+                {{ head_1 }} ({{ company_name }}):<!-- head_1 -->
+                <table id="tableMargin">
+                    <thead>
+                        <tr>
+                            <th>{{ table_1_column_1 }}</th><!-- table_1_column_1 -->
+                            <th>{{ before_previous_period if before_previous_period else previous_period if previous_period else current_period }} (%)</th>
+                            <th>{{ previous_period if before_previous_period else current_period if previous_period else "" }} {{ "(%)" if previous_period else "" }}</th>
+                            <th>{{ table_1_column_4 if previous_period else "" }}</th><!-- table_1_column_4 -->
+                            <th>{{ current_period if before_previous_period else "" }} {{ "(%)" if before_previous_period else "" }}</th>
+                            <th>{{ table_1_column_6 if before_previous_period else "" }}</th><!-- table_1_column_6 -->
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for row in company_profitability_ratios_matrix %}
+                            <tr">
+                                <td>{{ row[0] }}</td>
+                                <td>{{ row[1] | float_format_one_decimal_place }}</td>
+
+                                <td>{{ row[3] | float_format_one_decimal_place }}</td>
+                                {% if row[4] != "-" and row[4] != 0 %}
+                                    {% if row[4] > 0 %}
+                                        <td>{{ (row[4])|float_format_percent }}<b style="color: green">▲</b></td>
+                                    {% else %}
+                                        <td>{{ (row[4])|float_format_percent }}<b style="color: red">▼</b></td>
+                                    {% endif %}
+                                {% else %}
+                                        <td>{{ (row[4])|float_format_percent }}</td>
+                                {% endif %}
+                                
+                                <td>{{ row[5] | float_format_one_decimal_place }}</td>
+                                {% if row[6] != "-" and row[6] != 0 %}
+                                    {% if row[6] > 0 %}
+                                        <td>{{ (row[6])|float_format_percent }}<b style="color: green">▲</b></td>
+                                    {% else %}
+                                        <td>{{ (row[6])|float_format_percent }}<b style="color: red">▼</b></td>
+                                    {% endif %}
+                                {% else %}
+                                        <td>{{ (row[6])|float_format_percent }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br>
+                {{ head_2 }} ({{ company_name }}):<!-- head_2 -->
+                <table id="tableMargin">
+                    <thead>
+                        <tr>
+                            <th>{{ table_2_column_1 }}</th><!-- table_2_column_1 -->
+                            <th>{{ before_previous_period if before_previous_period else previous_period if previous_period else current_period }} ({{ currency }})</th>
+                            <th>{{ previous_period if before_previous_period else current_period if previous_period else "" }} {{ ("(" + currency + ")") if previous_period else "" }}</th>
+                            <th>{{ table_2_column_4 if previous_period else "" }}</th><!-- table_2_column_4 -->
+                            <th>{{ current_period if before_previous_period else "" }} {{ ("(" + currency + ")") if before_previous_period else "" }}</th>
+                            <th>{{ table_2_column_6 if before_previous_period else "" }}</th><!-- table_2_column_6 -->
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for row in company_liquidity_ratios_matrix %}
+                            <tr>
+                                <td>{{ row[0] }}</td>
+                                <td>{{ row[1]|integer_format }}</td>
+
+                                <td>{{ row[3]|integer_format }}</td>
+                                {% if row[4] != "-" and row[4] != 0 %}
+                                    {% if row[4] > 0 %}
+                                        <td>{{ (row[4])|float_format_percent }}<b style="color: green">▲</b></td>
+                                    {% else %}
+                                        <td>{{ (row[4])|float_format_percent }}<b style="color: red">▼</b></td>
+                                    {% endif %}
+                                {% else %}
+                                        <td>{{ (row[4])|float_format_percent }}</td>
+                                {% endif %}
+                                
+                                <td>{{ row[5]|integer_format }}</td>
+                                {% if row[6] != "-" and row[6] != 0 %}
+                                    {% if row[6] > 0 %}
+                                        <td>{{ (row[6])|float_format_percent }}<b style="color: green">▲</b></td>
+                                    {% else %}
+                                        <td>{{ (row[6])|float_format_percent }}<b style="color: red">▼</b></td>
+                                    {% endif %}
+                                {% else %}
+                                        <td>{{ (row[6])|float_format_percent }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br>
+                {{ head_3 }} ({{ company_name }}):<!-- head_3 -->
+                <table id="tableMargin">
+                    <thead>
+                        <tr>
+                            <th>{{ table_3_column_1 }}</th><!-- table_3_column_1 -->
+                            <th>{{ before_previous_period if before_previous_period else previous_period if previous_period else current_period }} {{ table_3_column_2 }}</th><!-- table_3_column_2 -->
+                            <th>{{ previous_period if before_previous_period else current_period if previous_period else "" }} {{ table_3_column_3 if previous_period else "" }}</th><!-- table_3_column_3 -->
+                            <th>{{ table_3_column_4 if previous_period else "" }}</th><!-- table_3_column_4 -->
+                            <th>{{ current_period if before_previous_period else "" }} {{ table_3_column_5 if before_previous_period else "" }}</th><!-- table_3_column_5 -->
+                            <th>{{ table_3_column_6 if before_previous_period else "" }}</th><!-- table_3_column_6 -->
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for row in company_turnover_ratios_matrix %}
+                            <tr>
+                                <td>{{ row[0] }}</td>
+                                <td>{{ row[1]|float_format_one_decimal_place }}</td>
+                                
+                                <td>{{ row[3]|float_format_one_decimal_place }}</td>
+                                {% if row[4] != "-" and row[4] != 0 %}
+                                    {% if row[4] > 0 %}
+                                        {% if row[0] != "DPO" %}
+                                            <td>{{ (row[4])|float_format_percent }}<b style="color: red">▲</b></td>
+                                        {% else %}
+                                            <td>{{ (row[4])|float_format_percent }}<b style="color: green">▲</b></td>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if row[0] != "DPO" %}
+                                            <td>{{ (row[4])|float_format_percent }}<b style="color: green">▼</b></td>
+                                        {% else %}
+                                            <td>{{ (row[4])|float_format_percent }}<b style="color: red">▼</b></td>
+                                        {% endif %}
+                                    {% endif %}
+                                {% else %}
+                                        <td>{{ (row[4])|float_format_percent }}</td>
+                                {% endif %}
+                                
+                                <td>{{ row[5]|float_format_one_decimal_place }}</td>
+                                {% if row[6] != "-" and row[6] != 0 %}
+                                    {% if row[6] > 0 %}
+                                        {% if row[0] != "DPO" %}
+                                            <td>{{ (row[6])|float_format_percent }}<b style="color: red">▲</b></td>
+                                        {% else %}
+                                            <td>{{ (row[6])|float_format_percent }}<b style="color: green">▲</b></td>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if row[0] != "DPO" %}
+                                            <td>{{ (row[6])|float_format_percent }}<b style="color: green">▼</b></td>
+                                        {% else %}
+                                            <td>{{ (row[6])|float_format_percent }}<b style="color: red">▼</b></td>
+                                        {% endif %}
+                                    {% endif %}
+                                {% else %}
+                                        <td>{{ (row[6])|float_format_percent }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br>
+                <br>
+                <br>
+                {% if is_group %}
+                {{ head_4 }}<!-- head_4 -->
+                <table id="tableMargin">
+                    <thead>
+                        <tr>
+                            <th>{{ table_4_column_1 }}</th><!-- table_4_column_1 -->
+                            <th>{{ before_previous_period if before_previous_period else previous_period if previous_period else current_period }} ({{ currency }})</th>
+                            <th>{{ previous_period if before_previous_period else current_period if previous_period else "" }} {{ ("(" + currency + ")") if previous_period else "" }}</th>
+                            <th>{{ table_4_column_4 if previous_period else "" }}</th><!-- table_4_column_4 -->
+                            <th>{{ current_period if before_previous_period else "" }} {{ ("(" + currency + ")") if before_previous_period else "" }}</th>
+                            <th>{{ table_4_column_6 if before_previous_period else "" }}</th><!-- table_4_column_6 -->
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for row in combined_profitability_ratios_matrix %}
+                            <tr>
+                                <td>{{ row[0] }}</td>
+                                <td>{{ row[1]|float_format_one_decimal_place }}</td>
+
+                                <td>{{ row[3]|float_format_one_decimal_place }}</td>
+                                {% if row[4] != "-" and row[4] != 0 %}
+                                    {% if row[4] > 0 %}
+                                        <td>{{ (row[4])|float_format_percent }}<b style="color: green">▲</b></td>
+                                    {% else %}
+                                        <td>{{ (row[4])|float_format_percent }}<b style="color: red">▼</b></td>
+                                    {% endif %}
+                                {% else %}
+                                        <td>{{ (row[4])|float_format_percent }}</td>
+                                {% endif %}
+                                
+                                <td>{{ row[5] | float_format_one_decimal_place }}</td>
+                                {% if row[6] != "-" and row[6] != 0 %}
+                                    {% if row[6] > 0 %}
+                                        <td>{{ (row[6])|float_format_percent }}<b style="color: green">▲</b></td>
+                                    {% else %}
+                                        <td>{{ (row[6])|float_format_percent }}<b style="color: red">▼</b></td>
+                                    {% endif %}
+                                {% else %}
+                                        <td>{{ (row[6])|float_format_percent }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br>
+                {{ head_5 }}<!-- head_5 -->
+                <table id="tableMargin">
+                    <thead>
+                        <tr>
+                            <th>{{ table_5_column_1 }}</th><!-- table_5_column_1 -->
+                            <th>{{ before_previous_period if before_previous_period else previous_period if previous_period else current_period }} ({{ currency }})</th>
+                            <th>{{ previous_period if before_previous_period else current_period if previous_period else "" }} {{ ("(" + currency + ")") if previous_period else "" }}</th>
+                            <th>{{ table_5_column_4 if previous_period else "" }}</th><!-- table_5_column_4 -->
+                            <th>{{ current_period if before_previous_period else "" }} {{ ("(" + currency + ")") if before_previous_period else "" }}</th>
+                            <th>{{ table_5_column_6 if before_previous_period else "" }}</th><!-- table_5_column_6 -->
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for row in combined_liquidity_ratios_matrix %}
+                            <tr>
+                                <td>{{ row[0] }}</td>
+                                <td>{{ row[1]|integer_format }}</td>
+
+                                <td>{{ row[3]|integer_format }}</td>
+                                {% if row[4] != "-" and row[4] != 0 %}
+                                    {% if row[4] > 0 %}
+                                        <td>{{ (row[4])|float_format_percent }}<b style="color: green">▲</b></td>
+                                    {% else %}
+                                        <td>{{ (row[4])|float_format_percent }}<b style="color: red">▼</b></td>
+                                    {% endif %}
+                                {% else %}
+                                        <td>{{ (row[4])|float_format_percent }}</td>
+                                {% endif %}
+                                
+                                <td>{{ row[5]|integer_format }}</td>
+                                {% if row[6] != "-" and row[6] != 0 %}
+                                    {% if row[6] > 0 %}
+                                        <td>{{ (row[6])|float_format_percent }}<b style="color: green">▲</b></td>
+                                    {% else %}
+                                        <td>{{ (row[6])|float_format_percent }}<b style="color: red">▼</b></td>
+                                    {% endif %}
+                                {% else %}
+                                        <td>{{ (row[6])|float_format_percent }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br>
+                {{ head_6 }}<!-- head_6 -->
+                <table id="tableMargin">
+                    <thead>
+                        <tr>
+                            <th>{{ table_6_column_1 }}</th><!-- table_6_column_1 -->
+                            <th>{{ before_previous_period if before_previous_period else previous_period if previous_period else current_period }} {{ table_6_column_2 }}</th><!-- table_6_column_2 -->
+                            <th>{{ previous_period if before_previous_period else current_period if previous_period else "" }} {{ table_6_column_3 if previous_period else "" }}</th><!-- table_6_column_3 -->
+                            <th>{{ table_6_column_4 if previous_period else "" }}</th><!-- table_6_column_4 -->
+                            <th>{{ current_period if before_previous_period else "" }} {{ table_6_column_5 if before_previous_period else "" }}</th><!-- table_6_column_5 -->
+                            <th>{{ table_6_column_6 if before_previous_period else "" }}</th><!-- table_6_column_6 -->
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for row in combined_turnover_ratios_matrix %}
+                            <tr>
+                                <td>{{ row[0] }}</td>
+                                <td>{{ row[1]|float_format_one_decimal_place }}</td>
+
+                                <td>{{ row[3]|float_format_one_decimal_place }}</td>
+                                {% if row[4] != "-" and row[4] != 0 %}
+                                    {% if row[4] > 0 %}
+                                        {% if row[0] != "DPO" %}
+                                            <td>{{ (row[4])|float_format_percent }}<b style="color: red">▲</b></td>
+                                        {% else %}
+                                            <td>{{ (row[4])|float_format_percent }}<b style="color: green">▲</b></td>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if row[0] != "DPO" %}
+                                            <td>{{ (row[4])|float_format_percent }}<b style="color: green">▼</b></td>
+                                        {% else %}
+                                            <td>{{ (row[4])|float_format_percent }}<b style="color: red">▼</b></td>
+                                        {% endif %}
+                                    {% endif %}
+                                {% else %}
+                                        <td>{{ (row[4])|float_format_percent }}</td>
+                                {% endif %}
+                                
+                                <td>{{ row[5]|float_format_percent }}</td>
+                                {% if row[6] != "-" and row[6] != 0 %}
+                                    {% if row[6] > 0 %}
+                                        {% if row[0] != "DPO" %}
+                                            <td>{{ (row[6])|float_format_percent }}<b style="color: red">▲</b></td>
+                                        {% else %}
+                                            <td>{{ (row[6])|float_format_percent }}<b style="color: green">▲</b></td>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if row[0] != "DPO" %}
+                                            <td>{{ (row[6])|float_format_percent }}<b style="color: green">▼</b></td>
+                                        {% else %}
+                                            <td>{{ (row[6])|float_format_percent }}<b style="color: red">▼</b></td>
+                                        {% endif %}
+                                    {% endif %}
+                                {% else %}
+                                        <td>{{ (row[6])|float_format_percent }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            </div>
+
+            <div class="bottom-white-block">
+
+                <p class="main-text page-number">{{ page }} {{ page_number }}</p>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

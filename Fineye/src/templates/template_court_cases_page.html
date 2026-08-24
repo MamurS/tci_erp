@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <style media="screen">
+        body, html {
+          margin: 0;
+          padding: 0;
+          height: 100%;
+          width: 100%;
+          size: A4;
+          font-family: 'Arial', sans-serif;
+        }
+
+        @page {
+                size: A4;
+                margin: 0;
+                width: 210mm;
+                height: 297mm;
+            }
+
+        .outer-frame {
+          background-color: #ffdcb2;
+          padding: 20px;
+          height: 1402px;
+          width: 100%;
+          box-sizing: border-box;
+        }
+
+        .inner-frame {
+          background-color: #3a7ca5;
+          height: 100%;
+          width: 100%;
+          padding: 3px;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .top-white-block {
+          background-color: white;
+          height: 84px;
+          width: 100%;
+          box-sizing: border-box;
+          margin-top: -36px;
+          margin-bottom: 4px;
+        }
+
+        .middle-white-block {
+          box-sizing: border-box;
+          background-color: white;
+          height: 1229.5px;
+          width: 100%;
+          margin-top: 2.5px;
+          margin-bottom: -10.5px;
+          padding-top: 26px;
+          padding-bottom: 26px;
+          padding-left: 25px;
+          padding-right: 25px;
+        }
+
+        .bottom-white-block {
+          background-color: white;
+          width: 100%;
+          height: 35px;
+          text-align: right;
+        }
+
+        .bottom-white-block p {
+            text-align: right;
+            padding-right: 20px;
+            padding-top: 8px;
+            font-weight: bold;
+            color: #646464;
+        }
+
+        .title {
+          text-align: center;
+          font-size: 36px;
+          word-spacing: 10px;
+          letter-spacing: 3px;
+          text-transform: uppercase;
+          color: #f7941d;
+          padding-top: 24px;
+          font-family: serif;
+        }
+
+        .info {
+            font-size: 16pt;
+            text-transform: uppercase;
+            margin: 0;
+            padding: 10px;
+        }
+
+        .orange-line {
+            background-color: orange;
+            height: 2.5px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .main-text {
+          font-size: 11pt;
+        }
+
+        .table-rating {
+            width: 100%;
+            margin-bottom: 33pt;
+            border-spacing: 6px;
+        }
+
+        td, th {
+            text-align: center;
+            vertical-align: top;
+            font-size: 10pt;
+            line-height: 1.3;
+            padding: 2px;
+        }
+
+        thead {
+            font-weight: bold;
+            background-color: #fff4e4;
+        }
+
+        .table-rating tr:nth-child(even) {
+            background-color: #fff4e4;
+        }
+
+        table td:nth-child(1) {
+            width: 190px;
+            font-weight: bold;
+        }
+
+        table td:nth-child(2) {
+            width: 125;
+        }
+
+        table td:nth-child(3) {
+            width: 165px;
+        }
+
+        table td:nth-child(4) {
+            width: 165px;
+        }
+
+        table td:nth-child(5) {
+            width: 165px;
+        }
+
+        .table-title {
+            font-size: 14pt;
+            margin-bottom: 10px;
+            margin-top: 20px;
+        }
+
+        .page-number {
+            /*margin-right: 20px;*/
+        }
+    </style>
+</head>
+<body>
+    <div class="outer-frame">
+        <div class="inner-frame">
+
+            <div class="top-white-block">
+                <p class="title">{{ title }}</p>
+            </div>
+
+            <div class="middle-white-block">
+                <p class="info">{{ subtitle }}</p>
+                <div class="orange-line"></div>
+
+                <div class="table-title">{{ table_name_sum }}:</div>
+                <table class="table-rating">
+                    <thead>
+                        <tr>
+                        <th rowspan="2">{{ str_company_name }}</th>
+                        <th rowspan="2">{{ str_registration_identifier }}</th>
+                        <th colspan="2">{{ before_previous_period }}</th>
+                        <th colspan="2">{{ previous_period }}</th>
+                        <th colspan="2">{{ current_period }}</th>
+                        </tr>
+                        <tr>
+                        <th>{{ str_defendant }}, {{ court_cases[0].currency }}</th>
+                        <th>{{ str_plaintiff }}, {{ court_cases[0].currency }}</th>
+                        <th>{{ str_defendant }}, {{ court_cases[0].currency }}</th>
+                        <th>{{ str_plaintiff }}, {{ court_cases[0].currency }}</th>
+                        <th>{{ str_defendant }}, {{ court_cases[0].currency }}</th>
+                        <th>{{ str_plaintiff }}, {{ court_cases[0].currency }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for court_case in court_cases %}
+                            {% if court_case.registration_identifier == target_company_registration_identifier %}
+                                <tr>
+                                    <td style="text-align: right; border-left: 1px solid #3a7ca5; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;"><span style="font-size: 12px;"><b>{{ court_case.company_name }}</b></span></td>
+                                    <td style="text-align: right; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ court_case.registration_identifier }}</td>
+                                    <td style="text-align: right; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ court_case.data.before_previous_period.amount.defendant|float_format or '-' }}</td>
+                                    <td style="text-align: right; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ court_case.data.before_previous_period.amount.plaintiff|float_format or '-' }}</td>
+                                    <td style="text-align: right; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ court_case.data.previous_period.amount.defendant|float_format or '-' }}</td>
+                                    <td style="text-align: right; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ court_case.data.previous_period.amount.plaintiff|float_format or '-' }}</td>
+                                    <td style="text-align: right; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ court_case.data.current_period.amount.defendant|float_format or '-' }}</td>
+                                    <td style="text-align: right; border-right: 1px solid #3a7ca5; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ court_case.data.current_period.amount.plaintiff|float_format or '-' }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td style="text-align: right;"><span style="font-size: 12px;"><b>{{ court_case.company_name }}</b></span></td>
+                                    <td style="text-align: right;">{{ court_case.registration_identifier }}</td>
+                                    <td style="text-align: right;">{{ court_case.data.before_previous_period.amount.defendant|float_format or '-' }}</td>
+                                    <td style="text-align: right;">{{ court_case.data.before_previous_period.amount.plaintiff|float_format or '-' }}</td>
+                                    <td style="text-align: right;">{{ court_case.data.previous_period.amount.defendant|float_format or '-' }}</td>
+                                    <td style="text-align: right;">{{ court_case.data.previous_period.amount.plaintiff|float_format or '-' }}</td>
+                                    <td style="text-align: right;">{{ court_case.data.current_period.amount.defendant|float_format or '-' }}</td>
+                                    <td style="text-align: right;">{{ court_case.data.current_period.amount.plaintiff|float_format or '-' }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <br>
+                <br>
+                <div class="table-title">{{ table_name_count }}:</div>
+                <table class="table-rating">
+                    <thead>
+                        <tr>
+                        <th rowspan="2">{{ str_company_name }}</th>
+                        <th rowspan="2">{{ str_registration_identifier }}</th>
+                        <th colspan="2">{{ before_previous_period }}</th>
+                        <th colspan="2">{{ previous_period }}</th>
+                        <th colspan="2">{{ current_period }}</th>
+                        </tr>
+                        <tr>
+                        <th>{{ str_defendant }}</th>
+                        <th>{{ str_plaintiff }}</th>
+                        <th>{{ str_defendant }}</th>
+                        <th>{{ str_plaintiff }}</th>
+                        <th>{{ str_defendant }}</th>
+                        <th>{{ str_plaintiff }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for court_case in court_cases %}
+                            {% if court_case.registration_identifier == target_company_registration_identifier %}
+                                <tr>
+                                    <td style="text-align: right; border-left: 1px solid #3a7ca5; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;"><span style="font-size: 12px;"><b>{{ court_case.company_name }}</b></span></td>
+                                    <td style="text-align: right; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ court_case.registration_identifier }}</td>
+                                    <td style="text-align: right; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ court_case.data.before_previous_period.count.defendant or '-' }}</td>
+                                    <td style="text-align: right; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ court_case.data.before_previous_period.count.plaintiff or '-' }}</td>
+                                    <td style="text-align: right; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ court_case.data.previous_period.count.defendant or '-' }}</td>
+                                    <td style="text-align: right; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ court_case.data.previous_period.count.plaintiff or '-' }}</td>
+                                    <td style="text-align: right; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ court_case.data.current_period.count.defendant or '-' }}</td>
+                                    <td style="text-align: right; border-right: 1px solid #3a7ca5; border-top: 1px solid #3a7ca5; border-bottom: 1px solid #3a7ca5;">{{ court_case.data.current_period.count.plaintiff or '-' }}</td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td style="text-align: right;"><span style="font-size: 12px;"><b>{{ court_case.company_name }}</b></span></td>
+                                    <td style="text-align: right;">{{ court_case.registration_identifier }}</td>
+                                    <td style="text-align: right;">{{ court_case.data.before_previous_period.count.defendant or '-' }}</td>
+                                    <td style="text-align: right;">{{ court_case.data.before_previous_period.count.plaintiff or '-' }}</td>
+                                    <td style="text-align: right;">{{ court_case.data.previous_period.count.defendant or '-' }}</td>
+                                    <td style="text-align: right;">{{ court_case.data.previous_period.count.plaintiff or '-' }}</td>
+                                    <td style="text-align: right;">{{ court_case.data.current_period.count.defendant or '-' }}</td>
+                                    <td style="text-align: right;">{{ court_case.data.current_period.count.plaintiff or '-' }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="bottom-white-block">
+                <p class="main-text page-number">{{ page }} {{ page_number }}</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

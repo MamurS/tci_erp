@@ -1,0 +1,10 @@
+venv
+.env
+pg_volume
+rabbit_volume
+__pycache__/
+*.pdf
+*.json
+*.png
+test_scripts.py
+test_graph.py
