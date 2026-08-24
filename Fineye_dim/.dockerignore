@@ -1,0 +1,7 @@
+*.json
+.env
+venv
+__pycache__/
+.vscode
+.idea
+test_scripts.py

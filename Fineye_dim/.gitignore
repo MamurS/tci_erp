@@ -1,0 +1,10 @@
+venv
+.idea
+.vscode
+.env
+__pycache__/
+test_scripts.py
+*.json
+
+http_cache
+app(old).py
