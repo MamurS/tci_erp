@@ -1,0 +1,11 @@
+venv
+.env
+pg_volume
+rabbit_volume
+__pycache__/
+*.pdf
+*.json
+*.xls
+*.xlsx
+docker-compose.yml
+test_scripts.py
