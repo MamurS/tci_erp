@@ -62,6 +62,8 @@ company = CompanyFinancials(
             interest_expenses=-9 * BLN,
             profit_before_tax=49 * BLN,
             net_profit=37 * BLN,
+            operating_cash_flow=31 * BLN,
+            capital_expenditures=-12 * BLN,
         ),
     ],
 )

@@ -112,6 +112,12 @@ def compute_period_ratios(p: FinancialPeriod) -> dict[str, float | None]:
         "accounts_payable": p.accounts_payable,
         "non_current_assets": p.non_current_assets,
         "intangible_assets": p.intangible_assets,
+        "current_assets": p.current_assets,
+        "inventories": p.inventories,
+        "accounts_receivable": p.accounts_receivable,
+        "cash": p.cash,
+        "operating_cash_flow": p.operating_cash_flow,
+        "capital_expenditures": p.capital_expenditures,
     }
 
 

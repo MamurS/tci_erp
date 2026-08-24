@@ -176,6 +176,29 @@ MESSAGES: dict[str, dict[str, str]] = {
         "adj.litigation_pressure": "significant litigation exposure",
         "adj.insufficient_data": "insufficient financial data",
         "adj.weak_equity_dominance": "weak capitalization dominates the assessment",
+        "common.and_dyn": " and {dyn_phrase}",
+        "income.gross_profit": "Gross profit amounted to {value}",
+        "income.operating_profit": "Operating profit was {value}",
+        "income.opex": (
+            "Selling and administrative expenses totaled {value} ({share} of revenue)."
+        ),
+        "income.interest": "Interest expenses amounted to {value}.",
+        "balance.structure": (
+            "Non-current assets make up {nca_share} of total assets, "
+            "current assets {ca_share}."
+        ),
+        "balance.current_items": (
+            "Current assets include inventories of {inventories}, receivables of "
+            "{receivables} and cash of {cash}."
+        ),
+        "balance.payables": "Accounts payable stood at {value}.",
+        "cashflow.cfo_positive": "Operating cash flow was positive at {value}",
+        "cashflow.cfo_negative": (
+            "Operating cash flow was negative at {value}: operations absorb cash"
+        ),
+        "cashflow.capex": "Capital expenditures amounted to {value}.",
+        "cashflow.fcf_positive": "Free cash flow is positive at {value}.",
+        "cashflow.fcf_negative": "Free cash flow is negative at {value}.",
     },
     "ru": {
         "income.revenue": "Выручка за {year} год составила {revenue}",
@@ -222,6 +245,29 @@ MESSAGES: dict[str, dict[str, str]] = {
         "adj.litigation_pressure": "существенная судебная нагрузка",
         "adj.insufficient_data": "недостаточность финансовых данных",
         "adj.weak_equity_dominance": "слабая капитализация доминирует в оценке",
+        "common.and_dyn": " и {dyn_phrase}",
+        "income.gross_profit": "Валовая прибыль составила {value}",
+        "income.operating_profit": "Операционная прибыль составила {value}",
+        "income.opex": (
+            "Коммерческие и административные расходы составили {value} ({share} от выручки)."
+        ),
+        "income.interest": "Процентные расходы составили {value}.",
+        "balance.structure": (
+            "Внеоборотные активы занимают {nca_share} валюты баланса, оборотные - {ca_share}."
+        ),
+        "balance.current_items": (
+            "В составе оборотных активов: запасы {inventories}, дебиторская задолженность "
+            "{receivables}, денежные средства {cash}."
+        ),
+        "balance.payables": "Кредиторская задолженность составила {value}.",
+        "cashflow.cfo_positive": "Операционный денежный поток положительный: {value}",
+        "cashflow.cfo_negative": (
+            "Операционный денежный поток отрицательный ({value}): операционная деятельность "
+            "поглощает денежные средства"
+        ),
+        "cashflow.capex": "Капитальные затраты составили {value}.",
+        "cashflow.fcf_positive": "Свободный денежный поток положительный: {value}.",
+        "cashflow.fcf_negative": "Свободный денежный поток отрицательный: {value}.",
     },
     "uz": {
         "income.revenue": "{year} yil uchun tushum {revenue} ni tashkil etdi",
@@ -270,5 +316,93 @@ MESSAGES: dict[str, dict[str, str]] = {
         "adj.litigation_pressure": "sezilarli sud yuklamasi",
         "adj.insufficient_data": "moliyaviy ma'lumotlar yetarli emas",
         "adj.weak_equity_dominance": "zaif kapitallashuv baholashda ustunlik qiladi",
+        "common.and_dyn": " va {dyn_phrase}",
+        "income.gross_profit": "Yalpi foyda {value} ni tashkil etdi",
+        "income.operating_profit": "Operatsion foyda {value} bo'ldi",
+        "income.opex": (
+            "Tijorat va ma'muriy xarajatlar {value} ni tashkil etdi (tushumning {share}i)."
+        ),
+        "income.interest": "Foiz xarajatlari {value} ni tashkil etdi.",
+        "balance.structure": (
+            "Uzoq muddatli aktivlar jami aktivlarning {nca_share}ini, "
+            "joriy aktivlar {ca_share}ini tashkil etadi."
+        ),
+        "balance.current_items": (
+            "Joriy aktivlar tarkibida: zaxiralar {inventories}, debitorlik qarzi "
+            "{receivables}, pul mablag'lari {cash}."
+        ),
+        "balance.payables": "Kreditorlik qarzi {value} ni tashkil etdi.",
+        "cashflow.cfo_positive": "Operatsion pul oqimi ijobiy: {value}",
+        "cashflow.cfo_negative": (
+            "Operatsion pul oqimi manfiy ({value}): operatsion faoliyat pul "
+            "mablag'larini yutmoqda"
+        ),
+        "cashflow.capex": "Kapital xarajatlar {value} ni tashkil etdi.",
+        "cashflow.fcf_positive": "Erkin pul oqimi ijobiy: {value}.",
+        "cashflow.fcf_negative": "Erkin pul oqimi manfiy: {value}.",
+    },
+}
+
+#: Qualitative labels for ratio bands, used in the financial_ratios paragraph.
+QUALIFIERS: dict[str, dict[str, str]] = {
+    "en": {
+        "negative": "negative",
+        "critical": "critical",
+        "insufficient": "insufficient",
+        "low": "low",
+        "very_low": "very low",
+        "moderate": "moderate",
+        "adequate": "adequate",
+        "acceptable": "acceptable",
+        "high": "high",
+        "very_high": "very high",
+        "extreme": "extreme",
+        "negative_or_zero": "minimal",
+        "very_short": "very short",
+        "short": "short",
+        "average": "average",
+        "extended": "extended",
+        "long": "long",
+        "very_long": "very long",
+    },
+    "ru": {
+        "negative": "отрицательный",
+        "critical": "критический",
+        "insufficient": "недостаточный",
+        "low": "низкий",
+        "very_low": "очень низкий",
+        "moderate": "умеренный",
+        "adequate": "достаточный",
+        "acceptable": "приемлемый",
+        "high": "высокий",
+        "very_high": "очень высокий",
+        "extreme": "экстремальный",
+        "negative_or_zero": "минимальный",
+        "very_short": "очень короткий",
+        "short": "короткий",
+        "average": "средний",
+        "extended": "растянутый",
+        "long": "длинный",
+        "very_long": "очень длинный",
+    },
+    "uz": {
+        "negative": "manfiy",
+        "critical": "kritik",
+        "insufficient": "yetarli emas",
+        "low": "past",
+        "very_low": "juda past",
+        "moderate": "mo''tadil",
+        "adequate": "yetarli",
+        "acceptable": "maqbul",
+        "high": "yuqori",
+        "very_high": "juda yuqori",
+        "extreme": "ekstremal",
+        "negative_or_zero": "minimal",
+        "very_short": "juda qisqa",
+        "short": "qisqa",
+        "average": "o'rtacha",
+        "extended": "cho'zilgan",
+        "long": "uzun",
+        "very_long": "juda uzun",
     },
 }

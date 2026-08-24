@@ -19,6 +19,7 @@ from credit_engine.commentary.catalog import (
     FACTOR_NAMES,
     GRADE_LABELS,
     MESSAGES,
+    QUALIFIERS,
 )
 from credit_engine.models import (
     FactorStatus,
@@ -28,6 +29,7 @@ from credit_engine.models import (
     RatioReport,
     Severity,
 )
+from credit_engine.scoring import tables
 
 STRENGTH_SCORE_MAX = 40.0
 WEAKNESS_SCORE_MIN = 60.0
@@ -201,6 +203,23 @@ def _income_paragraph(report: RatioReport, currency: str, lang: str) -> str:
             sentence += m["income.revenue_dyn"].format(dyn_phrase=dyn)
         parts.append(sentence + ".")
 
+    if r.get("gross_profit") is not None:
+        sentence = m["income.gross_profit"].format(
+            value=fmt_money(r["gross_profit"], currency)
+        )
+        dyn = dynamic_phrase(report.dynamics.get("gross_profit"), lang)
+        if dyn:
+            sentence += m["common.and_dyn"].format(dyn_phrase=dyn)
+        parts.append(sentence + ".")
+
+    if r.get("total_operating_costs") is not None:
+        parts.append(
+            m["income.opex"].format(
+                value=fmt_money(r["total_operating_costs"], currency),
+                share=fmt_pct(r.get("operating_costs_to_revenue")),
+            )
+        )
+
     if r.get("gross_margin") is not None or r.get("operating_margin") is not None:
         parts.append(
             m["income.margins"].format(
@@ -208,6 +227,10 @@ def _income_paragraph(report: RatioReport, currency: str, lang: str) -> str:
                 operating_margin=fmt_pct(r.get("operating_margin")),
             )
         )
+
+    interest = r.get("interest_expenses")
+    if interest is not None and interest != 0:
+        parts.append(m["income.interest"].format(value=fmt_money(abs(interest), currency)))
 
     net_profit = r.get("net_profit")
     if net_profit is not None:
@@ -241,6 +264,29 @@ def _balance_paragraph(report: RatioReport, currency: str, lang: str) -> str:
             sentence += m["balance.assets_dyn"].format(dyn_phrase=dyn)
         parts.append(sentence + ".")
 
+    total_assets = r.get("total_assets")
+    nca = r.get("non_current_assets")
+    ca = r.get("current_assets")
+    if total_assets and nca is not None and ca is not None:
+        parts.append(
+            m["balance.structure"].format(
+                nca_share=fmt_pct(nca / total_assets),
+                ca_share=fmt_pct(ca / total_assets),
+            )
+        )
+
+    inventories = r.get("inventories")
+    receivables = r.get("accounts_receivable")
+    cash = r.get("cash")
+    if inventories is not None and receivables is not None and cash is not None:
+        parts.append(
+            m["balance.current_items"].format(
+                inventories=fmt_money(inventories, currency),
+                receivables=fmt_money(receivables, currency),
+                cash=fmt_money(cash, currency),
+            )
+        )
+
     equity = r.get("equity")
     if equity is not None:
         if equity <= 0:
@@ -263,6 +309,11 @@ def _balance_paragraph(report: RatioReport, currency: str, lang: str) -> str:
             )
         )
 
+    if r.get("accounts_payable") is not None:
+        parts.append(
+            m["balance.payables"].format(value=fmt_money(r["accounts_payable"], currency))
+        )
+
     nwc = r.get("net_working_capital")
     if nwc is not None:
         key = "balance.nwc_positive" if nwc >= 0 else "balance.nwc_negative"
@@ -270,21 +321,58 @@ def _balance_paragraph(report: RatioReport, currency: str, lang: str) -> str:
     return " ".join(parts)
 
 
+def _qualified(text: str, table: tables.ScoreTable, value: float, lang: str) -> str:
+    """Append the qualitative band label, e.g. '1.61 (adequate)'."""
+    _, band = table.score(value)
+    label = QUALIFIERS[lang].get(band)
+    return f"{text} ({label})" if label else text
+
+
 def _ratios_paragraph(report: RatioReport, lang: str) -> str:
     m = MESSAGES[lang]
     r = report.ratios
     fragments: list[str] = []
 
-    if r.get("current_ratio") is not None:
-        fragments.append(m["ratios.current_ratio"].format(value=fmt_x(r["current_ratio"])))
-    if r.get("interest_coverage") is not None:
+    current_ratio = r.get("current_ratio")
+    if current_ratio is not None:
         fragments.append(
-            m["ratios.interest_coverage"].format(value=fmt_x(r["interest_coverage"]))
+            _qualified(
+                m["ratios.current_ratio"].format(value=fmt_x(current_ratio)),
+                tables.CURRENT_RATIO,
+                current_ratio,
+                lang,
+            )
         )
-    if r.get("debt_to_ebit") is not None:
-        fragments.append(m["ratios.debt_to_ebit"].format(value=fmt_x(r["debt_to_ebit"])))
-    if r.get("cash_conversion_cycle") is not None:
-        fragments.append(m["ratios.ccc"].format(value=f"{r['cash_conversion_cycle']:.0f}"))
+    icr = r.get("interest_coverage")
+    if icr is not None:
+        fragments.append(
+            _qualified(
+                m["ratios.interest_coverage"].format(value=fmt_x(icr)),
+                tables.INTEREST_COVERAGE,
+                icr,
+                lang,
+            )
+        )
+    debt_to_ebit = r.get("debt_to_ebit")
+    if debt_to_ebit is not None:
+        fragments.append(
+            _qualified(
+                m["ratios.debt_to_ebit"].format(value=fmt_x(debt_to_ebit)),
+                tables.DEBT_TO_EBIT,
+                debt_to_ebit,
+                lang,
+            )
+        )
+    ccc = r.get("cash_conversion_cycle")
+    if ccc is not None:
+        fragments.append(
+            _qualified(
+                m["ratios.ccc"].format(value=f"{ccc:.0f}"),
+                tables.CASH_CONVERSION_CYCLE,
+                ccc,
+                lang,
+            )
+        )
 
     parts: list[str] = []
     if fragments:
@@ -296,6 +384,28 @@ def _ratios_paragraph(report: RatioReport, lang: str) -> str:
                 roa=fmt_pct(r.get("return_on_assets")),
             )
         )
+    return " ".join(parts)
+
+
+def _cash_flow_paragraph(report: RatioReport, currency: str, lang: str) -> str:
+    """Cash-flow commentary; empty string when no cash-flow data was provided."""
+    m = MESSAGES[lang]
+    r = report.ratios
+    parts: list[str] = []
+
+    cfo = r.get("operating_cash_flow")
+    if cfo is not None:
+        key = "cashflow.cfo_positive" if cfo >= 0 else "cashflow.cfo_negative"
+        parts.append(m[key].format(value=fmt_money(cfo, currency)) + ".")
+
+    capex = r.get("capital_expenditures")
+    if capex is not None and capex != 0:
+        parts.append(m["cashflow.capex"].format(value=fmt_money(abs(capex), currency)))
+
+    fcf = r.get("free_cash_flow")
+    if fcf is not None:
+        key = "cashflow.fcf_positive" if fcf >= 0 else "cashflow.fcf_negative"
+        parts.append(m[key].format(value=fmt_money(fcf, currency)))
     return " ".join(parts)
 
 
@@ -369,9 +479,13 @@ def render_commentary(
 ) -> dict[str, str]:
     if lang not in MESSAGES:
         raise ValueError(f"unsupported language: {lang!r}")
-    return {
+    commentary = {
         "income_statement": _income_paragraph(latest_report, currency, lang),
         "balance_sheet": _balance_paragraph(latest_report, currency, lang),
         "financial_ratios": _ratios_paragraph(latest_report, lang),
         "conclusion": _conclusion_paragraph(rating, limit, currency, lang),
     }
+    cash_flow = _cash_flow_paragraph(latest_report, currency, lang)
+    if cash_flow:
+        commentary["cash_flow"] = cash_flow
+    return commentary

@@ -71,3 +71,49 @@ class TestCommentary:
     def test_loss_is_narrated_as_loss(self, distressed_company) -> None:  # type: ignore[no-untyped-def]
         result = assess(distressed_company, language="en")
         assert "net loss" in result.commentary["income_statement"]
+
+    def test_income_and_balance_cover_all_key_lines(self, healthy_company) -> None:  # type: ignore[no-untyped-def]
+        result = assess(healthy_company, language="en")
+        income = result.commentary["income_statement"]
+        assert "Gross profit" in income
+        assert "administrative expenses" in income
+        assert "Interest expenses" in income
+        balance = result.commentary["balance_sheet"]
+        assert "Non-current assets" in balance
+        assert "inventories" in balance
+        assert "Accounts payable" in balance
+
+    def test_ratios_carry_qualitative_labels(self, healthy_company) -> None:  # type: ignore[no-untyped-def]
+        result = assess(healthy_company, language="en")
+        ratios = result.commentary["financial_ratios"]
+        # current ratio 2.0 -> "adequate", ICR 8.7 -> "very high"
+        assert "(adequate)" in ratios
+        assert "(very high)" in ratios
+
+    def test_cash_flow_section_absent_without_data(self, healthy_company) -> None:  # type: ignore[no-untyped-def]
+        result = assess(healthy_company, language="en")
+        assert "cash_flow" not in result.commentary
+
+    def test_cash_flow_section_renders_when_data_present(self, healthy_company) -> None:  # type: ignore[no-untyped-def]
+        periods = healthy_company.sorted_periods()
+        with_cf = healthy_company.model_copy(
+            update={
+                "periods": [
+                    *periods[:-1],
+                    periods[-1].model_copy(
+                        update={
+                            "operating_cash_flow": 8_000_000.0,
+                            "capital_expenditures": -3_000_000.0,
+                        }
+                    ),
+                ]
+            }
+        )
+        result = assess(with_cf, language="en")
+        cash_flow = result.commentary["cash_flow"]
+        assert "Operating cash flow was positive" in cash_flow
+        assert "Capital expenditures" in cash_flow
+        assert "Free cash flow is positive" in cash_flow
+
+        ru = assess(with_cf, language="ru").commentary["cash_flow"]
+        assert "Свободный денежный поток положительный" in ru
