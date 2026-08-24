@@ -211,6 +211,30 @@ live limits to preserve):
 10. Concurrency-safe by construction: no module-level mutable state (legacy
     leaked one report's numbers into the next).
 
+## FastAPI service (`credit_engine_api`)
+
+The engine ships with a thin HTTP wrapper:
+
+```bash
+uv run --extra service uvicorn credit_engine_api.app:app --port 8100
+# interactive docs: http://127.0.0.1:8100/docs
+```
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /health` | liveness + whether the narrative layer is configured |
+| `POST /v1/assess` | financials in → assessment + narrative out |
+
+Request body: `{"company": <CompanyFinancials>, "language": "ru", "narrative": true}`.
+Response: `{"assessment": <CreditAssessment>, "narrative": {"status": "ok" | "unavailable" | "skipped", ...}}` —
+on any AI failure `narrative.status = "unavailable"` with
+`message_key = "commentary.service_unavailable"` while the assessment is
+returned in full.
+
+Environment: `ANTHROPIC_API_KEY` (narrative), `CREDIT_ENGINE_API_KEY`
+(optional; when set, `/v1/*` requires the `X-API-Key` header),
+`NARRATIVE_MODEL` (optional override, default `claude-opus-5`).
+
 ## Integration with TCI ERP
 
 Designed for the Phase 5 analytics service (`CLAUDE.md`): wrap `assess()`
