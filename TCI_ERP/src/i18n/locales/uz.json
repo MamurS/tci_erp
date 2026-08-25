@@ -85,6 +85,12 @@
       "pending": "Baholanmagan",
       "hint": "Reyting va limit bo'yicha xulosa analitik modul ulangach shu yerda ko'rinadi."
     },
+    "overview": {
+      "cfo": "Operatsion pul oqimi (CFO)",
+      "vsPrior": "{{period}} ga nisbatan",
+      "calculateRating": "Reytingni hisoblash",
+      "noAssessmentHint": "Hisobotlar kiritilgan, ammo reyting hali hisoblanmagan."
+    },
     "fields": {
       "name": "Nomi",
       "country": "Mamlakat",
@@ -288,6 +294,7 @@
       "manualTitle": "Qo‘lda kurs: {{date}} uchun {{ccy}}",
       "manualHint": "MB bu sana uchun kurs bermaydi. 1 birlik valyuta uchun so‘m miqdorini kiriting — kurs qo‘lda kiritilgan sifatida saqlanadi.",
       "footnote": "Qo‘llangan kurslar",
+      "growthFootnote": "O‘sish sur’atlari hisobot valyutasida hisoblangan",
       "manualPlaceholder": "1 {{ccy}} = ? UZS"
     },
     "cashflow": {

@@ -134,6 +134,9 @@ export function AnalysisTable<K extends string>({
                           col.statement,
                           verticalBaseFor(line.key) as K,
                         )
+                        // Δ% from ORIGINAL statement-currency values (deltaCurrent),
+                        // never from converted levels.
+                        const deltaValue = valueOf(col.deltaCurrent, line.key)
                         const deltaBaseValue = col.deltaBase
                           ? valueOf(col.deltaBase, line.key)
                           : null
@@ -148,7 +151,7 @@ export function AnalysisTable<K extends string>({
                             {col.deltaBaseLabel && (
                               <td className="border-b border-slate-100 px-3 py-1.5">
                                 <DeltaCell
-                                  value={relativeChange(value, deltaBaseValue)}
+                                  value={relativeChange(deltaValue, deltaBaseValue)}
                                   direction={line.direction}
                                 />
                               </td>

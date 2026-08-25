@@ -85,6 +85,12 @@
       "pending": "Not assessed",
       "hint": "The rating and limit summary will appear here once the analytics module is connected."
     },
+    "overview": {
+      "cfo": "Operating cash flow (CFO)",
+      "vsPrior": "vs {{period}}",
+      "calculateRating": "Calculate rating",
+      "noAssessmentHint": "Statements are entered but the rating has not been calculated yet."
+    },
     "fields": {
       "name": "Name",
       "country": "Country",
@@ -288,6 +294,7 @@
       "manualTitle": "Manual rate: {{ccy}} on {{date}}",
       "manualHint": "CBU has no rate for this date. Enter UZS per 1 unit of the currency; it will be saved as a manual rate.",
       "footnote": "Rates applied",
+      "growthFootnote": "Growth rates are calculated in the statement currency",
       "manualPlaceholder": "1 {{ccy}} = ? UZS"
     },
     "cashflow": {

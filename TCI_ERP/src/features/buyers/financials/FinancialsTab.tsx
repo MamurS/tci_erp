@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, EmptyState, Input, Modal, Segmented, Spinner, Table, Tabs } from '../../../components/ui'
@@ -10,6 +10,7 @@ import type { StatementBundle } from '../types'
 import { statementPeriodLabel } from '../types'
 import type { ReportType } from '../types'
 import {
+  applyDisplayCurrency,
   balanceSheetColumns,
   defaultSelection,
   hasMixedCurrencyOrUnit,
@@ -29,7 +30,8 @@ import { RatiosTable } from './RatiosTable'
 import { buildRiskPeriods } from './risk'
 import { RiskTable } from './RiskTable'
 
-type SubTab = 'balance' | 'pnl' | 'ratios' | 'cashflow' | 'risk'
+const SUB_TABS = ['balance', 'pnl', 'ratios', 'cashflow', 'risk'] as const
+type SubTab = (typeof SUB_TABS)[number]
 type TypeFilter = 'all' | ReportType
 
 export function FinancialsTab({ buyerId }: { buyerId: string }) {
@@ -38,7 +40,15 @@ export function FinancialsTab({ buyerId }: { buyerId: string }) {
   const { data: statements, isLoading } = useStatements(buyerId)
   const { data: buyer } = useBuyer(buyerId)
 
-  const [subTab, setSubTab] = useState<SubTab>('balance')
+  // Sub-tab lives in the URL (?sub=) so dashboard bullets can deep-link.
+  const [searchParams, setSearchParams] = useSearchParams()
+  const subParam = searchParams.get('sub')
+  const subTab: SubTab = SUB_TABS.includes(subParam as SubTab) ? (subParam as SubTab) : 'balance'
+  const setSubTab = (key: SubTab) => {
+    const next = new URLSearchParams(searchParams)
+    next.set('sub', key)
+    setSearchParams(next, { replace: true })
+  }
   const [manageOpen, setManageOpen] = useState(false)
   const [sourceStatement, setSourceStatement] = useState<StatementBundle | null>(null)
   const [typeFilter, setTypeFilter] = useState<TypeFilter>('all')
@@ -227,7 +237,7 @@ export function FinancialsTab({ buyerId }: { buyerId: string }) {
       <div className="mt-4" ref={tableRef}>
         {subTab === 'balance' && (
           <AnalysisTable
-            columns={balanceSheetColumns(displayed)}
+            columns={applyDisplayCurrency(balanceSheetColumns(displayedRaw), displayed)}
             sections={BALANCE_SHEET_SECTIONS}
             getValues={(s) => s.balance_sheets}
             verticalBaseFor={bsVerticalBase}
@@ -236,7 +246,7 @@ export function FinancialsTab({ buyerId }: { buyerId: string }) {
         )}
         {subTab === 'pnl' && (
           <AnalysisTable
-            columns={incomeStatementColumns(displayed, convertedAll.statements)}
+            columns={applyDisplayCurrency(incomeStatementColumns(displayedRaw, all), displayed)}
             sections={INCOME_STATEMENT_SECTIONS}
             getValues={(s) => s.income_statements}
             verticalBaseFor={() => 'revenue'}
@@ -248,6 +258,9 @@ export function FinancialsTab({ buyerId }: { buyerId: string }) {
         {subTab === 'risk' && <RiskTable periods={riskPeriods} />}
       </div>
 
+      {displayCurrency !== 'original' && (
+        <p className="mt-2 text-xs text-slate-400">{t('fin.fx.growthFootnote')}</p>
+      )}
       {displayCurrency !== 'original' && converted.footnotes.length > 0 && (
         <p className="mt-2 text-xs text-slate-400">
           {t('fin.fx.footnote')}:{' '}

@@ -6,9 +6,10 @@
  * when the analytics service is down.
  */
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   CartesianGrid,
   Line,
@@ -19,7 +20,7 @@ import {
   YAxis,
 } from 'recharts'
 
-import { Badge, Button, Card, GradeScale, Modal, Segmented, Select, Spinner, Table } from '../../../components/ui'
+import { Badge, Button, Card, GradeScale, Select, Spinner, Table } from '../../../components/ui'
 import {
   AnalyticsUnavailableError,
   postCreditLimit,
@@ -40,20 +41,14 @@ import type { StatementBundle } from '../types'
 import { statementPeriodLabel } from '../types'
 import { sortChronological } from '../financials/analysis'
 import { useFxRates, usdRateFor } from '../financials/fxApi'
+import { useAssessments } from './assessmentsApi'
+import type { AssessmentRow } from './assessmentsApi'
 import { buildFactorChips } from './chips'
 import { FactorChipList } from './FactorChips'
+import { ReportModal } from './ReportModal'
 
-interface AssessmentRow {
-  id: string
-  statement_id: string
-  rating_score: number
-  rating_grade: string
-  suggested_limit: number
-  limit_currency: string
-  engine_version: string
-  created_at: string
-  calculation_trace: { rating: RatingResponse; limit: CreditLimitResponse } | null
-}
+/** id of the factor breakdown table — dashboard chips deep-link here. */
+export const FACTOR_TABLE_ANCHOR_ID = 'rating-factor-table'
 
 /** Company age in years at the statement date (activates the age factor). */
 function ageAt(foundedDate: string | null | undefined, periodEnd: string): number | null {
@@ -97,20 +92,18 @@ export function RatingTab({ buyerId }: { buyerId: string }) {
   }, [selected])
   const { data: fxRates } = useFxRates(fxNeeds)
 
-  const assessments = useQuery({
-    queryKey: ['buyers', buyerId, 'assessments'],
-    queryFn: async (): Promise<AssessmentRow[]> => {
-      const { data, error } = await tci()
-        .from('credit_assessments')
-        .select(
-          'id, statement_id, rating_score, rating_grade, suggested_limit, limit_currency, engine_version, created_at, calculation_trace',
-        )
-        .eq('buyer_id', buyerId)
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      return (data ?? []) as unknown as AssessmentRow[]
-    },
-  })
+  const assessments = useAssessments(buyerId)
+
+  // ?anchor=factors (dashboard chip click) → scroll to the factor table.
+  const [searchParams] = useSearchParams()
+  const anchor = searchParams.get('anchor')
+  const hasResult = Boolean(result ?? assessments.data?.[0]?.calculation_trace)
+  useEffect(() => {
+    if (anchor !== 'factors' || !hasResult) return
+    document
+      .getElementById(FACTOR_TABLE_ANCHOR_ID)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [anchor, hasResult])
 
   const calculate = useMutation({
     mutationFn: async (statement: StatementBundle) => {
@@ -367,7 +360,8 @@ function ResultView({
       </Card>
 
       {/* Component breakdown */}
-      <Table dense>
+      <div id={FACTOR_TABLE_ANCHOR_ID} className="scroll-mt-4">
+        <Table dense>
         <thead>
           <tr>
             <th>{t('rating.componentsTitle')}</th>
@@ -409,8 +403,9 @@ function ResultView({
               </td>
             </tr>
           ))}
-        </tbody>
-      </Table>
+          </tbody>
+        </Table>
+      </div>
     </>
   )
 }
@@ -481,95 +476,6 @@ function ScoreHistoryChart({
         </ResponsiveContainer>
       </div>
     </Card>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Report generation modal
-// ---------------------------------------------------------------------------
-
-function ReportModal({
-  open,
-  onClose,
-  buyerId,
-}: {
-  open: boolean
-  onClose: () => void
-  buyerId: string
-}) {
-  const { t } = useTranslation()
-  const [lang, setLang] = useState('ru')
-  const [reportType, setReportType] = useState('statutory')
-  const [currency, setCurrency] = useState('original')
-
-  return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={t('rating.reportModal.title')}
-      footer={
-        <>
-          <Button variant="secondary" onClick={onClose}>
-            {t('common.cancel')}
-          </Button>
-          <Button
-            onClick={() => {
-              window.open(
-                `/buyers/${buyerId}/report?lang=${lang}&type=${reportType}&ccy=${currency}`,
-                '_blank',
-              )
-              onClose()
-            }}
-          >
-            {t('rating.reportModal.open')}
-          </Button>
-        </>
-      }
-    >
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[13px] font-medium text-slate-600">
-            {t('rating.reportModal.language')}
-          </span>
-          <Segmented
-            value={lang}
-            options={[
-              { key: 'en', label: 'EN' },
-              { key: 'ru', label: 'RU' },
-              { key: 'uz', label: 'UZ' },
-            ]}
-            onChange={setLang}
-          />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[13px] font-medium text-slate-600">
-            {t('rating.reportModal.reportType')}
-          </span>
-          <Segmented
-            value={reportType}
-            options={[
-              { key: 'statutory', label: t('fin.reportTypes.statutory') },
-              { key: 'management', label: t('fin.reportTypes.management') },
-            ]}
-            onChange={setReportType}
-          />
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[13px] font-medium text-slate-600">
-            {t('rating.reportModal.currency')}
-          </span>
-          <Segmented
-            value={currency}
-            options={[
-              { key: 'original', label: t('fin.fx.original') },
-              { key: 'UZS', label: 'UZS' },
-              { key: 'USD', label: 'USD' },
-            ]}
-            onChange={setCurrency}
-          />
-        </div>
-      </div>
-    </Modal>
   )
 }
 

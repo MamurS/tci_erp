@@ -42,11 +42,16 @@ function pct(change: number): number {
 }
 
 export function buildNarrative(input: {
-  /** Statements of ONE report_type, chronological; latest is assessed. */
+  /** Statements of ONE report_type, chronological; latest is assessed.
+   * May be display-currency converted — used for LEVELS only. */
   statements: StatementBundle[]
   all: StatementBundle[]
   riskPeriods: RiskPeriod[]
   cashFlowColumns: CashFlowColumn[]
+  /** ORIGINAL statement-currency bundles (superset incl. `all`). All
+   * growth/Δ computations use these so FX movement never masquerades as
+   * business dynamics. Defaults to `all` (already original). */
+  originalAll?: StatementBundle[]
 }): NarrativeBullet[] {
   const bullets: NarrativeBullet[] = []
   const chronological = sortChronological(input.statements)
@@ -65,12 +70,26 @@ export function buildNarrative(input: {
 
   const currency = latest.currency_code
 
+  // Growth is judged in the ORIGINAL statement currency; `latest`/`base`
+  // levels may be converted for display.
+  const originalAll = input.originalAll ?? input.all
+  const originalLatest = originalAll.find((s) => s.id === latest.id) ?? latest
+  const originalBase = base ? (originalAll.find((s) => s.id === base.id) ?? base) : null
+
   // --- performance: revenue level and like-for-like growth ---
   const revenue = latest.income_statements?.revenue ?? null
   if (revenue !== null) {
     const prevRevenue = base?.income_statements?.revenue ?? null
-    if (prevRevenue !== null && prevRevenue !== 0) {
-      const change = (revenue - prevRevenue) / Math.abs(prevRevenue)
+    const originalRevenue = originalLatest.income_statements?.revenue ?? null
+    const originalPrevRevenue = originalBase?.income_statements?.revenue ?? null
+    if (
+      prevRevenue !== null &&
+      originalRevenue !== null &&
+      originalPrevRevenue !== null &&
+      originalPrevRevenue !== 0
+    ) {
+      const change =
+        (originalRevenue - originalPrevRevenue) / Math.abs(originalPrevRevenue)
       const key =
         Math.abs(change) < 0.02
           ? 'revenue_flat'
