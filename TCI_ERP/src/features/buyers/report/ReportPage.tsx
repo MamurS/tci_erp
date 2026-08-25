@@ -7,27 +7,16 @@
 import { useMemo } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useQuery } from '@tanstack/react-query'
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts'
 
 import { Button, Spinner } from '../../../components/ui'
 import { GradeScale } from '../../../components/ui/GradeScale'
-import type { CreditLimitResponse, RatingResponse } from '../../../lib/analytics'
 import { EM_DASH, formatAmount, formatPercent, formatRatio } from '../../../lib/format'
 import { gradeChange, useGradeScale } from '../../../lib/gradeScale'
-import { tci } from '../../../lib/supabase'
 import { refName, useBuyer, useStatements } from '../api'
 import type { StatementBundle } from '../types'
 import { statementPeriodLabel } from '../types'
 import {
+  applyDisplayCurrency,
   balanceSheetColumns,
   incomeStatementColumns,
   relativeChange,
@@ -42,19 +31,12 @@ import { BALANCE_SHEET_SECTIONS, INCOME_STATEMENT_SECTIONS, bsVerticalBase } fro
 import type { SectionDef } from '../financials/lines'
 import { RATIO_DEFS, computeRatios } from '../financials/ratios'
 import { RISK_ROWS, buildRiskPeriods } from '../financials/risk'
+import { useAssessments } from '../rating/assessmentsApi'
 import { buildFactorChips } from '../rating/chips'
 import { FactorChipList } from '../rating/FactorChips'
+import { DynamicCharts } from './DynamicCharts'
 import { buildNarrative } from './narrative'
-
-interface AssessmentRow {
-  statement_id: string
-  rating_score: number
-  rating_grade: string
-  suggested_limit: number
-  limit_currency: string
-  created_at: string
-  calculation_trace: { rating: RatingResponse; limit: CreditLimitResponse } | null
-}
+import { formatNarrativeParams } from './narrativeParams'
 
 export function ReportPage() {
   const { id = '' } = useParams()
@@ -75,20 +57,7 @@ export function ReportPage() {
   const { data: statements, isLoading: stLoading } = useStatements(id)
   const { data: gradeBands } = useGradeScale()
 
-  const assessments = useQuery({
-    queryKey: ['buyers', id, 'assessments'],
-    queryFn: async (): Promise<AssessmentRow[]> => {
-      const { data, error } = await tci()
-        .from('credit_assessments')
-        .select(
-          'statement_id, rating_score, rating_grade, suggested_limit, limit_currency, created_at, calculation_trace',
-        )
-        .eq('buyer_id', id)
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      return (data ?? []) as unknown as AssessmentRow[]
-    },
-  })
+  const assessments = useAssessments(id)
 
   const all = useMemo(() => statements ?? [], [statements])
   const sameType = useMemo(
@@ -133,8 +102,10 @@ export function ReportPage() {
         all: allConverted,
         riskPeriods,
         cashFlowColumns,
+        // Growth %: always from original statement-currency values.
+        originalAll: sameType,
       }),
-    [displayed, allConverted, riskPeriods, cashFlowColumns],
+    [displayed, allConverted, riskPeriods, cashFlowColumns, sameType],
   )
 
   if (buyerLoading || stLoading) return <Spinner label="…" />
@@ -171,7 +142,14 @@ export function ReportPage() {
         <Button onClick={() => window.print()}>{t('report.print')}</Button>
       </div>
 
+      {/* Single-cell layout table: the repeating tfoot reserves a bottom band
+       * on EVERY printed page so content never collides with the fixed
+       * footer (Chrome prints fixed elements inside the page area). */}
       <div className="mx-auto max-w-[210mm] p-8 print:p-0">
+        <table className="report-layout">
+          <tbody>
+            <tr>
+              <td>
         {/* 1. Cover / general information */}
         <section className="report-section">
           <p className="text-xs font-semibold tracking-[0.3em] text-accent-700">
@@ -260,7 +238,7 @@ export function ReportPage() {
           <StatementTable
             t={t}
             locale={locale}
-            columns={balanceSheetColumns(displayed)}
+            columns={applyDisplayCurrency(balanceSheetColumns(displayedRaw), displayed)}
             sections={BALANCE_SHEET_SECTIONS}
             getValues={(s) => s.balance_sheets}
             verticalBaseFor={bsVerticalBase}
@@ -272,7 +250,7 @@ export function ReportPage() {
           <StatementTable
             t={t}
             locale={locale}
-            columns={incomeStatementColumns(displayed, allConverted)}
+            columns={applyDisplayCurrency(incomeStatementColumns(displayedRaw, sameType), displayed)}
             sections={INCOME_STATEMENT_SECTIONS}
             getValues={(s) => s.income_statements}
             verticalBaseFor={() => 'revenue'}
@@ -299,11 +277,14 @@ export function ReportPage() {
         {allConverted.length >= 2 && (
           <section className="report-section">
             <h2 className="report-h2">{t('report.sections.dynamicGraphs')}</h2>
-            <DynamicGraphs t={t} statements={allConverted} />
+            <DynamicCharts statements={allConverted} variant="print" t={t} />
           </section>
         )}
 
-        {/* FX footnote */}
+        {/* FX footnotes */}
+        {displayCurrency !== 'original' && (
+          <p className="mt-4 text-xs text-slate-400">{t('fin.fx.growthFootnote')}</p>
+        )}
         {displayCurrency !== 'original' && converted.footnotes.length > 0 && (
           <p className="mt-4 text-xs text-slate-400">
             {t('report.fxFootnote')}:{' '}
@@ -320,6 +301,17 @@ export function ReportPage() {
               .join('; ')}
           </p>
         )}
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>
+                <div className="report-footer-space" />
+              </td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
 
       {/* Print footer (repeats on each printed page) */}
@@ -335,35 +327,6 @@ export function ReportPage() {
 // ---------------------------------------------------------------------------
 
 type Tf = ReturnType<typeof useTranslation>['t']
-
-/** Format raw narrative params (amounts, ratios, percentages) per locale. */
-function formatNarrativeParams(
-  bullet: { key: string; params: Record<string, number | string> },
-  t: Tf,
-  locale: string,
-): Record<string, string | number> {
-  const p = bullet.params
-  const currency = String(p.currency ?? '')
-  const money = (v: number | string) => `${formatAmount(Number(v), locale)} ${currency}`
-  const out: Record<string, string | number> = { ...p }
-
-  if ('amount' in p) out.amount = money(p.amount)
-  if ('prev' in p) out.prev = money(p.prev)
-  if ('pct' in p) out.pct = formatAmount(Number(p.pct), locale, 1)
-  if ('from' in p && bullet.key.startsWith('gross_margin'))
-    out.from = formatAmount(Number(p.from), locale, 1)
-  if ('to' in p && bullet.key.startsWith('gross_margin'))
-    out.to = formatAmount(Number(p.to), locale, 1)
-  if ('margin' in p && p.margin !== '') out.margin = formatAmount(Number(p.margin), locale, 1)
-  if ('value' in p) out.value = formatRatio(Number(p.value), locale)
-  if ('rows' in p) {
-    out.rows = String(p.rows)
-      .split('|')
-      .map((key) => t(`fin.risk.rows.${key}`))
-      .join(', ')
-  }
-  return out
-}
 
 // ---------------------------------------------------------------------------
 // Statement table (amounts + % of base, compact for print)
@@ -528,7 +491,7 @@ function RatioReportTable({
                       <td key={`${s.id}-d`}>
                         <span
                           className={`num block text-[10px] ${
-                            delta === null
+                            delta === null || Math.abs(delta) < 0.0005
                               ? 'text-slate-300'
                               : delta > 0
                                 ? 'text-pos-500'
@@ -551,7 +514,7 @@ function RatioReportTable({
 }
 
 // ---------------------------------------------------------------------------
-// Risk summary + charts
+// Risk summary
 // ---------------------------------------------------------------------------
 
 function RiskSummary({
@@ -585,57 +548,3 @@ function RiskSummary({
   )
 }
 
-const CHART_COLORS = ['#4f46e5', '#16a34a', '#dc2626']
-
-function DynamicGraphs({ t, statements }: { t: Tf; statements: StatementBundle[] }) {
-  const data = statements.map((s) => {
-    const ratios = computeRatios(s.statement_kind, s.balance_sheets, s.income_statements)
-    return {
-      period: statementPeriodLabel(s),
-      revenue: s.income_statements?.revenue ?? null,
-      receivables: s.balance_sheets?.trade_receivables ?? null,
-      payables: s.balance_sheets?.trade_payables ?? null,
-      dso: ratios.receivables_days.value,
-      dio: ratios.inventory_days.value,
-      dpo: ratios.payables_days.value,
-    }
-  })
-
-  const axis = { fontSize: 10, fill: '#64748b' }
-
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="report-chart">
-        <h3 className="mb-1 text-[13px] font-semibold text-slate-600">
-          {t('report.charts.revRecPay')}
-        </h3>
-        <LineChart width={700} height={220} data={data} margin={{ top: 8, right: 16 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-          <XAxis dataKey="period" tick={axis} />
-          <YAxis tick={axis} width={70} />
-          <Tooltip />
-          <Legend wrapperStyle={{ fontSize: 11 }} />
-          <Line dataKey="revenue" name={t('fin.lines.revenue')} stroke={CHART_COLORS[0]} strokeWidth={2} dot={{ r: 2.5 }} />
-          <Line dataKey="receivables" name={t('fin.lines.trade_receivables')} stroke={CHART_COLORS[1]} strokeWidth={2} dot={{ r: 2.5 }} />
-          <Line dataKey="payables" name={t('fin.lines.trade_payables')} stroke={CHART_COLORS[2]} strokeWidth={2} dot={{ r: 2.5 }} />
-        </LineChart>
-      </div>
-
-      <div className="report-chart">
-        <h3 className="mb-1 text-[13px] font-semibold text-slate-600">
-          {t('report.charts.workingCapitalDays')}
-        </h3>
-        <LineChart width={700} height={220} data={data} margin={{ top: 8, right: 16 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-          <XAxis dataKey="period" tick={axis} />
-          <YAxis tick={axis} width={40} />
-          <Tooltip />
-          <Legend wrapperStyle={{ fontSize: 11 }} />
-          <Line dataKey="dso" name="DSO" stroke={CHART_COLORS[0]} strokeWidth={2} dot={{ r: 2.5 }} />
-          <Line dataKey="dio" name="DIO" stroke={CHART_COLORS[1]} strokeWidth={2} dot={{ r: 2.5 }} />
-          <Line dataKey="dpo" name="DPO" stroke={CHART_COLORS[2]} strokeWidth={2} dot={{ r: 2.5 }} />
-        </LineChart>
-      </div>
-    </div>
-  )
-}

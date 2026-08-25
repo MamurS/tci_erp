@@ -12,11 +12,16 @@ import { statementPeriodLabel } from '../types'
 import { relativeChange } from './ratios'
 
 export interface PeriodColumn {
+  /** Statement whose values are DISPLAYED (may be display-currency converted). */
   statement: StatementBundle
   /** Label of what Δ% compares against (e.g. "FY2024"); null = no Δ% column. */
   deltaBaseLabel: string | null
-  /** The statement Δ% compares against (may be off-screen for P&L). */
+  /** The statement Δ% compares against (may be off-screen for P&L).
+   * Always ORIGINAL statement-currency values. */
   deltaBase: StatementBundle | null
+  /** ORIGINAL statement-currency values of `statement`. Δ% is computed from
+   * deltaCurrent vs deltaBase so FX movement never masquerades as dynamics. */
+  deltaCurrent: StatementBundle
 }
 
 /** Sort by period end ascending (oldest left, newest right). */
@@ -44,6 +49,7 @@ export function balanceSheetColumns(displayed: StatementBundle[]): PeriodColumn[
       statement,
       deltaBase: prev,
       deltaBaseLabel: prev ? statementPeriodLabel(prev) : null,
+      deltaCurrent: statement,
     }
   })
 }
@@ -81,8 +87,25 @@ export function incomeStatementColumns(
       statement,
       deltaBase: base,
       deltaBaseLabel: base ? statementPeriodLabel(base) : null,
+      deltaCurrent: statement,
     }
   })
+}
+
+/**
+ * Swap the DISPLAYED statement of each column for its display-currency
+ * converted version while keeping deltaCurrent/deltaBase in the ORIGINAL
+ * statement currency: levels are converted, growth never is.
+ */
+export function applyDisplayCurrency(
+  columns: PeriodColumn[],
+  displayStatements: StatementBundle[],
+): PeriodColumn[] {
+  const byId = new Map(displayStatements.map((s) => [s.id, s]))
+  return columns.map((column) => ({
+    ...column,
+    statement: byId.get(column.statement.id) ?? column.statement,
+  }))
 }
 
 /** Vertical analysis: line / base, null-safe. */

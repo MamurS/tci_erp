@@ -62,6 +62,20 @@
   display: none;
 }
 
+/* Single-cell layout table of the report page; its tfoot repeats on every
+ * printed page, reserving room for the fixed footer. Invisible on screen. */
+.report-layout {
+  width: 100%;
+  border-collapse: collapse;
+}
+.report-layout > tbody > tr > td,
+.report-layout > tfoot > tr > td {
+  padding: 0;
+}
+.report-footer-space {
+  height: 0;
+}
+
 @media print {
   @page {
     size: A4;
@@ -70,23 +84,60 @@
   .no-print {
     display: none !important;
   }
+  body {
+    background: #fff; /* the app's slate page bg must not print */
+  }
+  /* No fixed heights / scroll containers may fight pagination. */
+  .report-root {
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+  /* Short sections stay whole; sections with tables MAY break between rows. */
   .report-section {
     break-inside: avoid-page;
+    page-break-inside: avoid;
   }
-  .report-section:has(.report-table) {
+  /* Sections with tables or charts MAY break (between rows / between
+   * charts); each row and each chart block still stays whole. */
+  .report-section:has(.report-table),
+  .report-section:has(.report-chart) {
     break-inside: auto;
+    page-break-inside: auto;
   }
+  /* Section titles glue to their first content block. */
   .report-h2 {
     break-after: avoid-page;
+    page-break-after: avoid;
   }
+  .report-chart h3 {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  /* Headers repeat after a natural table break — never orphaned. */
   .report-table thead {
-    display: table-header-group; /* repeat headers, no orphaned headers */
+    display: table-header-group;
   }
-  .report-table tr {
+  .report-table thead tr {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+  /* Long tables MAY break between rows but never inside a row. */
+  .report-table tr,
+  .report-table td,
+  .report-table th {
     break-inside: avoid;
+    page-break-inside: avoid;
   }
+  /* Chart blocks and stat groups stay whole. */
   .report-chart {
     break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+  .report-layout > tfoot {
+    display: table-footer-group; /* repeat the spacer on every page */
+  }
+  .report-footer-space {
+    height: 9mm;
   }
   .report-footer {
     display: block;
