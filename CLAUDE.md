@@ -66,6 +66,13 @@ Underwriting authority: decisions above a user's authority limit must route to a
 - `turnover_declaration` — periodic report of insurable sales per buyer/country
 - `overdue_notification` — policyholder's report of a buyer exceeding the maximum extension period
 
+## Infrastructure
+
+- **Canonical Supabase project: `tci_erp`, ref `reunqrpeumokqgarknge`, org United Organics.**
+  NEVER deploy TCI migrations or write TCI data to any other Supabase project,
+  regardless of what MCP lists. The company ERP project `mosaic-erp-production`
+  (org Mosaic APP) is out of bounds for TCI.
+
 ## Current status / roadmap
 
 - [x] Phase 0: scaffold (repo, Vite app, Supabase project, auth, roles, i18n, layout)
