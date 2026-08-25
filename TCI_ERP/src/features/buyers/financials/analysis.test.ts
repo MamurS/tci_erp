@@ -32,6 +32,7 @@ function stmt(
     accounting_basis: 'ifrs',
     template_id: null,
     mapping_status: 'n/a',
+    report_type: 'statutory',
     created_at: '',
     updated_at: '',
     balance_sheets: null,
@@ -41,21 +42,24 @@ function stmt(
 }
 
 describe('period labels', () => {
-  it('annual and quarterly labels', () => {
-    expect(statementPeriodLabel({ statement_kind: 'annual', fiscal_year: 2025, fiscal_quarter: null })).toBe('FY2025')
-    expect(statementPeriodLabel({ statement_kind: 'quarterly', fiscal_year: 2025, fiscal_quarter: 1 })).toBe("Q1'25")
+  it('compact annual and quarterly labels', () => {
+    expect(statementPeriodLabel({ statement_kind: 'annual', fiscal_year: 2025, fiscal_quarter: null })).toBe('2025')
+    expect(statementPeriodLabel({ statement_kind: 'quarterly', fiscal_year: 2025, fiscal_quarter: 1 })).toBe('2025 (1)')
   })
 })
 
 describe('defaultSelection', () => {
-  it('picks last 3 by period_end_date', () => {
+  it('picks last 6 by period_end_date, chronological', () => {
     const s = [
-      stmt({ id: 'a', period_end_date: '2022-12-31' }),
+      stmt({ id: 'a', period_end_date: '2019-12-31' }),
       stmt({ id: 'b', period_end_date: '2024-12-31' }),
       stmt({ id: 'c', period_end_date: '2023-12-31' }),
       stmt({ id: 'd', period_end_date: '2025-03-31' }),
+      stmt({ id: 'e', period_end_date: '2020-12-31' }),
+      stmt({ id: 'f', period_end_date: '2021-12-31' }),
+      stmt({ id: 'g', period_end_date: '2022-12-31' }),
     ]
-    expect(defaultSelection(s)).toEqual(['c', 'b', 'd'])
+    expect(defaultSelection(s)).toEqual(['e', 'f', 'g', 'c', 'b', 'd'])
   })
 })
 
@@ -69,7 +73,23 @@ describe('balanceSheetColumns', () => {
     expect(cols.map((c) => c.statement.fiscal_year)).toEqual([2023, 2024, 2025])
     expect(cols[0].deltaBase).toBeNull()
     expect(cols[1].deltaBase?.fiscal_year).toBe(2023)
-    expect(cols[2].deltaBaseLabel).toBe('FY2024')
+    expect(cols[2].deltaBaseLabel).toBe('2024')
+  })
+
+  it('never mixes report types: delta base skips management columns', () => {
+    const st2023 = stmt({ fiscal_year: 2023, period_end_date: '2023-12-31' })
+    const mgmt2024 = stmt({
+      fiscal_year: 2024,
+      period_end_date: '2024-12-31',
+      report_type: 'management',
+    })
+    const st2025 = stmt({ fiscal_year: 2025, period_end_date: '2025-12-31' })
+    const cols = balanceSheetColumns([st2023, mgmt2024, st2025])
+
+    // statutory 2025 compares to statutory 2023, skipping management 2024
+    expect(cols[2].deltaBase?.id).toBe(st2023.id)
+    // management 2024 has no same-type predecessor displayed
+    expect(cols[1].deltaBase).toBeNull()
   })
 })
 
@@ -95,15 +115,31 @@ describe('like-for-like P&L comparison', () => {
   it('base may be off-screen: displayed columns still find it in the full list', () => {
     const cols = incomeStatementColumns([fy2025, q1_25], all)
     const annualCol = cols.find((c) => c.statement.id === fy2025.id)
-    expect(annualCol?.deltaBaseLabel).toBe('FY2024')
+    expect(annualCol?.deltaBaseLabel).toBe('2024')
     const quarterCol = cols.find((c) => c.statement.id === q1_25.id)
-    expect(quarterCol?.deltaBaseLabel).toBe("Q1'24")
+    expect(quarterCol?.deltaBaseLabel).toBe('2024 (1)')
   })
 
   it('no matching prior-year statement -> no delta column', () => {
     expect(findLikeForLikeBase(fy2024, all)).toBeNull()
     const cols = incomeStatementColumns([fy2024], all)
     expect(cols[0].deltaBaseLabel).toBeNull()
+  })
+
+  it('like-for-like requires the same report_type', () => {
+    const mgmt2024 = stmt({
+      fiscal_year: 2024,
+      period_end_date: '2024-12-31',
+      report_type: 'management',
+    })
+    // statutory 2025 must NOT compare to management 2024
+    expect(findLikeForLikeBase(fy2025, [mgmt2024, fy2025])).toBeNull()
+    const mgmt2025 = stmt({
+      fiscal_year: 2025,
+      period_end_date: '2025-12-31',
+      report_type: 'management',
+    })
+    expect(findLikeForLikeBase(mgmt2025, [mgmt2024, fy2024])?.id).toBe(mgmt2024.id)
   })
 })
 

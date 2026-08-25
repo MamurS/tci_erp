@@ -25,6 +25,8 @@ export interface StatementPayload {
   currency: string
   unit: 'units' | 'thousands' | 'millions'
   exchange_rate_usd?: number
+  /** Recorded in inputs_snapshot; trends never mix report types. */
+  report_type?: 'statutory' | 'management'
   periods: AnalyticsPeriod[]
 }
 

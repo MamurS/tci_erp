@@ -70,12 +70,16 @@ export function AnalysisTable<K extends string>({
         <table className="w-full border-collapse text-[13px]">
           <thead>
             <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
-              <th className="text-left">{t('fin.lineHeader')}</th>
+              <th className="sticky left-0 z-10 min-w-64 bg-slate-50 text-left">{t('fin.lineHeader')}</th>
               {columns.map((col) => (
                 <th
                   key={col.statement.id}
                   colSpan={col.deltaBaseLabel ? 3 : 2}
                   className="border-l border-slate-200 text-center"
+                  title={t(`fin.periodTooltip.${col.statement.statement_kind}`, {
+                    year: col.statement.fiscal_year,
+                    quarter: col.statement.fiscal_quarter,
+                  })}
                 >
                   {statementPeriodLabel(col.statement)}
                   <span className="ml-1.5 font-normal text-slate-400">
@@ -117,7 +121,11 @@ export function AnalysisTable<K extends string>({
                   </tr>
                   {visible.map((line) => (
                     <tr key={line.key} className={rowClasses(line)}>
-                      <td className="border-b border-slate-100 px-3 py-1.5 text-slate-700">
+                      <td
+                        className={`sticky left-0 z-10 border-b border-slate-100 px-3 py-1.5 text-slate-700 ${
+                          line.level === 'line' ? 'bg-white' : 'bg-slate-50'
+                        }`}
+                      >
                         {t(`fin.lines.${line.key}`)}
                       </td>
                       {columns.map((col) => {

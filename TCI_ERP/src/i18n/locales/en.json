@@ -114,7 +114,9 @@
     "tabs": {
       "balance": "Balance Sheet",
       "pnl": "P&L",
-      "ratios": "Ratios"
+      "ratios": "Ratios",
+      "cashflow": "Cash Flow",
+      "risk": "Risk Analysis"
     },
     "fields": {
       "period": "Period",
@@ -125,7 +127,8 @@
       "audited": "Audited",
       "fiscalYear": "Fiscal year",
       "fiscalQuarter": "Quarter",
-      "source": "Source"
+      "source": "Source",
+      "reportType": "Report type"
     },
     "kinds": {
       "annual": "Annual",
@@ -265,6 +268,101 @@
       "operating": "Operating activity",
       "financial": "Financing activity",
       "result": "Financial result"
+    },
+    "reportTypes": {
+      "statutory": "Statutory",
+      "management": "Management",
+      "all": "All"
+    },
+    "periodTooltip": {
+      "annual": "Annual statement for {{year}}",
+      "quarterly": "Q{{quarter}} {{year}} quarterly statement"
+    },
+    "fx": {
+      "displayCurrency": "Display currency",
+      "original": "Original",
+      "loadingRates": "Loading CBU exchange rates…",
+      "missingRates": "Missing exchange rates — click to enter manually",
+      "manualTitle": "Manual rate: {{ccy}} on {{date}}",
+      "manualHint": "CBU has no rate for this date. Enter UZS per 1 unit of the currency; it will be saved as a manual rate.",
+      "footnote": "Rates applied"
+    },
+    "cashflow": {
+      "header": "Cash flow (indirect method)",
+      "needsPair": "Cash flow requires two consecutive statements",
+      "needsPairHint": "Enter at least two statements of the same kind and report type (e.g. two consecutive annual statements).",
+      "negativeCfoWarning": "Negative operating cash flow across consecutive periods",
+      "netChange": "Net change in cash",
+      "deltaCash": "Δ Cash and equivalents (balance sheet)",
+      "reconciliation": "Reconciliation check",
+      "sections": {
+        "operating": "Operating activities",
+        "investing": "Investing activities",
+        "financing": "Financing activities"
+      },
+      "subtotals": {
+        "cfo": "Cash flow from operating activities",
+        "cfi": "Cash flow from investing activities",
+        "cff": "Cash flow from financing activities"
+      },
+      "lines": {
+        "net_profit": "Net profit",
+        "depreciation_amortization": "Depreciation and amortization",
+        "delta_receivables": "Δ Receivables",
+        "delta_inventories": "Δ Inventories",
+        "delta_other_current_assets": "Δ Other current assets",
+        "delta_deferred_tax_assets": "Δ Deferred tax assets",
+        "delta_payables": "Δ Payables",
+        "delta_tax_liabilities": "Δ Current tax liabilities",
+        "delta_provisions": "Δ Provisions",
+        "delta_deferred_tax_liabilities": "Δ Deferred tax liabilities",
+        "delta_other_current_liabilities": "Δ Other current liabilities",
+        "ppe_capex": "Property, plant and equipment (capex)",
+        "intangibles": "Intangible assets and goodwill",
+        "investment_property": "Investment property",
+        "long_term_investments": "Long-term investments",
+        "short_term_investments": "Short-term investments",
+        "other_non_current_assets": "Other non-current assets",
+        "long_term_borrowings": "Long-term borrowings",
+        "short_term_borrowings": "Short-term borrowings",
+        "other_non_current_liabilities": "Other non-current liabilities",
+        "share_capital": "Share capital",
+        "other_reserves": "Other reserves",
+        "non_controlling_interests": "Non-controlling interests"
+      }
+    },
+    "risk": {
+      "header": "Indicator",
+      "change": "Change",
+      "norm": "norm",
+      "bands": {
+        "safe": "low risk",
+        "grey": "grey zone",
+        "distress": "high risk"
+      },
+      "groups": {
+        "liquidity": "Liquidity assessment",
+        "activity": "Business activity",
+        "stability": "Financial stability"
+      },
+      "rows": {
+        "z_score": "Bankruptcy risk (Altman Z''-score)",
+        "net_working_capital": "Net working capital",
+        "equity": "Equity",
+        "current_ratio": "Current ratio",
+        "quick_ratio": "Quick ratio",
+        "cash_ratio": "Cash ratio",
+        "cfo_to_current_liabilities": "Operating cash flow / current liabilities",
+        "receivables_days": "Receivables turnover, days",
+        "inventory_days": "Inventory turnover, days",
+        "payables_days": "Payables turnover, days",
+        "additional_credit_need": "Need for additional credit period, days",
+        "long_term_debt_ratio": "Long-term debt attraction ratio",
+        "leverage": "Financial leverage",
+        "borrowed_concentration": "Concentration of borrowed funds",
+        "interest_coverage": "Interest coverage",
+        "cfo_interest_coverage": "Interest coverage (cash flow)"
+      }
     }
   },
   "rating": {

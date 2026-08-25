@@ -16,6 +16,7 @@ from credit_engine.ratios import build_ratio_reports
 from credit_engine.scoring.calculator import FactorInputs, calculate_rating
 
 from app.adapter import build_company
+from app.fx import router as fx_router
 from app.schemas import (
     CreditLimitRequest,
     CreditLimitResponse,
@@ -43,6 +44,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(fx_router)
 
 
 def _factor_inputs(

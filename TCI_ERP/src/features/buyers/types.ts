@@ -87,6 +87,7 @@ export type IncomeStatementValues = Record<IncomeStatementKey, number | null>
 
 export type AccountingBasis = 'ifrs' | 'local'
 export type MappingStatus = 'n/a' | 'mapped' | 'stale'
+export type ReportType = 'statutory' | 'management'
 
 export interface FinancialStatement {
   id: string
@@ -102,6 +103,7 @@ export interface FinancialStatement {
   accounting_basis: AccountingBasis
   template_id: string | null
   mapping_status: MappingStatus
+  report_type: ReportType
   created_at: string
   updated_at: string
 }
@@ -112,14 +114,14 @@ export interface StatementBundle extends FinancialStatement {
   income_statements: IncomeStatementValues | null
 }
 
-/** "FY2025" / "Q1'25" style label for column headers. */
+/** Compact period notation (legacy style): "2024" annual, "2024 (2)" for Q2. */
 export function statementPeriodLabel(s: {
   statement_kind: StatementKind
   fiscal_year: number
   fiscal_quarter: number | null
 }): string {
-  if (s.statement_kind === 'annual') return `FY${s.fiscal_year}`
-  return `Q${s.fiscal_quarter}'${String(s.fiscal_year % 100).padStart(2, '0')}`
+  if (s.statement_kind === 'annual') return String(s.fiscal_year)
+  return `${s.fiscal_year} (${s.fiscal_quarter})`
 }
 
 export function emptyBalanceSheet(): BalanceSheetValues {

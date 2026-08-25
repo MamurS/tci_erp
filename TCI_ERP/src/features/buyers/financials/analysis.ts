@@ -24,18 +24,22 @@ export function sortChronological(statements: StatementBundle[]): StatementBundl
   return [...statements].sort((a, b) => a.period_end_date.localeCompare(b.period_end_date))
 }
 
-/** Default selection: last 3 statements by period_end_date. */
+/** Default selection: last 6 statements by period_end_date. */
 export function defaultSelection(statements: StatementBundle[]): string[] {
   return sortChronological(statements)
-    .slice(-3)
+    .slice(-6)
     .map((s) => s.id)
 }
 
-/** Balance sheet columns: Δ% vs the previous displayed column. */
+/** Balance sheet columns: Δ% vs the previous DISPLAYED column of the SAME
+ * report_type (trend computations never mix statutory and management). */
 export function balanceSheetColumns(displayed: StatementBundle[]): PeriodColumn[] {
   const ordered = sortChronological(displayed)
   return ordered.map((statement, idx) => {
-    const prev = idx > 0 ? ordered[idx - 1] : null
+    const prev =
+      [...ordered.slice(0, idx)]
+        .reverse()
+        .find((s) => s.report_type === statement.report_type) ?? null
     return {
       statement,
       deltaBase: prev,
@@ -44,12 +48,14 @@ export function balanceSheetColumns(displayed: StatementBundle[]): PeriodColumn[
   })
 }
 
-/** Find the like-for-like prior-year statement in the FULL list. */
+/** Find the like-for-like prior-year statement (same kind, same quarter,
+ * same report_type) in the FULL list. */
 export function findLikeForLikeBase(
   statement: {
     statement_kind: StatementKind
     fiscal_year: number
     fiscal_quarter: number | null
+    report_type: string
   },
   all: StatementBundle[],
 ): StatementBundle | null {
@@ -58,7 +64,8 @@ export function findLikeForLikeBase(
       (s) =>
         s.statement_kind === statement.statement_kind &&
         s.fiscal_year === statement.fiscal_year - 1 &&
-        s.fiscal_quarter === statement.fiscal_quarter,
+        s.fiscal_quarter === statement.fiscal_quarter &&
+        s.report_type === statement.report_type,
     ) ?? null
   )
 }

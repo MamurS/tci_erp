@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { useQuery } from '@tanstack/react-query'
+
+import { tci } from '../../lib/supabase'
 
 import {
   Badge,
@@ -48,9 +51,15 @@ export function BuyerDetailPage() {
     <div>
       <PageHeader
         title={
-          <span>
-            <span className="mr-2">{countryFlag(buyer.country_code)}</span>
-            {buyer.name}
+          <span className="inline-flex items-center gap-3">
+            <span>
+              <span className="mr-2">{countryFlag(buyer.country_code)}</span>
+              {buyer.name}
+            </span>
+            <GradeHeaderBadge
+              buyerId={id}
+              onClick={() => setSearchParams({ tab: 'rating' }, { replace: true })}
+            />
           </span>
         }
         subtitle={
@@ -80,6 +89,44 @@ export function BuyerDetailPage() {
         {activeTab === 'rating' && <RatingTab buyerId={id} />}
       </div>
     </div>
+  )
+}
+
+/** Latest assessment grade, always visible in the header (legacy "Grade: 4"). */
+function GradeHeaderBadge({ buyerId, onClick }: { buyerId: string; onClick: () => void }) {
+  const { t } = useTranslation()
+  const { data } = useQuery({
+    queryKey: ['buyers', buyerId, 'latest-grade'],
+    queryFn: async (): Promise<{ rating_grade: string; rating_score: number } | null> => {
+      const { data: rows, error } = await tci()
+        .from('credit_assessments')
+        .select('rating_grade, rating_score')
+        .eq('buyer_id', buyerId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+      if (error) throw error
+      return (rows?.[0] as { rating_grade: string; rating_score: number } | undefined) ?? null
+    },
+  })
+
+  if (!data) return null
+  const grade = data.rating_grade
+  const tone = grade.startsWith('A')
+    ? 'bg-pos-50 text-pos-500'
+    : grade.startsWith('B')
+      ? 'bg-accent-50 text-accent-700'
+      : grade.startsWith('C')
+        ? 'bg-warn-50 text-warn-500'
+        : 'bg-neg-50 text-neg-500'
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={t('rating.gradeTitle')}
+      className={`rounded-full px-3 py-1 text-sm font-bold ${tone}`}
+    >
+      {grade} · {Number(data.rating_score).toFixed(0)}
+    </button>
   )
 }
 

@@ -114,6 +114,7 @@ export interface StatementHeaderInput {
   unit: 'units' | 'thousands' | 'millions'
   audited: boolean
   source: string | null
+  report_type?: 'statutory' | 'management'
   accounting_basis?: 'ifrs' | 'local'
   /** Primary template (the balance-sheet form) when accounting_basis='local'. */
   template_id?: string | null

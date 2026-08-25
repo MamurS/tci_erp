@@ -408,6 +408,7 @@ source = { editable = "." }
 dependencies = [
     { name = "credit-engine" },
     { name = "fastapi" },
+    { name = "httpx" },
     { name = "uvicorn", extra = ["standard"] },
 ]
 
@@ -421,6 +422,7 @@ dev = [
 requires-dist = [
     { name = "credit-engine", editable = "../../credit_engine" },
     { name = "fastapi", specifier = ">=0.115" },
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.30" },
 ]
 

@@ -26,6 +26,7 @@ import { useBuyer, useStatements } from '../api'
 import type { StatementBundle } from '../types'
 import { statementPeriodLabel } from '../types'
 import { sortChronological } from '../financials/analysis'
+import { useFxRates, usdRateFor } from '../financials/fxApi'
 
 interface AssessmentRow {
   id: string
@@ -68,6 +69,19 @@ export function RatingTab({ buyerId }: { buyerId: string }) {
   } | null>(null)
   const [serviceDown, setServiceDown] = useState(false)
 
+  // Actual USD rate at the selected statement's period end (replaces the
+  // service's placeholder rates). Needs USD→UZS and, for non-UZS
+  // statements, the statement currency→UZS rate.
+  const fxNeeds = useMemo(() => {
+    if (!selected) return []
+    const needs = [{ currency_code: 'USD', rate_date: selected.period_end_date }]
+    if (selected.currency_code !== 'UZS' && selected.currency_code !== 'USD') {
+      needs.push({ currency_code: selected.currency_code, rate_date: selected.period_end_date })
+    }
+    return needs
+  }, [selected])
+  const { data: fxRates } = useFxRates(fxNeeds)
+
   const assessments = useQuery({
     queryKey: ['buyers', buyerId, 'assessments'],
     queryFn: async (): Promise<AssessmentRow[]> => {
@@ -89,10 +103,12 @@ export function RatingTab({ buyerId }: { buyerId: string }) {
       const upTo = chronological.filter(
         (s) =>
           s.period_end_date <= statement.period_end_date &&
-          s.statement_kind === statement.statement_kind,
+          s.statement_kind === statement.statement_kind &&
+          s.report_type === statement.report_type,
       )
       const windowed = upTo.slice(-3)
 
+      const usdRate = usdRateFor(statement.currency_code, statement.period_end_date, fxRates)
       const payload: StatementPayload = {
         buyer: {
           name: buyer?.name ?? null,
@@ -101,6 +117,8 @@ export function RatingTab({ buyerId }: { buyerId: string }) {
         },
         currency: statement.currency_code,
         unit: statement.unit,
+        ...(usdRate !== null ? { exchange_rate_usd: usdRate } : {}),
+        report_type: statement.report_type,
         periods: windowed.map((s) => ({
           fiscal_year: s.fiscal_year,
           statement_kind: s.statement_kind,

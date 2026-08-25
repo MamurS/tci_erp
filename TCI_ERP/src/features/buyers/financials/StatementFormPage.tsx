@@ -63,6 +63,7 @@ export function StatementFormPage() {
   )
 
   const [kind, setKind] = useState<StatementKind>('annual')
+  const [reportType, setReportType] = useState<'statutory' | 'management'>('statutory')
   const [fiscalYear, setFiscalYear] = useState(new Date().getFullYear() - 1)
   const [fiscalQuarter, setFiscalQuarter] = useState(1)
   const [periodEnd, setPeriodEnd] = useState('')
@@ -93,6 +94,7 @@ export function StatementFormPage() {
       setAudited(existing.audited)
       setSource(existing.source ?? '')
       setBasis(existing.accounting_basis)
+      setReportType(existing.report_type)
       setBs({ ...emptyBalanceSheet(), ...existing.balance_sheets })
       setPnl({ ...emptyIncomeStatement(), ...existing.income_statements })
     }
@@ -119,6 +121,7 @@ export function StatementFormPage() {
       unit,
       audited,
       source: source.trim() || null,
+      report_type: reportType,
       accounting_basis: basis,
       template_id: basis === 'local' ? (primaryTemplate?.id ?? null) : null,
       mapping_status: basis === 'local' ? 'stale' : 'n/a',
@@ -214,6 +217,15 @@ export function StatementFormPage() {
           <Select value={kind} onChange={(e) => setKind(e.target.value as StatementKind)}>
             <option value="annual">{t('fin.kinds.annual')}</option>
             <option value="quarterly">{t('fin.kinds.quarterly')}</option>
+          </Select>
+        </Field>
+        <Field label={t('fin.fields.reportType')}>
+          <Select
+            value={reportType}
+            onChange={(e) => setReportType(e.target.value as 'statutory' | 'management')}
+          >
+            <option value="statutory">{t('fin.reportTypes.statutory')}</option>
+            <option value="management">{t('fin.reportTypes.management')}</option>
           </Select>
         </Field>
         <Field label={t('fin.fields.fiscalYear')}>

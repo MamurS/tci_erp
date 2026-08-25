@@ -114,7 +114,9 @@
     "tabs": {
       "balance": "Balans",
       "pnl": "FvZ",
-      "ratios": "Koeffitsientlar"
+      "ratios": "Koeffitsientlar",
+      "cashflow": "Pul oqimi",
+      "risk": "Risklar tahlili"
     },
     "fields": {
       "period": "Davr",
@@ -125,7 +127,8 @@
       "audited": "Auditdan o'tgan",
       "fiscalYear": "Moliyaviy yil",
       "fiscalQuarter": "Chorak",
-      "source": "Manba"
+      "source": "Manba",
+      "reportType": "Hisobot turi"
     },
     "kinds": {
       "annual": "Yillik",
@@ -265,6 +268,101 @@
       "operating": "Asosiy faoliyat",
       "financial": "Moliyaviy faoliyat",
       "result": "Moliyaviy natija"
+    },
+    "reportTypes": {
+      "statutory": "Soliq",
+      "management": "Boshqaruv",
+      "all": "Hammasi"
+    },
+    "periodTooltip": {
+      "annual": "{{year}} yil uchun yillik hisobot",
+      "quarterly": "{{year}} yil {{quarter}}-chorak hisoboti"
+    },
+    "fx": {
+      "displayCurrency": "Ko‘rsatish valyutasi",
+      "original": "Asl",
+      "loadingRates": "O‘zR MB kurslari yuklanmoqda…",
+      "missingRates": "Kurslar yo‘q — qo‘lda kiritish uchun bosing",
+      "manualTitle": "Qo‘lda kurs: {{date}} uchun {{ccy}}",
+      "manualHint": "MB bu sana uchun kurs bermaydi. 1 birlik valyuta uchun so‘m miqdorini kiriting — kurs qo‘lda kiritilgan sifatida saqlanadi.",
+      "footnote": "Qo‘llangan kurslar"
+    },
+    "cashflow": {
+      "header": "Pul oqimi (bilvosita usul)",
+      "needsPair": "Pul oqimi uchun ikkita ketma-ket hisobot kerak",
+      "needsPairHint": "Bir xil tur va ko‘rinishdagi kamida ikkita hisobot kiriting (masalan, ketma-ket ikki yillik).",
+      "negativeCfoWarning": "Bir necha davr ketma-ket manfiy operatsion oqim",
+      "netChange": "Pul mablag‘larining sof o‘zgarishi",
+      "deltaCash": "Δ Pul mablag‘lari (balans bo‘yicha)",
+      "reconciliation": "Nazorat solishtiruvi",
+      "sections": {
+        "operating": "Asosiy faoliyatdan",
+        "investing": "Investitsiya faoliyatidan",
+        "financing": "Moliyaviy faoliyatdan"
+      },
+      "subtotals": {
+        "cfo": "Asosiy faoliyatdan pul oqimi",
+        "cfi": "Investitsiya faoliyatidan pul oqimi",
+        "cff": "Moliyaviy faoliyatdan pul oqimi"
+      },
+      "lines": {
+        "net_profit": "Sof foyda",
+        "depreciation_amortization": "Amortizatsiya",
+        "delta_receivables": "Δ Debitorlik qarzlari",
+        "delta_inventories": "Δ Zaxiralar",
+        "delta_other_current_assets": "Δ Boshqa joriy aktivlar",
+        "delta_deferred_tax_assets": "Δ Kechiktirilgan soliq aktivlari",
+        "delta_payables": "Δ Kreditorlik qarzlari",
+        "delta_tax_liabilities": "Δ Joriy soliq majburiyatlari",
+        "delta_provisions": "Δ Baholash majburiyatlari",
+        "delta_deferred_tax_liabilities": "Δ Kechiktirilgan soliq majburiyatlari",
+        "delta_other_current_liabilities": "Δ Boshqa qisqa muddatli majburiyatlar",
+        "ppe_capex": "Asosiy vositalar (kapital xarajatlar)",
+        "intangibles": "Nomoddiy aktivlar va gudvil",
+        "investment_property": "Investitsiya mulki",
+        "long_term_investments": "Uzoq muddatli investitsiyalar",
+        "short_term_investments": "Qisqa muddatli investitsiyalar",
+        "other_non_current_assets": "Boshqa uzoq muddatli aktivlar",
+        "long_term_borrowings": "Uzoq muddatli kredit va qarzlar",
+        "short_term_borrowings": "Qisqa muddatli kredit va qarzlar",
+        "other_non_current_liabilities": "Boshqa uzoq muddatli majburiyatlar",
+        "share_capital": "Ustav kapitali",
+        "other_reserves": "Boshqa zaxiralar",
+        "non_controlling_interests": "Nazorat qilmaydigan ulushlar"
+      }
+    },
+    "risk": {
+      "header": "Ko‘rsatkich",
+      "change": "O‘zgarish",
+      "norm": "norma",
+      "bands": {
+        "safe": "past risk",
+        "grey": "kulrang zona",
+        "distress": "yuqori risk"
+      },
+      "groups": {
+        "liquidity": "Likvidlikni baholash",
+        "activity": "Ishbilarmonlik faolligi",
+        "stability": "Moliyaviy barqarorlik"
+      },
+      "rows": {
+        "z_score": "Bankrotlik riski (Altman Z''-hisobi)",
+        "net_working_capital": "Xususiy aylanma kapital",
+        "equity": "O‘z kapitali",
+        "current_ratio": "Joriy likvidlik",
+        "quick_ratio": "Tezkor likvidlik",
+        "cash_ratio": "Mutlaq likvidlik",
+        "cfo_to_current_liabilities": "Asosiy faoliyat oqimi / joriy majburiyatlar",
+        "receivables_days": "Debitorlik qarzi aylanishi, kun",
+        "inventory_days": "Zaxiralar aylanishi, kun",
+        "payables_days": "Kreditorlik qarzi aylanishi, kun",
+        "additional_credit_need": "Qo‘shimcha kredit davriga ehtiyoj, kun",
+        "long_term_debt_ratio": "Uzoq muddatli qarz jalb qilish koeffitsienti",
+        "leverage": "Moliyaviy leveraj darajasi",
+        "borrowed_concentration": "Jalb qilingan mablag‘lar kontsentratsiyasi",
+        "interest_coverage": "Foizlarni qoplash koeffitsienti",
+        "cfo_interest_coverage": "Foizlarni qoplash koeffitsienti (oqim)"
+      }
     }
   },
   "rating": {
