@@ -138,3 +138,16 @@ class TestCreditLimitEndpoint:
 
     def test_rating_score_required(self) -> None:
         assert client.post("/credit-limit", json=payload()).status_code == 422
+
+
+class TestGradeScale:
+    def test_bands_cover_1_to_100_in_order(self) -> None:
+        bands = client.get("/grade-scale").json()
+        assert len(bands) == 7
+        assert bands[0]["code"] == "A1" and bands[0]["lower"] == 0
+        assert bands[-1]["code"] == "D" and bands[-1]["upper"] == 100
+        for prev, cur in zip(bands, bands[1:]):
+            assert cur["lower"] == prev["upper"]
+        # risk coefficients decrease as the score worsens
+        rcs = [b["risk_coefficient"] for b in bands]
+        assert rcs == sorted(rcs, reverse=True)

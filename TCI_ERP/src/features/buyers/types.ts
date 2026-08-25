@@ -11,6 +11,8 @@ export interface Buyer {
   registration_number: string
   website: string | null
   notes: string | null
+  founded_date: string | null
+  legal_form: string | null
   created_by: string
   created_at: string
   updated_at: string

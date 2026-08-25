@@ -5,6 +5,7 @@ import { LoginPage } from './pages/LoginPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { BuyerDetailPage, BuyersPage, StatementFormPage } from './features/buyers'
+import { ReportPage } from './features/buyers/report/ReportPage'
 import { LimitsPage } from './features/limits'
 import { PolicyholdersPage } from './features/policyholders'
 import { PoliciesPage } from './features/policies'
@@ -17,6 +18,7 @@ export default function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route element={<ProtectedRoute />}>
+        <Route path="buyers/:id/report" element={<ReportPage />} />
         <Route element={<AppShell />}>
           <Route index element={<DashboardPage />} />
           <Route path="buyers" element={<BuyersPage />} />

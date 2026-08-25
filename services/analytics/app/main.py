@@ -14,10 +14,12 @@ from credit_engine import __version__ as engine_version
 from credit_engine.limits import calculate_limit
 from credit_engine.ratios import build_ratio_reports
 from credit_engine.scoring.calculator import FactorInputs, calculate_rating
+from credit_engine.scoring.tables import GRADE_BANDS
 
 from app.adapter import build_company
 from app.fx import router as fx_router
 from app.schemas import (
+    GradeBandOut,
     CreditLimitRequest,
     CreditLimitResponse,
     HealthResponse,
@@ -129,3 +131,26 @@ def credit_limit(payload: CreditLimitRequest) -> CreditLimitResponse:
         reasons=result.reasons,
         engine_version=engine_version,
     )
+
+
+@app.get("/grade-scale", response_model=list[GradeBandOut])
+def grade_scale() -> list[GradeBandOut]:
+    """Grade zone boundaries of the rating scale (1-100, lower is better).
+
+    Single source of truth is credit_engine.scoring.tables.GRADE_BANDS; the
+    frontend renders the GradeScale component from this - never hardcodes.
+    """
+    bands: list[GradeBandOut] = []
+    lower = 0.0
+    for band in GRADE_BANDS:
+        bands.append(
+            GradeBandOut(
+                code=band.code,
+                label_key=band.label_key,
+                lower=lower,
+                upper=band.upper,
+                risk_coefficient=band.risk_coefficient,
+            )
+        )
+        lower = band.upper
+    return bands

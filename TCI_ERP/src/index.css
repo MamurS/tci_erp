@@ -41,3 +41,61 @@
   text-align: right;
   white-space: nowrap;
 }
+
+/* ---------- Risk Report print layout ---------- */
+
+.report-h2 {
+  @apply mt-6 mb-2 border-b border-slate-200 pb-1 text-sm font-semibold tracking-wide uppercase;
+}
+
+.report-table {
+  @apply w-full border-collapse text-[11px];
+}
+.report-table th {
+  @apply border-b border-slate-200 px-1.5 py-1 font-medium text-slate-500;
+}
+.report-table td {
+  @apply border-b border-slate-100 px-1.5 py-0.5;
+}
+
+.report-footer {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 12mm 18mm;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .report-section {
+    break-inside: avoid-page;
+  }
+  .report-section:has(.report-table) {
+    break-inside: auto;
+  }
+  .report-h2 {
+    break-after: avoid-page;
+  }
+  .report-table thead {
+    display: table-header-group; /* repeat headers, no orphaned headers */
+  }
+  .report-table tr {
+    break-inside: avoid;
+  }
+  .report-chart {
+    break-inside: avoid-page;
+  }
+  .report-footer {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-size: 9px;
+    color: #94a3b8;
+    text-align: center;
+  }
+}

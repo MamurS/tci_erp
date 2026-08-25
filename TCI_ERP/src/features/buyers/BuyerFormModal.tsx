@@ -25,6 +25,8 @@ export function BuyerFormModal({ open, onClose, onSubmit, initial }: BuyerFormMo
   const [registrationNumber, setRegistrationNumber] = useState('')
   const [website, setWebsite] = useState('')
   const [notes, setNotes] = useState('')
+  const [foundedDate, setFoundedDate] = useState('')
+  const [legalForm, setLegalForm] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -36,6 +38,8 @@ export function BuyerFormModal({ open, onClose, onSubmit, initial }: BuyerFormMo
       setRegistrationNumber(initial?.registration_number ?? '')
       setWebsite(initial?.website ?? '')
       setNotes(initial?.notes ?? '')
+      setFoundedDate(initial?.founded_date ?? '')
+      setLegalForm(initial?.legal_form ?? '')
       setError(null)
     }
   }, [open, initial])
@@ -52,6 +56,8 @@ export function BuyerFormModal({ open, onClose, onSubmit, initial }: BuyerFormMo
         registration_number: registrationNumber.trim(),
         website: website.trim() || null,
         notes: notes.trim() || null,
+        founded_date: foundedDate || null,
+        legal_form: legalForm.trim() || null,
       })
       onClose()
     } catch {
@@ -109,6 +115,18 @@ export function BuyerFormModal({ open, onClose, onSubmit, initial }: BuyerFormMo
             required
           />
         </Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label={t('buyers.fields.foundedDate')}>
+            <Input
+              type="date"
+              value={foundedDate}
+              onChange={(e) => setFoundedDate(e.target.value)}
+            />
+          </Field>
+          <Field label={t('buyers.fields.legalForm')}>
+            <Input value={legalForm} onChange={(e) => setLegalForm(e.target.value)} />
+          </Field>
+        </div>
         <Field label={t('buyers.fields.website')}>
           <Input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://" />
         </Field>

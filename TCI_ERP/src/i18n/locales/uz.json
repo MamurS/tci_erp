@@ -91,7 +91,9 @@
       "industry": "Tarmoq",
       "registrationNumber": "Ro'yxatga olish raqami",
       "website": "Veb-sayt",
-      "notes": "Izohlar"
+      "notes": "Izohlar",
+      "foundedDate": "Tashkil etilgan sana",
+      "legalForm": "Tashkiliy-huquqiy shakl"
     }
   },
   "fin": {
@@ -479,6 +481,78 @@
       "established": "shakllangan",
       "mature": "yetuk",
       "veteran": "veteran"
+    },
+    "scale": {
+      "gradeSteps": "{{count}} daraja",
+      "scorePoints": "{{points}} ball"
+    },
+    "strengths": "Kuchli tomonlar",
+    "weaknesses": "Zaif tomonlar",
+    "historyChart": "Ball tarixi",
+    "generateReport": "Hisobot yaratish",
+    "reportModal": {
+      "title": "Risk hisoboti",
+      "language": "Hisobot tili",
+      "reportType": "Hisobot turi",
+      "currency": "Valyuta",
+      "open": "Hisobotni ochish"
+    },
+    "notAssessed": "Baholash hali hisoblanmagan"
+  },
+  "report": {
+    "title": "RISK HISOBOTI",
+    "generatedBy": "MIG TCI ERP tizimida yaratilgan",
+    "reportDate": "Hisobot sanasi",
+    "generalInfo": "Umumiy ma’lumotlar",
+    "calculatedLimit": "Hisoblangan limit (dvijok)",
+    "limitDisclaimer": "Faqat dvijok hisobi; so‘ralgan yoki tasdiqlangan limit emas.",
+    "print": "Chop etish / PDF saqlash",
+    "backToBuyer": "Xaridorga qaytish",
+    "noAssessment": "Bu xaridor uchun baholash hali hisoblanmagan.",
+    "basedOnStatement": "Hisobot asosida",
+    "sections": {
+      "conclusion": "Xulosa",
+      "balanceSheet": "Buxgalteriya balansi",
+      "pnl": "Foyda va zararlar hisoboti",
+      "ratios": "Moliyaviy koeffitsientlar",
+      "riskSummary": "Risklar tahlili xulosasi",
+      "dynamicGraphs": "Dinamik grafiklar"
+    },
+    "charts": {
+      "revRecPay": "Tushum / Debitorlik qarzi / Kreditorlik qarzi",
+      "workingCapitalDays": "DSO / DIO / DPO, kun"
+    },
+    "risk": {
+      "zZone": "Altman Z''-hisobi zonasi",
+      "breaches": "Normalari buzilgan ko‘rsatkichlar",
+      "noBreaches": "Norma buzilishlari yo‘q",
+      "negativeCfo": "Bir necha davr ketma-ket manfiy operatsion oqim"
+    },
+    "fxFootnote": "Qo‘llangan kurslar",
+    "narrative": {
+      "revenue_grew": "Tushum {{amount}} ga yetdi, {{prev}} dan {{pct}}% ga o‘sdi.",
+      "revenue_fell": "Tushum {{prev}} dan {{pct}}% ga kamayib, {{amount}} bo‘ldi.",
+      "revenue_flat": "Tushum deyarli o‘zgarmadi: {{amount}} (o‘tgan davrga {{pct}}%).",
+      "revenue_level": "Davr uchun tushum {{amount}} ni tashkil etdi.",
+      "gross_margin_up": "Yalpi rentabellik {{from}}% dan {{to}}% ga yaxshilandi.",
+      "gross_margin_down": "Yalpi rentabellik {{from}}% dan {{to}}% ga pasaydi.",
+      "net_profit_positive": "Davr {{amount}} sof foyda bilan yakunlandi (tushumning {{margin}}%i).",
+      "net_loss": "Davr {{amount}} sof zarar bilan yakunlandi.",
+      "leverage_low": "Moliyaviy leveraj past: qarz/kapital {{value}}x.",
+      "leverage_moderate": "Moliyaviy leveraj mo‘tadil: qarz/kapital {{value}}x.",
+      "leverage_high": "Moliyaviy leveraj yuqori: qarz/kapital {{value}}x.",
+      "liquidity_ok": "Joriy likvidlik {{value}}x normaga mos (> 1).",
+      "liquidity_breach": "Joriy likvidlik {{value}}x normadan past (> 1).",
+      "cfo_positive": "Operatsion pul oqimi ijobiy: {{amount}}.",
+      "cfo_negative": "Operatsion pul oqimi manfiy: {{amount}}.",
+      "cfo_negative_persistent": "Operatsion pul oqimi bir necha davr ketma-ket manfiy (oxirgisi: {{amount}}).",
+      "dso_up": "Debitorlik yig‘ilishi sekinlashdi: DSO {{from}} dan {{to}} kunga oshdi.",
+      "dso_down": "Debitorlik yig‘ilishi tezlashdi: DSO {{from}} dan {{to}} kunga tushdi.",
+      "ccc_level": "Pul aylanish sikli {{days}} kunni tashkil etadi.",
+      "z_safe": "Altman Z''-hisobi kompaniyani xavfsiz zonaga kiritadi.",
+      "z_grey": "Altman Z''-hisobi kompaniyani kulrang zonaga kiritadi.",
+      "z_distress": "Altman Z''-hisobi kompaniyani yuqori risk zonasiga kiritadi.",
+      "norm_breaches": "{{count}} ko‘rsatkich bo‘yicha normalar buzilgan: {{rows}}."
     }
   }
 }

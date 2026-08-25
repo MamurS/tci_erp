@@ -60,6 +60,8 @@ export interface BuyerInput {
   registration_number: string
   website: string | null
   notes: string | null
+  founded_date: string | null
+  legal_form: string | null
 }
 
 export function useCreateBuyer() {

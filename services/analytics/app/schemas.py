@@ -141,3 +141,11 @@ class CreditLimitResponse(BaseModel):
 class HealthResponse(BaseModel):
     status: Literal["ok"]
     engine_version: str
+
+
+class GradeBandOut(BaseModel):
+    code: str
+    label_key: str
+    lower: float
+    upper: float
+    risk_coefficient: float

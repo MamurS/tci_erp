@@ -138,6 +138,8 @@ function OverviewTab({ buyerId }: { buyerId: string }) {
     },
     { label: t('buyers.fields.industry'), value: refName(buyer.industries, locale) || EM_DASH },
     { label: t('buyers.fields.registrationNumber'), value: buyer.registration_number },
+    { label: t('buyers.fields.legalForm'), value: buyer.legal_form || EM_DASH },
+    { label: t('buyers.fields.foundedDate'), value: buyer.founded_date || EM_DASH },
     {
       label: t('buyers.fields.website'),
       value: buyer.website ? (

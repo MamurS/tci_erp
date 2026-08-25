@@ -1,15 +1,25 @@
 /**
  * Rating & Limit tab: pick a statement, calculate via the analytics
- * service, persist the assessment (history preserved), show the grade,
- * component breakdown and limit trace. Degrades gracefully when the
- * analytics service is down - the rest of the app is unaffected.
+ * service, persist the assessment (history preserved), show the grade on
+ * the GradeScale with factor traffic lights, component breakdown, limit
+ * trace, score history chart and report generation. Degrades gracefully
+ * when the analytics service is down.
  */
 
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts'
 
-import { Badge, Button, Card, Select, Spinner, Table } from '../../../components/ui'
+import { Badge, Button, Card, GradeScale, Modal, Segmented, Select, Spinner, Table } from '../../../components/ui'
 import {
   AnalyticsUnavailableError,
   postCreditLimit,
@@ -21,13 +31,17 @@ import type {
   StatementPayload,
 } from '../../../lib/analytics'
 import { EM_DASH, formatAmount, formatPercent } from '../../../lib/format'
+import { gradeTone } from '../../../lib/grade'
+import { gradeChange, useGradeScale } from '../../../lib/gradeScale'
+import type { GradeBand } from '../../../lib/gradeScale'
 import { tci } from '../../../lib/supabase'
 import { useBuyer, useStatements } from '../api'
 import type { StatementBundle } from '../types'
 import { statementPeriodLabel } from '../types'
 import { sortChronological } from '../financials/analysis'
 import { useFxRates, usdRateFor } from '../financials/fxApi'
-import { gradeTone } from '../../../lib/grade'
+import { buildFactorChips } from './chips'
+import { FactorChipList } from './FactorChips'
 
 interface AssessmentRow {
   id: string
@@ -38,6 +52,15 @@ interface AssessmentRow {
   limit_currency: string
   engine_version: string
   created_at: string
+  calculation_trace: { rating: RatingResponse; limit: CreditLimitResponse } | null
+}
+
+/** Company age in years at the statement date (activates the age factor). */
+function ageAt(foundedDate: string | null | undefined, periodEnd: string): number | null {
+  if (!foundedDate) return null
+  const days =
+    (new Date(periodEnd).getTime() - new Date(foundedDate).getTime()) / 86_400_000
+  return days > 0 ? days / 365.2425 : null
 }
 
 export function RatingTab({ buyerId }: { buyerId: string }) {
@@ -47,6 +70,7 @@ export function RatingTab({ buyerId }: { buyerId: string }) {
 
   const { data: buyer } = useBuyer(buyerId)
   const { data: statements, isLoading } = useStatements(buyerId)
+  const { data: gradeBands } = useGradeScale()
   const ordered = useMemo(
     () => sortChronological(statements ?? []).reverse(),
     [statements],
@@ -61,10 +85,8 @@ export function RatingTab({ buyerId }: { buyerId: string }) {
     limit: CreditLimitResponse
   } | null>(null)
   const [serviceDown, setServiceDown] = useState(false)
+  const [reportModalOpen, setReportModalOpen] = useState(false)
 
-  // Actual USD rate at the selected statement's period end (replaces the
-  // service's placeholder rates). Needs USD→UZS and, for non-UZS
-  // statements, the statement currency→UZS rate.
   const fxNeeds = useMemo(() => {
     if (!selected) return []
     const needs = [{ currency_code: 'USD', rate_date: selected.period_end_date }]
@@ -80,7 +102,9 @@ export function RatingTab({ buyerId }: { buyerId: string }) {
     queryFn: async (): Promise<AssessmentRow[]> => {
       const { data, error } = await tci()
         .from('credit_assessments')
-        .select('id, statement_id, rating_score, rating_grade, suggested_limit, limit_currency, engine_version, created_at')
+        .select(
+          'id, statement_id, rating_score, rating_grade, suggested_limit, limit_currency, engine_version, created_at, calculation_trace',
+        )
         .eq('buyer_id', buyerId)
         .order('created_at', { ascending: false })
       if (error) throw error
@@ -90,8 +114,7 @@ export function RatingTab({ buyerId }: { buyerId: string }) {
 
   const calculate = useMutation({
     mutationFn: async (statement: StatementBundle) => {
-      // Feed up to 3 chronological periods of the SAME kind as the selected
-      // statement (mixing annual and quarterly would distort dynamics).
+      // Up to 3 chronological periods of the SAME kind and report type.
       const chronological = sortChronological(statements ?? [])
       const upTo = chronological.filter(
         (s) =>
@@ -106,7 +129,7 @@ export function RatingTab({ buyerId }: { buyerId: string }) {
         buyer: {
           name: buyer?.name ?? null,
           country_code: buyer?.country_code ?? null,
-          age_years: null,
+          age_years: ageAt(buyer?.founded_date, statement.period_end_date),
         },
         currency: statement.currency_code,
         unit: statement.unit,
@@ -145,6 +168,7 @@ export function RatingTab({ buyerId }: { buyerId: string }) {
       setServiceDown(false)
       if (data.limit) setResult({ rating: data.rating, limit: data.limit })
       void queryClient.invalidateQueries({ queryKey: ['buyers', buyerId, 'assessments'] })
+      void queryClient.invalidateQueries({ queryKey: ['buyers', buyerId, 'latest-grade'] })
     },
     onError: (error) => {
       if (error instanceof AnalyticsUnavailableError) setServiceDown(true)
@@ -156,6 +180,19 @@ export function RatingTab({ buyerId }: { buyerId: string }) {
   if (!ordered.length) {
     return <Card className="p-5 text-sm text-slate-500">{t('rating.needStatements')}</Card>
   }
+
+  // Fresh result wins; otherwise the latest stored assessment.
+  const latestStored = assessments.data?.[0] ?? null
+  const shown = result ?? latestStored?.calculation_trace ?? null
+  const previousRow = result ? latestStored && assessments.data?.[1] : assessments.data?.[1]
+  const change =
+    shown?.rating.score !== null && shown?.rating.grade && previousRow && gradeBands
+      ? gradeChange(
+          gradeBands,
+          { score: shown.rating.score ?? 0, grade: shown.rating.grade },
+          { score: Number(previousRow.rating_score), grade: previousRow.rating_grade },
+        )
+      : null
 
   return (
     <div className="flex flex-col gap-5">
@@ -180,6 +217,9 @@ export function RatingTab({ buyerId }: { buyerId: string }) {
         >
           {calculate.isPending ? t('rating.calculating') : t('rating.calculate')}
         </Button>
+        <Button variant="secondary" onClick={() => setReportModalOpen(true)}>
+          {t('rating.generateReport')}
+        </Button>
         {serviceDown && (
           <span className="text-[13px] text-neg-500" role="alert">
             {t('rating.serviceUnavailable')}
@@ -192,109 +232,139 @@ export function RatingTab({ buyerId }: { buyerId: string }) {
         )}
       </Card>
 
-      {result && <ResultView result={result} locale={locale} />}
+      {shown ? (
+        <ResultView
+          result={shown}
+          locale={locale}
+          bands={gradeBands}
+          change={change}
+        />
+      ) : (
+        <Card className="p-5 text-sm text-slate-500">{t('rating.notAssessed')}</Card>
+      )}
+
+      <ScoreHistoryChart
+        assessments={assessments.data ?? []}
+        statements={ordered}
+        locale={locale}
+      />
 
       <HistoryCard
         assessments={assessments.data ?? []}
         statements={ordered}
         locale={locale}
       />
+
+      <ReportModal
+        open={reportModalOpen}
+        onClose={() => setReportModalOpen(false)}
+        buyerId={buyerId}
+      />
     </div>
   )
 }
 
+// ---------------------------------------------------------------------------
+// Result view: grade scale + factor chips + limit + component table
+// ---------------------------------------------------------------------------
+
 function ResultView({
   result,
   locale,
+  bands,
+  change,
 }: {
   result: { rating: RatingResponse; limit: CreditLimitResponse }
   locale: string
+  bands: GradeBand[] | undefined
+  change: ReturnType<typeof gradeChange> | null
 }) {
   const { t } = useTranslation()
   const { rating, limit } = result
+  const chips = buildFactorChips(rating.components, t, locale)
 
   return (
     <>
-      <div className="grid gap-5 lg:grid-cols-2">
-        {/* Grade card */}
-        <Card className="flex flex-col items-start gap-2 p-5">
-          <h3 className="text-sm font-semibold text-slate-900">{t('rating.gradeTitle')}</h3>
-          <div className="flex items-baseline gap-3">
-            <span
-              className={`text-4xl font-bold ${
-                rating.grade && gradeTone(rating.grade) === 'pos'
-                  ? 'text-pos-500'
-                  : rating.grade && gradeTone(rating.grade) === 'neg'
-                    ? 'text-neg-500'
-                    : rating.grade && gradeTone(rating.grade) === 'warn'
-                      ? 'text-warn-500'
-                      : 'text-accent-700'
-              }`}
-            >
-              {rating.grade ?? EM_DASH}
-            </span>
-            <span className="text-lg text-slate-500">
-              {rating.score !== null ? formatAmount(rating.score, locale, 1) : EM_DASH} / 100
-            </span>
+      <Card className="flex flex-col gap-4 p-5">
+        {rating.score !== null && rating.grade && (
+          <GradeScale
+            score={rating.score}
+            grade={rating.grade}
+            bands={bands}
+            change={change}
+          />
+        )}
+        <div className="grid gap-3 lg:grid-cols-2">
+          <div>
+            <h4 className="mb-1.5 text-[13px] font-semibold text-slate-600">
+              {t('rating.strengths')}
+            </h4>
+            <FactorChipList chips={chips.strengths} />
           </div>
-          <p className="text-xs text-slate-400">{t('rating.scaleHint')}</p>
-          <p className="text-[13px] text-slate-500">
-            {t('rating.coverage', { pct: formatPercent(rating.data_coverage, locale, 0) })}
-          </p>
-          {rating.adjustments.length > 0 && (
-            <div className="mt-1 flex flex-col gap-1">
-              {rating.adjustments.map((a) => (
-                <span key={a.code} className="text-[13px] text-warn-500">
-                  {t(`rating.adjustments.${a.code}`, { defaultValue: a.code })}:{' '}
-                  {formatAmount(a.rating_before, locale, 1)} → {formatAmount(a.rating_after, locale, 1)}
-                </span>
-              ))}
-            </div>
-          )}
-        </Card>
+          <div>
+            <h4 className="mb-1.5 text-[13px] font-semibold text-slate-600">
+              {t('rating.weaknesses')}
+            </h4>
+            <FactorChipList chips={chips.weaknesses} />
+          </div>
+        </div>
+        <p className="text-[13px] text-slate-500">
+          {t('rating.coverage', { pct: formatPercent(rating.data_coverage, locale, 0) })}
+        </p>
+        {rating.adjustments.length > 0 && (
+          <div className="flex flex-col gap-1">
+            {rating.adjustments.map((a) => (
+              <span key={a.code} className="text-[13px] text-warn-500">
+                {t(`rating.adjustments.${a.code}`, { defaultValue: a.code })}:{' '}
+                {formatAmount(a.rating_before, locale, 1)} →{' '}
+                {formatAmount(a.rating_after, locale, 1)}
+              </span>
+            ))}
+          </div>
+        )}
+      </Card>
 
-        {/* Limit card */}
-        <Card className="flex flex-col items-start gap-2 p-5">
-          <h3 className="text-sm font-semibold text-slate-900">{t('rating.limitTitle')}</h3>
-          <span className="num text-3xl font-bold text-slate-900">
-            {formatAmount(limit.suggested_limit, locale)}{' '}
-            <span className="text-lg font-medium text-slate-500">{limit.currency}</span>
-          </span>
-          <Badge tone="neutral">
-            {t('rating.model')}: {t(`rating.models.${limit.model_used}`, { defaultValue: limit.model_used })}
-          </Badge>
-          {limit.reasons.length > 0 && (
-            <ul className="list-inside list-disc text-[13px] text-slate-500">
-              {limit.reasons.map((r) => (
-                <li key={r}>{r}</li>
-              ))}
-            </ul>
-          )}
-          <details className="mt-1 w-full text-[13px] text-slate-600">
-            <summary className="cursor-pointer font-medium text-accent-700">
-              {t('rating.trace')}
-            </summary>
-            <div className="mt-2 flex flex-col gap-3">
-              {limit.trace.map((m) => (
-                <div key={m.model}>
-                  <p className="font-medium">
-                    {t(`rating.models.${m.model}`, { defaultValue: m.model })}:{' '}
-                    <span className="num">{formatAmount(m.limit, locale)}</span>
-                  </p>
-                  <ul className="mt-0.5 grid grid-cols-2 gap-x-4 text-slate-500">
-                    {Object.entries(m.components).map(([k, v]) => (
-                      <li key={k} className="flex justify-between gap-2">
-                        <span>{k}</span>
-                        <span className="num">{formatAmount(v, locale, 2)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-          </details>
-        </Card>
-      </div>
+      {/* Limit card */}
+      <Card className="flex flex-col items-start gap-2 p-5">
+        <h3 className="text-sm font-semibold text-slate-900">{t('rating.limitTitle')}</h3>
+        <span className="num text-3xl font-bold text-slate-900">
+          {formatAmount(limit.suggested_limit, locale)}{' '}
+          <span className="text-lg font-medium text-slate-500">{limit.currency}</span>
+        </span>
+        <Badge tone="neutral">
+          {t('rating.model')}: {t(`rating.models.${limit.model_used}`, { defaultValue: limit.model_used })}
+        </Badge>
+        {limit.reasons.length > 0 && (
+          <ul className="list-inside list-disc text-[13px] text-slate-500">
+            {limit.reasons.map((r) => (
+              <li key={r}>{r}</li>
+            ))}
+          </ul>
+        )}
+        <details className="mt-1 w-full text-[13px] text-slate-600">
+          <summary className="cursor-pointer font-medium text-accent-700">
+            {t('rating.trace')}
+          </summary>
+          <div className="mt-2 flex flex-col gap-3">
+            {limit.trace.map((m) => (
+              <div key={m.model}>
+                <p className="font-medium">
+                  {t(`rating.models.${m.model}`, { defaultValue: m.model })}:{' '}
+                  <span className="num">{formatAmount(m.limit, locale)}</span>
+                </p>
+                <ul className="mt-0.5 grid grid-cols-2 gap-x-4 text-slate-500">
+                  {Object.entries(m.components).map(([k, v]) => (
+                    <li key={k} className="flex justify-between gap-2">
+                      <span>{k}</span>
+                      <span className="num">{formatAmount(v, locale, 2)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </details>
+      </Card>
 
       {/* Component breakdown */}
       <Table dense>
@@ -334,7 +404,9 @@ function ResultView({
               <td>
                 <span className="num block">{formatAmount(c.weight, locale, 1)}</span>
               </td>
-              <td className="text-slate-500">{c.band ? t(`rating.bands.${c.band}`, { defaultValue: c.band }) : EM_DASH}</td>
+              <td className="text-slate-500">
+                {c.band ? t(`rating.bands.${c.band}`, { defaultValue: c.band }) : EM_DASH}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -342,6 +414,168 @@ function ResultView({
     </>
   )
 }
+
+// ---------------------------------------------------------------------------
+// Score history chart (hidden when fewer than two assessments)
+// ---------------------------------------------------------------------------
+
+function ScoreHistoryChart({
+  assessments,
+  statements,
+  locale,
+}: {
+  assessments: AssessmentRow[]
+  statements: StatementBundle[]
+  locale: string
+}) {
+  const { t } = useTranslation()
+  if (assessments.length < 2) return null
+
+  const data = [...assessments]
+    .reverse()
+    .map((a) => ({
+      date: a.created_at.slice(0, 10),
+      score: Number(a.rating_score),
+      grade: a.rating_grade,
+      statement: statements.find((s) => s.id === a.statement_id),
+      engine: a.engine_version,
+    }))
+
+  return (
+    <Card className="p-5">
+      <h3 className="mb-3 text-sm font-semibold text-slate-900">{t('rating.historyChart')}</h3>
+      <div className="h-52">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data} margin={{ top: 12, right: 16, bottom: 0, left: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748b' }} />
+            <YAxis
+              reversed
+              domain={[0, 100]}
+              tick={{ fontSize: 11, fill: '#64748b' }}
+              width={32}
+            />
+            <Tooltip
+              formatter={(value) => [formatAmount(Number(value), locale, 1), t('rating.score')]}
+              labelFormatter={(label, payload) => {
+                const point = payload?.[0]?.payload as (typeof data)[number] | undefined
+                if (!point) return String(label)
+                const period = point.statement ? statementPeriodLabel(point.statement) : ''
+                return `${point.date} · ${period} · ${point.grade} · v${point.engine}`
+              }}
+            />
+            <Line
+              type="monotone"
+              dataKey="score"
+              stroke="#4f46e5"
+              strokeWidth={2}
+              dot={{ r: 3 }}
+              label={{
+                dataKey: 'grade',
+                position: 'top',
+                fontSize: 10,
+                fill: '#64748b',
+              }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </Card>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Report generation modal
+// ---------------------------------------------------------------------------
+
+function ReportModal({
+  open,
+  onClose,
+  buyerId,
+}: {
+  open: boolean
+  onClose: () => void
+  buyerId: string
+}) {
+  const { t } = useTranslation()
+  const [lang, setLang] = useState('ru')
+  const [reportType, setReportType] = useState('statutory')
+  const [currency, setCurrency] = useState('original')
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={t('rating.reportModal.title')}
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose}>
+            {t('common.cancel')}
+          </Button>
+          <Button
+            onClick={() => {
+              window.open(
+                `/buyers/${buyerId}/report?lang=${lang}&type=${reportType}&ccy=${currency}`,
+                '_blank',
+              )
+              onClose()
+            }}
+          >
+            {t('rating.reportModal.open')}
+          </Button>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[13px] font-medium text-slate-600">
+            {t('rating.reportModal.language')}
+          </span>
+          <Segmented
+            value={lang}
+            options={[
+              { key: 'en', label: 'EN' },
+              { key: 'ru', label: 'RU' },
+              { key: 'uz', label: 'UZ' },
+            ]}
+            onChange={setLang}
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[13px] font-medium text-slate-600">
+            {t('rating.reportModal.reportType')}
+          </span>
+          <Segmented
+            value={reportType}
+            options={[
+              { key: 'statutory', label: t('fin.reportTypes.statutory') },
+              { key: 'management', label: t('fin.reportTypes.management') },
+            ]}
+            onChange={setReportType}
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[13px] font-medium text-slate-600">
+            {t('rating.reportModal.currency')}
+          </span>
+          <Segmented
+            value={currency}
+            options={[
+              { key: 'original', label: t('fin.fx.original') },
+              { key: 'UZS', label: 'UZS' },
+              { key: 'USD', label: 'USD' },
+            ]}
+            onChange={setCurrency}
+          />
+        </div>
+      </div>
+    </Modal>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Assessment history table
+// ---------------------------------------------------------------------------
 
 function HistoryCard({
   assessments,
