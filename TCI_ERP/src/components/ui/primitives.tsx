@@ -17,7 +17,7 @@ const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
   secondary:
     'bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 disabled:opacity-50 shadow-sm',
   ghost: 'text-slate-600 hover:bg-slate-100 disabled:opacity-50',
-  danger: 'bg-neg-500 text-white hover:bg-red-700 disabled:opacity-50 shadow-sm',
+  danger: 'bg-neg-500 text-white hover:bg-neg-600 disabled:opacity-50 shadow-sm',
 }
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -96,13 +96,63 @@ const BADGE_TONES: Record<BadgeTone, string> = {
   warn: 'bg-warn-50 text-warn-500',
 }
 
-export function Badge({ tone = 'neutral', children }: { tone?: BadgeTone; children: ReactNode }) {
+interface BadgeProps {
+  tone?: BadgeTone
+  /** lg: prominent badge (e.g. the grade badge in the buyer header). */
+  size?: 'md' | 'lg'
+  children: ReactNode
+}
+
+export function Badge({ tone = 'neutral', size = 'md', children }: BadgeProps) {
+  const sizing = size === 'lg' ? 'px-3 py-1 text-sm font-bold' : 'px-2 py-0.5 text-xs font-medium'
   return (
-    <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${BADGE_TONES[tone]}`}
-    >
+    <span className={`inline-flex items-center rounded-full ${sizing} ${BADGE_TONES[tone]}`}>
       {children}
     </span>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Segmented control
+// ---------------------------------------------------------------------------
+
+export interface SegmentedOption {
+  key: string
+  label: string
+  disabled?: boolean
+}
+
+interface SegmentedProps {
+  value: string
+  options: SegmentedOption[]
+  onChange: (key: string) => void
+  ariaLabel?: string
+}
+
+/** Small mutually-exclusive switch (report type, display currency, language). */
+export function Segmented({ value, options, onChange, ariaLabel }: SegmentedProps) {
+  return (
+    <div
+      className="inline-flex overflow-hidden rounded-md border border-slate-200"
+      role="group"
+      aria-label={ariaLabel}
+    >
+      {options.map((option) => (
+        <button
+          key={option.key}
+          type="button"
+          disabled={option.disabled}
+          onClick={() => onChange(option.key)}
+          className={`px-2.5 py-1 text-xs font-semibold transition-colors ${
+            option.key === value
+              ? 'bg-accent-600 text-white'
+              : 'bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+          } ${option.disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+        >
+          {option.label}
+        </button>
+      ))}
+    </div>
   )
 }
 

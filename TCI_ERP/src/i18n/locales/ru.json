@@ -285,7 +285,8 @@
       "missingRates": "Нет курсов — нажмите для ручного ввода",
       "manualTitle": "Ручной курс: {{ccy}} на {{date}}",
       "manualHint": "ЦБ РУз не даёт курс на эту дату. Введите количество сумов за 1 единицу валюты — курс сохранится как ручной.",
-      "footnote": "Применённые курсы"
+      "footnote": "Применённые курсы",
+      "manualPlaceholder": "1 {{ccy}} = ? UZS"
     },
     "cashflow": {
       "header": "Поток наличности (косвенный метод)",
@@ -329,7 +330,8 @@
         "share_capital": "Уставный капитал",
         "other_reserves": "Прочие резервы",
         "non_controlling_interests": "Неконтролирующие доли"
-      }
+      },
+      "ok": "OK"
     },
     "risk": {
       "header": "Показатель",
@@ -363,7 +365,8 @@
         "interest_coverage": "Коэф. процентного покрытия",
         "cfo_interest_coverage": "Коэф. процентного покрытия (поток)"
       }
-    }
+    },
+    "exportExcel": "Excel"
   },
   "rating": {
     "needStatements": "Введите хотя бы одну финансовую отчётность для расчёта рейтинга.",
@@ -412,6 +415,70 @@
       "new_company": "Короткая операционная история",
       "litigation_pressure": "Судебная нагрузка",
       "insufficient_data": "Недостаточно данных"
+    },
+    "bands": {
+      "deep_loss": "глубокий убыток",
+      "significant_loss": "существенный убыток",
+      "loss": "убыток",
+      "breakeven": "безубыточность",
+      "very_low": "очень низкий",
+      "low": "низкий",
+      "moderate": "умеренный",
+      "good": "хороший",
+      "high": "высокий",
+      "very_high": "очень высокий",
+      "negative": "отрицательный",
+      "critical": "критический",
+      "below_average": "ниже среднего",
+      "acceptable": "приемлемый",
+      "excellent": "отличный",
+      "adequate": "достаточный",
+      "insufficient": "недостаточный",
+      "deteriorating": "ухудшается",
+      "stable": "стабильный",
+      "improving": "улучшается",
+      "collapse": "обвал",
+      "severe_decline": "сильное снижение",
+      "strong_decline": "заметное снижение",
+      "decline": "снижение",
+      "growth": "рост",
+      "no_debt": "без долга",
+      "elevated": "повышенный",
+      "extreme": "экстремальный",
+      "negative_or_zero": "минимальный",
+      "minimal": "минимальный",
+      "very_short": "очень короткий",
+      "short": "короткий",
+      "average": "средний",
+      "extended": "растянутый",
+      "long": "длинный",
+      "very_long": "очень длинный",
+      "none": "нет",
+      "micro": "микро",
+      "very_small": "очень малый",
+      "small": "малый",
+      "lower_mid": "ниже среднего",
+      "mid": "средний",
+      "upper_mid": "выше среднего",
+      "large": "крупный",
+      "very_large": "очень крупный",
+      "major": "мажорный",
+      "corporation": "корпорация",
+      "global": "глобальный",
+      "severe_drop": "резкое падение",
+      "drop": "падение",
+      "mild_drop": "слабое падение",
+      "stagnation": "стагнация",
+      "modest_growth": "скромный рост",
+      "strong_growth": "сильный рост",
+      "very_strong_growth": "очень сильный рост",
+      "exceptional_growth": "исключительный рост",
+      "not_started": "не начата",
+      "startup": "стартап",
+      "young": "молодая",
+      "established": "устоявшаяся",
+      "mature": "зрелая",
+      "veteran": "ветеран"
     }
   }
 }

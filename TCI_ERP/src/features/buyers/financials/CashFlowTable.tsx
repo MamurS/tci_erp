@@ -6,7 +6,7 @@ import { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, EmptyState } from '../../../components/ui'
-import { formatAmount } from '../../../lib/format'
+import { EM_DASH, formatAmount } from '../../../lib/format'
 import { statementPeriodLabel } from '../types'
 import type { CashFlowColumn, CashFlowLine, CashFlowSection } from './cashflow'
 import { hasPersistentNegativeCfo } from './cashflow'
@@ -37,8 +37,11 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
   const linesOf = (section: CashFlowSection): string[] =>
     columns[0][section].map((l: CashFlowLine) => l.key)
 
-  const valueOf = (column: CashFlowColumn, section: CashFlowSection, key: string): number =>
-    column[section].find((l) => l.key === key)?.value ?? 0
+  const lineOf = (
+    column: CashFlowColumn,
+    section: CashFlowSection,
+    key: string,
+  ): CashFlowLine | undefined => column[section].find((l) => l.key === key)
 
   return (
     <div>
@@ -63,7 +66,7 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
                     </span>
                     {column.reconciled !== null &&
                       (column.reconciled ? (
-                        <Badge tone="pos">OK</Badge>
+                        <Badge tone="pos">{t('fin.cashflow.ok')}</Badge>
                       ) : (
                         <Badge tone="warn">Δ</Badge>
                       ))}
@@ -88,14 +91,21 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
                     <td className="sticky left-0 z-10 border-b border-slate-100 bg-white px-3 py-1.5 text-slate-700">
                       {t(`fin.cashflow.lines.${lineKey}`)}
                     </td>
-                    {columns.map((column) => (
-                      <td
-                        key={column.statement.id}
-                        className="border-b border-l border-slate-100 px-3 py-1.5"
-                      >
-                        <Amount value={valueOf(column, section.key, lineKey)} locale={locale} />
-                      </td>
-                    ))}
+                    {columns.map((column) => {
+                      const cell = lineOf(column, section.key, lineKey)
+                      return (
+                        <td
+                          key={column.statement.id}
+                          className="border-b border-l border-slate-100 px-3 py-1.5"
+                        >
+                          {cell?.hasData ? (
+                            <Amount value={cell.value} locale={locale} />
+                          ) : (
+                            <span className="num block text-slate-400">{EM_DASH}</span>
+                          )}
+                        </td>
+                      )
+                    })}
                   </tr>
                 ))}
                 <tr className="bg-slate-50 font-medium">
@@ -131,7 +141,7 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
               {columns.map((column) => (
                 <td key={column.statement.id} className="border-l border-slate-100 px-3 py-1.5">
                   {column.deltaCash === null ? (
-                    <span className="num block text-slate-400">—</span>
+                    <span className="num block text-slate-400">{EM_DASH}</span>
                   ) : (
                     <Amount value={column.deltaCash} locale={locale} />
                   )}
@@ -145,9 +155,9 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
               {columns.map((column) => (
                 <td key={column.statement.id} className="border-l border-slate-100 px-3 py-1.5 text-right">
                   {column.reconciled === null ? (
-                    <span className="text-slate-400">—</span>
+                    <span className="text-slate-400">{EM_DASH}</span>
                   ) : column.reconciled ? (
-                    <span className="text-pos-500">OK</span>
+                    <span className="text-pos-500">{t('fin.cashflow.ok')}</span>
                   ) : (
                     <span className="num block text-warn-500">
                       {formatAmount(column.reconciliationDiff ?? 0, locale)}

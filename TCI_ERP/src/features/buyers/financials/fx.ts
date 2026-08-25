@@ -60,12 +60,19 @@ export function convertValue(
   return (value * fromRate) / toRate
 }
 
+export interface FootnoteRate {
+  currency_code: string
+  rate_to_uzs: number
+  rate_date: string
+}
+
 export interface ConvertedStatements {
   statements: StatementBundle[]
   /** (ccy, date) pairs that had no rate — conversion incomplete. */
   missing: RateNeed[]
-  /** Footnote data: per period, the rates applied. */
-  footnotes: { statement: StatementBundle; parts: string[] }[]
+  /** Footnote data: per period, the rates applied (formatting is done in
+   * the UI layer via format.ts — never here). */
+  footnotes: { statement: StatementBundle; rates: FootnoteRate[] }[]
 }
 
 /** Convert monetary values of the displayed statements into the target
@@ -84,17 +91,17 @@ export function convertStatements(
 
   const statements = displayed.map((s) => {
     const date = s.period_end_date
-    const parts: string[] = []
-    for (const ccy of [s.currency_code, target]) {
+    const rates: FootnoteRate[] = []
+    for (const ccy of [...new Set([s.currency_code, target])]) {
       if (ccy === 'UZS') continue
       const rate = rateFor(ccy, date)
       if (rate === null) {
         missing.set(rateKey(ccy, date), { currency_code: ccy, rate_date: date })
       } else {
-        parts.push(`${ccy} = ${rate.toLocaleString('en-US', { maximumFractionDigits: 2 })} UZS (${date})`)
+        rates.push({ currency_code: ccy, rate_to_uzs: rate, rate_date: date })
       }
     }
-    if (parts.length) footnotes.push({ statement: s, parts })
+    if (rates.length) footnotes.push({ statement: s, rates })
 
     const convert = (v: number | null): number | null =>
       convertValue(v, s.currency_code, date, target, rateFor)

@@ -135,3 +135,28 @@ export const INCOME_STATEMENT_SECTIONS: SectionDef<IncomeStatementKey>[] = [
     ],
   },
 ]
+
+/**
+ * Direction of every risk-analysis row: 'up_good' = an increase is an
+ * improvement (green ▲), 'up_bad' = an increase is deterioration (red ▲).
+ * Note payables_days is up_good: a longer DPO reduces the financing need
+ * (consistent with additional_credit_need = DSO + DIO − DPO being up_bad).
+ */
+export const RISK_ROW_DIRECTIONS: Record<string, LineDirection> = {
+  z_score: 'up_good',
+  net_working_capital: 'up_good',
+  equity: 'up_good',
+  current_ratio: 'up_good',
+  quick_ratio: 'up_good',
+  cash_ratio: 'up_good',
+  cfo_to_current_liabilities: 'up_good',
+  receivables_days: 'up_bad',
+  inventory_days: 'up_bad',
+  payables_days: 'up_good',
+  additional_credit_need: 'up_bad',
+  long_term_debt_ratio: 'up_bad',
+  leverage: 'up_bad',
+  borrowed_concentration: 'up_bad',
+  interest_coverage: 'up_good',
+  cfo_interest_coverage: 'up_good',
+}

@@ -39,8 +39,10 @@ and modals `rounded-lg` (12px).
 ## Core components (`src/components/ui`)
 
 Button (primary / secondary / ghost / danger, sizes md·sm), Input, Select,
-Card, Table (dense financial variant), Tabs, Badge, Modal, EmptyState,
-PageHeader. Screens compose these — no ad-hoc one-off controls.
+Segmented (mutually-exclusive switch), Card, Table (dense financial
+variant), Tabs, Badge (sizes md·lg; grade tone map in src/lib/grade.ts),
+Modal, EmptyState, PageHeader. Screens compose these — no ad-hoc one-off
+controls.
 
 ## Financial data display rules (apply everywhere)
 

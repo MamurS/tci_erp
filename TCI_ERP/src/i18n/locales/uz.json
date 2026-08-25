@@ -285,7 +285,8 @@
       "missingRates": "Kurslar yo‘q — qo‘lda kiritish uchun bosing",
       "manualTitle": "Qo‘lda kurs: {{date}} uchun {{ccy}}",
       "manualHint": "MB bu sana uchun kurs bermaydi. 1 birlik valyuta uchun so‘m miqdorini kiriting — kurs qo‘lda kiritilgan sifatida saqlanadi.",
-      "footnote": "Qo‘llangan kurslar"
+      "footnote": "Qo‘llangan kurslar",
+      "manualPlaceholder": "1 {{ccy}} = ? UZS"
     },
     "cashflow": {
       "header": "Pul oqimi (bilvosita usul)",
@@ -329,7 +330,8 @@
         "share_capital": "Ustav kapitali",
         "other_reserves": "Boshqa zaxiralar",
         "non_controlling_interests": "Nazorat qilmaydigan ulushlar"
-      }
+      },
+      "ok": "OK"
     },
     "risk": {
       "header": "Ko‘rsatkich",
@@ -363,7 +365,8 @@
         "interest_coverage": "Foizlarni qoplash koeffitsienti",
         "cfo_interest_coverage": "Foizlarni qoplash koeffitsienti (oqim)"
       }
-    }
+    },
+    "exportExcel": "Excel"
   },
   "rating": {
     "needStatements": "Reytingni hisoblash uchun kamida bitta moliyaviy hisobot kiriting.",
@@ -412,6 +415,70 @@
       "new_company": "Qisqa faoliyat tarixi",
       "litigation_pressure": "Sud yuklamasi",
       "insufficient_data": "Ma’lumotlar yetarli emas"
+    },
+    "bands": {
+      "deep_loss": "chuqur zarar",
+      "significant_loss": "sezilarli zarar",
+      "loss": "zarar",
+      "breakeven": "zararsizlik",
+      "very_low": "juda past",
+      "low": "past",
+      "moderate": "mo‘tadil",
+      "good": "yaxshi",
+      "high": "yuqori",
+      "very_high": "juda yuqori",
+      "negative": "manfiy",
+      "critical": "kritik",
+      "below_average": "o‘rtachadan past",
+      "acceptable": "maqbul",
+      "excellent": "a’lo",
+      "adequate": "yetarli",
+      "insufficient": "yetarli emas",
+      "deteriorating": "yomonlashmoqda",
+      "stable": "barqaror",
+      "improving": "yaxshilanmoqda",
+      "collapse": "keskin qulash",
+      "severe_decline": "kuchli pasayish",
+      "strong_decline": "sezilarli pasayish",
+      "decline": "pasayish",
+      "growth": "o‘sish",
+      "no_debt": "qarzsiz",
+      "elevated": "ko‘tarilgan",
+      "extreme": "ekstremal",
+      "negative_or_zero": "minimal",
+      "minimal": "minimal",
+      "very_short": "juda qisqa",
+      "short": "qisqa",
+      "average": "o‘rtacha",
+      "extended": "cho‘zilgan",
+      "long": "uzun",
+      "very_long": "juda uzun",
+      "none": "yo‘q",
+      "micro": "mikro",
+      "very_small": "juda kichik",
+      "small": "kichik",
+      "lower_mid": "o‘rtadan past",
+      "mid": "o‘rta",
+      "upper_mid": "o‘rtadan yuqori",
+      "large": "yirik",
+      "very_large": "juda yirik",
+      "major": "katta",
+      "corporation": "korporatsiya",
+      "global": "global",
+      "severe_drop": "keskin tushish",
+      "drop": "tushish",
+      "mild_drop": "yengil tushish",
+      "stagnation": "turg‘unlik",
+      "modest_growth": "kamtarona o‘sish",
+      "strong_growth": "kuchli o‘sish",
+      "very_strong_growth": "juda kuchli o‘sish",
+      "exceptional_growth": "favqulodda o‘sish",
+      "not_started": "boshlanmagan",
+      "startup": "startap",
+      "young": "yosh",
+      "established": "shakllangan",
+      "mature": "yetuk",
+      "veteran": "veteran"
     }
   }
 }

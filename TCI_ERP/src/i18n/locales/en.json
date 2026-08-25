@@ -285,7 +285,8 @@
       "missingRates": "Missing exchange rates — click to enter manually",
       "manualTitle": "Manual rate: {{ccy}} on {{date}}",
       "manualHint": "CBU has no rate for this date. Enter UZS per 1 unit of the currency; it will be saved as a manual rate.",
-      "footnote": "Rates applied"
+      "footnote": "Rates applied",
+      "manualPlaceholder": "1 {{ccy}} = ? UZS"
     },
     "cashflow": {
       "header": "Cash flow (indirect method)",
@@ -329,7 +330,8 @@
         "share_capital": "Share capital",
         "other_reserves": "Other reserves",
         "non_controlling_interests": "Non-controlling interests"
-      }
+      },
+      "ok": "OK"
     },
     "risk": {
       "header": "Indicator",
@@ -363,7 +365,8 @@
         "interest_coverage": "Interest coverage",
         "cfo_interest_coverage": "Interest coverage (cash flow)"
       }
-    }
+    },
+    "exportExcel": "Excel"
   },
   "rating": {
     "needStatements": "Enter at least one financial statement to calculate a rating.",
@@ -412,6 +415,70 @@
       "new_company": "Short operating history",
       "litigation_pressure": "Litigation exposure",
       "insufficient_data": "Insufficient data"
+    },
+    "bands": {
+      "deep_loss": "deep loss",
+      "significant_loss": "significant loss",
+      "loss": "loss",
+      "breakeven": "breakeven",
+      "very_low": "very low",
+      "low": "low",
+      "moderate": "moderate",
+      "good": "good",
+      "high": "high",
+      "very_high": "very high",
+      "negative": "negative",
+      "critical": "critical",
+      "below_average": "below average",
+      "acceptable": "acceptable",
+      "excellent": "excellent",
+      "adequate": "adequate",
+      "insufficient": "insufficient",
+      "deteriorating": "deteriorating",
+      "stable": "stable",
+      "improving": "improving",
+      "collapse": "collapse",
+      "severe_decline": "severe decline",
+      "strong_decline": "strong decline",
+      "decline": "decline",
+      "growth": "growth",
+      "no_debt": "no debt",
+      "elevated": "elevated",
+      "extreme": "extreme",
+      "negative_or_zero": "minimal",
+      "minimal": "minimal",
+      "very_short": "very short",
+      "short": "short",
+      "average": "average",
+      "extended": "extended",
+      "long": "long",
+      "very_long": "very long",
+      "none": "none",
+      "micro": "micro",
+      "very_small": "very small",
+      "small": "small",
+      "lower_mid": "lower mid",
+      "mid": "mid",
+      "upper_mid": "upper mid",
+      "large": "large",
+      "very_large": "very large",
+      "major": "major",
+      "corporation": "corporation",
+      "global": "global",
+      "severe_drop": "severe drop",
+      "drop": "drop",
+      "mild_drop": "mild drop",
+      "stagnation": "stagnation",
+      "modest_growth": "modest growth",
+      "strong_growth": "strong growth",
+      "very_strong_growth": "very strong growth",
+      "exceptional_growth": "exceptional growth",
+      "not_started": "not started",
+      "startup": "startup",
+      "young": "young",
+      "established": "established",
+      "mature": "mature",
+      "veteran": "veteran"
     }
   }
 }

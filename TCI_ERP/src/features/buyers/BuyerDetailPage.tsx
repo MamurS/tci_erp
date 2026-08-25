@@ -19,7 +19,8 @@ import { BuyerFormModal } from './BuyerFormModal'
 import { countryFlag } from '../../lib/countryFlag'
 import { FinancialsTab } from './financials/FinancialsTab'
 import { RatingTab } from './rating/RatingTab'
-import { EM_DASH } from '../../lib/format'
+import { EM_DASH, formatAmount } from '../../lib/format'
+import { gradeTone } from '../../lib/grade'
 
 const TAB_KEYS = ['overview', 'financials', 'rating'] as const
 
@@ -94,7 +95,8 @@ export function BuyerDetailPage() {
 
 /** Latest assessment grade, always visible in the header (legacy "Grade: 4"). */
 function GradeHeaderBadge({ buyerId, onClick }: { buyerId: string; onClick: () => void }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const locale = i18n.resolvedLanguage ?? 'en'
   const { data } = useQuery({
     queryKey: ['buyers', buyerId, 'latest-grade'],
     queryFn: async (): Promise<{ rating_grade: string; rating_score: number } | null> => {
@@ -110,22 +112,11 @@ function GradeHeaderBadge({ buyerId, onClick }: { buyerId: string; onClick: () =
   })
 
   if (!data) return null
-  const grade = data.rating_grade
-  const tone = grade.startsWith('A')
-    ? 'bg-pos-50 text-pos-500'
-    : grade.startsWith('B')
-      ? 'bg-accent-50 text-accent-700'
-      : grade.startsWith('C')
-        ? 'bg-warn-50 text-warn-500'
-        : 'bg-neg-50 text-neg-500'
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={t('rating.gradeTitle')}
-      className={`rounded-full px-3 py-1 text-sm font-bold ${tone}`}
-    >
-      {grade} · {Number(data.rating_score).toFixed(0)}
+    <button type="button" onClick={onClick} title={t('rating.gradeTitle')}>
+      <Badge tone={gradeTone(data.rating_grade)} size="lg">
+        {data.rating_grade} · {formatAmount(Number(data.rating_score), locale, 0)}
+      </Badge>
     </button>
   )
 }

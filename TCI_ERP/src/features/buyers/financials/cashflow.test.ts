@@ -104,6 +104,18 @@ describe('computeCashFlowColumn (indirect method)', () => {
     expect(col.cfo).toBe(0)
     expect(col.reconciled).toBeNull()
   })
+
+  it('lines without underlying data are flagged (rendered as em dash, never 0)', () => {
+    const col = computeCashFlowColumn(cur, prev)
+    const lineByKey = (key: string) =>
+      [...col.operating, ...col.investing, ...col.financing].find((l) => l.key === key)
+    // inventories present in both periods -> data
+    expect(lineByKey('delta_inventories')?.hasData).toBe(true)
+    // investment property absent in both periods -> no data
+    expect(lineByKey('investment_property')?.hasData).toBe(false)
+    // net profit present via income statement
+    expect(lineByKey('net_profit')?.hasData).toBe(true)
+  })
 })
 
 describe('buildCashFlowColumns pairing', () => {

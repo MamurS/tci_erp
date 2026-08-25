@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Card, Field, Input, PageHeader, Select, Spinner } from '../../../components/ui'
+import { Button, Card, Field, Input, PageHeader, Segmented, Select, Spinner } from '../../../components/ui'
 import { formatAmount } from '../../../lib/format'
 import {
   useBuyer,
@@ -184,23 +184,18 @@ export function StatementFormPage() {
       {/* Accounting basis (fixed after creation) */}
       <Card className="mb-5 flex flex-wrap items-center gap-4 p-5">
         <span className="text-[13px] font-medium text-slate-600">{t('fin.local.basis')}</span>
-        <div className="flex gap-1.5">
-          {(['ifrs', 'local'] as const).map((b) => (
-            <button
-              key={b}
-              type="button"
-              disabled={isEdit || (b === 'local' && !localAvailable)}
-              onClick={() => setBasis(b)}
-              className={`rounded-md border px-3 py-1.5 text-[13px] font-medium transition-colors ${
-                basis === b
-                  ? 'border-accent-600 bg-accent-50 text-accent-700'
-                  : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
-              } ${isEdit || (b === 'local' && !localAvailable) ? 'cursor-not-allowed opacity-50' : ''}`}
-            >
-              {b === 'ifrs' ? t('fin.local.basisIfrs') : t('fin.local.basisLocal')}
-            </button>
-          ))}
-        </div>
+        <Segmented
+          value={basis}
+          onChange={(key) => setBasis(key as 'ifrs' | 'local')}
+          options={[
+            { key: 'ifrs', label: t('fin.local.basisIfrs'), disabled: isEdit },
+            {
+              key: 'local',
+              label: t('fin.local.basisLocal'),
+              disabled: isEdit || !localAvailable,
+            },
+          ]}
+        />
         {basis === 'local' && (
           <span className="text-[13px] text-slate-500">
             {(templates ?? []).map((x) => x.code).join(' + ')}

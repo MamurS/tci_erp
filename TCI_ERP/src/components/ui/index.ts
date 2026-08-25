@@ -1,5 +1,6 @@
 export {
   Badge,
+  Segmented,
   Button,
   Card,
   EmptyState,

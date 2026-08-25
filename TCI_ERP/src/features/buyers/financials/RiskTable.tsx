@@ -1,6 +1,8 @@
-/** Risk analysis view (legacy «Анализ рисков» style): rows per indicator,
- * one value column per period plus a Δ "change" column (blue positive, red
- * negative). Norm breaches render red, compliant values green. */
+/** Risk analysis view (legacy «Анализ рисков» structure): rows per
+ * indicator, one value column per period plus a Δ "change" column colored
+ * per the general direction-aware rule (green = improvement, red =
+ * deterioration; directions in lines.ts RISK_ROW_DIRECTIONS). Norm breaches
+ * render red, compliant values green. */
 
 import { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -8,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { Badge, EmptyState } from '../../../components/ui'
 import { EM_DASH, formatAmount, formatDays, formatPercent, formatRatio } from '../../../lib/format'
 import { statementPeriodLabel } from '../types'
+import { RISK_ROW_DIRECTIONS } from './lines'
 import { RISK_ROWS } from './risk'
 import type { RiskPeriod, RiskRowDef } from './risk'
 
@@ -38,6 +41,24 @@ const BAND_TONE: Record<string, 'pos' | 'warn' | 'neg'> = {
   safe: 'pos',
   grey: 'warn',
   distress: 'neg',
+}
+
+/** Direction-aware Δ: ▲/▼ with green = improvement, red = deterioration. */
+function RiskDelta({ row, delta, locale }: { row: RiskRowDef; delta: number; locale: string }) {
+  if (Math.abs(delta) < 1e-9) {
+    return <span className="num block text-slate-400">{formatValue(row, 0, locale)}</span>
+  }
+  const direction = RISK_ROW_DIRECTIONS[row.key] ?? 'up_good'
+  const up = delta > 0
+  const improvement = direction === 'up_good' ? up : !up
+  return (
+    <span className={`num block ${improvement ? 'text-pos-500' : 'text-neg-500'}`}>
+      <span aria-hidden="true" className="mr-0.5 align-[1px] text-[9px]">
+        {up ? '▲' : '▼'}
+      </span>
+      {formatValue(row, Math.abs(delta), locale)}
+    </span>
+  )
 }
 
 export function RiskTable({ periods }: { periods: RiskPeriod[] }) {
@@ -149,11 +170,7 @@ export function RiskTable({ periods }: { periods: RiskPeriod[] }) {
                             {delta === null ? (
                               <span className="num block text-slate-300">{EM_DASH}</span>
                             ) : (
-                              <span
-                                className={`num block ${delta > 0 ? 'text-accent-600' : delta < 0 ? 'text-neg-500' : 'text-slate-400'}`}
-                              >
-                                {formatValue(row, delta, locale)}
-                              </span>
+                              <RiskDelta row={row} delta={delta} locale={locale} />
                             )}
                           </td>
                         </Fragment>

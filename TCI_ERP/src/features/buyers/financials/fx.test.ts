@@ -88,7 +88,11 @@ describe('convertStatements', () => {
     expect(statements[0].currency_code).toBe('USD')
     expect(statements[0].balance_sheets?.total_assets).toBeCloseTo(10_000)
     expect(missing).toHaveLength(0)
-    expect(footnotes[0].parts[0]).toContain('USD')
+    expect(footnotes[0].rates[0]).toEqual({
+      currency_code: 'USD',
+      rate_to_uzs: 12_500,
+      rate_date: '2025-12-31',
+    })
   })
 
   it('missing rates are collected once per (ccy, date)', () => {

@@ -27,6 +27,7 @@ import type { StatementBundle } from '../types'
 import { statementPeriodLabel } from '../types'
 import { sortChronological } from '../financials/analysis'
 import { useFxRates, usdRateFor } from '../financials/fxApi'
+import { gradeTone } from '../../../lib/grade'
 
 interface AssessmentRow {
   id: string
@@ -37,14 +38,6 @@ interface AssessmentRow {
   limit_currency: string
   engine_version: string
   created_at: string
-}
-
-/** Grade -> DESIGN.md semantic tone. */
-function gradeTone(grade: string): 'pos' | 'accent' | 'warn' | 'neg' {
-  if (grade.startsWith('A')) return 'pos'
-  if (grade.startsWith('B')) return 'accent'
-  if (grade.startsWith('C')) return 'warn'
-  return 'neg'
 }
 
 export function RatingTab({ buyerId }: { buyerId: string }) {
@@ -241,7 +234,7 @@ function ResultView({
               {rating.grade ?? EM_DASH}
             </span>
             <span className="text-lg text-slate-500">
-              {rating.score !== null ? rating.score.toFixed(1) : EM_DASH} / 100
+              {rating.score !== null ? formatAmount(rating.score, locale, 1) : EM_DASH} / 100
             </span>
           </div>
           <p className="text-xs text-slate-400">{t('rating.scaleHint')}</p>
@@ -253,7 +246,7 @@ function ResultView({
               {rating.adjustments.map((a) => (
                 <span key={a.code} className="text-[13px] text-warn-500">
                   {t(`rating.adjustments.${a.code}`, { defaultValue: a.code })}:{' '}
-                  {a.rating_before.toFixed(1)} → {a.rating_after.toFixed(1)}
+                  {formatAmount(a.rating_before, locale, 1)} → {formatAmount(a.rating_after, locale, 1)}
                 </span>
               ))}
             </div>
@@ -335,13 +328,13 @@ function ResultView({
                           : ''
                   }`}
                 >
-                  {c.score === null ? EM_DASH : c.score.toFixed(0)}
+                  {c.score === null ? EM_DASH : formatAmount(c.score, locale, 0)}
                 </span>
               </td>
               <td>
-                <span className="num block">{c.weight.toFixed(1)}</span>
+                <span className="num block">{formatAmount(c.weight, locale, 1)}</span>
               </td>
-              <td className="text-slate-500">{c.band ?? EM_DASH}</td>
+              <td className="text-slate-500">{c.band ? t(`rating.bands.${c.band}`, { defaultValue: c.band }) : EM_DASH}</td>
             </tr>
           ))}
         </tbody>
@@ -387,7 +380,7 @@ function HistoryCard({
               <td className="text-slate-500">{a.created_at.slice(0, 16).replace('T', ' ')}</td>
               <td>{periodOf(a.statement_id)}</td>
               <td>
-                <span className="num block">{Number(a.rating_score).toFixed(1)}</span>
+                <span className="num block">{formatAmount(Number(a.rating_score), locale, 1)}</span>
               </td>
               <td>
                 <Badge tone={gradeTone(a.rating_grade)}>{a.rating_grade}</Badge>

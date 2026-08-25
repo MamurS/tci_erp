@@ -34,6 +34,8 @@ export interface CashFlowLine {
   /** i18n key under fin.cashflow.lines.* */
   key: string
   value: number
+  /** False when no underlying data exists for the line (rendered as "—"). */
+  hasData: boolean
 }
 
 export interface CashFlowColumn {
@@ -59,19 +61,34 @@ const TOLERANCE = 1
 type Bs = Partial<BalanceSheetValues> | null
 type Is = Partial<IncomeStatementValues> | null
 
-function delta(cur: Bs, prev: Bs, key: keyof BalanceSheetValues): number {
+interface Term {
+  value: number
+  hasData: boolean
+}
+
+function delta(cur: Bs, prev: Bs, key: keyof BalanceSheetValues): Term {
   const c = cur?.[key] ?? null
   const p = prev?.[key] ?? null
-  if (c === null && p === null) return 0
-  return (c ?? 0) - (p ?? 0)
+  if (c === null && p === null) return { value: 0, hasData: false }
+  return { value: (c ?? 0) - (p ?? 0), hasData: true }
 }
 
-function isValue(is: Is, key: keyof IncomeStatementValues): number {
-  return is?.[key] ?? 0
+function isValue(is: Is, key: keyof IncomeStatementValues): Term {
+  const v = is?.[key] ?? null
+  return v === null ? { value: 0, hasData: false } : { value: v, hasData: true }
 }
 
-function line(key: string, value: number): CashFlowLine {
-  return { key, value }
+const neg = (term: Term): Term => ({ value: -term.value, hasData: term.hasData })
+
+function combine(...terms: Term[]): Term {
+  return {
+    value: terms.reduce((a, t) => a + t.value, 0),
+    hasData: terms.some((t) => t.hasData),
+  }
+}
+
+function line(key: string, term: Term): CashFlowLine {
+  return { key, value: term.value, hasData: term.hasData }
 }
 
 export function computeCashFlowColumn(
@@ -82,7 +99,7 @@ export function computeCashFlowColumn(
   const prevBs = previous.balance_sheets
   const is = statement.income_statements
 
-  const d = (key: keyof BalanceSheetValues): number => delta(bs, prevBs, key)
+  const d = (key: keyof BalanceSheetValues): Term => delta(bs, prevBs, key)
 
   const netProfit = isValue(is, 'net_profit')
   const da = isValue(is, 'depreciation_amortization')
@@ -90,25 +107,25 @@ export function computeCashFlowColumn(
   const operating: CashFlowLine[] = [
     line('net_profit', netProfit),
     line('depreciation_amortization', da),
-    line('delta_receivables', -(d('trade_receivables') + d('other_receivables'))),
-    line('delta_inventories', -d('inventories')),
-    line('delta_other_current_assets', -d('other_current_assets')),
-    line('delta_deferred_tax_assets', -d('deferred_tax_assets')),
-    line('delta_payables', d('trade_payables') + d('other_payables')),
+    line('delta_receivables', neg(combine(d('trade_receivables'), d('other_receivables')))),
+    line('delta_inventories', neg(d('inventories'))),
+    line('delta_other_current_assets', neg(d('other_current_assets'))),
+    line('delta_deferred_tax_assets', neg(d('deferred_tax_assets'))),
+    line('delta_payables', combine(d('trade_payables'), d('other_payables'))),
     line('delta_tax_liabilities', d('current_tax_liabilities')),
-    line('delta_provisions', d('short_term_provisions') + d('long_term_provisions')),
+    line('delta_provisions', combine(d('short_term_provisions'), d('long_term_provisions'))),
     line('delta_deferred_tax_liabilities', d('deferred_tax_liabilities')),
     line('delta_other_current_liabilities', d('other_current_liabilities')),
   ]
 
   const investing: CashFlowLine[] = [
     // capex approximation: ΔPP&E plus depreciation added back in operating
-    line('ppe_capex', -(d('property_plant_equipment') + da)),
-    line('intangibles', -(d('intangible_assets') + d('goodwill'))),
-    line('investment_property', -d('investment_property')),
-    line('long_term_investments', -d('long_term_investments')),
-    line('short_term_investments', -d('short_term_investments')),
-    line('other_non_current_assets', -d('other_non_current_assets')),
+    line('ppe_capex', neg(combine(d('property_plant_equipment'), da))),
+    line('intangibles', neg(combine(d('intangible_assets'), d('goodwill')))),
+    line('investment_property', neg(d('investment_property'))),
+    line('long_term_investments', neg(d('long_term_investments'))),
+    line('short_term_investments', neg(d('short_term_investments'))),
+    line('other_non_current_assets', neg(d('other_non_current_assets'))),
   ]
 
   const financing: CashFlowLine[] = [

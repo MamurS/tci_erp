@@ -2,7 +2,8 @@ import { useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, EmptyState, Input, Modal, Spinner, Table, Tabs } from '../../../components/ui'
+import { Badge, Button, EmptyState, Input, Modal, Segmented, Spinner, Table, Tabs } from '../../../components/ui'
+import { formatAmount } from '../../../lib/format'
 import { exportFileName, exportTableToExcel } from '../../../lib/exportTable'
 import { useBuyer, useDeleteStatement, useStatements } from '../api'
 import type { StatementBundle } from '../types'
@@ -32,7 +33,8 @@ type SubTab = 'balance' | 'pnl' | 'ratios' | 'cashflow' | 'risk'
 type TypeFilter = 'all' | ReportType
 
 export function FinancialsTab({ buyerId }: { buyerId: string }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const locale = i18n.resolvedLanguage ?? 'en'
   const { data: statements, isLoading } = useStatements(buyerId)
   const { data: buyer } = useBuyer(buyerId)
 
@@ -130,7 +132,7 @@ export function FinancialsTab({ buyerId }: { buyerId: string }) {
 
       <div className="mb-4 flex flex-wrap items-center gap-4">
         {/* Report type filter (legacy: налоговые / управленческие / всё) */}
-        <SegmentedControl
+        <Segmented
           value={typeFilter}
           options={[
             { key: 'statutory', label: t('fin.reportTypes.statutory') },
@@ -145,7 +147,7 @@ export function FinancialsTab({ buyerId }: { buyerId: string }) {
         {/* Display currency */}
         <div className="flex items-center gap-1.5">
           <span className="text-[13px] text-slate-500">{t('fin.fx.displayCurrency')}:</span>
-          <SegmentedControl
+          <Segmented
             value={displayCurrency}
             options={[
               { key: 'original', label: t('fin.fx.original') },
@@ -158,7 +160,7 @@ export function FinancialsTab({ buyerId }: { buyerId: string }) {
         </div>
         <div className="ml-auto">
           <Button variant="secondary" size="sm" onClick={handleExport}>
-            Excel
+            {t('fin.exportExcel')}
           </Button>
         </div>
       </div>
@@ -250,7 +252,15 @@ export function FinancialsTab({ buyerId }: { buyerId: string }) {
         <p className="mt-2 text-xs text-slate-400">
           {t('fin.fx.footnote')}:{' '}
           {converted.footnotes
-            .map((f) => `${statementPeriodLabel(f.statement)}: ${f.parts.join(', ')}`)
+            .map(
+              (f) =>
+                `${statementPeriodLabel(f.statement)}: ${f.rates
+                  .map(
+                    (r) =>
+                      `${r.currency_code} = ${formatAmount(r.rate_to_uzs, locale, 2)} UZS (${r.rate_date})`,
+                  )
+                  .join(', ')}`,
+            )
             .join('; ')}
         </p>
       )}
@@ -274,39 +284,6 @@ export function FinancialsTab({ buyerId }: { buyerId: string }) {
       {manualNeed && (
         <ManualRateModal need={manualNeed} onClose={() => setManualNeed(null)} />
       )}
-    </div>
-  )
-}
-
-// ---------------------------------------------------------------------------
-// Segmented control
-// ---------------------------------------------------------------------------
-
-function SegmentedControl({
-  value,
-  options,
-  onChange,
-}: {
-  value: string
-  options: { key: string; label: string }[]
-  onChange: (key: string) => void
-}) {
-  return (
-    <div className="inline-flex overflow-hidden rounded-md border border-slate-200">
-      {options.map((option) => (
-        <button
-          key={option.key}
-          type="button"
-          onClick={() => onChange(option.key)}
-          className={`px-2.5 py-1 text-xs font-medium transition-colors ${
-            option.key === value
-              ? 'bg-accent-600 text-white'
-              : 'bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-700'
-          }`}
-        >
-          {option.label}
-        </button>
-      ))}
     </div>
   )
 }
@@ -348,7 +325,7 @@ function ManualRateModal({ need, onClose }: { need: RateNeed; onClose: () => voi
         inputMode="decimal"
         value={raw}
         onChange={(e) => setRaw(e.target.value)}
-        placeholder={`1 ${need.currency_code} = ? UZS`}
+        placeholder={t('fin.fx.manualPlaceholder', { ccy: need.currency_code })}
         autoFocus
       />
     </Modal>
