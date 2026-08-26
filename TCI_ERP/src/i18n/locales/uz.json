@@ -5,7 +5,7 @@
   },
   "nav": {
     "dashboard": "Boshqaruv paneli",
-    "buyers": "Xaridorlar",
+    "buyers": "Bayerlar",
     "limits": "Kredit limitlari",
     "policyholders": "Sug‘urtalanuvchilar",
     "policies": "Polislar",
@@ -63,18 +63,18 @@
     "entities": "Tashkilotlar"
   },
   "buyers": {
-    "subtitle": "Kredit bahosidagi xaridorlar (debitorlar) reyestri",
-    "addBuyer": "Xaridor qo'shish",
-    "editBuyer": "Xaridorni tahrirlash",
+    "subtitle": "Kredit bahosidagi bayerlar (debitorlar) reyestri",
+    "addBuyer": "Bayer qo'shish",
+    "editBuyer": "Bayerni tahrirlash",
     "searchPlaceholder": "Nomi bo'yicha qidirish…",
     "allCountries": "Barcha mamlakatlar",
     "allIndustries": "Barcha tarmoqlar",
-    "empty": "Xaridorlar topilmadi",
-    "emptyHint": "Moliyaviy hisobot kiritishni boshlash uchun birinchi xaridorni qo'shing.",
+    "empty": "Bayerlar topilmadi",
+    "emptyHint": "Moliyaviy hisobot kiritishni boshlash uchun birinchi bayerni qo'shing.",
     "latestStatement": "Oxirgi hisobot",
     "createdAt": "Yaratilgan",
-    "notFound": "Xaridor topilmadi",
-    "backToList": "Xaridorlar ro'yxatiga",
+    "notFound": "Bayer topilmadi",
+    "backToList": "Bayerlar ro'yxatiga",
     "basicInfo": "Asosiy ma'lumotlar",
     "tabs": {
       "overview": "Umumiy",
@@ -523,8 +523,8 @@
     "calculatedLimit": "Hisoblangan limit (dvijok)",
     "limitDisclaimer": "Faqat dvijok hisobi; so‘ralgan yoki tasdiqlangan limit emas.",
     "print": "Chop etish / PDF saqlash",
-    "backToBuyer": "Xaridorga qaytish",
-    "noAssessment": "Bu xaridor uchun baholash hali hisoblanmagan.",
+    "backToBuyer": "Bayerga qaytish",
+    "noAssessment": "Bu bayer uchun baholash hali hisoblanmagan.",
     "basedOnStatement": "Hisobot asosida",
     "sections": {
       "conclusion": "Xulosa",
@@ -611,9 +611,9 @@
     "allPolicyholders": "Barcha sug‘urtalanuvchilar",
     "allStructures": "Barcha tuzilmalar",
     "termsTitle": "Polis shartlari",
-    "buyersLimitsTitle": "Xaridorlar va kredit limitlari",
+    "buyersLimitsTitle": "Bayerlar va kredit limitlari",
     "limitsPlaceholder": "Kredit limitlari moduli — 2b bosqich",
-    "limitsPlaceholderHint": "(Polis, xaridor) kesimidagi limit so‘rovlari va qarorlari shu yerda bo‘ladi.",
+    "limitsPlaceholderHint": "(Polis, bayer) kesimidagi limit so‘rovlari va qarorlari shu yerda bo‘ladi.",
     "historyTitle": "Statuslar tarixi",
     "historyEmpty": "Hozircha status o‘zgarishlari yo‘q.",
     "transitionFailed": "Statusni o‘zgartirish rad etildi",
@@ -632,8 +632,8 @@
     },
     "structures": {
       "whole_turnover": "To‘liq aylanma",
-      "key_buyers": "Asosiy xaridorlar",
-      "single_buyer": "Yagona xaridor"
+      "key_buyers": "Asosiy bayerlar",
+      "single_buyer": "Yagona bayer"
     },
     "statuses": {
       "draft": "Qoralama",
@@ -746,7 +746,7 @@
       "decide": "Qarorni qayd etish"
     },
     "fields": {
-      "buyer": "Xaridor",
+      "buyer": "Bayer",
       "status": "Holat",
       "grade": "Greyd",
       "ageDays": "Yoshi",
@@ -767,16 +767,16 @@
       "exceeds": "Vakolatingizdan oshadi ({{authority}} UZS ekv.) — qaror katta anderrayterga o‘tkaziladi",
       "missingRate": "{{currency}} uchun UZS kursi yo‘q — avval fx_rates jadvaliga kurs qo‘shing, aks holda qaror eskalatsiya qilinadi"
     },
-    "searchPlaceholder": "Xaridor, polis № yoki sug‘urtalanuvchi…",
+    "searchPlaceholder": "Bayer, polis № yoki sug‘urtalanuvchi…",
     "queueEmpty": "So‘rovlar yo‘q",
     "queueEmptyHint": "Limit so‘rovini polis sahifasidan yarating",
     "notFound": "So‘rov topilmadi",
     "backToQueue": "So‘rovlar ro‘yxatiga",
     "requestTitle": "Limit so‘rovi — {{buyer}}",
     "requestCard": "So‘rov",
-    "buyerSnapshot": "Xaridor profili",
+    "buyerSnapshot": "Bayer profili",
     "decisionTitle": "Qaror",
-    "openBuyerCard": "Xaridor kartochkasini ochish",
+    "openBuyerCard": "Bayer kartochkasini ochish",
     "currentEffective": "Amaldagi limit",
     "validUntil": "{{date}} gacha",
     "untilReview": "qayta ko‘rib chiqishgacha",
@@ -790,12 +790,12 @@
     "awaitingSenior": "Eskalatsiya — katta anderrayter qarori kutilmoqda",
     "escalatedResult": "Summa vakolatingizdan oshadi — so‘rov katta anderrayterga o‘tkazildi",
     "decideFailed": "Qarorni qayd etib bo‘lmadi",
-    "withdrawConfirm": "Limit so‘rovi chaqirib olinsinmi? Xaridorning amaldagi limiti o‘zgarmaydi.",
+    "withdrawConfirm": "Limit so‘rovi chaqirib olinsinmi? Bayerning amaldagi limiti o‘zgarmaydi.",
     "requestLimit": "Limit so‘rash",
     "createDraft": "Qoralama yaratish",
     "createFailed": "So‘rovni yaratib bo‘lmadi",
     "noneForPolicy": "Ushbu polis bo‘yicha limitlar hali yo‘q",
-    "noneForBuyer": "Ushbu xaridor bo‘yicha limitlar hali yo‘q",
+    "noneForBuyer": "Ushbu bayer bo‘yicha limitlar hali yo‘q",
     "noneForBuyerHint": "Limitlar polis sahifasidan so‘raladi",
     "modeEffective": "Amaldagi",
     "modeHistory": "Tarix",
@@ -805,7 +805,7 @@
     "pairHeader": "So‘ralgan → tasdiqlangan"
   },
   "entities": {
-    "subtitle": "Yagona reyestr — sug‘urtalanuvchilar, xaridorlar va tahlildagi tashkilotlar",
+    "subtitle": "Yagona reyestr — sug‘urtalanuvchilar, bayerlar va tahlildagi tashkilotlar",
     "add": "Tashkilot qo‘shish",
     "edit": "Tashkilotni tahrirlash",
     "searchPlaceholder": "Nomi yoki ro‘yxat raqami…",
@@ -818,11 +818,11 @@
     "roleChips": {
       "all": "Hammasi",
       "policyholders": "Sug‘urtalanuvchilar",
-      "buyers": "Xaridorlar"
+      "buyers": "Bayerlar"
     },
     "roles": {
       "policyholder": "Sug‘urtalanuvchi",
-      "buyer": "Xaridor",
+      "buyer": "Bayer",
       "prospect": "Prospekt",
       "none": "tahlilda"
     },
@@ -836,7 +836,7 @@
       "limits": "Limitlar",
       "policies": "Polislar va portfel"
     },
-    "portfolioLimitsTitle": "Ularning polislari bo‘yicha xaridor limitlari",
+    "portfolioLimitsTitle": "Ularning polislari bo‘yicha bayer limitlari",
     "portfolioSummary": "Sug‘urtalanuvchi portfeli:",
     "portfolioLimits": "amaldagi limitlar"
   }
