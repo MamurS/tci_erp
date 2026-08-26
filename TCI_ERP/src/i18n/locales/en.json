@@ -12,7 +12,7 @@
     "declarations": "Declarations",
     "claims": "Claims",
     "admin": "Admin",
-    "entities": "Legal entities"
+    "entities": "Companies"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -60,7 +60,7 @@
     "roleLabel": "Your role",
     "activePolicies": "Active policies",
     "policyholders": "Policyholders",
-    "entities": "Legal entities"
+    "entities": "Companies"
   },
   "buyers": {
     "subtitle": "Register of buyers (debtors) under credit assessment",
@@ -806,12 +806,12 @@
   },
   "entities": {
     "subtitle": "Unified registry — policyholders, buyers and analysis prospects",
-    "add": "Add entity",
-    "edit": "Edit entity",
+    "add": "Add company",
+    "edit": "Edit company",
     "searchPlaceholder": "Name or registration number…",
-    "empty": "No legal entities yet",
-    "emptyHint": "Add an organization to start the analysis",
-    "notFound": "Entity not found",
+    "empty": "No companies yet",
+    "emptyHint": "Add a company to start the analysis",
+    "notFound": "Company not found",
     "backToList": "Back to the registry",
     "noRegNumber": "no registration number",
     "rolesHeader": "Roles",
@@ -826,7 +826,7 @@
       "prospect": "Prospect",
       "none": "prospect"
     },
-    "regExists": "This organization is already in the registry: {{name}}.",
+    "regExists": "This company is already in the registry: {{name}}.",
     "openEntity": "Open it",
     "possibleDuplicates": "Possible duplicates",
     "tabs": {

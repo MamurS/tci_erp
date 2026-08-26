@@ -75,6 +75,7 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 |---|---|---|
 | policyholder | Страхователь | **Sug‘urtalanuvchi** (NOT «Sug‘urta qildiruvchi») |
 | buyer (debtor role) | **Байер** (NOT «Покупатель») | **Bayer** (NOT «Xaridor») |
+| company / organization (registry entity; en "Company") | **Организация** | **Tashkilot** |
 | insured person | Застрахованное лицо | **Sug‘urtalanuvchi shaxs** |
 | insurer | Страховщик | **Sug‘urtalovchi** |
 | non-qualifying loss | NQL | **Qoplanmaydigan zarar (NQL)** |
