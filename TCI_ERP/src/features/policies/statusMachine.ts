@@ -1,22 +1,27 @@
 /**
  * Policy status machine — pure module, EXACT mirror of the SQL function
- * tci.change_policy_status (migration 0012). The database is the enforcing
- * side; this module only drives which action buttons the UI offers.
+ * tci.change_policy_status (migrations 0012 + 0014). The database is the
+ * enforcing side; this module only drives which action buttons the UI offers.
  *
  * draft -> active
- * active -> suspended | cancelled | expired
- * suspended -> active | cancelled
- * expired, cancelled -> terminal
+ * active -> suspended | cancelled | expired | annulled
+ * suspended -> active | cancelled | annulled
+ * expired, cancelled, annulled -> terminal
+ *
+ * annulled = voided as if never concluded (premium returned), distinct from
+ * cancelled (terminated from a date). Annulment REQUIRES a comment — the SQL
+ * function rejects an empty one.
  */
 
 import type { PolicyStatus } from './types'
 
 export const ALLOWED_TRANSITIONS: Record<PolicyStatus, readonly PolicyStatus[]> = {
   draft: ['active'],
-  active: ['suspended', 'cancelled', 'expired'],
-  suspended: ['active', 'cancelled'],
+  active: ['suspended', 'cancelled', 'expired', 'annulled'],
+  suspended: ['active', 'cancelled', 'annulled'],
   expired: [],
   cancelled: [],
+  annulled: [],
 }
 
 export function allowedTargets(from: PolicyStatus): readonly PolicyStatus[] {
@@ -27,15 +32,22 @@ export function canTransition(from: PolicyStatus, to: PolicyStatus): boolean {
   return ALLOWED_TRANSITIONS[from].includes(to)
 }
 
-/** Suspend/cancel are consequential — the UI asks for a confirmation comment. */
+/** Suspend/cancel/annul are consequential — the UI asks for a confirmation
+ * comment (for annulment the comment is mandatory, see commentMandatory). */
 export function requiresComment(to: PolicyStatus): boolean {
-  return to === 'suspended' || to === 'cancelled'
+  return to === 'suspended' || to === 'cancelled' || to === 'annulled'
 }
 
-/** Badge tone per DESIGN.md semantics (green = good standing, red = terminal loss of cover). */
+/** Transitions the SQL function refuses without a non-empty comment. */
+export function commentMandatory(to: PolicyStatus): boolean {
+  return to === 'annulled'
+}
+
+/** Badge tone per DESIGN.md semantics (green = good standing, red = terminal
+ * loss of cover; solid red = annulment, visually distinct from cancellation). */
 export function statusTone(
   status: PolicyStatus,
-): 'neutral' | 'accent' | 'pos' | 'neg' | 'warn' {
+): 'neutral' | 'accent' | 'pos' | 'neg' | 'negStrong' | 'warn' {
   switch (status) {
     case 'active':
       return 'pos'
@@ -43,6 +55,8 @@ export function statusTone(
       return 'warn'
     case 'cancelled':
       return 'neg'
+    case 'annulled':
+      return 'negStrong'
     case 'draft':
       return 'accent'
     case 'expired':

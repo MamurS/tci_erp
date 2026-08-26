@@ -7,7 +7,7 @@
     "dashboard": "Boshqaruv paneli",
     "buyers": "Xaridorlar",
     "limits": "Kredit limitlari",
-    "policyholders": "Sug'urta qildiruvchilar",
+    "policyholders": "Sug‘urtalanuvchilar",
     "policies": "Polislar",
     "declarations": "Deklaratsiyalar",
     "claims": "Zararlar",
@@ -31,7 +31,7 @@
     "admin": "Administrator",
     "senior_underwriter": "Katta anderrayter",
     "underwriter": "Anderrayter",
-    "policyholder": "Sug'urta qildiruvchi",
+    "policyholder": "Sug‘urtalanuvchi",
     "unassigned": "Rol tayinlanmagan"
   },
   "common": {
@@ -58,7 +58,7 @@
     "welcome": "Xush kelibsiz, {{email}}",
     "roleLabel": "Sizning rolingiz",
     "activePolicies": "Amaldagi polislar",
-    "policyholders": "Sug‘urta qildiruvchilar"
+    "policyholders": "Sug‘urtalanuvchilar"
   },
   "buyers": {
     "subtitle": "Kredit bahosidagi xaridorlar (debitorlar) reyestri",
@@ -77,7 +77,8 @@
     "tabs": {
       "overview": "Umumiy",
       "financials": "Moliya",
-      "rating": "Reyting va limit"
+      "rating": "Reyting va limit",
+      "limits": "Limitlar"
     },
     "ratingStub": {
       "title": "Modul ishlab chiqilmoqda",
@@ -92,7 +93,10 @@
       "cfo": "Operatsion pul oqimi (CFO)",
       "vsPrior": "{{period}} ga nisbatan",
       "calculateRating": "Reytingni hisoblash",
-      "noAssessmentHint": "Hisobotlar kiritilgan, ammo reyting hali hisoblanmagan."
+      "noAssessmentHint": "Hisobotlar kiritilgan, ammo reyting hali hisoblanmagan.",
+      "exposure": "Ekspozitsiya",
+      "exposurePolicies_one": "{{count}} polis",
+      "exposurePolicies_other": "{{count}} polis"
     },
     "fields": {
       "name": "Nomi",
@@ -127,7 +131,7 @@
       "pnl": "FvZ",
       "ratios": "Koeffitsientlar",
       "cashflow": "Pul oqimi",
-      "risk": "Risklar tahlili"
+      "risk": "Qaltisliklar tahlili"
     },
     "fields": {
       "period": "Davr",
@@ -350,9 +354,9 @@
       "change": "O‘zgarish",
       "norm": "norma",
       "bands": {
-        "safe": "past risk",
+        "safe": "past qaltislik",
         "grey": "kulrang zona",
-        "distress": "yuqori risk"
+        "distress": "yuqori qaltislik"
       },
       "groups": {
         "liquidity": "Likvidlikni baholash",
@@ -360,7 +364,7 @@
         "stability": "Moliyaviy barqarorlik"
       },
       "rows": {
-        "z_score": "Bankrotlik riski (Altman Z''-hisobi)",
+        "z_score": "Bankrotlik qaltisligi (Altman Z''-hisobi)",
         "net_working_capital": "Xususiy aylanma kapital",
         "equity": "O‘z kapitali",
         "current_ratio": "Joriy likvidlik",
@@ -501,7 +505,7 @@
     "historyChart": "Ball tarixi",
     "generateReport": "Hisobot yaratish",
     "reportModal": {
-      "title": "Risk hisoboti",
+      "title": "Qaltislik hisoboti",
       "language": "Hisobot tili",
       "reportType": "Hisobot turi",
       "currency": "Valyuta",
@@ -510,7 +514,7 @@
     "notAssessed": "Baholash hali hisoblanmagan"
   },
   "report": {
-    "title": "RISK HISOBOTI",
+    "title": "QALTISLIK HISOBOTI",
     "generatedBy": "MIG TCI ERP tizimida yaratilgan",
     "reportDate": "Hisobot sanasi",
     "generalInfo": "Umumiy ma’lumotlar",
@@ -525,7 +529,7 @@
       "balanceSheet": "Buxgalteriya balansi",
       "pnl": "Foyda va zararlar hisoboti",
       "ratios": "Moliyaviy koeffitsientlar",
-      "riskSummary": "Risklar tahlili xulosasi",
+      "riskSummary": "Qaltisliklar tahlili xulosasi",
       "dynamicGraphs": "Dinamik grafiklar"
     },
     "charts": {
@@ -561,18 +565,19 @@
       "ccc_level": "Pul aylanish sikli {{days}} kunni tashkil etadi.",
       "z_safe": "Altman Z''-hisobi kompaniyani xavfsiz zonaga kiritadi.",
       "z_grey": "Altman Z''-hisobi kompaniyani kulrang zonaga kiritadi.",
-      "z_distress": "Altman Z''-hisobi kompaniyani yuqori risk zonasiga kiritadi.",
+      "z_distress": "Altman Z''-hisobi kompaniyani yuqori qaltislik zonasiga kiritadi.",
       "norm_breaches": "{{count}} ko‘rsatkich bo‘yicha normalar buzilgan: {{rows}}."
-    }
+    },
+    "approvedAggregateLimit": "Tasdiqlangan jami limit"
   },
   "policyholders": {
-    "subtitle": "Sug‘urta qildiruvchilar (sotuvchilar) — TCI polislari egalari",
-    "add": "Sug‘urta qildiruvchini qo‘shish",
-    "edit": "Sug‘urta qildiruvchini tahrirlash",
+    "subtitle": "Sug‘urtalanuvchilar (sotuvchilar) — TCI polislari egalari",
+    "add": "Sug‘urtalanuvchini qo‘shish",
+    "edit": "Sug‘urtalanuvchini tahrirlash",
     "searchPlaceholder": "Nomi bo‘yicha qidirish…",
-    "empty": "Hozircha sug‘urta qildiruvchilar yo‘q",
+    "empty": "Hozircha sug‘urtalanuvchilar yo‘q",
     "emptyHint": "Polislarni biriktirish uchun birinchi mijozni qo‘shing.",
-    "notFound": "Sug‘urta qildiruvchi topilmadi",
+    "notFound": "Sug‘urtalanuvchi topilmadi",
     "backToList": "Ro‘yxatga qaytish",
     "activePolicies": "Amaldagi polislar",
     "policiesTitle": "Polislar",
@@ -597,11 +602,11 @@
     "searchPlaceholder": "Polis raqami bo‘yicha qidirish…",
     "empty": "Hozircha polislar yo‘q",
     "emptyHint": "Birinchi sug‘urta shartnomasini kiriting.",
-    "emptyForPolicyholder": "Bu sug‘urta qildiruvchining hali polislari yo‘q",
+    "emptyForPolicyholder": "Bu sug‘urtalanuvchining hali polislari yo‘q",
     "notFound": "Polis topilmadi",
     "backToList": "Polislar ro‘yxatiga qaytish",
     "allStatuses": "Barcha statuslar",
-    "allPolicyholders": "Barcha sug‘urta qildiruvchilar",
+    "allPolicyholders": "Barcha sug‘urtalanuvchilar",
     "allStructures": "Barcha tuzilmalar",
     "termsTitle": "Polis shartlari",
     "buyersLimitsTitle": "Xaridorlar va kredit limitlari",
@@ -614,7 +619,7 @@
     "expiryDueHint": "Polis muddati {{date}} kuni tugadi — uni «Muddati tugagan» statusiga o‘tkazing.",
     "fields": {
       "policyNumber": "Polis raqami",
-      "policyholder": "Sug‘urta qildiruvchi",
+      "policyholder": "Sug‘urtalanuvchi",
       "productStructure": "Mahsulot tuzilmasi",
       "period": "Davr",
       "currency": "Valyuta",
@@ -633,17 +638,20 @@
       "active": "Amalda",
       "suspended": "To‘xtatib turilgan",
       "expired": "Muddati tugagan",
-      "cancelled": "Bekor qilingan"
+      "cancelled": "Bekor qilingan",
+      "annulled": "Annulyatsiya qilingan"
     },
     "transitions": {
       "active": "Faollashtirish",
       "suspended": "To‘xtatib turish",
       "cancelled": "Bekor qilish",
-      "expired": "Muddati tugagan deb belgilash"
+      "expired": "Muddati tugagan deb belgilash",
+      "annulled": "Annulyatsiya qilish"
     },
     "transitionConfirm": {
       "suspended": "{{number}} polisi bo‘yicha qoplamani to‘xtatib turasizmi? Qayta faollashtirilguncha yangi jo‘natmalar qoplanmaydi.",
-      "cancelled": "{{number}} polisini bekor qilasizmi? Bu o‘tish qaytarilmas."
+      "cancelled": "{{number}} polisini bekor qilasizmi? Bu o‘tish qaytarilmas.",
+      "annulled": "{{number}} polisi annulyatsiya qilinsinmi? Annulyatsiya: shartnoma tuzilmagan hisoblanadi (mukofot qaytariladi). Muayyan sanadan to‘xtatish uchun “Bekor qilish” dan foydalaning. Sabab ko‘rsatilgan izoh majburiy."
     },
     "termGroups": {
       "contract": "Shartnoma",
@@ -658,9 +666,9 @@
       "maxLiabilityMultiple": "Javobgarlikning maksimal limiti (× mukofot)",
       "premiumMultiple": "{{value}}× mukofot",
       "timesPremium": "× mukofot",
-      "nql": "Kreditlanmaydigan zarar (NQL)",
-      "deductibleEachLoss": "Har bir zarar bo‘yicha fransheza",
-      "aggregateFirstLoss": "Birinchi zarar bo‘yicha agregat fransheza",
+      "nql": "Qoplanmaydigan zarar (NQL)",
+      "deductibleEachLoss": "Har bir zarar bo‘yicha franshiza",
+      "aggregateFirstLoss": "Birinchi zarar bo‘yicha agregat franshiza",
       "premiumRate": "Mukofot stavkasi, aylanmadan %",
       "minimumPremium": "Minimal mukofot",
       "estimatedTurnover": "Kutilayotgan yillik aylanma",
@@ -687,5 +695,111 @@
       "premiumRateHigh": "Aylanmadan 5% dan yuqori stavka TCI amaliyotidan ancha tashqarida",
       "minPremiumAboveExpected": "Minimal mukofot stavka × kutilayotgan aylanmadan katta"
     }
+  },
+  "limits": {
+    "subtitle": "Kredit limiti so‘rovlari va qarorlar",
+    "tabs": {
+      "drafts": "Qoralamalar",
+      "review": "Ko‘rib chiqishda",
+      "escalated": "Eskalatsiya",
+      "decided": "Hal qilingan"
+    },
+    "statuses": {
+      "draft": "Qoralama",
+      "submitted": "Yuborilgan",
+      "under_review": "Ko‘rib chiqilmoqda",
+      "escalated": "Eskalatsiya",
+      "decided": "Qaror qabul qilingan",
+      "withdrawn": "Chaqirib olingan"
+    },
+    "outcomes": {
+      "approved": "Tasdiqlangan",
+      "partial": "Qisman tasdiqlangan",
+      "declined": "Rad etilgan",
+      "revoked": "Bekor qilingan"
+    },
+    "lifecycles": {
+      "effective": "Amaldagi",
+      "superseded": "Almashtirilgan",
+      "expired": "Muddati tugagan",
+      "revoked_lc": "Bekor qilingan"
+    },
+    "conditionTypes": {
+      "security": "Ta’minot",
+      "appraisal": "Baholash",
+      "reporting": "Hisobot berish",
+      "payment_terms": "To‘lov shartlari",
+      "other": "Boshqa"
+    },
+    "timeline": {
+      "created": "Yaratilgan",
+      "submitted": "Yuborilgan",
+      "decided": "Qaror",
+      "withdrawn": "Chaqirib olingan"
+    },
+    "actions": {
+      "submit": "Yuborish",
+      "startReview": "Ko‘rib chiqishga olish",
+      "withdraw": "Chaqirib olish",
+      "decide": "Qarorni qayd etish"
+    },
+    "fields": {
+      "buyer": "Xaridor",
+      "status": "Holat",
+      "grade": "Greyd",
+      "ageDays": "Yoshi",
+      "requestedAmount": "So‘ralgan summa",
+      "approvedAmount": "Tasdiqlangan summa",
+      "validFrom": "Amal qilish boshlanishi",
+      "validUntil": "Amal qilish muddati",
+      "outcome": "Qaror",
+      "conditions": "Shartlar",
+      "decidedBy": "Qaror qabul qildi",
+      "basedOnAssessment": "Baholash asosida",
+      "justification": "Asoslash",
+      "paymentTerms": "To‘lov shartlari",
+      "withdrawComment": "Chaqirib olish izohi"
+    },
+    "preflight": {
+      "within": "Vakolatingiz doirasida ({{authority}} UZS ekv.)",
+      "exceeds": "Vakolatingizdan oshadi ({{authority}} UZS ekv.) — qaror katta anderrayterga o‘tkaziladi",
+      "missingRate": "{{currency}} uchun UZS kursi yo‘q — avval fx_rates jadvaliga kurs qo‘shing, aks holda qaror eskalatsiya qilinadi"
+    },
+    "searchPlaceholder": "Xaridor, polis № yoki sug‘urtalanuvchi…",
+    "queueEmpty": "So‘rovlar yo‘q",
+    "queueEmptyHint": "Limit so‘rovini polis sahifasidan yarating",
+    "notFound": "So‘rov topilmadi",
+    "backToQueue": "So‘rovlar ro‘yxatiga",
+    "requestTitle": "Limit so‘rovi — {{buyer}}",
+    "requestCard": "So‘rov",
+    "buyerSnapshot": "Xaridor profili",
+    "decisionTitle": "Qaror",
+    "openBuyerCard": "Xaridor kartochkasini ochish",
+    "currentEffective": "Amaldagi limit",
+    "validUntil": "{{date}} gacha",
+    "untilReview": "qayta ko‘rib chiqishgacha",
+    "validUntilHint": "Muddatsiz limit uchun bo‘sh qoldiring (qayta ko‘rib chiqishgacha)",
+    "willSupersede": "Yangi qaror ushbu limitni almashtiradi",
+    "calculatedHint": "Hisoblangan limit: {{amount}} {{currency}}",
+    "addCondition": "Shart qo‘shish",
+    "noConditions": "Shartlarsiz",
+    "conditionPlaceholder": "Shart tavsifi…",
+    "conditionsTooltip": "Shartlar: {{count}}",
+    "awaitingSenior": "Eskalatsiya — katta anderrayter qarori kutilmoqda",
+    "escalatedResult": "Summa vakolatingizdan oshadi — so‘rov katta anderrayterga o‘tkazildi",
+    "decideFailed": "Qarorni qayd etib bo‘lmadi",
+    "withdrawConfirm": "Limit so‘rovi chaqirib olinsinmi? Xaridorning amaldagi limiti o‘zgarmaydi.",
+    "requestLimit": "Limit so‘rash",
+    "createDraft": "Qoralama yaratish",
+    "createFailed": "So‘rovni yaratib bo‘lmadi",
+    "noneForPolicy": "Ushbu polis bo‘yicha limitlar hali yo‘q",
+    "noneForBuyer": "Ushbu xaridor bo‘yicha limitlar hali yo‘q",
+    "noneForBuyerHint": "Limitlar polis sahifasidan so‘raladi",
+    "modeEffective": "Amaldagi",
+    "modeHistory": "Tarix",
+    "exposureTotal": "Jami ekspozitsiya",
+    "missingRates_one": "{{count}} valyuta uchun UZS kursi yo‘q",
+    "missingRates_other": "{{count}} valyuta uchun UZS kursi yo‘q",
+    "pairHeader": "So‘ralgan → tasdiqlangan"
   }
 }

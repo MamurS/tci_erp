@@ -19,8 +19,15 @@ import {
   Spinner,
 } from '../../components/ui'
 import { EM_DASH, formatAmount, formatPercent } from '../../lib/format'
+import { PolicyLimitsSection } from '../limits/PolicyLimitsSection'
 import { useChangePolicyStatus, usePolicy, usePolicyStatusHistory } from './api'
-import { allowedTargets, isExpiryDue, requiresComment, statusTone } from './statusMachine'
+import {
+  allowedTargets,
+  commentMandatory,
+  isExpiryDue,
+  requiresComment,
+  statusTone,
+} from './statusMachine'
 import type { PolicyStatus, PolicyWithRefs } from './types'
 
 export function PolicyDetailPage() {
@@ -89,16 +96,7 @@ export function PolicyDetailPage() {
         <div className="flex flex-col gap-5">
           <TermsCard policy={policy} />
 
-          {/* Phase 2b placeholder */}
-          <div>
-            <h2 className="mb-2 text-sm font-semibold text-slate-900">
-              {t('policies.buyersLimitsTitle')}
-            </h2>
-            <EmptyState
-              title={t('policies.limitsPlaceholder')}
-              hint={t('policies.limitsPlaceholderHint')}
-            />
-          </div>
+          <PolicyLimitsSection policy={policy} />
         </div>
 
         <HistoryTimeline policyId={id} />
@@ -137,7 +135,13 @@ function StatusActions({ policy }: { policy: PolicyWithRefs }) {
       {targets.map((to) => (
         <Button
           key={to}
-          variant={to === 'cancelled' ? 'danger' : to === 'active' ? 'primary' : 'secondary'}
+          variant={
+            to === 'cancelled' || to === 'annulled'
+              ? 'danger'
+              : to === 'active'
+                ? 'primary'
+                : 'secondary'
+          }
           onClick={() => {
             setComment('')
             setError(null)
@@ -166,9 +170,9 @@ function StatusActions({ policy }: { policy: PolicyWithRefs }) {
                 {t('common.cancel')}
               </Button>
               <Button
-                variant={pending === 'cancelled' ? 'danger' : 'primary'}
+                variant={pending === 'cancelled' || pending === 'annulled' ? 'danger' : 'primary'}
                 onClick={() => void run(pending, comment)}
-                disabled={changeStatus.isPending}
+                disabled={changeStatus.isPending || (commentMandatory(pending) && !comment.trim())}
               >
                 {changeStatus.isPending ? t('common.saving') : t('common.confirm')}
               </Button>
@@ -181,6 +185,7 @@ function StatusActions({ policy }: { policy: PolicyWithRefs }) {
           <label className="flex flex-col gap-1">
             <span className="text-[13px] font-medium text-slate-600">
               {t('policies.transitionComment')}
+              {commentMandatory(pending) && <span className="text-neg-500"> *</span>}
             </span>
             <textarea
               value={comment}

@@ -25,6 +25,8 @@ import { buildCashFlowColumns } from '../financials/cashflow'
 import { DeltaCell } from '../financials/cells'
 import type { LineDirection } from '../financials/lines'
 import { buildRiskPeriods } from '../financials/risk'
+import { useBuyerExposure } from '../../limits/api'
+import type { BuyerExposure } from '../../limits/types'
 import { useAssessments } from '../rating/assessmentsApi'
 import { buildFactorChips } from '../rating/chips'
 import { FactorChipList } from '../rating/FactorChips'
@@ -43,6 +45,7 @@ export function OverviewTab({ buyerId }: { buyerId: string }) {
   const { data: buyer } = useBuyer(buyerId)
   const { data: statements } = useStatements(buyerId)
   const assessments = useAssessments(buyerId)
+  const exposure = useBuyerExposure(buyerId)
   const { data: gradeBands } = useGradeScale()
 
   const [editOpen, setEditOpen] = useState(false)
@@ -189,6 +192,7 @@ export function OverviewTab({ buyerId }: { buyerId: string }) {
             cashFlowColumns={cashFlowColumns}
             latestAssessment={latestAssessment}
             previousAssessment={previousAssessment}
+            exposure={exposure.data ?? null}
           />
 
           {/* 4. Conclusion (narrative bullets, clickable) */}
@@ -253,12 +257,14 @@ function KeyFigures({
   cashFlowColumns,
   latestAssessment,
   previousAssessment,
+  exposure,
 }: {
   latest: StatementBundle | null
   sameType: StatementBundle[]
   cashFlowColumns: ReturnType<typeof buildCashFlowColumns>
   latestAssessment: { suggested_limit: number; limit_currency: string } | null
   previousAssessment: { suggested_limit: number; limit_currency: string } | null
+  exposure: BuyerExposure | null
 }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
@@ -332,6 +338,22 @@ function KeyFigures({
             Number(previousAssessment.suggested_limit),
           )
         : null,
+      deltaLabel: null,
+      direction: 'up_good',
+    })
+  }
+
+  // Approved aggregate exposure across policies (v_buyer_exposure, UZS).
+  if (exposure?.exposure_uzs != null) {
+    figures.push({
+      key: 'exposure',
+      label: t('buyers.overview.exposure'),
+      value: Number(exposure.exposure_uzs),
+      caption:
+        exposure.missing_rates > 0
+          ? `UZS · ${t('limits.missingRates', { count: exposure.missing_rates })}`
+          : `UZS · ${t('buyers.overview.exposurePolicies', { count: exposure.policies_count })}`,
+      delta: null,
       deltaLabel: null,
       direction: 'up_good',
     })

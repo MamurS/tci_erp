@@ -1,12 +1,15 @@
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth/AuthContext'
+import { useEscalatedCount } from '../../features/limits/api'
 import { navItemsForRole } from './navigation'
 
 export function Sidebar() {
   const { t } = useTranslation()
   const { role } = useAuth()
   const items = navItemsForRole(role)
+  const isSenior = role === 'admin' || role === 'senior_underwriter'
+  const { data: escalatedCount } = useEscalatedCount(isSenior)
 
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-slate-200 bg-white">
@@ -28,7 +31,17 @@ export function Sidebar() {
               }`
             }
           >
-            {t(`nav.${item.key}`)}
+            <span className="flex items-center justify-between">
+              {t(`nav.${item.key}`)}
+              {item.key === 'limits' && isSenior && (escalatedCount ?? 0) > 0 && (
+                <span
+                  className="rounded-full bg-warn-50 px-1.5 text-xs font-semibold text-warn-500"
+                  title={t('limits.tabs.escalated')}
+                >
+                  {escalatedCount}
+                </span>
+              )}
+            </span>
           </NavLink>
         ))}
       </nav>

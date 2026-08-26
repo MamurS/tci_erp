@@ -7,13 +7,14 @@ import { tci } from '../../lib/supabase'
 import { Badge, EmptyState, PageHeader, Spinner, Tabs } from '../../components/ui'
 import { useBuyer } from './api'
 import { countryFlag } from '../../lib/countryFlag'
+import { BuyerLimitsTab } from '../limits/BuyerLimitsTab'
 import { FinancialsTab } from './financials/FinancialsTab'
 import { OverviewTab } from './overview/OverviewTab'
 import { RatingTab } from './rating/RatingTab'
 import { formatAmount } from '../../lib/format'
 import { gradeTone } from '../../lib/grade'
 
-const TAB_KEYS = ['overview', 'financials', 'rating'] as const
+const TAB_KEYS = ['overview', 'financials', 'rating', 'limits'] as const
 
 export function BuyerDetailPage() {
   const { t } = useTranslation()
@@ -70,6 +71,7 @@ export function BuyerDetailPage() {
           { key: 'overview', label: t('buyers.tabs.overview') },
           { key: 'financials', label: t('buyers.tabs.financials') },
           { key: 'rating', label: t('buyers.tabs.rating') },
+          { key: 'limits', label: t('buyers.tabs.limits') },
         ]}
         active={activeTab}
         onChange={(key) => setSearchParams({ tab: key }, { replace: true })}
@@ -79,6 +81,7 @@ export function BuyerDetailPage() {
         {activeTab === 'overview' && <OverviewTab buyerId={id} />}
         {activeTab === 'financials' && <FinancialsTab buyerId={id} />}
         {activeTab === 'rating' && <RatingTab buyerId={id} />}
+        {activeTab === 'limits' && <BuyerLimitsTab buyerId={id} />}
       </div>
     </div>
   )
