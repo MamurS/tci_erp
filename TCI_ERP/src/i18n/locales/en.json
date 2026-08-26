@@ -77,7 +77,8 @@
     "tabs": {
       "overview": "Overview",
       "financials": "Financials",
-      "rating": "Rating & Limit"
+      "rating": "Rating & Limit",
+      "limits": "Limits"
     },
     "ratingStub": {
       "title": "Module under development",
@@ -92,7 +93,10 @@
       "cfo": "Operating cash flow (CFO)",
       "vsPrior": "vs {{period}}",
       "calculateRating": "Calculate rating",
-      "noAssessmentHint": "Statements are entered but the rating has not been calculated yet."
+      "noAssessmentHint": "Statements are entered but the rating has not been calculated yet.",
+      "exposure": "Exposure",
+      "exposurePolicies_one": "{{count}} policy",
+      "exposurePolicies_other": "{{count}} policies"
     },
     "fields": {
       "name": "Name",
@@ -563,7 +567,8 @@
       "z_grey": "The Altman Z''-score places the company in the grey zone.",
       "z_distress": "The Altman Z''-score places the company in the distress zone.",
       "norm_breaches": "{{count}} indicator(s) breach their norms: {{rows}}."
-    }
+    },
+    "approvedAggregateLimit": "Approved aggregate limit"
   },
   "policyholders": {
     "subtitle": "Insured clients (sellers) holding TCI policies",
@@ -687,5 +692,111 @@
       "premiumRateHigh": "Rate above 5% of turnover is far outside TCI practice",
       "minPremiumAboveExpected": "Minimum premium exceeds rate × estimated turnover"
     }
+  },
+  "limits": {
+    "subtitle": "Credit limit requests and decisions",
+    "tabs": {
+      "drafts": "Drafts",
+      "review": "In review",
+      "escalated": "Escalated",
+      "decided": "Decided"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "under_review": "Under review",
+      "escalated": "Escalated",
+      "decided": "Decided",
+      "withdrawn": "Withdrawn"
+    },
+    "outcomes": {
+      "approved": "Approved",
+      "partial": "Partially approved",
+      "declined": "Declined",
+      "revoked": "Revoked"
+    },
+    "lifecycles": {
+      "effective": "Effective",
+      "superseded": "Superseded",
+      "expired": "Expired",
+      "revoked_lc": "Revoked"
+    },
+    "conditionTypes": {
+      "security": "Security",
+      "appraisal": "Appraisal",
+      "reporting": "Reporting",
+      "payment_terms": "Payment terms",
+      "other": "Other"
+    },
+    "timeline": {
+      "created": "Created",
+      "submitted": "Submitted",
+      "decided": "Decided",
+      "withdrawn": "Withdrawn"
+    },
+    "actions": {
+      "submit": "Submit",
+      "startReview": "Start review",
+      "withdraw": "Withdraw",
+      "decide": "Record decision"
+    },
+    "fields": {
+      "buyer": "Buyer",
+      "status": "Status",
+      "grade": "Grade",
+      "ageDays": "Age",
+      "requestedAmount": "Requested amount",
+      "approvedAmount": "Approved amount",
+      "validFrom": "Valid from",
+      "validUntil": "Valid until",
+      "outcome": "Outcome",
+      "conditions": "Conditions",
+      "decidedBy": "Decided by",
+      "basedOnAssessment": "Based on assessment",
+      "justification": "Justification",
+      "paymentTerms": "Payment terms",
+      "withdrawComment": "Withdrawal comment"
+    },
+    "preflight": {
+      "within": "Within your authority ({{authority}} UZS eq.)",
+      "exceeds": "Exceeds your authority ({{authority}} UZS eq.) — the decision will be escalated to a senior underwriter",
+      "missingRate": "No UZS rate for {{currency}} — add a rate for it in fx_rates first, otherwise the decision will be escalated"
+    },
+    "searchPlaceholder": "Buyer, policy № or policyholder…",
+    "queueEmpty": "No requests here",
+    "queueEmptyHint": "Create a limit request from a policy page",
+    "notFound": "Request not found",
+    "backToQueue": "Back to the queue",
+    "requestTitle": "Limit request — {{buyer}}",
+    "requestCard": "Request",
+    "buyerSnapshot": "Buyer snapshot",
+    "decisionTitle": "Decision",
+    "openBuyerCard": "Open buyer card",
+    "currentEffective": "Current effective limit",
+    "validUntil": "until {{date}}",
+    "untilReview": "until review",
+    "validUntilHint": "Leave empty for an open-ended limit (valid until review)",
+    "willSupersede": "A new decision will supersede this limit",
+    "calculatedHint": "Calculated limit: {{amount}} {{currency}}",
+    "addCondition": "Add condition",
+    "noConditions": "No conditions",
+    "conditionPlaceholder": "Condition description…",
+    "conditionsTooltip": "Conditions: {{count}}",
+    "awaitingSenior": "Escalated — awaiting a senior underwriter's decision",
+    "escalatedResult": "The amount exceeds your authority — the request has been escalated to a senior underwriter",
+    "decideFailed": "Failed to record the decision",
+    "withdrawConfirm": "Withdraw this limit request? The buyer's effective limit is not affected.",
+    "requestLimit": "Request limit",
+    "createDraft": "Create draft",
+    "createFailed": "Failed to create the request",
+    "noneForPolicy": "No limits under this policy yet",
+    "noneForBuyer": "No limits for this buyer yet",
+    "noneForBuyerHint": "Limits are requested from a policy page",
+    "modeEffective": "Effective",
+    "modeHistory": "History",
+    "exposureTotal": "Total exposure",
+    "missingRates_one": "no UZS rate for {{count}} currency",
+    "missingRates_other": "no UZS rate for {{count}} currencies",
+    "pairHeader": "Requested → approved"
   }
 }

@@ -19,6 +19,7 @@ import {
   Spinner,
 } from '../../components/ui'
 import { EM_DASH, formatAmount, formatPercent } from '../../lib/format'
+import { PolicyLimitsSection } from '../limits/PolicyLimitsSection'
 import { useChangePolicyStatus, usePolicy, usePolicyStatusHistory } from './api'
 import { allowedTargets, isExpiryDue, requiresComment, statusTone } from './statusMachine'
 import type { PolicyStatus, PolicyWithRefs } from './types'
@@ -89,16 +90,7 @@ export function PolicyDetailPage() {
         <div className="flex flex-col gap-5">
           <TermsCard policy={policy} />
 
-          {/* Phase 2b placeholder */}
-          <div>
-            <h2 className="mb-2 text-sm font-semibold text-slate-900">
-              {t('policies.buyersLimitsTitle')}
-            </h2>
-            <EmptyState
-              title={t('policies.limitsPlaceholder')}
-              hint={t('policies.limitsPlaceholderHint')}
-            />
-          </div>
+          <PolicyLimitsSection policy={policy} />
         </div>
 
         <HistoryTimeline policyId={id} />

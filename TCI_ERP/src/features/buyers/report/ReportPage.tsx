@@ -31,6 +31,7 @@ import { BALANCE_SHEET_SECTIONS, INCOME_STATEMENT_SECTIONS, bsVerticalBase } fro
 import type { SectionDef } from '../financials/lines'
 import { RATIO_DEFS, computeRatios } from '../financials/ratios'
 import { RISK_ROWS, buildRiskPeriods } from '../financials/risk'
+import { useBuyerExposure } from '../../limits/api'
 import { useAssessments } from '../rating/assessmentsApi'
 import { buildFactorChips } from '../rating/chips'
 import { FactorChipList } from '../rating/FactorChips'
@@ -58,6 +59,7 @@ export function ReportPage() {
   const { data: gradeBands } = useGradeScale()
 
   const assessments = useAssessments(id)
+  const exposure = useBuyerExposure(id)
 
   const all = useMemo(() => statements ?? [], [statements])
   const sameType = useMemo(
@@ -182,6 +184,16 @@ export function ReportPage() {
                   </span>
                   <span className="ml-2 text-xs text-slate-400">
                     {t('report.limitDisclaimer')}
+                  </span>
+                </dd>
+              </>
+            )}
+            {exposure.data?.exposure_uzs != null && (
+              <>
+                <dt className="text-slate-500">{t('report.approvedAggregateLimit')}</dt>
+                <dd>
+                  <span className="num font-semibold">
+                    {formatAmount(Number(exposure.data.exposure_uzs), locale, 0)} UZS
                   </span>
                 </dd>
               </>

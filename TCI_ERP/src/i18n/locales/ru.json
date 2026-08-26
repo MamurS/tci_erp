@@ -77,7 +77,8 @@
     "tabs": {
       "overview": "Обзор",
       "financials": "Финансы",
-      "rating": "Рейтинг и лимит"
+      "rating": "Рейтинг и лимит",
+      "limits": "Лимиты"
     },
     "ratingStub": {
       "title": "Модуль в разработке",
@@ -92,7 +93,12 @@
       "cfo": "Операционный денежный поток (CFO)",
       "vsPrior": "к {{period}}",
       "calculateRating": "Рассчитать рейтинг",
-      "noAssessmentHint": "Отчётность введена, но рейтинг ещё не рассчитан."
+      "noAssessmentHint": "Отчётность введена, но рейтинг ещё не рассчитан.",
+      "exposure": "Экспозиция",
+      "exposurePolicies_one": "{{count}} полис",
+      "exposurePolicies_few": "{{count}} полиса",
+      "exposurePolicies_many": "{{count}} полисов",
+      "exposurePolicies_other": "{{count}} полисов"
     },
     "fields": {
       "name": "Название",
@@ -563,7 +569,8 @@
       "z_grey": "Z''-счёт Альтмана относит компанию к серой зоне.",
       "z_distress": "Z''-счёт Альтмана относит компанию к зоне высокого риска.",
       "norm_breaches": "Нарушены нормы по {{count}} показателям: {{rows}}."
-    }
+    },
+    "approvedAggregateLimit": "Совокупный одобренный лимит"
   },
   "policyholders": {
     "subtitle": "Страхователи (продавцы) — держатели полисов TCI",
@@ -624,7 +631,7 @@
       "notes": "Примечания"
     },
     "structures": {
-      "whole_turnover": "Весь оборот",
+      "whole_turnover": "Полный оборот",
       "key_buyers": "Ключевые покупатели",
       "single_buyer": "Один покупатель"
     },
@@ -687,5 +694,113 @@
       "premiumRateHigh": "Ставка выше 5% от оборота — далеко за пределами практики TCI",
       "minPremiumAboveExpected": "Минимальная премия больше, чем ставка × ожидаемый оборот"
     }
+  },
+  "limits": {
+    "subtitle": "Заявки на кредитные лимиты и решения",
+    "tabs": {
+      "drafts": "Черновики",
+      "review": "На рассмотрении",
+      "escalated": "Эскалация",
+      "decided": "Решённые"
+    },
+    "statuses": {
+      "draft": "Черновик",
+      "submitted": "Подана",
+      "under_review": "На рассмотрении",
+      "escalated": "Эскалация",
+      "decided": "Решение принято",
+      "withdrawn": "Отозвана"
+    },
+    "outcomes": {
+      "approved": "Одобрен",
+      "partial": "Одобрен частично",
+      "declined": "Отклонён",
+      "revoked": "Аннулирован"
+    },
+    "lifecycles": {
+      "effective": "Действующий",
+      "superseded": "Заменён",
+      "expired": "Истёк",
+      "revoked_lc": "Аннулирован"
+    },
+    "conditionTypes": {
+      "security": "Обеспечение",
+      "appraisal": "Оценка",
+      "reporting": "Отчётность",
+      "payment_terms": "Условия оплаты",
+      "other": "Прочее"
+    },
+    "timeline": {
+      "created": "Создана",
+      "submitted": "Подана",
+      "decided": "Решение",
+      "withdrawn": "Отозвана"
+    },
+    "actions": {
+      "submit": "Подать",
+      "startReview": "Взять в работу",
+      "withdraw": "Отозвать",
+      "decide": "Зафиксировать решение"
+    },
+    "fields": {
+      "buyer": "Покупатель",
+      "status": "Статус",
+      "grade": "Грейд",
+      "ageDays": "Возраст",
+      "requestedAmount": "Запрошенная сумма",
+      "approvedAmount": "Одобренная сумма",
+      "validFrom": "Действует с",
+      "validUntil": "Действует до",
+      "outcome": "Решение",
+      "conditions": "Условия",
+      "decidedBy": "Решение принял",
+      "basedOnAssessment": "На основе оценки",
+      "justification": "Обоснование",
+      "paymentTerms": "Условия оплаты",
+      "withdrawComment": "Комментарий к отзыву"
+    },
+    "preflight": {
+      "within": "В пределах ваших полномочий ({{authority}} UZS-экв.)",
+      "exceeds": "Превышает ваши полномочия ({{authority}} UZS-экв.) — решение будет передано старшему андеррайтеру",
+      "missingRate": "Нет курса UZS для {{currency}} — сначала добавьте курс в fx_rates, иначе решение будет эскалировано"
+    },
+    "searchPlaceholder": "Покупатель, № полиса или страхователь…",
+    "queueEmpty": "Заявок нет",
+    "queueEmptyHint": "Создайте заявку на лимит со страницы полиса",
+    "notFound": "Заявка не найдена",
+    "backToQueue": "К списку заявок",
+    "requestTitle": "Заявка на лимит — {{buyer}}",
+    "requestCard": "Заявка",
+    "buyerSnapshot": "Профиль покупателя",
+    "decisionTitle": "Решение",
+    "openBuyerCard": "Открыть карточку покупателя",
+    "currentEffective": "Действующий лимит",
+    "validUntil": "до {{date}}",
+    "untilReview": "до пересмотра",
+    "validUntilHint": "Оставьте пустым для бессрочного лимита (до пересмотра)",
+    "willSupersede": "Новое решение заменит этот лимит",
+    "calculatedHint": "Расчётный лимит: {{amount}} {{currency}}",
+    "addCondition": "Добавить условие",
+    "noConditions": "Без условий",
+    "conditionPlaceholder": "Описание условия…",
+    "conditionsTooltip": "Условий: {{count}}",
+    "awaitingSenior": "Эскалация — ожидает решения старшего андеррайтера",
+    "escalatedResult": "Сумма превышает ваши полномочия — заявка передана старшему андеррайтеру",
+    "decideFailed": "Не удалось зафиксировать решение",
+    "withdrawConfirm": "Отозвать заявку на лимит? Действующий лимит покупателя не изменится.",
+    "requestLimit": "Запросить лимит",
+    "createDraft": "Создать черновик",
+    "createFailed": "Не удалось создать заявку",
+    "noneForPolicy": "По этому полису лимитов пока нет",
+    "noneForBuyer": "По этому покупателю лимитов пока нет",
+    "noneForBuyerHint": "Лимиты запрашиваются со страницы полиса",
+    "modeEffective": "Действующие",
+    "modeHistory": "История",
+    "exposureTotal": "Совокупная экспозиция",
+    "missingRates_one": "нет курса UZS для {{count}} валюты",
+    "missingRates_few": "нет курса UZS для {{count}} валют",
+    "missingRates_many": "нет курса UZS для {{count}} валют",
+    "missingRates_other": "нет курса UZS для {{count}} валют",
+    "pairHeader": "Запрошено → одобрено"
   }
 }

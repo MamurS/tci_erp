@@ -6,7 +6,7 @@ import { DashboardPage } from './pages/DashboardPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { BuyerDetailPage, BuyersPage, StatementFormPage } from './features/buyers'
 import { ReportPage } from './features/buyers/report/ReportPage'
-import { LimitsPage } from './features/limits'
+import { LimitRequestPage, LimitsPage } from './features/limits'
 import { PolicyholderDetailPage, PolicyholdersPage } from './features/policyholders'
 import { PoliciesPage, PolicyDetailPage, PolicyFormPage } from './features/policies'
 import { DeclarationsPage } from './features/declarations'
@@ -26,6 +26,7 @@ export default function App() {
           <Route path="buyers/:id/statements/new" element={<StatementFormPage />} />
           <Route path="buyers/:id/statements/:statementId/edit" element={<StatementFormPage />} />
           <Route path="limits" element={<LimitsPage />} />
+          <Route path="limits/:id" element={<LimitRequestPage />} />
           <Route path="policyholders" element={<PolicyholdersPage />} />
           <Route path="policyholders/:id" element={<PolicyholderDetailPage />} />
           <Route path="policies" element={<PoliciesPage />} />
