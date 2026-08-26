@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Button, Field, Input, Modal, Select } from '../../components/ui'
-import { useBuyers } from '../buyers/api'
+import { useEntities } from '../entities/api'
 import type { PolicyWithRefs } from '../policies/types'
 import { useCreateLimitRequest } from './api'
 
@@ -24,11 +24,11 @@ export function RequestLimitModal({
 }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { data: buyers } = useBuyers()
+  const { data: buyers } = useEntities()
   const createRequest = useCreateLimitRequest()
 
   const [buyerSearch, setBuyerSearch] = useState('')
-  const [buyerId, setBuyerId] = useState('')
+  const [entityId, setBuyerId] = useState('')
   const [amount, setAmount] = useState('')
   const [terms, setTerms] = useState('')
   const [justification, setJustification] = useState('')
@@ -44,7 +44,7 @@ export function RequestLimitModal({
   }, [buyers, buyerSearch, excludedBuyerIds])
 
   const parsedAmount = Number(amount.replace(/\s/g, '').replace(',', '.'))
-  const valid = buyerId && Number.isFinite(parsedAmount) && parsedAmount > 0
+  const valid = entityId && Number.isFinite(parsedAmount) && parsedAmount > 0
 
   const handleCreate = async () => {
     if (!valid) return
@@ -52,7 +52,7 @@ export function RequestLimitModal({
     try {
       const created = await createRequest.mutateAsync({
         policy_id: policy.id,
-        buyer_id: buyerId,
+        entity_id: entityId,
         requested_amount: parsedAmount,
         currency_code: policy.currency_code, // request currency defaults to policy currency
         requested_payment_terms_days: terms ? Number(terms) : null,
@@ -89,7 +89,7 @@ export function RequestLimitModal({
             placeholder={t('buyers.searchPlaceholder')}
           />
           <Select
-            value={buyerId}
+            value={entityId}
             onChange={(e) => setBuyerId(e.target.value)}
             className="mt-1.5"
             size={Math.min(6, Math.max(3, candidates.length))}

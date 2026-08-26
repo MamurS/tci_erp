@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, EmptyState, Table } from '../../components/ui'
 import { EM_DASH, formatAmount } from '../../lib/format'
-import { useBuyers } from '../buyers/api'
+import { useEntities } from '../entities/api'
 import type { PolicyWithRefs } from '../policies/types'
 import { useEffectiveLimits, useLimitRequests } from './api'
 import { isOpen, outcomeTone, statusTone } from './machine'
@@ -20,7 +20,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
 
   const { data: effective } = useEffectiveLimits({ policyId: policy.id })
   const { data: allRequests } = useLimitRequests()
-  const { data: buyers } = useBuyers()
+  const { data: buyers } = useEntities()
   const [modalOpen, setModalOpen] = useState(false)
 
   const buyerName = useMemo(() => {
@@ -33,10 +33,10 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
     [allRequests, policy.id],
   )
   const effectiveList = effective ?? []
-  const requestByBuyer = new Map(openRequests.map((r) => [r.buyer_id, r]))
-  const effectiveBuyers = new Set(effectiveList.map((l) => l.buyer_id))
+  const requestByBuyer = new Map(openRequests.map((r) => [r.entity_id, r]))
+  const effectiveBuyers = new Set(effectiveList.map((l) => l.entity_id))
   /** Open requests for buyers with no effective limit yet get their own rows. */
-  const openOnly = openRequests.filter((r) => !effectiveBuyers.has(r.buyer_id))
+  const openOnly = openRequests.filter((r) => !effectiveBuyers.has(r.entity_id))
 
   return (
     <div>
@@ -70,15 +70,15 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
           </thead>
           <tbody>
             {effectiveList.map((limit) => {
-              const open = requestByBuyer.get(limit.buyer_id)
+              const open = requestByBuyer.get(limit.entity_id)
               return (
                 <tr key={limit.decision_id}>
                   <td>
                     <Link
-                      to={`/buyers/${limit.buyer_id}`}
+                      to={`/entities/${limit.entity_id}`}
                       className="font-medium text-accent-700 hover:underline"
                     >
-                      {buyerName(limit.buyer_id)}
+                      {buyerName(limit.entity_id)}
                     </Link>
                     {open && (
                       <Link to={`/limits/${open.id}`} className="ml-2">
@@ -133,7 +133,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                 onClick={() => void navigate(`/limits/${r.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="font-medium text-slate-800">{buyerName(r.buyer_id)}</td>
+                <td className="font-medium text-slate-800">{buyerName(r.entity_id)}</td>
                 <td>
                   <span className="num block">
                     <span className="text-slate-400">
@@ -159,7 +159,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         policy={policy}
-        excludedBuyerIds={openRequests.map((r) => r.buyer_id)}
+        excludedBuyerIds={openRequests.map((r) => r.entity_id)}
       />
     </div>
   )

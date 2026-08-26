@@ -19,7 +19,7 @@ export type ConditionType = (typeof CONDITION_TYPES)[number]
 export interface CreditLimitRequest {
   id: string
   policy_id: string
-  buyer_id: string
+  entity_id: string
   requested_amount: number
   currency_code: string
   requested_payment_terms_days: number | null
@@ -35,12 +35,12 @@ export interface CreditLimitRequest {
 }
 
 export interface LimitRequestWithRefs extends CreditLimitRequest {
-  buyers: { name: string } | null
+  legal_entities: { name: string } | null
   policies: {
     policy_number: string
     currency_code: string
-    policyholder_id: string
-    policyholders: { name: string } | null
+    entity_id: string
+    legal_entities: { name: string } | null
   } | null
 }
 
@@ -74,7 +74,7 @@ export interface DecisionWithConditions extends CreditLimitDecision {
 export interface EffectiveLimit {
   decision_id: string
   policy_id: string
-  buyer_id: string
+  entity_id: string
   request_id: string
   requested_amount: number
   outcome: DecisionOutcome
@@ -91,7 +91,7 @@ export interface EffectiveLimit {
 
 /** tci.v_buyer_exposure row. */
 export interface BuyerExposure {
-  buyer_id: string
+  entity_id: string
   policies_count: number
   exposure_uzs: number | null
   missing_rates: number

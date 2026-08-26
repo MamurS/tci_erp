@@ -69,10 +69,10 @@ export function PolicyDetailPage() {
             </Link>
             {' / '}
             <Link
-              to={`/policyholders/${policy.policyholder_id}`}
+              to={`/entities/${policy.entity_id}`}
               className="text-accent-700 hover:underline"
             >
-              {policy.policyholders?.name ?? EM_DASH}
+              {policy.legal_entities?.name ?? EM_DASH}
             </Link>
           </span>
         }

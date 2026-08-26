@@ -11,7 +11,7 @@ const KEYS = {
   history: (id: string) => ['policies', id, 'history'] as const,
 }
 
-const SELECT = '*, policyholders(name)'
+const SELECT = '*, legal_entities(name)'
 
 export function usePolicies() {
   return useQuery({
@@ -66,7 +66,7 @@ export function useCreatePolicy() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: KEYS.policies })
-      void queryClient.invalidateQueries({ queryKey: ['policyholders'] })
+      void queryClient.invalidateQueries({ queryKey: ['entities'] })
     },
   })
 }
@@ -98,7 +98,7 @@ export function useChangePolicyStatus(policyId: string) {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: KEYS.policies })
-      void queryClient.invalidateQueries({ queryKey: ['policyholders'] })
+      void queryClient.invalidateQueries({ queryKey: ['entities'] })
     },
   })
 }

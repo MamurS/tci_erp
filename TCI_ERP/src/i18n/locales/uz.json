@@ -11,7 +11,8 @@
     "policies": "Polislar",
     "declarations": "Deklaratsiyalar",
     "claims": "Zararlar",
-    "admin": "Administratsiya"
+    "admin": "Administratsiya",
+    "entities": "Tashkilotlar"
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -58,7 +59,8 @@
     "welcome": "Xush kelibsiz, {{email}}",
     "roleLabel": "Sizning rolingiz",
     "activePolicies": "Amaldagi polislar",
-    "policyholders": "Sug‘urtalanuvchilar"
+    "policyholders": "Sug‘urtalanuvchilar",
+    "entities": "Tashkilotlar"
   },
   "buyers": {
     "subtitle": "Kredit bahosidagi xaridorlar (debitorlar) reyestri",
@@ -801,5 +803,41 @@
     "missingRates_one": "{{count}} valyuta uchun UZS kursi yo‘q",
     "missingRates_other": "{{count}} valyuta uchun UZS kursi yo‘q",
     "pairHeader": "So‘ralgan → tasdiqlangan"
+  },
+  "entities": {
+    "subtitle": "Yagona reyestr — sug‘urtalanuvchilar, xaridorlar va tahlildagi tashkilotlar",
+    "add": "Tashkilot qo‘shish",
+    "edit": "Tashkilotni tahrirlash",
+    "searchPlaceholder": "Nomi yoki ro‘yxat raqami…",
+    "empty": "Hozircha tashkilotlar yo‘q",
+    "emptyHint": "Tahlilni boshlash uchun tashkilot qo‘shing",
+    "notFound": "Tashkilot topilmadi",
+    "backToList": "Reyestrga qaytish",
+    "noRegNumber": "ro‘yxat raqamisiz",
+    "rolesHeader": "Rollar",
+    "roleChips": {
+      "all": "Hammasi",
+      "policyholders": "Sug‘urtalanuvchilar",
+      "buyers": "Xaridorlar"
+    },
+    "roles": {
+      "policyholder": "Sug‘urtalanuvchi",
+      "buyer": "Xaridor",
+      "prospect": "Prospekt",
+      "none": "tahlilda"
+    },
+    "regExists": "Bu tashkilot bazada allaqachon bor: {{name}}.",
+    "openEntity": "Ochish",
+    "possibleDuplicates": "Ehtimoliy dublikatlar",
+    "tabs": {
+      "overview": "Umumiy",
+      "financials": "Moliya",
+      "rating": "Reyting va limit",
+      "limits": "Limitlar",
+      "policies": "Polislar va portfel"
+    },
+    "portfolioLimitsTitle": "Ularning polislari bo‘yicha xaridor limitlari",
+    "portfolioSummary": "Sug‘urtalanuvchi portfeli:",
+    "portfolioLimits": "amaldagi limitlar"
   }
 }

@@ -11,7 +11,8 @@
     "policies": "Полисы",
     "declarations": "Декларации",
     "claims": "Убытки",
-    "admin": "Администрирование"
+    "admin": "Администрирование",
+    "entities": "Организации"
   },
   "auth": {
     "signInTitle": "Вход в систему",
@@ -58,7 +59,8 @@
     "welcome": "Добро пожаловать, {{email}}",
     "roleLabel": "Ваша роль",
     "activePolicies": "Действующие полисы",
-    "policyholders": "Страхователи"
+    "policyholders": "Страхователи",
+    "entities": "Организации"
   },
   "buyers": {
     "subtitle": "Реестр покупателей (дебиторов) на кредитной оценке",
@@ -805,5 +807,41 @@
     "missingRates_many": "нет курса UZS для {{count}} валют",
     "missingRates_other": "нет курса UZS для {{count}} валют",
     "pairHeader": "Запрошено → одобрено"
+  },
+  "entities": {
+    "subtitle": "Единый реестр — страхователи, байеры и организации на анализе",
+    "add": "Добавить организацию",
+    "edit": "Изменить организацию",
+    "searchPlaceholder": "Название или рег. номер…",
+    "empty": "Организаций пока нет",
+    "emptyHint": "Добавьте организацию, чтобы начать анализ",
+    "notFound": "Организация не найдена",
+    "backToList": "К реестру",
+    "noRegNumber": "без рег. номера",
+    "rolesHeader": "Роли",
+    "roleChips": {
+      "all": "Все",
+      "policyholders": "Страхователи",
+      "buyers": "Байеры"
+    },
+    "roles": {
+      "policyholder": "Страхователь",
+      "buyer": "Байер",
+      "prospect": "Проспект",
+      "none": "на анализе"
+    },
+    "regExists": "Организация уже есть в базе: {{name}}.",
+    "openEntity": "Открыть",
+    "possibleDuplicates": "Возможные дубликаты",
+    "tabs": {
+      "overview": "Обзор",
+      "financials": "Финансы",
+      "rating": "Рейтинг и лимит",
+      "limits": "Лимиты",
+      "policies": "Полисы и портфель"
+    },
+    "portfolioLimitsTitle": "Лимиты байеров по их полисам",
+    "portfolioSummary": "Портфель страхователя:",
+    "portfolioLimits": "действующих лимитов"
   }
 }

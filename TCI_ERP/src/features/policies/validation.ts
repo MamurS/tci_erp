@@ -9,7 +9,7 @@
 import type { PolicyStatus } from './types'
 
 export interface PolicyFormValues {
-  policyholder_id: string
+  entity_id: string
   policy_number: string
   status: PolicyStatus
   inception_date: string
@@ -51,7 +51,7 @@ export function validatePolicy(values: PolicyFormValues): PolicyValidation {
   const errors: Record<string, string> = {}
   const warnings: Record<string, string> = {}
 
-  if (!values.policyholder_id) errors.policyholder_id = 'required'
+  if (!values.entity_id) errors.entity_id = 'required'
   if (!values.policy_number.trim()) errors.policy_number = 'required'
   if (!values.inception_date) errors.inception_date = 'required'
   if (!values.expiry_date) errors.expiry_date = 'required'

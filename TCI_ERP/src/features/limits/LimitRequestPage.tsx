@@ -25,7 +25,7 @@ import {
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH, formatAmount } from '../../lib/format'
 import { useGradeScale } from '../../lib/gradeScale'
-import { useAssessments } from '../buyers/rating/assessmentsApi'
+import { useAssessments } from '../entities/rating/assessmentsApi'
 import {
   useDecideLimitRequest,
   useEffectiveLimits,
@@ -96,7 +96,7 @@ export function LimitRequestPage() {
         title={
           <span className="inline-flex items-center gap-3">
             <span>
-              {t('limits.requestTitle', { buyer: request.buyers?.name ?? EM_DASH })}
+              {t('limits.requestTitle', { buyer: request.legal_entities?.name ?? EM_DASH })}
             </span>
             <Badge tone={statusTone(request.status)} size="lg">
               {t(`limits.statuses.${request.status}`)}
@@ -217,8 +217,8 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
       <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
         <dt className="text-slate-500">{t('limits.fields.buyer')}</dt>
         <dd>
-          <Link to={`/buyers/${request.buyer_id}`} className="text-accent-700 hover:underline">
-            {request.buyers?.name ?? EM_DASH}
+          <Link to={`/entities/${request.entity_id}`} className="text-accent-700 hover:underline">
+            {request.legal_entities?.name ?? EM_DASH}
           </Link>
         </dd>
         <dt className="text-slate-500">{t('policies.fields.policyNumber')}</dt>
@@ -227,7 +227,7 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
             {request.policies?.policy_number ?? EM_DASH}
           </Link>
           <span className="ml-2 text-slate-500">
-            {request.policies?.policyholders?.name ?? ''}
+            {request.policies?.legal_entities?.name ?? ''}
           </span>
         </dd>
         <dt className="text-slate-500">{t('limits.fields.requestedAmount')}</dt>
@@ -274,11 +274,11 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
 
 function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; locale: string }) {
   const { t } = useTranslation()
-  const assessments = useAssessments(request.buyer_id)
+  const assessments = useAssessments(request.entity_id)
   const { data: gradeBands } = useGradeScale()
   const effective = useEffectiveLimits({
     policyId: request.policy_id,
-    buyerId: request.buyer_id,
+    entityId: request.entity_id,
   })
 
   const latest = assessments.data?.[0] ?? null
@@ -308,7 +308,7 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
       )}
 
       <Link
-        to={`/buyers/${request.buyer_id}`}
+        to={`/entities/${request.entity_id}`}
         className="text-[13px] font-medium text-accent-700 hover:underline"
       >
         {t('limits.openBuyerCard')} →
@@ -348,7 +348,7 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
   const locale = i18n.resolvedLanguage ?? 'en'
   const { role } = useAuth()
   const decide = useDecideLimitRequest()
-  const assessments = useAssessments(request.buyer_id)
+  const assessments = useAssessments(request.entity_id)
 
   const [outcome, setOutcome] = useState<'approved' | 'partial' | 'declined'>('approved')
   const [amount, setAmount] = useState(String(request.requested_amount))

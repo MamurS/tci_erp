@@ -2,17 +2,21 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../auth/AuthContext'
 import { Card, PageHeader } from '../components/ui'
+import { useEntities, useEntityRoles } from '../features/entities/api'
 import { usePolicies } from '../features/policies/api'
-import { usePolicyholders } from '../features/policyholders/api'
 import { EM_DASH } from '../lib/format'
 
 export function DashboardPage() {
   const { t } = useTranslation()
   const { session, role } = useAuth()
   const { data: policies } = usePolicies()
-  const { data: policyholders } = usePolicyholders()
+  const { data: entities } = useEntities()
+  const roles = useEntityRoles()
 
   const activePolicies = policies?.filter((p) => p.status === 'active').length
+  const policyholders = roles.data
+    ? [...roles.data.values()].filter((r) => r.is_policyholder).length
+    : undefined
   const stats: { key: string; label: string; value: number | undefined; to: string }[] = [
     {
       key: 'active-policies',
@@ -23,15 +27,21 @@ export function DashboardPage() {
     {
       key: 'policyholders',
       label: t('dashboard.policyholders'),
-      value: policyholders?.length,
-      to: '/policyholders',
+      value: policyholders,
+      to: '/entities',
+    },
+    {
+      key: 'entities',
+      label: t('dashboard.entities'),
+      value: entities?.length,
+      to: '/entities',
     },
   ]
 
   return (
     <div>
       <PageHeader title={t('nav.dashboard')} />
-      <div className="mb-5 grid gap-4 sm:grid-cols-2 lg:max-w-xl">
+      <div className="mb-5 grid gap-4 sm:grid-cols-3 lg:max-w-3xl">
         {stats.map((stat) => (
           <Link key={stat.key} to={stat.to}>
             <Card className="p-4 transition-colors hover:bg-slate-50">
