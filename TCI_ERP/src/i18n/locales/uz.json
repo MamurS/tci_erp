@@ -7,7 +7,7 @@
     "dashboard": "Boshqaruv paneli",
     "buyers": "Xaridorlar",
     "limits": "Kredit limitlari",
-    "policyholders": "Sug'urta qildiruvchilar",
+    "policyholders": "Sug‘urtalanuvchilar",
     "policies": "Polislar",
     "declarations": "Deklaratsiyalar",
     "claims": "Zararlar",
@@ -31,7 +31,7 @@
     "admin": "Administrator",
     "senior_underwriter": "Katta anderrayter",
     "underwriter": "Anderrayter",
-    "policyholder": "Sug'urta qildiruvchi",
+    "policyholder": "Sug‘urtalanuvchi",
     "unassigned": "Rol tayinlanmagan"
   },
   "common": {
@@ -58,7 +58,7 @@
     "welcome": "Xush kelibsiz, {{email}}",
     "roleLabel": "Sizning rolingiz",
     "activePolicies": "Amaldagi polislar",
-    "policyholders": "Sug‘urta qildiruvchilar"
+    "policyholders": "Sug‘urtalanuvchilar"
   },
   "buyers": {
     "subtitle": "Kredit bahosidagi xaridorlar (debitorlar) reyestri",
@@ -131,7 +131,7 @@
       "pnl": "FvZ",
       "ratios": "Koeffitsientlar",
       "cashflow": "Pul oqimi",
-      "risk": "Risklar tahlili"
+      "risk": "Qaltisliklar tahlili"
     },
     "fields": {
       "period": "Davr",
@@ -354,9 +354,9 @@
       "change": "O‘zgarish",
       "norm": "norma",
       "bands": {
-        "safe": "past risk",
+        "safe": "past qaltislik",
         "grey": "kulrang zona",
-        "distress": "yuqori risk"
+        "distress": "yuqori qaltislik"
       },
       "groups": {
         "liquidity": "Likvidlikni baholash",
@@ -364,7 +364,7 @@
         "stability": "Moliyaviy barqarorlik"
       },
       "rows": {
-        "z_score": "Bankrotlik riski (Altman Z''-hisobi)",
+        "z_score": "Bankrotlik qaltisligi (Altman Z''-hisobi)",
         "net_working_capital": "Xususiy aylanma kapital",
         "equity": "O‘z kapitali",
         "current_ratio": "Joriy likvidlik",
@@ -505,7 +505,7 @@
     "historyChart": "Ball tarixi",
     "generateReport": "Hisobot yaratish",
     "reportModal": {
-      "title": "Risk hisoboti",
+      "title": "Qaltislik hisoboti",
       "language": "Hisobot tili",
       "reportType": "Hisobot turi",
       "currency": "Valyuta",
@@ -514,7 +514,7 @@
     "notAssessed": "Baholash hali hisoblanmagan"
   },
   "report": {
-    "title": "RISK HISOBOTI",
+    "title": "QALTISLIK HISOBOTI",
     "generatedBy": "MIG TCI ERP tizimida yaratilgan",
     "reportDate": "Hisobot sanasi",
     "generalInfo": "Umumiy ma’lumotlar",
@@ -529,7 +529,7 @@
       "balanceSheet": "Buxgalteriya balansi",
       "pnl": "Foyda va zararlar hisoboti",
       "ratios": "Moliyaviy koeffitsientlar",
-      "riskSummary": "Risklar tahlili xulosasi",
+      "riskSummary": "Qaltisliklar tahlili xulosasi",
       "dynamicGraphs": "Dinamik grafiklar"
     },
     "charts": {
@@ -565,19 +565,19 @@
       "ccc_level": "Pul aylanish sikli {{days}} kunni tashkil etadi.",
       "z_safe": "Altman Z''-hisobi kompaniyani xavfsiz zonaga kiritadi.",
       "z_grey": "Altman Z''-hisobi kompaniyani kulrang zonaga kiritadi.",
-      "z_distress": "Altman Z''-hisobi kompaniyani yuqori risk zonasiga kiritadi.",
+      "z_distress": "Altman Z''-hisobi kompaniyani yuqori qaltislik zonasiga kiritadi.",
       "norm_breaches": "{{count}} ko‘rsatkich bo‘yicha normalar buzilgan: {{rows}}."
     },
     "approvedAggregateLimit": "Tasdiqlangan jami limit"
   },
   "policyholders": {
-    "subtitle": "Sug‘urta qildiruvchilar (sotuvchilar) — TCI polislari egalari",
-    "add": "Sug‘urta qildiruvchini qo‘shish",
-    "edit": "Sug‘urta qildiruvchini tahrirlash",
+    "subtitle": "Sug‘urtalanuvchilar (sotuvchilar) — TCI polislari egalari",
+    "add": "Sug‘urtalanuvchini qo‘shish",
+    "edit": "Sug‘urtalanuvchini tahrirlash",
     "searchPlaceholder": "Nomi bo‘yicha qidirish…",
-    "empty": "Hozircha sug‘urta qildiruvchilar yo‘q",
+    "empty": "Hozircha sug‘urtalanuvchilar yo‘q",
     "emptyHint": "Polislarni biriktirish uchun birinchi mijozni qo‘shing.",
-    "notFound": "Sug‘urta qildiruvchi topilmadi",
+    "notFound": "Sug‘urtalanuvchi topilmadi",
     "backToList": "Ro‘yxatga qaytish",
     "activePolicies": "Amaldagi polislar",
     "policiesTitle": "Polislar",
@@ -602,11 +602,11 @@
     "searchPlaceholder": "Polis raqami bo‘yicha qidirish…",
     "empty": "Hozircha polislar yo‘q",
     "emptyHint": "Birinchi sug‘urta shartnomasini kiriting.",
-    "emptyForPolicyholder": "Bu sug‘urta qildiruvchining hali polislari yo‘q",
+    "emptyForPolicyholder": "Bu sug‘urtalanuvchining hali polislari yo‘q",
     "notFound": "Polis topilmadi",
     "backToList": "Polislar ro‘yxatiga qaytish",
     "allStatuses": "Barcha statuslar",
-    "allPolicyholders": "Barcha sug‘urta qildiruvchilar",
+    "allPolicyholders": "Barcha sug‘urtalanuvchilar",
     "allStructures": "Barcha tuzilmalar",
     "termsTitle": "Polis shartlari",
     "buyersLimitsTitle": "Xaridorlar va kredit limitlari",
@@ -619,7 +619,7 @@
     "expiryDueHint": "Polis muddati {{date}} kuni tugadi — uni «Muddati tugagan» statusiga o‘tkazing.",
     "fields": {
       "policyNumber": "Polis raqami",
-      "policyholder": "Sug‘urta qildiruvchi",
+      "policyholder": "Sug‘urtalanuvchi",
       "productStructure": "Mahsulot tuzilmasi",
       "period": "Davr",
       "currency": "Valyuta",
@@ -638,17 +638,20 @@
       "active": "Amalda",
       "suspended": "To‘xtatib turilgan",
       "expired": "Muddati tugagan",
-      "cancelled": "Bekor qilingan"
+      "cancelled": "Bekor qilingan",
+      "annulled": "Annulyatsiya qilingan"
     },
     "transitions": {
       "active": "Faollashtirish",
       "suspended": "To‘xtatib turish",
       "cancelled": "Bekor qilish",
-      "expired": "Muddati tugagan deb belgilash"
+      "expired": "Muddati tugagan deb belgilash",
+      "annulled": "Annulyatsiya qilish"
     },
     "transitionConfirm": {
       "suspended": "{{number}} polisi bo‘yicha qoplamani to‘xtatib turasizmi? Qayta faollashtirilguncha yangi jo‘natmalar qoplanmaydi.",
-      "cancelled": "{{number}} polisini bekor qilasizmi? Bu o‘tish qaytarilmas."
+      "cancelled": "{{number}} polisini bekor qilasizmi? Bu o‘tish qaytarilmas.",
+      "annulled": "{{number}} polisi annulyatsiya qilinsinmi? Annulyatsiya: shartnoma tuzilmagan hisoblanadi (mukofot qaytariladi). Muayyan sanadan to‘xtatish uchun “Bekor qilish” dan foydalaning. Sabab ko‘rsatilgan izoh majburiy."
     },
     "termGroups": {
       "contract": "Shartnoma",
@@ -663,9 +666,9 @@
       "maxLiabilityMultiple": "Javobgarlikning maksimal limiti (× mukofot)",
       "premiumMultiple": "{{value}}× mukofot",
       "timesPremium": "× mukofot",
-      "nql": "Kreditlanmaydigan zarar (NQL)",
-      "deductibleEachLoss": "Har bir zarar bo‘yicha fransheza",
-      "aggregateFirstLoss": "Birinchi zarar bo‘yicha agregat fransheza",
+      "nql": "Qoplanmaydigan zarar (NQL)",
+      "deductibleEachLoss": "Har bir zarar bo‘yicha franshiza",
+      "aggregateFirstLoss": "Birinchi zarar bo‘yicha agregat franshiza",
       "premiumRate": "Mukofot stavkasi, aylanmadan %",
       "minimumPremium": "Minimal mukofot",
       "estimatedTurnover": "Kutilayotgan yillik aylanma",

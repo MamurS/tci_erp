@@ -86,13 +86,16 @@ export function Card({ children, className = '' }: { children: ReactNode; classN
 // Badge
 // ---------------------------------------------------------------------------
 
-type BadgeTone = 'neutral' | 'accent' | 'pos' | 'neg' | 'warn'
+type BadgeTone = 'neutral' | 'accent' | 'pos' | 'neg' | 'negStrong' | 'warn'
 
 const BADGE_TONES: Record<BadgeTone, string> = {
   neutral: 'bg-slate-100 text-slate-600',
   accent: 'bg-accent-50 text-accent-700',
   pos: 'bg-pos-50 text-pos-500',
   neg: 'bg-neg-50 text-neg-500',
+  // Solid danger for statuses that must not be mistaken for ordinary
+  // termination (e.g. policy annulment vs cancellation).
+  negStrong: 'bg-neg-500 text-white',
   warn: 'bg-warn-50 text-warn-500',
 }
 

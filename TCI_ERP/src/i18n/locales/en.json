@@ -638,17 +638,20 @@
       "active": "Active",
       "suspended": "Suspended",
       "expired": "Expired",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "annulled": "Annulled"
     },
     "transitions": {
       "active": "Activate",
       "suspended": "Suspend",
       "cancelled": "Cancel policy",
-      "expired": "Mark expired"
+      "expired": "Mark expired",
+      "annulled": "Annul policy"
     },
     "transitionConfirm": {
       "suspended": "Suspend cover under policy {{number}}? New shipments will not be covered until reactivation.",
-      "cancelled": "Cancel policy {{number}}? This transition is final."
+      "cancelled": "Cancel policy {{number}}? This transition is final.",
+      "annulled": "Annul policy {{number}}? Annulment: the policy is treated as never concluded (premium returned). To terminate cover from a specific date, use “Cancel policy” instead. A comment with the reason is required."
     },
     "termGroups": {
       "contract": "Contract",

@@ -3,7 +3,7 @@
 export const PRODUCT_STRUCTURES = ['whole_turnover', 'key_buyers', 'single_buyer'] as const
 export type ProductStructure = (typeof PRODUCT_STRUCTURES)[number]
 
-export const POLICY_STATUSES = ['draft', 'active', 'suspended', 'expired', 'cancelled'] as const
+export const POLICY_STATUSES = ['draft', 'active', 'suspended', 'expired', 'cancelled', 'annulled'] as const
 export type PolicyStatus = (typeof POLICY_STATUSES)[number]
 
 export const DECLARATION_FREQUENCIES = ['monthly', 'quarterly'] as const

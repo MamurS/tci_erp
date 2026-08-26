@@ -65,6 +65,21 @@ Underwriting authority: decisions above a user's authority limit must route to a
 - `max_liability` — cap on insurer's aggregate liability, usually a multiple of premium
 - `turnover_declaration` — periodic report of insurable sales per buyer/country
 - `overdue_notification` — policyholder's report of a buyer exceeding the maximum extension period
+- `annulled` (policy status) — policy voided as if never concluded (premium returned); distinct from `cancelled` (расторжение: terminated from a date, prior performance stands)
+
+### Uzbek insurance terminology (owner-dictated, authoritative)
+
+Use these exact uz terms everywhere (UI, reports, narratives, validation). The apostrophe is U+2018 (‘), matching the existing uz locale.
+
+| Concept | ru | uz (authoritative) |
+|---|---|---|
+| policyholder | Страхователь | **Sug‘urtalanuvchi** (NOT «Sug‘urta qildiruvchi») |
+| insured person | Застрахованное лицо | **Sug‘urtalanuvchi shaxs** |
+| insurer | Страховщик | **Sug‘urtalovchi** |
+| non-qualifying loss | NQL | **Qoplanmaydigan zarar (NQL)** |
+| discretionary limit | Дискреционный лимит | **Diskretsion limit** |
+| deductible | Франшиза | **Franshiza** |
+| risk | Риск | **Qaltislik** |
 
 ## Infrastructure
 
