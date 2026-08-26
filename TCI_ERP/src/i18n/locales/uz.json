@@ -51,11 +51,14 @@
     "yes": "Ha",
     "no": "Yo'q",
     "notSelected": "Tanlanmagan",
-    "saveFailed": "Saqlab bo'lmadi. Qayta urinib ko'ring."
+    "saveFailed": "Saqlab bo'lmadi. Qayta urinib ko'ring.",
+    "confirm": "Tasdiqlash"
   },
   "dashboard": {
     "welcome": "Xush kelibsiz, {{email}}",
-    "roleLabel": "Sizning rolingiz"
+    "roleLabel": "Sizning rolingiz",
+    "activePolicies": "Amaldagi polislar",
+    "policyholders": "Sug‘urta qildiruvchilar"
   },
   "buyers": {
     "subtitle": "Kredit bahosidagi xaridorlar (debitorlar) reyestri",
@@ -560,6 +563,129 @@
       "z_grey": "Altman Z''-hisobi kompaniyani kulrang zonaga kiritadi.",
       "z_distress": "Altman Z''-hisobi kompaniyani yuqori risk zonasiga kiritadi.",
       "norm_breaches": "{{count}} ko‘rsatkich bo‘yicha normalar buzilgan: {{rows}}."
+    }
+  },
+  "policyholders": {
+    "subtitle": "Sug‘urta qildiruvchilar (sotuvchilar) — TCI polislari egalari",
+    "add": "Sug‘urta qildiruvchini qo‘shish",
+    "edit": "Sug‘urta qildiruvchini tahrirlash",
+    "searchPlaceholder": "Nomi bo‘yicha qidirish…",
+    "empty": "Hozircha sug‘urta qildiruvchilar yo‘q",
+    "emptyHint": "Polislarni biriktirish uchun birinchi mijozni qo‘shing.",
+    "notFound": "Sug‘urta qildiruvchi topilmadi",
+    "backToList": "Ro‘yxatga qaytish",
+    "activePolicies": "Amaldagi polislar",
+    "policiesTitle": "Polislar",
+    "fields": {
+      "name": "Nomi",
+      "legalForm": "Tashkiliy-huquqiy shakli",
+      "country": "Davlat",
+      "industry": "Tarmoq",
+      "registrationNumber": "Ro‘yxatga olish raqami",
+      "address": "Manzil",
+      "website": "Veb-sayt",
+      "contactPerson": "Aloqa shaxsi",
+      "contactEmail": "Email",
+      "contactPhone": "Telefon",
+      "notes": "Izohlar"
+    }
+  },
+  "policies": {
+    "subtitle": "TCI polislari (amaldagi shartnomalar; kotirovkalar keyinroq)",
+    "newPolicy": "Yangi polis",
+    "editTitle": "{{number}} polisini tahrirlash",
+    "searchPlaceholder": "Polis raqami bo‘yicha qidirish…",
+    "empty": "Hozircha polislar yo‘q",
+    "emptyHint": "Birinchi sug‘urta shartnomasini kiriting.",
+    "emptyForPolicyholder": "Bu sug‘urta qildiruvchining hali polislari yo‘q",
+    "notFound": "Polis topilmadi",
+    "backToList": "Polislar ro‘yxatiga qaytish",
+    "allStatuses": "Barcha statuslar",
+    "allPolicyholders": "Barcha sug‘urta qildiruvchilar",
+    "allStructures": "Barcha tuzilmalar",
+    "termsTitle": "Polis shartlari",
+    "buyersLimitsTitle": "Xaridorlar va kredit limitlari",
+    "limitsPlaceholder": "Kredit limitlari moduli — 2b bosqich",
+    "limitsPlaceholderHint": "(Polis, xaridor) kesimidagi limit so‘rovlari va qarorlari shu yerda bo‘ladi.",
+    "historyTitle": "Statuslar tarixi",
+    "historyEmpty": "Hozircha status o‘zgarishlari yo‘q.",
+    "transitionFailed": "Statusni o‘zgartirish rad etildi",
+    "transitionComment": "Izoh",
+    "expiryDueHint": "Polis muddati {{date}} kuni tugadi — uni «Muddati tugagan» statusiga o‘tkazing.",
+    "fields": {
+      "policyNumber": "Polis raqami",
+      "policyholder": "Sug‘urta qildiruvchi",
+      "productStructure": "Mahsulot tuzilmasi",
+      "period": "Davr",
+      "currency": "Valyuta",
+      "status": "Status",
+      "inceptionDate": "Boshlanish sanasi",
+      "expiryDate": "Tugash sanasi",
+      "notes": "Izohlar"
+    },
+    "structures": {
+      "whole_turnover": "To‘liq aylanma",
+      "key_buyers": "Asosiy xaridorlar",
+      "single_buyer": "Yagona xaridor"
+    },
+    "statuses": {
+      "draft": "Qoralama",
+      "active": "Amalda",
+      "suspended": "To‘xtatib turilgan",
+      "expired": "Muddati tugagan",
+      "cancelled": "Bekor qilingan"
+    },
+    "transitions": {
+      "active": "Faollashtirish",
+      "suspended": "To‘xtatib turish",
+      "cancelled": "Bekor qilish",
+      "expired": "Muddati tugagan deb belgilash"
+    },
+    "transitionConfirm": {
+      "suspended": "{{number}} polisi bo‘yicha qoplamani to‘xtatib turasizmi? Qayta faollashtirilguncha yangi jo‘natmalar qoplanmaydi.",
+      "cancelled": "{{number}} polisini bekor qilasizmi? Bu o‘tish qaytarilmas."
+    },
+    "termGroups": {
+      "contract": "Shartnoma",
+      "cover": "Qoplama",
+      "premium": "Mukofot",
+      "operation": "Operatsion shartlar"
+    },
+    "terms": {
+      "insuredPercentage": "Sug‘urta qoplamasi, %",
+      "maxLiability": "Javobgarlikning maksimal limiti",
+      "maxLiabilityAmount": "Javobgarlikning maksimal limiti (summa)",
+      "maxLiabilityMultiple": "Javobgarlikning maksimal limiti (× mukofot)",
+      "premiumMultiple": "{{value}}× mukofot",
+      "timesPremium": "× mukofot",
+      "nql": "Kreditlanmaydigan zarar (NQL)",
+      "deductibleEachLoss": "Har bir zarar bo‘yicha fransheza",
+      "aggregateFirstLoss": "Birinchi zarar bo‘yicha agregat fransheza",
+      "premiumRate": "Mukofot stavkasi, aylanmadan %",
+      "minimumPremium": "Minimal mukofot",
+      "estimatedTurnover": "Kutilayotgan yillik aylanma",
+      "discretionaryLimit": "Diskretsion limit",
+      "waitingPeriod": "Kutish davri",
+      "maxExtensionPeriod": "Maksimal uzaytirish davri",
+      "maxPaymentTerms": "Maksimal to‘lov muddati",
+      "declarationFrequency": "Deklaratsiyalar davriyligi",
+      "days": "{{count}} kun",
+      "daysSuffix": "kun"
+    },
+    "frequencies": {
+      "monthly": "Oylik",
+      "quarterly": "Choraklik"
+    },
+    "validation": {
+      "required": "Majburiy maydon",
+      "periodOrder": "Tugash sanasi boshlanish sanasidan keyin bo‘lishi kerak",
+      "insuredPctRange": "Sug‘urta qoplamasi 50 dan 100% gacha bo‘lishi kerak",
+      "insuredPctAtypical": "Odatiy 80–90% oralig‘idan tashqarida",
+      "maxLiabilityRequired": "Javobgarlik limiti summasini va/yoki mukofot karraligini kiriting",
+      "nonNegative": "Qiymat manfiy bo‘lishi mumkin emas",
+      "dlAboveMaxLiability": "Diskretsion limit javobgarlikning maksimal limitidan oshadi",
+      "premiumRateHigh": "Aylanmadan 5% dan yuqori stavka TCI amaliyotidan ancha tashqarida",
+      "minPremiumAboveExpected": "Minimal mukofot stavka × kutilayotgan aylanmadan katta"
     }
   }
 }

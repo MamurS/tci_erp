@@ -51,11 +51,14 @@
     "yes": "Да",
     "no": "Нет",
     "notSelected": "Не выбрано",
-    "saveFailed": "Не удалось сохранить. Попробуйте ещё раз."
+    "saveFailed": "Не удалось сохранить. Попробуйте ещё раз.",
+    "confirm": "Подтвердить"
   },
   "dashboard": {
     "welcome": "Добро пожаловать, {{email}}",
-    "roleLabel": "Ваша роль"
+    "roleLabel": "Ваша роль",
+    "activePolicies": "Действующие полисы",
+    "policyholders": "Страхователи"
   },
   "buyers": {
     "subtitle": "Реестр покупателей (дебиторов) на кредитной оценке",
@@ -560,6 +563,129 @@
       "z_grey": "Z''-счёт Альтмана относит компанию к серой зоне.",
       "z_distress": "Z''-счёт Альтмана относит компанию к зоне высокого риска.",
       "norm_breaches": "Нарушены нормы по {{count}} показателям: {{rows}}."
+    }
+  },
+  "policyholders": {
+    "subtitle": "Страхователи (продавцы) — держатели полисов TCI",
+    "add": "Добавить страхователя",
+    "edit": "Изменить страхователя",
+    "searchPlaceholder": "Поиск по названию…",
+    "empty": "Страхователей пока нет",
+    "emptyHint": "Добавьте первого страхователя, чтобы привязывать полисы.",
+    "notFound": "Страхователь не найден",
+    "backToList": "К списку страхователей",
+    "activePolicies": "Действующие полисы",
+    "policiesTitle": "Полисы",
+    "fields": {
+      "name": "Название",
+      "legalForm": "Организационно-правовая форма",
+      "country": "Страна",
+      "industry": "Отрасль",
+      "registrationNumber": "Регистрационный номер",
+      "address": "Адрес",
+      "website": "Сайт",
+      "contactPerson": "Контактное лицо",
+      "contactEmail": "Email",
+      "contactPhone": "Телефон",
+      "notes": "Примечания"
+    }
+  },
+  "policies": {
+    "subtitle": "Полисы TCI (действующие договоры; котировки — позже)",
+    "newPolicy": "Новый полис",
+    "editTitle": "Изменить полис {{number}}",
+    "searchPlaceholder": "Поиск по номеру полиса…",
+    "empty": "Полисов пока нет",
+    "emptyHint": "Внесите первый договор страхования.",
+    "emptyForPolicyholder": "У этого страхователя пока нет полисов",
+    "notFound": "Полис не найден",
+    "backToList": "К списку полисов",
+    "allStatuses": "Все статусы",
+    "allPolicyholders": "Все страхователи",
+    "allStructures": "Все структуры",
+    "termsTitle": "Условия полиса",
+    "buyersLimitsTitle": "Покупатели и кредитные лимиты",
+    "limitsPlaceholder": "Модуль кредитных лимитов — фаза 2b",
+    "limitsPlaceholderHint": "Запросы и решения по лимитам в разрезе (полис, покупатель) появятся здесь.",
+    "historyTitle": "История статусов",
+    "historyEmpty": "Изменений статуса пока не было.",
+    "transitionFailed": "Смена статуса отклонена",
+    "transitionComment": "Комментарий",
+    "expiryDueHint": "Период полиса завершился {{date}} — переведите его в статус «Истёк».",
+    "fields": {
+      "policyNumber": "Номер полиса",
+      "policyholder": "Страхователь",
+      "productStructure": "Структура продукта",
+      "period": "Период",
+      "currency": "Валюта",
+      "status": "Статус",
+      "inceptionDate": "Дата начала",
+      "expiryDate": "Дата окончания",
+      "notes": "Примечания"
+    },
+    "structures": {
+      "whole_turnover": "Весь оборот",
+      "key_buyers": "Ключевые покупатели",
+      "single_buyer": "Один покупатель"
+    },
+    "statuses": {
+      "draft": "Черновик",
+      "active": "Действует",
+      "suspended": "Приостановлен",
+      "expired": "Истёк",
+      "cancelled": "Расторгнут"
+    },
+    "transitions": {
+      "active": "Активировать",
+      "suspended": "Приостановить",
+      "cancelled": "Расторгнуть",
+      "expired": "Отметить истёкшим"
+    },
+    "transitionConfirm": {
+      "suspended": "Приостановить покрытие по полису {{number}}? Новые отгрузки не будут покрываться до возобновления.",
+      "cancelled": "Расторгнуть полис {{number}}? Этот переход необратим."
+    },
+    "termGroups": {
+      "contract": "Договор",
+      "cover": "Покрытие",
+      "premium": "Премия",
+      "operation": "Операционные условия"
+    },
+    "terms": {
+      "insuredPercentage": "Страховое покрытие, %",
+      "maxLiability": "Максимальный лимит ответственности",
+      "maxLiabilityAmount": "Максимальный лимит ответственности (сумма)",
+      "maxLiabilityMultiple": "Максимальный лимит ответственности (× премия)",
+      "premiumMultiple": "{{value}}× премия",
+      "timesPremium": "× премия",
+      "nql": "Некредитуемый убыток (NQL)",
+      "deductibleEachLoss": "Франшиза по каждому убытку",
+      "aggregateFirstLoss": "Агрегатная франшиза первого убытка",
+      "premiumRate": "Ставка премии, % от оборота",
+      "minimumPremium": "Минимальная премия",
+      "estimatedTurnover": "Ожидаемый годовой оборот",
+      "discretionaryLimit": "Дискреционный лимит",
+      "waitingPeriod": "Период ожидания",
+      "maxExtensionPeriod": "Максимальный период пролонгации",
+      "maxPaymentTerms": "Максимальная отсрочка платежа",
+      "declarationFrequency": "Периодичность деклараций",
+      "days": "{{count}} дн.",
+      "daysSuffix": "дн."
+    },
+    "frequencies": {
+      "monthly": "Ежемесячно",
+      "quarterly": "Ежеквартально"
+    },
+    "validation": {
+      "required": "Обязательное поле",
+      "periodOrder": "Дата окончания должна быть позже даты начала",
+      "insuredPctRange": "Страховое покрытие должно быть от 50 до 100%",
+      "insuredPctAtypical": "Вне типичного диапазона 80–90%",
+      "maxLiabilityRequired": "Укажите сумму лимита ответственности и/или кратность премии",
+      "nonNegative": "Значение не может быть отрицательным",
+      "dlAboveMaxLiability": "Дискреционный лимит превышает максимальный лимит ответственности",
+      "premiumRateHigh": "Ставка выше 5% от оборота — далеко за пределами практики TCI",
+      "minPremiumAboveExpected": "Минимальная премия больше, чем ставка × ожидаемый оборот"
     }
   }
 }

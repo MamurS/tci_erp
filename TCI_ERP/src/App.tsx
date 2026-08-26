@@ -7,8 +7,8 @@ import { NotFoundPage } from './pages/NotFoundPage'
 import { BuyerDetailPage, BuyersPage, StatementFormPage } from './features/buyers'
 import { ReportPage } from './features/buyers/report/ReportPage'
 import { LimitsPage } from './features/limits'
-import { PolicyholdersPage } from './features/policyholders'
-import { PoliciesPage } from './features/policies'
+import { PolicyholderDetailPage, PolicyholdersPage } from './features/policyholders'
+import { PoliciesPage, PolicyDetailPage, PolicyFormPage } from './features/policies'
 import { DeclarationsPage } from './features/declarations'
 import { ClaimsPage } from './features/claims'
 import { AdminPage } from './features/admin'
@@ -27,7 +27,11 @@ export default function App() {
           <Route path="buyers/:id/statements/:statementId/edit" element={<StatementFormPage />} />
           <Route path="limits" element={<LimitsPage />} />
           <Route path="policyholders" element={<PolicyholdersPage />} />
+          <Route path="policyholders/:id" element={<PolicyholderDetailPage />} />
           <Route path="policies" element={<PoliciesPage />} />
+          <Route path="policies/new" element={<PolicyFormPage />} />
+          <Route path="policies/:id" element={<PolicyDetailPage />} />
+          <Route path="policies/:id/edit" element={<PolicyFormPage />} />
           <Route path="declarations" element={<DeclarationsPage />} />
           <Route path="claims" element={<ClaimsPage />} />
           <Route path="admin" element={<AdminPage />} />
