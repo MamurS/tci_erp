@@ -74,6 +74,7 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 | Concept | ru | uz (authoritative) |
 |---|---|---|
 | policyholder | Страхователь | **Sug‘urtalanuvchi** (NOT «Sug‘urta qildiruvchi») |
+| buyer (debtor role) | **Байер** (NOT «Покупатель») | **Bayer** (NOT «Xaridor») |
 | insured person | Застрахованное лицо | **Sug‘urtalanuvchi shaxs** |
 | insurer | Страховщик | **Sug‘urtalovchi** |
 | non-qualifying loss | NQL | **Qoplanmaydigan zarar (NQL)** |
