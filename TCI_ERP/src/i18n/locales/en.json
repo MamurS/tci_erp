@@ -51,11 +51,14 @@
     "yes": "Yes",
     "no": "No",
     "notSelected": "Not selected",
-    "saveFailed": "Save failed. Please try again."
+    "saveFailed": "Save failed. Please try again.",
+    "confirm": "Confirm"
   },
   "dashboard": {
     "welcome": "Welcome, {{email}}",
-    "roleLabel": "Your role"
+    "roleLabel": "Your role",
+    "activePolicies": "Active policies",
+    "policyholders": "Policyholders"
   },
   "buyers": {
     "subtitle": "Register of buyers (debtors) under credit assessment",
@@ -560,6 +563,129 @@
       "z_grey": "The Altman Z''-score places the company in the grey zone.",
       "z_distress": "The Altman Z''-score places the company in the distress zone.",
       "norm_breaches": "{{count}} indicator(s) breach their norms: {{rows}}."
+    }
+  },
+  "policyholders": {
+    "subtitle": "Insured clients (sellers) holding TCI policies",
+    "add": "Add policyholder",
+    "edit": "Edit policyholder",
+    "searchPlaceholder": "Search by name…",
+    "empty": "No policyholders yet",
+    "emptyHint": "Add the first insured client to attach policies.",
+    "notFound": "Policyholder not found",
+    "backToList": "Back to policyholders",
+    "activePolicies": "Active policies",
+    "policiesTitle": "Policies",
+    "fields": {
+      "name": "Name",
+      "legalForm": "Legal form",
+      "country": "Country",
+      "industry": "Industry",
+      "registrationNumber": "Registration number",
+      "address": "Address",
+      "website": "Website",
+      "contactPerson": "Contact person",
+      "contactEmail": "Contact email",
+      "contactPhone": "Contact phone",
+      "notes": "Notes"
+    }
+  },
+  "policies": {
+    "subtitle": "TCI policies (existing contracts; quotations come later)",
+    "newPolicy": "New policy",
+    "editTitle": "Edit policy {{number}}",
+    "searchPlaceholder": "Search by policy number…",
+    "empty": "No policies yet",
+    "emptyHint": "Record the first policy contract.",
+    "emptyForPolicyholder": "No policies for this policyholder yet",
+    "notFound": "Policy not found",
+    "backToList": "Back to policies",
+    "allStatuses": "All statuses",
+    "allPolicyholders": "All policyholders",
+    "allStructures": "All structures",
+    "termsTitle": "Policy terms",
+    "buyersLimitsTitle": "Buyers & credit limits",
+    "limitsPlaceholder": "Credit limits module — Phase 2b",
+    "limitsPlaceholderHint": "Limit requests and decisions per (policy, buyer) will attach here.",
+    "historyTitle": "Status history",
+    "historyEmpty": "No status changes yet.",
+    "transitionFailed": "Status change was rejected",
+    "transitionComment": "Comment",
+    "expiryDueHint": "The policy period ended on {{date}} — mark it as expired.",
+    "fields": {
+      "policyNumber": "Policy number",
+      "policyholder": "Policyholder",
+      "productStructure": "Product structure",
+      "period": "Period",
+      "currency": "Currency",
+      "status": "Status",
+      "inceptionDate": "Inception date",
+      "expiryDate": "Expiry date",
+      "notes": "Notes"
+    },
+    "structures": {
+      "whole_turnover": "Whole turnover",
+      "key_buyers": "Key buyers",
+      "single_buyer": "Single buyer"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "active": "Active",
+      "suspended": "Suspended",
+      "expired": "Expired",
+      "cancelled": "Cancelled"
+    },
+    "transitions": {
+      "active": "Activate",
+      "suspended": "Suspend",
+      "cancelled": "Cancel policy",
+      "expired": "Mark expired"
+    },
+    "transitionConfirm": {
+      "suspended": "Suspend cover under policy {{number}}? New shipments will not be covered until reactivation.",
+      "cancelled": "Cancel policy {{number}}? This transition is final."
+    },
+    "termGroups": {
+      "contract": "Contract",
+      "cover": "Cover",
+      "premium": "Premium",
+      "operation": "Operation"
+    },
+    "terms": {
+      "insuredPercentage": "Insured percentage",
+      "maxLiability": "Maximum liability",
+      "maxLiabilityAmount": "Maximum liability (amount)",
+      "maxLiabilityMultiple": "Maximum liability (× premium)",
+      "premiumMultiple": "{{value}}× premium",
+      "timesPremium": "× premium",
+      "nql": "Non-qualifying loss (NQL)",
+      "deductibleEachLoss": "Deductible each loss",
+      "aggregateFirstLoss": "Aggregate first loss",
+      "premiumRate": "Premium rate (% of turnover)",
+      "minimumPremium": "Minimum premium",
+      "estimatedTurnover": "Estimated annual turnover",
+      "discretionaryLimit": "Discretionary limit",
+      "waitingPeriod": "Waiting period",
+      "maxExtensionPeriod": "Maximum extension period",
+      "maxPaymentTerms": "Maximum payment terms",
+      "declarationFrequency": "Declaration frequency",
+      "days": "{{count}} days",
+      "daysSuffix": "days"
+    },
+    "frequencies": {
+      "monthly": "Monthly",
+      "quarterly": "Quarterly"
+    },
+    "validation": {
+      "required": "Required field",
+      "periodOrder": "Expiry date must be after inception date",
+      "insuredPctRange": "Insured percentage must be between 50 and 100",
+      "insuredPctAtypical": "Outside the typical 80–90% range",
+      "maxLiabilityRequired": "Set a maximum liability amount and/or a premium multiple",
+      "nonNegative": "Must not be negative",
+      "dlAboveMaxLiability": "Discretionary limit exceeds the maximum liability",
+      "premiumRateHigh": "Rate above 5% of turnover is far outside TCI practice",
+      "minPremiumAboveExpected": "Minimum premium exceeds rate × estimated turnover"
     }
   }
 }
