@@ -16,9 +16,8 @@ const STAFF: readonly UserRole[] = ['admin', 'senior_underwriter', 'underwriter'
  */
 export const NAV_ITEMS: readonly NavItem[] = [
   { key: 'dashboard', path: '/', roles: STAFF },
-  { key: 'buyers', path: '/buyers', roles: STAFF },
+  { key: 'entities', path: '/entities', roles: STAFF },
   { key: 'limits', path: '/limits', roles: [...STAFF, 'policyholder'] },
-  { key: 'policyholders', path: '/policyholders', roles: STAFF },
   { key: 'policies', path: '/policies', roles: [...STAFF, 'policyholder'] },
   { key: 'declarations', path: '/declarations', roles: [...STAFF, 'policyholder'] },
   { key: 'claims', path: '/claims', roles: STAFF },

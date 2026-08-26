@@ -14,12 +14,12 @@ import { buildLimitChains } from './exposure'
 import { outcomeTone } from './machine'
 import type { CreditLimitDecision } from './types'
 
-export function BuyerLimitsTab({ buyerId }: { buyerId: string }) {
+export function BuyerLimitsTab({ entityId }: { entityId: string }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
 
-  const decisions = useBuyerDecisions(buyerId)
-  const exposure = useBuyerExposure(buyerId)
+  const decisions = useBuyerDecisions(entityId)
+  const exposure = useBuyerExposure(entityId)
   const { data: policies } = usePolicies()
   const [mode, setMode] = useState<'effective' | 'history'>('effective')
 
@@ -84,9 +84,9 @@ export function BuyerLimitsTab({ buyerId }: { buyerId: string }) {
               <Link to={`/policies/${chain.policyId}`} className="text-accent-700 hover:underline">
                 {policy?.policy_number ?? chain.policyId}
               </Link>
-              {policy?.policyholders?.name && (
+              {policy?.legal_entities?.name && (
                 <span className="ml-2 font-normal text-slate-500">
-                  {policy.policyholders.name}
+                  {policy.legal_entities.name}
                 </span>
               )}
             </h3>

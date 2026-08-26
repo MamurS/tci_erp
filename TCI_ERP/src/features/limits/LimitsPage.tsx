@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useQuery } from '@tanstack/react-query'
 
 import {
   Badge,
@@ -18,7 +17,7 @@ import {
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH, formatAmount } from '../../lib/format'
 import { gradeTone } from '../../lib/grade'
-import { tci } from '../../lib/supabase'
+import { useLatestGrades } from '../entities/api'
 import { useLimitRequests } from './api'
 import { requestAgeDays, statusTone } from './machine'
 
@@ -32,7 +31,7 @@ export function LimitsPage() {
   const isSenior = role === 'admin' || role === 'senior_underwriter'
 
   const { data: requests, isLoading } = useLimitRequests()
-  const grades = useBuyerGrades()
+  const grades = useLatestGrades()
 
   const [tab, setTab] = useState<QueueTab>('review')
   const [search, setSearch] = useState('')
@@ -58,9 +57,9 @@ export function LimitsPage() {
       if (statusFilter && r.status !== statusFilter) return false
       if (!query) return true
       return (
-        (r.buyers?.name ?? '').toLowerCase().includes(query) ||
+        (r.legal_entities?.name ?? '').toLowerCase().includes(query) ||
         (r.policies?.policy_number ?? '').toLowerCase().includes(query) ||
-        (r.policies?.policyholders?.name ?? '').toLowerCase().includes(query)
+        (r.policies?.legal_entities?.name ?? '').toLowerCase().includes(query)
       )
     })
   }, [requests, tab, search, statusFilter, session?.user.id])
@@ -132,9 +131,9 @@ export function LimitsPage() {
                 onClick={() => void navigate(`/limits/${r.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="font-medium text-slate-800">{r.buyers?.name ?? EM_DASH}</td>
+                <td className="font-medium text-slate-800">{r.legal_entities?.name ?? EM_DASH}</td>
                 <td className="text-slate-600">{r.policies?.policy_number ?? EM_DASH}</td>
-                <td className="text-slate-500">{r.policies?.policyholders?.name ?? EM_DASH}</td>
+                <td className="text-slate-500">{r.policies?.legal_entities?.name ?? EM_DASH}</td>
                 <td>
                   <span className="num block">
                     {formatAmount(Number(r.requested_amount), locale)} {r.currency_code}
@@ -147,7 +146,7 @@ export function LimitsPage() {
                   <AgeCell days={requestAgeDays(r.submitted_at, nowIso)} />
                 </td>
                 <td>
-                  <GradeCell grade={grades.data?.get(r.buyer_id)} />
+                  <GradeCell grade={grades.data?.get(r.entity_id)} />
                 </td>
               </tr>
             ))}
@@ -166,23 +165,4 @@ function AgeCell({ days }: { days: number | null }) {
 function GradeCell({ grade }: { grade: string | undefined }) {
   if (!grade) return <span className="text-slate-400">{EM_DASH}</span>
   return <Badge tone={gradeTone(grade)}>{grade}</Badge>
-}
-
-/** Latest assessment grade per buyer (single query, newest wins). */
-function useBuyerGrades() {
-  return useQuery({
-    queryKey: ['buyers', 'latest-grades'],
-    queryFn: async (): Promise<Map<string, string>> => {
-      const { data, error } = await tci()
-        .from('credit_assessments')
-        .select('buyer_id, rating_grade, created_at')
-        .order('created_at', { ascending: false })
-      if (error) throw error
-      const map = new Map<string, string>()
-      for (const row of (data ?? []) as { buyer_id: string; rating_grade: string }[]) {
-        if (!map.has(row.buyer_id)) map.set(row.buyer_id, row.rating_grade)
-      }
-      return map
-    },
-  })
 }

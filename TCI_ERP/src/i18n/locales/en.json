@@ -11,7 +11,8 @@
     "policies": "Policies",
     "declarations": "Declarations",
     "claims": "Claims",
-    "admin": "Admin"
+    "admin": "Admin",
+    "entities": "Legal entities"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -58,7 +59,8 @@
     "welcome": "Welcome, {{email}}",
     "roleLabel": "Your role",
     "activePolicies": "Active policies",
-    "policyholders": "Policyholders"
+    "policyholders": "Policyholders",
+    "entities": "Legal entities"
   },
   "buyers": {
     "subtitle": "Register of buyers (debtors) under credit assessment",
@@ -801,5 +803,41 @@
     "missingRates_one": "no UZS rate for {{count}} currency",
     "missingRates_other": "no UZS rate for {{count}} currencies",
     "pairHeader": "Requested → approved"
+  },
+  "entities": {
+    "subtitle": "Unified registry — policyholders, buyers and analysis prospects",
+    "add": "Add entity",
+    "edit": "Edit entity",
+    "searchPlaceholder": "Name or registration number…",
+    "empty": "No legal entities yet",
+    "emptyHint": "Add an organization to start the analysis",
+    "notFound": "Entity not found",
+    "backToList": "Back to the registry",
+    "noRegNumber": "no registration number",
+    "rolesHeader": "Roles",
+    "roleChips": {
+      "all": "All",
+      "policyholders": "Policyholders",
+      "buyers": "Buyers"
+    },
+    "roles": {
+      "policyholder": "Policyholder",
+      "buyer": "Buyer",
+      "prospect": "Prospect",
+      "none": "prospect"
+    },
+    "regExists": "This organization is already in the registry: {{name}}.",
+    "openEntity": "Open it",
+    "possibleDuplicates": "Possible duplicates",
+    "tabs": {
+      "overview": "Overview",
+      "financials": "Financials",
+      "rating": "Rating & Limit",
+      "limits": "Limits",
+      "policies": "Policies & portfolio"
+    },
+    "portfolioLimitsTitle": "Buyer limits under their policies",
+    "portfolioSummary": "Policyholder portfolio:",
+    "portfolioLimits": "effective limits"
   }
 }

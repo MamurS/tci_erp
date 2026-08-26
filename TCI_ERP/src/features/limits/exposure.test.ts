@@ -1,10 +1,11 @@
-/** Contract test: exposure.ts must mirror tci.v_buyer_exposure (migration
- * 0013) — approved/partial only, UZS conversion via the latest-rate rule,
- * missing-rate rows excluded from the sum and counted. */
+/** Contract test: exposure.ts must mirror tci.v_buyer_exposure — introduced
+ * in migration 0013, recreated with entity_id columns in migration 0015
+ * (the current definition) — approved/partial only, UZS conversion via the
+ * latest-rate rule, missing-rate rows excluded from the sum and counted. */
 
 import { describe, expect, it } from 'vitest'
 
-import MIGRATION from '../../../supabase/migrations/0013_credit_limit_workflow.sql?raw'
+import MIGRATION from '../../../supabase/migrations/0015_legal_entities.sql?raw'
 import type { FxRateRow } from './authority'
 import { aggregateExposure, buildLimitChains } from './exposure'
 import type { CreditLimitDecision, EffectiveLimit } from './types'
@@ -117,7 +118,7 @@ describe('buildLimitChains (supersede chains per policy)', () => {
   })
 })
 
-describe('migration 0013 exposure view (contract lock)', () => {
+describe('migration 0015 exposure view (contract lock)', () => {
   it('filters to approved/partial before grouping and counts missing rates', () => {
     expect(MIGRATION).toContain("where v.outcome in ('approved', 'partial')")
     expect(MIGRATION).toContain(
@@ -131,6 +132,6 @@ describe('migration 0013 exposure view (contract lock)', () => {
   it('supersede happens on decide for the same (policy, buyer)', () => {
     expect(MIGRATION).toContain("set lifecycle = 'superseded'")
     expect(MIGRATION).toContain('and r.policy_id = v_request.policy_id')
-    expect(MIGRATION).toContain('and r.buyer_id = v_request.buyer_id')
+    expect(MIGRATION).toContain('and r.entity_id = v_request.entity_id')
   })
 })

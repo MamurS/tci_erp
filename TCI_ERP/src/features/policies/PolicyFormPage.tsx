@@ -9,8 +9,7 @@ import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Button, Card, Field, Input, PageHeader, Select, Spinner } from '../../components/ui'
-import { useCurrencies } from '../buyers/api'
-import { usePolicyholders } from '../policyholders/api'
+import { useCurrencies, useEntities } from '../entities/api'
 import { useCreatePolicy, usePolicy, useUpdatePolicy } from './api'
 import type { PolicyInput } from './api'
 import { validatePolicy } from './validation'
@@ -27,7 +26,7 @@ function parseNum(raw: string): number | null {
 }
 
 interface FormState {
-  policyholder_id: string
+  entity_id: string
   policy_number: string
   product_structure: ProductStructure
   inception_date: string
@@ -51,7 +50,7 @@ interface FormState {
 }
 
 const EMPTY: FormState = {
-  policyholder_id: '',
+  entity_id: '',
   policy_number: '',
   product_structure: 'whole_turnover',
   inception_date: '',
@@ -82,14 +81,14 @@ export function PolicyFormPage() {
   const isEdit = Boolean(id)
 
   const { data: existing, isLoading } = usePolicy(id ?? '')
-  const { data: policyholders } = usePolicyholders()
+  const { data: policyholders } = useEntities()
   const { data: currencies } = useCurrencies()
   const createPolicy = useCreatePolicy()
   const updatePolicy = useUpdatePolicy(id ?? '')
 
   const [form, setForm] = useState<FormState>({
     ...EMPTY,
-    policyholder_id: searchParams.get('policyholder') ?? '',
+    entity_id: searchParams.get('entity') ?? searchParams.get('policyholder') ?? '',
   })
   const [submitted, setSubmitted] = useState(false)
   const [saveError, setSaveError] = useState(false)
@@ -98,7 +97,7 @@ export function PolicyFormPage() {
     if (isEdit && existing) {
       const s = (v: number | null): string => (v === null ? '' : String(v))
       setForm({
-        policyholder_id: existing.policyholder_id,
+        entity_id: existing.entity_id,
         policy_number: existing.policy_number,
         product_structure: existing.product_structure,
         inception_date: existing.inception_date,
@@ -125,7 +124,7 @@ export function PolicyFormPage() {
 
   const values: PolicyFormValues = useMemo(
     () => ({
-      policyholder_id: form.policyholder_id,
+      entity_id: form.entity_id,
       policy_number: form.policy_number,
       status: isEdit ? (existing?.status ?? 'draft') : 'draft',
       inception_date: form.inception_date,
@@ -172,7 +171,7 @@ export function PolicyFormPage() {
     setSaveError(false)
     if (blocked) return
     const input: PolicyInput = {
-      policyholder_id: values.policyholder_id,
+      entity_id: values.entity_id,
       policy_number: form.policy_number.trim(),
       product_structure: form.product_structure,
       inception_date: form.inception_date,
@@ -251,8 +250,8 @@ export function PolicyFormPage() {
           <div className="grid gap-3 md:grid-cols-2">
             <Field label={t('policies.fields.policyholder')}>
               <Select
-                value={form.policyholder_id}
-                onChange={(e) => set({ policyholder_id: e.target.value })}
+                value={form.entity_id}
+                onChange={(e) => set({ entity_id: e.target.value })}
                 disabled={isEdit}
               >
                 <option value="">{t('common.notSelected')}</option>
@@ -262,7 +261,7 @@ export function PolicyFormPage() {
                   </option>
                 ))}
               </Select>
-              {message('policyholder_id')}
+              {message('entity_id')}
             </Field>
             <Field label={t('policies.fields.policyNumber')}>
               <Input

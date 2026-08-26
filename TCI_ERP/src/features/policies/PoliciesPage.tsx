@@ -15,7 +15,7 @@ import {
   Table,
 } from '../../components/ui'
 import { EM_DASH, formatAmount } from '../../lib/format'
-import { usePolicyholders } from '../policyholders/api'
+import { useEntities } from '../entities/api'
 import { usePolicies } from './api'
 import { statusTone } from './statusMachine'
 import { POLICY_STATUSES, PRODUCT_STRUCTURES } from './types'
@@ -26,7 +26,7 @@ export function PoliciesPage() {
   const navigate = useNavigate()
 
   const { data: policies, isLoading } = usePolicies()
-  const { data: policyholders } = usePolicyholders()
+  const { data: policyholders } = useEntities()
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -38,7 +38,7 @@ export function PoliciesPage() {
     return (policies ?? []).filter((p) => {
       if (query && !p.policy_number.toLowerCase().includes(query)) return false
       if (statusFilter && p.status !== statusFilter) return false
-      if (policyholderFilter && p.policyholder_id !== policyholderFilter) return false
+      if (policyholderFilter && p.entity_id !== policyholderFilter) return false
       if (structureFilter && p.product_structure !== structureFilter) return false
       return true
     })
@@ -132,7 +132,7 @@ export function PoliciesPage() {
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
                 <td className="font-medium text-slate-800">{p.policy_number}</td>
-                <td className="text-slate-600">{p.policyholders?.name ?? EM_DASH}</td>
+                <td className="text-slate-600">{p.legal_entities?.name ?? EM_DASH}</td>
                 <td className="text-slate-500">{t(`policies.structures.${p.product_structure}`)}</td>
                 <td className="text-slate-500">
                   {p.inception_date} — {p.expiry_date}

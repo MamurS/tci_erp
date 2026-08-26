@@ -6,7 +6,7 @@ import { isValid, validatePolicy } from './validation'
 import type { PolicyFormValues } from './validation'
 
 const VALID: PolicyFormValues = {
-  policyholder_id: 'ph-1',
+  entity_id: 'ph-1',
   policy_number: 'MIG-TCI-2026-001',
   status: 'draft',
   inception_date: '2026-01-01',
@@ -36,7 +36,7 @@ describe('validatePolicy — blocking errors (DB constraint mirrors)', () => {
   it('requires the identity fields and all mandatory numbers', () => {
     const v = validatePolicy({
       ...VALID,
-      policyholder_id: '',
+      entity_id: '',
       policy_number: '  ',
       insured_percentage: null,
       nql_amount: null,
@@ -48,7 +48,7 @@ describe('validatePolicy — blocking errors (DB constraint mirrors)', () => {
       max_payment_terms_days: null,
     })
     for (const field of [
-      'policyholder_id', 'policy_number', 'insured_percentage', 'nql_amount',
+      'entity_id', 'policy_number', 'insured_percentage', 'nql_amount',
       'premium_rate_pct', 'minimum_premium', 'discretionary_limit',
       'waiting_period_days', 'max_extension_period_days', 'max_payment_terms_days',
     ]) {

@@ -100,7 +100,14 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 - [ ] Phase 1e: credit limit requests/decisions (UI will be modeled on screenshots of our legacy system — to be provided)
 - [x] Phase 2a: commercial underwriting foundation — policyholder registry, TCI policies with wording terms, SQL status machine (change_policy_status + history), portal-ready policy RLS, dashboard stat cards (quotations deliberately deferred)
 - [x] Phase 2b: credit limit workflow — requests/decisions attached to (policy, buyer): one open request per pair, immutable decisions with typed conditions, authority routing in UZS (escalation to senior), supersede/revoke chains, exposure views, /limits workspace + request page, policy & buyer integration
-- [ ] Phase 3: declarations, premium booking, overdues
+- [x] Phase 3a: unified legal-entities registry — tci.legal_entities merges buyers + policyholders (merge on country+reg number, FKs renamed to entity_id, old tables dropped), roles COMPUTED via v_entity_roles (never assigned), pg_trgm dedup-on-entry (blocking reg match + fuzzy suggestions), /entities registry + card with conditional tabs, legacy /buyers & /policyholders redirects
+- [ ] Phase 3 (operations): declarations, premium booking, overdues
 - [ ] Phase 4: claims & recoveries
 - [ ] Phase 5: Python analytics service (scoring/rating)
 - [ ] Phase 6: policyholder portal
+
+## Design notes (future phases — recorded, not built)
+
+* Phase 3b: role enum → sales, commercial_underwriter, credit_underwriter, claims, information_manager, admin, client; multi-role users; 2D authority matrix (user × grade-band × max amount × currency × validity), shared by credit and commercial UW.
+* Phase 3c: insurance_request pipeline (client/sales/comm UW create → sales resolves entities, auto-task to information_manager for missing ones → parallel commercial (terms) + credit (ratings/limits, confirming engine auto-rating) → sales confirmation → client acceptance → bind). Two-stage limit decisions: credit stage (rating+limit) then optional commercial stage adjusting ONLY amount and credit period, both directions, within own authority; rating and conditions untouchable by commercial. In-force changes: credit → commercial → sales window (configurable, default 1 business day) with silent-consent release (lazy released_at, no cron), then visible to client; REDUCTIONS and REVOCATIONS bypass commercial and sales — visible to client immediately (emergency risk actions). Agenda: single tasks table (type, object ref, assignee role/user, due, status) driving all queues.
+* Phase 3d: client portal — invitation-only (sales creates, system sends link + temp password, forced password change on first login; requires the password-change page and Supabase Site URL setup).

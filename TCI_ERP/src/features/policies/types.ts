@@ -11,7 +11,7 @@ export type DeclarationFrequency = (typeof DECLARATION_FREQUENCIES)[number]
 
 export interface Policy {
   id: string
-  policyholder_id: string
+  entity_id: string
   policy_number: string
   product_structure: ProductStructure
   status: PolicyStatus
@@ -39,7 +39,7 @@ export interface Policy {
 }
 
 export interface PolicyWithRefs extends Policy {
-  policyholders: { name: string } | null
+  legal_entities: { name: string } | null
 }
 
 export interface PolicyStatusHistoryRow {

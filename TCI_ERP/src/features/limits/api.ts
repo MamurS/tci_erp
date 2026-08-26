@@ -18,14 +18,14 @@ const KEYS = {
   requests: ['limit-requests'] as const,
   request: (id: string) => ['limit-requests', id] as const,
   effective: ['effective-limits'] as const,
-  exposure: (buyerId: string) => ['buyer-exposure', buyerId] as const,
-  decisions: (buyerId: string) => ['limit-decisions', 'buyer', buyerId] as const,
+  exposure: (entityId: string) => ['buyer-exposure', entityId] as const,
+  decisions: (entityId: string) => ['limit-decisions', 'buyer', entityId] as const,
   authority: ['my-authority-uzs'] as const,
   escalatedCount: ['limit-requests', 'escalated-count'] as const,
 }
 
 const REQUEST_SELECT =
-  '*, buyers(name), policies(policy_number, currency_code, policyholder_id, policyholders(name))'
+  '*, legal_entities(name), policies(policy_number, currency_code, entity_id, legal_entities(name))'
 
 function invalidateWorkflow(queryClient: ReturnType<typeof useQueryClient>) {
   void queryClient.invalidateQueries({ queryKey: KEYS.requests })
@@ -70,7 +70,7 @@ export function useLimitRequest(id: string) {
 
 export interface LimitRequestInput {
   policy_id: string
-  buyer_id: string
+  entity_id: string
   requested_amount: number
   currency_code: string
   requested_payment_terms_days: number | null
@@ -168,12 +168,12 @@ export function useRevokeEffectiveLimit() {
   return useMutation({
     mutationFn: async (input: {
       policyId: string
-      buyerId: string
+      entityId: string
       comment?: string
     }): Promise<void> => {
       const { error } = await tci().rpc('revoke_effective_limit', {
         p_policy_id: input.policyId,
-        p_buyer_id: input.buyerId,
+        p_entity_id: input.entityId,
         p_comment: input.comment ?? null,
       })
       if (error) throw error
@@ -183,21 +183,21 @@ export function useRevokeEffectiveLimit() {
 }
 
 /** Full decision history for a buyer (chains built client-side). */
-export function useBuyerDecisions(buyerId: string) {
+export function useBuyerDecisions(entityId: string) {
   return useQuery({
-    queryKey: KEYS.decisions(buyerId),
-    enabled: Boolean(buyerId),
+    queryKey: KEYS.decisions(entityId),
+    enabled: Boolean(entityId),
     queryFn: async (): Promise<
-      (DecisionWithConditions & { credit_limit_requests: { policy_id: string; buyer_id: string } })[]
+      (DecisionWithConditions & { credit_limit_requests: { policy_id: string; entity_id: string } })[]
     > => {
       const { data, error } = await tci()
         .from('credit_limit_decisions')
-        .select('*, decision_conditions(*), credit_limit_requests!inner(policy_id, buyer_id)')
-        .eq('credit_limit_requests.buyer_id', buyerId)
+        .select('*, decision_conditions(*), credit_limit_requests!inner(policy_id, entity_id)')
+        .eq('credit_limit_requests.entity_id', entityId)
         .order('decided_at', { ascending: false })
       if (error) throw error
       return (data ?? []) as unknown as (DecisionWithConditions & {
-        credit_limit_requests: { policy_id: string; buyer_id: string }
+        credit_limit_requests: { policy_id: string; entity_id: string }
       })[]
     },
   })
@@ -207,13 +207,13 @@ export function useBuyerDecisions(buyerId: string) {
 // Views
 // ---------------------------------------------------------------------------
 
-export function useEffectiveLimits(filter: { policyId?: string; buyerId?: string } = {}) {
+export function useEffectiveLimits(filter: { policyId?: string; entityId?: string } = {}) {
   return useQuery({
-    queryKey: [...KEYS.effective, filter.policyId ?? '', filter.buyerId ?? ''],
+    queryKey: [...KEYS.effective, filter.policyId ?? '', filter.entityId ?? ''],
     queryFn: async (): Promise<EffectiveLimit[]> => {
       let query = tci().from('v_effective_limits').select('*')
       if (filter.policyId) query = query.eq('policy_id', filter.policyId)
-      if (filter.buyerId) query = query.eq('buyer_id', filter.buyerId)
+      if (filter.entityId) query = query.eq('entity_id', filter.entityId)
       const { data, error } = await query
       if (error) throw error
       return (data ?? []) as unknown as EffectiveLimit[]
@@ -221,15 +221,15 @@ export function useEffectiveLimits(filter: { policyId?: string; buyerId?: string
   })
 }
 
-export function useBuyerExposure(buyerId: string) {
+export function useBuyerExposure(entityId: string) {
   return useQuery({
-    queryKey: KEYS.exposure(buyerId),
-    enabled: Boolean(buyerId),
+    queryKey: KEYS.exposure(entityId),
+    enabled: Boolean(entityId),
     queryFn: async (): Promise<BuyerExposure | null> => {
       const { data, error } = await tci()
         .from('v_buyer_exposure')
         .select('*')
-        .eq('buyer_id', buyerId)
+        .eq('entity_id', entityId)
         .maybeSingle()
       if (error) throw error
       return data as unknown as BuyerExposure | null
