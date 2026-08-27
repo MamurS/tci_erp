@@ -87,6 +87,16 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 | discretionary limit | Дискреционный лимит | **Diskretsion limit** |
 | deductible | Франшиза | **Franshiza** |
 | risk | Риск | **Qaltislik** |
+| policy cancellation (расторжение) | Расторгнут | **Bekor qilish** / **Bekor qilingan** |
+| policy annulment | Аннулирован | **Annulyatsiya** / **Annulyatsiya qilingan** |
+| limit revocation (risk action) | Отозван | **Limitni bekor qilish** / **Bekor qilingan** |
+| request withdrawal (by requester) | Отозвана | **Qaytarib olish** / **Qaytarib olingan** |
+| claims (department / section) | Убытки | **Sug‘urta da’volari** |
+| insured event | Страховой случай | **Sug‘urta hodisasi** (the event itself — never for the department) |
+
+**Homonymy rule (owner-dictated).** Policy cancellation and limit revocation deliberately share the short status label **«Bekor qilingan»** — they live on different screens, so the badge is unambiguous in context. Buttons and confirmations must ALWAYS name the object: «Shartnomani bekor qilish», «Limitni bekor qilish». Never ship a bare «Bekor qilish» as a domain action. `zarar` stays the accounting term for *loss* (P&L, NQL, deductibles) and must not be swapped for `da’vo`.
+
+Department role names (uz, confirmed): `admin` — Administrator, `sales` — **Sotuv**, `commercial_underwriter` — **Tijorat anderrayteri**, `credit_underwriter` — **Kredit anderrayteri**, `claims` — **Sug‘urta da’volari**, `information_manager` — **Axborot menejeri**, `client` — **Mijoz**.
 
 ## Infrastructure
 
