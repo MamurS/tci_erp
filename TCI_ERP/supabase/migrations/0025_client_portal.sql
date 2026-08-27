@@ -1243,3 +1243,43 @@ begin
 
   raise notice '0025 assertions passed';
 end $$;
+
+-- ---------------------------------------------------------------------------
+-- 10. Contact details, and the second column-level hole
+-- ---------------------------------------------------------------------------
+
+-- The portal's Account screen maintains a phone number; there was nowhere to
+-- put one.
+alter table tci.user_profiles add column phone text;
+
+comment on column tci.user_profiles.phone is
+  'Contact number maintained by the user themselves (portal Account screen).';
+
+-- `user_profiles: update own` is `user_id = auth.uid()` with no column
+-- restriction, so ANY user could PATCH must_change_password = false and walk
+-- straight past the forced rotation without ever changing their password.
+-- Exactly the same class of hole as the one on insurance_requests above.
+--
+-- Column grants CAN fix this one, where they could not fix the others: the
+-- distinction needed here is not staff-versus-client but
+-- "nobody, by hand". must_change_password is written only by
+-- tci.complete_password_change (SECURITY DEFINER, so unaffected by this) and
+-- by the provisioning service (service_role, a different database role, also
+-- unaffected).
+revoke update on tci.user_profiles from authenticated;
+grant update (full_name, phone) on tci.user_profiles to authenticated;
+
+do $$
+declare v_cols text;
+begin
+  select coalesce(string_agg(a.attname, ',' order by a.attname), '(none)')
+    into v_cols
+    from pg_attribute a
+   where a.attrelid = 'tci.user_profiles'::regclass
+     and a.attnum > 0
+     and has_column_privilege('authenticated', a.attrelid, a.attnum, 'UPDATE');
+  if v_cols <> 'full_name,phone' then
+    raise exception '0025: authenticated may update user_profiles columns: %', v_cols;
+  end if;
+  raise notice '0025 section 10 assertions passed';
+end $$;

@@ -18,6 +18,14 @@ import { ClaimsPage } from './features/claims'
 import { AdminPage } from './features/admin'
 import { AgendaPage } from './features/agenda'
 import { ChangePasswordPage } from './features/account'
+import {
+  PortalAccountPage,
+  PortalLimitsPage,
+  PortalPoliciesPage,
+  PortalShell,
+  PortalSubmissionsPage,
+} from './features/portal'
+import { PortalRedirect } from './auth/PortalRedirect'
 
 /** Old /buyers and /policyholders bookmarks land on /entities (query kept). */
 function LegacyRedirect() {
@@ -33,6 +41,20 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="entities/:id/report" element={<ReportPage />} />
         <Route path="buyers/:id/report" element={<LegacyRedirect />} />
+        {/* The portal: its own shell, its own navigation, no staff sections.
+            Still behind the password gate — a provisioned client must rotate
+            their temporary password before reaching any of it. */}
+        <Route element={<RequirePasswordChange />}>
+          <Route element={<PortalRedirect />}>
+            <Route path="portal" element={<PortalShell />}>
+              <Route index element={<PortalPoliciesPage />} />
+              <Route path="limits" element={<PortalLimitsPage />} />
+              <Route path="submissions" element={<PortalSubmissionsPage />} />
+              <Route path="account" element={<PortalAccountPage />} />
+            </Route>
+          </Route>
+        </Route>
+
         <Route element={<AppShell />}>
           {/* Above the password gate: this is the one place a user holding
               a temporary password is allowed to be. */}
@@ -48,27 +70,29 @@ export default function App() {
           {/* Everything below is unreachable until a temporary password
               has been rotated, then gated by the role map (navigation.ts) */}
           <Route element={<RequirePasswordChange />}>
-            <Route element={<RoleGuard />}>
-              <Route index element={<DashboardPage />} />
-              <Route path="agenda" element={<AgendaPage />} />
-              <Route path="entities" element={<EntitiesPage />} />
-              <Route path="entities/:id" element={<EntityDetailPage />} />
-              <Route path="entities/:id/statements/new" element={<StatementFormPage />} />
-              <Route
-                path="entities/:id/statements/:statementId/edit"
-                element={<StatementFormPage />}
-              />
-              <Route path="requests" element={<RequestsPage />} />
-              <Route path="requests/:id" element={<RequestDetailPage />} />
-              <Route path="limits" element={<LimitsPage />} />
-              <Route path="limits/:id" element={<LimitRequestPage />} />
-              <Route path="policies" element={<PoliciesPage />} />
-              <Route path="policies/new" element={<PolicyFormPage />} />
-              <Route path="policies/:id" element={<PolicyDetailPage />} />
-              <Route path="policies/:id/edit" element={<PolicyFormPage />} />
-              <Route path="declarations" element={<DeclarationsPage />} />
-              <Route path="claims" element={<ClaimsPage />} />
-              <Route path="admin" element={<AdminPage />} />
+            <Route element={<PortalRedirect />}>
+              <Route element={<RoleGuard />}>
+                <Route index element={<DashboardPage />} />
+                <Route path="agenda" element={<AgendaPage />} />
+                <Route path="entities" element={<EntitiesPage />} />
+                <Route path="entities/:id" element={<EntityDetailPage />} />
+                <Route path="entities/:id/statements/new" element={<StatementFormPage />} />
+                <Route
+                  path="entities/:id/statements/:statementId/edit"
+                  element={<StatementFormPage />}
+                />
+                <Route path="requests" element={<RequestsPage />} />
+                <Route path="requests/:id" element={<RequestDetailPage />} />
+                <Route path="limits" element={<LimitsPage />} />
+                <Route path="limits/:id" element={<LimitRequestPage />} />
+                <Route path="policies" element={<PoliciesPage />} />
+                <Route path="policies/new" element={<PolicyFormPage />} />
+                <Route path="policies/:id" element={<PolicyDetailPage />} />
+                <Route path="policies/:id/edit" element={<PolicyFormPage />} />
+                <Route path="declarations" element={<DeclarationsPage />} />
+                <Route path="claims" element={<ClaimsPage />} />
+                <Route path="admin" element={<AdminPage />} />
+              </Route>
             </Route>
           </Route>
 
