@@ -1,0 +1,91 @@
+name: CI
+
+# Runs on every pull request and every push to main. Deliberately NO path
+# filters: a required check that is skipped never reports, and branch
+# protection then blocks the PR forever waiting for it.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A new push supersedes the run it interrupts; main is never cancelled.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    name: Frontend (TCI_ERP)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: TCI_ERP
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: TCI_ERP/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # `tsc -b`, not `tsc --noEmit`: the root tsconfig is `"files": []` plus
+      # project references, so --noEmit typechecks nothing and passes even on
+      # a broken file. Build mode is what actually checks the app.
+      - name: Typecheck (tsc -b)
+        run: npm run typecheck
+
+      # The remaining checks run even after an earlier failure, so one CI run
+      # reports every problem instead of only the first.
+      - name: Lint (ESLint)
+        if: ${{ !cancelled() }}
+        run: npm run lint
+
+      - name: Unit tests (vitest)
+        if: ${{ !cancelled() }}
+        run: npm test
+
+      - name: Build (vite)
+        if: ${{ !cancelled() }}
+        run: npm run build
+
+  analytics:
+    name: Analytics service (services/analytics)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: services/analytics
+    steps:
+      # Needs the whole repo: services/analytics depends on ../../credit_engine
+      # as an editable path dependency.
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install uv
+        run: pip install uv
+
+      # The project is locked with uv (uv.lock), and credit-engine is a local
+      # path dependency, so plain `pip install` cannot resolve it.
+      - name: Cache uv downloads
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-py312-${{ hashFiles('services/analytics/uv.lock', 'credit_engine/pyproject.toml') }}
+          restore-keys: |
+            uv-${{ runner.os }}-py312-
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Tests (pytest)
+        run: uv run pytest -q
