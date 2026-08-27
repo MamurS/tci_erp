@@ -24,9 +24,9 @@ jobs:
       run:
         working-directory: TCI_ERP
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -64,9 +64,9 @@ jobs:
     steps:
       # Needs the whole repo: services/analytics depends on ../../credit_engine
       # as an editable path dependency.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
           cache: pip
@@ -77,7 +77,7 @@ jobs:
       # The project is locked with uv (uv.lock), and credit-engine is a local
       # path dependency, so plain `pip install` cannot resolve it.
       - name: Cache uv downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/uv
           key: uv-${{ runner.os }}-py312-${{ hashFiles('services/analytics/uv.lock', 'credit_engine/pyproject.toml') }}
