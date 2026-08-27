@@ -6,7 +6,15 @@ import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0013_credit_limit_workflow.sql?raw'
 import MIGRATION_0017 from '../../../supabase/migrations/0017_authority_matrix.sql?raw'
-import { authorityUzs, latestUzsRate, preflight, toUzs } from './authority'
+import MIGRATION_0020 from '../../../supabase/migrations/0020_two_stage_decisions.sql?raw'
+import {
+  authorityUzs,
+  commercialPreflight,
+  latestUzsRate,
+  preflight,
+  scopedAuthorityUzs,
+  toUzs,
+} from './authority'
 import type { FxRateRow } from './authority'
 import type { AuthorityGrant } from './types'
 
@@ -188,5 +196,108 @@ describe('migration 0013 defines the same rule (contract lock)', () => {
     expect(MIGRATION_0017).toContain('v_band := tci.grade_band_for_assessment(p_assessment_id);')
     expect(MIGRATION_0017).toContain('upper(left(a.rating_grade, 1))')
     expect(MIGRATION_0017).toContain("'unrated'::tci.grade_band")
+  })
+})
+
+describe('commercial authority (mirror of tci.adjust_limit_commercial, 0020)', () => {
+  it('the two streams are read off the same table but never mix', () => {
+    const rows = [
+      auth({ id: 'cr', applies_to: 'credit', grade_band: 'B', max_amount: 900_000_000 }),
+      auth({ id: 'cm', applies_to: 'commercial', grade_band: 'B', max_amount: 200_000_000 }),
+    ]
+    expect(scopedAuthorityUzs(rows, 'credit', 'B', [], TODAY)).toBe(900_000_000)
+    expect(scopedAuthorityUzs(rows, 'commercial', 'B', [], TODAY)).toBe(200_000_000)
+    // the legacy credit helper is exactly the credit stream
+    expect(authorityUzs(rows, 'B', [], TODAY)).toBe(
+      scopedAuthorityUzs(rows, 'credit', 'B', [], TODAY),
+    )
+  })
+
+  it('the commercial stream obeys the same band and validity rules', () => {
+    const rows = [
+      auth({ id: 'a', applies_to: 'commercial', grade_band: 'B', max_amount: 100_000_000 }),
+      auth({ id: 'b', applies_to: 'commercial', grade_band: 'C', max_amount: 500_000_000 }),
+      auth({ id: 'c', applies_to: 'commercial', grade_band: 'B', max_amount: 999_000_000, valid_to: '2026-08-25' }),
+      auth({ id: 'd', applies_to: 'commercial', grade_band: 'B', max_amount: 888_000_000, valid_from: '2026-09-01' }),
+    ]
+    expect(scopedAuthorityUzs(rows, 'commercial', 'B', [], TODAY)).toBe(100_000_000)
+    expect(scopedAuthorityUzs(rows, 'commercial', 'C', [], TODAY)).toBe(500_000_000)
+    expect(scopedAuthorityUzs(rows, 'commercial', 'unrated', [], TODAY)).toBe(0)
+  })
+
+  it('admin adjusts any amount without consulting the matrix', () => {
+    const r = commercialPreflight(1e15, 'USD', ['admin'], 'D', [], [], TODAY)
+    expect(r.withinAuthority).toBe(true)
+    expect(MIGRATION_0020).toContain("if not tci.has_role('admin') then")
+  })
+
+  it('a commercial underwriter is bound by the band of the CREDIT decision', () => {
+    const grants = [
+      auth({ applies_to: 'commercial', grade_band: 'B', max_amount: 300_000_000 }),
+    ]
+    const within = commercialPreflight(
+      300_000_000, 'UZS', ['commercial_underwriter'], 'B', grants, [], TODAY,
+    )
+    expect(within).toEqual({
+      band: 'B',
+      amountUzs: 300_000_000,
+      authorityUzs: 300_000_000,
+      withinAuthority: true, // boundary passes: SQL raises on strict >
+    })
+    const over = commercialPreflight(
+      300_000_001, 'UZS', ['commercial_underwriter'], 'B', grants, [], TODAY,
+    )
+    expect(over.withinAuthority).toBe(false)
+    // a grant in a DIFFERENT band does not help
+    const wrongBand = commercialPreflight(
+      1_000, 'UZS', ['commercial_underwriter'], 'C', grants, [], TODAY,
+    )
+    expect(wrongBand.authorityUzs).toBe(0)
+    expect(wrongBand.withinAuthority).toBe(false)
+  })
+
+  it('a credit grant never funds a commercial adjustment', () => {
+    const creditOnly = [auth({ applies_to: 'credit', grade_band: 'B', max_amount: 1e12 })]
+    const r = commercialPreflight(
+      1_000, 'UZS', ['commercial_underwriter'], 'B', creditOnly, [], TODAY,
+    )
+    expect(r.authorityUzs).toBe(0)
+    expect(r.withinAuthority).toBe(false)
+  })
+
+  it('conversion uses the same fx rule; a missing rate is unknown', () => {
+    const grants = [auth({ applies_to: 'commercial', grade_band: 'B', max_amount: 100_000_000 })]
+    const usd = commercialPreflight(
+      5_000, 'USD', ['commercial_underwriter'], 'B', grants, [rate({})], TODAY,
+    )
+    expect(usd.amountUzs).toBe(60_000_000)
+    expect(usd.withinAuthority).toBe(true)
+    const noRate = commercialPreflight(
+      5_000, 'EUR', ['commercial_underwriter'], 'B', grants, [rate({})], TODAY,
+    )
+    expect(noRate.withinAuthority).toBeNull()
+  })
+
+  it('0020 defines the same aggregate as 0017, on the commercial stream', () => {
+    expect(MIGRATION_0020).toContain(
+      'select coalesce(max(tci.to_uzs(g.max_amount, g.currency_code)), 0)',
+    )
+    expect(MIGRATION_0020).toContain("and g.applies_to = 'commercial'")
+    expect(MIGRATION_0020).toContain('and g.grade_band = v_band')
+    expect(MIGRATION_0020).toContain('g.valid_from <= current_date')
+    expect(MIGRATION_0020).toContain('(g.valid_to is null or g.valid_to >= current_date)')
+    expect(MIGRATION_0020).toContain('if v_amount_uzs > v_authority_uzs then')
+  })
+
+  it('0020: the band comes from the credit decision being adjusted', () => {
+    expect(MIGRATION_0020).toContain(
+      'v_band := tci.grade_band_for_assessment(v_credit.based_on_assessment_id);',
+    )
+  })
+
+  it('0020: only commercial underwriting may adjust, and only a credit row', () => {
+    expect(MIGRATION_0020).toContain("if not tci.has_role('admin', 'commercial_underwriter') then")
+    expect(MIGRATION_0020).toContain('only a credit-stage decision can be adjusted commercially')
+    expect(MIGRATION_0020).toContain('only an approved or partial limit can be adjusted')
   })
 })

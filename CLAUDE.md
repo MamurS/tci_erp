@@ -119,6 +119,8 @@ Department role names (uz, confirmed): `admin` — Administrator, `sales` — **
 - [x] Phase 2b: credit limit workflow — requests/decisions attached to (policy, buyer): one open request per pair, immutable decisions with typed conditions, authority routing in UZS (escalation to senior), supersede/revoke chains, exposure views, /limits workspace + request page, policy & buyer integration
 - [x] Phase 3a: unified legal-entities registry — tci.legal_entities merges buyers + policyholders (merge on country+reg number, FKs renamed to entity_id, old tables dropped), roles COMPUTED via v_entity_roles (never assigned), pg_trgm dedup-on-entry (blocking reg match + fuzzy suggestions), /entities registry + card with conditional tabs, legacy /buyers & /policyholders redirects
 - [x] Phase 3b: department roles + 2D authority matrix — user_role enum recreated (sales/commercial_underwriter/credit_underwriter/claims/information_manager/client + admin), multi-role users, RLS restated on has_role/is_staff, tci.authority_grants (stream × grade band × amount × validity), band-aware decide/revoke, /admin users & authorities screens, role-driven sidebar + route guards
+- [x] Phase 3c-1: insurance requests + two-stage limit decisions — `tci.insurance_requests` pipeline (draft → submitted → entity_resolution → underwriting → commercial_review → sales_confirmation → client_review → accepted/declined → bound) with SQL-enforced role gates and content guards, buyer package with name-only buyers resolved onto companies, decisions gain `stage` (credit | commercial) with commercial adjusting ONLY amount and payment terms within its own band authority, lazy release with a sales window + silent consent (no cron) and an emergency bypass for reductions/revocations, append-only `tci.workflow_events` for the future Agenda, `/requests` queue + submission page, company card «Заявки на страхование» tab
+- [ ] Phase 3c-2: Agenda (single tasks table driving all queues) — consumes `tci.workflow_events`
 - [ ] Phase 3 (operations): declarations, premium booking, overdues
 - [ ] Phase 4: claims & recoveries
 - [ ] Phase 5: Python analytics service (scoring/rating)
@@ -127,5 +129,51 @@ Department role names (uz, confirmed): `admin` — Administrator, `sales` — **
 ## Design notes (future phases — recorded, not built)
 
 * ~~Phase 3b: role enum, multi-role users, 2D authority matrix~~ — **DONE** (migrations 0016–0018).
-* Phase 3c (NEXT): insurance_request pipeline (client/sales/comm UW create → sales resolves entities, auto-task to information_manager for missing ones → parallel commercial (terms) + credit (ratings/limits, confirming engine auto-rating) → sales confirmation → client acceptance → bind). Two-stage limit decisions: credit stage (rating+limit) then optional commercial stage adjusting ONLY amount and credit period, both directions, within own authority; rating and conditions untouchable by commercial. In-force changes: credit → commercial → sales window (configurable, default 1 business day) with silent-consent release (lazy released_at, no cron), then visible to client; REDUCTIONS and REVOCATIONS bypass commercial and sales — visible to client immediately (emergency risk actions). Agenda: single tasks table (type, object ref, assignee role/user, due, status) driving all queues.
+* ~~Phase 3c-1: insurance_request pipeline, two-stage decisions, sales window~~ — **DONE** (migrations 0019–0021).
+* Phase 3c (SHIPPED as 3c-1, see above): insurance_request pipeline (client/sales/comm UW create → sales resolves entities, auto-task to information_manager for missing ones → parallel commercial (terms) + credit (ratings/limits, confirming engine auto-rating) → sales confirmation → client acceptance → bind). Two-stage limit decisions: credit stage (rating+limit) then optional commercial stage adjusting ONLY amount and credit period, both directions, within own authority; rating and conditions untouchable by commercial. In-force changes: credit → commercial → sales window (configurable, default 1 business day) with silent-consent release (lazy released_at, no cron), then visible to client; REDUCTIONS and REVOCATIONS bypass commercial and sales — visible to client immediately (emergency risk actions). Agenda: single tasks table (type, object ref, assignee role/user, due, status) driving all queues.
 * Phase 3d: client portal — invitation-only (sales creates, system sends link + temp password, forced password change on first login; requires the password-change page and Supabase Site URL setup).
+
+### Open items carried into Phase 3c-2
+
+* **A submission cannot hold credit decisions before a policy exists.**
+  `tci.credit_limit_requests.policy_id` is `not null` (migration 0013), so the
+  limit requests a submission raises must point at an EXISTING policy. That
+  works for renewals and extensions of a live policy; for genuinely new
+  business the `underwriting → commercial_review` guard
+  (`tci.request_credit_complete`) can only be satisfied after a policy exists.
+  Fixing it properly is a 3c-2/bind concern, because `policy_id` is load-bearing
+  in three places: the `(policy_id, entity_id)` one-open-request unique index,
+  the `distinct on (policy_id, entity_id)` of `v_effective_limits`, and the
+  client RLS path that joins decisions → requests → policies →
+  policyholder_users. Options to weigh then: a provisional policy created at
+  `underwriting` and activated at `bind`, or a nullable `policy_id` with the
+  submission id as the alternate grouping key.
+* **Bind is a status transition only.** `advance_insurance_request(…, 'bound')`
+  sets the status and stamps `bound_policy_id` if something else filled it in;
+  it does NOT create the policy from the proposed terms. The terms columns of
+  `tci.insurance_requests` deliberately shadow `tci.policies` so that step is a
+  straight projection when 3c-2 builds it.
+* **Assignees are stored, not yet used.** `assigned_sales` / `assigned_commercial`
+  / `assigned_credit` exist and are surfaced nowhere: the Agenda owns
+  assignment, and inventing a second assignment UI now would compete with it.
+* **`buyer_resolution_status` beyond `ready` is not advanced automatically.**
+  `rating_done` / `limit_done` are set by hand today; the Agenda should move
+  them off `limit.credit_decided` events.
+
+### Workflow event catalogue (`tci.workflow_events`, migration 0019)
+
+Append-only; nothing consumes it yet — the Agenda of 3c-2 is its first reader.
+Each row carries `event_type`, `object_type`, `object_id`, `actor`,
+`target_role` (the department the ball moves to) and a `payload` jsonb.
+
+| event_type | object_type | payload | target_role |
+|---|---|---|---|
+| `request.created` | insurance_request | — | — |
+| `request.status_changed` | insurance_request | from, to, comment | the owner of the new status |
+| `request.assigned` | insurance_request | field, user | the assignee's role |
+| `request.buyer_added` | insurance_request | buyer_row_id | `sales` |
+| `request.buyer_resolved` | insurance_request | buyer_row_id, entity_id | `credit_underwriter` |
+| `limit.credit_decided` | credit_limit_decision | outcome, amount, grade_band | `commercial_underwriter` |
+| `limit.commercial_adjusted` | credit_limit_decision | credit_decision_id, from_amount, to_amount, grade_band, is_reduction | `sales`, or `client` on a reduction |
+| `limit.released` | credit_limit_decision | release_kind, comment | `client` |
+| `limit.held` | credit_limit_decision | comment | `commercial_underwriter` |

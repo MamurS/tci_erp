@@ -7,6 +7,7 @@ import { tci } from '../../lib/supabase'
 import type { GradeBand } from '../../lib/roles'
 import type { FxRateRow } from './authority'
 import type {
+  AuthorityGrant,
   BuyerExposure,
   ConditionInput,
   DecisionOutcome,
@@ -188,6 +189,127 @@ export function useRevokeEffectiveLimit() {
   })
 }
 
+// ---------------------------------------------------------------------------
+// Two-stage decisions: commercial adjustment + the sales window (0020)
+// ---------------------------------------------------------------------------
+
+export interface AdjustCommercialInput {
+  decisionId: string
+  amount: number
+  paymentTermsDays: number | null
+  comment: string | null
+}
+
+export interface AdjustCommercialResult {
+  result: 'adjusted'
+  decision_id: string
+  grade_band: GradeBand
+  is_reduction: boolean
+  released_immediately: boolean
+}
+
+/** Commercial stage: amount and payment terms only, either direction,
+ * within the caller's 'commercial' authority for the SAME grade band. */
+export function useAdjustLimitCommercial() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: AdjustCommercialInput): Promise<AdjustCommercialResult> => {
+      const { data, error } = await tci().rpc('adjust_limit_commercial', {
+        p_decision_id: input.decisionId,
+        p_new_amount: input.amount,
+        p_new_payment_terms: input.paymentTermsDays,
+        p_comment: input.comment,
+      })
+      if (error) throw error
+      return data as AdjustCommercialResult
+    },
+    onSuccess: () => invalidateWorkflow(queryClient),
+  })
+}
+
+/** Sales confirm now: the client sees the decision immediately. */
+export function useReleaseDecision() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: { decisionId: string; comment?: string }): Promise<void> => {
+      const { error } = await tci().rpc('release_decision', {
+        p_decision_id: input.decisionId,
+        p_comment: input.comment ?? null,
+      })
+      if (error) throw error
+    },
+    onSuccess: () => invalidateWorkflow(queryClient),
+  })
+}
+
+/** Sales hold & discuss: suspends the silent-consent clock (comment
+ * mandatory - the SQL function refuses an empty one). */
+export function useHoldDecision() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: { decisionId: string; comment: string }): Promise<void> => {
+      const { error } = await tci().rpc('hold_decision', {
+        p_decision_id: input.decisionId,
+        p_comment: input.comment,
+      })
+      if (error) throw error
+    },
+    onSuccess: () => invalidateWorkflow(queryClient),
+  })
+}
+
+/** The silent-consent window, read from tci.sales_window_hours(). Every
+ * release countdown in the UI is derived from this one value. */
+export function useSalesWindowHours() {
+  return useQuery({
+    queryKey: ['sales-window-hours'],
+    staleTime: 5 * 60_000,
+    queryFn: async (): Promise<number> => {
+      const { data, error } = await tci().rpc('sales_window_hours')
+      if (error) throw error
+      return Number(data ?? 24)
+    },
+  })
+}
+
+/** The caller's OWN authority grants. tci.my_authority_uzs() covers the
+ * credit stream server-side; the commercial stream has no such helper, so
+ * the grants are read here and commercialPreflight() applies the identical
+ * rule (the SQL function inlines it in migration 0020). The user_id filter
+ * matters for admins, whose RLS policy would otherwise return everyone's. */
+export function useMyAuthorityGrants(userId: string | undefined) {
+  return useQuery({
+    queryKey: ['my-authority-grants', userId ?? ''],
+    enabled: Boolean(userId),
+    queryFn: async (): Promise<AuthorityGrant[]> => {
+      const { data, error } = await tci()
+        .from('authority_grants')
+        .select('*')
+        .eq('user_id', userId as string)
+      if (error) throw error
+      return (data ?? []) as unknown as AuthorityGrant[]
+    },
+  })
+}
+
+/** Full decision chain for one credit decision: the credit row plus every
+ * commercial adjustment of it (newest first). */
+export function useDecisionChain(creditDecisionId: string) {
+  return useQuery({
+    queryKey: ['limit-decisions', 'chain', creditDecisionId],
+    enabled: Boolean(creditDecisionId),
+    queryFn: async (): Promise<DecisionWithConditions[]> => {
+      const { data, error } = await tci()
+        .from('credit_limit_decisions')
+        .select('*, decision_conditions(*)')
+        .or(`id.eq.${creditDecisionId},adjusts_decision_id.eq.${creditDecisionId}`)
+        .order('decided_at', { ascending: false })
+      if (error) throw error
+      return (data ?? []) as unknown as DecisionWithConditions[]
+    },
+  })
+}
+
 /** Full decision history for a buyer (chains built client-side). */
 export function useBuyerDecisions(entityId: string) {
   return useQuery({
@@ -213,13 +335,24 @@ export function useBuyerDecisions(entityId: string) {
 // Views
 // ---------------------------------------------------------------------------
 
-export function useEffectiveLimits(filter: { policyId?: string; entityId?: string } = {}) {
+export function useEffectiveLimits(
+  filter: { policyId?: string; entityId?: string; insuranceRequestId?: string } = {},
+) {
   return useQuery({
-    queryKey: [...KEYS.effective, filter.policyId ?? '', filter.entityId ?? ''],
+    queryKey: [
+      ...KEYS.effective,
+      filter.policyId ?? '',
+      filter.entityId ?? '',
+      filter.insuranceRequestId ?? '',
+    ],
+    enabled: filter.insuranceRequestId !== '',
     queryFn: async (): Promise<EffectiveLimit[]> => {
       let query = tci().from('v_effective_limits').select('*')
       if (filter.policyId) query = query.eq('policy_id', filter.policyId)
       if (filter.entityId) query = query.eq('entity_id', filter.entityId)
+      if (filter.insuranceRequestId) {
+        query = query.eq('insurance_request_id', filter.insuranceRequestId)
+      }
       const { data, error } = await query
       if (error) throw error
       return (data ?? []) as unknown as EffectiveLimit[]

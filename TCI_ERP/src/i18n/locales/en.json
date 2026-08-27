@@ -12,7 +12,8 @@
     "declarations": "Declarations",
     "claims": "Claims",
     "admin": "Admin",
-    "entities": "Companies"
+    "entities": "Companies",
+    "requests": "Submissions"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -822,6 +823,42 @@
       "C": "C",
       "D": "D",
       "unrated": "unrated"
+    },
+    "fromSubmission": "Submission",
+    "stagePair": "credit {{credit}} → commercial {{commercial}}",
+    "stages": {
+      "credit": "Credit stage",
+      "commercial": "Commercial stage"
+    },
+    "release": {
+      "withClient": "with the client",
+      "withClientSince": "with the client since {{since}}",
+      "window": "sales window until {{until}}",
+      "held": "on hold",
+      "heldWith": "on hold: {{comment}}",
+      "kinds": {
+        "sales_confirmed": "confirmed by sales",
+        "silent_consent": "silent consent",
+        "immediate": "immediate"
+      },
+      "confirmNow": "Confirm now",
+      "holdAndDiscuss": "Hold & discuss",
+      "holdComment": "What must be discussed",
+      "holdCommentPlaceholder": "Reason for the hold…",
+      "actionFailed": "The action failed"
+    },
+    "commercial": {
+      "title": "Commercial stage",
+      "scopeHint": "Commercial underwriting may change the amount and the payment terms only. The rating, the validity period and the conditions stay exactly as credit underwriting set them.",
+      "readOnly": "Only commercial underwriting can adjust a limit.",
+      "newAmount": "Adjusted amount",
+      "action": "Record adjustment",
+      "within": "Within your commercial authority for grade {{band}} ({{authority}} UZS eq.)",
+      "exceeds": "Exceeds your commercial authority for grade {{band}} ({{authority}} UZS eq.)",
+      "reductionWarning": "A reduction is an emergency risk action: it reaches the client immediately, bypassing the sales window.",
+      "adjusted": "Adjustment recorded — the sales window is running.",
+      "adjustedImmediate": "Adjustment recorded and released to the client immediately (reduction).",
+      "adjustFailed": "The adjustment was refused"
     }
   },
   "entities": {
@@ -854,7 +891,8 @@
       "financials": "Financials",
       "rating": "Rating & Limit",
       "limits": "Limits",
-      "policies": "Policies & portfolio"
+      "policies": "Policies & portfolio",
+      "requests": "Submissions"
     },
     "portfolioLimitsTitle": "Buyer limits under their policies",
     "portfolioSummary": "Policyholder portfolio:",
@@ -905,5 +943,129 @@
       "periodOrder": "“Valid to” must not precede “valid from”",
       "validFromRequired": "“Valid from” is required"
     }
+  },
+  "requests": {
+    "subtitle": "Insurance submissions: from request to bound policy",
+    "tabs": {
+      "mine": "My drafts",
+      "open": "In progress",
+      "withClient": "With the client",
+      "closed": "Closed"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "entity_resolution": "Entity resolution",
+      "underwriting": "Underwriting",
+      "commercial_review": "Commercial review",
+      "sales_confirmation": "Sales confirmation",
+      "client_review": "With the client",
+      "accepted": "Accepted",
+      "declined": "Declined",
+      "withdrawn": "Withdrawn",
+      "bound": "Policy bound"
+    },
+    "transitions": {
+      "submitted": "Submit",
+      "entity_resolution": "To entity resolution",
+      "underwriting": "To underwriting",
+      "commercial_review": "To commercial review",
+      "sales_confirmation": "Finish commercial review",
+      "client_review": "Release to the client",
+      "accepted": "Accept",
+      "declined": "Decline",
+      "withdrawn": "Withdraw the submission",
+      "bound": "Bind the policy"
+    },
+    "confirm": {
+      "declined": "The submission will be declined. The reason is mandatory and is shown to the client.",
+      "withdrawn": "The submission will be withdrawn. This cannot be undone."
+    },
+    "guards": {
+      "entitiesUnresolved": "Every buyer must be resolved to a company before underwriting can start.",
+      "creditIncomplete": "Every buyer needs a credit decision before the commercial review.",
+      "declineNeedsReason": "A decline needs a reason."
+    },
+    "resolutions": {
+      "pending_entity": "Not identified",
+      "ready": "Ready",
+      "rating_done": "Rated",
+      "limit_done": "Limit set"
+    },
+    "columns": {
+      "credit": "Credit decision",
+      "commercial": "Commercial adjustment",
+      "effective": "Effective limit",
+      "release": "Visible to the client"
+    },
+    "fields": {
+      "number": "No.",
+      "applicant": "Applicant",
+      "buyersCount": "Buyers",
+      "status": "Status",
+      "waitingOn": "Waiting on",
+      "ageDays": "Age",
+      "requestedAmount": "Requested",
+      "notes": "Notes",
+      "declineReason": "Decline reason",
+      "role": "Role"
+    },
+    "terms": {
+      "product_structure": "Product structure",
+      "currency_code": "Currency",
+      "insured_percentage": "Insured percentage",
+      "premium_rate_pct": "Premium rate, %",
+      "minimum_premium": "Minimum premium",
+      "max_liability_amount": "Maximum liability",
+      "max_liability_premium_multiple": "Maximum liability, × premium",
+      "discretionary_limit": "Discretionary limit",
+      "nql_amount": "Non-qualifying loss (NQL)",
+      "deductible_each_loss": "Deductible, each loss",
+      "aggregate_first_loss": "Aggregate first loss",
+      "waiting_period_days": "Waiting period",
+      "max_extension_period_days": "Maximum extension period",
+      "max_payment_terms_days": "Maximum payment terms",
+      "declaration_frequency": "Declaration frequency",
+      "estimated_annual_turnover": "Estimated annual turnover"
+    },
+    "actions": {
+      "create": "New submission",
+      "createDraft": "Create draft",
+      "resolve": "Link",
+      "createCompany": "New company"
+    },
+    "searchPlaceholder": "Submission no. or applicant…",
+    "queueEmpty": "No submissions here",
+    "queueEmptyHint": "Raise one with “New submission”",
+    "notFound": "Submission not found",
+    "backToQueue": "Back to the queue",
+    "waitingOn": "waiting on {{role}}",
+    "entityResolution": "Entity resolution",
+    "entityResolutionHint": "These buyers were entered by name. Link each to a company in the registry, or create one — underwriting cannot start until every buyer is identified.",
+    "unnamedBuyer": "Buyer without a name",
+    "resolveFailed": "The buyer could not be linked",
+    "buyerPackage": "Buyer package",
+    "addBuyer": "Add buyer",
+    "noBuyersYet": "No buyers in the package yet",
+    "noBuyersHint": "A submission needs at least one buyer",
+    "buyerByName": "By name (not in the registry)",
+    "buyerNamePlaceholder": "Buyer name…",
+    "packageHint": "The effective limit is the commercial adjustment when there is one, otherwise the credit decision.",
+    "proposedTerms": "Proposed terms",
+    "termsReadOnly": "Only commercial underwriting can edit these terms.",
+    "history": "History",
+    "noHistory": "No transitions yet",
+    "fromStatus": "from {{status}}",
+    "salesPanel": "Sales window",
+    "salesPanelHint": "Confirm a decision to show it to the client at once, or hold it to suspend the silent-consent clock. Sales can never change a term.",
+    "windowHours": "{{hours}} h",
+    "noDecisionsYet": "No decisions to release yet",
+    "allReleased": "Every decision is with the client",
+    "noneForEntity": "No submissions for this company",
+    "noneForEntityHint": "Neither as an applicant nor as a buyer in someone else’s package",
+    "roleApplicant": "Applicant",
+    "roleBuyer": "Buyer",
+    "createFailed": "The submission could not be created",
+    "transitionFailed": "The transition was refused"
   }
 }

@@ -10,6 +10,7 @@ import { EntitiesPage, EntityDetailPage, StatementFormPage } from './features/en
 import { ReportPage } from './features/entities/report/ReportPage'
 import { legacyRedirect } from './features/entities/redirects'
 import { LimitRequestPage, LimitsPage } from './features/limits'
+import { RequestDetailPage, RequestsPage } from './features/requests'
 import { PoliciesPage, PolicyDetailPage, PolicyFormPage } from './features/policies'
 import { DeclarationsPage } from './features/declarations'
 import { ClaimsPage } from './features/claims'
@@ -47,6 +48,8 @@ export default function App() {
               path="entities/:id/statements/:statementId/edit"
               element={<StatementFormPage />}
             />
+            <Route path="requests" element={<RequestsPage />} />
+            <Route path="requests/:id" element={<RequestDetailPage />} />
             <Route path="limits" element={<LimitsPage />} />
             <Route path="limits/:id" element={<LimitRequestPage />} />
             <Route path="policies" element={<PoliciesPage />} />

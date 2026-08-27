@@ -49,4 +49,16 @@ export function formatDays(value: number | null | undefined, locale: string): st
   return formatAmount(value, locale, 0)
 }
 
+/** Date-time as an Asia/Tashkent reader sees it (DESIGN.md: store UTC,
+ * display Tashkent), minute precision. */
+export function formatMoment(value: string | Date, locale: string): string {
+  const date = typeof value === 'string' ? new Date(value) : value
+  if (Number.isNaN(date.getTime())) return EM_DASH
+  return new Intl.DateTimeFormat(locale === 'en' ? 'en-GB' : locale, {
+    dateStyle: 'short',
+    timeStyle: 'short',
+    timeZone: 'Asia/Tashkent',
+  }).format(date)
+}
+
 export { EM_DASH }

@@ -22,9 +22,9 @@ const STAFF: readonly UserRole[] = [
  * A user may hold several roles - ANY matching role grants the item.
  *
  *   admin                   everything
- *   credit_underwriter      dashboard, companies, limits, declarations, claims
- *   commercial_underwriter  dashboard, companies, policies, limits, declarations, claims
- *   sales                   dashboard, companies, policies, limits
+ *   credit_underwriter      dashboard, companies, submissions, limits, declarations, claims
+ *   commercial_underwriter  dashboard, companies, submissions, policies, limits, declarations, claims
+ *   sales                   dashboard, companies, submissions, policies, limits
  *   information_manager     dashboard, companies
  *   claims                  dashboard, companies, claims
  *   client                  portal reads only (no new screens until Phase 3d)
@@ -32,6 +32,11 @@ const STAFF: readonly UserRole[] = [
 export const NAV_ITEMS: readonly NavItem[] = [
   { key: 'dashboard', path: '/', roles: STAFF },
   { key: 'entities', path: '/entities', roles: STAFF },
+  {
+    key: 'requests',
+    path: '/requests',
+    roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'client'],
+  },
   {
     key: 'limits',
     path: '/limits',

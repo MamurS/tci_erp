@@ -13,6 +13,14 @@ export type DecisionOutcome = (typeof DECISION_OUTCOMES)[number]
 export const DECISION_LIFECYCLES = ['effective', 'superseded', 'expired', 'revoked_lc'] as const
 export type DecisionLifecycle = (typeof DECISION_LIFECYCLES)[number]
 
+/** Two-stage decisions (migration 0020): credit underwriting owns the risk
+ * view; commercial underwriting may re-shape ONLY amount and payment terms. */
+export const DECISION_STAGES = ['credit', 'commercial'] as const
+export type DecisionStage = (typeof DECISION_STAGES)[number]
+
+export const RELEASE_KINDS = ['sales_confirmed', 'silent_consent', 'immediate'] as const
+export type ReleaseKindValue = (typeof RELEASE_KINDS)[number]
+
 export const CONDITION_TYPES = [
   'security', 'appraisal', 'reporting', 'payment_terms', 'other',
 ] as const
@@ -27,6 +35,9 @@ export interface CreditLimitRequest {
   requested_payment_terms_days: number | null
   justification: string | null
   status: LimitRequestStatus
+  /** Set when the request was raised inside an insurance submission
+   * (migration 0019); null for standalone in-force requests. */
+  insurance_request_id: string | null
   requested_by: string
   submitted_at: string | null
   decided_at: string | null
@@ -66,6 +77,14 @@ export interface CreditLimitDecision {
   decided_by: string
   decided_at: string
   lifecycle: DecisionLifecycle
+  // Stage + release (migration 0020)
+  stage: DecisionStage
+  adjusts_decision_id: string | null
+  payment_terms_days: number | null
+  released_at: string | null
+  release_kind: ReleaseKindValue | null
+  held: boolean
+  hold_comment: string | null
 }
 
 export interface DecisionWithConditions extends CreditLimitDecision {
@@ -89,6 +108,18 @@ export interface EffectiveLimit {
   decided_by: string
   decided_at: string
   conditions_count: number
+  insurance_request_id: string | null
+  // Stage precedence + release state (migration 0020)
+  stage: DecisionStage
+  payment_terms_days: number | null
+  credit_decision_id: string
+  credit_amount: number | null
+  commercially_adjusted: boolean
+  released_at: string | null
+  release_kind: ReleaseKindValue | null
+  held: boolean
+  hold_comment: string | null
+  client_visible: boolean
 }
 
 /** tci.v_buyer_exposure row. */

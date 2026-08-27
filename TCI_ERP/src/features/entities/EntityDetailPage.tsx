@@ -18,11 +18,12 @@ import { RoleBadges } from './EntitiesPage'
 import { FinancialsTab } from './financials/FinancialsTab'
 import { OverviewTab } from './overview/OverviewTab'
 import { PoliciesTab } from './PoliciesTab'
+import { EntityRequestsSection } from '../requests'
 import { RatingTab } from './rating/RatingTab'
 import { formatAmount } from '../../lib/format'
 import { gradeTone } from '../../lib/grade'
 
-type TabKey = 'overview' | 'financials' | 'rating' | 'limits' | 'policies'
+type TabKey = 'overview' | 'financials' | 'rating' | 'limits' | 'policies' | 'requests'
 
 export function EntityDetailPage() {
   const { t } = useTranslation()
@@ -40,6 +41,9 @@ export function EntityDetailPage() {
     'rating',
     ...(roles?.is_buyer ? (['limits'] as const) : []),
     ...(roles?.is_policyholder ? (['policies'] as const) : []),
+    // Submissions are relevant to every company: as applicant or as a
+    // buyer inside someone else's package.
+    'requests',
   ]
 
   const requested = searchParams.get('tab') as TabKey | null
@@ -106,6 +110,7 @@ export function EntityDetailPage() {
         {activeTab === 'rating' && <RatingTab entityId={id} />}
         {activeTab === 'limits' && <BuyerLimitsTab entityId={id} />}
         {activeTab === 'policies' && <PoliciesTab entityId={id} />}
+        {activeTab === 'requests' && <EntityRequestsSection entityId={id} />}
       </div>
 
       <EntityFormModal open={editOpen} onClose={() => setEditOpen(false)} initial={entity} />
