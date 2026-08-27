@@ -151,3 +151,9 @@ class TestGradeScale:
         # risk coefficients decrease as the score worsens
         rcs = [b["risk_coefficient"] for b in bands]
         assert rcs == sorted(rcs, reverse=True)
+        # each band declares its FAMILY - the unit the authority matrix
+        # (tci.grade_band) is keyed by; consumers must not derive it.
+        assert [b["family"] for b in bands] == ["A", "A", "B", "B", "C", "C", "D"]
+        assert {b["family"] for b in bands} == {"A", "B", "C", "D"}
+        for band in bands:
+            assert band["family"] == band["code"][0]

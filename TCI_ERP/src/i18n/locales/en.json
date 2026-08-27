@@ -30,10 +30,22 @@
   },
   "roles": {
     "admin": "Administrator",
-    "senior_underwriter": "Senior underwriter",
-    "underwriter": "Underwriter",
-    "policyholder": "Policyholder",
-    "unassigned": "No role assigned"
+    "unassigned": "no role assigned",
+    "sales": "Sales",
+    "commercial_underwriter": "Commercial underwriter",
+    "credit_underwriter": "Credit underwriter",
+    "claims": "Claims",
+    "information_manager": "Information manager",
+    "client": "Client",
+    "descriptions": {
+      "admin": "Full access; manages users, roles and authorities",
+      "sales": "Companies and policies (read), raises limit requests",
+      "commercial_underwriter": "Policy terms and the commercial stage of decisions",
+      "credit_underwriter": "Ratings, limits and credit decisions within authority",
+      "claims": "Claims and recoveries",
+      "information_manager": "Fills in company data and financial statements",
+      "client": "Portal user: own policies and limits only"
+    }
   },
   "common": {
     "loading": "Loading…",
@@ -743,7 +755,8 @@
       "submit": "Submit",
       "startReview": "Start review",
       "withdraw": "Withdraw",
-      "decide": "Record decision"
+      "decide": "Record decision",
+      "revoke": "Revoke limit"
     },
     "fields": {
       "buyer": "Buyer",
@@ -763,8 +776,8 @@
       "withdrawComment": "Withdrawal comment"
     },
     "preflight": {
-      "within": "Within your authority ({{authority}} UZS eq.)",
-      "exceeds": "Exceeds your authority ({{authority}} UZS eq.) — the decision will be escalated to a senior underwriter",
+      "within": "Within your authority for grade {{band}} ({{authority}} UZS eq.)",
+      "exceeds": "Exceeds your authority for grade {{band}} ({{authority}} UZS eq.) — the decision will be escalated",
       "missingRate": "No UZS rate for {{currency}} — add a rate for it in fx_rates first, otherwise the decision will be escalated"
     },
     "searchPlaceholder": "Buyer, policy № or policyholder…",
@@ -788,7 +801,7 @@
     "conditionPlaceholder": "Condition description…",
     "conditionsTooltip": "Conditions: {{count}}",
     "awaitingSenior": "Escalated — awaiting a senior underwriter's decision",
-    "escalatedResult": "The amount exceeds your authority — the request has been escalated to a senior underwriter",
+    "escalatedResult": "The amount exceeds your authority for grade {{band}} — the request has been escalated",
     "decideFailed": "Failed to record the decision",
     "withdrawConfirm": "Withdraw this limit request? The buyer's effective limit is not affected.",
     "requestLimit": "Request limit",
@@ -802,7 +815,14 @@
     "exposureTotal": "Total exposure",
     "missingRates_one": "no UZS rate for {{count}} currency",
     "missingRates_other": "no UZS rate for {{count}} currencies",
-    "pairHeader": "Requested → approved"
+    "pairHeader": "Requested → approved",
+    "bands": {
+      "A": "A",
+      "B": "B",
+      "C": "C",
+      "D": "D",
+      "unrated": "unrated"
+    }
   },
   "entities": {
     "subtitle": "Unified registry — policyholders, buyers and analysis prospects",
@@ -839,5 +859,51 @@
     "portfolioLimitsTitle": "Buyer limits under their policies",
     "portfolioSummary": "Policyholder portfolio:",
     "portfolioLimits": "effective limits"
+  },
+  "access": {
+    "denied": "No access",
+    "deniedHint": "This section is not part of your role. Ask an administrator if you need it.",
+    "yourRoles": "Your roles",
+    "backToDashboard": "Back to the dashboard"
+  },
+  "admin": {
+    "subtitle": "Users, department roles and underwriting authority",
+    "tabs": {
+      "users": "Users & roles",
+      "authorities": "Authorities"
+    },
+    "noUsers": "No users yet",
+    "editRoles": "Roles",
+    "rolesFor": "Roles — {{email}}",
+    "rolesHint": "A user may hold several roles; access is the union of them.",
+    "clientAndStaffWarning": "This user would be both a portal client and staff. Keep the client role for external users only.",
+    "selectUser": "Select a user",
+    "selectUserHint": "Pick a user on the “Users & roles” tab to edit their authority.",
+    "authoritiesFor": "Authority — {{email}}",
+    "authoritiesHint": "Maximum amount this user may approve per grade band. Amounts are compared in UZS at the latest rate.",
+    "commercialDormant": "Commercial authority is stored now and starts being used in Phase 3c.",
+    "adminUnlimited": "Administrators decide any amount — the matrix does not apply to them.",
+    "scopes": {
+      "credit": "Credit",
+      "commercial": "Commercial"
+    },
+    "grant": "Grant",
+    "openEnded": "open-ended",
+    "expiredGrants": "Expired grants ({{count}})",
+    "fields": {
+      "email": "Email",
+      "roles": "Roles",
+      "lastSignIn": "Last sign-in",
+      "band": "Grade band",
+      "maxAmount": "Max amount",
+      "currency": "Currency",
+      "validFrom": "Valid from",
+      "validTo": "Valid to"
+    },
+    "errors": {
+      "amountPositive": "Amount must be greater than zero",
+      "periodOrder": "“Valid to” must not precede “valid from”",
+      "validFromRequired": "“Valid from” is required"
+    }
   }
 }

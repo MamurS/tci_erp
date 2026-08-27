@@ -1,4 +1,6 @@
-/** Row types mirroring the `tci` schema (migration 0013). */
+/** Row types mirroring the `tci` schema (migrations 0013, 0017). */
+
+import type { AuthorityScope, GradeBand } from '../../lib/roles'
 
 export const LIMIT_REQUEST_STATUSES = [
   'draft', 'submitted', 'under_review', 'escalated', 'decided', 'withdrawn',
@@ -97,13 +99,19 @@ export interface BuyerExposure {
   missing_rates: number
 }
 
-export interface UnderwritingAuthority {
+/** tci.authority_grants row - the 2D authority matrix (migration 0017). */
+export interface AuthorityGrant {
   id: string
   user_id: string
+  applies_to: AuthorityScope
+  grade_band: GradeBand
   max_amount: number
   currency_code: string
   valid_from: string
   valid_to: string | null
+  created_by: string
+  created_at: string
+  updated_at: string
 }
 
 export interface ConditionInput {

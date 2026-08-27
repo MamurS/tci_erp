@@ -5,9 +5,11 @@
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0013_credit_limit_workflow.sql?raw'
+import MIGRATION_0017 from '../../../supabase/migrations/0017_authority_matrix.sql?raw'
 import {
   OPEN_STATUSES,
   canDecide,
+  canCreateRequest,
   canDecideAs,
   canStartReview,
   canSubmit,
@@ -56,23 +58,38 @@ describe('transitions (mirror of the SQL functions)', () => {
     )
   })
 
-  it('escalated requests terminate at a senior (underwriter is read-only)', () => {
-    expect(canDecideAs('escalated', 'underwriter')).toBe(false)
-    expect(canDecideAs('escalated', 'senior_underwriter')).toBe(true)
-    expect(canDecideAs('escalated', 'admin')).toBe(true)
-    expect(canDecideAs('under_review', 'underwriter')).toBe(true)
-    expect(canDecideAs('under_review', 'policyholder')).toBe(false)
-    expect(canDecideAs('decided', 'admin')).toBe(false)
-    expect(canDecideAs('submitted', null)).toBe(false)
+  it('credit underwriting decides; there is no senior role any more', () => {
+    // Phase 3b: an escalated request is decidable by ANY credit underwriter
+    // whose band authority covers the amount (enforced in SQL), or an admin.
+    expect(canDecideAs('escalated', ['credit_underwriter'])).toBe(true)
+    expect(canDecideAs('escalated', ['admin'])).toBe(true)
+    expect(canDecideAs('under_review', ['credit_underwriter'])).toBe(true)
+    expect(canDecideAs('under_review', ['sales'])).toBe(false)
+    expect(canDecideAs('under_review', ['commercial_underwriter'])).toBe(false)
+    expect(canDecideAs('under_review', ['client'])).toBe(false)
+    expect(canDecideAs('decided', ['admin'])).toBe(false)
+    expect(canDecideAs('submitted', [])).toBe(false)
+    // multi-role: any qualifying role grants it
+    expect(canDecideAs('submitted', ['sales', 'credit_underwriter'])).toBe(true)
+    expect(MIGRATION_0017).toContain("if not tci.has_role('admin', 'credit_underwriter') then")
   })
 
-  it('withdraw: requester or senior/admin, only while open', () => {
-    expect(canWithdraw('submitted', 'underwriter', true)).toBe(true)
-    expect(canWithdraw('submitted', 'underwriter', false)).toBe(false)
-    expect(canWithdraw('escalated', 'senior_underwriter', false)).toBe(true)
-    expect(canWithdraw('escalated', 'admin', false)).toBe(true)
-    expect(canWithdraw('decided', 'admin', true)).toBe(false)
-    expect(canWithdraw('withdrawn', 'admin', true)).toBe(false)
+  it('sales, commercial and credit underwriting may raise requests', () => {
+    for (const role of ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter'] as const) {
+      expect(canCreateRequest([role])).toBe(true)
+    }
+    for (const role of ['claims', 'information_manager', 'client'] as const) {
+      expect(canCreateRequest([role])).toBe(false)
+    }
+  })
+
+  it('withdraw: the requester, or anyone who may decide, only while open', () => {
+    expect(canWithdraw('submitted', ['sales'], true)).toBe(true)
+    expect(canWithdraw('submitted', ['sales'], false)).toBe(false)
+    expect(canWithdraw('escalated', ['credit_underwriter'], false)).toBe(true)
+    expect(canWithdraw('escalated', ['admin'], false)).toBe(true)
+    expect(canWithdraw('decided', ['admin'], true)).toBe(false)
+    expect(canWithdraw('withdrawn', ['admin'], true)).toBe(false)
   })
 })
 

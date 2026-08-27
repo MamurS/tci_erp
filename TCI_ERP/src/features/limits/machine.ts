@@ -5,6 +5,7 @@
  * this module only drives which actions the UI offers.
  */
 
+import { hasRole } from '../../lib/roles'
 import type { LimitRequestStatus } from './types'
 import type { UserRole } from '../../lib/roles'
 
@@ -32,21 +33,28 @@ export function canDecide(status: LimitRequestStatus): boolean {
   return status === 'submitted' || status === 'under_review' || status === 'escalated'
 }
 
-/** Escalated requests await a senior; underwriters see them read-only. */
-export function canDecideAs(status: LimitRequestStatus, role: UserRole | null): boolean {
-  if (!canDecide(status) || !role) return false
-  if (status === 'escalated') return role === 'admin' || role === 'senior_underwriter'
-  return role === 'admin' || role === 'senior_underwriter' || role === 'underwriter'
+/** Credit underwriting decides (Phase 3b): there is no 'senior' role any
+ * more - an escalated request is decidable by any credit underwriter whose
+ * BAND authority covers the amount (the SQL function enforces the amount;
+ * this only gates who may open the form) or by an admin. */
+export function canDecideAs(status: LimitRequestStatus, roles: readonly UserRole[]): boolean {
+  if (!canDecide(status)) return false
+  return hasRole(roles, 'admin', 'credit_underwriter')
 }
 
-/** Requester or senior/admin, on any open request. */
+/** Sales, commercial and credit underwriting may raise limit requests. */
+export function canCreateRequest(roles: readonly UserRole[]): boolean {
+  return hasRole(roles, 'admin', 'sales', 'commercial_underwriter', 'credit_underwriter')
+}
+
+/** Requester, or anyone who may decide, on any open request. */
 export function canWithdraw(
   status: LimitRequestStatus,
-  role: UserRole | null,
+  roles: readonly UserRole[],
   isRequester: boolean,
 ): boolean {
   if (!isOpen(status)) return false
-  return isRequester || role === 'admin' || role === 'senior_underwriter'
+  return isRequester || hasRole(roles, 'admin', 'credit_underwriter')
 }
 
 export function statusTone(

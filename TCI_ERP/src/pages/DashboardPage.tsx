@@ -8,14 +8,14 @@ import { EM_DASH } from '../lib/format'
 
 export function DashboardPage() {
   const { t } = useTranslation()
-  const { session, role } = useAuth()
+  const { session, roles } = useAuth()
   const { data: policies } = usePolicies()
   const { data: entities } = useEntities()
-  const roles = useEntityRoles()
+  const entityRoles = useEntityRoles()
 
   const activePolicies = policies?.filter((p) => p.status === 'active').length
-  const policyholders = roles.data
-    ? [...roles.data.values()].filter((r) => r.is_policyholder).length
+  const policyholders = entityRoles.data
+    ? [...entityRoles.data.values()].filter((r) => r.is_policyholder).length
     : undefined
   const stats: { key: string; label: string; value: number | undefined; to: string }[] = [
     {
@@ -60,7 +60,8 @@ export function DashboardPage() {
           {t('dashboard.welcome', { email: session?.user.email })}
         </p>
         <p className="mt-1 text-[13px] text-slate-500">
-          {t('dashboard.roleLabel')}: {role ? t(`roles.${role}`) : t('roles.unassigned')}
+          {t('dashboard.roleLabel')}:{' '}
+          {roles.length ? roles.map((r) => t(`roles.${r}`)).join(' · ') : t('roles.unassigned')}
         </p>
       </Card>
     </div>

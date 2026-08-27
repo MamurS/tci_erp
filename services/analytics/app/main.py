@@ -150,6 +150,7 @@ def grade_scale() -> list[GradeBandOut]:
                 lower=lower,
                 upper=band.upper,
                 risk_coefficient=band.risk_coefficient,
+                family=band.code[0],
             )
         )
         lower = band.upper

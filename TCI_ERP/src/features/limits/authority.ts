@@ -7,16 +7,17 @@
  *   - rate(ccy) = the fx_rates row with the latest rate_date <= today,
  *     preferring source 'cbu' over 'manual' on the same date; UZS = 1;
  *   - a missing rate is an explicit failure (the user must add the rate);
- *   - an underwriter's authority = MAX over their currently valid
- *     underwriting_authorities rows, converted the same way;
- *   - admin and senior_underwriter decide regardless of amount.
+ *   - authority is resolved PER GRADE BAND: MAX over the caller's currently
+ *     valid 'credit' authority_grants for that band, converted the same way;
+ *   - ADMIN is unlimited and never consults the matrix.
  *
  * Used for the decision-form preflight banner; the SQL function is the
  * enforcing side.
  */
 
-import type { UserRole } from '../../lib/roles'
-import type { UnderwritingAuthority } from './types'
+import { hasRole } from '../../lib/roles'
+import type { GradeBand, UserRole } from '../../lib/roles'
+import type { AuthorityGrant } from './types'
 
 export interface FxRateRow {
   currency_code: string
@@ -55,23 +56,29 @@ export function toUzs(
   return rate === null ? null : amount * rate
 }
 
-/** MAX authority in UZS over currently valid rows; 0 when none. */
+/** MAX 'credit' authority in UZS for ONE band over currently valid grants;
+ * 0 when none. Mirror of tci.my_authority_uzs(band). */
 export function authorityUzs(
-  authorities: readonly UnderwritingAuthority[],
+  grants: readonly AuthorityGrant[],
+  band: GradeBand,
   rates: readonly FxRateRow[],
   todayIso: string,
 ): number {
   let max = 0
-  for (const a of authorities) {
-    if (a.valid_from > todayIso) continue
-    if (a.valid_to !== null && a.valid_to < todayIso) continue
-    const converted = toUzs(Number(a.max_amount), a.currency_code, rates, todayIso)
+  for (const g of grants) {
+    if (g.applies_to !== 'credit') continue
+    if (g.grade_band !== band) continue
+    if (g.valid_from > todayIso) continue
+    if (g.valid_to !== null && g.valid_to < todayIso) continue
+    const converted = toUzs(Number(g.max_amount), g.currency_code, rates, todayIso)
     if (converted !== null && converted > max) max = converted
   }
   return max
 }
 
 export interface AuthorityPreflight {
+  /** The band the decision is judged in (from the chosen assessment). */
+  band: GradeBand
   /** null = cannot evaluate (missing rate) — the SQL side would raise P0003. */
   amountUzs: number | null
   authorityUzs: number | null
@@ -79,23 +86,26 @@ export interface AuthorityPreflight {
   withinAuthority: boolean | null
 }
 
-/** Mirror of the underwriter branch of tci.decide_limit_request. */
+/** Mirror of the authority branch of tci.decide_limit_request: admin is
+ * unlimited, everyone else is bounded by their authority for THIS band. */
 export function preflight(
   amount: number,
   currencyCode: string,
-  role: UserRole | null,
+  roles: readonly UserRole[],
+  band: GradeBand,
   myAuthorityUzsValue: number | null,
   rates: readonly FxRateRow[],
   todayIso: string,
 ): AuthorityPreflight {
-  if (role === 'admin' || role === 'senior_underwriter') {
-    return { amountUzs: null, authorityUzs: null, withinAuthority: true }
+  if (hasRole(roles, 'admin')) {
+    return { band, amountUzs: null, authorityUzs: null, withinAuthority: true }
   }
   const amountUzs = toUzs(amount, currencyCode, rates, todayIso)
   if (amountUzs === null || myAuthorityUzsValue === null) {
-    return { amountUzs, authorityUzs: myAuthorityUzsValue, withinAuthority: null }
+    return { band, amountUzs, authorityUzs: myAuthorityUzsValue, withinAuthority: null }
   }
   return {
+    band,
     amountUzs,
     authorityUzs: myAuthorityUzsValue,
     withinAuthority: amountUzs <= myAuthorityUzsValue,

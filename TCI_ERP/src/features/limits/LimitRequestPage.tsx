@@ -23,6 +23,7 @@ import {
   Spinner,
 } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
+import { bandForGrade, hasRole } from '../../lib/roles'
 import { EM_DASH, formatAmount } from '../../lib/format'
 import { useGradeScale } from '../../lib/gradeScale'
 import { useAssessments } from '../entities/rating/assessmentsApi'
@@ -52,7 +53,7 @@ export function LimitRequestPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const { id = '' } = useParams()
-  const { session, role } = useAuth()
+  const { session, roles } = useAuth()
 
   const { data: request, isLoading } = useLimitRequest(id)
   const submit = useSubmitLimitRequest()
@@ -77,9 +78,9 @@ export function LimitRequestPage() {
   }
 
   const isRequester = request.requested_by === session?.user.id
-  const showDecisionForm = canDecideAs(request.status, role)
+  const showDecisionForm = canDecideAs(request.status, roles)
   const awaitingSenior =
-    request.status === 'escalated' && !(role === 'admin' || role === 'senior_underwriter')
+    request.status === 'escalated' && !hasRole(roles, 'admin', 'credit_underwriter')
 
   const act = async (action: Promise<unknown>) => {
     setActionError(null)
@@ -133,7 +134,7 @@ export function LimitRequestPage() {
                 {t('limits.actions.startReview')}
               </Button>
             )}
-            {canWithdraw(request.status, role, isRequester) && (
+            {canWithdraw(request.status, roles, isRequester) && (
               <Button variant="ghost" onClick={() => setWithdrawOpen(true)}>
                 {t('limits.actions.withdraw')}
               </Button>
@@ -346,7 +347,7 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
 function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const { role } = useAuth()
+  const { roles } = useAuth()
   const decide = useDecideLimitRequest()
   const assessments = useAssessments(request.entity_id)
 
@@ -361,10 +362,15 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
   const [escalatedInfo, setEscalatedInfo] = useState<string | null>(null)
 
   const currency = request.currency_code
-  const { data: myAuthority } = useMyAuthorityUzs()
-  const { data: rates } = useLatestRatesFor(currency)
-
   const latest = assessments.data?.[0] ?? null
+
+  // The band comes from the assessment the decision is based on; with none
+  // chosen the SQL function judges the decision as 'unrated'.
+  const chosenAssessment =
+    assessments.data?.find((a) => a.id === assessmentId) ?? null
+  const band = bandForGrade(chosenAssessment?.rating_grade)
+  const { data: myAuthority } = useMyAuthorityUzs(band)
+  const { data: rates } = useLatestRatesFor(currency)
   const parsedAmount = Number(amount.replace(/\s/g, '').replace(',', '.'))
   const amountValid = Number.isFinite(parsedAmount) && parsedAmount > 0
   const needsAmount = outcome !== 'declined'
@@ -373,9 +379,9 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
   const check = useMemo(
     () =>
       needsAmount && amountValid
-        ? preflight(parsedAmount, currency, role, myAuthority ?? 0, rates ?? [], todayIso)
+        ? preflight(parsedAmount, currency, roles, band, myAuthority ?? 0, rates ?? [], todayIso)
         : null,
-    [needsAmount, amountValid, parsedAmount, currency, role, myAuthority, rates, todayIso],
+    [needsAmount, amountValid, parsedAmount, currency, roles, band, myAuthority, rates, todayIso],
   )
 
   const handleDecide = async () => {
@@ -394,7 +400,9 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
         assessmentId: assessmentId || null,
       })
       if (result.result === 'escalated') {
-        setEscalatedInfo(t('limits.escalatedResult'))
+        setEscalatedInfo(
+          t('limits.escalatedResult', { band: t(`limits.bands.${result.grade_band}`) }),
+        )
       }
     } catch {
       setError(t('limits.decideFailed'))
@@ -480,7 +488,7 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
       </Field>
 
       {/* Authority preflight — same conversion rule as the SQL function. */}
-      {check && role === 'underwriter' && (
+      {check && !hasRole(roles, 'admin') && (
         check.withinAuthority === null ? (
           <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
             {t('limits.preflight.missingRate', { currency })}
@@ -488,12 +496,14 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
         ) : check.withinAuthority ? (
           <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-2.5 text-[13px] text-slate-600">
             {t('limits.preflight.within', {
+              band: t(`limits.bands.${check.band}`),
               authority: formatAmount(check.authorityUzs ?? 0, locale),
             })}
           </div>
         ) : (
           <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
             {t('limits.preflight.exceeds', {
+              band: t(`limits.bands.${check.band}`),
               authority: formatAmount(check.authorityUzs ?? 0, locale),
             })}
           </div>

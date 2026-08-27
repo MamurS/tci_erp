@@ -4,6 +4,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { tci } from '../../lib/supabase'
+import type { GradeBand } from '../../lib/roles'
 import type { FxRateRow } from './authority'
 import type {
   BuyerExposure,
@@ -138,8 +139,13 @@ export interface DecideInput {
 }
 
 export type DecideResult =
-  | { result: 'decided'; decision_id: string }
-  | { result: 'escalated'; amount_uzs: number; authority_uzs: number }
+  | { result: 'decided'; decision_id: string; grade_band: GradeBand }
+  | {
+      result: 'escalated'
+      grade_band: GradeBand
+      amount_uzs: number
+      authority_uzs: number
+    }
 
 export function useDecideLimitRequest() {
   const queryClient = useQueryClient()
@@ -241,12 +247,13 @@ export function useBuyerExposure(entityId: string) {
 // Authority + fx (decision preflight)
 // ---------------------------------------------------------------------------
 
-/** The caller's authority in UZS, computed server-side (same rule as decide). */
-export function useMyAuthorityUzs() {
+/** The caller's authority in UZS FOR ONE GRADE BAND, computed server-side
+ * (same rule as decide_limit_request). */
+export function useMyAuthorityUzs(band: GradeBand) {
   return useQuery({
-    queryKey: KEYS.authority,
+    queryKey: [...KEYS.authority, band],
     queryFn: async (): Promise<number> => {
-      const { data, error } = await tci().rpc('my_authority_uzs')
+      const { data, error } = await tci().rpc('my_authority_uzs', { p_band: band })
       if (error) throw error
       return Number(data ?? 0)
     },
