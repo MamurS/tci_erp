@@ -96,6 +96,21 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 
 **Homonymy rule (owner-dictated).** Policy cancellation and limit revocation deliberately share the short status label **«Bekor qilingan»** — they live on different screens, so the badge is unambiguous in context. Buttons and confirmations must ALWAYS name the object: «Shartnomani bekor qilish», «Limitni bekor qilish». Never ship a bare «Bekor qilish» as a domain action. `zarar` stays the accounting term for *loss* (P&L, NQL, deductibles) and must not be swapped for `da’vo`.
 
+**«Bekor qilish» is RESERVED for domain actions (owner-dictated).** The generic
+modal/form dismiss is **«Yopish»** (`common.cancel`), never «Bekor qilish» — so
+the phrase only ever appears with an object in front of it and can never be
+mistaken for a cancellation or a revocation. Two consequences:
+
+* **Annulment keeps its object-less label** «Annulyatsiya qilish» as shipped.
+  The object rule exists to separate the two *bekor qilish* meanings; annulment
+  is not one of them, so it needs no object to be unambiguous.
+* **Do not borrow the verb for “cannot be undone.”** Irreversibility is
+  **«qaytarilmas»** («Bu amal qaytarilmas»), not «bekor qilib bo‘lmaydi», which
+  would read as the cancellation action.
+
+`src/i18n/uzTerminology.test.ts` enforces all of this: it fails on a bare
+«Bekor qilish» anywhere in the uz locale and names the offending key.
+
 Department role names (uz, confirmed): `admin` — Administrator, `sales` — **Sotuv**, `commercial_underwriter` — **Tijorat anderrayteri**, `credit_underwriter` — **Kredit anderrayteri**, `claims` — **Sug‘urta da’volari**, `information_manager` — **Axborot menejeri**, `client` — **Mijoz**.
 
 ## Infrastructure

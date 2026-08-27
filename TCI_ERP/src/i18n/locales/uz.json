@@ -58,7 +58,7 @@
     "noAccess": "Sizda ushbu bo'limga ruxsat yo'q",
     "save": "Saqlash",
     "saving": "Saqlanmoqda…",
-    "cancel": "Bekor qilish",
+    "cancel": "Yopish",
     "edit": "Tahrirlash",
     "delete": "O'chirish",
     "confirmDelete": "O'chirishni tasdiqlash",
@@ -979,7 +979,7 @@
     },
     "confirm": {
       "declined": "Ariza rad etiladi. Sabab majburiy va mijozga ko‘rinadi.",
-      "withdrawn": "Ariza qaytarib olinadi. Buni bekor qilib bo‘lmaydi."
+      "withdrawn": "Ariza qaytarib olinadi. Bu amal qaytarilmas."
     },
     "guards": {
       "entitiesUnresolved": "Anderrayting boshlanishidan oldin har bir bayer tashkilotga bog‘lanishi kerak.",
