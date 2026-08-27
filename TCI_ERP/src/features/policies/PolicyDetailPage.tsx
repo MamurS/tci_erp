@@ -20,6 +20,7 @@ import {
 } from '../../components/ui'
 import { EM_DASH, formatAmount, formatPercent } from '../../lib/format'
 import { PolicyLimitsSection } from '../limits/PolicyLimitsSection'
+import { usePolicyOriginRequest } from '../requests/api'
 import { useChangePolicyStatus, usePolicy, usePolicyStatusHistory } from './api'
 import {
   allowedTargets,
@@ -86,6 +87,8 @@ export function PolicyDetailPage() {
         }
       />
 
+      <PolicyOrigin policyId={id} />
+
       {isExpiryDue(policy, new Date().toISOString().slice(0, 10)) && (
         <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
           {t('policies.expiryDueHint', { date: policy.expiry_date })}
@@ -102,6 +105,26 @@ export function PolicyDetailPage() {
         <HistoryTimeline policyId={id} />
       </div>
     </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Provenance: a policy issued by tci.bind_insurance_request names its
+// submission, so the agreed terms stay one click away. Silent for a policy
+// captured by hand — there is nothing to point at.
+// ---------------------------------------------------------------------------
+
+function PolicyOrigin({ policyId }: { policyId: string }) {
+  const { t } = useTranslation()
+  const { data: origin } = usePolicyOriginRequest(policyId)
+  if (!origin) return null
+  return (
+    <p className="mb-4 text-[13px] text-slate-500">
+      {t('policies.createdFromRequest')}{' '}
+      <Link to={`/requests/${origin.id}`} className="num text-accent-700 hover:underline">
+        {origin.request_number}
+      </Link>
+    </p>
   )
 }
 

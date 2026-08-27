@@ -586,7 +586,10 @@ begin
       perform tci.open_task(
         'limit_held', 'credit_limit_decision', new.object_id,
         'agenda.tasks.limit_held',
-        jsonb_build_object('comment', new.payload->>'comment'),
+        -- request_id so the Agenda row can deep-link: a decision has no page
+        -- of its own, its limit request does.
+        jsonb_build_object('comment', new.payload->>'comment',
+                           'request_id', v_decision.request_id),
         null, v_decision.decided_by, null, 'high', new.id);
     end if;
 

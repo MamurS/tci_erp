@@ -15,11 +15,13 @@ import {
   useRequestBuyers,
   useRequestCreditCoverage,
 } from './api'
+import { BindPolicyModal } from './BindPolicyModal'
 import { BuyerPackageTable } from './BuyerPackageTable'
 import { EntityResolutionSection } from './EntityResolutionSection'
 import { ProposedTermsSection } from './ProposedTermsSection'
 import { RequestHistoryTimeline } from './RequestHistoryTimeline'
 import { SalesWindowPanel } from './SalesWindowPanel'
+import { bindBlocker, canBindAs } from './bind'
 import {
   creditComplete,
   entitiesResolved,
@@ -40,6 +42,7 @@ export function RequestDetailPage() {
   const advance = useAdvanceInsuranceRequest()
 
   const [pending, setPending] = useState<InsuranceRequestStatus | null>(null)
+  const [binding, setBinding] = useState(false)
   const [comment, setComment] = useState('')
   const [actionError, setActionError] = useState<string | null>(null)
 
@@ -104,6 +107,17 @@ export function RequestDetailPage() {
             <Link to={`/entities/${request.entity_id}`} className="text-accent-700 hover:underline">
               {request.legal_entities?.name ?? EM_DASH}
             </Link>
+            {request.bound_policy_id && (
+              <>
+                {' · '}
+                <Link
+                  to={`/policies/${request.bound_policy_id}`}
+                  className="text-accent-700 hover:underline"
+                >
+                  {t('requests.bind.boundPolicyLink')}
+                </Link>
+              </>
+            )}
             {owner && (
               <>
                 {' · '}
@@ -114,6 +128,9 @@ export function RequestDetailPage() {
         }
         actions={
           <div className="flex flex-wrap items-center gap-2">
+            {canBindAs(roles) && bindBlocker(request) === null && (
+              <Button onClick={() => setBinding(true)}>{t('requests.bind.action')}</Button>
+            )}
             {visibleOffers.map((offer) => (
               <Button
                 key={offer.to}
@@ -177,6 +194,10 @@ export function RequestDetailPage() {
           <RequestHistoryTimeline requestId={request.id} notes={request.notes} />
         </div>
       </div>
+
+      {binding && (
+        <BindPolicyModal request={request} open onClose={() => setBinding(false)} />
+      )}
 
       {pending && (
         <Modal

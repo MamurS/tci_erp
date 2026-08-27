@@ -16,6 +16,7 @@ describe('role → screen map', () => {
   it('matches the documented map per role', () => {
     expect(keys(['credit_underwriter'])).toEqual([
       'dashboard',
+      'agenda',
       'entities',
       'requests',
       'limits',
@@ -24,6 +25,7 @@ describe('role → screen map', () => {
     ])
     expect(keys(['commercial_underwriter'])).toEqual([
       'dashboard',
+      'agenda',
       'entities',
       'requests',
       'limits',
@@ -33,13 +35,14 @@ describe('role → screen map', () => {
     ])
     expect(keys(['sales'])).toEqual([
       'dashboard',
+      'agenda',
       'entities',
       'requests',
       'limits',
       'policies',
     ])
-    expect(keys(['information_manager'])).toEqual(['dashboard', 'entities'])
-    expect(keys(['claims'])).toEqual(['dashboard', 'entities', 'claims'])
+    expect(keys(['information_manager'])).toEqual(['dashboard', 'agenda', 'entities'])
+    expect(keys(['claims'])).toEqual(['dashboard', 'agenda', 'entities', 'claims'])
   })
 
   it('only admin sees the admin section', () => {
@@ -58,12 +61,28 @@ describe('role → screen map', () => {
   it('multi-role users get the union', () => {
     expect(keys(['claims', 'sales'])).toEqual([
       'dashboard',
+      'agenda',
       'entities',
       'requests',
       'limits',
       'policies',
       'claims',
     ])
+  })
+
+  it('the Agenda is staff-only — refresh_agenda refuses a client', () => {
+    expect(keys(['client'])).not.toContain('agenda')
+    expect(canAccessPath(['client'], '/agenda')).toBe(false)
+    for (const role of [
+      'admin',
+      'sales',
+      'commercial_underwriter',
+      'credit_underwriter',
+      'claims',
+      'information_manager',
+    ] as const) {
+      expect(keys([role])).toContain('agenda')
+    }
   })
 
   it('a user with no roles sees nothing', () => {

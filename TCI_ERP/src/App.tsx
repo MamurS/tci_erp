@@ -16,6 +16,7 @@ import { PoliciesPage, PolicyDetailPage, PolicyFormPage } from './features/polic
 import { DeclarationsPage } from './features/declarations'
 import { ClaimsPage } from './features/claims'
 import { AdminPage } from './features/admin'
+import { AgendaPage } from './features/agenda'
 import { ChangePasswordPage } from './features/account'
 
 /** Old /buyers and /policyholders bookmarks land on /entities (query kept). */
@@ -49,6 +50,7 @@ export default function App() {
           <Route element={<RequirePasswordChange />}>
             <Route element={<RoleGuard />}>
               <Route index element={<DashboardPage />} />
+              <Route path="agenda" element={<AgendaPage />} />
               <Route path="entities" element={<EntitiesPage />} />
               <Route path="entities/:id" element={<EntityDetailPage />} />
               <Route path="entities/:id/statements/new" element={<StatementFormPage />} />
