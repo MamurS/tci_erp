@@ -11,10 +11,16 @@ interface AuthContextValue {
   /** All roles held by the user (tci.user_roles has one row per role);
    * empty when not signed in or none assigned yet. */
   roles: UserRole[]
-  /** True while the initial session and roles are being resolved. */
+  /** True while the initial session, roles and profile are being resolved. */
   loading: boolean
+  /** The user still holds the temporary password issued at provisioning
+   * (tci.user_profiles.must_change_password). Gates every route until they
+   * rotate it - see RequirePasswordChange. */
+  mustChangePassword: boolean
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
+  /** Called by the change-password page once the rotation succeeded. */
+  clearPasswordChangeFlag: () => void
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
@@ -30,9 +36,25 @@ async function fetchRoles(userId: string): Promise<UserRole[]> {
     .filter(isUserRole)
 }
 
+/** The rotation flag. A user provisioned before migration 0022 has no row;
+ * absence means "nothing to rotate", never "locked out". */
+async function fetchMustChangePassword(userId: string): Promise<boolean> {
+  const { data, error } = await tci()
+    .from('user_profiles')
+    .select('must_change_password')
+    .eq('user_id', userId)
+    .maybeSingle()
+  if (error) {
+    console.error('Failed to load user profile', error)
+    return false
+  }
+  return (data as { must_change_password?: boolean } | null)?.must_change_password === true
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [roles, setRoles] = useState<UserRole[]>([])
+  const [mustChangePassword, setMustChangePassword] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -49,6 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setSession(newSession)
       if (!newSession) {
         setRoles([])
+        setMustChangePassword(false)
         setLoading(false)
       }
     })
@@ -65,11 +88,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!userId) return
 
     setLoading(true)
-    fetchRoles(userId).then((r) => {
-      if (cancelled) return
-      setRoles(r)
-      setLoading(false)
-    })
+    Promise.all([fetchRoles(userId), fetchMustChangePassword(userId)]).then(
+      ([nextRoles, mustChange]) => {
+        if (cancelled) return
+        setRoles(nextRoles)
+        setMustChangePassword(mustChange)
+        setLoading(false)
+      },
+    )
 
     return () => {
       cancelled = true
@@ -85,9 +111,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await supabase.auth.signOut()
   }, [])
 
+  const clearPasswordChangeFlag = useCallback(() => setMustChangePassword(false), [])
+
   const value = useMemo(
-    () => ({ session, roles, loading, signIn, signOut }),
-    [session, roles, loading, signIn, signOut],
+    () => ({
+      session,
+      roles,
+      loading,
+      mustChangePassword,
+      signIn,
+      signOut,
+      clearPasswordChangeFlag,
+    }),
+    [session, roles, loading, mustChangePassword, signIn, signOut, clearPasswordChangeFlag],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

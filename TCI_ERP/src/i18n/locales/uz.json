@@ -12,7 +12,8 @@
     "declarations": "Deklaratsiyalar",
     "claims": "Sug‘urta da’volari",
     "admin": "Administratsiya",
-    "entities": "Tashkilotlar"
+    "entities": "Tashkilotlar",
+    "requests": "Sug‘urta arizalari"
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -57,7 +58,7 @@
     "noAccess": "Sizda ushbu bo'limga ruxsat yo'q",
     "save": "Saqlash",
     "saving": "Saqlanmoqda…",
-    "cancel": "Bekor qilish",
+    "cancel": "Yopish",
     "edit": "Tahrirlash",
     "delete": "O'chirish",
     "confirmDelete": "O'chirishni tasdiqlash",
@@ -822,6 +823,42 @@
       "C": "C",
       "D": "D",
       "unrated": "reytingsiz"
+    },
+    "fromSubmission": "Sug‘urta arizasi",
+    "stagePair": "kredit {{credit}} → tijorat {{commercial}}",
+    "stages": {
+      "credit": "Kredit bosqichi",
+      "commercial": "Tijorat bosqichi"
+    },
+    "release": {
+      "withClient": "mijozda",
+      "withClientSince": "mijozda {{since}} dan beri",
+      "window": "sotuv oynasi {{until}} gacha",
+      "held": "ushlab turilgan",
+      "heldWith": "ushlab turilgan: {{comment}}",
+      "kinds": {
+        "sales_confirmed": "sotuv tasdiqlagan",
+        "silent_consent": "sukut bilan rozilik",
+        "immediate": "darhol"
+      },
+      "confirmNow": "Hozir tasdiqlash",
+      "holdAndDiscuss": "Ushlab turish va muhokama qilish",
+      "holdComment": "Nimani muhokama qilish kerak",
+      "holdCommentPlaceholder": "Ushlab turish sababi…",
+      "actionFailed": "Amal bajarilmadi"
+    },
+    "commercial": {
+      "title": "Tijorat bosqichi",
+      "scopeHint": "Tijorat anderraytingi faqat summani va to‘lov muddatini o‘zgartira oladi. Reyting, amal qilish muddati va shartlar kredit anderraytingi belgilagan holicha qoladi.",
+      "readOnly": "Limitni faqat tijorat anderraytingi tuzatishi mumkin.",
+      "newAmount": "Tuzatilgan summa",
+      "action": "Tuzatishni yozish",
+      "within": "{{band}} grade bo‘yicha tijorat vakolatingiz doirasida ({{authority}} UZS ekv.)",
+      "exceeds": "{{band}} grade bo‘yicha tijorat vakolatingizdan oshadi ({{authority}} UZS ekv.)",
+      "reductionWarning": "Kamaytirish — favqulodda qaltislik amali: u sotuv oynasini chetlab o‘tib, mijozga darhol yetadi.",
+      "adjusted": "Tuzatish yozildi — sotuv oynasi davom etmoqda.",
+      "adjustedImmediate": "Tuzatish yozildi va darhol mijozga uzatildi (kamaytirish).",
+      "adjustFailed": "Tuzatish rad etildi"
     }
   },
   "entities": {
@@ -854,7 +891,9 @@
       "financials": "Moliya",
       "rating": "Reyting va limit",
       "limits": "Limitlar",
-      "policies": "Polislar va portfel"
+      "policies": "Polislar va portfel",
+      "requests": "Sug‘urta arizalari",
+      "access": "Mijoz kirishi"
     },
     "portfolioLimitsTitle": "Ularning polislari bo‘yicha bayer limitlari",
     "portfolioSummary": "Sug‘urtalanuvchi portfeli:",
@@ -904,6 +943,208 @@
       "amountPositive": "Summa noldan katta bo‘lishi kerak",
       "periodOrder": "«Amal qilish tugashi» boshlanishidan oldin bo‘lmasligi kerak",
       "validFromRequired": "«Amal qilish boshlanishi» ni ko‘rsating"
+    },
+    "usersCount": "Foydalanuvchilar: {{count}}"
+  },
+  "requests": {
+    "subtitle": "Sug‘urta arizalari: so‘rovdan rasmiylashtirilgan polisgacha",
+    "tabs": {
+      "mine": "Mening qoralamalarim",
+      "open": "Ishda",
+      "withClient": "Mijozda",
+      "closed": "Yopilgan"
+    },
+    "statuses": {
+      "draft": "Qoralama",
+      "submitted": "Yuborilgan",
+      "entity_resolution": "Tashkilotlarni aniqlash",
+      "underwriting": "Anderrayting",
+      "commercial_review": "Tijorat ko‘rib chiqishi",
+      "sales_confirmation": "Sotuv tasdiqlashi",
+      "client_review": "Mijozda",
+      "accepted": "Qabul qilingan",
+      "declined": "Rad etilgan",
+      "withdrawn": "Qaytarib olingan",
+      "bound": "Polis rasmiylashtirilgan"
+    },
+    "transitions": {
+      "submitted": "Arizani yuborish",
+      "entity_resolution": "Tashkilotlarni aniqlashga",
+      "underwriting": "Anderraytingga",
+      "commercial_review": "Tijorat ko‘rib chiqishiga",
+      "sales_confirmation": "Tijorat ko‘rib chiqishini yakunlash",
+      "client_review": "Mijozga uzatish",
+      "accepted": "Qabul qilish",
+      "declined": "Rad etish",
+      "withdrawn": "Arizani qaytarib olish",
+      "bound": "Polisni rasmiylashtirish"
+    },
+    "confirm": {
+      "declined": "Ariza rad etiladi. Sabab majburiy va mijozga ko‘rinadi.",
+      "withdrawn": "Ariza qaytarib olinadi. Bu amal qaytarilmas."
+    },
+    "guards": {
+      "entitiesUnresolved": "Anderrayting boshlanishidan oldin har bir bayer tashkilotga bog‘lanishi kerak.",
+      "creditIncomplete": "Tijorat ko‘rib chiqishidan oldin har bir bayer bo‘yicha kredit qarori kerak.",
+      "declineNeedsReason": "Rad etish uchun sabab kerak."
+    },
+    "resolutions": {
+      "pending_entity": "Aniqlanmagan",
+      "ready": "Tayyor",
+      "rating_done": "Reyting berilgan",
+      "limit_done": "Limit belgilangan"
+    },
+    "columns": {
+      "credit": "Kredit qarori",
+      "commercial": "Tijorat tuzatishi",
+      "effective": "Amaldagi limit",
+      "release": "Mijozga ko‘rinadi"
+    },
+    "fields": {
+      "number": "№",
+      "applicant": "Arizachi",
+      "buyersCount": "Bayerlar",
+      "status": "Holat",
+      "waitingOn": "Kutmoqda",
+      "ageDays": "Kun",
+      "requestedAmount": "So‘ralgan",
+      "notes": "Izohlar",
+      "declineReason": "Rad etish sababi",
+      "role": "Rol"
+    },
+    "terms": {
+      "product_structure": "Mahsulot tuzilmasi",
+      "currency_code": "Valyuta",
+      "insured_percentage": "Sug‘urta qoplamasi foizi",
+      "premium_rate_pct": "Mukofot stavkasi, %",
+      "minimum_premium": "Minimal mukofot",
+      "max_liability_amount": "Maksimal javobgarlik",
+      "max_liability_premium_multiple": "Maksimal javobgarlik, × mukofot",
+      "discretionary_limit": "Diskretsion limit",
+      "nql_amount": "Qoplanmaydigan zarar (NQL)",
+      "deductible_each_loss": "Har bir zarar bo‘yicha franshiza",
+      "aggregate_first_loss": "Jami birinchi zarar",
+      "waiting_period_days": "Kutish davri",
+      "max_extension_period_days": "Maksimal uzaytirish davri",
+      "max_payment_terms_days": "Maksimal to‘lov muddati",
+      "declaration_frequency": "Deklaratsiya davriyligi",
+      "estimated_annual_turnover": "Taxminiy yillik aylanma"
+    },
+    "actions": {
+      "create": "Yangi ariza",
+      "createDraft": "Qoralama yaratish",
+      "resolve": "Bog‘lash",
+      "createCompany": "Yangi tashkilot"
+    },
+    "searchPlaceholder": "Ariza № yoki arizachi…",
+    "queueEmpty": "Bu yerda arizalar yo‘q",
+    "queueEmptyHint": "«Yangi ariza» tugmasi bilan yarating",
+    "notFound": "Ariza topilmadi",
+    "backToQueue": "Arizalar ro‘yxatiga",
+    "waitingOn": "kutmoqda: {{role}}",
+    "entityResolution": "Tashkilotlarni aniqlash",
+    "entityResolutionHint": "Bu bayerlar nomi bilan kiritilgan. Har birini reyestrdagi tashkilotga bog‘lang yoki yangisini yarating — barcha bayerlar aniqlanmaguncha anderrayting boshlanmaydi.",
+    "unnamedBuyer": "Nomsiz bayer",
+    "resolveFailed": "Bayerni bog‘lab bo‘lmadi",
+    "buyerPackage": "Bayerlar to‘plami",
+    "addBuyer": "Bayer qo‘shish",
+    "noBuyersYet": "To‘plamda hali bayerlar yo‘q",
+    "noBuyersHint": "Arizada kamida bitta bayer bo‘lishi kerak",
+    "buyerByName": "Nomi bo‘yicha (reyestrda yo‘q)",
+    "buyerNamePlaceholder": "Bayer nomi…",
+    "packageHint": "Amaldagi limit — agar tijorat tuzatishi bo‘lsa o‘sha, aks holda kredit qarori.",
+    "proposedTerms": "Taklif etilayotgan shartlar",
+    "termsReadOnly": "Bu shartlarni faqat tijorat anderraytingi tahrirlashi mumkin.",
+    "history": "Tarix",
+    "noHistory": "Hali o‘tishlar yo‘q",
+    "fromStatus": "«{{status}}» dan",
+    "salesPanel": "Sotuv oynasi",
+    "salesPanelHint": "Mijoz darhol ko‘rishi uchun qarorni tasdiqlang yoki sukut bilan rozilik hisobini to‘xtatish uchun ushlab turing. Sotuv shartlarni hech qachon o‘zgartira olmaydi.",
+    "windowHours": "{{hours}} soat",
+    "noDecisionsYet": "Hozircha mijozga uzatiladigan qaror yo‘q",
+    "allReleased": "Barcha qarorlar mijozda",
+    "noneForEntity": "Bu tashkilot bo‘yicha arizalar yo‘q",
+    "noneForEntityHint": "Na arizachi, na birovning to‘plamidagi bayer sifatida",
+    "roleApplicant": "Arizachi",
+    "roleBuyer": "Bayer",
+    "createFailed": "Arizani yaratib bo‘lmadi",
+    "transitionFailed": "O‘tish rad etildi"
+  },
+  "account": {
+    "changePassword": "Parolni o‘zgartirish",
+    "subtitle": "Hisobingiz uchun yangi parol tanlang",
+    "forcedSubtitle": "Davom etish uchun o‘z parolingizni belgilang",
+    "forcedNotice": "Siz vaqtinchalik parol bilan kirdingiz. Davom etish uchun o‘z parolingizni belgilang — shungacha qolgan bo‘limlar ochilmaydi.",
+    "newPassword": "Yangi parol",
+    "confirmPassword": "Yangi parolni takrorlang",
+    "savePassword": "Parolni saqlash",
+    "strength": "Ishonchliligi",
+    "strengths": {
+      "weak": "zaif",
+      "fair": "o‘rtacha",
+      "strong": "ishonchli"
+    },
+    "rules": {
+      "length": "kamida {{count}} ta belgi",
+      "letter": "harf mavjud",
+      "digit": "raqam mavjud",
+      "notEmail": "e-mail bilan bir xil emas",
+      "match": "ikkala maydon mos keladi"
+    }
+  },
+  "provisioning": {
+    "createUser": "Foydalanuvchi yaratish",
+    "inviteClient": "Foydalanuvchini taklif qilish",
+    "create": "Yaratish",
+    "userCreated": "Foydalanuvchi yaratildi",
+    "credentials": "Yangi foydalanuvchi uchun kirish ma’lumotlari",
+    "shownOnce": "Bu ma’lumotlarni foydalanuvchiga yetkazing; parol boshqa ko‘rsatilmaydi.",
+    "copy": "Nusxalash",
+    "copied": "Nusxalandi",
+    "copyFailed": "Nusxalab bo‘lmadi — parolni qo‘lda belgilang",
+    "done": "Tayyor",
+    "resetPassword": "Parolni tiklash",
+    "disable": "O‘chirib qo‘yish",
+    "enable": "Yoqish",
+    "disabled": "O‘chirilgan",
+    "active": "Faol",
+    "awaitingPasswordChange": "Vaqtinchalik parol",
+    "neverSignedIn": "hech qachon kirmagan",
+    "clientAccess": "Mijoz kirishi",
+    "clientAccessHint": "Ushbu tashkilotning portal foydalanuvchilari. Ular faqat o‘z polislari, limit so‘rovlari va deklaratsiyalarini ko‘radi.",
+    "noClientUsers": "Portal foydalanuvchilari hali yo‘q",
+    "noClientUsersHint": "Tashkilotga portalga kirish ochish uchun foydalanuvchini taklif qiling",
+    "clientOnlyHint": "Ushbu tashkilot uchun mijoz (portal) foydalanuvchisi yaratiladi.",
+    "noEmailHint": "Xat yuborilmaydi: vaqtinchalik parol yaratilgandan so‘ng ekranda ko‘rinadi.",
+    "fields": {
+      "email": "E-mail",
+      "fullName": "F.I.Sh.",
+      "roles": "Rollar",
+      "company": "Tashkilot",
+      "tempPassword": "Vaqtinchalik parol",
+      "state": "Holati"
+    },
+    "serviceUnavailable": "Foydalanuvchilarni tayyorlash xizmati mavjud emas",
+    "serviceUnavailableHint": "Hozircha u faqat lokal ishlaydi. Foydalanuvchi yaratish yoki parolni tiklash uchun uni ishga tushiring (services/analytics); qolgan bo‘limlar odatdagidek ishlaydi.",
+    "errors": {
+      "unavailable": "Foydalanuvchilarni tayyorlash xizmati mavjud emas.",
+      "clientOnly": "Sotuv va tijorat anderraytingi faqat mijoz foydalanuvchilarini yarata oladi.",
+      "forbidden": "Foydalanuvchi yaratishga ruxsatingiz yo‘q.",
+      "adminOnly": "Buni faqat administrator qila oladi.",
+      "notYourClient": "Bu foydalanuvchi siz boshqaradigan tashkilotlarning mijozi emas.",
+      "entityRequired": "Mijoz foydalanuvchisi tegishli bo‘lgan tashkilotni tanlang.",
+      "entityNotAllowed": "Tashkilotga faqat mijoz foydalanuvchisi bog‘lanadi.",
+      "unknownRole": "Noma’lum rol.",
+      "noRoles": "Kamida bitta rol tanlang.",
+      "duplicateEmail": "Bunday e-mail bilan foydalanuvchi allaqachon mavjud.",
+      "authCreateFailed": "Foydalanuvchini yaratib bo‘lmadi.",
+      "provisioningFailed": "Foydalanuvchi yaratildi, lekin rollarni saqlab bo‘lmadi; u o‘chirildi. Qayta urinib ko‘ring.",
+      "resetFailed": "Parolni tiklab bo‘lmadi.",
+      "stateChangeFailed": "Hisob holatini o‘zgartirib bo‘lmadi.",
+      "selfDisable": "O‘z hisobingizni o‘chirib qo‘ya olmaysiz.",
+      "invalidInput": "Kiritilgan ma’lumotlarni tekshiring.",
+      "noSession": "Sessiya tugadi — qaytadan kiring.",
+      "unknown": "Nimadir noto‘g‘ri ketdi. Qayta urinib ko‘ring."
     }
   }
 }

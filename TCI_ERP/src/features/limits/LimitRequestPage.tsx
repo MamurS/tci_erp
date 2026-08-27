@@ -33,11 +33,14 @@ import {
   useLatestRatesFor,
   useLimitRequest,
   useMyAuthorityUzs,
+  useSalesWindowHours,
   useStartLimitReview,
   useSubmitLimitRequest,
   useWithdrawLimitRequest,
 } from './api'
 import { preflight } from './authority'
+import { CommercialStageSection } from './CommercialStageSection'
+import { ReleaseBadge } from './ReleaseBadge'
 import {
   canDecideAs,
   canStartReview,
@@ -113,6 +116,17 @@ export function LimitRequestPage() {
             <Link to={`/policies/${request.policy_id}`} className="text-accent-700 hover:underline">
               {request.policies?.policy_number ?? EM_DASH}
             </Link>
+            {request.insurance_request_id && (
+              <>
+                {' / '}
+                <Link
+                  to={`/requests/${request.insurance_request_id}`}
+                  className="text-accent-700 hover:underline"
+                >
+                  {t('limits.fromSubmission')}
+                </Link>
+              </>
+            )}
           </span>
         }
         actions={
@@ -158,6 +172,9 @@ export function LimitRequestPage() {
             </Card>
           )}
           {showDecisionForm && <DecisionForm request={request} />}
+          {/* Stage 2: commercial adjustment + the release state of the
+              effective decision. Renders itself away when there is none. */}
+          <CommercialStageSection request={request} />
         </div>
         <BuyerSnapshot request={request} locale={locale} />
       </div>
@@ -284,6 +301,8 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
 
   const latest = assessments.data?.[0] ?? null
   const current = effective.data?.[0] ?? null
+  const { data: windowHours } = useSalesWindowHours()
+  const nowIso = new Date().toISOString()
 
   return (
     <Card className="flex flex-col gap-4 p-5">
@@ -332,6 +351,21 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
                 ? t('limits.validUntil', { date: current.valid_until })
                 : t('limits.untilReview')}
             </span>
+          </p>
+          {current.commercially_adjusted && (
+            <p className="num mt-1 text-xs text-slate-500">
+              {t('limits.stagePair', {
+                credit: formatAmount(Number(current.credit_amount), locale),
+                commercial: formatAmount(Number(current.approved_amount), locale),
+              })}
+            </p>
+          )}
+          <p className="mt-1.5">
+            <ReleaseBadge
+              facts={current}
+              salesWindowHours={windowHours ?? 24}
+              nowIso={nowIso}
+            />
           </p>
           <p className="mt-1 text-xs text-warn-500">{t('limits.willSupersede')}</p>
         </div>

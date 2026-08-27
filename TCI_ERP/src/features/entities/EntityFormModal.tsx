@@ -25,9 +25,22 @@ interface EntityFormModalProps {
   open: boolean
   onClose: () => void
   initial?: LegalEntity | null
+  /** Pre-fills the name of a NEW company (e.g. the proposed name of an
+   * unresolved submission buyer). Ignored when editing. */
+  initialName?: string
+  /** When given, a newly created company is handed back instead of being
+   * navigated to - the caller stays where it is (submission buyer
+   * resolution). Without it the form keeps its registry behaviour. */
+  onCreated?: (entity: LegalEntity) => void
 }
 
-export function EntityFormModal({ open, onClose, initial }: EntityFormModalProps) {
+export function EntityFormModal({
+  open,
+  onClose,
+  initial,
+  initialName,
+  onCreated,
+}: EntityFormModalProps) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const navigate = useNavigate()
@@ -53,7 +66,7 @@ export function EntityFormModal({ open, onClose, initial }: EntityFormModalProps
 
   useEffect(() => {
     if (open) {
-      setName(initial?.name ?? '')
+      setName(initial?.name ?? initialName ?? '')
       setLegalForm(initial?.legal_form ?? '')
       setCountryCode(initial?.country_code ?? 'UZ')
       setIndustryId(initial?.industry_id ?? '')
@@ -67,7 +80,7 @@ export function EntityFormModal({ open, onClose, initial }: EntityFormModalProps
       setNotes(initial?.notes ?? '')
       setError(null)
     }
-  }, [open, initial])
+  }, [open, initial, initialName])
 
   // Dedup-on-entry (both checks exclude the entity being edited).
   const regMatch = useRegNumberMatch(countryCode, registrationNumber, initial?.id)
@@ -100,7 +113,8 @@ export function EntityFormModal({ open, onClose, initial }: EntityFormModalProps
         await updateEntity.mutateAsync(input)
       } else {
         const created = await createEntity.mutateAsync(input)
-        void navigate(`/entities/${created.id}`)
+        if (onCreated) onCreated(created)
+        else void navigate(`/entities/${created.id}`)
       }
       onClose()
     } catch {

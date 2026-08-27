@@ -1,7 +1,9 @@
 /** Owner-dictated Uzbek insurance terminology (CLAUDE.md glossary).
  * These strings are contractual: they were dictated by the owner and must
  * not drift. The cancel/revoke homonymy is INTENTIONAL — the short status
- * label is shared, but every button and confirmation names its object. */
+ * label is shared, but every button and confirmation names its object.
+ * «Bekor qilish» is RESERVED for domain actions: the generic modal dismiss
+ * is «Yopish», so the phrase never appears without an object. */
 
 import { describe, expect, it } from 'vitest'
 
@@ -49,6 +51,50 @@ describe('uz: cancel / annul / revoke / withdraw families', () => {
       expect(label.toLowerCase()).not.toBe('bekor qilish')
       expect(label).toMatch(/^\S+ni\s/)
     }
+  })
+
+  it('annulment keeps its object-less action label as shipped', () => {
+    // Deliberate: «Annulyatsiya qilish» is unambiguous on its own - the
+    // object rule exists to separate the two «bekor qilish» meanings, and
+    // annulment is not one of them.
+    expect(uz.policies.transitions.annulled).toBe('Annulyatsiya qilish')
+  })
+})
+
+describe('uz: «Bekor qilish» is reserved for domain actions', () => {
+  it('the generic modal dismiss is «Yopish», not «Bekor qilish»', () => {
+    expect(uz.common.cancel).toBe('Yopish')
+    expect(uz.common.cancel.toLowerCase()).not.toContain('bekor')
+  })
+
+  it('no uz string says a bare «bekor qilish» with nothing to cancel', () => {
+    const bare: string[] = []
+    const walk = (node: unknown, path: string) => {
+      if (typeof node === 'string') {
+        // A domain action names its object; a status is the -gan participle.
+        // Anything else that reaches for the verb is the collision we banned.
+        if (/\bbekor qilish\b/i.test(node) && !/\S+ni\s+bekor qilish/i.test(node)) {
+          bare.push(`${path}: ${node}`)
+        }
+        return
+      }
+      if (node && typeof node === 'object') {
+        for (const [key, value] of Object.entries(node)) {
+          walk(value, path ? `${path}.${key}` : key)
+        }
+      }
+    }
+    walk(uz, '')
+    expect(bare).toEqual([])
+  })
+
+  it('the domain verb is not borrowed for the "cannot be undone" idiom', () => {
+    // «qaytarilmas» is this codebase's word for irreversible; «bekor qilib
+    // bo‘lmaydi» would read as the cancellation/revocation action.
+    expect(uz.requests.confirm.withdrawn).toContain('qaytarilmas')
+    expect(uz.policies.transitionConfirm.cancelled).toContain('qaytarilmas')
+    const flat = JSON.stringify(uz).toLowerCase()
+    expect(flat).not.toContain('bekor qilib bo')
   })
 })
 

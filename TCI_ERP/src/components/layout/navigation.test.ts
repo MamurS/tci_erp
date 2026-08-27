@@ -17,6 +17,7 @@ describe('role → screen map', () => {
     expect(keys(['credit_underwriter'])).toEqual([
       'dashboard',
       'entities',
+      'requests',
       'limits',
       'declarations',
       'claims',
@@ -24,12 +25,19 @@ describe('role → screen map', () => {
     expect(keys(['commercial_underwriter'])).toEqual([
       'dashboard',
       'entities',
+      'requests',
       'limits',
       'policies',
       'declarations',
       'claims',
     ])
-    expect(keys(['sales'])).toEqual(['dashboard', 'entities', 'limits', 'policies'])
+    expect(keys(['sales'])).toEqual([
+      'dashboard',
+      'entities',
+      'requests',
+      'limits',
+      'policies',
+    ])
     expect(keys(['information_manager'])).toEqual(['dashboard', 'entities'])
     expect(keys(['claims'])).toEqual(['dashboard', 'entities', 'claims'])
   })
@@ -51,6 +59,7 @@ describe('role → screen map', () => {
     expect(keys(['claims', 'sales'])).toEqual([
       'dashboard',
       'entities',
+      'requests',
       'limits',
       'policies',
       'claims',
@@ -67,6 +76,7 @@ describe('route guard', () => {
     expect(matchNavItem('/entities/abc-123')?.key).toBe('entities')
     expect(matchNavItem('/entities/abc/statements/new')?.key).toBe('entities')
     expect(matchNavItem('/limits/req-1')?.key).toBe('limits')
+    expect(matchNavItem('/requests/ir-1')?.key).toBe('requests')
     expect(matchNavItem('/policies/new')?.key).toBe('policies')
     expect(matchNavItem('/')?.key).toBe('dashboard')
   })
@@ -75,6 +85,9 @@ describe('route guard', () => {
     expect(canAccessPath(['claims'], '/claims')).toBe(true)
     expect(canAccessPath(['claims'], '/limits')).toBe(false)
     expect(canAccessPath(['claims'], '/limits/req-1')).toBe(false)
+    expect(canAccessPath(['claims'], '/requests')).toBe(false)
+    expect(canAccessPath(['sales'], '/requests/ir-1')).toBe(true)
+    expect(canAccessPath(['information_manager'], '/requests')).toBe(false)
     expect(canAccessPath(['information_manager'], '/entities/abc')).toBe(true)
     expect(canAccessPath(['information_manager'], '/policies')).toBe(false)
     expect(canAccessPath(['sales'], '/admin')).toBe(false)

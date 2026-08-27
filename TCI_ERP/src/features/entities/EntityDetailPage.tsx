@@ -18,11 +18,23 @@ import { RoleBadges } from './EntitiesPage'
 import { FinancialsTab } from './financials/FinancialsTab'
 import { OverviewTab } from './overview/OverviewTab'
 import { PoliciesTab } from './PoliciesTab'
+import { EntityRequestsSection } from '../requests'
+import { useRequestsForEntity } from '../requests/api'
+import { EntityClientAccessSection } from '../admin'
+import { useAuth } from '../../auth/AuthContext'
+import { hasRole } from '../../lib/roles'
 import { RatingTab } from './rating/RatingTab'
 import { formatAmount } from '../../lib/format'
 import { gradeTone } from '../../lib/grade'
 
-type TabKey = 'overview' | 'financials' | 'rating' | 'limits' | 'policies'
+type TabKey =
+  | 'overview'
+  | 'financials'
+  | 'rating'
+  | 'limits'
+  | 'policies'
+  | 'requests'
+  | 'access'
 
 export function EntityDetailPage() {
   const { t } = useTranslation()
@@ -32,7 +44,16 @@ export function EntityDetailPage() {
   const { data: entity, isLoading } = useEntity(id)
   const rolesMap = useEntityRoles()
   const roles = rolesMap.data?.get(id)
+  const { roles: callerRoles } = useAuth()
+  const { data: submissions } = useRequestsForEntity(id)
   const [editOpen, setEditOpen] = useState(false)
+
+  // Client access is offered where sales actually work, but only once the
+  // company is someone we would give a portal login to: a policyholder, or
+  // an applicant with a submission in flight.
+  const mayProvision = hasRole(callerRoles, 'admin', 'sales', 'commercial_underwriter')
+  const hasOwnSubmission = (submissions ?? []).some((row) => row.asApplicant)
+  const showClientAccess = mayProvision && (roles?.is_policyholder === true || hasOwnSubmission)
 
   const availableTabs: TabKey[] = [
     'overview',
@@ -40,6 +61,10 @@ export function EntityDetailPage() {
     'rating',
     ...(roles?.is_buyer ? (['limits'] as const) : []),
     ...(roles?.is_policyholder ? (['policies'] as const) : []),
+    // Submissions are relevant to every company: as applicant or as a
+    // buyer inside someone else's package.
+    'requests',
+    ...(showClientAccess ? (['access'] as const) : []),
   ]
 
   const requested = searchParams.get('tab') as TabKey | null
@@ -106,6 +131,8 @@ export function EntityDetailPage() {
         {activeTab === 'rating' && <RatingTab entityId={id} />}
         {activeTab === 'limits' && <BuyerLimitsTab entityId={id} />}
         {activeTab === 'policies' && <PoliciesTab entityId={id} />}
+        {activeTab === 'requests' && <EntityRequestsSection entityId={id} />}
+        {activeTab === 'access' && <EntityClientAccessSection entityId={id} />}
       </div>
 
       <EntityFormModal open={editOpen} onClose={() => setEditOpen(false)} initial={entity} />

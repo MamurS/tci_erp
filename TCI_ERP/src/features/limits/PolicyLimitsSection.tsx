@@ -9,8 +9,9 @@ import { Badge, Button, EmptyState, Table } from '../../components/ui'
 import { EM_DASH, formatAmount } from '../../lib/format'
 import { useEntities } from '../entities/api'
 import type { PolicyWithRefs } from '../policies/types'
-import { useEffectiveLimits, useLimitRequests } from './api'
+import { useEffectiveLimits, useLimitRequests, useSalesWindowHours } from './api'
 import { isOpen, outcomeTone, statusTone } from './machine'
+import { ReleaseBadge } from './ReleaseBadge'
 import { RequestLimitModal } from './RequestLimitModal'
 
 export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
@@ -21,7 +22,9 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
   const { data: effective } = useEffectiveLimits({ policyId: policy.id })
   const { data: allRequests } = useLimitRequests()
   const { data: buyers } = useEntities()
+  const { data: windowHours } = useSalesWindowHours()
   const [modalOpen, setModalOpen] = useState(false)
+  const nowIso = new Date().toISOString()
 
   const buyerName = useMemo(() => {
     const map = new Map((buyers ?? []).map((b) => [b.id, b.name]))
@@ -65,6 +68,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
               <th>{t('limits.fields.outcome')}</th>
               <th>{t('limits.fields.validUntil')}</th>
               <th>{t('limits.fields.conditions')}</th>
+              <th>{t('requests.columns.release')}</th>
               <th>{t('limits.fields.decidedBy')}</th>
             </tr>
           </thead>
@@ -102,6 +106,16 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                       </span>{' '}
                       {limit.currency_code}
                     </span>
+                    {/* Stage pairing: what credit decided vs what commercial
+                        made of it (migration 0020 keeps both rows). */}
+                    {limit.commercially_adjusted && (
+                      <span className="num block text-xs text-slate-400">
+                        {t('limits.stagePair', {
+                          credit: formatAmount(Number(limit.credit_amount), locale),
+                          commercial: formatAmount(Number(limit.approved_amount), locale),
+                        })}
+                      </span>
+                    )}
                   </td>
                   <td>
                     <Badge tone={outcomeTone(limit.outcome)}>
@@ -122,6 +136,13 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                     ) : (
                       <span className="text-slate-300">{EM_DASH}</span>
                     )}
+                  </td>
+                  <td>
+                    <ReleaseBadge
+                      facts={limit}
+                      salesWindowHours={windowHours ?? 24}
+                      nowIso={nowIso}
+                    />
                   </td>
                   <td className="text-slate-500">{limit.decided_at.slice(0, 10)}</td>
                 </tr>
@@ -147,6 +168,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                   <Badge tone={statusTone(r.status)}>{t(`limits.statuses.${r.status}`)}</Badge>
                 </td>
                 <td className="text-slate-400">{EM_DASH}</td>
+                <td className="text-slate-300">{EM_DASH}</td>
                 <td className="text-slate-300">{EM_DASH}</td>
                 <td className="text-slate-300">{EM_DASH}</td>
               </tr>
