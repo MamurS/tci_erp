@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { ProtectedRoute } from './auth/ProtectedRoute'
+import { RequirePasswordChange } from './auth/RequirePasswordChange'
 import { RoleGuard } from './auth/RoleGuard'
 import { AppShell } from './components/layout/AppShell'
 import { LoginPage } from './pages/LoginPage'
@@ -15,6 +16,7 @@ import { PoliciesPage, PolicyDetailPage, PolicyFormPage } from './features/polic
 import { DeclarationsPage } from './features/declarations'
 import { ClaimsPage } from './features/claims'
 import { AdminPage } from './features/admin'
+import { ChangePasswordPage } from './features/account'
 
 /** Old /buyers and /policyholders bookmarks land on /entities (query kept). */
 function LegacyRedirect() {
@@ -31,6 +33,10 @@ export default function App() {
         <Route path="entities/:id/report" element={<ReportPage />} />
         <Route path="buyers/:id/report" element={<LegacyRedirect />} />
         <Route element={<AppShell />}>
+          {/* Above the password gate: this is the one place a user holding
+              a temporary password is allowed to be. */}
+          <Route path="change-password" element={<ChangePasswordPage />} />
+
           {/* Unguarded: legacy redirects and the access notice itself */}
           <Route path="no-access" element={<NoAccessPage />} />
           <Route path="buyers" element={<LegacyRedirect />} />
@@ -38,27 +44,30 @@ export default function App() {
           <Route path="policyholders" element={<LegacyRedirect />} />
           <Route path="policyholders/*" element={<LegacyRedirect />} />
 
-          {/* Every real section is gated by the role map (navigation.ts) */}
-          <Route element={<RoleGuard />}>
-            <Route index element={<DashboardPage />} />
-            <Route path="entities" element={<EntitiesPage />} />
-            <Route path="entities/:id" element={<EntityDetailPage />} />
-            <Route path="entities/:id/statements/new" element={<StatementFormPage />} />
-            <Route
-              path="entities/:id/statements/:statementId/edit"
-              element={<StatementFormPage />}
-            />
-            <Route path="requests" element={<RequestsPage />} />
-            <Route path="requests/:id" element={<RequestDetailPage />} />
-            <Route path="limits" element={<LimitsPage />} />
-            <Route path="limits/:id" element={<LimitRequestPage />} />
-            <Route path="policies" element={<PoliciesPage />} />
-            <Route path="policies/new" element={<PolicyFormPage />} />
-            <Route path="policies/:id" element={<PolicyDetailPage />} />
-            <Route path="policies/:id/edit" element={<PolicyFormPage />} />
-            <Route path="declarations" element={<DeclarationsPage />} />
-            <Route path="claims" element={<ClaimsPage />} />
-            <Route path="admin" element={<AdminPage />} />
+          {/* Everything below is unreachable until a temporary password
+              has been rotated, then gated by the role map (navigation.ts) */}
+          <Route element={<RequirePasswordChange />}>
+            <Route element={<RoleGuard />}>
+              <Route index element={<DashboardPage />} />
+              <Route path="entities" element={<EntitiesPage />} />
+              <Route path="entities/:id" element={<EntityDetailPage />} />
+              <Route path="entities/:id/statements/new" element={<StatementFormPage />} />
+              <Route
+                path="entities/:id/statements/:statementId/edit"
+                element={<StatementFormPage />}
+              />
+              <Route path="requests" element={<RequestsPage />} />
+              <Route path="requests/:id" element={<RequestDetailPage />} />
+              <Route path="limits" element={<LimitsPage />} />
+              <Route path="limits/:id" element={<LimitRequestPage />} />
+              <Route path="policies" element={<PoliciesPage />} />
+              <Route path="policies/new" element={<PolicyFormPage />} />
+              <Route path="policies/:id" element={<PolicyDetailPage />} />
+              <Route path="policies/:id/edit" element={<PolicyFormPage />} />
+              <Route path="declarations" element={<DeclarationsPage />} />
+              <Route path="claims" element={<ClaimsPage />} />
+              <Route path="admin" element={<AdminPage />} />
+            </Route>
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

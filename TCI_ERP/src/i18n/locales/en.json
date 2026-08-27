@@ -892,7 +892,8 @@
       "rating": "Rating & Limit",
       "limits": "Limits",
       "policies": "Policies & portfolio",
-      "requests": "Submissions"
+      "requests": "Submissions",
+      "access": "Client access"
     },
     "portfolioLimitsTitle": "Buyer limits under their policies",
     "portfolioSummary": "Policyholder portfolio:",
@@ -942,7 +943,8 @@
       "amountPositive": "Amount must be greater than zero",
       "periodOrder": "“Valid to” must not precede “valid from”",
       "validFromRequired": "“Valid from” is required"
-    }
+    },
+    "usersCount": "{{count}} users"
   },
   "requests": {
     "subtitle": "Insurance submissions: from request to bound policy",
@@ -1067,5 +1069,82 @@
     "roleBuyer": "Buyer",
     "createFailed": "The submission could not be created",
     "transitionFailed": "The transition was refused"
+  },
+  "account": {
+    "changePassword": "Change password",
+    "subtitle": "Choose a new password for your account",
+    "forcedSubtitle": "Set your own password before continuing",
+    "forcedNotice": "You are signed in with a temporary password. Choose your own password to continue — the rest of the application is unavailable until you do.",
+    "newPassword": "New password",
+    "confirmPassword": "Repeat the new password",
+    "savePassword": "Save password",
+    "strength": "Strength",
+    "strengths": {
+      "weak": "weak",
+      "fair": "fair",
+      "strong": "strong"
+    },
+    "rules": {
+      "length": "at least {{count}} characters",
+      "letter": "contains a letter",
+      "digit": "contains a digit",
+      "notEmail": "is not your email address",
+      "match": "both entries match"
+    }
+  },
+  "provisioning": {
+    "createUser": "Create user",
+    "inviteClient": "Invite user",
+    "create": "Create",
+    "userCreated": "User created",
+    "credentials": "Credentials for the new user",
+    "shownOnce": "Pass these on to the user — the password is shown once and cannot be recovered.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyFailed": "Could not copy — select the password manually",
+    "done": "Done",
+    "resetPassword": "Reset password",
+    "disable": "Disable",
+    "enable": "Enable",
+    "disabled": "Disabled",
+    "active": "Active",
+    "awaitingPasswordChange": "Temporary password",
+    "neverSignedIn": "never signed in",
+    "clientAccess": "Client access",
+    "clientAccessHint": "Portal users of this company. They see only their own policies, limit requests and declarations.",
+    "noClientUsers": "No portal users yet",
+    "noClientUsersHint": "Invite one to give this company access to the portal",
+    "clientOnlyHint": "This creates a client (portal) user for this company.",
+    "noEmailHint": "No email is sent: the temporary password appears on screen after creation.",
+    "fields": {
+      "email": "Email",
+      "fullName": "Full name",
+      "roles": "Roles",
+      "company": "Company",
+      "tempPassword": "Temporary password",
+      "state": "State"
+    },
+    "serviceUnavailable": "The user provisioning service is unavailable",
+    "serviceUnavailableHint": "It runs locally for now. Start it (services/analytics) to create users or reset passwords; everything else in the application works as usual.",
+    "errors": {
+      "unavailable": "The user provisioning service is unavailable.",
+      "clientOnly": "Sales and commercial underwriting may only create client users.",
+      "forbidden": "You are not allowed to create users.",
+      "adminOnly": "Only an administrator can do this.",
+      "notYourClient": "This user is not a client of any company you manage.",
+      "entityRequired": "Choose the company this client user belongs to.",
+      "entityNotAllowed": "Only a client user belongs to a company.",
+      "unknownRole": "Unknown role.",
+      "noRoles": "Choose at least one role.",
+      "duplicateEmail": "A user with this email address already exists.",
+      "authCreateFailed": "The user could not be created.",
+      "provisioningFailed": "The user was created but its roles could not be saved; it has been removed. Try again.",
+      "resetFailed": "The password could not be reset.",
+      "stateChangeFailed": "The account state could not be changed.",
+      "selfDisable": "You cannot disable your own account.",
+      "invalidInput": "Check the values entered.",
+      "noSession": "Your session has expired — sign in again.",
+      "unknown": "Something went wrong. Try again."
+    }
   }
 }

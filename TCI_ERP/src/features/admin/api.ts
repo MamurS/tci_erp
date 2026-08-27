@@ -19,6 +19,10 @@ export interface AdminUser {
   last_sign_in_at: string | null
   created_at: string
   roles: UserRole[]
+  // Provisioning state (migration 0022)
+  full_name: string | null
+  must_change_password: boolean
+  disabled: boolean
 }
 
 /** Users with their roles. auth.users is not exposed through PostgREST, so
@@ -39,6 +43,9 @@ export function useAdminUsers() {
         last_sign_in_at: (row.last_sign_in_at as string | null) ?? null,
         created_at: String(row.created_at ?? ''),
         roles: ((row.roles as unknown[]) ?? []).filter(isUserRole),
+        full_name: (row.full_name as string | null) ?? null,
+        must_change_password: row.must_change_password === true,
+        disabled: row.disabled === true,
       }))
     },
   })

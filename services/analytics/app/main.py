@@ -1,10 +1,16 @@
-"""TCI ERP analytics service: credit rating and credit limit endpoints.
+"""TCI ERP analytics service: credit rating, credit limit, user provisioning.
 
-Localhost-only for now (see repo README); no database access - the frontend
-supplies statement data in the request and persists results to Supabase.
+Localhost-only for now (see repo README). The rating and limit endpoints
+have no database access - the frontend supplies statement data in the
+request and persists results to Supabase. The /users endpoints DO reach
+Supabase, with the service_role key, because creating auth users cannot be
+done from the browser; that key never leaves this process.
 """
 
 from __future__ import annotations
+
+import logging
+import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,6 +24,7 @@ from credit_engine.scoring.tables import GRADE_BANDS
 
 from app.adapter import build_company
 from app.fx import router as fx_router
+from app.users import router as users_router
 from app.schemas import (
     GradeBandOut,
     CreditLimitRequest,
@@ -28,6 +35,15 @@ from app.schemas import (
     RatingComponent,
     RatingResponse,
     StatementPayload,
+)
+
+# Provisioning writes an audit line per action (who created or reset whom).
+# uvicorn does not configure application loggers, so without this the calls
+# would be silent. Never add the temporary password or the service key to a
+# log record - see app/users.py.
+logging.basicConfig(
+    level=os.environ.get("LOG_LEVEL", "INFO"),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 
 app = FastAPI(
@@ -48,6 +64,8 @@ app.add_middleware(
 )
 
 app.include_router(fx_router)
+# User provisioning. Holds the service_role key - see app/users.py.
+app.include_router(users_router)
 
 
 def _factor_inputs(

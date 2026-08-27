@@ -120,6 +120,28 @@ Department role names (uz, confirmed): `admin` — Administrator, `sales` — **
   regardless of what MCP lists. The company ERP project `mosaic-erp-production`
   (org Mosaic APP) is out of bounds for TCI.
 
+### The service-role key (user provisioning)
+
+Creating auth users needs `SUPABASE_SERVICE_ROLE_KEY`, which **bypasses RLS
+entirely**. It lives ONLY in `services/analytics`'s environment:
+
+- never a `VITE_` variable, never in `TCI_ERP/.env.local` — anything Vite can
+  see ships to the browser;
+- never committed (`.env` is git-ignored; `.env.example` carries names only);
+- never logged, returned, or echoed in an error (the wrapper truncates
+  upstream error bodies);
+- if exposed, rotate it in the dashboard — rotation is the only remedy.
+
+The endpoints authenticate the CALLER with the caller's own access token and
+load their roles from `tci.user_roles` server-side; a role claimed in a
+request body is never trusted.
+
+**Cloud-deployment dependency.** The service runs locally only, so on the
+deployed site the provisioning screens show «Сервис подготовки пользователей
+недоступен» (the Rating-tab pattern) and everything else works normally.
+Deploying it somewhere that can hold the key is a separate task; it gates
+the client portal (Phase 3d), which cannot onboard anyone without it.
+
 ## Current status / roadmap
 
 - [x] Phase 0: scaffold (repo, Vite app, Supabase project, auth, roles, i18n, layout)
@@ -135,6 +157,7 @@ Department role names (uz, confirmed): `admin` — Administrator, `sales` — **
 - [x] Phase 3a: unified legal-entities registry — tci.legal_entities merges buyers + policyholders (merge on country+reg number, FKs renamed to entity_id, old tables dropped), roles COMPUTED via v_entity_roles (never assigned), pg_trgm dedup-on-entry (blocking reg match + fuzzy suggestions), /entities registry + card with conditional tabs, legacy /buyers & /policyholders redirects
 - [x] Phase 3b: department roles + 2D authority matrix — user_role enum recreated (sales/commercial_underwriter/credit_underwriter/claims/information_manager/client + admin), multi-role users, RLS restated on has_role/is_staff, tci.authority_grants (stream × grade band × amount × validity), band-aware decide/revoke, /admin users & authorities screens, role-driven sidebar + route guards
 - [x] Phase 3c-1: insurance requests + two-stage limit decisions — `tci.insurance_requests` pipeline (draft → submitted → entity_resolution → underwriting → commercial_review → sales_confirmation → client_review → accepted/declined → bound) with SQL-enforced role gates and content guards, buyer package with name-only buyers resolved onto companies, decisions gain `stage` (credit | commercial) with commercial adjusting ONLY amount and payment terms within its own band authority, lazy release with a sales window + silent consent (no cron) and an emergency bypass for reductions/revocations, append-only `tci.workflow_events` for the future Agenda, `/requests` queue + submission page, company card «Заявки на страхование» tab
+- [x] User provisioning — admin creates staff, sales/commercial invite clients. Auth users are created by the FastAPI service (`services/analytics`), the only holder of `SUPABASE_SERVICE_ROLE_KEY`; the browser never sees that key. Temporary password shown on screen once (no SMTP), forced rotation via `tci.user_profiles.must_change_password`, self-service «Сменить пароль» for everyone. **Depends on deploying that service to the cloud** — until then provisioning works only while it runs locally, and the screens show a service-unavailable state (see below).
 - [ ] Phase 3c-2: Agenda (single tasks table driving all queues) — consumes `tci.workflow_events`
 - [ ] Phase 3 (operations): declarations, premium booking, overdues
 - [ ] Phase 4: claims & recoveries

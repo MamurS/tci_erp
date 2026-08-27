@@ -892,7 +892,8 @@
       "rating": "Reyting va limit",
       "limits": "Limitlar",
       "policies": "Polislar va portfel",
-      "requests": "Sug‘urta arizalari"
+      "requests": "Sug‘urta arizalari",
+      "access": "Mijoz kirishi"
     },
     "portfolioLimitsTitle": "Ularning polislari bo‘yicha bayer limitlari",
     "portfolioSummary": "Sug‘urtalanuvchi portfeli:",
@@ -942,7 +943,8 @@
       "amountPositive": "Summa noldan katta bo‘lishi kerak",
       "periodOrder": "«Amal qilish tugashi» boshlanishidan oldin bo‘lmasligi kerak",
       "validFromRequired": "«Amal qilish boshlanishi» ni ko‘rsating"
-    }
+    },
+    "usersCount": "Foydalanuvchilar: {{count}}"
   },
   "requests": {
     "subtitle": "Sug‘urta arizalari: so‘rovdan rasmiylashtirilgan polisgacha",
@@ -1067,5 +1069,82 @@
     "roleBuyer": "Bayer",
     "createFailed": "Arizani yaratib bo‘lmadi",
     "transitionFailed": "O‘tish rad etildi"
+  },
+  "account": {
+    "changePassword": "Parolni o‘zgartirish",
+    "subtitle": "Hisobingiz uchun yangi parol tanlang",
+    "forcedSubtitle": "Davom etish uchun o‘z parolingizni belgilang",
+    "forcedNotice": "Siz vaqtinchalik parol bilan kirdingiz. Davom etish uchun o‘z parolingizni belgilang — shungacha qolgan bo‘limlar ochilmaydi.",
+    "newPassword": "Yangi parol",
+    "confirmPassword": "Yangi parolni takrorlang",
+    "savePassword": "Parolni saqlash",
+    "strength": "Ishonchliligi",
+    "strengths": {
+      "weak": "zaif",
+      "fair": "o‘rtacha",
+      "strong": "ishonchli"
+    },
+    "rules": {
+      "length": "kamida {{count}} ta belgi",
+      "letter": "harf mavjud",
+      "digit": "raqam mavjud",
+      "notEmail": "e-mail bilan bir xil emas",
+      "match": "ikkala maydon mos keladi"
+    }
+  },
+  "provisioning": {
+    "createUser": "Foydalanuvchi yaratish",
+    "inviteClient": "Foydalanuvchini taklif qilish",
+    "create": "Yaratish",
+    "userCreated": "Foydalanuvchi yaratildi",
+    "credentials": "Yangi foydalanuvchi uchun kirish ma’lumotlari",
+    "shownOnce": "Bu ma’lumotlarni foydalanuvchiga yetkazing; parol boshqa ko‘rsatilmaydi.",
+    "copy": "Nusxalash",
+    "copied": "Nusxalandi",
+    "copyFailed": "Nusxalab bo‘lmadi — parolni qo‘lda belgilang",
+    "done": "Tayyor",
+    "resetPassword": "Parolni tiklash",
+    "disable": "O‘chirib qo‘yish",
+    "enable": "Yoqish",
+    "disabled": "O‘chirilgan",
+    "active": "Faol",
+    "awaitingPasswordChange": "Vaqtinchalik parol",
+    "neverSignedIn": "hech qachon kirmagan",
+    "clientAccess": "Mijoz kirishi",
+    "clientAccessHint": "Ushbu tashkilotning portal foydalanuvchilari. Ular faqat o‘z polislari, limit so‘rovlari va deklaratsiyalarini ko‘radi.",
+    "noClientUsers": "Portal foydalanuvchilari hali yo‘q",
+    "noClientUsersHint": "Tashkilotga portalga kirish ochish uchun foydalanuvchini taklif qiling",
+    "clientOnlyHint": "Ushbu tashkilot uchun mijoz (portal) foydalanuvchisi yaratiladi.",
+    "noEmailHint": "Xat yuborilmaydi: vaqtinchalik parol yaratilgandan so‘ng ekranda ko‘rinadi.",
+    "fields": {
+      "email": "E-mail",
+      "fullName": "F.I.Sh.",
+      "roles": "Rollar",
+      "company": "Tashkilot",
+      "tempPassword": "Vaqtinchalik parol",
+      "state": "Holati"
+    },
+    "serviceUnavailable": "Foydalanuvchilarni tayyorlash xizmati mavjud emas",
+    "serviceUnavailableHint": "Hozircha u faqat lokal ishlaydi. Foydalanuvchi yaratish yoki parolni tiklash uchun uni ishga tushiring (services/analytics); qolgan bo‘limlar odatdagidek ishlaydi.",
+    "errors": {
+      "unavailable": "Foydalanuvchilarni tayyorlash xizmati mavjud emas.",
+      "clientOnly": "Sotuv va tijorat anderraytingi faqat mijoz foydalanuvchilarini yarata oladi.",
+      "forbidden": "Foydalanuvchi yaratishga ruxsatingiz yo‘q.",
+      "adminOnly": "Buni faqat administrator qila oladi.",
+      "notYourClient": "Bu foydalanuvchi siz boshqaradigan tashkilotlarning mijozi emas.",
+      "entityRequired": "Mijoz foydalanuvchisi tegishli bo‘lgan tashkilotni tanlang.",
+      "entityNotAllowed": "Tashkilotga faqat mijoz foydalanuvchisi bog‘lanadi.",
+      "unknownRole": "Noma’lum rol.",
+      "noRoles": "Kamida bitta rol tanlang.",
+      "duplicateEmail": "Bunday e-mail bilan foydalanuvchi allaqachon mavjud.",
+      "authCreateFailed": "Foydalanuvchini yaratib bo‘lmadi.",
+      "provisioningFailed": "Foydalanuvchi yaratildi, lekin rollarni saqlab bo‘lmadi; u o‘chirildi. Qayta urinib ko‘ring.",
+      "resetFailed": "Parolni tiklab bo‘lmadi.",
+      "stateChangeFailed": "Hisob holatini o‘zgartirib bo‘lmadi.",
+      "selfDisable": "O‘z hisobingizni o‘chirib qo‘ya olmaysiz.",
+      "invalidInput": "Kiritilgan ma’lumotlarni tekshiring.",
+      "noSession": "Sessiya tugadi — qaytadan kiring.",
+      "unknown": "Nimadir noto‘g‘ri ketdi. Qayta urinib ko‘ring."
+    }
   }
 }

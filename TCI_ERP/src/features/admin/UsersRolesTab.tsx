@@ -8,8 +8,20 @@ import { Badge, Button, EmptyState, Modal, Spinner, Table } from '../../componen
 import { EM_DASH } from '../../lib/format'
 import { STAFF_ROLES, USER_ROLES } from '../../lib/roles'
 import type { UserRole } from '../../lib/roles'
+import { useAuth } from '../../auth/AuthContext'
+import { canDisableUser, canManageUser } from './provisioningAccess'
 import { useAdminUsers, useSetUserRoles } from './api'
 import type { AdminUser } from './api'
+import { CreateUserModal } from './CreateUserModal'
+import { ServiceUnavailableNotice } from './ServiceUnavailableNotice'
+import { TempPasswordPanel } from './TempPasswordPanel'
+import { provisioningErrorKey } from './provisioningErrors'
+import {
+  useProvisioningAvailable,
+  useResetUserPassword,
+  useSetUserDisabled,
+} from './provisioningApi'
+import type { ProvisionedUser } from '../../lib/provisioning'
 
 export function UsersRolesTab({
   selectedUserId,
@@ -19,14 +31,70 @@ export function UsersRolesTab({
   onSelectUser: (id: string) => void
 }) {
   const { t } = useTranslation()
+  const { session, roles: callerRoles } = useAuth()
   const { data: users, isLoading } = useAdminUsers()
+  const { data: provisioningUp } = useProvisioningAvailable()
+  const resetPassword = useResetUserPassword()
+  const setDisabled = useSetUserDisabled()
+
   const [editing, setEditing] = useState<AdminUser | null>(null)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [credentials, setCredentials] = useState<ProvisionedUser | null>(null)
+  const [actionErrorKey, setActionErrorKey] = useState<string | null>(null)
+
+  const runReset = async (user: AdminUser) => {
+    setActionErrorKey(null)
+    try {
+      setCredentials(await resetPassword.mutateAsync(user.user_id))
+    } catch (error) {
+      setActionErrorKey(provisioningErrorKey(error))
+    }
+  }
+
+  const toggleDisabled = async (user: AdminUser) => {
+    setActionErrorKey(null)
+    try {
+      await setDisabled.mutateAsync({ userId: user.user_id, disabled: !user.disabled })
+    } catch (error) {
+      setActionErrorKey(provisioningErrorKey(error))
+    }
+  }
 
   if (isLoading) return <Spinner label={t('common.loading')} />
-  if (!users?.length) return <EmptyState title={t('admin.noUsers')} />
 
   return (
     <>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <span className="text-[13px] text-slate-500">
+          {t('admin.usersCount', { count: users?.length ?? 0 })}
+        </span>
+        <Button onClick={() => setCreateOpen(true)} disabled={provisioningUp === false}>
+          {t('provisioning.createUser')}
+        </Button>
+      </div>
+
+      {/* The service holds the service-role key and runs locally only. */}
+      {provisioningUp === false && (
+        <div className="mb-3">
+          <ServiceUnavailableNotice />
+        </div>
+      )}
+
+      {credentials && (
+        <div className="mb-3">
+          <TempPasswordPanel user={credentials} onDismiss={() => setCredentials(null)} />
+        </div>
+      )}
+
+      {actionErrorKey && (
+        <p className="mb-3 text-[13px] text-neg-500" role="alert">
+          {t(`provisioning.errors.${actionErrorKey}`)}
+        </p>
+      )}
+
+      {!users?.length ? (
+        <EmptyState title={t('admin.noUsers')} />
+      ) : (
       <Table>
         <thead>
           <tr>
@@ -45,31 +113,78 @@ export function UsersRolesTab({
                 u.user_id === selectedUserId ? 'bg-accent-50/60' : ''
               }`}
             >
-              <td className="font-medium text-slate-800">{u.email}</td>
+              <td className="font-medium text-slate-800">
+                {u.email}
+                {u.full_name && (
+                  <span className="block text-xs font-normal text-slate-400">{u.full_name}</span>
+                )}
+              </td>
               <td>
                 <RoleChips roles={u.roles} />
+                <span className="ml-1 inline-flex gap-1">
+                  {u.disabled && <Badge tone="neg">{t('provisioning.disabled')}</Badge>}
+                  {u.must_change_password && (
+                    <Badge tone="warn">{t('provisioning.awaitingPasswordChange')}</Badge>
+                  )}
+                </span>
               </td>
               <td className="text-slate-500">
                 {u.last_sign_in_at ? u.last_sign_in_at.slice(0, 16).replace('T', ' ') : EM_DASH}
               </td>
               <td className="text-right">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    setEditing(u)
-                  }}
-                >
-                  {t('admin.editRoles')}
-                </Button>
+                <span className="inline-flex flex-wrap justify-end gap-1.5">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setEditing(u)
+                    }}
+                  >
+                    {t('admin.editRoles')}
+                  </Button>
+                  {canManageUser(callerRoles, u.roles) && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      disabled={provisioningUp === false || resetPassword.isPending}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        void runReset(u)
+                      }}
+                    >
+                      {t('provisioning.resetPassword')}
+                    </Button>
+                  )}
+                  {/* Hidden rather than disabled for your own row: the
+                      service refuses it, so a dead button would only puzzle. */}
+                  {canDisableUser(callerRoles, u.user_id, session?.user.id) && (
+                    <Button
+                      variant={u.disabled ? 'secondary' : 'ghost'}
+                      size="sm"
+                      disabled={provisioningUp === false || setDisabled.isPending}
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        void toggleDisabled(u)
+                      }}
+                    >
+                      {u.disabled ? t('provisioning.enable') : t('provisioning.disable')}
+                    </Button>
+                  )}
+                </span>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
+      )}
 
       {editing && <RolesModal user={editing} onClose={() => setEditing(null)} />}
+      <CreateUserModal
+        open={createOpen}
+        onClose={() => setCreateOpen(false)}
+        onCreated={(user) => setCredentials(user)}
+      />
     </>
   )
 }
