@@ -103,20 +103,31 @@ export interface TransitionOffer {
   guard: GuardKey | null
 }
 
-/** Every transition out of `from`, with its role verdict and guard. */
+/** accepted -> bound is a legal SQL transition, but it is NOT a button:
+ * advance_insurance_request only sets the status, it does not create the
+ * policy. Binding goes through tci.bind_insurance_request (migration 0023),
+ * which drives that same transition itself after issuing the policy. Offering
+ * the bare transition here would strand a submission as `bound` with nothing
+ * to show for it. */
+const NOT_OFFERED_DIRECTLY: readonly InsuranceRequestStatus[] = ['bound']
+
+/** Every transition out of `from` the UI offers, with its role verdict and
+ * guard. Not the same set as TRANSITIONS — see NOT_OFFERED_DIRECTLY. */
 export function transitionOffers(
   from: InsuranceRequestStatus,
   roles: readonly UserRole[],
   isCreator: boolean,
   facts: { entitiesResolved: boolean; creditComplete: boolean },
 ): TransitionOffer[] {
-  return TRANSITIONS[from].map((to) => ({
-    to,
-    allowedByRole: canTransitionAs(to, roles, isCreator),
-    // A decline always carries its reason from the modal, so the
-    // declineNeedsReason guard is enforced at submit time, not here.
-    guard: guardFor(to, { ...facts, hasComment: true }),
-  }))
+  return TRANSITIONS[from]
+    .filter((to) => !NOT_OFFERED_DIRECTLY.includes(to))
+    .map((to) => ({
+      to,
+      allowedByRole: canTransitionAs(to, roles, isCreator),
+      // A decline always carries its reason from the modal, so the
+      // declineNeedsReason guard is enforced at submit time, not here.
+      guard: guardFor(to, { ...facts, hasComment: true }),
+    }))
 }
 
 /** tci.request_entities_resolved: no buyer without an entity, and none

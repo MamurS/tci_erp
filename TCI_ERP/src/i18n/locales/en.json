@@ -13,7 +13,8 @@
     "claims": "Claims",
     "admin": "Admin",
     "entities": "Companies",
-    "requests": "Submissions"
+    "requests": "Submissions",
+    "agenda": "Agenda"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -709,7 +710,8 @@
       "dlAboveMaxLiability": "Discretionary limit exceeds the maximum liability",
       "premiumRateHigh": "Rate above 5% of turnover is far outside TCI practice",
       "minPremiumAboveExpected": "Minimum premium exceeds rate × estimated turnover"
-    }
+    },
+    "createdFromRequest": "Created from submission"
   },
   "limits": {
     "subtitle": "Credit limit requests and decisions",
@@ -1068,7 +1070,25 @@
     "roleApplicant": "Applicant",
     "roleBuyer": "Buyer",
     "createFailed": "The submission could not be created",
-    "transitionFailed": "The transition was refused"
+    "transitionFailed": "The transition was refused",
+    "bind": {
+      "action": "Issue policy",
+      "title": "Issue the policy",
+      "confirm": "Issue policy",
+      "intro": "Submission {{number}} was accepted. The agreed terms become a policy as they stand — only the number and the cover period are entered here.",
+      "note": "The policy is created as a draft, and every limit already decided inside this submission moves onto it.",
+      "missingTerms": "The submission is missing agreed terms: {{terms}}. Fill them in on the submission first.",
+      "boundPolicyLink": "Policy issued",
+      "validation": {
+        "required": "Required",
+        "periodOrder": "The expiry date must be after the inception date"
+      },
+      "errors": {
+        "notAllowed": "Only commercial underwriting may issue a policy.",
+        "refused": "The submission cannot be bound: it is already bound, is not accepted, or a term is missing.",
+        "unknown": "The policy could not be issued."
+      }
+    }
   },
   "account": {
     "changePassword": "Change password",
@@ -1145,6 +1165,71 @@
       "invalidInput": "Check the values entered.",
       "noSession": "Your session has expired — sign in again.",
       "unknown": "Something went wrong. Try again."
+    }
+  },
+  "agenda": {
+    "title": "My agenda",
+    "subtitle": "Everything waiting on you, whatever it hangs off. The queues under Submissions and Credit Limits stay the departmental view.",
+    "open": "Open",
+    "openCount": "Open tasks",
+    "openSelected": "Open selected ({{count}})",
+    "openSelectedHint": "Opens each selected task's object in a new tab.",
+    "selectRow": "Select task",
+    "markDone": "Mark done",
+    "completeFailed": "This task closes itself when its object moves on, so it cannot be ticked off by hand.",
+    "loadFailed": "The agenda could not be loaded.",
+    "dueBy": "due {{moment}}",
+    "overdueSince": "overdue since {{moment}}",
+    "groups": {
+      "overdue": "Overdue",
+      "urgent": "Urgent",
+      "high": "High priority",
+      "normal": "Normal"
+    },
+    "filters": {
+      "taskType": "Task",
+      "objectType": "Object",
+      "anyType": "Any task",
+      "anyObject": "Any object",
+      "reset": "Reset filters"
+    },
+    "objectTypes": {
+      "insurance_request": "Insurance submission",
+      "legal_entity": "Company",
+      "credit_limit_request": "Limit request",
+      "credit_limit_decision": "Limit decision"
+    },
+    "taskTypes": {
+      "buyer_needs_entity": "Identify buyer",
+      "buyer_needs_rating": "Rating needed",
+      "limit_needs_decision": "Limit decision",
+      "limit_escalated": "Escalated limit",
+      "submission_commercial_review": "Commercial review",
+      "submission_sales_confirmation": "Sales confirmation",
+      "limit_held": "Limit on hold",
+      "submission_accepted": "Accepted — issue policy",
+      "submission_declined": "Declined by client",
+      "limit_review_due": "Limit review due",
+      "rating_stale": "Rating out of date"
+    },
+    "tasks": {
+      "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
+      "buyer_needs_rating": "Rate {{subject}} — the buyer is on a submission and carries no current assessment",
+      "limit_needs_decision": "Decide the credit limit requested for {{subject}}",
+      "limit_escalated": "Escalated: the limit for {{subject}} is above the deciding underwriter's authority",
+      "submission_commercial_review": "Set the commercial terms of submission {{request_number}}",
+      "submission_sales_confirmation": "Confirm submission {{request_number}} before the limits reach the client",
+      "limit_held": "Sales put your decision on hold: {{comment}}",
+      "submission_accepted": "Submission {{request_number}} was accepted — issue the policy",
+      "submission_declined": "The client declined submission {{request_number}}: {{reason}}",
+      "limit_review_due": "The limit for {{subject}} expires on {{valid_until}} — review it",
+      "rating_stale": "{{subject}} carries an effective limit on a rating over a year old"
+    },
+    "empty": {
+      "title": "Nothing is waiting on you",
+      "hint": "Tasks appear here on their own as work moves through the pipeline, and close themselves when it moves on.",
+      "filtered": "No task matches these filters",
+      "filteredHint": "Reset the filters to see the whole agenda."
     }
   }
 }

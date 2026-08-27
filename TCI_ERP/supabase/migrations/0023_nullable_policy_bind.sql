@@ -489,7 +489,10 @@ begin
     v_request.minimum_premium, v_request.estimated_annual_turnover, v_request.discretionary_limit,
     v_request.waiting_period_days, v_request.max_extension_period_days, v_request.max_payment_terms_days,
     v_request.declaration_frequency,
-    'Created from submission ' || v_request.request_number
+    -- notes stays the user's field. Provenance is structural - the submission
+    -- carries bound_policy_id - and the UI renders it translated; writing an
+    -- English sentence in here would leak untranslatable text onto the policy.
+    null
   ) returning * into v_policy;
 
   -- Adopt the package's limits. Their scope moves from the submission to the
@@ -505,9 +508,10 @@ begin
    where id = p_request_id;
 
   -- The status machine owns the transition, its history row and its event.
-  perform tci.advance_insurance_request(
-    p_request_id, 'bound',
-    'Policy ' || v_policy.policy_number || ' issued');
+  -- No comment: the history row already says `bound`, and a rendered English
+  -- sentence would show up untranslated in every locale's timeline. The
+  -- policy number travels on the request.bound payload below instead.
+  perform tci.advance_insurance_request(p_request_id, 'bound', null);
 
   perform tci.emit_workflow_event(
     'request.bound', 'insurance_request', p_request_id,

@@ -21,8 +21,11 @@ const STAFF: readonly UserRole[] = [
  * Sidebar navigation and route guards, by department role (Phase 3b).
  * A user may hold several roles - ANY matching role grants the item.
  *
+ * Every staff role also gets the Agenda; the client does not (it is the
+ * INTERNAL queue, and tci.refresh_agenda() refuses a non-staff caller).
+ *
  *   admin                   everything
- *   credit_underwriter      dashboard, companies, submissions, limits, declarations, claims
+ *   credit_underwriter      dashboard, agenda, companies, submissions, limits, declarations, claims
  *   commercial_underwriter  dashboard, companies, submissions, policies, limits, declarations, claims
  *   sales                   dashboard, companies, submissions, policies, limits
  *   information_manager     dashboard, companies
@@ -31,6 +34,8 @@ const STAFF: readonly UserRole[] = [
  */
 export const NAV_ITEMS: readonly NavItem[] = [
   { key: 'dashboard', path: '/', roles: STAFF },
+  // The Agenda is staff-only: tci.refresh_agenda() refuses a client outright.
+  { key: 'agenda', path: '/agenda', roles: STAFF },
   { key: 'entities', path: '/entities', roles: STAFF },
   {
     key: 'requests',

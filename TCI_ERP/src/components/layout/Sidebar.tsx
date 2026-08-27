@@ -1,8 +1,10 @@
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth/AuthContext'
-import { hasRole } from '../../lib/roles'
+import { hasRole, isStaff } from '../../lib/roles'
 import { useEscalatedCount } from '../../features/limits/api'
+import { useAgendaTasks } from '../../features/agenda/api'
+import { agendaCounts } from '../../features/agenda/catalogue'
 import { navItemsForRoles } from './navigation'
 
 export function Sidebar() {
@@ -12,6 +14,10 @@ export function Sidebar() {
   // Anyone who may decide sees the escalated queue size.
   const canDecide = hasRole(roles, 'admin', 'credit_underwriter')
   const { data: escalatedCount } = useEscalatedCount(canDecide)
+  // Exactly the query /agenda uses — one key, one queryFn, so the badge and
+  // the board can never disagree.
+  const { data: agendaTasks } = useAgendaTasks({ enabled: isStaff(roles) })
+  const agenda = agendaCounts(agendaTasks ?? [], new Date())
 
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-slate-200 bg-white">
@@ -41,6 +47,26 @@ export function Sidebar() {
                   title={t('limits.tabs.escalated')}
                 >
                   {escalatedCount}
+                </span>
+              )}
+              {/* Overdue gets its own tone: an overdue count is a different
+                  statement from a busy one, and must not read as the same. */}
+              {item.key === 'agenda' && agenda.open > 0 && (
+                <span className="flex items-center gap-1">
+                  {agenda.overdue > 0 && (
+                    <span
+                      className="rounded-full bg-neg-500 px-1.5 text-xs font-semibold text-white"
+                      title={t('agenda.groups.overdue')}
+                    >
+                      {agenda.overdue}
+                    </span>
+                  )}
+                  <span
+                    className="rounded-full bg-slate-100 px-1.5 text-xs font-semibold text-slate-600"
+                    title={t('agenda.openCount')}
+                  >
+                    {agenda.open}
+                  </span>
                 </span>
               )}
             </span>

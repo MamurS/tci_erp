@@ -13,7 +13,8 @@
     "claims": "Sug‘urta da’volari",
     "admin": "Administratsiya",
     "entities": "Tashkilotlar",
-    "requests": "Sug‘urta arizalari"
+    "requests": "Sug‘urta arizalari",
+    "agenda": "Kun tartibi"
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -709,7 +710,8 @@
       "dlAboveMaxLiability": "Diskretsion limit javobgarlikning maksimal limitidan oshadi",
       "premiumRateHigh": "Aylanmadan 5% dan yuqori stavka TCI amaliyotidan ancha tashqarida",
       "minPremiumAboveExpected": "Minimal mukofot stavka × kutilayotgan aylanmadan katta"
-    }
+    },
+    "createdFromRequest": "Ariza asosida yaratilgan"
   },
   "limits": {
     "subtitle": "Kredit limiti so‘rovlari va qarorlar",
@@ -1068,7 +1070,25 @@
     "roleApplicant": "Arizachi",
     "roleBuyer": "Bayer",
     "createFailed": "Arizani yaratib bo‘lmadi",
-    "transitionFailed": "O‘tish rad etildi"
+    "transitionFailed": "O‘tish rad etildi",
+    "bind": {
+      "action": "Polis chiqarish",
+      "title": "Polis chiqarish",
+      "confirm": "Polis chiqarish",
+      "intro": "{{number}} arizasi qabul qilindi. Kelishilgan shartlar o‘zgarishsiz polisga o‘tadi — bu yerda faqat raqam va qoplash davri kiritiladi.",
+      "note": "Polis «Qoralama» holatida yaratiladi va shu ariza ichida qaror qilingan barcha limitlar unga o‘tadi.",
+      "missingTerms": "Arizada kelishilgan shartlar to‘ldirilmagan: {{terms}}. Avval ularni arizada to‘ldiring.",
+      "boundPolicyLink": "Polis chiqarilgan",
+      "validation": {
+        "required": "Majburiy maydon",
+        "periodOrder": "Tugash sanasi boshlanish sanasidan keyin bo‘lishi kerak"
+      },
+      "errors": {
+        "notAllowed": "Polisni faqat tijorat anderraytingi chiqara oladi.",
+        "refused": "Arizani polisga aylantirib bo‘lmaydi: u allaqachon polisga bog‘langan, qabul qilinmagan yoki biror sharti yetishmayapti.",
+        "unknown": "Polisni chiqarib bo‘lmadi."
+      }
+    }
   },
   "account": {
     "changePassword": "Parolni o‘zgartirish",
@@ -1145,6 +1165,71 @@
       "invalidInput": "Kiritilgan ma’lumotlarni tekshiring.",
       "noSession": "Sessiya tugadi — qaytadan kiring.",
       "unknown": "Nimadir noto‘g‘ri ketdi. Qayta urinib ko‘ring."
+    }
+  },
+  "agenda": {
+    "title": "Mening kun tartibim",
+    "subtitle": "Qaysi obyektga tegishli bo‘lishidan qat’i nazar, aynan sizni kutayotgan hamma ish. «Sug‘urta arizalari» va «Kredit limitlari» navbatlari bo‘lim ko‘rinishi bo‘lib qoladi.",
+    "open": "Ochish",
+    "openCount": "Ochiq vazifalar",
+    "openSelected": "Tanlanganlarni ochish ({{count}})",
+    "openSelectedHint": "Har bir tanlangan vazifaning obyektini yangi ilovada ochadi.",
+    "selectRow": "Vazifani tanlash",
+    "markDone": "Bajarildi deb belgilash",
+    "completeFailed": "Bu vazifa obyekti keyingi bosqichga o‘tganda o‘zi yopiladi — uni qo‘lda belgilab bo‘lmaydi.",
+    "loadFailed": "Kun tartibini yuklab bo‘lmadi.",
+    "dueBy": "muddati {{moment}}",
+    "overdueSince": "{{moment}} dan beri muddati o‘tgan",
+    "groups": {
+      "overdue": "Muddati o‘tgan",
+      "urgent": "Shoshilinch",
+      "high": "Yuqori muhimlik",
+      "normal": "Oddiy"
+    },
+    "filters": {
+      "taskType": "Vazifa",
+      "objectType": "Obyekt",
+      "anyType": "Har qanday vazifa",
+      "anyObject": "Har qanday obyekt",
+      "reset": "Filtrlarni tozalash"
+    },
+    "objectTypes": {
+      "insurance_request": "Sug‘urta arizasi",
+      "legal_entity": "Tashkilot",
+      "credit_limit_request": "Limit arizasi",
+      "credit_limit_decision": "Limit bo‘yicha qaror"
+    },
+    "taskTypes": {
+      "buyer_needs_entity": "Bayerni aniqlash",
+      "buyer_needs_rating": "Reyting kerak",
+      "limit_needs_decision": "Limit bo‘yicha qaror",
+      "limit_escalated": "Eskalatsiya qilingan limit",
+      "submission_commercial_review": "Tijorat anderraytingi",
+      "submission_sales_confirmation": "Sotuv tasdig‘i",
+      "limit_held": "Limit ushlab turilgan",
+      "submission_accepted": "Qabul qilingan — polis chiqarish",
+      "submission_declined": "Mijoz rad etgan",
+      "limit_review_due": "Limitni qayta ko‘rish",
+      "rating_stale": "Reyting eskirgan"
+    },
+    "tasks": {
+      "buyer_needs_entity": "{{subject}} arizasidagi «{{name}}» ortidagi tashkilotni aniqlang",
+      "buyer_needs_rating": "{{subject}} ga reyting bering — bayer arizada, amaldagi bahosi yo‘q",
+      "limit_needs_decision": "{{subject}} uchun so‘ralgan kredit limiti bo‘yicha qaror qabul qiling",
+      "limit_escalated": "Eskalatsiya: {{subject}} uchun limit qaror qabul qilgan anderrayter vakolatidan yuqori",
+      "submission_commercial_review": "{{request_number}} arizasining tijorat shartlarini belgilang",
+      "submission_sales_confirmation": "Limitlar mijozga yetib borishidan oldin {{request_number}} arizasini tasdiqlang",
+      "limit_held": "Sotuv sizning qaroringizni ushlab turdi: {{comment}}",
+      "submission_accepted": "{{request_number}} arizasi qabul qilindi — polis chiqaring",
+      "submission_declined": "Mijoz {{request_number}} arizasini rad etdi: {{reason}}",
+      "limit_review_due": "{{subject}} uchun limit {{valid_until}} da tugaydi — uni qayta ko‘ring",
+      "rating_stale": "{{subject}} bir yildan eski reyting asosidagi amaldagi limitga ega"
+    },
+    "empty": {
+      "title": "Sizni hech narsa kutmayapti",
+      "hint": "Vazifalar ish jarayon bo‘ylab harakatlangani sari bu yerda o‘zi paydo bo‘ladi va obyekt keyingi bosqichga o‘tganda o‘zi yopiladi.",
+      "filtered": "Bu filtrlarga birorta vazifa mos kelmadi",
+      "filteredHint": "Butun kun tartibini ko‘rish uchun filtrlarni tozalang."
     }
   }
 }

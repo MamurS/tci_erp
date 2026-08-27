@@ -285,3 +285,54 @@ export function useResolveRequestBuyer(requestId: string) {
     onSuccess: () => invalidateRequest(queryClient, requestId),
   })
 }
+
+/** Issuing the policy an accepted submission agreed to (migration 0023).
+ * The function is transactional and refuses a second bind — nothing here
+ * retries or guesses. Invalidates the policy lists too, because a policy
+ * appeared. */
+export function useBindInsuranceRequest(requestId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: {
+      policyNumber: string
+      inceptionDate: string
+      expiryDate: string
+    }): Promise<{ id: string; policy_number: string }> => {
+      const { data, error } = await tci().rpc('bind_insurance_request', {
+        p_request_id: requestId,
+        p_policy_number: input.policyNumber,
+        p_inception_date: input.inceptionDate,
+        p_expiry_date: input.expiryDate,
+      })
+      if (error) throw error
+      return data as { id: string; policy_number: string }
+    },
+    onSuccess: () => {
+      invalidateRequest(queryClient, requestId)
+      void queryClient.invalidateQueries({ queryKey: ['policies'] })
+      void queryClient.invalidateQueries({ queryKey: ['agenda'] })
+      // The package's limit requests just changed scope from the submission
+      // to the new policy, so every effective-limit read is stale.
+      void queryClient.invalidateQueries({ queryKey: ['effective-limits'] })
+      void queryClient.invalidateQueries({ queryKey: ['limit-requests'] })
+    },
+  })
+}
+
+/** The submission a policy was issued from, for the policy page's
+ * «Создан из заявки …» line. Null for a policy captured by hand. */
+export function usePolicyOriginRequest(policyId: string) {
+  return useQuery({
+    queryKey: ['insurance-requests', 'for-policy', policyId],
+    enabled: Boolean(policyId),
+    queryFn: async (): Promise<{ id: string; request_number: string } | null> => {
+      const { data, error } = await tci()
+        .from('insurance_requests')
+        .select('id, request_number')
+        .eq('bound_policy_id', policyId)
+        .maybeSingle()
+      if (error) throw error
+      return (data as { id: string; request_number: string } | null) ?? null
+    },
+  })
+}
