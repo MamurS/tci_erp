@@ -16,8 +16,12 @@ from __future__ import annotations
 import logging
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, Header, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, EmailStr, Field
+
+from app.hardening import client_ip
+from app.ratelimit import provisioning_limiter
+from app.settings import get_settings
 
 from app.provisioning_rules import (
     ProvisioningDenied,
@@ -36,7 +40,33 @@ from app.supabase_admin import (
 )
 
 logger = logging.getLogger(__name__)
-router = APIRouter(prefix="/users", tags=["provisioning"])
+
+
+def _throttle_ip(request: Request) -> None:
+    """Per-IP bucket, as a ROUTER dependency so it runs before get_caller.
+
+    Inside an endpoint body it would be useless: an unauthenticated request
+    is rejected while resolving CallerDep and would never reach it, making a
+    401 flood free. Caught by a test that asserted the opposite.
+    """
+    settings = get_settings()
+    decision = provisioning_limiter.check(
+        f"ip:{client_ip(request, settings)}", settings.provisioning_per_ip_per_hour
+    )
+    if not decision.allowed:
+        logger.warning("provisioning rate limit (ip) path=%s", request.url.path)
+        raise HTTPException(
+            status_code=429,
+            detail="too many provisioning requests, try again later",
+            headers={"Retry-After": str(decision.retry_after)},
+        )
+
+
+router = APIRouter(
+    prefix="/users",
+    tags=["provisioning"],
+    dependencies=[Depends(_throttle_ip)],
+)
 
 
 # ---------------------------------------------------------------------------
@@ -149,6 +179,31 @@ async def _assert_can_reach_client(
 
 
 # ---------------------------------------------------------------------------
+# Rate limiting
+# ---------------------------------------------------------------------------
+
+
+def _throttle_caller(request: Request, caller_id: str) -> None:
+    """Per-caller bucket, on top of the per-IP one the router already applied.
+    One compromised token stays capped however many addresses it comes from.
+
+    The 429 body never says WHICH bucket ran out: that would tell an attacker
+    whether their token was recognised.
+    """
+    settings = get_settings()
+    decision = provisioning_limiter.check(
+        f"caller:{caller_id}", settings.provisioning_per_caller_per_hour
+    )
+    if not decision.allowed:
+        logger.warning("provisioning rate limit (caller) path=%s", request.url.path)
+        raise HTTPException(
+            status_code=429,
+            detail="too many provisioning requests, try again later",
+            headers={"Retry-After": str(decision.retry_after)},
+        )
+
+
+# ---------------------------------------------------------------------------
 # Endpoints
 # ---------------------------------------------------------------------------
 
@@ -163,7 +218,10 @@ async def provisioning_status() -> dict[str, bool]:
 
 
 @router.post("", response_model=ProvisionedUser, status_code=201)
-async def create_user(payload: CreateUserRequest, caller: CallerDep) -> ProvisionedUser:
+async def create_user(
+    request: Request, payload: CreateUserRequest, caller: CallerDep
+) -> ProvisionedUser:
+    _throttle_caller(request, caller.user_id)
     roles = normalise_roles(payload.roles)
     try:
         authorize_create(caller.roles, roles)
@@ -261,7 +319,10 @@ async def _rollback_user(admin: SupabaseAdmin, user_id: str) -> None:
 
 
 @router.post("/{user_id}/reset-password", response_model=ProvisionedUser)
-async def reset_password(user_id: str, caller: CallerDep) -> ProvisionedUser:
+async def reset_password(
+    request: Request, user_id: str, caller: CallerDep
+) -> ProvisionedUser:
+    _throttle_caller(request, caller.user_id)
     admin = _admin()
     target_roles = await _roles_of(admin, user_id)
     try:
@@ -301,7 +362,10 @@ async def reset_password(user_id: str, caller: CallerDep) -> ProvisionedUser:
 
 
 @router.post("/{user_id}/disable", response_model=UserStateResponse)
-async def disable_user(user_id: str, caller: CallerDep) -> UserStateResponse:
+async def disable_user(
+    request: Request, user_id: str, caller: CallerDep
+) -> UserStateResponse:
+    _throttle_caller(request, caller.user_id)
     try:
         authorize_admin_only(caller.roles, "disable")
     except ProvisioningDenied as exc:
@@ -317,7 +381,10 @@ async def disable_user(user_id: str, caller: CallerDep) -> UserStateResponse:
 
 
 @router.post("/{user_id}/enable", response_model=UserStateResponse)
-async def enable_user(user_id: str, caller: CallerDep) -> UserStateResponse:
+async def enable_user(
+    request: Request, user_id: str, caller: CallerDep
+) -> UserStateResponse:
+    _throttle_caller(request, caller.user_id)
     try:
         authorize_admin_only(caller.roles, "enable")
     except ProvisioningDenied as exc:

@@ -89,3 +89,47 @@ jobs:
 
       - name: Tests (pytest)
         run: uv run pytest -q
+
+  # The service is deployed as a container from Phase 3d on, so the image has
+  # to build. Build only - nothing is pushed to a registry from CI.
+  docker:
+    name: Analytics image (Dockerfile)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: docker/setup-buildx-action@v3
+
+      # Context is the repo root on purpose: the service imports
+      # credit_engine as an editable path dependency and cannot be built
+      # from services/analytics alone.
+      - name: Build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          tags: tci-analytics:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # A built image that cannot answer /health is not a working deploy.
+      - name: Smoke the image
+        run: |
+          docker run -d --name tci-analytics-ci -p 8000:8000 tci-analytics:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8000/health > /tmp/health.json; then
+              echo "healthy after ${i}s"; cat /tmp/health.json; break
+            fi
+            if [ "$i" = "30" ]; then
+              echo "::error::the container never became healthy"
+              docker logs tci-analytics-ci; exit 1
+            fi
+            sleep 1
+          done
+          # The engine endpoints must work with no configuration at all.
+          curl -fsS http://127.0.0.1:8000/grade-scale | head -c 120; echo
+          # And provisioning must report itself unconfigured rather than crash.
+          curl -fsS http://127.0.0.1:8000/users/provisioning-status
+          docker rm -f tci-analytics-ci

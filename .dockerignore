@@ -1,0 +1,14 @@
+# Only credit_engine/ and services/analytics/ are needed to build the service.
+TCI_ERP/
+.git/
+.github/
+**/node_modules/
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+**/dist/
+**/.env
+**/.env.*
+!**/.env.example
+*.md
+!credit_engine/README.md
