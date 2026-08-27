@@ -34,15 +34,22 @@ async function fetchOpenTasks(): Promise<Task[]> {
   return (data ?? []) as unknown as Task[]
 }
 
-/** The board. `refresh` is off for the sidebar badge — one lazy generation
- * per screen load is enough, and the badge renders on every page. */
-export function useAgendaTasks(options: { enabled?: boolean; refresh?: boolean } = {}) {
-  const { enabled = true, refresh = true } = options
+/** The board. The screen and the sidebar badge share ONE query — same key,
+ * same queryFn — so the two can never disagree about what the agenda holds.
+ *
+ * That is also why the lazy generation lives inside this queryFn rather than
+ * in the screen: with two queryFns on one key, whichever observer mounted
+ * first would decide whether refresh_agenda ran at all. staleTime is what
+ * keeps it cheap — the sidebar renders on every page, but a cached query does
+ * not refetch, so the generation runs about once a minute, not once a click. */
+export function useAgendaTasks(options: { enabled?: boolean } = {}) {
+  const { enabled = true } = options
   return useQuery({
     queryKey: KEYS.tasks,
     enabled,
+    staleTime: 60_000,
     queryFn: async (): Promise<Task[]> => {
-      if (refresh) await refreshAgenda()
+      await refreshAgenda()
       return fetchOpenTasks()
     },
   })

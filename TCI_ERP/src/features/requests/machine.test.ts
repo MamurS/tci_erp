@@ -205,6 +205,22 @@ describe('transitionOffers', () => {
   it('a terminal status offers nothing', () => {
     expect(transitionOffers('bound', ['admin'], true, facts)).toEqual([])
   })
+
+  it('never offers accepted -> bound as a bare transition', () => {
+    // The SQL allows it, and bind_insurance_request drives it itself after
+    // issuing the policy. A button here would strand a submission as `bound`
+    // with no policy behind it — advance_insurance_request creates nothing.
+    expect(MIGRATION).toContain(
+      "when v_from = 'accepted'           and p_to_status = 'bound' then true",
+    )
+    expect(isAllowedTransition('accepted', 'bound')).toBe(true)
+    expect(
+      transitionOffers('accepted', ['admin', 'commercial_underwriter'], true, {
+        entitiesResolved: true,
+        creditComplete: true,
+      }),
+    ).toEqual([])
+  })
 })
 
 describe('who owns the submission at each step', () => {

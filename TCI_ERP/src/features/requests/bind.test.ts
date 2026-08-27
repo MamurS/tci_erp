@@ -140,6 +140,13 @@ describe('nullable policy_id scoping', () => {
     expect(MIGRATION).toContain('and v.policy_id is not null')
   })
 
+  it('writes no rendered text into the policy or the history', () => {
+    // Provenance is structural (bound_policy_id); a stored English sentence
+    // would show up untranslated in ru and uz.
+    expect(MIGRATION).not.toContain('Created from submission')
+    expect(MIGRATION).toContain("perform tci.advance_insurance_request(p_request_id, 'bound', null)")
+  })
+
   it('adopts the package limits onto the new policy at bind', () => {
     expect(MIGRATION).toContain('update tci.credit_limit_requests')
     expect(MIGRATION).toContain('set policy_id = v_policy.id')

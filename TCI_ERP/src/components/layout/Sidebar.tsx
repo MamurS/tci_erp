@@ -14,10 +14,9 @@ export function Sidebar() {
   // Anyone who may decide sees the escalated queue size.
   const canDecide = hasRole(roles, 'admin', 'credit_underwriter')
   const { data: escalatedCount } = useEscalatedCount(canDecide)
-  // The badge rides the same cached query as /agenda, but never triggers the
-  // lazy generation itself: the sidebar renders on every page, and one
-  // refresh per Agenda visit is the point of doing it on read.
-  const { data: agendaTasks } = useAgendaTasks({ enabled: isStaff(roles), refresh: false })
+  // Exactly the query /agenda uses — one key, one queryFn, so the badge and
+  // the board can never disagree.
+  const { data: agendaTasks } = useAgendaTasks({ enabled: isStaff(roles) })
   const agenda = agendaCounts(agendaTasks ?? [], new Date())
 
   return (

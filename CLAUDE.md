@@ -278,7 +278,7 @@ the client portal (Phase 3d), which cannot onboard anyone without it.
 - [x] Phase 3b: department roles + 2D authority matrix — user_role enum recreated (sales/commercial_underwriter/credit_underwriter/claims/information_manager/client + admin), multi-role users, RLS restated on has_role/is_staff, tci.authority_grants (stream × grade band × amount × validity), band-aware decide/revoke, /admin users & authorities screens, role-driven sidebar + route guards
 - [x] Phase 3c-1: insurance requests + two-stage limit decisions — `tci.insurance_requests` pipeline (draft → submitted → entity_resolution → underwriting → commercial_review → sales_confirmation → client_review → accepted/declined → bound) with SQL-enforced role gates and content guards, buyer package with name-only buyers resolved onto companies, decisions gain `stage` (credit | commercial) with commercial adjusting ONLY amount and payment terms within its own band authority, lazy release with a sales window + silent consent (no cron) and an emergency bypass for reductions/revocations, append-only `tci.workflow_events` for the future Agenda, `/requests` queue + submission page, company card «Заявки на страхование» tab
 - [x] User provisioning — admin creates staff, sales/commercial invite clients. Auth users are created by the FastAPI service (`services/analytics`), the only holder of `SUPABASE_SERVICE_ROLE_KEY`; the browser never sees that key. Temporary password shown on screen once (no SMTP), forced rotation via `tci.user_profiles.must_change_password`, self-service «Сменить пароль» for everyone. **Depends on deploying that service to the cloud** — until then provisioning works only while it runs locally, and the screens show a service-unavailable state (see below).
-- [ ] Phase 3c-2: Agenda (single tasks table driving all queues) — consumes `tci.workflow_events`
+- [x] Phase 3c-2: Agenda + policy binding — `tci.tasks` generated from `tci.workflow_events` by an AFTER INSERT mapping that also closes tasks when their object moves on (11 types, 10 auto / 1 manual), band-aware targeting, the two time-based kinds generated lazily by `tci.refresh_agenda()` with no cron; `/agenda` «Моя повестка» (grouped overdue → urgent → high → normal, type/object filters, deep links, bulk-open only) + sidebar badge with a separate overdue tone; `credit_limit_requests.policy_id` made nullable behind `tci.limit_scope(policy_id, insurance_request_id)` so new business can carry limits before a policy exists; `tci.bind_insurance_request` projects the agreed terms into a policy, adopts the package limits onto it and advances to `bound`
 - [ ] Phase 3 (operations): declarations, premium booking, overdues
 - [ ] Phase 4: claims & recoveries
 - [ ] Phase 5: Python analytics service (scoring/rating)
@@ -291,36 +291,35 @@ the client portal (Phase 3d), which cannot onboard anyone without it.
 * Phase 3c (SHIPPED as 3c-1, see above): insurance_request pipeline (client/sales/comm UW create → sales resolves entities, auto-task to information_manager for missing ones → parallel commercial (terms) + credit (ratings/limits, confirming engine auto-rating) → sales confirmation → client acceptance → bind). Two-stage limit decisions: credit stage (rating+limit) then optional commercial stage adjusting ONLY amount and credit period, both directions, within own authority; rating and conditions untouchable by commercial. In-force changes: credit → commercial → sales window (configurable, default 1 business day) with silent-consent release (lazy released_at, no cron), then visible to client; REDUCTIONS and REVOCATIONS bypass commercial and sales — visible to client immediately (emergency risk actions). Agenda: single tasks table (type, object ref, assignee role/user, due, status) driving all queues.
 * Phase 3d: client portal — invitation-only (sales creates, system sends link + temp password, forced password change on first login; requires the password-change page and Supabase Site URL setup).
 
-### Open items carried into Phase 3c-2
+### Open items (carried into Phase 3c-2, and what is left after it)
 
-* **A submission cannot hold credit decisions before a policy exists.**
-  `tci.credit_limit_requests.policy_id` is `not null` (migration 0013), so the
-  limit requests a submission raises must point at an EXISTING policy. That
-  works for renewals and extensions of a live policy; for genuinely new
-  business the `underwriting → commercial_review` guard
-  (`tci.request_credit_complete`) can only be satisfied after a policy exists.
-  Fixing it properly is a 3c-2/bind concern, because `policy_id` is load-bearing
-  in three places: the `(policy_id, entity_id)` one-open-request unique index,
-  the `distinct on (policy_id, entity_id)` of `v_effective_limits`, and the
-  client RLS path that joins decisions → requests → policies →
-  policyholder_users. Options to weigh then: a provisional policy created at
-  `underwriting` and activated at `bind`, or a nullable `policy_id` with the
-  submission id as the alternate grouping key.
-* **Bind is a status transition only.** `advance_insurance_request(…, 'bound')`
-  sets the status and stamps `bound_policy_id` if something else filled it in;
-  it does NOT create the policy from the proposed terms. The terms columns of
-  `tci.insurance_requests` deliberately shadow `tci.policies` so that step is a
-  straight projection when 3c-2 builds it.
+* ~~A submission cannot hold credit decisions before a policy exists~~ —
+  **RESOLVED in 3c-2** (migration 0023). `policy_id` is nullable, and the
+  grouping key everywhere is `tci.limit_scope(policy_id, insurance_request_id)`
+  = `coalesce(policy_id, insurance_request_id)`. A submission scopes its own
+  limits until bind, then they are adopted onto the policy and re-scope
+  automatically. See **The limit scope key** below.
+* ~~Bind is a status transition only~~ — **RESOLVED in 3c-2** (migration 0023).
+  `tci.bind_insurance_request(request_id, policy_number, inception, expiry)`
+  projects the agreed terms into a policy, adopts the package's limit requests
+  onto it, stamps `bound_policy_id` and drives the `bound` transition itself.
+  The bare `accepted → bound` transition is still legal SQL (bind uses it) but
+  is deliberately NOT offered as a button — `NOT_OFFERED_DIRECTLY` in
+  `src/features/requests/machine.ts` — because it would strand a submission as
+  `bound` with no policy behind it.
 * **Assignees are stored, not yet used.** `assigned_sales` / `assigned_commercial`
   / `assigned_credit` exist and are surfaced nowhere: the Agenda owns
   assignment, and inventing a second assignment UI now would compete with it.
-* **`buyer_resolution_status` beyond `ready` is not advanced automatically.**
-  `rating_done` / `limit_done` are set by hand today; the Agenda should move
-  them off `limit.credit_decided` events.
+* **`buyer_resolution_status` beyond `ready` is still not advanced
+  automatically.** `rating_done` / `limit_done` are set by hand. The Agenda now
+  consumes `rating.created` and `limit.credit_decided` to CLOSE its own tasks,
+  but it does not write back to `insurance_request_buyers`; doing so is a small
+  follow-up in the same mapping.
 
 ### Workflow event catalogue (`tci.workflow_events`, migration 0019)
 
-Append-only; nothing consumes it yet — the Agenda of 3c-2 is its first reader.
+Append-only. The Agenda mapping (`tci.handle_workflow_event`, migration 0024)
+is its reader: an AFTER INSERT trigger on this table.
 Each row carries `event_type`, `object_type`, `object_id`, `actor`,
 `target_role` (the department the ball moves to) and a `payload` jsonb.
 
@@ -329,9 +328,100 @@ Each row carries `event_type`, `object_type`, `object_id`, `actor`,
 | `request.created` | insurance_request | — | — |
 | `request.status_changed` | insurance_request | from, to, comment | the owner of the new status |
 | `request.assigned` | insurance_request | field, user | the assignee's role |
-| `request.buyer_added` | insurance_request | buyer_row_id | `sales` |
+| `request.buyer_added` | insurance_request | buyer_row_id, name, entity_id, request_number | `sales` |
 | `request.buyer_resolved` | insurance_request | buyer_row_id, entity_id | `credit_underwriter` |
 | `limit.credit_decided` | credit_limit_decision | outcome, amount, grade_band | `commercial_underwriter` |
 | `limit.commercial_adjusted` | credit_limit_decision | credit_decision_id, from_amount, to_amount, grade_band, is_reduction | `sales`, or `client` on a reduction |
 | `limit.released` | credit_limit_decision | release_kind, comment | `client` |
-| `limit.held` | credit_limit_decision | comment | `commercial_underwriter` |
+| `limit.held` | credit_limit_decision | comment, request_id | `commercial_underwriter` |
+| `limit.request_submitted` | credit_limit_request | entity_id, amount, currency | `credit_underwriter` |
+| `limit.request_escalated` | credit_limit_request | entity_id, amount, currency, grade_band, amount_uzs | `credit_underwriter` |
+| `rating.created` | credit_assessment | entity_id, grade | `credit_underwriter` |
+| `request.bound` | insurance_request | policy_id, policy_number, limits_adopted | `sales` |
+
+### The limit scope key (migration 0023)
+
+`tci.credit_limit_requests.policy_id` is **nullable**: new business raises
+limit requests inside a submission, before any policy exists. Everything that
+used to group by `policy_id` now groups by
+
+```sql
+tci.limit_scope(policy_id, insurance_request_id)  -- coalesce(policy, submission)
+```
+
+an `immutable` SQL function, so it can key an index. A `check` constraint
+guarantees at least one of the two is set, so the key is never null.
+
+**Why coalesce and not a three-column key.** A composite
+`(policy_id, insurance_request_id, entity_id)` index would let the SAME buyer
+hold one open request under the submission and another under the policy the
+moment bind adopted the first — two open requests for one buyer, which is
+exactly what the one-open-request rule exists to prevent. `DISTINCT ON` has
+the mirror-image problem: it treats NULL keys as EQUAL, so every pre-bind
+limit across every submission would collapse into one row. Coalescing makes
+the scope a single value that MOVES with the limit when bind adopts it,
+instead of a pair that can disagree.
+
+Touchpoints (all in 0023):
+
+| what | how it is keyed |
+|---|---|
+| `credit_limit_requests_open_uq` | `(tci.limit_scope(…), entity_id)` where status is open |
+| `v_effective_limits` | `distinct on (tci.limit_scope(…), r.entity_id)`, exposing `scope_id` and `pre_bind` |
+| `v_buyer_exposure` | `and v.policy_id is not null` — a pre-bind limit is not exposure |
+| `decide_limit_request` supersede | scope-to-scope comparison |
+| `apply_emergency_release` | same |
+| client RLS (requests + decisions) | resolves through the policy OR the submission's applicant |
+| `submit_limit_request` | policy path needs an ACTIVE policy; submission path refuses declined/withdrawn/bound |
+| `bind_insurance_request` | adopts `policy_id` onto the package, which re-scopes it |
+
+### Agenda task catalogue (`tci.tasks`, migration 0024)
+
+Tasks are **generated, never hand-maintained**: the mapping opens them for the
+department the ball moved to and closes them when the condition resolves. Ten
+of the eleven types therefore close themselves; `tci.complete_task` REFUSES
+every type but `submission_declined`, and `src/features/agenda/catalogue.ts`
+mirrors that so the «Готово» button is only ever offered where the database
+will accept it.
+
+| task_type | target | priority | closes |
+|---|---|---|---|
+| `buyer_needs_entity` | information_manager | high | AUTO `request.buyer_resolved` |
+| `buyer_needs_rating` | credit_underwriter | normal | AUTO `rating.created` |
+| `limit_needs_decision` | credit_underwriter * | normal | AUTO `limit.credit_decided` |
+| `limit_escalated` | credit_underwriter * | urgent | AUTO `limit.credit_decided` |
+| `submission_commercial_review` | commercial_underwriter | normal | AUTO status leaves `commercial_review` |
+| `submission_sales_confirmation` | sales | high | AUTO status leaves `sales_confirmation` |
+| `limit_held` | the decider (user) | high | AUTO `limit.released` / `limit.commercial_adjusted` |
+| `submission_accepted` | sales | high | AUTO `request.bound` |
+| `submission_declined` | sales | normal | **MANUAL — the only one** |
+| `limit_review_due` | credit_underwriter | high ≤7d, else normal | AUTO lazily, once no longer near expiry |
+| `rating_stale` | credit_underwriter | normal | AUTO `rating.created`, or lazily |
+
+`*` **band-aware**: addressed to the individual underwriters whose `credit`
+authority covers the amount (`tci.underwriters_covering`), falling back to the
+role when that cannot be resolved — no grants, or no fx rate for the currency.
+
+`submission_declined` is manual because nothing downstream happens once the
+client says no: a human decides the file is closed. Every other type has an
+objective signal, so none of them can linger.
+
+**`due_at` is the silent-consent clock made visible.** On
+`→ sales_confirmation` it is set to the EARLIEST moment one of the package's
+decisions would reach the client on its own (`min(decided_at) + sales window`),
+so an overdue row means the window has run out.
+
+**No cron anywhere.** `limit_review_due` and `rating_stale` are generated AND
+retired by `tci.refresh_agenda()`, which the screen calls on read; the set is
+recomputed rather than accumulated, so repeating it is a no-op. The badge and
+the board share one React Query key so the two can never disagree, and
+`staleTime` is what keeps the generation to roughly once a minute.
+
+**Nothing is backfilled.** The table starts empty on purpose — replaying
+months of the event stream would open tasks for work already done.
+
+**Rendered text never reaches the database.** A task stores `title_key` +
+`params`; the UI renders it in the viewer's language. The same rule is why
+`bind_insurance_request` writes no note on the policy and no comment on the
+`bound` history row: provenance is structural (`bound_policy_id`), and the UI
+renders «Создан из заявки …» translated.

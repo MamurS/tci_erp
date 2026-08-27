@@ -505,10 +505,14 @@ begin
     select * into v_buyer from tci.insurance_request_buyers
      where id = (new.payload->>'buyer_row_id')::uuid;
     if found and v_buyer.entity_id is null then
+      select * into v_request from tci.insurance_requests where id = new.object_id;
       perform tci.open_task(
         'buyer_needs_entity', 'insurance_request', new.object_id,
         'agenda.tasks.buyer_needs_entity',
-        jsonb_build_object('buyer_row_id', v_buyer.id, 'name', v_buyer.proposed_name),
+        -- request_number so the Agenda row reads as a whole sentence without
+        -- a second lookup: information_manager may not see the submission.
+        jsonb_build_object('buyer_row_id', v_buyer.id, 'name', v_buyer.proposed_name,
+                           'request_number', v_request.request_number),
         'information_manager'::tci.user_role, null, null, 'high', new.id);
     end if;
 
