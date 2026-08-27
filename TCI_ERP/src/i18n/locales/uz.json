@@ -10,7 +10,7 @@
     "policyholders": "Sug‘urtalanuvchilar",
     "policies": "Polislar",
     "declarations": "Deklaratsiyalar",
-    "claims": "Zararlar",
+    "claims": "Sug‘urta da’volari",
     "admin": "Administratsiya",
     "entities": "Tashkilotlar"
   },
@@ -34,7 +34,7 @@
     "sales": "Sotuv",
     "commercial_underwriter": "Tijorat anderrayteri",
     "credit_underwriter": "Kredit anderrayteri",
-    "claims": "Zararlar",
+    "claims": "Sug‘urta da’volari",
     "information_manager": "Axborot menejeri",
     "client": "Mijoz",
     "descriptions": {
@@ -42,7 +42,7 @@
       "sales": "Tashkilotlar va polislar (o‘qish), limit so‘rovlarini yaratadi",
       "commercial_underwriter": "Polis shartlari va qarorlarning tijorat bosqichi",
       "credit_underwriter": "Reytinglar, limitlar va vakolat doirasidagi kredit qarorlari",
-      "claims": "Zararlar va subrogatsiya",
+      "claims": "Sug‘urta da’volari va subrogatsiya",
       "information_manager": "Tashkilot ma’lumotlari va moliyaviy hisobotlarni kiritadi",
       "client": "Portal foydalanuvchisi: faqat o‘z polislari va limitlari"
     }
@@ -658,14 +658,14 @@
     "transitions": {
       "active": "Faollashtirish",
       "suspended": "To‘xtatib turish",
-      "cancelled": "Bekor qilish",
+      "cancelled": "Shartnomani bekor qilish",
       "expired": "Muddati tugagan deb belgilash",
       "annulled": "Annulyatsiya qilish"
     },
     "transitionConfirm": {
       "suspended": "{{number}} polisi bo‘yicha qoplamani to‘xtatib turasizmi? Qayta faollashtirilguncha yangi jo‘natmalar qoplanmaydi.",
       "cancelled": "{{number}} polisini bekor qilasizmi? Bu o‘tish qaytarilmas.",
-      "annulled": "{{number}} polisi annulyatsiya qilinsinmi? Annulyatsiya: shartnoma tuzilmagan hisoblanadi (mukofot qaytariladi). Muayyan sanadan to‘xtatish uchun “Bekor qilish” dan foydalaning. Sabab ko‘rsatilgan izoh majburiy."
+      "annulled": "{{number}} polisi annulyatsiya qilinsinmi? Annulyatsiya: shartnoma tuzilmagan hisoblanadi (mukofot qaytariladi). Muayyan sanadan to‘xtatish uchun “Shartnomani bekor qilish” dan foydalaning. Sabab ko‘rsatilgan izoh majburiy."
     },
     "termGroups": {
       "contract": "Shartnoma",
@@ -724,19 +724,19 @@
       "under_review": "Ko‘rib chiqilmoqda",
       "escalated": "Eskalatsiya",
       "decided": "Qaror qabul qilingan",
-      "withdrawn": "Chaqirib olingan"
+      "withdrawn": "Qaytarib olingan"
     },
     "outcomes": {
       "approved": "Tasdiqlangan",
       "partial": "Qisman tasdiqlangan",
       "declined": "Rad etilgan",
-      "revoked": "Chaqirib olingan"
+      "revoked": "Bekor qilingan"
     },
     "lifecycles": {
       "effective": "Amaldagi",
       "superseded": "Almashtirilgan",
       "expired": "Muddati tugagan",
-      "revoked_lc": "Chaqirib olingan"
+      "revoked_lc": "Bekor qilingan"
     },
     "conditionTypes": {
       "security": "Ta’minot",
@@ -749,14 +749,14 @@
       "created": "Yaratilgan",
       "submitted": "Yuborilgan",
       "decided": "Qaror",
-      "withdrawn": "Chaqirib olingan"
+      "withdrawn": "Qaytarib olingan"
     },
     "actions": {
       "submit": "Yuborish",
       "startReview": "Ko‘rib chiqishga olish",
-      "withdraw": "Chaqirib olish",
+      "withdraw": "Qaytarib olish",
       "decide": "Qarorni qayd etish",
-      "revoke": "Limitni chaqirib olish"
+      "revoke": "Limitni bekor qilish"
     },
     "fields": {
       "buyer": "Bayer",
@@ -773,7 +773,7 @@
       "basedOnAssessment": "Baholash asosida",
       "justification": "Asoslash",
       "paymentTerms": "To‘lov shartlari",
-      "withdrawComment": "Chaqirib olish izohi"
+      "withdrawComment": "Qaytarib olish izohi"
     },
     "preflight": {
       "within": "{{band}} reytingi uchun vakolatingiz doirasida ({{authority}} UZS ekv.)",
@@ -803,7 +803,7 @@
     "awaitingSenior": "Eskalatsiya — katta anderrayter qarori kutilmoqda",
     "escalatedResult": "Summa {{band}} reytingi uchun vakolatingizdan oshadi — so‘rov eskalatsiya qilindi",
     "decideFailed": "Qarorni qayd etib bo‘lmadi",
-    "withdrawConfirm": "Limit so‘rovi chaqirib olinsinmi? Bayerning amaldagi limiti o‘zgarmaydi.",
+    "withdrawConfirm": "Limit so‘rovi qaytarib olinsinmi? Bayerning amaldagi limiti o‘zgarmaydi.",
     "requestLimit": "Limit so‘rash",
     "createDraft": "Qoralama yaratish",
     "createFailed": "So‘rovni yaratib bo‘lmadi",
