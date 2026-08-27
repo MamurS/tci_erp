@@ -112,6 +112,11 @@ create policy "buyer_proposals: resolver writes"
 -- tci.v_client_limit_requests and writes them through
 -- tci.client_request_limit, both of which are SECURITY DEFINER.
 
+-- RLS decides which rows; a GRANT is still what decides whether the table can
+-- be reached at all. Without this the staff queue fails with 42501 no matter
+-- what the policies say, which is exactly how the smoke found it missing.
+grant select, update on tci.client_buyer_proposals to authenticated;
+
 -- ---------------------------------------------------------------------------
 -- 2. The gate every client-facing view shares
 -- ---------------------------------------------------------------------------
