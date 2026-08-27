@@ -149,3 +149,7 @@ class GradeBandOut(BaseModel):
     lower: float
     upper: float
     risk_coefficient: float
+    #: Grade FAMILY (A1/A2 -> "A"): the unit the underwriting authority
+    #: matrix is keyed by (tci.grade_band). Consumers must not derive this
+    #: themselves - the engine owns the grade codes.
+    family: str

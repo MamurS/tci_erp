@@ -15,6 +15,7 @@ import {
   Tabs,
 } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
+import { hasRole } from '../../lib/roles'
 import { EM_DASH, formatAmount } from '../../lib/format'
 import { gradeTone } from '../../lib/grade'
 import { useLatestGrades } from '../entities/api'
@@ -27,8 +28,9 @@ export function LimitsPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const navigate = useNavigate()
-  const { session, role } = useAuth()
-  const isSenior = role === 'admin' || role === 'senior_underwriter'
+  const { session, roles } = useAuth()
+  // Only those who may decide need the escalated queue.
+  const canDecide = hasRole(roles, 'admin', 'credit_underwriter')
 
   const { data: requests, isLoading } = useLimitRequests()
   const grades = useLatestGrades()
@@ -70,7 +72,7 @@ export function LimitsPage() {
   const tabs = [
     { key: 'drafts', label: t('limits.tabs.drafts') },
     { key: 'review', label: t('limits.tabs.review') },
-    ...(isSenior
+    ...(canDecide
       ? [{
           key: 'escalated',
           label: escalatedCount

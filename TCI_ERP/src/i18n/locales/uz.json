@@ -30,10 +30,22 @@
   },
   "roles": {
     "admin": "Administrator",
-    "senior_underwriter": "Katta anderrayter",
-    "underwriter": "Anderrayter",
-    "policyholder": "Sug‘urtalanuvchi",
-    "unassigned": "Rol tayinlanmagan"
+    "unassigned": "rol tayinlanmagan",
+    "sales": "Sotuv",
+    "commercial_underwriter": "Tijorat anderrayteri",
+    "credit_underwriter": "Kredit anderrayteri",
+    "claims": "Zararlar",
+    "information_manager": "Axborot menejeri",
+    "client": "Mijoz",
+    "descriptions": {
+      "admin": "To‘liq huquq; foydalanuvchilar, rollar va vakolatlarni boshqaradi",
+      "sales": "Tashkilotlar va polislar (o‘qish), limit so‘rovlarini yaratadi",
+      "commercial_underwriter": "Polis shartlari va qarorlarning tijorat bosqichi",
+      "credit_underwriter": "Reytinglar, limitlar va vakolat doirasidagi kredit qarorlari",
+      "claims": "Zararlar va subrogatsiya",
+      "information_manager": "Tashkilot ma’lumotlari va moliyaviy hisobotlarni kiritadi",
+      "client": "Portal foydalanuvchisi: faqat o‘z polislari va limitlari"
+    }
   },
   "common": {
     "loading": "Yuklanmoqda…",
@@ -718,13 +730,13 @@
       "approved": "Tasdiqlangan",
       "partial": "Qisman tasdiqlangan",
       "declined": "Rad etilgan",
-      "revoked": "Bekor qilingan"
+      "revoked": "Chaqirib olingan"
     },
     "lifecycles": {
       "effective": "Amaldagi",
       "superseded": "Almashtirilgan",
       "expired": "Muddati tugagan",
-      "revoked_lc": "Bekor qilingan"
+      "revoked_lc": "Chaqirib olingan"
     },
     "conditionTypes": {
       "security": "Ta’minot",
@@ -743,7 +755,8 @@
       "submit": "Yuborish",
       "startReview": "Ko‘rib chiqishga olish",
       "withdraw": "Chaqirib olish",
-      "decide": "Qarorni qayd etish"
+      "decide": "Qarorni qayd etish",
+      "revoke": "Limitni chaqirib olish"
     },
     "fields": {
       "buyer": "Bayer",
@@ -763,8 +776,8 @@
       "withdrawComment": "Chaqirib olish izohi"
     },
     "preflight": {
-      "within": "Vakolatingiz doirasida ({{authority}} UZS ekv.)",
-      "exceeds": "Vakolatingizdan oshadi ({{authority}} UZS ekv.) — qaror katta anderrayterga o‘tkaziladi",
+      "within": "{{band}} reytingi uchun vakolatingiz doirasida ({{authority}} UZS ekv.)",
+      "exceeds": "{{band}} reytingi uchun vakolatingizdan oshadi ({{authority}} UZS ekv.) — qaror eskalatsiya qilinadi",
       "missingRate": "{{currency}} uchun UZS kursi yo‘q — avval fx_rates jadvaliga kurs qo‘shing, aks holda qaror eskalatsiya qilinadi"
     },
     "searchPlaceholder": "Bayer, polis № yoki sug‘urtalanuvchi…",
@@ -788,7 +801,7 @@
     "conditionPlaceholder": "Shart tavsifi…",
     "conditionsTooltip": "Shartlar: {{count}}",
     "awaitingSenior": "Eskalatsiya — katta anderrayter qarori kutilmoqda",
-    "escalatedResult": "Summa vakolatingizdan oshadi — so‘rov katta anderrayterga o‘tkazildi",
+    "escalatedResult": "Summa {{band}} reytingi uchun vakolatingizdan oshadi — so‘rov eskalatsiya qilindi",
     "decideFailed": "Qarorni qayd etib bo‘lmadi",
     "withdrawConfirm": "Limit so‘rovi chaqirib olinsinmi? Bayerning amaldagi limiti o‘zgarmaydi.",
     "requestLimit": "Limit so‘rash",
@@ -802,7 +815,14 @@
     "exposureTotal": "Jami ekspozitsiya",
     "missingRates_one": "{{count}} valyuta uchun UZS kursi yo‘q",
     "missingRates_other": "{{count}} valyuta uchun UZS kursi yo‘q",
-    "pairHeader": "So‘ralgan → tasdiqlangan"
+    "pairHeader": "So‘ralgan → tasdiqlangan",
+    "bands": {
+      "A": "A",
+      "B": "B",
+      "C": "C",
+      "D": "D",
+      "unrated": "reytingsiz"
+    }
   },
   "entities": {
     "subtitle": "Yagona reyestr — sug‘urtalanuvchilar, bayerlar va tahlildagi tashkilotlar",
@@ -839,5 +859,51 @@
     "portfolioLimitsTitle": "Ularning polislari bo‘yicha bayer limitlari",
     "portfolioSummary": "Sug‘urtalanuvchi portfeli:",
     "portfolioLimits": "amaldagi limitlar"
+  },
+  "access": {
+    "denied": "Ruxsat yo‘q",
+    "deniedHint": "Bu bo‘lim sizning rolingizga kirmaydi. Kerak bo‘lsa administratorga murojaat qiling.",
+    "yourRoles": "Sizning rollaringiz",
+    "backToDashboard": "Dashbordga qaytish"
+  },
+  "admin": {
+    "subtitle": "Foydalanuvchilar, bo‘lim rollari va anderrayting vakolatlari",
+    "tabs": {
+      "users": "Foydalanuvchilar va rollar",
+      "authorities": "Vakolatlar"
+    },
+    "noUsers": "Hozircha foydalanuvchilar yo‘q",
+    "editRoles": "Rollar",
+    "rolesFor": "Rollar — {{email}}",
+    "rolesHint": "Foydalanuvchi bir nechta rolga ega bo‘lishi mumkin; huquqlar ularning birlashmasi.",
+    "clientAndStaffWarning": "Bu foydalanuvchi ham portal mijozi, ham xodim bo‘lib qoladi. «Mijoz» roli faqat tashqi foydalanuvchilar uchun.",
+    "selectUser": "Foydalanuvchini tanlang",
+    "selectUserHint": "Vakolatlarni tahrirlash uchun «Foydalanuvchilar va rollar» yorlig‘ida foydalanuvchini tanlang.",
+    "authoritiesFor": "Vakolatlar — {{email}}",
+    "authoritiesHint": "Foydalanuvchi har bir reyting klassi bo‘yicha tasdiqlashi mumkin bo‘lgan maksimal summa. Summalar so‘nggi kurs bo‘yicha UZS da solishtiriladi.",
+    "commercialDormant": "Tijorat vakolatlari hozir saqlanadi, 3c bosqichida qo‘llanila boshlaydi.",
+    "adminUnlimited": "Administratorlar istalgan summa bo‘yicha qaror qabul qiladi — matritsa ularga tegishli emas.",
+    "scopes": {
+      "credit": "Kredit",
+      "commercial": "Tijorat"
+    },
+    "grant": "Tayinlash",
+    "openEnded": "muddatsiz",
+    "expiredGrants": "Muddati tugagan vakolatlar ({{count}})",
+    "fields": {
+      "email": "Email",
+      "roles": "Rollar",
+      "lastSignIn": "Oxirgi kirish",
+      "band": "Reyting klassi",
+      "maxAmount": "Maks. summa",
+      "currency": "Valyuta",
+      "validFrom": "Amal qilish boshlanishi",
+      "validTo": "Amal qilish tugashi"
+    },
+    "errors": {
+      "amountPositive": "Summa noldan katta bo‘lishi kerak",
+      "periodOrder": "«Amal qilish tugashi» boshlanishidan oldin bo‘lmasligi kerak",
+      "validFromRequired": "«Amal qilish boshlanishi» ni ko‘rsating"
+    }
   }
 }

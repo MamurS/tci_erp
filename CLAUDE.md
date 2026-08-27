@@ -29,14 +29,19 @@ Benchmark for domain logic: Allianz Trade / Coface / Atradius practices.
 
 ## Roles & access model
 
-Roles (stored in `tci.user_roles`, enforced via RLS):
+Department roles (stored in `tci.user_roles`, enforced via RLS). **A user may hold SEVERAL roles** — one row per (user, role); access is the union:
 
-- `admin` — full access, manages users and reference data
-- `senior_underwriter` — approves above discretionary authority, manages authority limits
-- `underwriter` — day-to-day credit & commercial underwriting within authority
-- `policyholder` — future external portal user: sees ONLY own policies, own limit requests, own declarations. Design every policy with this role in mind even before the portal exists.
+- `admin` — full access, manages users, roles and authorities
+- `sales` — companies and policies (read), raises limit requests
+- `commercial_underwriter` — policy terms; the commercial stage of decisions (Phase 3c)
+- `credit_underwriter` — ratings, limits and credit decisions within band authority
+- `claims` — claims and recoveries
+- `information_manager` — fills in company data and financial statements
+- `client` — external portal user: sees ONLY own policies, own limit requests, own declarations. Design every policy with this role in mind even before the portal exists.
 
-Underwriting authority: decisions above a user's authority limit must route to a senior underwriter for approval (workflow status, not just UI hiding).
+SQL helpers: `tci.current_user_roles()` (setof), `tci.has_role(variadic)`, `tci.is_staff()` (= any role except `client`). There is **no `senior_underwriter`** any more — seniority is expressed by the authority matrix.
+
+Underwriting authority is a **2D matrix** (`tci.authority_grants`): user × stream (`credit` | `commercial`) × grade band (`A`/`B`/`C`/`D`/`unrated`) × amount × currency × validity. `tci.my_authority_uzs(band)` = MAX over the caller's currently valid `credit` grants for that band, converted to UZS by the Phase 2b fx rule. **Admin is unlimited.** A decision above the deciding user's band authority sets the request to `escalated` (a workflow status, not just UI hiding); any credit underwriter whose band authority covers it — or an admin — can then decide it. The band comes from the grade FAMILY of the assessment the decision is based on (A1/A2→A …); no assessment ⇒ `unrated`. Band families are served by the analytics service (`GET /grade-scale` → `family`), never hardcoded outside the band names.
 
 ## i18n
 
@@ -103,6 +108,7 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 - [x] Phase 2a: commercial underwriting foundation — policyholder registry, TCI policies with wording terms, SQL status machine (change_policy_status + history), portal-ready policy RLS, dashboard stat cards (quotations deliberately deferred)
 - [x] Phase 2b: credit limit workflow — requests/decisions attached to (policy, buyer): one open request per pair, immutable decisions with typed conditions, authority routing in UZS (escalation to senior), supersede/revoke chains, exposure views, /limits workspace + request page, policy & buyer integration
 - [x] Phase 3a: unified legal-entities registry — tci.legal_entities merges buyers + policyholders (merge on country+reg number, FKs renamed to entity_id, old tables dropped), roles COMPUTED via v_entity_roles (never assigned), pg_trgm dedup-on-entry (blocking reg match + fuzzy suggestions), /entities registry + card with conditional tabs, legacy /buyers & /policyholders redirects
+- [x] Phase 3b: department roles + 2D authority matrix — user_role enum recreated (sales/commercial_underwriter/credit_underwriter/claims/information_manager/client + admin), multi-role users, RLS restated on has_role/is_staff, tci.authority_grants (stream × grade band × amount × validity), band-aware decide/revoke, /admin users & authorities screens, role-driven sidebar + route guards
 - [ ] Phase 3 (operations): declarations, premium booking, overdues
 - [ ] Phase 4: claims & recoveries
 - [ ] Phase 5: Python analytics service (scoring/rating)
@@ -110,6 +116,6 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 
 ## Design notes (future phases — recorded, not built)
 
-* Phase 3b: role enum → sales, commercial_underwriter, credit_underwriter, claims, information_manager, admin, client; multi-role users; 2D authority matrix (user × grade-band × max amount × currency × validity), shared by credit and commercial UW.
-* Phase 3c: insurance_request pipeline (client/sales/comm UW create → sales resolves entities, auto-task to information_manager for missing ones → parallel commercial (terms) + credit (ratings/limits, confirming engine auto-rating) → sales confirmation → client acceptance → bind). Two-stage limit decisions: credit stage (rating+limit) then optional commercial stage adjusting ONLY amount and credit period, both directions, within own authority; rating and conditions untouchable by commercial. In-force changes: credit → commercial → sales window (configurable, default 1 business day) with silent-consent release (lazy released_at, no cron), then visible to client; REDUCTIONS and REVOCATIONS bypass commercial and sales — visible to client immediately (emergency risk actions). Agenda: single tasks table (type, object ref, assignee role/user, due, status) driving all queues.
+* ~~Phase 3b: role enum, multi-role users, 2D authority matrix~~ — **DONE** (migrations 0016–0018).
+* Phase 3c (NEXT): insurance_request pipeline (client/sales/comm UW create → sales resolves entities, auto-task to information_manager for missing ones → parallel commercial (terms) + credit (ratings/limits, confirming engine auto-rating) → sales confirmation → client acceptance → bind). Two-stage limit decisions: credit stage (rating+limit) then optional commercial stage adjusting ONLY amount and credit period, both directions, within own authority; rating and conditions untouchable by commercial. In-force changes: credit → commercial → sales window (configurable, default 1 business day) with silent-consent release (lazy released_at, no cron), then visible to client; REDUCTIONS and REVOCATIONS bypass commercial and sales — visible to client immediately (emergency risk actions). Agenda: single tasks table (type, object ref, assignee role/user, due, status) driving all queues.
 * Phase 3d: client portal — invitation-only (sales creates, system sends link + temp password, forced password change on first login; requires the password-change page and Supabase Site URL setup).

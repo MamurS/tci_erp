@@ -8,9 +8,10 @@ import type { UserRole } from '../lib/roles'
 
 interface AuthContextValue {
   session: Session | null
-  /** Role from tci.user_roles; null when not signed in or no role assigned yet. */
-  role: UserRole | null
-  /** True while the initial session and role are being resolved. */
+  /** All roles held by the user (tci.user_roles has one row per role);
+   * empty when not signed in or none assigned yet. */
+  roles: UserRole[]
+  /** True while the initial session and roles are being resolved. */
   loading: boolean
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
@@ -18,18 +19,20 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
-async function fetchRole(userId: string): Promise<UserRole | null> {
-  const { data, error } = await tci().from('user_roles').select('role').eq('user_id', userId).maybeSingle()
+async function fetchRoles(userId: string): Promise<UserRole[]> {
+  const { data, error } = await tci().from('user_roles').select('role').eq('user_id', userId)
   if (error) {
-    console.error('Failed to load user role', error)
-    return null
+    console.error('Failed to load user roles', error)
+    return []
   }
-  return isUserRole(data?.role) ? data.role : null
+  return ((data ?? []) as { role: unknown }[])
+    .map((r) => r.role)
+    .filter(isUserRole)
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
-  const [role, setRole] = useState<UserRole | null>(null)
+  const [roles, setRoles] = useState<UserRole[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -45,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (cancelled) return
       setSession(newSession)
       if (!newSession) {
-        setRole(null)
+        setRoles([])
         setLoading(false)
       }
     })
@@ -62,9 +65,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!userId) return
 
     setLoading(true)
-    fetchRole(userId).then((r) => {
+    fetchRoles(userId).then((r) => {
       if (cancelled) return
-      setRole(r)
+      setRoles(r)
       setLoading(false)
     })
 
@@ -83,8 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ session, role, loading, signIn, signOut }),
-    [session, role, loading, signIn, signOut],
+    () => ({ session, roles, loading, signIn, signOut }),
+    [session, roles, loading, signIn, signOut],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

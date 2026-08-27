@@ -1,15 +1,17 @@
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../auth/AuthContext'
+import { hasRole } from '../../lib/roles'
 import { useEscalatedCount } from '../../features/limits/api'
-import { navItemsForRole } from './navigation'
+import { navItemsForRoles } from './navigation'
 
 export function Sidebar() {
   const { t } = useTranslation()
-  const { role } = useAuth()
-  const items = navItemsForRole(role)
-  const isSenior = role === 'admin' || role === 'senior_underwriter'
-  const { data: escalatedCount } = useEscalatedCount(isSenior)
+  const { roles } = useAuth()
+  const items = navItemsForRoles(roles)
+  // Anyone who may decide sees the escalated queue size.
+  const canDecide = hasRole(roles, 'admin', 'credit_underwriter')
+  const { data: escalatedCount } = useEscalatedCount(canDecide)
 
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-slate-200 bg-white">
@@ -33,7 +35,7 @@ export function Sidebar() {
           >
             <span className="flex items-center justify-between">
               {t(`nav.${item.key}`)}
-              {item.key === 'limits' && isSenior && (escalatedCount ?? 0) > 0 && (
+              {item.key === 'limits' && canDecide && (escalatedCount ?? 0) > 0 && (
                 <span
                   className="rounded-full bg-warn-50 px-1.5 text-xs font-semibold text-warn-500"
                   title={t('limits.tabs.escalated')}

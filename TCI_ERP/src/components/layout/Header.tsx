@@ -5,7 +5,7 @@ import { LanguageSwitcher } from './LanguageSwitcher'
 
 export function Header() {
   const { t } = useTranslation()
-  const { session, role, signOut } = useAuth()
+  const { session, roles, signOut } = useAuth()
 
   return (
     <header className="flex items-center gap-4 border-b border-slate-200 bg-white px-6 py-2.5">
@@ -14,7 +14,7 @@ export function Header() {
       <div className="flex flex-col items-end leading-tight">
         <span className="text-[13px] font-semibold text-slate-800">{session?.user.email}</span>
         <span className="text-xs text-slate-400">
-          {role ? t(`roles.${role}`) : t('roles.unassigned')}
+          {roles.length ? roles.map((r) => t(`roles.${r}`)).join(' · ') : t('roles.unassigned')}
         </span>
       </div>
       <Button variant="ghost" size="sm" onClick={() => void signOut()}>
