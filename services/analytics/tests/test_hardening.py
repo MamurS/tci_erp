@@ -34,6 +34,20 @@ class TestCorsAllowlist:
         assert origin_allowed("https://abc123.tci-erp.pages.dev", settings)
         assert origin_allowed("https://feature-branch.tci-erp.pages.dev", settings)
 
+    @pytest.mark.parametrize(
+        "origin",
+        [
+            # Both shapes Cloudflare actually produced for this project, taken
+            # from a real Pages deployment comment rather than guessed: a
+            # per-commit hash preview and a branch preview with the branch name
+            # truncated. A regex change that breaks previews breaks these.
+            "https://dad778e1.tci-erp.pages.dev",
+            "https://claude-buyer-dashboard-overv.tci-erp.pages.dev",
+        ],
+    )
+    def test_the_hostnames_cloudflare_really_issues_are_allowed(self, origin: str) -> None:
+        assert origin_allowed(origin, Settings())
+
     def test_localhost_is_allowed_for_development(self) -> None:
         assert origin_allowed("http://localhost:5173", Settings())
 
