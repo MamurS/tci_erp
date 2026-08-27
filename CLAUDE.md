@@ -60,6 +60,126 @@ Underwriting authority is a **2D matrix** (`tci.authority_grants`): user × stre
 - Conventional commits (`feat:`, `fix:`, `chore:`, `db:`).
 - Every migration file gets a short comment header explaining what and why.
 
+## Standard phase protocol
+
+The rules every phase follows. A prompt saying "follow the standard phase
+protocol" means all of this; a prompt may override any single point, but
+silence means the default below applies.
+
+### Before starting
+
+- Read this file and `DESIGN.md` first.
+- Before a large refactor, enumerate EVERY touchpoint (grep for the old
+  names, the routes, the i18n keys, the tests) and work from that list —
+  half-renamed code is worse than none.
+- A migration that moves or destroys EXISTING data gets a dry run against
+  canonical first: run it inside a transaction with a forced rollback, check
+  the row counts, then apply for real. Additive migrations do not need this.
+
+### Schema discipline
+
+- Numbered migration files in `TCI_ERP/supabase/migrations/` only. **Never**
+  dashboard SQL, never an ad-hoc `execute_sql` DDL. Each file opens with a
+  `-- What:` / `-- Why:` header.
+- Everything in the `tci` schema. RLS enabled on every table, with explicit
+  policies per role, before any UI touches it.
+- Business logic and state machines live in **SQL functions**, not in the
+  client: transitions, guards, authority checks, derived visibility. The UI
+  mirrors them so it can grey out a button; the database is what enforces.
+- `SECURITY INVOKER` by default. Reach for `SECURITY DEFINER` only when the
+  function must read what the caller cannot (`tci.has_role` and the admin
+  views) or when a policy would recurse into itself — and say why in a
+  comment.
+- History is immutable: decisions, status history and event rows are
+  inserted and superseded, never updated in place. A new row supersedes an
+  old one; the chain stays readable.
+- A data-moving migration asserts its own success in-migration (row counts
+  before/after, no orphans) and raises rather than committing a bad merge.
+
+### Contract tests
+
+Wherever the frontend restates SQL logic — a state machine, an authority
+rule, grade-band mapping, view precedence, a release predicate — lock the
+mirror to the migration **text**:
+
+```ts
+import MIGRATION from '../../../supabase/migrations/0013_credit_limit_workflow.sql?raw'
+expect(MIGRATION).toContain("if v_request.status not in ('submitted', 'under_review', 'escalated') then")
+```
+
+The same trick works across languages (`provisioningAccess.test.ts` reads
+the service's `provisioning_rules.py`). This is not ceremony: it has already
+caught real drift between the two sides. Test the pure module, never the
+component tree.
+
+### Canonical project
+
+- After local verification, apply migrations to the canonical Supabase
+  project (ref in the **Infrastructure** section) — and nowhere else.
+- Then run a live smoke with **role impersonation**, not as the owner:
+  `set local role authenticated` + `set_config('request.jwt.claims', …)`,
+  `reset role` between actors. Assert the refusals too, by SQLSTATE.
+- Create fixtures and delete them in the same transaction; temp tables get
+  `on commit drop` (and a `grant` to `authenticated` if an impersonated role
+  writes to them). Verify the pre-existing dataset is unchanged afterwards.
+- **Never leave a test user, entity or row behind.** The canonical project
+  holds the owner's real data.
+
+### Quality gates
+
+`npm run typecheck`, `npm run build`, `npm run lint`, `npm test`, and
+`uv run pytest` in `services/analytics` when that service is touched — all
+green before pushing. New logic ships with its tests in the same commit.
+
+### i18n
+
+- Every user-facing string in en/ru/uz, including validation messages, enum
+  labels and error text. Locale parity is enforced by a test.
+- The glossary below is **authoritative**. Never invent a term that
+  contradicts it, and never quietly pick a translation for a domain term the
+  glossary does not cover — flag it in the final report for the owner.
+- Check declension and suffix forms, not just the nominative: ru plurals and
+  cases, uz suffixes. A term correct in isolation can be wrong in a sentence.
+
+### Errors and UX
+
+- A deterministic refusal gets a **mapped, readable message** naming what
+  was refused and why. A generic "something went wrong" is acceptable only
+  for a genuinely unknown failure — never for a rule the database enforces
+  on purpose.
+- Amber for non-blocking accounting and validation warnings, red for hard
+  errors (`DESIGN.md`). Never a raw server string in the UI.
+- Every screen has a designed empty state — what it is, and what to do next.
+
+### Design system
+
+- Compose from `src/components/ui`. If a control is needed twice, extract a
+  primitive; do not duplicate a one-off.
+- Follow the financial display rules in `DESIGN.md`: `src/lib/format.ts` is
+  the only formatter, dynamics coloring is direction-aware, null renders as
+  "—" and never as 0.
+
+### Git
+
+- Work on a branch; conventional commits; open a PR when the phase is done.
+- Keep the tree clean — no scratch scripts, no `.tmp` files.
+- **Never** commit a `.env` or any key. `.env.example` carries names only.
+
+### Finishing
+
+Update the phase checklist in **Current status / roadmap**, then report:
+
+1. **Schema** — tables, enums, views, functions added or changed.
+2. **Function contracts** — signature, who may call it, what it refuses.
+3. **Screens** — what shipped, and who can see each.
+4. **Terminology flags** — every term you were unsure of.
+5. **Live smoke** — what ran against canonical, and that cleanup verified.
+6. **Deviations** — where you departed from the prompt and why.
+
+Deviations are expected and welcome when justified. **Silent** deviations
+are not: if the prompt cannot be followed as written, say so and say what
+you did instead.
+
 ## Domain glossary (for consistent naming)
 
 - `buyer` — the debtor whose credit risk is insured (NOT our client)
