@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -17,10 +17,13 @@ import {
   Modal,
   PageHeader,
   Spinner,
+  Tabs,
 } from '../../components/ui'
+import type { TabDef } from '../../components/ui'
 import { EM_DASH, formatAmount, formatPercent } from '../../lib/format'
 import { PolicyLimitsSection } from '../limits/PolicyLimitsSection'
 import { usePolicyOriginRequest } from '../requests/api'
+import { PolicyPremiumTab } from './PolicyPremiumTab'
 import { useChangePolicyStatus, usePolicy, usePolicyStatusHistory } from './api'
 import {
   allowedTargets,
@@ -95,16 +98,56 @@ export function PolicyDetailPage() {
         </div>
       )}
 
-      <div className="grid items-start gap-5 xl:grid-cols-[2fr_1fr]">
-        <div className="flex flex-col gap-5">
-          <TermsCard policy={policy} />
-
-          <PolicyLimitsSection policy={policy} />
-        </div>
-
-        <HistoryTimeline policyId={id} />
-      </div>
+      <PolicyBody policy={policy} policyId={id} />
     </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Terms and premium are two different readings of the same policy, and the
+// premium one is long enough to deserve its own surface. The Agenda deep-links
+// straight to it (?tab=premium) because an instalment has no page of its own.
+// ---------------------------------------------------------------------------
+
+function PolicyBody({ policy, policyId }: { policy: PolicyWithRefs; policyId: string }) {
+  const { t } = useTranslation()
+  const [params, setParams] = useSearchParams()
+  const active = params.get('tab') === 'premium' ? 'premium' : 'terms'
+
+  const tabs: TabDef[] = [
+    { key: 'terms', label: t('policies.tabs.terms') },
+    { key: 'premium', label: t('policies.tabs.premium') },
+  ]
+
+  return (
+    <>
+      <div className="mb-4">
+        <Tabs
+          tabs={tabs}
+          active={active}
+          onChange={(id) => {
+            const next = new URLSearchParams(params)
+            if (id === 'premium') next.set('tab', 'premium')
+            else next.delete('tab')
+            setParams(next, { replace: true })
+          }}
+        />
+      </div>
+
+      {active === 'premium' ? (
+        <PolicyPremiumTab policyId={policyId} />
+      ) : (
+        <div className="grid items-start gap-5 xl:grid-cols-[2fr_1fr]">
+          <div className="flex flex-col gap-5">
+            <TermsCard policy={policy} />
+
+            <PolicyLimitsSection policy={policy} />
+          </div>
+
+          <HistoryTimeline policyId={policyId} />
+        </div>
+      )}
+    </>
   )
 }
 

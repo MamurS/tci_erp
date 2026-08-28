@@ -13,15 +13,19 @@ import { legacyRedirect } from './features/entities/redirects'
 import { LimitRequestPage, LimitsPage } from './features/limits'
 import { RequestDetailPage, RequestsPage } from './features/requests'
 import { PoliciesPage, PolicyDetailPage, PolicyFormPage } from './features/policies'
-import { DeclarationsPage } from './features/declarations'
+import { DeclarationDetailPage, DeclarationsPage } from './features/declarations'
+import { OverdueDetailPage, OverduesPage } from './features/overdue'
 import { ClaimsPage } from './features/claims'
 import { AdminPage } from './features/admin'
 import { AgendaPage } from './features/agenda'
 import { ChangePasswordPage } from './features/account'
 import {
   PortalAccountPage,
+  PortalDeclarationsPage,
   PortalLimitsPage,
+  PortalOverduesPage,
   PortalPoliciesPage,
+  PortalPremiumPage,
   PortalShell,
   PortalSubmissionsPage,
 } from './features/portal'
@@ -49,6 +53,9 @@ export default function App() {
             <Route path="portal" element={<PortalShell />}>
               <Route index element={<PortalPoliciesPage />} />
               <Route path="limits" element={<PortalLimitsPage />} />
+              <Route path="declarations" element={<PortalDeclarationsPage />} />
+              <Route path="premium" element={<PortalPremiumPage />} />
+              <Route path="overdues" element={<PortalOverduesPage />} />
               <Route path="submissions" element={<PortalSubmissionsPage />} />
               <Route path="account" element={<PortalAccountPage />} />
             </Route>
@@ -90,6 +97,9 @@ export default function App() {
                 <Route path="policies/:id" element={<PolicyDetailPage />} />
                 <Route path="policies/:id/edit" element={<PolicyFormPage />} />
                 <Route path="declarations" element={<DeclarationsPage />} />
+                <Route path="declarations/:id" element={<DeclarationDetailPage />} />
+                <Route path="overdues" element={<OverduesPage />} />
+                <Route path="overdues/:id" element={<OverdueDetailPage />} />
                 <Route path="claims" element={<ClaimsPage />} />
                 <Route path="admin" element={<AdminPage />} />
               </Route>

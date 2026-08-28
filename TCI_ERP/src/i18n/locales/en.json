@@ -14,7 +14,8 @@
     "admin": "Admin",
     "entities": "Companies",
     "requests": "Submissions",
-    "agenda": "Agenda"
+    "agenda": "Agenda",
+    "overdues": "Overdue accounts"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -68,14 +69,26 @@
     "notSelected": "Not selected",
     "saveFailed": "Save failed. Please try again.",
     "confirm": "Confirm",
-    "close": "Close"
+    "close": "Close",
+    "all": "All",
+    "open": "Open",
+    "add": "Add",
+    "loadFailed": "Could not load this",
+    "tryAgain": "Try again in a moment.",
+    "somethingWentWrong": "Something went wrong."
   },
   "dashboard": {
     "welcome": "Welcome, {{email}}",
     "roleLabel": "Your role",
     "activePolicies": "Active policies",
     "policyholders": "Policyholders",
-    "entities": "Companies"
+    "entities": "Companies",
+    "declarationsAwaiting": "Declarations to accept",
+    "declarationsDisputed": "Declarations disputed",
+    "overduesOpen": "Open overdue accounts",
+    "overduesLate": "Reported late",
+    "premiumAccrual": "Premium accrual",
+    "premiumAccrualHint": "Across the policies you can see. The adjustment is never negative — there is no refund below the minimum."
   },
   "buyers": {
     "subtitle": "Register of buyers (debtors) under credit assessment",
@@ -712,7 +725,11 @@
       "premiumRateHigh": "Rate above 5% of turnover is far outside TCI practice",
       "minPremiumAboveExpected": "Minimum premium exceeds rate × estimated turnover"
     },
-    "createdFromRequest": "Created from submission"
+    "createdFromRequest": "Created from submission",
+    "tabs": {
+      "premium": "Premium",
+      "terms": "Terms"
+    }
   },
   "limits": {
     "subtitle": "Credit limit requests and decisions",
@@ -885,6 +902,9 @@
       "refused": "Could not resolve: it may already be resolved, or an open limit request already exists for this Bayer.",
       "notAllowed": "You are not allowed to identify Bayer proposals.",
       "failed": "Something went wrong. Please try again."
+    },
+    "systemReason": {
+      "noaSuspension": "Suspended on an overdue notification"
     }
   },
   "entities": {
@@ -1247,7 +1267,14 @@
       "submission_accepted": "Submission {{request_number}} was accepted — issue the policy",
       "submission_declined": "The client declined submission {{request_number}}: {{reason}}",
       "limit_review_due": "The limit for {{subject}} expires on {{valid_until}} — review it",
-      "rating_stale": "{{subject}} carries an effective limit on a rating over a year old"
+      "rating_stale": "{{subject}} carries an effective limit on a rating over a year old",
+      "declaration_due": "Declaration due for {{period_start}}",
+      "declaration_overdue": "Declaration overdue for {{period_start}}",
+      "declaration_awaiting_acceptance": "Declaration awaiting acceptance",
+      "instalment_due": "Instalment {{sequence}} due {{due_date}}",
+      "instalment_overdue": "Instalment {{sequence}} overdue since {{due_date}}",
+      "noa_credit_review": "Overdue account: review {{buyer_name}}",
+      "uncovered_excess_review": "Turnover declared outside cover"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -1268,7 +1295,10 @@
       "policies": "My policies",
       "limits": "Credit limits",
       "submissions": "Submissions",
-      "account": "Account"
+      "account": "Account",
+      "declarations": "Declarations",
+      "premium": "Premium",
+      "overdues": "Overdue accounts"
     },
     "policies": {
       "title": "My policies",
@@ -1382,6 +1412,171 @@
       "saved": "Saved",
       "security": "Sign-in",
       "securityHint": "Change the password you use to sign in. To change the email address, contact your account manager."
+    },
+    "declarations": {
+      "title": "My declarations",
+      "subtitle": "Declare your insurable turnover for each period.",
+      "empty": "No declarations yet",
+      "emptyHint": "Declare the period that has just closed.",
+      "lines": "Turnover by Bayer",
+      "noLines": "Nothing declared yet",
+      "pickBuyer": "Choose a Bayer",
+      "premium": "Premium",
+      "disputed": "We have a question about this declaration:",
+      "uncoveredWarning": "{{amount}} of this turnover is above your discretionary limit of {{limit}} and is NOT insured.",
+      "actions": {
+        "declarePeriod": "Declare the last period",
+        "submit": "Submit declaration"
+      }
+    },
+    "overdues": {
+      "title": "Overdue accounts",
+      "subtitle": "Tell us when a Bayer stops paying.",
+      "fileTitle": "Report an overdue account",
+      "fileHint": "Report from the due date of the oldest unpaid invoice.",
+      "empty": "Nothing reported",
+      "emptyHint": "Report an overdue account as soon as it passes the maximum extension period.",
+      "cover": "Cover",
+      "suspended": "Suspended",
+      "noLimitAffected": "No approved limit",
+      "lateWarning": "This is later than the deadline of {{date}}. A late notification can prejudice your cover.",
+      "deadlineHint": "You have until {{date}} to notify this account.",
+      "suspensionWarning": "Reporting an overdue account suspends that Bayer’s credit limit at once. New shipments to them will not be covered until a credit underwriter reinstates it.",
+      "actions": {
+        "file": "Report"
+      }
+    },
+    "premium": {
+      "title": "Premium",
+      "subtitle": "What you owe, and how it was worked out.",
+      "empty": "No premium information yet"
+    }
+  },
+  "declarations": {
+    "title": "Turnover declarations",
+    "subtitle": "What policyholders sold, period by period. Premium is earned from these.",
+    "empty": "No declarations yet",
+    "emptyHint": "They appear here once a policyholder declares a period.",
+    "notFound": "Declaration not found",
+    "lines": "Declared turnover by Bayer",
+    "noLines": "No lines",
+    "noLinesHint": "A declaration cannot be submitted until it has at least one line.",
+    "correctionOf": "This declaration corrects an earlier one for the same period.",
+    "disputed": "Disputed",
+    "disputeNotePlaceholder": "What the policyholder needs to fix",
+    "premiumBaseHint": "Premium is earned on this figure.",
+    "uncoveredHint": "Turnover above the discretionary limit for Bayers without an approved limit. This part is not insured.",
+    "splitFrozen": "The coverage split was frozen when this declaration was accepted; a later change to a limit does not move it.",
+    "statuses": {
+      "draft": "Draft",
+      "submitted": "Submitted",
+      "accepted": "Accepted",
+      "disputed": "Disputed",
+      "corrected": "Corrected"
+    },
+    "coverageBasis": {
+      "limit": "Approved limit",
+      "discretionary": "Discretionary limit",
+      "uncovered_excess": "Uncovered excess"
+    },
+    "actions": {
+      "submit": "Submit",
+      "accept": "Accept",
+      "dispute": "Dispute",
+      "correct": "Correct"
+    },
+    "fields": {
+      "period": "Period",
+      "status": "Status",
+      "totalTurnover": "Declared turnover",
+      "coveredTurnover": "Covered turnover",
+      "uncoveredExcess": "Uncovered excess",
+      "insurableTurnover": "Insurable turnover",
+      "coverageBasis": "Cover",
+      "covered": "Covered",
+      "uncovered": "Uncovered",
+      "reportedOverdue": "Reported overdue",
+      "disputeNote": "Reason",
+      "submittedAt": "Submitted",
+      "acceptedAt": "Accepted"
+    }
+  },
+  "premium": {
+    "none": "No premium information for this policy",
+    "instalments": "Instalment schedule",
+    "noInstalments": "No schedule yet",
+    "noInstalmentsHint": "Generate the schedule to split the minimum premium across the policy period.",
+    "accrual": "Earned premium by declaration",
+    "noAccrual": "Nothing earned yet",
+    "noAccrualHint": "Premium is earned when a declaration is accepted.",
+    "noRefundBelowMinimum": "Declared turnover has earned less than the minimum premium. The minimum stands — there is no refund below it.",
+    "adjustmentHint": "Earned premium above the minimum, payable at the end of the period.",
+    "periodClosed": "Period closed",
+    "periodOpen": "Period still running",
+    "rateRecordedHint": "Each entry keeps the rate it was written at, so a later rate change never restates an earlier period.",
+    "basis": {
+      "minimum_with_adjustment": "Minimum premium with adjustment",
+      "as_declared": "As declared"
+    },
+    "instalmentStatuses": {
+      "pending": "Pending",
+      "invoiced": "Invoiced",
+      "paid": "Paid",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "generate": "Generate schedule",
+      "invoice": "Invoice",
+      "markPaid": "Mark paid"
+    },
+    "fields": {
+      "minimumPremium": "Minimum premium",
+      "earnedPremium": "Earned premium",
+      "adjustment": "Adjustment",
+      "dueTotal": "Total due",
+      "rate": "Rate",
+      "rateUsed": "Rate used",
+      "dueDate": "Due",
+      "amount": "Amount",
+      "status": "Status",
+      "scheduleTotal": "Schedule total",
+      "computedAt": "Earned"
+    }
+  },
+  "overdues": {
+    "title": "Overdue accounts",
+    "subtitle": "Bayers reported overdue by policyholders. Not claims.",
+    "empty": "No overdue accounts",
+    "emptyHint": "Notifications appear here as policyholders report them.",
+    "notFound": "Notification not found",
+    "onTime": "On time",
+    "lateBy": "Late by {{days}} d",
+    "lateTitle": "Reported {{days}} days late",
+    "lateExplain": "This account should have been notified by {{date}}. A late notification can prejudice cover.",
+    "suspendedTitle": "Cover suspended for this Bayer",
+    "suspendedExplain": "Filing this notification revoked the approved limit immediately, so new shipments are not covered. A credit underwriter can reinstate it with a new decision.",
+    "openBuyer": "Open the Bayer",
+    "windowHint": "Maximum extension {{extension}} d + notification window {{window}} d",
+    "resolveHint": "Resolving does not reinstate the limit — that is a fresh credit decision.",
+    "statuses": {
+      "open": "Open",
+      "resolved_paid": "Paid",
+      "escalated_to_claim": "Escalated to a claim",
+      "withdrawn": "Withdrawn"
+    },
+    "actions": {
+      "resolve": "Resolve"
+    },
+    "fields": {
+      "status": "Status",
+      "overdueAmount": "Overdue",
+      "daysPastDue": "Days past due",
+      "reported": "Reported",
+      "firstDueDate": "Oldest invoice due",
+      "notifyBy": "Notify by",
+      "reportedAt": "Reported at",
+      "resolution": "Outcome",
+      "resolutionNote": "Note"
     }
   }
 }

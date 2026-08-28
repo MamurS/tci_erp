@@ -15,6 +15,14 @@ export const TASK_TYPES = [
   'submission_declined',
   'limit_review_due',
   'rating_stale',
+  // Phase 4 (migration 0029)
+  'declaration_due',
+  'declaration_overdue',
+  'declaration_awaiting_acceptance',
+  'instalment_due',
+  'instalment_overdue',
+  'noa_credit_review',
+  'uncovered_excess_review',
 ] as const
 
 export type TaskType = (typeof TASK_TYPES)[number]
@@ -30,6 +38,10 @@ export type TaskObjectType =
   | 'legal_entity'
   | 'credit_limit_request'
   | 'credit_limit_decision'
+  | 'declaration'
+  | 'policy'
+  | 'premium_instalment'
+  | 'overdue_notification'
 
 export interface Task {
   id: string

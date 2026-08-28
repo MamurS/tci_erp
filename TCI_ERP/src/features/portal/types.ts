@@ -28,6 +28,8 @@ export interface ClientPolicy {
   max_extension_period_days: number | null
   max_payment_terms_days: number | null
   declaration_frequency: string | null
+  /** New in 0031: the portal computes the NOA deadline from it. */
+  noa_window_days: number | null
 }
 
 export interface ClientLimit {
@@ -148,4 +150,110 @@ export interface EntitySearchHit {
   name: string
   country_code: string | null
   registration_number: string | null
+}
+
+// ---------------------------------------------------------------------------
+// Phase 4 (migrations 0026-0030)
+// ---------------------------------------------------------------------------
+
+/** tci.v_client_declarations */
+export interface ClientDeclaration {
+  id: string
+  policy_id: string
+  policy_number: string
+  period_start: string
+  period_end: string
+  status: 'draft' | 'submitted' | 'accepted' | 'disputed' | 'corrected'
+  currency_code: string
+  total_insurable_turnover: number
+  note: string | null
+  submitted_at: string | null
+  accepted_at: string | null
+  disputed_at: string | null
+  /** Addressed to the policyholder: it says what to fix. */
+  dispute_note: string | null
+  supersedes_id: string | null
+  superseded: boolean
+  covered_turnover: number | null
+  uncovered_excess: number | null
+  line_count: number | null
+  premium_amount: number | null
+  premium_rate_used: number | null
+}
+
+/** tci.v_client_declaration_lines */
+export interface ClientDeclarationLine {
+  id: string
+  declaration_id: string
+  entity_id: string
+  entity_name: string
+  insurable_turnover: number
+  overdue_amount: number | null
+  line_note: string | null
+  coverage_basis: 'limit' | 'discretionary' | 'uncovered_excess'
+  covered_amount: number
+  uncovered_excess: number
+  is_frozen: boolean
+}
+
+/** tci.v_client_premium */
+export interface ClientPremium {
+  policy_id: string
+  policy_number: string
+  currency_code: string
+  premium_basis: 'minimum_with_adjustment' | 'as_declared'
+  premium_rate_pct: number
+  minimum_premium: number
+  instalments_total: number
+  instalments_paid: number
+  instalments_overdue: number
+  next_due_date: string | null
+  earned_premium: number
+  adjustment_amount: number
+  premium_due_total: number
+  period_closed: boolean
+}
+
+/** tci.v_client_premium_instalments */
+export interface ClientInstalment {
+  id: string
+  policy_id: string
+  sequence: number
+  due_date: string
+  amount: number
+  status: 'pending' | 'invoiced' | 'paid'
+  paid_at: string | null
+  overdue: boolean
+}
+
+/** tci.v_client_overdue_notifications */
+export interface ClientOverdueNotification {
+  id: string
+  policy_id: string
+  policy_number: string
+  buyer_entity_id: string
+  buyer_name: string
+  first_due_date: string
+  overdue_amount: number
+  currency_code: string
+  reported_at: string
+  status: 'open' | 'resolved_paid' | 'escalated_to_claim' | 'withdrawn'
+  resolved_at: string | null
+  notify_by_date: string
+  days_past_due: number
+  reported_late: boolean
+  days_late: number
+  limit_suspended: boolean
+}
+
+/** tci.v_client_declarable_buyers — the buyers this policy holds limits for.
+ * NOT a whitelist: any registry company can be declared, it simply leans on
+ * the discretionary limit instead. */
+export interface ClientDeclarableBuyer {
+  policy_id: string
+  entity_id: string
+  entity_name: string
+  approved_amount: number
+  currency_code: string
+  valid_until: string | null
 }

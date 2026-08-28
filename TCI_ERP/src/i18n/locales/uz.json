@@ -14,7 +14,8 @@
     "admin": "Administratsiya",
     "entities": "Tashkilotlar",
     "requests": "Sug‘urta arizalari",
-    "agenda": "Kun tartibi"
+    "agenda": "Kun tartibi",
+    "overdues": "Muddati o‘tgan qarzlar"
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -68,14 +69,26 @@
     "notSelected": "Tanlanmagan",
     "saveFailed": "Saqlab bo'lmadi. Qayta urinib ko'ring.",
     "confirm": "Tasdiqlash",
-    "close": "Yopish"
+    "close": "Yopish",
+    "all": "Barchasi",
+    "open": "Ochish",
+    "add": "Qo‘shish",
+    "loadFailed": "Yuklab bo‘lmadi",
+    "tryAgain": "Bir lahzadan so‘ng urinib ko‘ring.",
+    "somethingWentWrong": "Nimadir noto‘g‘ri ketdi."
   },
   "dashboard": {
     "welcome": "Xush kelibsiz, {{email}}",
     "roleLabel": "Sizning rolingiz",
     "activePolicies": "Amaldagi polislar",
     "policyholders": "Sug‘urtalanuvchilar",
-    "entities": "Tashkilotlar"
+    "entities": "Tashkilotlar",
+    "declarationsAwaiting": "Qabul qilinishi kerak bo‘lgan deklaratsiyalar",
+    "declarationsDisputed": "Bahsli deklaratsiyalar",
+    "overduesOpen": "Ochiq muddati o‘tgan qarzlar",
+    "overduesLate": "Kech bildirilgan",
+    "premiumAccrual": "Sug‘urta mukofoti hisoblanishi",
+    "premiumAccrualHint": "Sizga ko‘rinadigan shartnomalar bo‘yicha. Tuzatish hech qachon manfiy bo‘lmaydi — minimal mukofotdan pastga qaytarish yo‘q."
   },
   "buyers": {
     "subtitle": "Kredit bahosidagi bayerlar (debitorlar) reyestri",
@@ -712,7 +725,11 @@
       "premiumRateHigh": "Aylanmadan 5% dan yuqori stavka TCI amaliyotidan ancha tashqarida",
       "minPremiumAboveExpected": "Minimal mukofot stavka × kutilayotgan aylanmadan katta"
     },
-    "createdFromRequest": "Ariza asosida yaratilgan"
+    "createdFromRequest": "Ariza asosida yaratilgan",
+    "tabs": {
+      "premium": "Sug‘urta mukofoti",
+      "terms": "Shartlar"
+    }
   },
   "limits": {
     "subtitle": "Kredit limiti so‘rovlari va qarorlar",
@@ -885,6 +902,9 @@
       "refused": "Aniqlab bo‘lmadi: ehtimol allaqachon aniqlangan yoki bu bayer bo‘yicha ochiq ariza bor.",
       "notAllowed": "Portaldan kelgan bayerlarni aniqlashga huquqingiz yo‘q.",
       "failed": "Nimadir noto‘g‘ri ketdi. Qaytadan urinib ko‘ring."
+    },
+    "systemReason": {
+      "noaSuspension": "Muddati o‘tgan qarz xabarnomasi bo‘yicha to‘xtatilgan"
     }
   },
   "entities": {
@@ -1247,7 +1267,14 @@
       "submission_accepted": "{{request_number}} arizasi qabul qilindi — polis chiqaring",
       "submission_declined": "Mijoz {{request_number}} arizasini rad etdi: {{reason}}",
       "limit_review_due": "{{subject}} uchun limit {{valid_until}} da tugaydi — uni qayta ko‘ring",
-      "rating_stale": "{{subject}} bir yildan eski reyting asosidagi amaldagi limitga ega"
+      "rating_stale": "{{subject}} bir yildan eski reyting asosidagi amaldagi limitga ega",
+      "declaration_due": "{{period_start}} uchun deklaratsiya",
+      "declaration_overdue": "{{period_start}} uchun deklaratsiya kechikdi",
+      "declaration_awaiting_acceptance": "Deklaratsiya qabul qilinishini kutmoqda",
+      "instalment_due": "{{sequence}}-to‘lov {{due_date}} gacha",
+      "instalment_overdue": "{{sequence}}-to‘lov {{due_date}} dan beri kechikdi",
+      "noa_credit_review": "Muddati o‘tgan qarz: {{buyer_name}} ni ko‘rib chiqish",
+      "uncovered_excess_review": "Qoplashdan tashqari aylanma bildirilgan"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
@@ -1268,7 +1295,10 @@
       "policies": "Mening polislarim",
       "limits": "Kredit limitlari",
       "submissions": "Arizalar",
-      "account": "Profil"
+      "account": "Profil",
+      "declarations": "Deklaratsiyalar",
+      "premium": "Sug‘urta mukofoti",
+      "overdues": "Muddati o‘tgan qarzlar"
     },
     "policies": {
       "title": "Mening polislarim",
@@ -1382,6 +1412,171 @@
       "saved": "Saqlandi",
       "security": "Tizimga kirish",
       "securityHint": "Kirish parolini o‘zgartiring. Emailni o‘zgartirish uchun menejeringizga murojaat qiling."
+    },
+    "declarations": {
+      "title": "Mening deklaratsiyalarim",
+      "subtitle": "Davr uchun sug‘urtalanadigan aylanmangizni bildiring.",
+      "empty": "Hozircha deklaratsiyalar yo‘q",
+      "emptyHint": "Endigina yopilgan davrni deklaratsiya qiling.",
+      "lines": "Bayerlar bo‘yicha aylanma",
+      "noLines": "Hozircha hech narsa bildirilmagan",
+      "pickBuyer": "Bayerni tanlang",
+      "premium": "Sug‘urta mukofoti",
+      "disputed": "Ushbu deklaratsiya bo‘yicha savolimiz bor:",
+      "uncoveredWarning": "Bu aylanmaning {{amount}} qismi {{limit}} diskretsion limitingizdan oshadi va sug‘urtalanMAGAN.",
+      "actions": {
+        "declarePeriod": "O‘tgan davrni deklaratsiya qilish",
+        "submit": "Deklaratsiyani topshirish"
+      }
+    },
+    "overdues": {
+      "title": "Muddati o‘tgan qarzlar",
+      "subtitle": "Bayer to‘lashni to‘xtatsa bizga xabar bering.",
+      "fileTitle": "Muddati o‘tgan qarz haqida xabar berish",
+      "fileHint": "Eng eski to‘lanmagan hisobning muddatini ko‘rsating.",
+      "empty": "Hech narsa bildirilmagan",
+      "emptyHint": "Maksimal muddat oshib ketishi bilan darhol xabar bering.",
+      "cover": "Qoplash",
+      "suspended": "To‘xtatilgan",
+      "noLimitAffected": "Tasdiqlangan limit yo‘q",
+      "lateWarning": "Bu {{date}} muddatidan kech. Kech xabarnoma qoplashingizga ta‘sir qilishi mumkin.",
+      "deadlineHint": "Xabar berish muddati: {{date}}.",
+      "suspensionWarning": "Muddati o‘tgan qarz haqida xabar berish o‘sha bayerning kredit limitini darhol to‘xtatadi. Kredit anderrayteri tiklamaguncha yangi jo‘natmalar qoplanmaydi.",
+      "actions": {
+        "file": "Xabar berish"
+      }
+    },
+    "premium": {
+      "title": "Sug‘urta mukofoti",
+      "subtitle": "Qancha to‘lashingiz va bu qanday hisoblangani.",
+      "empty": "Sug‘urta mukofoti ma‘lumotlari hali yo‘q"
+    }
+  },
+  "declarations": {
+    "title": "Aylanma deklaratsiyalari",
+    "subtitle": "Sug‘urtalanuvchilar davr ichida nima sotgani. Sug‘urta mukofoti shulardan hisoblanadi.",
+    "empty": "Hozircha deklaratsiyalar yo‘q",
+    "emptyHint": "Sug‘urtalanuvchi davrni deklaratsiya qilgach shu yerda paydo bo‘ladi.",
+    "notFound": "Deklaratsiya topilmadi",
+    "lines": "Bayerlar bo‘yicha aylanma",
+    "noLines": "Satrlar yo‘q",
+    "noLinesHint": "Satrlarsiz deklaratsiyani topshirib bo‘lmaydi.",
+    "correctionOf": "Bu deklaratsiya o‘sha davr uchun avvalgisini tuzatadi.",
+    "disputed": "Savollar bor",
+    "disputeNotePlaceholder": "Nimani tuzatish kerak",
+    "premiumBaseHint": "Sug‘urta mukofoti shu summadan hisoblanadi.",
+    "uncoveredHint": "Tasdiqlangan limitga ega bo‘lmagan bayerlar bo‘yicha diskretsion limitdan oshgan aylanma. Bu qism sug‘urtalanmagan.",
+    "splitFrozen": "Qoplash taqsimoti deklaratsiya qabul qilinganda qayd etilgan; limitlarning keyingi o‘zgarishi uni o‘zgartirmaydi.",
+    "statuses": {
+      "draft": "Qoralama",
+      "submitted": "Topshirilgan",
+      "accepted": "Qabul qilingan",
+      "disputed": "Bahsli",
+      "corrected": "Tuzatilgan"
+    },
+    "coverageBasis": {
+      "limit": "Tasdiqlangan limit",
+      "discretionary": "Diskretsion limit",
+      "uncovered_excess": "Qoplanmagan oshib ketish"
+    },
+    "actions": {
+      "submit": "Topshirish",
+      "accept": "Qabul qilish",
+      "dispute": "Aniqlik so‘rash",
+      "correct": "Tuzatish"
+    },
+    "fields": {
+      "period": "Davr",
+      "status": "Holat",
+      "totalTurnover": "E‘lon qilingan aylanma",
+      "coveredTurnover": "Qoplangan aylanma",
+      "uncoveredExcess": "Qoplanmagan oshib ketish",
+      "insurableTurnover": "Sug‘urtalanadigan aylanma",
+      "coverageBasis": "Qoplash",
+      "covered": "Qoplangan",
+      "uncovered": "Qoplanmagan",
+      "reportedOverdue": "Bildirilgan muddati o‘tgan qarz",
+      "disputeNote": "Sabab",
+      "submittedAt": "Topshirilgan",
+      "acceptedAt": "Qabul qilingan"
+    }
+  },
+  "premium": {
+    "none": "Bu shartnoma bo‘yicha sug‘urta mukofoti ma‘lumotlari yo‘q",
+    "instalments": "Bo‘lib to‘lash jadvali",
+    "noInstalments": "Jadval hali yo‘q",
+    "noInstalmentsHint": "Minimal sug‘urta mukofotini shartnoma davriga taqsimlash uchun jadval yarating.",
+    "accrual": "Deklaratsiyalar bo‘yicha ishlangan sug‘urta mukofoti",
+    "noAccrual": "Hozircha hech narsa hisoblanmagan",
+    "noAccrualHint": "Sug‘urta mukofoti deklaratsiya qabul qilinganda hisoblanadi.",
+    "noRefundBelowMinimum": "E‘lon qilingan aylanma minimal sug‘urta mukofotidan kam berdi. Minimal mukofot saqlanadi — undan pastga qaytarish yo‘q.",
+    "adjustmentHint": "Minimal mukofotdan oshgan qism, davr yakunida to‘lanadi.",
+    "periodClosed": "Davr yopilgan",
+    "periodOpen": "Davr davom etmoqda",
+    "rateRecordedHint": "Har bir yozuvda o‘sha paytdagi tarif saqlanadi: tarif o‘zgarishi o‘tgan davrlarni qayta hisoblamaydi.",
+    "basis": {
+      "minimum_with_adjustment": "Minimal mukofot va tuzatish",
+      "as_declared": "Deklaratsiya bo‘yicha"
+    },
+    "instalmentStatuses": {
+      "pending": "Kutilmoqda",
+      "invoiced": "Hisob-faktura berilgan",
+      "paid": "To‘langan",
+      "cancelled": "Bekor qilingan"
+    },
+    "actions": {
+      "generate": "Jadval yaratish",
+      "invoice": "Hisob-faktura berish",
+      "markPaid": "To‘langan deb belgilash"
+    },
+    "fields": {
+      "minimumPremium": "Minimal sug‘urta mukofoti",
+      "earnedPremium": "Ishlangan sug‘urta mukofoti",
+      "adjustment": "Tuzatish",
+      "dueTotal": "Jami to‘lanadi",
+      "rate": "Tarif",
+      "rateUsed": "Qo‘llangan tarif",
+      "dueDate": "Muddati",
+      "amount": "Summa",
+      "status": "Holat",
+      "scheduleTotal": "Jadval bo‘yicha jami",
+      "computedAt": "Hisoblangan"
+    }
+  },
+  "overdues": {
+    "title": "Muddati o‘tgan qarz to‘g‘risida xabarnomalar",
+    "subtitle": "Sug‘urtalanuvchilar tomonidan bildirilgan muddati o‘tgan bayerlar. Bu sug‘urta da‘volari emas.",
+    "empty": "Muddati o‘tgan qarzlar yo‘q",
+    "emptyHint": "Xabarnomalar kelib tushgan sari shu yerda ko‘rinadi.",
+    "notFound": "Xabarnoma topilmadi",
+    "onTime": "O‘z vaqtida",
+    "lateBy": "{{days}} kun kechikdi",
+    "lateTitle": "Muddatdan {{days}} kun kech bildirilgan",
+    "lateExplain": "{{date}} gacha xabar berish kerak edi. Kech xabarnoma qoplashga ta‘sir qilishi mumkin.",
+    "suspendedTitle": "Bu bayer bo‘yicha qoplash to‘xtatildi",
+    "suspendedExplain": "Xabarnoma berilishi tasdiqlangan limitni darhol bekor qildi: yangi jo‘natmalar qoplanmaydi. Kredit anderrayteri yangi qaror bilan uni tiklashi mumkin.",
+    "openBuyer": "Bayerni ochish",
+    "windowHint": "Maks. muddat {{extension}} kun + xabar berish oynasi {{window}} kun",
+    "resolveHint": "Yopish limitni tiklamaydi — bu alohida kredit qarori.",
+    "statuses": {
+      "open": "Ochiq",
+      "resolved_paid": "To‘langan",
+      "escalated_to_claim": "Sug‘urta da‘vosiga o‘tkazilgan",
+      "withdrawn": "Qaytarib olingan"
+    },
+    "actions": {
+      "resolve": "Yopish"
+    },
+    "fields": {
+      "status": "Holat",
+      "overdueAmount": "Muddati o‘tgan",
+      "daysPastDue": "Kechikish kunlari",
+      "reported": "Bildirilgan",
+      "firstDueDate": "Eng eski hisob muddati",
+      "notifyBy": "Shu sanagacha xabar bering",
+      "reportedAt": "Bildirilgan",
+      "resolution": "Natija",
+      "resolutionNote": "Izoh"
     }
   }
 }

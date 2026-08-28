@@ -1,10 +1,14 @@
-/** Contract test: the Agenda catalogue must mirror migration 0024 — the task
- * type list, the auto/manual completion rules documented in its header, and
- * the guard tci.complete_task actually enforces. */
+/** Contract test: the Agenda catalogue must mirror the migrations — the task
+ * type list, the auto/manual completion rules documented in their headers, and
+ * the guard tci.complete_task actually enforces.
+ *
+ * Phase 4 added seven types in 0029 and made a second one manual, so both
+ * headers are read: MIGRATION is 0024, PHASE4 is 0029. */
 
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0024_agenda_tasks.sql?raw'
+import PHASE4 from '../../../supabase/migrations/0029_phase4_agenda_portal.sql?raw'
 import {
   AGENDA_GROUPS,
   agendaCounts,
@@ -49,17 +53,28 @@ function task(patch: Partial<Task> = {}): Task {
 // ---------------------------------------------------------------------------
 
 describe('task type enum', () => {
-  it('lists exactly the values of tci.task_type', () => {
+  it('lists exactly the values of tci.task_type, in order', () => {
+    // 0024 creates the enum; 0029 appends to it. TASK_TYPES must be the
+    // concatenation, in the same order, or a task row will not round-trip.
     const enumBlock = MIGRATION.slice(
       MIGRATION.indexOf('create type tci.task_type as enum'),
     ).slice(0, MIGRATION.slice(MIGRATION.indexOf('create type tci.task_type as enum')).indexOf(');'))
-    const inSql = [...enumBlock.matchAll(/'([a-z_]+)'/g)].map((m) => m[1])
-    expect(inSql).toEqual([...TASK_TYPES])
+    const created = [...enumBlock.matchAll(/'([a-z_]+)'/g)].map((m) => m[1])
+    const appended = [
+      ...PHASE4.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
+    ].map((m) => m[1])
+    expect([...created, ...appended]).toEqual([...TASK_TYPES])
   })
 
-  it('matches the count the migration asserts on itself', () => {
+  it('matches the count each migration adds', () => {
+    // 0024 shipped eleven and asserts that on itself.
     expect(MIGRATION).toContain('if v_types <> 11 then')
-    expect(TASK_TYPES).toHaveLength(11)
+    // 0029 adds seven more, one ALTER TYPE per line.
+    const added = PHASE4.split('\n').filter((l) =>
+      l.startsWith('alter type tci.task_type add value '),
+    )
+    expect(added).toHaveLength(7)
+    expect(TASK_TYPES).toHaveLength(18)
   })
 
   it('lists exactly the values of tci.task_priority', () => {
@@ -75,28 +90,54 @@ describe('completion rules', () => {
     expect(Object.keys(COMPLETION_RULES).sort()).toEqual([...TASK_TYPES].sort())
   })
 
-  it('marks submission_declined as the only manual one, as the migration says', () => {
+  it('marks exactly the two types the migrations call manual', () => {
     const manual = TASK_TYPES.filter((type) => COMPLETION_RULES[type] === 'manual')
-    expect(manual).toEqual(['submission_declined'])
+    expect([...manual].sort()).toEqual(['submission_declined', 'uncovered_excess_review'])
     expect(MIGRATION).toContain('submission_declined is manual because nothing downstream happens')
+    expect(PHASE4).toContain('uncovered_excess_review is MANUAL because nothing downstream resolves it')
   })
 
-  it('mirrors the guard in tci.complete_task', () => {
-    expect(MIGRATION).toContain("if v_task.task_type <> 'submission_declined' then")
+  it('mirrors the guard in tci.complete_task as 0029 restated it', () => {
+    expect(PHASE4).toContain(
+      "if v_task.task_type not in ('submission_declined', 'uncovered_excess_review') then",
+    )
     for (const type of TASK_TYPES) {
-      expect(canCompleteByHand(type)).toBe(type === 'submission_declined')
+      expect(canCompleteByHand(type)).toBe(
+        type === 'submission_declined' || type === 'uncovered_excess_review',
+      )
     }
   })
 
-  it('agrees with the catalogue table in the migration header', () => {
+  it('agrees with the catalogue table in the migration headers', () => {
     // Each header row is "<type>  <target>  AUTO ..." or "... MANUAL - ...".
+    const headers = `${MIGRATION}\n${PHASE4}`.split('\n')
     for (const type of TASK_TYPES) {
-      const row = MIGRATION.split('\n').find(
+      const row = headers.find(
         (line) => line.startsWith(`--   ${type}`) && /\b(AUTO|MANUAL)\b/.test(line),
       )
       expect(row, `header row for ${type}`).toBeDefined()
       expect(COMPLETION_RULES[type]).toBe(row?.includes('MANUAL') ? 'manual' : 'auto')
     }
+  })
+
+  it('deep-links the Phase 4 object kinds', () => {
+    expect(
+      taskLink({ object_type: 'declaration', object_id: 'd1', params: {} }),
+    ).toBe('/declarations/d1')
+    expect(
+      taskLink({ object_type: 'overdue_notification', object_id: 'n1', params: {} }),
+    ).toBe('/overdues/n1')
+    // An instalment has no page; its policy's premium tab does.
+    expect(
+      taskLink({ object_type: 'premium_instalment', object_id: 'i1', params: { policy_id: 'p1' } }),
+    ).toBe('/policies/p1?tab=premium')
+    expect(
+      taskLink({ object_type: 'premium_instalment', object_id: 'i1', params: {} }),
+    ).toBeNull()
+    // A declaration that does not exist yet hangs off the policy.
+    expect(
+      taskLink({ object_type: 'policy', object_id: 'p1', params: { period_start: '2026-07-01' } }),
+    ).toBe('/declarations?policy=p1&period=2026-07-01')
   })
 })
 
