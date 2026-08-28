@@ -256,11 +256,13 @@ The endpoints authenticate the CALLER with the caller's own access token and
 load their roles from `tci.user_roles` server-side; a role claimed in a
 request body is never trusted.
 
-**Cloud-deployment dependency.** The service runs locally only, so on the
-deployed site the provisioning screens show «Сервис подготовки пользователей
-недоступен» (the Rating-tab pattern) and everything else works normally.
-Deploying it somewhere that can hold the key is a separate task; it gates
-the client portal (Phase 3d), which cannot onboard anyone without it.
+**Deployment (resolved in Phase 3d).** The service is deployed to Render
+from `Dockerfile` + `render.yaml` at the repository root; the key lives in
+Render's environment and nowhere else. The provisioning screens keep their
+«Сервис подготовки пользователей недоступен» state, which now only appears
+if the service is genuinely down (or asleep on the free tier). See
+**The analytics service in production** below and
+`services/analytics/README.md` for the runbook.
 
 ## Current status / roadmap
 
@@ -277,19 +279,19 @@ the client portal (Phase 3d), which cannot onboard anyone without it.
 - [x] Phase 3a: unified legal-entities registry — tci.legal_entities merges buyers + policyholders (merge on country+reg number, FKs renamed to entity_id, old tables dropped), roles COMPUTED via v_entity_roles (never assigned), pg_trgm dedup-on-entry (blocking reg match + fuzzy suggestions), /entities registry + card with conditional tabs, legacy /buyers & /policyholders redirects
 - [x] Phase 3b: department roles + 2D authority matrix — user_role enum recreated (sales/commercial_underwriter/credit_underwriter/claims/information_manager/client + admin), multi-role users, RLS restated on has_role/is_staff, tci.authority_grants (stream × grade band × amount × validity), band-aware decide/revoke, /admin users & authorities screens, role-driven sidebar + route guards
 - [x] Phase 3c-1: insurance requests + two-stage limit decisions — `tci.insurance_requests` pipeline (draft → submitted → entity_resolution → underwriting → commercial_review → sales_confirmation → client_review → accepted/declined → bound) with SQL-enforced role gates and content guards, buyer package with name-only buyers resolved onto companies, decisions gain `stage` (credit | commercial) with commercial adjusting ONLY amount and payment terms within its own band authority, lazy release with a sales window + silent consent (no cron) and an emergency bypass for reductions/revocations, append-only `tci.workflow_events` for the future Agenda, `/requests` queue + submission page, company card «Заявки на страхование» tab
-- [x] User provisioning — admin creates staff, sales/commercial invite clients. Auth users are created by the FastAPI service (`services/analytics`), the only holder of `SUPABASE_SERVICE_ROLE_KEY`; the browser never sees that key. Temporary password shown on screen once (no SMTP), forced rotation via `tci.user_profiles.must_change_password`, self-service «Сменить пароль» for everyone. **Depends on deploying that service to the cloud** — until then provisioning works only while it runs locally, and the screens show a service-unavailable state (see below).
+- [x] User provisioning — admin creates staff, sales/commercial invite clients. Auth users are created by the FastAPI service (`services/analytics`), the only holder of `SUPABASE_SERVICE_ROLE_KEY`; the browser never sees that key. Temporary password shown on screen once (no SMTP), forced rotation via `tci.user_profiles.must_change_password`, self-service «Сменить пароль» for everyone. Deployed in Phase 3d; the screens keep their service-unavailable state for when it is genuinely down.
 - [x] Phase 3c-2: Agenda + policy binding — `tci.tasks` generated from `tci.workflow_events` by an AFTER INSERT mapping that also closes tasks when their object moves on (11 types, 10 auto / 1 manual), band-aware targeting, the two time-based kinds generated lazily by `tci.refresh_agenda()` with no cron; `/agenda` «Моя повестка» (grouped overdue → urgent → high → normal, type/object filters, deep links, bulk-open only) + sidebar badge with a separate overdue tone; `credit_limit_requests.policy_id` made nullable behind `tci.limit_scope(policy_id, insurance_request_id)` so new business can carry limits before a policy exists; `tci.bind_insurance_request` projects the agreed terms into a policy, adopts the package limits onto it and advances to `bound`
+- [x] Phase 3d: analytics service deployed + client portal — `Dockerfile` and `render.yaml` at the repo root (build context is the root: the service imports `credit_engine` as a path dependency), CORS allowlist + preview regex, 1 MB body cap, 30s deadline, opaque 500s, structured access log, per-IP **and** per-caller rate limits on provisioning (the IP bucket is a ROUTER dependency, so an unauthenticated flood is not free); `/portal` for users whose ONLY role is `client` — my policies, my credit limits (released decisions only), request a limit (registry picker + propose-by-name → `tci.client_buyer_proposals` → information_manager), my submissions (accept / request changes / decline), account. Every client read goes through a `tci.v_client_*` SECURITY DEFINER view and every write through a `tci.client_*` function; the base-table client policies are dropped
 - [ ] Phase 3 (operations): declarations, premium booking, overdues
 - [ ] Phase 4: claims & recoveries
 - [ ] Phase 5: Python analytics service (scoring/rating)
-- [ ] Phase 6: policyholder portal
 
 ## Design notes (future phases — recorded, not built)
 
 * ~~Phase 3b: role enum, multi-role users, 2D authority matrix~~ — **DONE** (migrations 0016–0018).
 * ~~Phase 3c-1: insurance_request pipeline, two-stage decisions, sales window~~ — **DONE** (migrations 0019–0021).
 * Phase 3c (SHIPPED as 3c-1, see above): insurance_request pipeline (client/sales/comm UW create → sales resolves entities, auto-task to information_manager for missing ones → parallel commercial (terms) + credit (ratings/limits, confirming engine auto-rating) → sales confirmation → client acceptance → bind). Two-stage limit decisions: credit stage (rating+limit) then optional commercial stage adjusting ONLY amount and credit period, both directions, within own authority; rating and conditions untouchable by commercial. In-force changes: credit → commercial → sales window (configurable, default 1 business day) with silent-consent release (lazy released_at, no cron), then visible to client; REDUCTIONS and REVOCATIONS bypass commercial and sales — visible to client immediately (emergency risk actions). Agenda: single tasks table (type, object ref, assignee role/user, due, status) driving all queues.
-* Phase 3d: client portal — invitation-only (sales creates, system sends link + temp password, forced password change on first login; requires the password-change page and Supabase Site URL setup).
+* ~~Phase 3d: client portal~~ — **DONE** (migration 0025). See **Client visibility** below.
 
 ### Open items (carried into Phase 3c-2, and what is left after it)
 
@@ -425,3 +427,67 @@ months of the event stream would open tasks for work already done.
 `bind_insurance_request` writes no note on the policy and no comment on the
 `bound` history row: provenance is structural (`bound_policy_id`), and the UI
 renders «Создан из заявки …» translated.
+
+### Client visibility (migration 0025)
+
+A row policy decides WHICH ROWS, never WHICH COLUMNS, and staff and clients
+share the `authenticated` database role, so a column grant cannot separate
+them. Every client-facing surface is therefore a **SECURITY DEFINER view**
+carrying its own `has_role('client')` + `policyholder_users` gate and
+selecting only safe columns, and the base-table client policies are DROPPED.
+A client selecting from a base table gets nothing at all — a far easier
+property to keep true than "every column of every table is safe".
+
+| what a client can read | through | predicate |
+|---|---|---|
+| own policies + wording terms | `v_client_policies` | `entity_id in my_client_entities()` |
+| released limits per buyer | `v_client_limits` | + `decision_is_released(...)` |
+| their conditions | `v_client_limit_conditions` | + `decision_is_released(...)` |
+| superseded/expired limits | `v_client_limit_history` | + `released_at is not null` |
+| own limit requests + proposals | `v_client_limit_requests` | union of both, same gate |
+| own submissions | `v_client_submissions` | terms NULL until `submission_terms_visible(status)` |
+| the buyer package | `v_client_submission_buyers` | same gate |
+| status history | `v_client_submission_history` | statuses + timestamps only, **no `comment`** |
+| countries, currencies, industries | base tables | all authenticated (reference data) |
+| own profile / roles / mapping | base tables | `user_id = auth.uid()` |
+
+**Never visible to a client**: `legal_entities` (the registry — reachable only
+through the capped `client_search_entities`), `credit_assessments`,
+`financial_statements`, `balance_sheets`, `income_statements`,
+`local_statement_values`, `fx_rates`, `policy_status_history`,
+`workflow_events`, `tasks`, `authority_grants`, `workflow_settings`,
+`client_buyer_proposals`, and — on every view above — the underwriter's
+`comment`, `hold_comment`, `decided_by` and `based_on_assessment_id`.
+
+**Three actions**, all SECURITY DEFINER: `client_search_entities` (min 3
+chars, capped, four columns), `client_request_limit` (known buyer → a
+submitted limit request; unknown → a proposal for information_manager, and a
+client NEVER writes `legal_entities`), `client_respond_to_submission`
+(accept / decline / request_changes, and it only ever writes the status).
+
+**Two column-level holes the audit found and 0025 closed**: the client UPDATE
+policy on `insurance_requests` was not column-restricted, so a raw PATCH could
+rewrite `premium_rate_pct` while the submission sat in `client_review`; and
+`user_profiles: update own` let any user PATCH `must_change_password = false`
+and walk past the forced rotation. The first is now a function, the second a
+column grant (`full_name`, `phone` only) — which works there because the
+distinction needed is not staff-versus-client but "nobody, by hand".
+
+**`client_review → sales_confirmation`** is new in 0025: "request changes"
+means the cover is wanted and the terms are not. It re-opens sales' existing
+Agenda task, now carrying the client's comment.
+
+### The analytics service in production (Phase 3d)
+
+Deployed to **Render** from `Dockerfile` + `render.yaml` at the repository
+root — the build context must be the root, because the service imports
+`credit_engine` as an editable path dependency. Free tier sleeps after ~15
+min idle (~1 min cold start); $7/mo Starter removes it. Full runbook,
+env vars and key rotation: `services/analytics/README.md`.
+
+Hardening that must not regress: CORS allowlist + an ANCHORED preview regex
+(never `*`), 1 MB body cap, 30s request deadline, opaque 500s with a request
+id, one structured JSON access line per request with no header values, and
+rate limits on provisioning where the **per-IP bucket is a router
+dependency** — inside the endpoint body it would never run for an
+unauthenticated request, making a 401 flood free.

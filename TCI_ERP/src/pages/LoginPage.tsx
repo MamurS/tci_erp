@@ -5,16 +5,20 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../auth/AuthContext'
 import { Button, Card, Field, Input } from '../components/ui'
 import { LanguageSwitcher } from '../components/layout/LanguageSwitcher'
+import { landingPath } from '../features/portal/navigation'
 
 export function LoginPage() {
   const { t } = useTranslation()
-  const { session, signIn } = useAuth()
+  const { session, roles, signIn } = useAuth()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  if (session) return <Navigate to="/" replace />
+  // Land each user on their own side of the app. PortalRedirect would move
+  // them a frame later anyway; doing it here avoids the flash of the wrong
+  // shell.
+  if (session) return <Navigate to={landingPath(roles)} replace />
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()

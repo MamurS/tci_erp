@@ -67,7 +67,8 @@
     "no": "No",
     "notSelected": "Not selected",
     "saveFailed": "Save failed. Please try again.",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "close": "Close"
   },
   "dashboard": {
     "welcome": "Welcome, {{email}}",
@@ -719,7 +720,8 @@
       "drafts": "Drafts",
       "review": "In review",
       "escalated": "Escalated",
-      "decided": "Decided"
+      "decided": "Decided",
+      "proposals": "Bayer proposals"
     },
     "statuses": {
       "draft": "Draft",
@@ -861,6 +863,28 @@
       "adjusted": "Adjustment recorded — the sales window is running.",
       "adjustedImmediate": "Adjustment recorded and released to the client immediately (reduction).",
       "adjustFailed": "The adjustment was refused"
+    },
+    "proposals": {
+      "empty": "No Bayers waiting to be identified",
+      "emptyHint": "When a client asks for a limit on a company we do not have, it appears here.",
+      "proposedName": "Named by the client",
+      "registrationNumber": "Registration number",
+      "companyName": "Company name",
+      "policy": "Policy",
+      "asked": "Asked",
+      "fromClient": "from the portal",
+      "resolve": "Identify",
+      "resolveTitle": "Identify the Bayer",
+      "intro": "{{policyholder}} asked for a limit under policy {{policy}} on a company we do not have in the registry.",
+      "searchExisting": "Search the registry",
+      "maybeExisting": "Possibly the same company:",
+      "orCreate": "Or add it to the registry:",
+      "createAndRaise": "Add and raise the limit request",
+      "reject": "Reject",
+      "rejectedDefault": "Rejected during identification",
+      "refused": "Could not resolve: it may already be resolved, or an open limit request already exists for this Bayer.",
+      "notAllowed": "You are not allowed to identify Bayer proposals.",
+      "failed": "Something went wrong. Please try again."
     }
   },
   "entities": {
@@ -1230,6 +1254,134 @@
       "hint": "Tasks appear here on their own as work moves through the pipeline, and close themselves when it moves on.",
       "filtered": "No task matches these filters",
       "filteredHint": "Reset the filters to see the whole agenda."
+    }
+  },
+  "portal": {
+    "title": "Client portal",
+    "loadFailed": "Could not load your data. Please try again.",
+    "showTerms": "Show terms",
+    "hideTerms": "Hide terms",
+    "showDetails": "Details",
+    "hideDetails": "Hide",
+    "days": "{{value}} days",
+    "nav": {
+      "policies": "My policies",
+      "limits": "Credit limits",
+      "submissions": "Submissions",
+      "account": "Account"
+    },
+    "policies": {
+      "title": "My policies",
+      "subtitle": "The cover you hold, and the terms it is written on.",
+      "empty": "You have no policies yet",
+      "emptyHint": "Once a submission is accepted and the policy is issued, it appears here.",
+      "premiumMultiple": "{{value}} × premium"
+    },
+    "limits": {
+      "title": "My credit limits",
+      "subtitle": "The buyers you are covered for, and for how much.",
+      "empty": "No credit limits yet",
+      "emptyHint": "Ask for a limit on a buyer and it will appear here once underwriting has decided.",
+      "request": "Request a limit",
+      "requestTitle": "Request a credit limit",
+      "needsActivePolicy": "A credit limit can only be requested under an active policy.",
+      "buyer": "Bayer",
+      "buyerName": "Company name",
+      "buyerNamePlaceholder": "Full legal name",
+      "policy": "Policy",
+      "approved": "Approved",
+      "requested": "Requested",
+      "validity": "Valid",
+      "paymentTerms": "Payment terms",
+      "paymentTermsDays": "Payment terms, days",
+      "conditions": "Conditions",
+      "status": "Status",
+      "asked": "Asked",
+      "history": "History",
+      "historyFor": "Limit history — {{buyer}}",
+      "historyNote": "Only decisions that reached you are listed.",
+      "noHistory": "No earlier decisions for this Bayer.",
+      "current": "Current",
+      "superseded": "Superseded",
+      "partialOf": "of {{requested}} requested",
+      "pendingTitle": "Waiting on us",
+      "beingIdentified": "we are identifying this company",
+      "requestStatuses": {
+        "pending_entity": "Identifying the company",
+        "draft": "Draft",
+        "submitted": "Submitted",
+        "under_review": "Under review",
+        "escalated": "Under review"
+      },
+      "searchPlaceholder": "Company name or registration number",
+      "searchMin": "Type at least 3 characters",
+      "notListed": "Not in the list — enter it by name",
+      "noneFound": "Nothing found for “{{query}}” — enter it by name",
+      "changeBuyer": "Change",
+      "backToSearch": "Back to search",
+      "proposalNote": "We do not have this company yet. Your request goes to our team to identify it first, then to underwriting.",
+      "registrationNumber": "Registration number",
+      "amountIn": "Amount, {{currency}}",
+      "amountInvalid": "Enter an amount greater than zero",
+      "maxTerms": "Your policy allows up to {{days}} days",
+      "justification": "Why this buyer, and why this amount",
+      "dlHint": "Below your discretionary limit you may self-assess without asking us.",
+      "send": "Send request",
+      "sentRequest": "Sent. Underwriting will come back to you with a decision.",
+      "sentProposal": "Sent. We will identify the company first, then underwrite the limit.",
+      "requestRefused": "We cannot accept this request: check the policy is active and that you have no open request for this Bayer.",
+      "requestNotAllowed": "This account cannot raise limit requests.",
+      "requestFailed": "The request could not be sent. Please try again."
+    },
+    "submissions": {
+      "title": "My submissions",
+      "subtitle": "Applications for cover, and where each one has got to.",
+      "empty": "No submissions",
+      "emptyHint": "When we prepare an offer for you, it appears here.",
+      "terms": "Proposed terms",
+      "termsNotYet": "The terms are still being prepared. They appear here as soon as the offer is ready for you.",
+      "buyers": "Bayers in the package",
+      "noBuyers": "No Bayers listed yet.",
+      "progress": "Progress",
+      "noHistory": "Nothing has happened yet.",
+      "awaitingYou": "This offer is with you.",
+      "accept": "Accept",
+      "decline": "Decline",
+      "requestChanges": "Request changes",
+      "declineReason": "Why are you declining?",
+      "changesWanted": "What should change?",
+      "respondRefused": "This offer is no longer with you.",
+      "respondFailed": "Could not send your answer. Please try again.",
+      "confirm": {
+        "accept": "Accept the terms of submission {{number}}? We will issue the policy.",
+        "decline": "Decline submission {{number}}? Tell us why so we can learn from it.",
+        "request_changes": "Send submission {{number}} back to our sales team with your comments."
+      },
+      "statuses": {
+        "draft": "Being prepared",
+        "submitted": "Received",
+        "entity_resolution": "Checking your Bayers",
+        "underwriting": "Underwriting",
+        "commercial_review": "Pricing",
+        "sales_confirmation": "Final check",
+        "client_review": "With you",
+        "accepted": "Accepted",
+        "declined": "Declined",
+        "withdrawn": "Withdrawn",
+        "bound": "Policy issued"
+      }
+    },
+    "account": {
+      "title": "My account",
+      "subtitle": "Your contact details and sign-in.",
+      "contact": "Contact details",
+      "company": "Company",
+      "email": "Sign-in email",
+      "fullName": "Full name",
+      "phone": "Phone",
+      "saved": "Saved",
+      "security": "Sign-in",
+      "securityHint": "Change the password you use to sign in. To change the email address, contact your account manager."
     }
   }
 }

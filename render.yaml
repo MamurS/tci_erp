@@ -1,0 +1,38 @@
+# Render blueprint for the TCI analytics service.
+#
+# Why Render (Phase 3d): it has a genuine free tier for web services, deploys
+# straight from GitHub on push with no CLI, and reads secrets from the
+# dashboard so the service-role key never touches the repository. Railway has
+# no free tier any more, and Fly wants flyctl and a card for what is a single
+# small container.
+#
+# The free instance sleeps after ~15 minutes idle and takes roughly a minute
+# to wake. That is invisible for /grade-scale and /fx (the UI already has an
+# unavailable state and retries) but it is felt when an admin opens the
+# provisioning screen. Upgrading this one service to Starter removes it - see
+# services/analytics/README.md, "Deployment".
+#
+# Secrets are deliberately NOT here: sync:false means Render prompts for the
+# value and stores it encrypted. Never put a key in this file.
+
+services:
+  - type: web
+    name: tci-analytics
+    runtime: docker
+    plan: free
+    region: frankfurt          # closest of Render's regions to Tashkent
+    dockerfilePath: ./Dockerfile
+    dockerContext: .           # repo root - the service needs ../../credit_engine
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      - key: SUPABASE_URL
+        value: https://reunqrpeumokqgarknge.supabase.co
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false            # set in the dashboard; never in the repo
+      - key: CORS_ALLOW_ORIGINS
+        value: https://tci-erp.pages.dev
+      - key: TRUST_PROXY_HEADERS
+        value: "true"          # Render terminates TLS in front of us
+      - key: LOG_LEVEL
+        value: INFO

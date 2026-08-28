@@ -13,11 +13,13 @@ nominal). The frontend caches results into tci.fx_rates (source='cbu').
 from __future__ import annotations
 
 import datetime as dt
+import logging
 
 import httpx
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 CBU_URL = "https://cbu.uz/ru/arkhiv-kursov-valyut/json/{ccy}/{date}/"
@@ -47,7 +49,10 @@ async def get_fx(ccy: str, date: str) -> FxResponse:
             response.raise_for_status()
             payload = response.json()
     except httpx.HTTPError as exc:
-        raise HTTPException(status_code=502, detail=f"CBU API unavailable: {exc}") from exc
+        # The upstream error text names the URL we called and can carry its
+        # response body. That belongs in the log, not in a public response.
+        logger.warning("CBU lookup failed ccy=%s date=%s: %s", ccy, parsed, exc)
+        raise HTTPException(status_code=502, detail="CBU API unavailable") from exc
 
     if not isinstance(payload, list) or not payload:
         raise HTTPException(status_code=404, detail=f"no CBU rate for {ccy} on {date}")

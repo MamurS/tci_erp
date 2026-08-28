@@ -67,7 +67,8 @@
     "no": "Yo'q",
     "notSelected": "Tanlanmagan",
     "saveFailed": "Saqlab bo'lmadi. Qayta urinib ko'ring.",
-    "confirm": "Tasdiqlash"
+    "confirm": "Tasdiqlash",
+    "close": "Yopish"
   },
   "dashboard": {
     "welcome": "Xush kelibsiz, {{email}}",
@@ -719,7 +720,8 @@
       "drafts": "Qoralamalar",
       "review": "Ko‘rib chiqishda",
       "escalated": "Eskalatsiya",
-      "decided": "Hal qilingan"
+      "decided": "Hal qilingan",
+      "proposals": "Mijozlardan bayerlar"
     },
     "statuses": {
       "draft": "Qoralama",
@@ -861,6 +863,28 @@
       "adjusted": "Tuzatish yozildi — sotuv oynasi davom etmoqda.",
       "adjustedImmediate": "Tuzatish yozildi va darhol mijozga uzatildi (kamaytirish).",
       "adjustFailed": "Tuzatish rad etildi"
+    },
+    "proposals": {
+      "empty": "Aniqlanishi kerak bo‘lgan bayerlar yo‘q",
+      "emptyHint": "Mijoz bizda yo‘q tashkilotga limit so‘raganda u shu yerda paydo bo‘ladi.",
+      "proposedName": "Mijoz ko‘rsatgan",
+      "registrationNumber": "STIR",
+      "companyName": "Tashkilot nomi",
+      "policy": "Polis",
+      "asked": "So‘ralgan sana",
+      "fromClient": "portaldan",
+      "resolve": "Aniqlash",
+      "resolveTitle": "Bayerni aniqlash",
+      "intro": "{{policyholder}} {{policy}} polisi bo‘yicha reyestrda yo‘q tashkilotga limit so‘radi.",
+      "searchExisting": "Reyestrdan qidirish",
+      "maybeExisting": "Ehtimol, shu tashkilot:",
+      "orCreate": "Yoki reyestrga qo‘shish:",
+      "createAndRaise": "Qo‘shish va limit arizasini yaratish",
+      "reject": "Rad etish",
+      "rejectedDefault": "Aniqlash chog‘ida rad etilgan",
+      "refused": "Aniqlab bo‘lmadi: ehtimol allaqachon aniqlangan yoki bu bayer bo‘yicha ochiq ariza bor.",
+      "notAllowed": "Portaldan kelgan bayerlarni aniqlashga huquqingiz yo‘q.",
+      "failed": "Nimadir noto‘g‘ri ketdi. Qaytadan urinib ko‘ring."
     }
   },
   "entities": {
@@ -1230,6 +1254,134 @@
       "hint": "Vazifalar ish jarayon bo‘ylab harakatlangani sari bu yerda o‘zi paydo bo‘ladi va obyekt keyingi bosqichga o‘tganda o‘zi yopiladi.",
       "filtered": "Bu filtrlarga birorta vazifa mos kelmadi",
       "filteredHint": "Butun kun tartibini ko‘rish uchun filtrlarni tozalang."
+    }
+  },
+  "portal": {
+    "title": "Mijoz portali",
+    "loadFailed": "Ma’lumotlarni yuklab bo‘lmadi. Qaytadan urinib ko‘ring.",
+    "showTerms": "Shartlarni ko‘rsatish",
+    "hideTerms": "Shartlarni yashirish",
+    "showDetails": "Batafsil",
+    "hideDetails": "Yig‘ish",
+    "days": "{{value}} kun",
+    "nav": {
+      "policies": "Mening polislarim",
+      "limits": "Kredit limitlari",
+      "submissions": "Arizalar",
+      "account": "Profil"
+    },
+    "policies": {
+      "title": "Mening polislarim",
+      "subtitle": "Sizdagi sug‘urta qoplamasi va u qanday shartlarda berilgani.",
+      "empty": "Sizda hali polis yo‘q",
+      "emptyHint": "Ariza qabul qilinib, polis chiqarilgach, u shu yerda paydo bo‘ladi.",
+      "premiumMultiple": "{{value}} × mukofot"
+    },
+    "limits": {
+      "title": "Mening kredit limitlarim",
+      "subtitle": "Qoplama tarqaladigan bayerlar va limit summalari.",
+      "empty": "Hozircha kredit limitlari yo‘q",
+      "emptyHint": "Bayerga limit so‘rang — anderrayting qaroridan so‘ng u shu yerda ko‘rinadi.",
+      "request": "Limit so‘rash",
+      "requestTitle": "Kredit limiti so‘rovi",
+      "needsActivePolicy": "Kredit limitini faqat amaldagi polis bo‘yicha so‘rash mumkin.",
+      "buyer": "Bayer",
+      "buyerName": "Tashkilot nomi",
+      "buyerNamePlaceholder": "To‘liq yuridik nomi",
+      "policy": "Polis",
+      "approved": "Tasdiqlangan",
+      "requested": "So‘ralgan",
+      "validity": "Amal qilish muddati",
+      "paymentTerms": "To‘lov muddati",
+      "paymentTermsDays": "To‘lov muddati, kun",
+      "conditions": "Shartlar",
+      "status": "Holat",
+      "asked": "So‘ralgan sana",
+      "history": "Tarix",
+      "historyFor": "Limit tarixi — {{buyer}}",
+      "historyNote": "Faqat sizga yetkazilgan qarorlar ko‘rsatilgan.",
+      "noHistory": "Bu bayer bo‘yicha oldingi qarorlar yo‘q.",
+      "current": "Amaldagi",
+      "superseded": "Almashtirilgan",
+      "partialOf": "so‘ralgan {{requested}} dan",
+      "pendingTitle": "Bizda ko‘rib chiqilmoqda",
+      "beingIdentified": "tashkilotni aniqlayapmiz",
+      "requestStatuses": {
+        "pending_entity": "Tashkilot aniqlanmoqda",
+        "draft": "Qoralama",
+        "submitted": "Yuborilgan",
+        "under_review": "Ko‘rib chiqilmoqda",
+        "escalated": "Ko‘rib chiqilmoqda"
+      },
+      "searchPlaceholder": "Nomi yoki STIR",
+      "searchMin": "Kamida 3 ta belgi kiriting",
+      "notListed": "Ro‘yxatda yo‘q — qo‘lda kiritish",
+      "noneFound": "«{{query}}» bo‘yicha hech narsa topilmadi — qo‘lda kiritish",
+      "changeBuyer": "O‘zgartirish",
+      "backToSearch": "Qidiruvga qaytish",
+      "proposalNote": "Bu tashkilot bizda hali yo‘q. Avval xodimlarimiz uni aniqlaydi, so‘ng limitni anderrayting ko‘rib chiqadi.",
+      "registrationNumber": "STIR",
+      "amountIn": "Summa, {{currency}}",
+      "amountInvalid": "Noldan katta summa kiriting",
+      "maxTerms": "Polisingiz bo‘yicha — {{days}} kungacha",
+      "justification": "Nega aynan shu bayer va nega shu summa",
+      "dlHint": "Diskretsion limit doirasida bayerni bizdan so‘ramasdan o‘zingiz baholaysiz.",
+      "send": "So‘rovni yuborish",
+      "sentRequest": "Yuborildi. Anderrayting qaror bilan sizga qaytadi.",
+      "sentProposal": "Yuborildi. Avval tashkilotni aniqlaymiz, so‘ng limitni ko‘rib chiqamiz.",
+      "requestRefused": "So‘rovni qabul qilib bo‘lmaydi: polis amalda ekanini va bu bayer bo‘yicha ochiq so‘rov yo‘qligini tekshiring.",
+      "requestNotAllowed": "Bu hisob limit so‘rovlarini bera olmaydi.",
+      "requestFailed": "So‘rovni yuborib bo‘lmadi. Qaytadan urinib ko‘ring."
+    },
+    "submissions": {
+      "title": "Mening sug‘urta arizalarim",
+      "subtitle": "Qoplama uchun arizalar va ularning har biri qaysi bosqichda.",
+      "empty": "Arizalar yo‘q",
+      "emptyHint": "Siz uchun taklif tayyorlanganda u shu yerda paydo bo‘ladi.",
+      "terms": "Taklif etilayotgan shartlar",
+      "termsNotYet": "Shartlar hali tayyorlanmoqda. Taklif siz uchun tayyor bo‘lishi bilan ular shu yerda ko‘rinadi.",
+      "buyers": "Paketdagi bayerlar",
+      "noBuyers": "Bayerlar hali ko‘rsatilmagan.",
+      "progress": "Ko‘rib chiqish jarayoni",
+      "noHistory": "Hozircha hodisalar bo‘lmadi.",
+      "awaitingYou": "Bu taklif sizning javobingizni kutmoqda.",
+      "accept": "Qabul qilish",
+      "decline": "Rad etish",
+      "requestChanges": "O‘zgartirish so‘rash",
+      "declineReason": "Nima uchun rad etyapsiz?",
+      "changesWanted": "Nimani o‘zgartirish kerak?",
+      "respondRefused": "Bu taklif endi sizning javobingizni kutmayapti.",
+      "respondFailed": "Javobni yuborib bo‘lmadi. Qaytadan urinib ko‘ring.",
+      "confirm": {
+        "accept": "{{number}} arizasi shartlarini qabul qilasizmi? Biz polis chiqaramiz.",
+        "decline": "{{number}} arizasini rad etasizmi? Sababini yozing — bu bizga yordam beradi.",
+        "request_changes": "{{number}} arizasini izohlaringiz bilan sotuv bo‘limimizga qaytarish."
+      },
+      "statuses": {
+        "draft": "Tayyorlanmoqda",
+        "submitted": "Qabul qilindi",
+        "entity_resolution": "Bayerlaringiz tekshirilmoqda",
+        "underwriting": "Anderrayting",
+        "commercial_review": "Shartlar hisoblanmoqda",
+        "sales_confirmation": "Yakuniy tekshiruv",
+        "client_review": "Sizda",
+        "accepted": "Qabul qilingan",
+        "declined": "Rad etilgan",
+        "withdrawn": "Qaytarib olingan",
+        "bound": "Polis chiqarilgan"
+      }
+    },
+    "account": {
+      "title": "Mening profilim",
+      "subtitle": "Aloqa ma’lumotlaringiz va tizimga kirish.",
+      "contact": "Aloqa ma’lumotlari",
+      "company": "Tashkilot",
+      "email": "Kirish uchun email",
+      "fullName": "F.I.Sh.",
+      "phone": "Telefon",
+      "saved": "Saqlandi",
+      "security": "Tizimga kirish",
+      "securityHint": "Kirish parolini o‘zgartiring. Emailni o‘zgartirish uchun menejeringizga murojaat qiling."
     }
   }
 }

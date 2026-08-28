@@ -21,8 +21,9 @@ import { gradeTone } from '../../lib/grade'
 import { useLatestGrades } from '../entities/api'
 import { useLimitRequests } from './api'
 import { requestAgeDays, statusTone } from './machine'
+import { BuyerProposalsSection } from './BuyerProposalsSection'
 
-type QueueTab = 'drafts' | 'review' | 'escalated' | 'decided'
+type QueueTab = 'drafts' | 'review' | 'escalated' | 'decided' | 'proposals'
 
 export function LimitsPage() {
   const { t, i18n } = useTranslation()
@@ -81,6 +82,9 @@ export function LimitsPage() {
         }]
       : []),
     { key: 'decided', label: t('limits.tabs.decided') },
+    // Buyers a client named that we could not identify. Everyone who can
+    // resolve one can see the queue; the button itself is role-gated.
+    { key: 'proposals', label: t('limits.tabs.proposals') },
   ]
 
   return (
@@ -109,7 +113,9 @@ export function LimitsPage() {
         )}
       </div>
 
-      {isLoading ? (
+      {tab === 'proposals' ? (
+        <BuyerProposalsSection />
+      ) : isLoading ? (
         <Spinner label={t('common.loading')} />
       ) : filtered.length === 0 ? (
         <EmptyState title={t('limits.queueEmpty')} hint={t('limits.queueEmptyHint')} />

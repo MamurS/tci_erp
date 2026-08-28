@@ -1,10 +1,14 @@
 """TCI ERP analytics service: credit rating, credit limit, user provisioning.
 
-Localhost-only for now (see repo README). The rating and limit endpoints
-have no database access - the frontend supplies statement data in the
-request and persists results to Supabase. The /users endpoints DO reach
-Supabase, with the service_role key, because creating auth users cannot be
-done from the browser; that key never leaves this process.
+Publicly deployed from Phase 3d (see README "Deployment"). The rating and
+limit endpoints have no database access - the frontend supplies statement
+data in the request and persists results to Supabase. The /users endpoints DO
+reach Supabase, with the service_role key, because creating auth users cannot
+be done from the browser; that key never leaves this process.
+
+Everything about being reachable from the internet lives in app/hardening.py
+and app/settings.py: the CORS allowlist, the body cap, the request deadline,
+the opaque 500 and the structured access log.
 """
 
 from __future__ import annotations
@@ -12,8 +16,9 @@ from __future__ import annotations
 import logging
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from credit_engine import CompanyFinancials
 from credit_engine import __version__ as engine_version
@@ -24,6 +29,13 @@ from credit_engine.scoring.tables import GRADE_BANDS
 
 from app.adapter import build_company
 from app.fx import router as fx_router
+from app.hardening import (
+    AccessLogMiddleware,
+    RequestSizeLimitMiddleware,
+    SecurityHeadersMiddleware,
+    TimeoutMiddleware,
+)
+from app.settings import get_settings
 from app.users import router as users_router
 from app.schemas import (
     GradeBandOut,
@@ -55,13 +67,37 @@ app = FastAPI(
     ),
 )
 
-# Local development: the Vite frontend runs on another localhost port.
+settings = get_settings()
+
+# Middleware runs in reverse registration order, so the access log is added
+# last to wrap everything below it - including the 413 and the 504.
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RequestSizeLimitMiddleware, max_bytes=settings.max_body_bytes)
+app.add_middleware(TimeoutMiddleware, seconds=settings.request_timeout_seconds)
+
+# The deployed frontend is Cloudflare Pages: one production origin plus a
+# per-commit preview subdomain, which cannot be listed literally. Everything
+# else is refused - there is no "*" here any more.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=settings.cors_origins,
+    allow_origin_regex=settings.preview_origin_regex(),
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
+    max_age=600,
 )
+app.add_middleware(AccessLogMiddleware, settings=settings)
+
+
+@app.exception_handler(Exception)
+async def unhandled_exception(request: Request, exc: Exception) -> JSONResponse:
+    """Last resort. AccessLogMiddleware normally catches and logs first; this
+    exists so that no code path can return a traceback to a caller."""
+    request_id = getattr(request.state, "request_id", None)
+    logging.getLogger("app").exception("unhandled exception on %s", request.url.path)
+    return JSONResponse(
+        status_code=500, content={"detail": "internal error", "request_id": request_id}
+    )
 
 app.include_router(fx_router)
 # User provisioning. Holds the service_role key - see app/users.py.
