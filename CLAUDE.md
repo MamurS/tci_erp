@@ -324,7 +324,18 @@ is fine for internal test accounts and not fine for customers.
 - [x] Phase 3c-2: Agenda + policy binding — `tci.tasks` generated from `tci.workflow_events` by an AFTER INSERT mapping that also closes tasks when their object moves on (11 types, 10 auto / 1 manual), band-aware targeting, the two time-based kinds generated lazily by `tci.refresh_agenda()` with no cron; `/agenda` «Моя повестка» (grouped overdue → urgent → high → normal, type/object filters, deep links, bulk-open only) + sidebar badge with a separate overdue tone; `credit_limit_requests.policy_id` made nullable behind `tci.limit_scope(policy_id, insurance_request_id)` so new business can carry limits before a policy exists; `tci.bind_insurance_request` projects the agreed terms into a policy, adopts the package limits onto it and advances to `bound`
 - [x] Phase 3d: analytics service made deployable + client portal — `Dockerfile` and `render.yaml` at the repo root (build context is the root: the service imports `credit_engine` as a path dependency), CORS allowlist + preview regex, 1 MB body cap, 30s deadline, opaque 500s, structured access log, per-IP **and** per-caller rate limits on provisioning (the IP bucket is a ROUTER dependency, so an unauthenticated flood is not free); `/portal` for users whose ONLY role is `client` — my policies, my credit limits (released decisions only), request a limit (registry picker + propose-by-name → `tci.client_buyer_proposals` → information_manager), my submissions (accept / request changes / decline), account. Every client read goes through a `tci.v_client_*` SECURITY DEFINER view and every write through a `tci.client_*` function; the base-table client policies are dropped
 - [x] Phase 4 (operations): turnover declarations, premium, overdue notifications — `tci.declarations` + `declaration_lines` with the DL/uncovered-excess split (frozen on acceptance, computed live before it), corrections that supersede rather than overwrite; `premium_basis` + `tci.premium_instalments` generated when a policy is created + `tci.premium_entries` (rate recorded, never re-derived) + `tci.v_policy_premium` with the no-refund-below-minimum adjustment; `tci.overdue_notifications` (NOA) with derived lateness and an AUTOMATIC limit suspension through the existing emergency-release path; seven new Agenda task types behind a SECOND event trigger; `/declarations`, `/overdues`, the policy «Премия» tab, and portal screens for declaring, paying and reporting overdue accounts
-- [ ] Phase 5: claims & recoveries
+- [x] Phase 5: claims, indemnity and subrogation — `tci.claims` (CL-YYYY-NNNN) with a SQL
+  status machine and history, `claim_invoices` whose shipment date is what cover is judged
+  on; **coverage verification** reconstructs the limit in force at each shipment date from
+  the decision history (`tci.limit_in_force_at`) and records a per-invoice verdict with
+  machine-readable reason codes, which a claims underwriter may override WITHOUT
+  overwriting what the engine said; a deterministic traced indemnity
+  (`tci.calculate_indemnity`, mirrored in `src/features/claims/indemnity.ts`) frozen onto
+  the claim at approval; `claim_payments` capped by it and `recoveries` split pro rata on
+  the loss each side bore; a private `claim-documents` Storage bucket with row-scoped RLS
+  and a required-document checklist that refuses submission by name; seven Agenda types
+  behind a THIRD event trigger; `/claims` queue + six-tab claim page, and the portal's own
+  file-a-claim surface
 - [ ] Phase 6: Python analytics service (scoring/rating)
 
 ## Design notes (future phases — recorded, not built)
@@ -522,6 +533,103 @@ views were silently empty until the live smoke caught it. **A client view must
 read base tables, or read through a SECURITY DEFINER FUNCTION** (inside one the
 current user really is the owner). The 0025 views were always base-table-only
 and were never affected.
+
+### Phase 5 rules that are easy to get wrong
+
+**Coverage is judged at SHIPMENT, from history, not from current state.**
+`tci.credit_limit_decisions` records `lifecycle` but never WHEN a decision was
+superseded, so the supersede chain cannot be read backwards. The in-force
+decision is therefore RECONSTRUCTED by `tci.limit_in_force_at(policy, buyer,
+date)`, which orders by
+
+```sql
+tci.decision_effective_from(released_at, decided_at, held)
+  -- released_at, or decided_at + the sales window when silent consent released it,
+  -- and NULL while the decision is held: the policyholder was never told.
+```
+
+and takes the last one at or before that date (commercial stage wins a tie,
+mirroring `v_effective_limits`). A limit revoked today does not retract cover
+for goods shipped last month, and an increase granted today does not
+retroactively cover them.
+
+**The running balance is the DEBT, not the covered part.** Invoices are walked
+in shipment order and each is tested against the limit in force at its own
+shipment date, with `headroom = cap - balance_before`. The balance then
+accumulates the whole claimable amount, covered or not: an uninsured shipment
+still fills the buyer's limit.
+
+**Shortfalls and breaches are different things.** `limit_exceeded` /
+`dl_exceeded` cap an amount and produce `partial`. Everything else in
+`BREACH_REASONS` — payment terms past the policy maximum, a shipment outside
+the policy period, a revoked or declined limit, and the notification duty —
+sets the covered amount to ZERO. A late or missing NOA is prejudicial on every
+line of the claim, and is flagged at claim level as well.
+
+**An override never overwrites.** `system_verdict`/`system_covered_amount` and
+`override_verdict`/`override_covered_amount` are separate columns of the same
+row, with `effective_*` generated from `coalesce(override, system)`.
+`tci.verify_claim_coverage` rewrites only the system half — the upsert's
+update list deliberately omits the override columns, and 0033 asserts on its
+own source text that it still does.
+
+**The indemnity order is the contract** (`tci.calculate_indemnity`, 0034):
+
+```
+covered debt (effective, i.e. after overrides)
+  x insured_percentage
+  - nql_amount
+  - deductible_each_loss
+  - what is LEFT of aggregate_first_loss after earlier claims
+  capped at max_liability_amount less what earlier claims consumed
+```
+
+The three deductions come AFTER the percentage on purpose: the retained
+percentage is a share of the loss, the deductibles are amounts of money, and a
+deduction taken first would be silently scaled down by the percentage. Every
+step floors at zero. `approved_indemnity`, `afl_consumed` and the whole trace
+are FROZEN onto the claim at approval, for the same reason the declaration
+coverage split is frozen on acceptance: money moved on those numbers. Whether
+a claim is `approved` or `partially_approved` is DERIVED from uncovered debt,
+never chosen.
+
+**Recovery distribution** (`tci.record_recovery`): costs off the top, then the
+net splits in the ratio of the loss each side bore — insurer = indemnity paid
+to date, policyholder = claimable debt less that (uncovered lines, the retained
+percentage, the NQL, the deductible, the AFL). The policyholder takes the
+REMAINDER rather than a second rounded product, so the two shares always add
+back to the net exactly. The split is stored per recovery, not derived: the
+borne shares move as more indemnity is paid, and a distribution already made
+must not change afterwards.
+
+**A client-facing Agenda task is addressed to a PERSON, never to the role.**
+The `tasks: read mine` policy lets anyone holding a role read every task
+targeted at that role. That is right for a department and catastrophic for
+`client`, which every policyholder holds. `claim_ready_to_file` and
+`claim_info_requested` therefore target the individual users from
+`tci.policyholder_users` (`tci.policyholder_user_ids`); 0036 asserts no client
+type is ever role-targeted.
+
+**`text[] || 'literal'` is ambiguous and will crash.** Postgres resolves the
+unknown literal as an ARRAY, so appending a plain string to a `text[]` raises
+"malformed array literal" the first time that branch actually fires — it
+type-checks and passes any test where the branch is not taken.
+`tci.claim_submission_blockers` casts every key `::text` for exactly this
+reason. It cost a debugging round twice: once in the migration, once in the
+smoke script itself.
+
+### Replaying the migration chain locally
+
+Phase 5 was developed against a **local Postgres 16** with a small Supabase
+stub (roles, `auth.users` + `auth.uid()`, `storage.buckets`/`objects`,
+`pg_trgm` in schema `extensions`), replaying `0001` … `latest` with
+`psql --single-transaction` per file. It is worth rebuilding when a phase gets
+large: it caught two real defects that typecheck, lint and the unit tests all
+missed — four staff views shipped with **no `select` grant** (every claims
+screen would have rendered "permission denied"), and the `text[] || 'literal'`
+crash above. Two things to know: use `--single-transaction`, because
+`apply_migration` is transactional and 0015 relies on a temp table surviving
+between statements; and install `pg_trgm` into `extensions`, not `public`.
 
 ### Client visibility (migration 0025)
 

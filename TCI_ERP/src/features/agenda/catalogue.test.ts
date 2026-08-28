@@ -2,13 +2,15 @@
  * type list, the auto/manual completion rules documented in their headers, and
  * the guard tci.complete_task actually enforces.
  *
- * Phase 4 added seven types in 0029 and made a second one manual, so both
- * headers are read: MIGRATION is 0024, PHASE4 is 0029. */
+ * Phase 4 added seven types in 0029 and made a second one manual; Phase 5 adds
+ * seven more in 0036 and a third manual one. All three headers are read:
+ * MIGRATION is 0024, PHASE4 is 0029, PHASE5 is 0036. */
 
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0024_agenda_tasks.sql?raw'
 import PHASE4 from '../../../supabase/migrations/0029_phase4_agenda_portal.sql?raw'
+import PHASE5 from '../../../supabase/migrations/0036_claims_agenda_portal.sql?raw'
 import {
   AGENDA_GROUPS,
   agendaCounts,
@@ -62,6 +64,7 @@ describe('task type enum', () => {
     const created = [...enumBlock.matchAll(/'([a-z_]+)'/g)].map((m) => m[1])
     const appended = [
       ...PHASE4.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
+      ...PHASE5.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
     ].map((m) => m[1])
     expect([...created, ...appended]).toEqual([...TASK_TYPES])
   })
@@ -74,7 +77,12 @@ describe('task type enum', () => {
       l.startsWith('alter type tci.task_type add value '),
     )
     expect(added).toHaveLength(7)
-    expect(TASK_TYPES).toHaveLength(18)
+    // 0036 adds seven more.
+    const addedP5 = PHASE5.split('\n').filter((l) =>
+      l.startsWith('alter type tci.task_type add value '),
+    )
+    expect(addedP5).toHaveLength(7)
+    expect(TASK_TYPES).toHaveLength(25)
   })
 
   it('lists exactly the values of tci.task_priority', () => {
@@ -90,27 +98,31 @@ describe('completion rules', () => {
     expect(Object.keys(COMPLETION_RULES).sort()).toEqual([...TASK_TYPES].sort())
   })
 
-  it('marks exactly the two types the migrations call manual', () => {
+  it('marks exactly the three types the migrations call manual', () => {
     const manual = TASK_TYPES.filter((type) => COMPLETION_RULES[type] === 'manual')
-    expect([...manual].sort()).toEqual(['submission_declined', 'uncovered_excess_review'])
+    expect([...manual].sort()).toEqual([
+      'claim_declined_review',
+      'submission_declined',
+      'uncovered_excess_review',
+    ])
     expect(MIGRATION).toContain('submission_declined is manual because nothing downstream happens')
     expect(PHASE4).toContain('uncovered_excess_review is MANUAL because nothing downstream resolves it')
+    expect(PHASE5).toContain('claim_declined_review is MANUAL for the same reason as submission_declined')
   })
 
-  it('mirrors the guard in tci.complete_task as 0029 restated it', () => {
-    expect(PHASE4).toContain(
-      "if v_task.task_type not in ('submission_declined', 'uncovered_excess_review') then",
+  it('mirrors the guard in tci.complete_task as 0036 restated it', () => {
+    expect(PHASE5).toContain(
+      "     ('submission_declined', 'uncovered_excess_review', 'claim_declined_review') then",
     )
+    const MANUAL = ['submission_declined', 'uncovered_excess_review', 'claim_declined_review']
     for (const type of TASK_TYPES) {
-      expect(canCompleteByHand(type)).toBe(
-        type === 'submission_declined' || type === 'uncovered_excess_review',
-      )
+      expect(canCompleteByHand(type)).toBe(MANUAL.includes(type))
     }
   })
 
   it('agrees with the catalogue table in the migration headers', () => {
     // Each header row is "<type>  <target>  AUTO ..." or "... MANUAL - ...".
-    const headers = `${MIGRATION}\n${PHASE4}`.split('\n')
+    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}`.split('\n')
     for (const type of TASK_TYPES) {
       const row = headers.find(
         (line) => line.startsWith(`--   ${type}`) && /\b(AUTO|MANUAL)\b/.test(line),

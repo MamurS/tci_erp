@@ -1,1 +1,5 @@
 export { ClaimsPage } from './ClaimsPage'
+export { ClaimDetailPage } from './ClaimDetailPage'
+export { ClaimsSection } from './ClaimsSection'
+export { useClaims, usePolicyLiability } from './api'
+export type { Claim, ClaimStatus } from './types'

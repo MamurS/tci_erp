@@ -5,6 +5,8 @@ import { Card, PageHeader } from '../components/ui'
 import { useDeclarations } from '../features/declarations/api'
 import { declarationCompliance, premiumAccrual } from '../features/declarations/summary'
 import { useEntities, useEntityRoles } from '../features/entities/api'
+import { useClaims } from '../features/claims'
+import { isOpen as claimIsOpen } from '../features/claims/machine'
 import { useOverdueNotifications } from '../features/overdue/api'
 import { usePolicies } from '../features/policies/api'
 import { useAllPolicyPremium } from '../features/policies/premiumApi'
@@ -24,9 +26,14 @@ export function DashboardPage() {
   // sees neither, because neither is theirs to move.
   const seesDeclarations = hasRole(roles, 'admin', 'sales', 'commercial_underwriter')
   const seesOverdues = hasRole(roles, 'admin', 'credit_underwriter', 'commercial_underwriter')
+  // Phase 5. Claims belongs to the claims department; credit and commercial
+  // underwriting read it because an approved claim moves a limit and consumes
+  // the policy's maximum liability.
+  const seesClaims = hasRole(roles, 'admin', 'claims', 'credit_underwriter', 'commercial_underwriter')
   const { data: declarations } = useDeclarations()
   const { data: overdues } = useOverdueNotifications()
   const { data: policyPremium } = useAllPolicyPremium()
+  const { data: claims } = useClaims()
 
   const activePolicies = policies?.filter((p) => p.status === 'active').length
   const policyholders = entityRoles.data
@@ -57,6 +64,14 @@ export function DashboardPage() {
   const openOverdues = overdues?.filter((n) => n.status === 'open')
   const lateOverdues = openOverdues?.filter((n) => n.reported_late).length
   const accrual = policyPremium ? premiumAccrual(policyPremium) : null
+  const openClaims = claims?.filter((c) => claimIsOpen(c.status)).length
+  const awaitingInfo = claims?.filter((c) => c.status === 'info_requested').length
+  // "This period" is the calendar month: it is what a monthly report asks for
+  // and what the policy's own declaration frequency defaults to.
+  const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()
+  const paidThisPeriod = claims?.filter(
+    (c) => c.status === 'paid' && c.assessed_at !== null && c.assessed_at >= monthStart,
+  ).length
   const locale = i18n.language
 
   return (
@@ -76,7 +91,7 @@ export function DashboardPage() {
           </Link>
         ))}
       </div>
-      {(seesDeclarations || seesOverdues) && (
+      {(seesDeclarations || seesOverdues || seesClaims) && (
         <div className="mb-5 grid gap-4 sm:grid-cols-2 lg:max-w-3xl lg:grid-cols-4">
           {seesDeclarations && (
             <>
@@ -97,6 +112,38 @@ export function DashboardPage() {
                   <p className="text-xs text-slate-500">{t('dashboard.declarationsDisputed')}</p>
                   <p className="num mt-1 text-2xl font-semibold text-slate-900">
                     {compliance?.disputed ?? EM_DASH}
+                  </p>
+                </Card>
+              </Link>
+            </>
+          )}
+          {seesClaims && (
+            <>
+              <Link to="/claims">
+                <Card className="p-4 transition-colors hover:bg-slate-50">
+                  <p className="text-xs text-slate-500">{t('dashboard.claimsOpen')}</p>
+                  <p className="num mt-1 text-2xl font-semibold text-slate-900">
+                    {openClaims ?? EM_DASH}
+                  </p>
+                </Card>
+              </Link>
+              <Link to="/claims">
+                <Card
+                  className={`p-4 transition-colors hover:bg-slate-50 ${
+                    awaitingInfo ? 'border-warn-500/40 bg-warn-50' : ''
+                  }`}
+                >
+                  <p className="text-xs text-slate-500">{t('dashboard.claimsAwaitingInfo')}</p>
+                  <p className="num mt-1 text-2xl font-semibold text-slate-900">
+                    {awaitingInfo ?? EM_DASH}
+                  </p>
+                </Card>
+              </Link>
+              <Link to="/claims">
+                <Card className="p-4 transition-colors hover:bg-slate-50">
+                  <p className="text-xs text-slate-500">{t('dashboard.claimsPaidThisPeriod')}</p>
+                  <p className="num mt-1 text-2xl font-semibold text-slate-900">
+                    {paidThisPeriod ?? EM_DASH}
                   </p>
                 </Card>
               </Link>
