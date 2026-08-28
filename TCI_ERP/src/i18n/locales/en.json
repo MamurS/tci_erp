@@ -1865,11 +1865,17 @@
       "step": {
         "coveredDebt": "Covered debt",
         "insuredPercentage": "Insured percentage",
-        "nql": "Less the non-qualifying loss",
         "deductible": "Less the deductible",
         "aggregateFirstLoss": "Less the aggregate first loss",
-        "maxLiability": "Capped by the maximum liability"
-      }
+        "maxLiability": "Capped by the maximum liability",
+        "nqlThreshold": "Non-qualifying loss threshold"
+      },
+      "qualifies": "Qualifies",
+      "doesNotQualify": "Does not qualify",
+      "nqlMet": "At or above {{threshold}} — the full amount proceeds",
+      "nqlNotMet": "Below {{threshold}} — nothing is payable",
+      "nqlShortfall": "short by {{amount}}",
+      "belowNql": "The confirmed covered loss of {{covered}} is below the non-qualifying loss threshold of {{threshold}}, so this claim is not indemnifiable. The non-qualifying loss is a minimum size, not a deduction: nothing is payable at all."
     },
     "money": {
       "approved": "Approved",
@@ -1953,7 +1959,8 @@
       "invoiceAmount": "An invoice needs a positive amount.",
       "invoiceDates": "The due date cannot precede the invoice date.",
       "invoiceSplit": "Paid and disputed amounts cannot exceed the invoice.",
-      "notFound": "Claim not found."
+      "notFound": "Claim not found.",
+      "belowNql": "The covered loss is below the non-qualifying loss threshold — this claim is not indemnifiable. Decline it with that reason."
     }
   }
 }

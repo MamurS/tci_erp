@@ -91,7 +91,15 @@ function TraceCard({
           {formatAmount(Number(trace.payable), locale)} {trace.currency || claim.currency_code}
         </span>
       </div>
-      {!trace.fully_covered && (
+      {trace.not_indemnifiable_reason && (
+        <p className="mt-2 rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">
+          {t(trace.not_indemnifiable_reason, {
+            covered: `${formatAmount(Number(trace.covered_amount), locale)} ${claim.currency_code}`,
+            threshold: `${formatAmount(Number(trace.nql_amount), locale)} ${claim.currency_code}`,
+          })}
+        </p>
+      )}
+      {!trace.not_indemnifiable_reason && !trace.fully_covered && (
         <p className="mt-2 text-[13px] text-warn-600">
           {t('claims.indemnity.partialNote', {
             amount: `${formatAmount(Number(trace.uncovered_amount), locale)} ${claim.currency_code}`,
@@ -119,10 +127,19 @@ function StepRow({
   const d = step.detail as Record<string, number | boolean | null>
   let applied = EM_DASH
   switch (step.key) {
+    case 'claims.indemnity.step.nqlThreshold':
+      // A test, not a subtraction: show the comparison and its verdict.
+      applied = d.met
+        ? t('claims.indemnity.nqlMet', {
+            threshold: `${formatAmount(Number(d.nql_amount ?? 0), locale)} ${currency}`,
+          })
+        : t('claims.indemnity.nqlNotMet', {
+            threshold: `${formatAmount(Number(d.nql_amount ?? 0), locale)} ${currency}`,
+          })
+      break
     case 'claims.indemnity.step.insuredPercentage':
       applied = `× ${d.insured_percentage}%`
       break
-    case 'claims.indemnity.step.nql':
     case 'claims.indemnity.step.deductible':
     case 'claims.indemnity.step.aggregateFirstLoss':
       applied = `− ${formatAmount(Number(d.applied ?? 0), locale)} ${currency}`
@@ -137,11 +154,27 @@ function StepRow({
     default:
       applied = t('claims.indemnity.fromVerdicts')
   }
+  const isThreshold = step.key === 'claims.indemnity.step.nqlThreshold'
+  const failed = isThreshold && d.met === false
   return (
-    <tr>
+    <tr className={failed ? 'bg-neg-50' : undefined}>
       <td>
         <span className="mr-2 text-slate-400">{index + 1}</span>
         {t(step.key)}
+        {isThreshold && (
+          <span className="ml-2">
+            <Badge tone={d.met ? 'pos' : 'neg'}>
+              {t(d.met ? 'claims.indemnity.qualifies' : 'claims.indemnity.doesNotQualify')}
+            </Badge>
+          </span>
+        )}
+        {isThreshold && failed && Number(d.shortfall) > 0 && (
+          <span className="ml-2 text-xs text-neg-500">
+            {t('claims.indemnity.nqlShortfall', {
+              amount: `${formatAmount(Number(d.shortfall), locale)} ${currency}`,
+            })}
+          </span>
+        )}
         {step.key === 'claims.indemnity.step.aggregateFirstLoss' && Number(d.already_consumed) > 0 && (
           <span className="ml-2 text-xs text-slate-500">
             {t('claims.indemnity.aflConsumed', {
@@ -150,7 +183,7 @@ function StepRow({
           </span>
         )}
       </td>
-      <td className="text-slate-600">{applied}</td>
+      <td className={failed ? 'text-neg-500' : 'text-slate-600'}>{applied}</td>
       <td className="num font-medium">
         {formatAmount(Number(step.amount), locale)} {currency}
       </td>

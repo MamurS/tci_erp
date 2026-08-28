@@ -331,7 +331,9 @@ is fine for internal test accounts and not fine for customers.
   machine-readable reason codes, which a claims underwriter may override WITHOUT
   overwriting what the engine said; a deterministic traced indemnity
   (`tci.calculate_indemnity`, mirrored in `src/features/claims/indemnity.ts`) frozen onto
-  the claim at approval; `claim_payments` capped by it and `recoveries` split pro rata on
+  the claim at approval (the NQL is a de-minimis THRESHOLD tested before the insured
+  percentage, not a deduction — 0037); `claim_payments` capped by it and `recoveries`
+  split pro rata on
   the loss each side bore; a private `claim-documents` Storage bucket with row-scoped RLS
   and a required-document checklist that refuses submission by name; seven Agenda types
   behind a THIRD event trigger; `/claims` queue + six-tab claim page, and the portal's own
@@ -573,21 +575,43 @@ row, with `effective_*` generated from `coalesce(override, system)`.
 update list deliberately omits the override columns, and 0033 asserts on its
 own source text that it still does.
 
-**The indemnity order is the contract** (`tci.calculate_indemnity`, 0034):
+**The NQL is a THRESHOLD, not a deduction** (0037, correcting 0034). The
+non-qualifying loss is a DE MINIMIS: the size below which a loss does not
+qualify to be claimed at all. So it is a gate, and three things follow.
+
+* It is tested on the **confirmed covered loss, per buyer, BEFORE the insured
+  percentage** — the question is about the loss, not about the insurer's share
+  of it. (A claim is already per buyer, so the claim's covered debt IS the
+  per-buyer figure.)
+* It is **all or nothing**. Below it the claim is not indemnifiable and nothing
+  is payable — not "payable less the NQL". At or above it the FULL covered loss
+  proceeds with **no subtraction at all**.
+* **EQUAL QUALIFIES.** The comparison is `>=`, never `>`; the boundary is
+  asserted in the migration on its own source text, in the TypeScript contract
+  test, and in the live smoke.
+
+`tci.approve_claim` refuses a below-threshold claim BY NAME, separately from
+"nothing was covered": they are different facts and the policyholder is owed
+the second one plainly. The refusal carries the i18n key
+`claims.indemnity.belowNql`.
+
+**The indemnity order is the contract** (`tci.calculate_indemnity`, 0034,
+replaced by 0037):
 
 ```
 covered debt (effective, i.e. after overrides)
+  NQL THRESHOLD: covered debt >= nql_amount, or nothing is payable
   x insured_percentage
-  - nql_amount
   - deductible_each_loss
   - what is LEFT of aggregate_first_loss after earlier claims
   capped at max_liability_amount less what earlier claims consumed
 ```
 
-The three deductions come AFTER the percentage on purpose: the retained
+The two deductions come AFTER the percentage on purpose: the retained
 percentage is a share of the loss, the deductibles are amounts of money, and a
-deduction taken first would be silently scaled down by the percentage. Every
-step floors at zero. `approved_indemnity`, `afl_consumed` and the whole trace
+deduction taken first would be silently scaled down by the percentage. The
+threshold is the opposite and comes BEFORE, because it is a test on the loss
+itself. Every step floors at zero. `approved_indemnity`, `afl_consumed` and the whole trace
 are FROZEN onto the claim at approval, for the same reason the declaration
 coverage split is frozen on acceptance: money moved on those numbers. Whether
 a claim is `approved` or `partially_approved` is DERIVED from uncovered debt,

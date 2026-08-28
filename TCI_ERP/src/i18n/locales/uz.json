@@ -1865,11 +1865,17 @@
       "step": {
         "coveredDebt": "Qoplangan qarz",
         "insuredPercentage": "Qoplash foizi",
-        "nql": "Qoplanmaydigan zarar (NQL) chegirilgan",
         "deductible": "Franshiza chegirilgan",
         "aggregateFirstLoss": "Yig‘ma franshiza chegirilgan",
-        "maxLiability": "Maksimal javobgarlik bilan cheklangan"
-      }
+        "maxLiability": "Maksimal javobgarlik bilan cheklangan",
+        "nqlThreshold": "Qoplanmaydigan zarar chegarasi (NQL)"
+      },
+      "qualifies": "Chegaradan o‘tadi",
+      "doesNotQualify": "Chegaradan o‘tmaydi",
+      "nqlMet": "{{threshold}} dan kam emas — summa to‘liq o‘tadi",
+      "nqlNotMet": "{{threshold}} dan kam — tovon to‘lanmaydi",
+      "nqlShortfall": "{{amount}} yetishmaydi",
+      "belowNql": "Tasdiqlangan qoplangan zarar {{covered}} qoplanmaydigan zarar chegarasi {{threshold}} dan kam, shuning uchun da’vo bo‘yicha tovon to‘lanmaydi. NQL — bu chegirma emas, zararning eng kam hajmi: hech narsa to‘lanmaydi."
     },
     "money": {
       "approved": "Tan olingan",
@@ -1953,7 +1959,8 @@
       "invoiceAmount": "Hisob-faktura summasi musbat bo‘lishi kerak.",
       "invoiceDates": "To‘lov muddati hisob-faktura sanasidan oldin bo‘la olmaydi.",
       "invoiceSplit": "To‘langan va bahsli summalar hisob-faktura summasidan oshmasligi kerak.",
-      "notFound": "Da’vo topilmadi."
+      "notFound": "Da’vo topilmadi.",
+      "belowNql": "Qoplangan zarar NQL chegarasidan kam — da’vo bo‘yicha tovon to‘lanmaydi. Shu asos bilan rad eting."
     }
   }
 }
