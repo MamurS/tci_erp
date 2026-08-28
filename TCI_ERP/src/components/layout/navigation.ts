@@ -55,7 +55,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
   {
     key: 'declarations',
     path: '/declarations',
-    roles: ['admin', 'commercial_underwriter', 'credit_underwriter', 'client'],
+    // sales too: the declaration-due tasks are addressed to them.
+    roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'client'],
+  },
+  {
+    key: 'overdues',
+    path: '/overdues',
+    roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'claims'],
   },
   {
     key: 'claims',

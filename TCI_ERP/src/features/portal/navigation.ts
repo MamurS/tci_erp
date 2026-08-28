@@ -21,6 +21,10 @@ export interface PortalNavItem {
 export const PORTAL_NAV_ITEMS: readonly PortalNavItem[] = [
   { key: 'policies', path: '/portal' },
   { key: 'limits', path: '/portal/limits' },
+  // Phase 4: the policyholder declares, pays and reports overdue accounts.
+  { key: 'declarations', path: '/portal/declarations' },
+  { key: 'premium', path: '/portal/premium' },
+  { key: 'overdues', path: '/portal/overdues' },
   { key: 'submissions', path: '/portal/submissions' },
   { key: 'account', path: '/portal/account' },
 ]

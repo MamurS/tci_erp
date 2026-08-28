@@ -21,6 +21,7 @@ describe('role → screen map', () => {
       'requests',
       'limits',
       'declarations',
+      'overdues',
       'claims',
     ])
     expect(keys(['commercial_underwriter'])).toEqual([
@@ -31,8 +32,11 @@ describe('role → screen map', () => {
       'limits',
       'policies',
       'declarations',
+      'overdues',
       'claims',
     ])
+    // Sales chases declarations (the declaration_due tasks are theirs) and
+    // sees the overdue queue, but does not accept or dispute.
     expect(keys(['sales'])).toEqual([
       'dashboard',
       'agenda',
@@ -40,9 +44,17 @@ describe('role → screen map', () => {
       'requests',
       'limits',
       'policies',
+      'declarations',
+      'overdues',
     ])
     expect(keys(['information_manager'])).toEqual(['dashboard', 'agenda', 'entities'])
-    expect(keys(['claims'])).toEqual(['dashboard', 'agenda', 'entities', 'claims'])
+    expect(keys(['claims'])).toEqual([
+      'dashboard',
+      'agenda',
+      'entities',
+      'overdues',
+      'claims',
+    ])
   })
 
   it('only admin sees the admin section', () => {
@@ -66,6 +78,8 @@ describe('role → screen map', () => {
       'requests',
       'limits',
       'policies',
+      'declarations',
+      'overdues',
       'claims',
     ])
   })

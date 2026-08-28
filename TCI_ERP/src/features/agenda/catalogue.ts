@@ -29,9 +29,20 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   submission_declined: 'manual', // the only one — a human closes the file
   limit_review_due: 'auto', // refresh_agenda, lazily
   rating_stale: 'auto', // rating.created, or refresh_agenda lazily
+  // Phase 4 (migration 0029)
+  declaration_due: 'auto', // declaration.submitted, or refresh_agenda lazily
+  declaration_overdue: 'auto', // same signal, louder priority
+  declaration_awaiting_acceptance: 'auto', // declaration.accepted / .disputed
+  instalment_due: 'auto', // refresh_agenda, once the instalment is paid or cancelled
+  instalment_overdue: 'auto', // same
+  noa_credit_review: 'auto', // noa.resolved
+  // The second manual type. Turnover shipped outside cover is a conversation
+  // with the policyholder; nothing downstream ends it, so a human does.
+  uncovered_excess_review: 'manual',
 }
 
-/** Mirrors tci.complete_task's guard: it refuses every other type. */
+/** Mirrors tci.complete_task's guard: it refuses every other type. Two are
+ * manual — `submission_declined` and `uncovered_excess_review`. */
 export function canCompleteByHand(taskType: TaskType): boolean {
   return COMPLETION_RULES[taskType] === 'manual'
 }
@@ -50,6 +61,23 @@ export function taskLink(task: Pick<Task, 'object_type' | 'object_id' | 'params'
       const requestId = task.params?.request_id
       return typeof requestId === 'string' ? `/limits/${requestId}` : null
     }
+    case 'declaration':
+      return `/declarations/${task.object_id}`
+    case 'policy': {
+      // A declaration that does not exist yet: the task hangs off the policy,
+      // and the period it is chasing is in the params.
+      const period = task.params?.period_start
+      return typeof period === 'string'
+        ? `/declarations?policy=${task.object_id}&period=${period}`
+        : `/policies/${task.object_id}`
+    }
+    case 'premium_instalment': {
+      // An instalment has no page; the policy's premium tab is where it lives.
+      const policyId = task.params?.policy_id
+      return typeof policyId === 'string' ? `/policies/${policyId}?tab=premium` : null
+    }
+    case 'overdue_notification':
+      return `/overdues/${task.object_id}`
     default:
       return null
   }

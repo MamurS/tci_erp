@@ -10,11 +10,17 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { tci } from '../../lib/supabase'
 import type {
+  ClientDeclarableBuyer,
+  ClientDeclaration,
+  ClientDeclarationLine,
+  ClientInstalment,
   ClientLimit,
   ClientLimitCondition,
   ClientLimitHistoryRow,
   ClientLimitRequest,
+  ClientOverdueNotification,
   ClientPolicy,
+  ClientPremium,
   ClientSubmission,
   ClientSubmissionBuyer,
   ClientSubmissionHistoryRow,
@@ -249,5 +255,197 @@ export function useRespondToSubmission() {
       if (error) throw error
     },
     onSuccess: () => invalidatePortal(queryClient),
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Phase 4: declarations, premium, overdue notifications
+// ---------------------------------------------------------------------------
+// Same shape as everything above: v_client_* to read, client_* to write.
+
+const P4_KEYS = {
+  declarations: ['portal', 'declarations'] as const,
+  lines: (id: string) => ['portal', 'declaration-lines', id] as const,
+  premium: ['portal', 'premium'] as const,
+  instalments: ['portal', 'instalments'] as const,
+  overdues: ['portal', 'overdues'] as const,
+  declarable: (policyId: string) => ['portal', 'declarable-buyers', policyId] as const,
+}
+
+export function useClientDeclarations() {
+  return useQuery({
+    queryKey: P4_KEYS.declarations,
+    queryFn: async (): Promise<ClientDeclaration[]> => {
+      const { data, error } = await tci()
+        .from('v_client_declarations')
+        .select('*')
+        .order('period_start', { ascending: false })
+      if (error) throw error
+      return (data ?? []) as unknown as ClientDeclaration[]
+    },
+  })
+}
+
+export function useClientDeclarationLines(declarationId: string | undefined) {
+  return useQuery({
+    queryKey: P4_KEYS.lines(declarationId ?? ''),
+    enabled: Boolean(declarationId),
+    queryFn: async (): Promise<ClientDeclarationLine[]> => {
+      const { data, error } = await tci()
+        .from('v_client_declaration_lines')
+        .select('*')
+        .eq('declaration_id', declarationId!)
+        .order('entity_name')
+      if (error) throw error
+      return (data ?? []) as unknown as ClientDeclarationLine[]
+    },
+  })
+}
+
+export function useClientPremium() {
+  return useQuery({
+    queryKey: P4_KEYS.premium,
+    queryFn: async (): Promise<ClientPremium[]> => {
+      const { data, error } = await tci().from('v_client_premium').select('*')
+      if (error) throw error
+      return (data ?? []) as unknown as ClientPremium[]
+    },
+  })
+}
+
+export function useClientInstalments() {
+  return useQuery({
+    queryKey: P4_KEYS.instalments,
+    queryFn: async (): Promise<ClientInstalment[]> => {
+      const { data, error } = await tci()
+        .from('v_client_premium_instalments')
+        .select('*')
+        .order('sequence')
+      if (error) throw error
+      return (data ?? []) as unknown as ClientInstalment[]
+    },
+  })
+}
+
+export function useClientOverdues() {
+  return useQuery({
+    queryKey: P4_KEYS.overdues,
+    queryFn: async (): Promise<ClientOverdueNotification[]> => {
+      const { data, error } = await tci()
+        .from('v_client_overdue_notifications')
+        .select('*')
+        .order('first_due_date')
+      if (error) throw error
+      return (data ?? []) as unknown as ClientOverdueNotification[]
+    },
+  })
+}
+
+export function useClientDeclarableBuyers(policyId: string | undefined) {
+  return useQuery({
+    queryKey: P4_KEYS.declarable(policyId ?? ''),
+    enabled: Boolean(policyId),
+    queryFn: async (): Promise<ClientDeclarableBuyer[]> => {
+      const { data, error } = await tci()
+        .from('v_client_declarable_buyers')
+        .select('*')
+        .eq('policy_id', policyId!)
+        .order('entity_name')
+      if (error) throw error
+      return (data ?? []) as unknown as ClientDeclarableBuyer[]
+    },
+  })
+}
+
+function useInvalidatePortalP4() {
+  const qc = useQueryClient()
+  return () => {
+    void qc.invalidateQueries({ queryKey: ['portal'] })
+  }
+}
+
+/** Opens (or reuses) the declaration for a period. The period is normalised
+ * in SQL, so a client cannot invent one. */
+export function useOpenDeclaration() {
+  const invalidate = useInvalidatePortalP4()
+  return useMutation({
+    mutationFn: async (input: { policy_id: string; period_start: string }): Promise<string> => {
+      const { data, error } = await tci().rpc('client_open_declaration', {
+        p_policy_id: input.policy_id,
+        p_period_start: input.period_start,
+      })
+      if (error) throw error
+      return (data as { declaration_id: string }).declaration_id
+    },
+    onSuccess: invalidate,
+  })
+}
+
+export function useSaveClientLine() {
+  const invalidate = useInvalidatePortalP4()
+  return useMutation({
+    mutationFn: async (input: {
+      declaration_id: string
+      entity_id: string
+      turnover: number
+      overdue_amount?: number | null
+      line_note?: string | null
+    }) => {
+      const { error } = await tci().rpc('client_save_declaration_line', {
+        p_declaration_id: input.declaration_id,
+        p_entity_id: input.entity_id,
+        p_turnover: input.turnover,
+        p_overdue_amount: input.overdue_amount ?? null,
+        p_line_note: input.line_note ?? null,
+      })
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+}
+
+export function useDeleteClientLine() {
+  const invalidate = useInvalidatePortalP4()
+  return useMutation({
+    mutationFn: async (lineId: string) => {
+      const { error } = await tci().rpc('client_delete_declaration_line', { p_line_id: lineId })
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+}
+
+export function useSubmitClientDeclaration() {
+  const invalidate = useInvalidatePortalP4()
+  return useMutation({
+    mutationFn: async (declarationId: string) => {
+      const { error } = await tci().rpc('client_submit_declaration', {
+        p_declaration_id: declarationId,
+      })
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+}
+
+export function useClientFileNoa() {
+  const invalidate = useInvalidatePortalP4()
+  return useMutation({
+    mutationFn: async (input: {
+      policy_id: string
+      entity_id: string
+      first_due_date: string
+      overdue_amount: number
+    }) => {
+      const { data, error } = await tci().rpc('client_file_noa', {
+        p_policy_id: input.policy_id,
+        p_entity_id: input.entity_id,
+        p_first_due_date: input.first_due_date,
+        p_overdue_amount: input.overdue_amount,
+      })
+      if (error) throw error
+      return data as { noa_id: string; reported_late: boolean; suspension_decision_id: string | null }
+    },
+    onSuccess: invalidate,
   })
 }
