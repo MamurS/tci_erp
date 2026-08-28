@@ -256,13 +256,54 @@ The endpoints authenticate the CALLER with the caller's own access token and
 load their roles from `tci.user_roles` server-side; a role claimed in a
 request body is never trusted.
 
-**Deployment (resolved in Phase 3d).** The service is deployed to Render
-from `Dockerfile` + `render.yaml` at the repository root; the key lives in
-Render's environment and nowhere else. The provisioning screens keep their
-«Сервис подготовки пользователей недоступен» state, which now only appears
-if the service is genuinely down (or asleep on the free tier). See
-**The analytics service in production** below and
-`services/analytics/README.md` for the runbook.
+**Deployment: PREPARED, NOT DONE.** Phase 3d built everything the deploy
+needs — `Dockerfile` + `render.yaml` at the repository root, CORS, rate
+limits, the runbook in `services/analytics/README.md` — but the owner has
+deferred hosting, so **the service runs nowhere**. Until it does, the
+provisioning screens sit permanently in their «Сервис подготовки
+пользователей недоступен» state and **no user can be created through the
+UI**. See **Creating users while the service is unhosted** below.
+
+Hosting options were assessed after Phase 3d, constrained to accounts we
+already have (Supabase, Cloudflare, GitHub):
+
+* **Cloudflare Containers** — runs the existing image unchanged next to
+  Workers, deployed from this repo by Workers Builds, cold start 1–3s.
+  Requires the **Workers Paid plan ($5/mo)** on the Cloudflare account that
+  already serves Pages; there is no free tier for Containers. The image is
+  ~200 MB against a 2 GB limit and the service measures **27 MiB RSS**, so
+  the smallest `lite` instance fits with room to spare.
+* **Porting off Python** (TS engine + Deno Edge Functions) was rejected.
+  `credit_engine` has no numpy/pandas/scipy — only pydantic — so the port
+  is not blocked, but it is ~2,900 lines across two new runtimes and the
+  parity risk is real, not theoretical: Python's banker's rounding in
+  `round_limit` makes `2500 -> 2000` where `Math.round` gives `3000`, on
+  the recommended credit limit itself. It also contradicts the
+  **Do NOT put analytics logic into Edge Functions** rule above and the
+  Phase 5 plan for a Python analytics service.
+
+### Creating users while the service is unhosted
+
+`docs/create-user.sql` is the interim path: parameterised snippets to run
+in the Supabase SQL editor of the canonical project that create a user
+(staff or client), reset a password, and disable/enable an account. They
+write exactly the rows `services/analytics/app/users.py` writes —
+`auth.users` + `auth.identities` with a bcrypt hash, `tci.user_roles`,
+`tci.user_profiles` with `must_change_password`, and
+`tci.policyholder_users` for clients — and the auth column values were
+taken from a row GoTrue itself created in this project, then verified
+column-for-column against it (20/20) in a live smoke that cleaned up after
+itself.
+
+**The portal must not be opened to real policyholders until the service is
+hosted.** Client sign-in and every portal screen work without it — those
+go through the `tci.v_client_*` views and `tci.client_*` functions of
+migration 0025, which never touch the service. What does not work is
+everything around the account: sales and commercial underwriting cannot
+invite their own clients from the company card, and a locked-out client
+cannot be reset except by whoever holds database access. Onboarding and
+lockout recovery both funnel through one person with a SQL editor, which
+is fine for internal test accounts and not fine for customers.
 
 ## Current status / roadmap
 
@@ -279,9 +320,9 @@ if the service is genuinely down (or asleep on the free tier). See
 - [x] Phase 3a: unified legal-entities registry — tci.legal_entities merges buyers + policyholders (merge on country+reg number, FKs renamed to entity_id, old tables dropped), roles COMPUTED via v_entity_roles (never assigned), pg_trgm dedup-on-entry (blocking reg match + fuzzy suggestions), /entities registry + card with conditional tabs, legacy /buyers & /policyholders redirects
 - [x] Phase 3b: department roles + 2D authority matrix — user_role enum recreated (sales/commercial_underwriter/credit_underwriter/claims/information_manager/client + admin), multi-role users, RLS restated on has_role/is_staff, tci.authority_grants (stream × grade band × amount × validity), band-aware decide/revoke, /admin users & authorities screens, role-driven sidebar + route guards
 - [x] Phase 3c-1: insurance requests + two-stage limit decisions — `tci.insurance_requests` pipeline (draft → submitted → entity_resolution → underwriting → commercial_review → sales_confirmation → client_review → accepted/declined → bound) with SQL-enforced role gates and content guards, buyer package with name-only buyers resolved onto companies, decisions gain `stage` (credit | commercial) with commercial adjusting ONLY amount and payment terms within its own band authority, lazy release with a sales window + silent consent (no cron) and an emergency bypass for reductions/revocations, append-only `tci.workflow_events` for the future Agenda, `/requests` queue + submission page, company card «Заявки на страхование» tab
-- [x] User provisioning — admin creates staff, sales/commercial invite clients. Auth users are created by the FastAPI service (`services/analytics`), the only holder of `SUPABASE_SERVICE_ROLE_KEY`; the browser never sees that key. Temporary password shown on screen once (no SMTP), forced rotation via `tci.user_profiles.must_change_password`, self-service «Сменить пароль» for everyone. Deployed in Phase 3d; the screens keep their service-unavailable state for when it is genuinely down.
+- [x] User provisioning — admin creates staff, sales/commercial invite clients. Auth users are created by the FastAPI service (`services/analytics`), the only holder of `SUPABASE_SERVICE_ROLE_KEY`; the browser never sees that key. Temporary password shown on screen once (no SMTP), forced rotation via `tci.user_profiles.must_change_password`, self-service «Сменить пароль» for everyone. The service is BUILT but NOT HOSTED — hosting is deferred, so the screens sit in their service-unavailable state and users are created by hand via `docs/create-user.sql`.
 - [x] Phase 3c-2: Agenda + policy binding — `tci.tasks` generated from `tci.workflow_events` by an AFTER INSERT mapping that also closes tasks when their object moves on (11 types, 10 auto / 1 manual), band-aware targeting, the two time-based kinds generated lazily by `tci.refresh_agenda()` with no cron; `/agenda` «Моя повестка» (grouped overdue → urgent → high → normal, type/object filters, deep links, bulk-open only) + sidebar badge with a separate overdue tone; `credit_limit_requests.policy_id` made nullable behind `tci.limit_scope(policy_id, insurance_request_id)` so new business can carry limits before a policy exists; `tci.bind_insurance_request` projects the agreed terms into a policy, adopts the package limits onto it and advances to `bound`
-- [x] Phase 3d: analytics service deployed + client portal — `Dockerfile` and `render.yaml` at the repo root (build context is the root: the service imports `credit_engine` as a path dependency), CORS allowlist + preview regex, 1 MB body cap, 30s deadline, opaque 500s, structured access log, per-IP **and** per-caller rate limits on provisioning (the IP bucket is a ROUTER dependency, so an unauthenticated flood is not free); `/portal` for users whose ONLY role is `client` — my policies, my credit limits (released decisions only), request a limit (registry picker + propose-by-name → `tci.client_buyer_proposals` → information_manager), my submissions (accept / request changes / decline), account. Every client read goes through a `tci.v_client_*` SECURITY DEFINER view and every write through a `tci.client_*` function; the base-table client policies are dropped
+- [x] Phase 3d: analytics service made deployable + client portal — `Dockerfile` and `render.yaml` at the repo root (build context is the root: the service imports `credit_engine` as a path dependency), CORS allowlist + preview regex, 1 MB body cap, 30s deadline, opaque 500s, structured access log, per-IP **and** per-caller rate limits on provisioning (the IP bucket is a ROUTER dependency, so an unauthenticated flood is not free); `/portal` for users whose ONLY role is `client` — my policies, my credit limits (released decisions only), request a limit (registry picker + propose-by-name → `tci.client_buyer_proposals` → information_manager), my submissions (accept / request changes / decline), account. Every client read goes through a `tci.v_client_*` SECURITY DEFINER view and every write through a `tci.client_*` function; the base-table client policies are dropped
 - [ ] Phase 3 (operations): declarations, premium booking, overdues
 - [ ] Phase 4: claims & recoveries
 - [ ] Phase 5: Python analytics service (scoring/rating)
@@ -479,11 +520,16 @@ Agenda task, now carrying the client's comment.
 
 ### The analytics service in production (Phase 3d)
 
-Deployed to **Render** from `Dockerfile` + `render.yaml` at the repository
-root — the build context must be the root, because the service imports
-`credit_engine` as an editable path dependency. Free tier sleeps after ~15
-min idle (~1 min cold start); $7/mo Starter removes it. Full runbook,
-env vars and key rotation: `services/analytics/README.md`.
+**Not hosted yet — hosting is deferred.** The Render blueprint
+(`Dockerfile` + `render.yaml` at the repository root — the build context
+must be the root, because the service imports `credit_engine` as an
+editable path dependency) is ready to use, and its free tier sleeps after
+~15 min idle (~1 min cold start) with $7/mo Starter removing that. The
+current preferred option is **Cloudflare Containers on the existing
+account** ($5/mo Workers Paid, 1–3s cold start) — see **The service-role
+key** above for the comparison. Until one is chosen and set up, users are
+created by hand: `docs/create-user.sql`. Full runbook, env vars and key
+rotation: `services/analytics/README.md`.
 
 Hardening that must not regress: CORS allowlist + an ANCHORED preview regex
 (never `*`), 1 MB body cap, 30s request deadline, opaque 500s with a request

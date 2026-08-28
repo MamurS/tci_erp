@@ -48,7 +48,13 @@ claimed in a request body is never trusted; there is no such field.
 
 ## Deployment
 
-The service is deployed as a Docker container from this repository. Everything
+> **Status: not hosted.** Hosting is deferred, so this service runs nowhere and
+> the provisioning screens stay in their service-unavailable state. Until it is
+> hosted, users are created by hand with `docs/create-user.sql` — see
+> **Creating users while the service is unhosted** in the root `CLAUDE.md`.
+> The rest of this section is the runbook for when hosting goes ahead.
+
+The service deploys as a Docker container from this repository. Everything
 it needs is committed: `Dockerfile` and `render.yaml` at the **repository
 root**, not in this directory — the service imports `credit_engine` as an
 editable path dependency, so the build context has to be the repo root or the
