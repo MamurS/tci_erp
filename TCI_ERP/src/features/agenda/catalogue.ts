@@ -39,6 +39,17 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   // The second manual type. Turnover shipped outside cover is a conversation
   // with the policyholder; nothing downstream ends it, so a human does.
   uncovered_excess_review: 'manual',
+  // Phase 5 (migration 0036)
+  noa_matured_to_claim: 'auto', // refresh_agenda: a claim exists, or the NOA closed
+  claim_ready_to_file: 'auto', // same signal, addressed to the policyholder
+  claim_submitted: 'auto', // claim.status_changed away from submitted
+  claim_info_requested: 'auto', // claim.status_changed away from info_requested
+  claim_awaiting_payment: 'auto', // claim.status_changed to paid
+  claim_limit_reinstatement: 'auto', // refresh_agenda: a live limit again, or the file closed
+  // The third manual type, for the same reason as submission_declined: once a
+  // claim is refused nothing downstream happens on its own, so a human decides
+  // the conversation with the policyholder is over.
+  claim_declined_review: 'manual',
 }
 
 /** Mirrors tci.complete_task's guard: it refuses every other type. Two are
@@ -78,6 +89,8 @@ export function taskLink(task: Pick<Task, 'object_type' | 'object_id' | 'params'
     }
     case 'overdue_notification':
       return `/overdues/${task.object_id}`
+    case 'claim':
+      return `/claims/${task.object_id}`
     default:
       return null
   }

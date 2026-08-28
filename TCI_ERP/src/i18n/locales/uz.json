@@ -88,7 +88,10 @@
     "overduesOpen": "Ochiq muddati o‘tgan qarzlar",
     "overduesLate": "Kech bildirilgan",
     "premiumAccrual": "Sug‘urta mukofoti hisoblanishi",
-    "premiumAccrualHint": "Sizga ko‘rinadigan shartnomalar bo‘yicha. Tuzatish hech qachon manfiy bo‘lmaydi — minimal mukofotdan pastga qaytarish yo‘q."
+    "premiumAccrualHint": "Sizga ko‘rinadigan shartnomalar bo‘yicha. Tuzatish hech qachon manfiy bo‘lmaydi — minimal mukofotdan pastga qaytarish yo‘q.",
+    "claimsOpen": "Ishdagi da’volar",
+    "claimsAwaitingInfo": "Ma’lumot kutilmoqda",
+    "claimsPaidThisPeriod": "Shu oyda to‘langan"
   },
   "buyers": {
     "subtitle": "Kredit bahosidagi bayerlar (debitorlar) reyestri",
@@ -728,7 +731,8 @@
     "createdFromRequest": "Ariza asosida yaratilgan",
     "tabs": {
       "premium": "Sug‘urta mukofoti",
-      "terms": "Shartlar"
+      "terms": "Shartlar",
+      "claims": "Da’volar"
     }
   },
   "limits": {
@@ -904,7 +908,8 @@
       "failed": "Nimadir noto‘g‘ri ketdi. Qaytadan urinib ko‘ring."
     },
     "systemReason": {
-      "noaSuspension": "Muddati o‘tgan qarz xabarnomasi bo‘yicha to‘xtatilgan"
+      "noaSuspension": "Muddati o‘tgan qarz xabarnomasi bo‘yicha to‘xtatilgan",
+      "claimApproved": "To‘xtatilgan: bayer bo‘yicha da’vo tan olingan"
     }
   },
   "entities": {
@@ -939,7 +944,8 @@
       "limits": "Limitlar",
       "policies": "Polislar va portfel",
       "requests": "Sug‘urta arizalari",
-      "access": "Mijoz kirishi"
+      "access": "Mijoz kirishi",
+      "claims": "Da’volar"
     },
     "portfolioLimitsTitle": "Ularning polislari bo‘yicha bayer limitlari",
     "portfolioSummary": "Sug‘urtalanuvchi portfeli:",
@@ -1274,7 +1280,14 @@
       "instalment_due": "{{sequence}}-to‘lov {{due_date}} gacha",
       "instalment_overdue": "{{sequence}}-to‘lov {{due_date}} dan beri kechikdi",
       "noa_credit_review": "Muddati o‘tgan qarz: {{buyer_name}} ni ko‘rib chiqish",
-      "uncovered_excess_review": "Qoplashdan tashqari aylanma bildirilgan"
+      "uncovered_excess_review": "Qoplashdan tashqari aylanma bildirilgan",
+      "noa_matured_to_claim": "Muddati o‘tgan qarz da’voga yetildi: {{policy_number}}",
+      "claim_ready_to_file": "{{policy_number}} bo‘yicha da’vo taqdim etish mumkin",
+      "claim_submitted": "Ko‘rib chiqish uchun yangi da’vo: {{claim_number}}",
+      "claim_info_requested": "{{claim_number}} da’vosi bo‘yicha ma’lumot so‘ralgan",
+      "claim_awaiting_payment": "Tan olingan da’vo to‘lovni kutmoqda: {{claim_number}}",
+      "claim_limit_reinstatement": "{{claim_number}} da’vosidan keyin limit to‘xtatilgan holicha",
+      "claim_declined_review": "Da’vo rad etildi — sug‘urtalanuvchiga xabar bering: {{claim_number}}"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
@@ -1298,7 +1311,8 @@
       "account": "Profil",
       "declarations": "Deklaratsiyalar",
       "premium": "Sug‘urta mukofoti",
-      "overdues": "Muddati o‘tgan qarzlar"
+      "overdues": "Muddati o‘tgan qarzlar",
+      "claims": "Da’volar"
     },
     "policies": {
       "title": "Mening polislarim",
@@ -1450,6 +1464,62 @@
       "title": "Sug‘urta mukofoti",
       "subtitle": "Qancha to‘lashingiz va bu qanday hisoblangani.",
       "empty": "Sug‘urta mukofoti ma‘lumotlari hali yo‘q"
+    },
+    "claims": {
+      "title": "Sug‘urta da’volari",
+      "subtitle": "Bayer to‘lamagan bo‘lsa tovon so‘rang va sug‘urtalovchi qarorini kuzating.",
+      "claimableTitle": "Da’vo bildirish mumkin",
+      "claimableHint": "Ushbu muddati o‘tgan qarzlar bo‘yicha kutish muddati tugagan.",
+      "waiting": "Kutish muddati",
+      "emptyTitle": "Hozircha da’volar yo‘q",
+      "emptyHint": "Da’vo siz allaqachon xabar qilgan muddati o‘tgan qarzdan boshlanadi.",
+      "blockersTitle": "Taqdim etishdan oldin nima kerak",
+      "decisionTitle": "Sug‘urtalovchi qarori",
+      "invoicesTitle": "Hisob-fakturalar",
+      "noInvoices": "Hisob-fakturalar hali qo‘shilmagan.",
+      "documentsTitle": "Hujjatlar",
+      "moneyTitle": "To‘lovlar",
+      "paidOn": "{{date}} sanasida to‘langan:",
+      "recoveredOn": "{{date}} sanasidagi undirishdan sizning ulushingiz:",
+      "recoveryHint": "Da’vo to‘langandan keyin bayerdan undirilgan mablag‘ siz va sug‘urtalovchi o‘rtasida ko‘rilgan zarar nisbatida taqsimlanadi.",
+      "declinedNote": "Rad javobini o‘z menejeringiz bilan muhokama qilishingiz mumkin.",
+      "file": {
+        "title": "{{buyer}} bo‘yicha da’vo bildirish",
+        "hint": "Qoralama yaratiladi. To‘lanmagan hisob-fakturalar va majburiy hujjatlarni qo‘shing, so‘ng da’voni taqdim eting."
+      },
+      "respond": {
+        "title": "{{number}} da’vosi bo‘yicha javob",
+        "hint": "So‘ralgan materiallarni ilova qiling va nima yuborayotganingizni yozing."
+      },
+      "actions": {
+        "file": "Da’vo bildirish",
+        "create": "Qoralama yaratish",
+        "submit": "Taqdim etish",
+        "withdraw": "Qaytarib olish",
+        "respond": "Javob berish",
+        "send": "Yuborish",
+        "addInvoice": "Hisob-faktura qo‘shish"
+      },
+      "fields": {
+        "number": "Da’vo",
+        "buyer": "Bayer",
+        "policy": "Shartnoma",
+        "claimed": "Da’vo summasi",
+        "indemnity": "Sug‘urta tovoni",
+        "status": "Holat",
+        "overdueAmount": "Muddati o‘tgan",
+        "claimableFrom": "Da’vo qilish mumkin",
+        "cause": "Zarar sababi",
+        "insolvencyReference": "Ish raqami",
+        "invoiceNumber": "Hisob-faktura",
+        "shipmentDate": "Yuk jo‘natilgan sana",
+        "dueDate": "To‘lov muddati",
+        "amount": "Summa",
+        "outstanding": "Qoldiq",
+        "covered": "Qoplangan",
+        "verdict": "Xulosa",
+        "message": "Xabar"
+      }
     }
   },
   "declarations": {
@@ -1577,6 +1647,313 @@
       "reportedAt": "Bildirilgan",
       "resolution": "Natija",
       "resolutionNote": "Izoh"
+    }
+  },
+  "claims": {
+    "title": "Sug‘urta da’volari",
+    "subtitle": "Bayer to‘lamagan ishlar va ular bo‘yicha sug‘urtalovchining majburiyati.",
+    "notFound": "Da’vo topilmadi",
+    "ageHint": "Sug‘urtalanuvchi javobini kutish vaqti hisobga olinmaydi.",
+    "waitingPeriodWaived": "Qo‘llanilmaydi (bankrotlik)",
+    "blockersTitle": "Da’voni hozircha taqdim etib bo‘lmaydi",
+    "transitionHint": "Izoh da’vo tarixida saqlanadi.",
+    "approveHint": "Qoplash qayta hisoblanadi va tovon summasi da’voda qayd etiladi. To‘liq yoki qisman tan olish hisob-fakturalar bo‘yicha xulosalardan kelib chiqadi, tanlanmaydi.",
+    "reasonRequiredHint": "Rad etish uchun asos ko‘rsatilishi shart.",
+    "noaLateShort": "Kech xabar qilingan",
+    "noaLateTitle": "Muddati o‘tgan qarz belgilangan muddatdan {{days}} kun kech xabar qilingan",
+    "noaLateExplain": "Kech xabar berish xabardor qilish shartini buzadi va ushbu da’vodagi barcha hisob-fakturalardan qoplashni olib tashlaydi.",
+    "noaMissingTitle": "Muddati o‘tgan qarz haqida xabar berilmagan",
+    "noaMissingExplain": "Uzoq muddatli to‘lamaslik da’vo taqdim etilishidan oldin xabar qilinishi kerak. Xabarsiz barcha hisob-fakturalar bo‘yicha qoplash yo‘qoladi.",
+    "openNoa": "Xabarnomani ochish",
+    "notVerifiedYet": "Ushbu hisob-faktura bo‘yicha qoplash hali hisoblanmagan.",
+    "overridden": "Qo‘lda o‘zgartirilgan",
+    "shipmentDateHint": "Qoplash yuk jo‘natilganda vujudga keladi: limit aynan shu sanaga tekshiriladi.",
+    "disputedHint": "Bayer tijorat asoslarida e’tiroz bildirgan summa. Savdo krediti sug‘urtasi to‘lamaslikni qoplaydi, bahslarni emas, shuning uchun bu summa avval chegiriladi.",
+    "scope": {
+      "label": "Qaysi da’volar",
+      "open": "Ishdagi",
+      "all": "Barchasi"
+    },
+    "empty": {
+      "openTitle": "Ishda da’volar yo‘q",
+      "allTitle": "Hozircha da’volar yo‘q",
+      "hint": "Da’vo sug‘urtalanuvchi allaqachon xabar qilgan muddati o‘tgan qarzdan boshlanadi."
+    },
+    "tabs": {
+      "overview": "Umumiy",
+      "invoices": "Hisob-fakturalar va qoplash",
+      "documents": "Hujjatlar",
+      "indemnity": "Tovon hisobi",
+      "money": "To‘lovlar va undirishlar",
+      "history": "Tarix"
+    },
+    "overview": {
+      "file": "Ish",
+      "terms": "Qo‘llaniladigan shartnoma shartlari"
+    },
+    "statuses": {
+      "draft": "Qoralama",
+      "submitted": "Taqdim etilgan",
+      "under_assessment": "Ko‘rib chiqilmoqda",
+      "info_requested": "Ma’lumot so‘ralgan",
+      "approved": "Tan olingan",
+      "partially_approved": "Qisman tan olingan",
+      "declined": "Rad etilgan",
+      "paid": "To‘langan",
+      "closed": "Yopilgan",
+      "withdrawn": "Qaytarib olingan"
+    },
+    "actions": {
+      "submitted": "Da’voni taqdim etish",
+      "withdrawn": "Da’voni qaytarib olish",
+      "under_assessment": "Ko‘rib chiqishni boshlash",
+      "info_requested": "Ma’lumot so‘rash",
+      "declined": "Tovon to‘lashni rad etish",
+      "closed": "Ishni yopish",
+      "approved": "To‘liq tan olish",
+      "partially_approved": "Qisman tan olish",
+      "paid": "To‘langan deb belgilash",
+      "approve": "Tan olish",
+      "open": "Da’vo ochish",
+      "addInvoice": "Hisob-faktura qo‘shish",
+      "verify": "Qoplashni qayta hisoblash",
+      "override": "Xulosani o‘zgartirish",
+      "clearOverride": "Tizim xulosasini tiklash",
+      "recordPayment": "To‘lovni kiritish",
+      "recordRecovery": "Undirilgan mablag‘ni kiritish"
+    },
+    "causes": {
+      "protracted_default": "Uzoq muddatli to‘lamaslik",
+      "insolvency": "To‘lovga qobiliyatsizlik (bankrotlik)",
+      "other": "Boshqa"
+    },
+    "verdicts": {
+      "covered": "Qoplangan",
+      "partial": "Qisman qoplangan",
+      "not_covered": "Qoplanmagan"
+    },
+    "reasons": {
+      "covered_by_limit": "Tasdiqlangan limit bilan qoplangan",
+      "covered_by_dl": "Diskretsion limit bilan qoplangan",
+      "limit_exceeded": "Amaldagi limitdan ortiq",
+      "dl_exceeded": "Diskretsion limitdan ortiq",
+      "no_limit_in_force": "Limit amalda bo‘lmagan",
+      "limit_declined": "Bayer bo‘yicha rad javobi berilgan",
+      "limit_revoked": "Yuk jo‘natishdan oldin limit bekor qilingan",
+      "limit_not_yet_valid": "Limit hali kuchga kirmagan",
+      "limit_expired": "Limit muddati tugagan",
+      "payment_terms_exceeded": "Kredit muddati shartnomadagi maksimaldan ortiq",
+      "shipment_before_inception": "Yuk shartnoma kuchga kirishidan oldin jo‘natilgan",
+      "shipment_after_expiry": "Yuk shartnoma tugaganidan keyin jo‘natilgan",
+      "noa_late": "Muddati o‘tgan qarz kech xabar qilingan",
+      "noa_missing": "Muddati o‘tgan qarz haqida xabar berilmagan",
+      "nothing_outstanding": "Ushbu hisob-faktura bo‘yicha qoldiq yo‘q"
+    },
+    "documentTypes": {
+      "invoice": "Hisob-fakturalar",
+      "shipping": "Yuk hujjatlari",
+      "contract": "Yetkazib berish shartnomasi",
+      "order": "Buyurtma",
+      "dunning": "Da’vo yozishmalari",
+      "insolvency_evidence": "Bankrotlik hujjatlari",
+      "other": "Boshqa"
+    },
+    "basis": {
+      "limit": "Tasdiqlangan limit",
+      "discretionary": "Diskretsion limit",
+      "none": "Qoplash yo‘q"
+    },
+    "fields": {
+      "number": "Da’vo",
+      "buyer": "Bayer",
+      "policyholder": "Sug‘urtalanuvchi",
+      "policy": "Shartnoma",
+      "claimed": "Da’vo summasi",
+      "claimable": "Ko‘rib chiqishga tegishli",
+      "covered": "Qoplangan",
+      "uncovered": "Qoplanmagan",
+      "indemnity": "Sug‘urta tovoni",
+      "age": "Ko‘rib chiqish kunlari",
+      "status": "Holat",
+      "cause": "Zarar sababi",
+      "comment": "Izoh",
+      "decisionReason": "Qaror asosi",
+      "filedAt": "Taqdim etilgan",
+      "assessedAt": "Qaror qabul qilingan",
+      "invoices": "Hisob-fakturalar",
+      "eligibleFrom": "Taqdim etish mumkin",
+      "insuredPercentage": "Qoplash foizi",
+      "nql": "Qoplanmaydigan zarar (NQL)",
+      "deductible": "Har bir zarar bo‘yicha franshiza",
+      "aggregateFirstLoss": "Yig‘ma franshiza",
+      "maxLiability": "Maksimal javobgarlik",
+      "maxPaymentTerms": "Maksimal kredit muddati, kun",
+      "waitingPeriod": "Kutish muddati, kun",
+      "invoiceNumber": "Hisob-faktura",
+      "invoiceDate": "Hisob-faktura sanasi",
+      "shipmentDate": "Yuk jo‘natilgan sana",
+      "dueDate": "To‘lov muddati",
+      "amount": "Summa",
+      "paidAmount": "Bayer to‘lagan",
+      "disputedAmount": "Bahsli summa",
+      "verdict": "Xulosa",
+      "reasons": "Asoslar",
+      "justification": "Asoslash",
+      "documentType": "Hujjat turi",
+      "filename": "Fayl",
+      "uploadedAt": "Yuklangan",
+      "paidAt": "To‘lov sanasi",
+      "reference": "Rekvizit",
+      "receivedAt": "Tushgan sana",
+      "gross": "Undirilgan, brutto",
+      "recoveryCosts": "Undirish xarajatlari",
+      "net": "Netto",
+      "insurerShare": "Sug‘urtalovchi ulushi",
+      "policyholderShare": "Sug‘urtalanuvchi ulushi",
+      "note": "Eslatma"
+    },
+    "detail": {
+      "basis": "Qoplash asosi",
+      "cap": "Chegara",
+      "balanceBefore": "Ushbu hisob-fakturagacha qarz",
+      "headroom": "Limitning bo‘sh qoldig‘i",
+      "paymentTerms": "Kredit muddati / maksimal",
+      "decisionValidity": "Limit amal qilish muddati",
+      "noDecision": "Qaror amalda bo‘lmagan",
+      "systemSaid": "Tizim xulosasi",
+      "overrideJustification": "O‘zgartirish asoslashi"
+    },
+    "invoices": {
+      "emptyTitle": "Da’vo bo‘yicha hisob-fakturalar yo‘q",
+      "emptyHint": "Da’vo tarkibiga kiruvchi to‘lanmagan hisob-fakturalarni qo‘shing — qoplash har biri bo‘yicha tekshiriladi."
+    },
+    "override": {
+      "title": "{{invoice}} bo‘yicha xulosani o‘zgartirish",
+      "hint": "Tizim xulosasi sizniki bilan yonma-yon saqlanadi, almashtirilmaydi.",
+      "justificationHint": "Majburiy: asoslash ish materiallariga kiradi."
+    },
+    "documents": {
+      "checklistTitle": "Majburiy hujjatlar",
+      "checklistHint": {
+        "protracted_default": "Qarz mavjudligini, yuk jo‘natilganini va undirish bo‘yicha ishni tasdiqlang.",
+        "insolvency": "Qarz va yuk jo‘natilganini tasdiqlang; sud ishi boshlangach, da’vo yozishmalari talab qilinmaydi.",
+        "other": "Kamida — to‘lanmagan hisob-fakturalar."
+      },
+      "uploadHint": "PDF, rasm, Office fayllari yoki matn, har biri 20 MB gacha.",
+      "emptyTitle": "Hozircha hujjatlar yo‘q",
+      "emptyHint": "Barcha majburiy hujjatlar ilova qilinmaguncha da’voni taqdim etib bo‘lmaydi."
+    },
+    "indemnity": {
+      "title": "Tovon qanday hisoblangan",
+      "stepLabel": "Bosqich",
+      "applied": "Qo‘llanilgan",
+      "running": "Oraliq natija",
+      "payable": "To‘lanadigan tovon",
+      "live": "Joriy hisob",
+      "frozen": "Tan olingandek",
+      "frozenTitle": "Tan olingan summa qayd etilgan",
+      "frozenExplain": "{{amount}} {{at}} sanasida tan olingan. Limitlar yoki xulosalardagi keyingi o‘zgarishlar uni qayta ko‘rib chiqmaydi.",
+      "liveTitle": "Bugungi holatda hisob qanday bo‘lardi",
+      "liveExplain": "Faqat taqqoslash uchun — tan olingan summaga ta’sir qilmaydi.",
+      "fromVerdicts": "Qoplash xulosalari bo‘yicha",
+      "cappedAt": "{{amount}} bilan cheklangan",
+      "notCapped": "Javobgarlik qoldig‘i doirasida",
+      "aflConsumed": "{{amount}} oldingi da’volarda ishlatilgan",
+      "partialNote": "Da’voning {{amount}} qismi qoplanmaydi va sug‘urtalanuvchida qoladi.",
+      "emptyTitle": "Hozircha hisoblash uchun ma’lumot yo‘q",
+      "emptyHint": "Avval hisob-fakturalarni qo‘shing va qoplashni hisoblang.",
+      "step": {
+        "coveredDebt": "Qoplangan qarz",
+        "insuredPercentage": "Qoplash foizi",
+        "nql": "Qoplanmaydigan zarar (NQL) chegirilgan",
+        "deductible": "Franshiza chegirilgan",
+        "aggregateFirstLoss": "Yig‘ma franshiza chegirilgan",
+        "maxLiability": "Maksimal javobgarlik bilan cheklangan"
+      }
+    },
+    "money": {
+      "approved": "Tan olingan",
+      "paid": "To‘langan",
+      "outstanding": "To‘lash qoldi",
+      "insurerNet": "Sug‘urtalovchining netto pozitsiyasi",
+      "payments": "Tovon to‘lovlari",
+      "recoveries": "Undirilgan mablag‘lar",
+      "noPayments": "Hozircha to‘lovlar bo‘lmagan.",
+      "noRecoveries": "Hozircha undirish bo‘lmagan.",
+      "splitRule": "Undirish xarajatlari birinchi navbatda ushlab qolinadi; qolgani sug‘urtalovchi va sug‘urtalanuvchi o‘rtasida ular ko‘rgan zarar nisbatida taqsimlanadi.",
+      "paymentHint": "Jami to‘lovlar tan olingan tovondan oshmasligi kerak; unga yetganda da’vo «To‘langan» holatiga o‘tadi.",
+      "recoveryHint": "Taqsimot mablag‘ tushgan paytdagi haqiqiy zarar ulushlari bo‘yicha hisoblanadi va o‘zgarmas saqlanadi.",
+      "emptyTitle": "Mablag‘ harakati bo‘lmagan",
+      "emptyHint": "To‘lovlar da’vo tan olingandan keyin shu yerda paydo bo‘ladi."
+    },
+    "history": {
+      "emptyTitle": "Tarix bo‘sh",
+      "emptyHint": "Bu yerda har bir holat o‘zgarishi qayd etiladi."
+    },
+    "section": {
+      "emptyTitle": "Da’volar yo‘q",
+      "emptyHint": "Ushbu ob’ekt bo‘yicha da’vo bildirilmagan."
+    },
+    "liability": {
+      "max": "Maksimal javobgarlik",
+      "consumed": "Ishlatilgan",
+      "remaining": "Qoldiq",
+      "uncapped": "Cheklanmagan",
+      "aflRemaining": "Yig‘ma franshiza qoldig‘i"
+    },
+    "blocker": {
+      "noInvoices": "Birorta ham hisob-faktura qo‘shilmagan.",
+      "currencyMismatch": "Barcha hisob-fakturalar shartnoma valyutasida bo‘lishi kerak.",
+      "nothingOutstanding": "Da’vo qilish uchun qoldiq qarz yo‘q.",
+      "insolvencyReference": "Bankrotlik bo‘yicha da’voga ish raqami kerak.",
+      "waitingPeriod": "Kutish muddati hali tugamagan.",
+      "missingDocument": {
+        "invoice": "Hisob-fakturalar ilova qilinmagan.",
+        "shipping": "Yuk hujjatlari ilova qilinmagan.",
+        "contract": "Yetkazib berish shartnomasi ilova qilinmagan.",
+        "order": "Buyurtma ilova qilinmagan.",
+        "dunning": "Da’vo yozishmalari ilova qilinmagan.",
+        "insolvency_evidence": "Bankrotlik hujjatlari ilova qilinmagan.",
+        "other": "Majburiy hujjat ilova qilinmagan."
+      }
+    },
+    "errors": {
+      "notReady": "Da’vo taqdim etishga tayyor emas — yuqoridagi ro‘yxatga qarang.",
+      "notYoursToFile": "Da’voni faqat sug‘urtalanuvchi, sotuv yoki sug‘urta da’volari bo‘limi taqdim etishi mumkin.",
+      "notYoursToWithdraw": "Da’voni faqat sug‘urtalanuvchi, sotuv yoki sug‘urta da’volari bo‘limi qaytarib olishi mumkin.",
+      "notYoursToResume": "Ko‘rib chiqishni faqat sug‘urtalanuvchi yoki sug‘urta da’volari bo‘limi davom ettirishi mumkin.",
+      "claimsOnly": "Bu amal faqat sug‘urta da’volari bo‘limi uchun.",
+      "reasonRequired": "Rad etish uchun asos ko‘rsatish kerak.",
+      "invalidTransition": "Bu da’vo uchun bunday o‘tish mumkin emas.",
+      "nothingPayable": "Hisob bo‘yicha to‘lanadigan summa yo‘q — asos ko‘rsatib rad eting.",
+      "notAssessable": "Bu bosqichdagi da’voni tan olib bo‘lmaydi.",
+      "overpayment": "Bu to‘lov tan olingan tovondan oshib ketadi.",
+      "notApprovedYet": "Bu da’vo bo‘yicha hali hech narsa tan olinmagan.",
+      "recoveryCosts": "Undirish xarajatlari noldan brutto summagacha bo‘lishi kerak.",
+      "recoveryAmount": "Undirish uchun musbat brutto summa kerak.",
+      "justificationRequired": "Xulosani o‘zgartirish uchun asoslash kerak.",
+      "overrideTooLarge": "Qoplangan summa hisob-faktura bo‘yicha ko‘rib chiqiladigan summadan oshmasligi kerak.",
+      "overrideContradicts": "«Qoplanmagan» xulosasi hech qanday summani qoplamaydi.",
+      "settled": "Da’vo yakunlangan va qayta ko‘rib chiqilmaydi.",
+      "locked": "Bu da’voni endi tahrirlab bo‘lmaydi.",
+      "policyNotInForce": "Da’vo faqat amalda bo‘lgan shartnoma bo‘yicha mumkin.",
+      "alreadyOpen": "Bu bayer bo‘yicha ushbu shartnomada ochiq da’vo mavjud.",
+      "noaAlreadyClaimed": "Bu xabarnoma bo‘yicha da’vo allaqachon bildirilgan.",
+      "duplicateInvoice": "Bunday raqamli hisob-faktura da’voda allaqachon bor.",
+      "duplicateDocument": "Bu fayl allaqachon ilova qilingan.",
+      "uploadNotAllowed": "Bu da’voga hujjat qo‘shib bo‘lmaydi.",
+      "documentPath": "Bu fayl ushbu da’voga tegishli emas.",
+      "documentSize": "Hujjat hajmi 1 baytdan 20 MB gacha bo‘lishi kerak.",
+      "documentTooLarge": "Fayl 20 MB dan katta.",
+      "documentEmpty": "Fayl bo‘sh.",
+      "documentType": "Bunday fayl turi qabul qilinmaydi.",
+      "documentUnavailable": "Hujjatni ochib bo‘lmadi.",
+      "deleteNotAllowed": "Bu hujjatni o‘chirib bo‘lmaydi.",
+      "invoiceNumber": "Hisob-fakturaning raqami bo‘lishi kerak.",
+      "invoiceAmount": "Hisob-faktura summasi musbat bo‘lishi kerak.",
+      "invoiceDates": "To‘lov muddati hisob-faktura sanasidan oldin bo‘la olmaydi.",
+      "invoiceSplit": "To‘langan va bahsli summalar hisob-faktura summasidan oshmasligi kerak.",
+      "notFound": "Da’vo topilmadi."
     }
   }
 }

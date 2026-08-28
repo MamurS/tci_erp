@@ -20,6 +20,7 @@ import {
   Tabs,
 } from '../../components/ui'
 import type { TabDef } from '../../components/ui'
+import { ClaimsSection } from '../claims'
 import { EM_DASH, formatAmount, formatPercent } from '../../lib/format'
 import { PolicyLimitsSection } from '../limits/PolicyLimitsSection'
 import { usePolicyOriginRequest } from '../requests/api'
@@ -112,11 +113,14 @@ export function PolicyDetailPage() {
 function PolicyBody({ policy, policyId }: { policy: PolicyWithRefs; policyId: string }) {
   const { t } = useTranslation()
   const [params, setParams] = useSearchParams()
-  const active = params.get('tab') === 'premium' ? 'premium' : 'terms'
+  const requested = params.get('tab')
+  const active =
+    requested === 'premium' || requested === 'claims' ? requested : 'terms'
 
   const tabs: TabDef[] = [
     { key: 'terms', label: t('policies.tabs.terms') },
     { key: 'premium', label: t('policies.tabs.premium') },
+    { key: 'claims', label: t('policies.tabs.claims') },
   ]
 
   return (
@@ -127,14 +131,16 @@ function PolicyBody({ policy, policyId }: { policy: PolicyWithRefs; policyId: st
           active={active}
           onChange={(id) => {
             const next = new URLSearchParams(params)
-            if (id === 'premium') next.set('tab', 'premium')
+            if (id === 'premium' || id === 'claims') next.set('tab', id)
             else next.delete('tab')
             setParams(next, { replace: true })
           }}
         />
       </div>
 
-      {active === 'premium' ? (
+      {active === 'claims' ? (
+        <ClaimsSection policyId={policyId} />
+      ) : active === 'premium' ? (
         <PolicyPremiumTab policyId={policyId} />
       ) : (
         <div className="grid items-start gap-5 xl:grid-cols-[2fr_1fr]">

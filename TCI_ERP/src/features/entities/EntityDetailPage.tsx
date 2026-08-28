@@ -19,6 +19,7 @@ import { FinancialsTab } from './financials/FinancialsTab'
 import { OverviewTab } from './overview/OverviewTab'
 import { PoliciesTab } from './PoliciesTab'
 import { EntityRequestsSection } from '../requests'
+import { ClaimsSection } from '../claims'
 import { useRequestsForEntity } from '../requests/api'
 import { EntityClientAccessSection } from '../admin'
 import { useAuth } from '../../auth/AuthContext'
@@ -34,6 +35,7 @@ type TabKey =
   | 'limits'
   | 'policies'
   | 'requests'
+  | 'claims'
   | 'access'
 
 export function EntityDetailPage() {
@@ -64,6 +66,8 @@ export function EntityDetailPage() {
     // Submissions are relevant to every company: as applicant or as a
     // buyer inside someone else's package.
     'requests',
+    // Claims hang off the buyer: this is the company that did not pay.
+    ...(roles?.is_buyer ? (['claims'] as const) : []),
     ...(showClientAccess ? (['access'] as const) : []),
   ]
 
@@ -132,6 +136,7 @@ export function EntityDetailPage() {
         {activeTab === 'limits' && <BuyerLimitsTab entityId={id} />}
         {activeTab === 'policies' && <PoliciesTab entityId={id} />}
         {activeTab === 'requests' && <EntityRequestsSection entityId={id} />}
+        {activeTab === 'claims' && <ClaimsSection entityId={id} />}
         {activeTab === 'access' && <EntityClientAccessSection entityId={id} />}
       </div>
 

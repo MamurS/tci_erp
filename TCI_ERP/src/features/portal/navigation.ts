@@ -25,6 +25,8 @@ export const PORTAL_NAV_ITEMS: readonly PortalNavItem[] = [
   { key: 'declarations', path: '/portal/declarations' },
   { key: 'premium', path: '/portal/premium' },
   { key: 'overdues', path: '/portal/overdues' },
+  // Phase 5: an overdue account that never gets paid becomes a claim.
+  { key: 'claims', path: '/portal/claims' },
   { key: 'submissions', path: '/portal/submissions' },
   { key: 'account', path: '/portal/account' },
 ]

@@ -8,8 +8,17 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import { tci } from '../../lib/supabase'
+import { supabase, tci } from '../../lib/supabase'
+import { CLAIM_DOCUMENTS_BUCKET, claimDocumentPath } from '../claims/documents'
 import type {
+  ClientClaim,
+  ClientClaimDocument,
+  ClientClaimInvoice,
+  ClientClaimPayment,
+  ClientClaimReadiness,
+  ClientClaimable,
+  ClientRecovery,
+  ClientTask,
   ClientDeclarableBuyer,
   ClientDeclaration,
   ClientDeclarationLine,
@@ -445,6 +454,272 @@ export function useClientFileNoa() {
       })
       if (error) throw error
       return data as { noa_id: string; reported_late: boolean; suspension_decision_id: string | null }
+    },
+    onSuccess: invalidate,
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Phase 5 — claims
+// ---------------------------------------------------------------------------
+// Every read goes through a tci.v_client_* view and every write through a
+// tci.client_* function; the base tables refuse a client outright.
+
+export function useMyClaims() {
+  return useQuery({
+    queryKey: ['portal', 'claims'],
+    queryFn: async (): Promise<ClientClaim[]> => {
+      const { data, error } = await tci()
+        .from('v_client_claims')
+        .select('*')
+        .order('created_at', { ascending: false })
+      if (error) throw error
+      return (data ?? []) as unknown as ClientClaim[]
+    },
+  })
+}
+
+export function useMyClaimInvoices(claimId: string | undefined) {
+  return useQuery({
+    queryKey: ['portal', 'claim-invoices', claimId ?? ''],
+    enabled: Boolean(claimId),
+    queryFn: async (): Promise<ClientClaimInvoice[]> => {
+      const { data, error } = await tci()
+        .from('v_client_claim_invoices')
+        .select('*')
+        .eq('claim_id', claimId!)
+        .order('shipment_date', { ascending: true })
+      if (error) throw error
+      return (data ?? []) as unknown as ClientClaimInvoice[]
+    },
+  })
+}
+
+export function useMyClaimPayments(claimId: string | undefined) {
+  return useQuery({
+    queryKey: ['portal', 'claim-payments', claimId ?? ''],
+    enabled: Boolean(claimId),
+    queryFn: async (): Promise<ClientClaimPayment[]> => {
+      const { data, error } = await tci()
+        .from('v_client_claim_payments')
+        .select('*')
+        .eq('claim_id', claimId!)
+        .order('paid_at', { ascending: true })
+      if (error) throw error
+      return (data ?? []) as unknown as ClientClaimPayment[]
+    },
+  })
+}
+
+export function useMyRecoveries(claimId: string | undefined) {
+  return useQuery({
+    queryKey: ['portal', 'claim-recoveries', claimId ?? ''],
+    enabled: Boolean(claimId),
+    queryFn: async (): Promise<ClientRecovery[]> => {
+      const { data, error } = await tci()
+        .from('v_client_claim_recoveries')
+        .select('*')
+        .eq('claim_id', claimId!)
+        .order('received_at', { ascending: true })
+      if (error) throw error
+      return (data ?? []) as unknown as ClientRecovery[]
+    },
+  })
+}
+
+export function useMyClaimDocuments(claimId: string | undefined) {
+  return useQuery({
+    queryKey: ['portal', 'claim-documents', claimId ?? ''],
+    enabled: Boolean(claimId),
+    queryFn: async (): Promise<ClientClaimDocument[]> => {
+      const { data, error } = await tci()
+        .from('v_client_claim_documents')
+        .select('*')
+        .eq('claim_id', claimId!)
+        .order('uploaded_at', { ascending: true })
+      if (error) throw error
+      return (data ?? []) as unknown as ClientClaimDocument[]
+    },
+  })
+}
+
+export function useMyClaimable() {
+  return useQuery({
+    queryKey: ['portal', 'claimable'],
+    queryFn: async (): Promise<ClientClaimable[]> => {
+      const { data, error } = await tci()
+        .from('v_client_claimable')
+        .select('*')
+        .order('first_due_date', { ascending: true })
+      if (error) throw error
+      return (data ?? []) as unknown as ClientClaimable[]
+    },
+  })
+}
+
+export function useMyTasks() {
+  return useQuery({
+    queryKey: ['portal', 'tasks'],
+    queryFn: async (): Promise<ClientTask[]> => {
+      const { data, error } = await tci()
+        .from('v_client_tasks')
+        .select('*')
+        .order('due_at', { ascending: true, nullsFirst: false })
+      if (error) throw error
+      return (data ?? []) as unknown as ClientTask[]
+    },
+  })
+}
+
+export function useMyClaimReadiness(claimId: string | undefined) {
+  return useQuery({
+    queryKey: ['portal', 'claim-readiness', claimId ?? ''],
+    enabled: Boolean(claimId),
+    queryFn: async (): Promise<ClientClaimReadiness> => {
+      const { data, error } = await tci().rpc('client_claim_readiness', { p_claim_id: claimId! })
+      if (error) throw error
+      return data as unknown as ClientClaimReadiness
+    },
+  })
+}
+
+function useInvalidatePortalClaims() {
+  const qc = useQueryClient()
+  return () => {
+    void qc.invalidateQueries({ queryKey: ['portal'] })
+  }
+}
+
+export function useClientOpenClaim() {
+  const invalidate = useInvalidatePortalClaims()
+  return useMutation({
+    mutationFn: async (input: {
+      policy_id: string
+      entity_id: string
+      cause_of_loss: 'protracted_default' | 'insolvency' | 'other'
+      overdue_notification_id?: string | null
+      insolvency_reference?: string | null
+    }) => {
+      const { data, error } = await tci().rpc('client_open_claim', {
+        p_policy_id: input.policy_id,
+        p_entity_id: input.entity_id,
+        p_cause: input.cause_of_loss,
+        p_noa_id: input.overdue_notification_id ?? null,
+        p_insolvency_reference: input.insolvency_reference ?? null,
+      })
+      if (error) throw error
+      return data as unknown as ClientClaim
+    },
+    onSuccess: invalidate,
+  })
+}
+
+export function useClientSaveClaimInvoice() {
+  const invalidate = useInvalidatePortalClaims()
+  return useMutation({
+    mutationFn: async (input: {
+      claim_id: string
+      invoice_number: string
+      invoice_date: string
+      shipment_date: string
+      due_date: string
+      amount: number
+      paid_amount?: number
+      disputed_amount?: number
+      invoice_id?: string | null
+    }) => {
+      const { error } = await tci().rpc('save_claim_invoice', {
+        p_claim_id: input.claim_id,
+        p_invoice_number: input.invoice_number,
+        p_invoice_date: input.invoice_date,
+        p_shipment_date: input.shipment_date,
+        p_due_date: input.due_date,
+        p_amount: input.amount,
+        p_paid_amount: input.paid_amount ?? 0,
+        p_disputed_amount: input.disputed_amount ?? 0,
+        p_note: null,
+        p_invoice_id: input.invoice_id ?? null,
+      })
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+}
+
+export function useClientDeleteClaimInvoice() {
+  const invalidate = useInvalidatePortalClaims()
+  return useMutation({
+    mutationFn: async (invoiceId: string) => {
+      const { error } = await tci().rpc('delete_claim_invoice', { p_invoice_id: invoiceId })
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+}
+
+export function useClientSubmitClaim() {
+  const invalidate = useInvalidatePortalClaims()
+  return useMutation({
+    mutationFn: async (claimId: string) => {
+      const { error } = await tci().rpc('client_submit_claim', { p_claim_id: claimId })
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+}
+
+export function useClientWithdrawClaim() {
+  const invalidate = useInvalidatePortalClaims()
+  return useMutation({
+    mutationFn: async (input: { claim_id: string; comment?: string | null }) => {
+      const { error } = await tci().rpc('client_withdraw_claim', {
+        p_claim_id: input.claim_id,
+        p_comment: input.comment ?? null,
+      })
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+}
+
+export function useClientRespondToInfoRequest() {
+  const invalidate = useInvalidatePortalClaims()
+  return useMutation({
+    mutationFn: async (input: { claim_id: string; comment: string }) => {
+      const { error } = await tci().rpc('client_respond_to_info_request', {
+        p_claim_id: input.claim_id,
+        p_comment: input.comment,
+      })
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+}
+
+/** The bytes go straight to Storage under the claim's folder; the register row
+ * is written by tci.register_claim_document, which re-checks everything. */
+export function useClientUploadClaimDocument() {
+  const invalidate = useInvalidatePortalClaims()
+  return useMutation({
+    mutationFn: async (input: { claim_id: string; file: File; document_type: string }) => {
+      const path = claimDocumentPath(input.claim_id, input.file.name)
+      const { error: upErr } = await supabase.storage
+        .from(CLAIM_DOCUMENTS_BUCKET)
+        .upload(path, input.file, { contentType: input.file.type, upsert: false })
+      if (upErr) throw upErr
+      const { error } = await tci().rpc('register_claim_document', {
+        p_claim_id: input.claim_id,
+        p_storage_path: path,
+        p_document_type: input.document_type,
+        p_filename: input.file.name,
+        p_size_bytes: input.file.size,
+        p_content_type: input.file.type,
+        p_note: null,
+      })
+      if (error) {
+        await supabase.storage.from(CLAIM_DOCUMENTS_BUCKET).remove([path])
+        throw error
+      }
     },
     onSuccess: invalidate,
   })

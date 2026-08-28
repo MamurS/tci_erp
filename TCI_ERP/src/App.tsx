@@ -15,7 +15,7 @@ import { RequestDetailPage, RequestsPage } from './features/requests'
 import { PoliciesPage, PolicyDetailPage, PolicyFormPage } from './features/policies'
 import { DeclarationDetailPage, DeclarationsPage } from './features/declarations'
 import { OverdueDetailPage, OverduesPage } from './features/overdue'
-import { ClaimsPage } from './features/claims'
+import { ClaimDetailPage, ClaimsPage } from './features/claims'
 import { AdminPage } from './features/admin'
 import { AgendaPage } from './features/agenda'
 import { ChangePasswordPage } from './features/account'
@@ -23,6 +23,7 @@ import {
   PortalAccountPage,
   PortalDeclarationsPage,
   PortalLimitsPage,
+  PortalClaimsPage,
   PortalOverduesPage,
   PortalPoliciesPage,
   PortalPremiumPage,
@@ -56,6 +57,7 @@ export default function App() {
               <Route path="declarations" element={<PortalDeclarationsPage />} />
               <Route path="premium" element={<PortalPremiumPage />} />
               <Route path="overdues" element={<PortalOverduesPage />} />
+              <Route path="claims" element={<PortalClaimsPage />} />
               <Route path="submissions" element={<PortalSubmissionsPage />} />
               <Route path="account" element={<PortalAccountPage />} />
             </Route>
@@ -101,6 +103,7 @@ export default function App() {
                 <Route path="overdues" element={<OverduesPage />} />
                 <Route path="overdues/:id" element={<OverdueDetailPage />} />
                 <Route path="claims" element={<ClaimsPage />} />
+                <Route path="claims/:id" element={<ClaimDetailPage />} />
                 <Route path="admin" element={<AdminPage />} />
               </Route>
             </Route>

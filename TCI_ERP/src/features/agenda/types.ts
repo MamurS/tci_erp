@@ -23,6 +23,14 @@ export const TASK_TYPES = [
   'instalment_overdue',
   'noa_credit_review',
   'uncovered_excess_review',
+  // Phase 5 (migration 0036)
+  'noa_matured_to_claim',
+  'claim_ready_to_file',
+  'claim_submitted',
+  'claim_info_requested',
+  'claim_awaiting_payment',
+  'claim_limit_reinstatement',
+  'claim_declined_review',
 ] as const
 
 export type TaskType = (typeof TASK_TYPES)[number]
@@ -42,6 +50,7 @@ export type TaskObjectType =
   | 'policy'
   | 'premium_instalment'
   | 'overdue_notification'
+  | 'claim'
 
 export interface Task {
   id: string

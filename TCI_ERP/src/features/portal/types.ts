@@ -257,3 +257,143 @@ export interface ClientDeclarableBuyer {
   currency_code: string
   valid_until: string | null
 }
+
+// ---------------------------------------------------------------------------
+// Phase 5 — claims
+// ---------------------------------------------------------------------------
+
+/** tci.v_client_claims. The decision reason IS exposed: a refusal the
+ * policyholder cannot read is not a decision, it is a silence. The assessor's
+ * working notes and the status-history comments are not. */
+export interface ClientClaim {
+  id: string
+  claim_number: string
+  policy_id: string
+  policy_number: string
+  buyer_id: string
+  buyer_name: string
+  overdue_notification_id: string | null
+  status:
+    | 'draft'
+    | 'submitted'
+    | 'under_assessment'
+    | 'info_requested'
+    | 'approved'
+    | 'partially_approved'
+    | 'declined'
+    | 'paid'
+    | 'closed'
+    | 'withdrawn'
+  cause_of_loss: 'protracted_default' | 'insolvency' | 'other'
+  insolvency_reference: string | null
+  claimed_amount: number
+  currency_code: string
+  approved_indemnity: number | null
+  filed_at: string | null
+  assessed_at: string | null
+  decision_reason: string | null
+  info_requested_at: string | null
+  insured_percentage: number
+  waiting_period_days: number
+  nql_amount: number
+  deductible_each_loss: number | null
+  created_at: string
+  updated_at: string
+}
+
+/** tci.v_client_claim_invoices — the verdict and its reason codes, without the
+ * underwriting internals behind them. */
+export interface ClientClaimInvoice {
+  id: string
+  claim_id: string
+  invoice_number: string
+  invoice_date: string
+  shipment_date: string
+  due_date: string
+  amount: number
+  paid_amount: number
+  disputed_amount: number
+  outstanding_amount: number
+  claimable_amount: number
+  payment_terms_days: number
+  currency_code: string
+  note: string | null
+  effective_verdict: 'covered' | 'partial' | 'not_covered' | null
+  effective_covered_amount: number | null
+  system_reasons: string[] | null
+}
+
+/** tci.v_client_claimable — open overdue accounts that can become a claim. */
+export interface ClientClaimable {
+  noa_id: string
+  policy_id: string
+  policy_number: string
+  buyer_id: string
+  buyer_name: string
+  first_due_date: string
+  overdue_amount: number
+  currency_code: string
+  waiting_period_days: number
+  claimable_from: string
+  claimable_now: boolean
+  claim_exists: boolean
+}
+
+/** tci.v_client_claim_payments */
+export interface ClientClaimPayment {
+  id: string
+  claim_id: string
+  amount: number
+  currency_code: string
+  paid_at: string
+  reference: string | null
+}
+
+/** tci.v_client_claim_recoveries — only the policyholder's own side of the
+ * split; what the insurer kept is not their business. */
+export interface ClientRecovery {
+  id: string
+  claim_id: string
+  received_at: string
+  gross_amount: number
+  recovery_costs: number
+  net_amount: number
+  policyholder_share: number
+  currency_code: string
+  note: string | null
+}
+
+/** tci.v_client_claim_documents */
+export interface ClientClaimDocument {
+  id: string
+  claim_id: string
+  storage_path: string
+  document_type: string
+  original_filename: string
+  size_bytes: number
+  content_type: string
+  uploaded_at: string
+  uploaded_by_me: boolean
+}
+
+/** tci.v_client_tasks — the client's own open tasks, addressed to them by
+ * user id. Never by role: every policyholder holds `client`. */
+export interface ClientTask {
+  id: string
+  task_type: string
+  object_type: string
+  object_id: string
+  title_key: string
+  params: Record<string, unknown>
+  due_at: string | null
+  priority: 'normal' | 'high' | 'urgent'
+  created_at: string
+}
+
+/** What tci.client_claim_readiness returns. */
+export interface ClientClaimReadiness {
+  blockers: string[]
+  required_documents: string[]
+  missing_documents: string[]
+  eligible_from: string | null
+}

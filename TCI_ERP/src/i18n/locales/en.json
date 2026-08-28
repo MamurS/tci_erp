@@ -88,7 +88,10 @@
     "overduesOpen": "Open overdue accounts",
     "overduesLate": "Reported late",
     "premiumAccrual": "Premium accrual",
-    "premiumAccrualHint": "Across the policies you can see. The adjustment is never negative — there is no refund below the minimum."
+    "premiumAccrualHint": "Across the policies you can see. The adjustment is never negative — there is no refund below the minimum.",
+    "claimsOpen": "Claims in progress",
+    "claimsAwaitingInfo": "Awaiting information",
+    "claimsPaidThisPeriod": "Paid this month"
   },
   "buyers": {
     "subtitle": "Register of buyers (debtors) under credit assessment",
@@ -728,7 +731,8 @@
     "createdFromRequest": "Created from submission",
     "tabs": {
       "premium": "Premium",
-      "terms": "Terms"
+      "terms": "Terms",
+      "claims": "Claims"
     }
   },
   "limits": {
@@ -904,7 +908,8 @@
       "failed": "Something went wrong. Please try again."
     },
     "systemReason": {
-      "noaSuspension": "Suspended on an overdue notification"
+      "noaSuspension": "Suspended on an overdue notification",
+      "claimApproved": "Suspended: a claim was approved on this buyer"
     }
   },
   "entities": {
@@ -939,7 +944,8 @@
       "limits": "Limits",
       "policies": "Policies & portfolio",
       "requests": "Submissions",
-      "access": "Client access"
+      "access": "Client access",
+      "claims": "Claims"
     },
     "portfolioLimitsTitle": "Buyer limits under their policies",
     "portfolioSummary": "Policyholder portfolio:",
@@ -1274,7 +1280,14 @@
       "instalment_due": "Instalment {{sequence}} due {{due_date}}",
       "instalment_overdue": "Instalment {{sequence}} overdue since {{due_date}}",
       "noa_credit_review": "Overdue account: review {{buyer_name}}",
-      "uncovered_excess_review": "Turnover declared outside cover"
+      "uncovered_excess_review": "Turnover declared outside cover",
+      "noa_matured_to_claim": "Overdue account ripe for a claim: {{policy_number}}",
+      "claim_ready_to_file": "You may now file a claim under {{policy_number}}",
+      "claim_submitted": "New claim to assess: {{claim_number}}",
+      "claim_info_requested": "Information requested on claim {{claim_number}}",
+      "claim_awaiting_payment": "Approved claim awaiting payment: {{claim_number}}",
+      "claim_limit_reinstatement": "Limit still suspended after claim {{claim_number}}",
+      "claim_declined_review": "Claim declined — tell the policyholder: {{claim_number}}"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -1298,7 +1311,8 @@
       "account": "Account",
       "declarations": "Declarations",
       "premium": "Premium",
-      "overdues": "Overdue accounts"
+      "overdues": "Overdue accounts",
+      "claims": "Claims"
     },
     "policies": {
       "title": "My policies",
@@ -1450,6 +1464,62 @@
       "title": "Premium",
       "subtitle": "What you owe, and how it was worked out.",
       "empty": "No premium information yet"
+    },
+    "claims": {
+      "title": "Claims",
+      "subtitle": "Ask for indemnity when a buyer has not paid, and follow what the insurer decides.",
+      "claimableTitle": "Ready to be claimed",
+      "claimableHint": "The waiting period has run on these overdue accounts.",
+      "waiting": "Waiting period",
+      "emptyTitle": "No claims yet",
+      "emptyHint": "A claim starts from an overdue account you have already reported.",
+      "blockersTitle": "Before you can file",
+      "decisionTitle": "The insurer's decision",
+      "invoicesTitle": "Invoices",
+      "noInvoices": "No invoices added yet.",
+      "documentsTitle": "Documents",
+      "moneyTitle": "Payments",
+      "paidOn": "Paid on {{date}}:",
+      "recoveredOn": "Your share of the recovery on {{date}}:",
+      "recoveryHint": "Money collected from the buyer after the claim was paid is shared between you and the insurer in the ratio of the loss each of you bore.",
+      "declinedNote": "A refusal can be discussed with your account manager.",
+      "file": {
+        "title": "File a claim against {{buyer}}",
+        "hint": "This opens a draft. Add the unpaid invoices and the required documents, then file it."
+      },
+      "respond": {
+        "title": "Reply on claim {{number}}",
+        "hint": "Attach anything that was asked for, then say what you are sending back."
+      },
+      "actions": {
+        "file": "File a claim",
+        "create": "Create the draft",
+        "submit": "File",
+        "withdraw": "Withdraw",
+        "respond": "Reply",
+        "send": "Send",
+        "addInvoice": "Add an invoice"
+      },
+      "fields": {
+        "number": "Claim",
+        "buyer": "Buyer",
+        "policy": "Policy",
+        "claimed": "Claimed",
+        "indemnity": "Indemnity",
+        "status": "Status",
+        "overdueAmount": "Overdue",
+        "claimableFrom": "Can be claimed from",
+        "cause": "Cause of loss",
+        "insolvencyReference": "Case reference",
+        "invoiceNumber": "Invoice",
+        "shipmentDate": "Shipment date",
+        "dueDate": "Due date",
+        "amount": "Amount",
+        "outstanding": "Outstanding",
+        "covered": "Covered",
+        "verdict": "Coverage",
+        "message": "Message"
+      }
     }
   },
   "declarations": {
@@ -1577,6 +1647,313 @@
       "reportedAt": "Reported at",
       "resolution": "Outcome",
       "resolutionNote": "Note"
+    }
+  },
+  "claims": {
+    "title": "Claims",
+    "subtitle": "Files where a buyer did not pay, and what the insurer owes on them.",
+    "notFound": "Claim not found",
+    "ageHint": "Time spent waiting on the policyholder is not counted.",
+    "waitingPeriodWaived": "Waived (insolvency)",
+    "blockersTitle": "This claim cannot be filed yet",
+    "transitionHint": "The comment is kept in the claim's history.",
+    "approveHint": "Coverage is re-checked and the indemnity is frozen onto the claim. Full or partial approval follows from the verdicts, not from a choice.",
+    "reasonRequiredHint": "A refusal needs a reason on the record.",
+    "noaLateShort": "Late notification",
+    "noaLateTitle": "The overdue account was notified {{days}} day(s) late",
+    "noaLateExplain": "A late notification breaches the reporting condition and takes cover away from every invoice on this claim.",
+    "noaMissingTitle": "The overdue account was never notified",
+    "noaMissingExplain": "Protracted default has to be reported before it can be claimed. Without a notification cover is prejudiced on every invoice.",
+    "openNoa": "Open the notification",
+    "notVerifiedYet": "Coverage has not been checked on this invoice yet.",
+    "overridden": "Overridden",
+    "shipmentDateHint": "Cover attaches at shipment: this is the date the limit is judged on.",
+    "disputedHint": "What the buyer contests on commercial grounds. Trade credit insurance covers non-payment, not disputes, so this comes off first.",
+    "scope": {
+      "label": "Which claims",
+      "open": "Open",
+      "all": "All"
+    },
+    "empty": {
+      "openTitle": "No claims in progress",
+      "allTitle": "No claims yet",
+      "hint": "A claim starts from an overdue account the policyholder has already reported."
+    },
+    "tabs": {
+      "overview": "Overview",
+      "invoices": "Invoices and coverage",
+      "documents": "Documents",
+      "indemnity": "Indemnity",
+      "money": "Payments and recoveries",
+      "history": "History"
+    },
+    "overview": {
+      "file": "The file",
+      "terms": "Policy terms that apply"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "submitted": "Filed",
+      "under_assessment": "Under assessment",
+      "info_requested": "Information requested",
+      "approved": "Approved",
+      "partially_approved": "Partly approved",
+      "declined": "Declined",
+      "paid": "Paid",
+      "closed": "Closed",
+      "withdrawn": "Withdrawn"
+    },
+    "actions": {
+      "submitted": "File the claim",
+      "withdrawn": "Withdraw the claim",
+      "under_assessment": "Begin assessment",
+      "info_requested": "Request information",
+      "declined": "Decline the claim",
+      "closed": "Close the file",
+      "approved": "Approve in full",
+      "partially_approved": "Approve in part",
+      "paid": "Mark as paid",
+      "approve": "Approve",
+      "open": "Open a claim",
+      "addInvoice": "Add an invoice",
+      "verify": "Re-check coverage",
+      "override": "Change the verdict",
+      "clearOverride": "Restore the system verdict",
+      "recordPayment": "Record a payment",
+      "recordRecovery": "Record a recovery"
+    },
+    "causes": {
+      "protracted_default": "Protracted default",
+      "insolvency": "Insolvency",
+      "other": "Other"
+    },
+    "verdicts": {
+      "covered": "Covered",
+      "partial": "Partly covered",
+      "not_covered": "Not covered"
+    },
+    "reasons": {
+      "covered_by_limit": "Covered by the approved limit",
+      "covered_by_dl": "Covered by the discretionary limit",
+      "limit_exceeded": "Beyond the limit in force",
+      "dl_exceeded": "Beyond the discretionary limit",
+      "no_limit_in_force": "No limit was in force",
+      "limit_declined": "The buyer had been declined",
+      "limit_revoked": "The limit was revoked before shipment",
+      "limit_not_yet_valid": "The limit was not yet valid",
+      "limit_expired": "The limit had expired",
+      "payment_terms_exceeded": "Credit period beyond the policy maximum",
+      "shipment_before_inception": "Shipped before the policy incepted",
+      "shipment_after_expiry": "Shipped after the policy expired",
+      "noa_late": "The overdue account was notified late",
+      "noa_missing": "The overdue account was never notified",
+      "nothing_outstanding": "Nothing outstanding on this invoice"
+    },
+    "documentTypes": {
+      "invoice": "Invoices",
+      "shipping": "Shipping documents",
+      "contract": "Contract",
+      "order": "Purchase order",
+      "dunning": "Collection trail",
+      "insolvency_evidence": "Insolvency evidence",
+      "other": "Other"
+    },
+    "basis": {
+      "limit": "Approved limit",
+      "discretionary": "Discretionary limit",
+      "none": "No cover"
+    },
+    "fields": {
+      "number": "Claim",
+      "buyer": "Buyer",
+      "policyholder": "Policyholder",
+      "policy": "Policy",
+      "claimed": "Claimed",
+      "claimable": "Under consideration",
+      "covered": "Covered",
+      "uncovered": "Not covered",
+      "indemnity": "Indemnity",
+      "age": "Days in assessment",
+      "status": "Status",
+      "cause": "Cause of loss",
+      "comment": "Comment",
+      "decisionReason": "Decision",
+      "filedAt": "Filed",
+      "assessedAt": "Decided",
+      "invoices": "Invoices",
+      "eligibleFrom": "Can be filed from",
+      "insuredPercentage": "Insured percentage",
+      "nql": "Non-qualifying loss",
+      "deductible": "Deductible each loss",
+      "aggregateFirstLoss": "Aggregate first loss",
+      "maxLiability": "Maximum liability",
+      "maxPaymentTerms": "Maximum credit period, days",
+      "waitingPeriod": "Waiting period, days",
+      "invoiceNumber": "Invoice",
+      "invoiceDate": "Invoice date",
+      "shipmentDate": "Shipment date",
+      "dueDate": "Due date",
+      "amount": "Amount",
+      "paidAmount": "Paid by the buyer",
+      "disputedAmount": "Disputed",
+      "verdict": "Coverage",
+      "reasons": "Reasons",
+      "justification": "Justification",
+      "documentType": "Document type",
+      "filename": "File",
+      "uploadedAt": "Uploaded",
+      "paidAt": "Paid on",
+      "reference": "Reference",
+      "receivedAt": "Received on",
+      "gross": "Gross recovery",
+      "recoveryCosts": "Recovery costs",
+      "net": "Net",
+      "insurerShare": "Insurer's share",
+      "policyholderShare": "Policyholder's share",
+      "note": "Note"
+    },
+    "detail": {
+      "basis": "Cover basis",
+      "cap": "Ceiling",
+      "balanceBefore": "Balance before this invoice",
+      "headroom": "Headroom left",
+      "paymentTerms": "Credit period / maximum",
+      "decisionValidity": "Limit validity",
+      "noDecision": "No decision was in force",
+      "systemSaid": "The system decided",
+      "overrideJustification": "Justification for the change"
+    },
+    "invoices": {
+      "emptyTitle": "No invoices on this claim",
+      "emptyHint": "Add the unpaid invoices the claim is made of; coverage is judged on each one."
+    },
+    "override": {
+      "title": "Change the verdict on {{invoice}}",
+      "hint": "The system verdict is kept beside yours, not replaced.",
+      "justificationHint": "Required: the reason becomes part of the claim file."
+    },
+    "documents": {
+      "checklistTitle": "Required documents",
+      "checklistHint": {
+        "protracted_default": "Prove the debt exists, that the goods went out, and that the money was chased.",
+        "insolvency": "Prove the debt and the shipment; the collection trail is moot once a court is involved.",
+        "other": "At minimum, the unpaid invoices."
+      },
+      "uploadHint": "PDF, images, Office files or plain text, up to 20 MB each.",
+      "emptyTitle": "No documents yet",
+      "emptyHint": "The claim cannot be filed until every required type is attached."
+    },
+    "indemnity": {
+      "title": "How the indemnity is derived",
+      "stepLabel": "Step",
+      "applied": "Applied",
+      "running": "Running total",
+      "payable": "Indemnity payable",
+      "live": "Live",
+      "frozen": "As approved",
+      "frozenTitle": "The approved figure is fixed",
+      "frozenExplain": "{{amount}} was approved on {{at}}. Later changes to limits or verdicts do not restate it.",
+      "liveTitle": "What it would be today",
+      "liveExplain": "For comparison only — nothing here changes what was approved.",
+      "fromVerdicts": "From the coverage verdicts",
+      "cappedAt": "Capped at {{amount}}",
+      "notCapped": "Within the remaining liability",
+      "aflConsumed": "{{amount}} already used by earlier claims",
+      "partialNote": "{{amount}} of the claim is not covered and stays with the policyholder.",
+      "emptyTitle": "Nothing to calculate yet",
+      "emptyHint": "Add invoices and check coverage first.",
+      "step": {
+        "coveredDebt": "Covered debt",
+        "insuredPercentage": "Insured percentage",
+        "nql": "Less the non-qualifying loss",
+        "deductible": "Less the deductible",
+        "aggregateFirstLoss": "Less the aggregate first loss",
+        "maxLiability": "Capped by the maximum liability"
+      }
+    },
+    "money": {
+      "approved": "Approved",
+      "paid": "Paid out",
+      "outstanding": "Still owed",
+      "insurerNet": "Insurer's net position",
+      "payments": "Indemnity payments",
+      "recoveries": "Recoveries",
+      "noPayments": "Nothing paid out yet.",
+      "noRecoveries": "Nothing recovered yet.",
+      "splitRule": "Recovery costs come off the top; the rest is split between insurer and policyholder in the ratio of the loss each of them bore.",
+      "paymentHint": "Cumulative payments may not exceed the approved indemnity; reaching it closes the claim as paid.",
+      "recoveryHint": "The split is computed from what each side had borne when the money arrived, and stored as it was.",
+      "emptyTitle": "Nothing has moved yet",
+      "emptyHint": "Payments appear here once the claim is approved."
+    },
+    "history": {
+      "emptyTitle": "No history yet",
+      "emptyHint": "Every status change will be recorded here."
+    },
+    "section": {
+      "emptyTitle": "No claims",
+      "emptyHint": "Nothing has been claimed here."
+    },
+    "liability": {
+      "max": "Maximum liability",
+      "consumed": "Consumed",
+      "remaining": "Remaining",
+      "uncapped": "Not capped",
+      "aflRemaining": "Aggregate first loss left"
+    },
+    "blocker": {
+      "noInvoices": "No invoices have been added.",
+      "currencyMismatch": "Every invoice must be in the policy currency.",
+      "nothingOutstanding": "There is nothing outstanding to claim.",
+      "insolvencyReference": "An insolvency claim needs the case reference.",
+      "waitingPeriod": "The waiting period has not elapsed yet.",
+      "missingDocument": {
+        "invoice": "Invoices are missing.",
+        "shipping": "Shipping documents are missing.",
+        "contract": "The contract is missing.",
+        "order": "The purchase order is missing.",
+        "dunning": "The collection trail is missing.",
+        "insolvency_evidence": "Insolvency evidence is missing.",
+        "other": "A required document is missing."
+      }
+    },
+    "errors": {
+      "notReady": "This claim is not ready to be filed — see the list above.",
+      "notYoursToFile": "Only the policyholder, sales or claims may file a claim.",
+      "notYoursToWithdraw": "Only the policyholder, sales or claims may withdraw a claim.",
+      "notYoursToResume": "Only the policyholder or claims may resume the assessment.",
+      "claimsOnly": "Only the claims department may do this.",
+      "reasonRequired": "A refusal needs a reason.",
+      "invalidTransition": "That is not a move this claim can make.",
+      "nothingPayable": "This claim computes to nothing payable — decline it with a reason instead.",
+      "notAssessable": "A claim at this stage cannot be approved.",
+      "overpayment": "That payment would exceed the approved indemnity.",
+      "notApprovedYet": "Nothing has been approved on this claim yet.",
+      "recoveryCosts": "Recovery costs must be between zero and the gross amount.",
+      "recoveryAmount": "A recovery needs a positive gross amount.",
+      "justificationRequired": "An override needs a justification.",
+      "overrideTooLarge": "The covered amount cannot exceed what is claimable on the invoice.",
+      "overrideContradicts": "A «not covered» verdict covers nothing.",
+      "settled": "This claim is settled and can no longer be reassessed.",
+      "locked": "This claim can no longer be edited.",
+      "policyNotInForce": "A claim needs a policy that was in force.",
+      "alreadyOpen": "This buyer already has an open claim on this policy.",
+      "noaAlreadyClaimed": "A claim has already been raised from this notification.",
+      "duplicateInvoice": "That invoice number is already on this claim.",
+      "duplicateDocument": "That file has already been attached.",
+      "uploadNotAllowed": "You cannot add documents to this claim.",
+      "documentPath": "That file does not belong to this claim.",
+      "documentSize": "A document must be between 1 byte and 20 MB.",
+      "documentTooLarge": "That file is larger than 20 MB.",
+      "documentEmpty": "That file is empty.",
+      "documentType": "That file type is not accepted.",
+      "documentUnavailable": "That document could not be opened.",
+      "deleteNotAllowed": "You cannot remove this document.",
+      "invoiceNumber": "An invoice needs its number.",
+      "invoiceAmount": "An invoice needs a positive amount.",
+      "invoiceDates": "The due date cannot precede the invoice date.",
+      "invoiceSplit": "Paid and disputed amounts cannot exceed the invoice.",
+      "notFound": "Claim not found."
     }
   }
 }
