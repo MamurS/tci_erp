@@ -338,7 +338,26 @@ is fine for internal test accounts and not fine for customers.
   and a required-document checklist that refuses submission by name; seven Agenda types
   behind a THIRD event trigger; `/claims` queue + six-tab claim page, and the portal's own
   file-a-claim surface
-- [ ] Phase 6: Python analytics service (scoring/rating)
+- [x] Phase 6: corporate groups and group exposure — `tci.entity_relationships`
+  (typed, time-bounded, directed edges) with CYCLE-SAFE resolution:
+  `tci.entity_group` walks the live edges UNDIRECTED carrying a per-path
+  visited set (the real guarantee) plus a configurable depth cap (a second
+  belt, default 10), so a cross-holding terminates; the group has no record of
+  its own — its identity IS `tci.ultimate_parent`. `tci.entity_relationship_suggestions`
+  turns five cheap signals (shared corporate email domain, address, contact
+  person, pg_trgm name similarity, registration prefix) into ADVISORY hints
+  generated lazily on read, which never become an edge without a human stating
+  the direction and the type. `tci.v_group_exposure` sums the in-force member
+  limits in UZS by the standard fx rule with per-member and per-policyholder
+  breakdowns and missing rates counted separately, and `tci.group_limits` caps
+  it — enforced BLOCKING inside `decide_limit_request` (refuse, escalate, emit
+  `limit.group_limit_breached`, return `result: 'group_limit_exceeded'`) and
+  inside `adjust_limit_commercial` on INCREASES only, with admin exempt and the
+  emergency path never consulted. Two lazily-generated Agenda types, a
+  «Группа» tab, the «Возможные связи» panel, a preflight banner on both
+  decision forms, a group chip on the limit and claim pages, and a group
+  section in the printed risk report
+- [ ] Phase 7: Python analytics service (scoring/rating)
 
 ## Design notes (future phases — recorded, not built)
 
@@ -641,6 +660,98 @@ type-checks and passes any test where the branch is not taken.
 `tci.claim_submission_blockers` casts every key `::text` for exactly this
 reason. It cost a debugging round twice: once in the migration, once in the
 smoke script itself.
+
+### Phase 6 rules that are easy to get wrong
+
+**Cycle safety is the visited set, not the depth cap.** Companies really do own
+each other, so `tci.entity_group` carries the path as a `uuid[]` and refuses to
+re-enter a node already on it (`not (e.b = any (w.path))`). That is what
+guarantees termination: the graph is finite and no path repeats a node.
+`tci.group_depth_cap()` (default 10, a `workflow_settings` column) is a second
+belt for a pathologically wide graph, and a group deeper than it is TRUNCATED
+rather than wrong-but-unbounded. Migration 0038 proves both on a live
+`A→B→C→A + sister D` fixture that cleans itself up.
+
+**The walk is UNDIRECTED, the ultimate parent is not.** Membership is the
+undirected closure over the edges valid TODAY — two subsidiaries of one parent
+share a group although no edge runs between them, so each edge is traversed
+both ways. `tci.ultimate_parent` then picks the member no other MEMBER owns or
+controls (`affiliate` and `common_owner` are not "being owned by"), ties broken
+by lowest id so the group's identity is STABLE across calls. In a pure cycle
+nobody qualifies, so the lowest id is used — arbitrary, documented, and
+consistent, which is what callers actually need.
+
+**A suggestion is a hint and never an edge.** Every signal has an innocent
+explanation — two unrelated companies share a serviced office — so
+`refresh_entity_suggestions` only ever writes a suggestion row, and
+`accept_relationship_suggestion` is the ONLY path to an edge, still going
+through `save_entity_relationship` so a human states the direction, the type
+and the percentage. Free-mail domains (`gmail.com`, `mail.ru`, …) are excluded
+outright: they say a company is small, not that it is related, and including
+them buries the real signals. A rejected pair is remembered and never proposed
+again. Generation is lazy on read, candidate-narrowed by a cheap shared
+attribute first — the registry is never scanned pairwise — and there is no cron.
+
+**The exposure formula.** Per ultimate parent, over `v_effective_limits` with
+`outcome in ('approved','partial')` and `policy_id is not null` (a pre-bind
+limit is not exposure, same rule as `v_buyer_exposure`):
+
+```
+exposure_uzs = Σ tci.to_uzs(approved_amount, currency)   -- rows WITH a rate
+missing_rates = count of rows whose currency has no rate today
+```
+
+Rows without a rate are **counted separately, never treated as zero**: a group
+with missing rates is incomplete, not small.
+
+**The enforcement rule.** `tci.group_exposure_preflight(entity, amount,
+currency, exclude_scope)` computes
+
+```
+after = max(exposure_uzs - what this (scope, buyer) already contributes, 0) + to_uzs(amount)
+over_limit = group_limit_uzs is not null and after > group_limit_uzs
+```
+
+Netting off the superseded scope is what makes raising a limit from 100 to 120
+add 20 and not 120. **The UI preflight and the SQL enforcement call the SAME
+function** — there is no second implementation to drift, which is why this one
+mirror is not restated in TypeScript the way authority is.
+
+Over the limit, `decide_limit_request` behaves exactly like the personal
+authority path: it sets the request to `escalated`, emits
+`limit.group_limit_breached` and returns `result: 'group_limit_exceeded'` —
+refused, but in front of someone who can weigh the whole group.
+`adjust_limit_commercial` has no escalated state, so it raises instead, and
+**only on an increase**. Three exemptions, all deliberate: **admin may
+proceed** (an underwriting control, not a security boundary — and the override
+is still an authored decision row); **reductions** are never blocked; and
+`apply_emergency_release` never consults a group limit at all, asserted on its
+own source text in 0040. Blocking a revocation because the group is over its
+limit would trap the insurer at the higher number.
+
+**Closing a control must stop it TODAY.** `valid_to` is inclusive, so
+`end_group_limit` defaults to `current_date - 1` and the window constraint
+permits `valid_to >= valid_from - 1` precisely so a limit set and lifted the
+same day can be closed. Without that an underwriter removing a control would
+find it still blocking them for the rest of the day — caught by the Agenda
+assertion, not by any type checker.
+
+**The combined figures are a SUM, not a consolidation.** `v_group_financials`
+adds the latest statements of the members we hold statements for, with no
+intra-group eliminations: inter-company revenue and balances are counted twice
+and the currencies are added as reported. The view comment says so, 0041
+asserts the comment still says so, and the screen repeats it — a number
+labelled "group revenue" that quietly means something else is worse than no
+number. `members_missing_statements` is part of the answer, not a footnote.
+
+**A default PUBLIC grant is not a revoke.** 0039 granted execute on the writing
+functions and revoked them from `public`, but left `tci.relationship_signals`
+with its default PUBLIC grant. It is `SECURITY DEFINER` and reads
+`tci.legal_entities`, so `anon` could have read an address, a contact person
+and an email domain through `/rest/v1/rpc/`. The Supabase **security advisor**
+caught it after the apply; 0042 closes it and asserts that no Phase 6
+`SECURITY DEFINER` function is anon-executable. Run `get_advisors` after every
+phase — the local replay cannot see PostgREST exposure.
 
 ### Replaying the migration chain locally
 
