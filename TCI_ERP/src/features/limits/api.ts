@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { tci } from '../../lib/supabase'
 import type { GradeBand } from '../../lib/roles'
+import type { GroupPreflight } from '../groups/types'
 import type { FxRateRow } from './authority'
 import type {
   AuthorityGrant,
@@ -147,6 +148,10 @@ export type DecideResult =
       amount_uzs: number
       authority_uzs: number
     }
+  // Phase 6: the group control is BLOCKING. Like a personal-authority breach
+  // it escalates rather than simply failing, so the request reaches someone
+  // who can weigh the whole group.
+  | { result: 'group_limit_exceeded'; grade_band: GradeBand; group: GroupPreflight }
 
 export function useDecideLimitRequest() {
   const queryClient = useQueryClient()

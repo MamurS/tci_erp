@@ -5,9 +5,10 @@ import M33 from '../../../supabase/migrations/0033_coverage_verification.sql?raw
 import M34 from '../../../supabase/migrations/0034_indemnity_recoveries.sql?raw'
 import M35 from '../../../supabase/migrations/0035_claim_documents.sql?raw'
 import M36 from '../../../supabase/migrations/0036_claims_agenda_portal.sql?raw'
+import M37 from '../../../supabase/migrations/0037_nql_threshold.sql?raw'
 import { CLAIM_REFUSALS, claimErrorKey } from './errors'
 
-const ALL = [M32, M33, M34, M35, M36].join('\n')
+const ALL = [M32, M33, M34, M35, M36, M37].join('\n')
 
 describe('claim refusal mapping — contract with 0032-0036', () => {
   it('maps only refusals the database actually raises', () => {
@@ -39,6 +40,15 @@ describe('claim refusal mapping — contract with 0032-0036', () => {
     expect(claimErrorKey({ message: 'invalid claim transition: paid -> draft' })).toBe(
       'claims.errors.invalidTransition',
     )
+  })
+
+  it('separates "nothing covered" from "below the threshold"', () => {
+    // Different facts, and the policyholder is owed the second one plainly.
+    expect(M37).toContain('this claim computes to nothing payable')
+    expect(M37).toContain('is below the non-qualifying loss threshold')
+    expect(
+      claimErrorKey({ message: 'the covered loss (900.00) is below the non-qualifying loss threshold (1000.00) - this claim is not indemnifiable' }),
+    ).toBe('claims.errors.belowNql')
   })
 
   it('says nothing about a failure it does not recognise', () => {

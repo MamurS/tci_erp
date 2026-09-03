@@ -563,7 +563,8 @@
       "pnl": "Profit & loss accounts",
       "ratios": "Financial ratios",
       "riskSummary": "Risk analysis summary",
-      "dynamicGraphs": "Dynamic graphs"
+      "dynamicGraphs": "Dynamic graphs",
+      "group": "Corporate group"
     },
     "charts": {
       "revRecPay": "Revenue / Trade receivables / Trade payables",
@@ -945,7 +946,8 @@
       "policies": "Policies & portfolio",
       "requests": "Submissions",
       "access": "Client access",
-      "claims": "Claims"
+      "claims": "Claims",
+      "group": "Group"
     },
     "portfolioLimitsTitle": "Buyer limits under their policies",
     "portfolioSummary": "Policyholder portfolio:",
@@ -1287,7 +1289,9 @@
       "claim_info_requested": "Information requested on claim {{claim_number}}",
       "claim_awaiting_payment": "Approved claim awaiting payment: {{claim_number}}",
       "claim_limit_reinstatement": "Limit still suspended after claim {{claim_number}}",
-      "claim_declined_review": "Claim declined — tell the policyholder: {{claim_number}}"
+      "claim_declined_review": "Claim declined — tell the policyholder: {{claim_number}}",
+      "group_exposure_near_limit": "Group {{group_name}} is at {{utilisation_pct}}% of its group limit",
+      "group_limit_missing": "Group {{group_name}} holds limits with no group limit set"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -1865,11 +1869,17 @@
       "step": {
         "coveredDebt": "Covered debt",
         "insuredPercentage": "Insured percentage",
-        "nql": "Less the non-qualifying loss",
         "deductible": "Less the deductible",
         "aggregateFirstLoss": "Less the aggregate first loss",
-        "maxLiability": "Capped by the maximum liability"
-      }
+        "maxLiability": "Capped by the maximum liability",
+        "nqlThreshold": "Non-qualifying loss threshold"
+      },
+      "qualifies": "Qualifies",
+      "doesNotQualify": "Does not qualify",
+      "nqlMet": "At or above {{threshold}} — the full amount proceeds",
+      "nqlNotMet": "Below {{threshold}} — nothing is payable",
+      "nqlShortfall": "short by {{amount}}",
+      "belowNql": "The confirmed covered loss of {{covered}} is below the non-qualifying loss threshold of {{threshold}}, so this claim is not indemnifiable. The non-qualifying loss is a minimum size, not a deduction: nothing is payable at all."
     },
     "money": {
       "approved": "Approved",
@@ -1953,7 +1963,150 @@
       "invoiceAmount": "An invoice needs a positive amount.",
       "invoiceDates": "The due date cannot precede the invoice date.",
       "invoiceSplit": "Paid and disputed amounts cannot exceed the invoice.",
-      "notFound": "Claim not found."
+      "notFound": "Claim not found.",
+      "belowNql": "The covered loss is below the non-qualifying loss threshold — this claim is not indemnifiable. Decline it with that reason."
+    }
+  },
+  "groups": {
+    "ultimateParent": "Ultimate parent",
+    "cyclicEdge": "Cross-holding",
+    "escalatedResult": "The group limit would be exceeded ({{after}} against {{limit}} UZS), so the request has been escalated to an underwriter who can weigh the whole group.",
+    "limitModalHint": "The ceiling applies to everything the group holds, and is keyed to {{name}} as the group's ultimate parent.",
+    "tabTitle": "Group",
+    "tree": {
+      "title": "Ownership structure",
+      "alone": "This company belongs to no group we have recorded: it stands alone.",
+      "summary": "{{count}} companies, ultimate parent {{parent}}.",
+      "outside": "Related without an ownership line",
+      "outsideHint": "In the group, but reached through a relationship the tree does not draw as ownership.",
+      "cyclicNote": "A cross-holding: this company already appears higher in the tree, so the line is shown but not followed again."
+    },
+    "relationshipTypes": {
+      "ownership": "Ownership",
+      "control": "Control",
+      "common_owner": "Common owner",
+      "affiliate": "Affiliate"
+    },
+    "sources": {
+      "manual": "Recorded by hand",
+      "external": "External register",
+      "suggested_accepted": "Accepted suggestion"
+    },
+    "direction": {
+      "thisIsParent": "{{name}} is the parent",
+      "thisIsChild": "{{name}} is the subsidiary",
+      "thisOwnsOther": "This company is the parent",
+      "otherOwnsThis": "The other company is the parent"
+    },
+    "fields": {
+      "direction": "Direction",
+      "counterparty": "Related company",
+      "relationshipType": "Relationship",
+      "ownershipPct": "Ownership, %",
+      "validFrom": "Valid from",
+      "validTo": "Valid to",
+      "sourceNote": "Source",
+      "maxAmount": "Group limit",
+      "currency": "Currency"
+    },
+    "actions": {
+      "addRelationship": "Record a relationship",
+      "endRelationship": "End",
+      "setGroupLimit": "Set a group limit",
+      "changeGroupLimit": "Change the group limit",
+      "endGroupLimit": "Remove the group limit"
+    },
+    "exposure": {
+      "title": "Group exposure",
+      "hint": "Every limit in force on a member, converted to UZS at the standard rate.",
+      "total": "Exposure, UZS",
+      "groupLimit": "Group limit",
+      "utilisation": "Utilisation",
+      "none": "not set",
+      "noGroupLimit": "No group limit is set for this group, so nothing caps what its members may hold together.",
+      "missingRates": "{{count}} limit(s) are in a currency with no rate today and are not in the total above.",
+      "empty": "No member of this group holds a limit in force.",
+      "byMember": "By company",
+      "byPolicyholder": "By policyholder",
+      "member": "Company",
+      "policyholder": "Policyholder",
+      "limits": "Limits",
+      "policies": "Policies",
+      "amountUzs": "UZS",
+      "rateMissingShort": "no rate"
+    },
+    "members": {
+      "title": "Members",
+      "company": "Company",
+      "depth": "Distance",
+      "grade": "Grade",
+      "limits": "Limits",
+      "exposureUzs": "Exposure, UZS",
+      "openClaims": "Open claims",
+      "thisCompany": "this company"
+    },
+    "financials": {
+      "title": "Combined figures",
+      "simpleSum": "A simple sum of the latest statements of the members we hold statements for. This is NOT an IFRS consolidation: there are no intra-group eliminations, so inter-company revenue and balances are counted twice.",
+      "empty": "We hold no financial statements for any member of this group.",
+      "missing": "{{missing}} of {{total}} members have no statement, so the figures below cover only part of the group.",
+      "mixedCurrencies": "The statements are in {{count}} different currencies and are added as reported, without conversion.",
+      "rankBy": "Rank by",
+      "fiscalYear": "Year",
+      "revenue": "Revenue",
+      "netProfit": "Net profit",
+      "totalAssets": "Total assets",
+      "totalEquity": "Equity",
+      "longTermAssets": "Non-current assets",
+      "totalNonCurrentAssets": "Non-current assets",
+      "grossDebt": "Gross debt"
+    },
+    "suggestions": {
+      "title": "Possible relationships",
+      "hint": "Hints from shared details — never a relationship on their own. Accepting one asks you for the direction and the type.",
+      "empty": "Nothing to suggest for this company.",
+      "score": "score {{score}}",
+      "accept": "Accept",
+      "reject": "Dismiss",
+      "confirmHint": "State the direction and the kind of relationship. The edge is recorded as accepted from a suggestion.",
+      "createEdge": "Record the relationship"
+    },
+    "signals": {
+      "email_domain": "same email domain",
+      "address": "same address",
+      "contact_person": "same contact person",
+      "name_similarity": "similar name",
+      "registration_prefix": "similar registration number"
+    },
+    "preflight": {
+      "within": "Group exposure: {{exposure}} UZS across {{members}} companies; this decision would take it to {{after}} of {{limit}} UZS.",
+      "warn": "Group exposure would reach {{after}} of {{limit}} UZS ({{pct}}% of the group limit).",
+      "over": "This decision would take group exposure to {{after}} UZS against a group limit of {{limit}} UZS. It cannot be taken on your authority and will be escalated.",
+      "overAdmin": "This decision would take group exposure to {{after}} UZS against a group limit of {{limit}} UZS. As an administrator you may proceed.",
+      "noLimit": "Group exposure: {{exposure}} UZS across {{members}} companies; this decision would take it to {{after}} UZS. No group limit is set.",
+      "missingRates": "({{count}} limit(s) in a currency with no rate are not counted.)"
+    },
+    "chip": {
+      "label": "Group",
+      "body": "{{parent}} — {{count}} companies, {{exposure}} UZS in force"
+    },
+    "errors": {
+      "notPermitted": "Your role may not record corporate relationships.",
+      "selfReference": "A company cannot be related to itself.",
+      "pctOnlyOnOwnership": "An ownership percentage only means something on an ownership relationship.",
+      "pctRange": "The ownership percentage must be between 0 and 100.",
+      "relationshipNotFound": "This relationship no longer exists.",
+      "entityNotFound": "Company not found.",
+      "duplicateEdge": "This relationship is already recorded and still in force.",
+      "limitNotPermitted": "Only credit underwriting may set or remove a group limit.",
+      "limitAmount": "A group limit needs a positive amount.",
+      "limitAuthority": "This group limit exceeds your authority for the ultimate parent's grade band.",
+      "noLimitInForce": "This group has no limit in force.",
+      "suggestionNotFound": "This suggestion no longer exists.",
+      "suggestionReviewed": "This suggestion has already been reviewed.",
+      "suggestionParent": "The parent must be one of the two suggested companies.",
+      "adjustmentOverLimit": "This adjustment would take the group past its group limit.",
+      "saveFailed": "Could not save. Please try again."
     }
   }
 }

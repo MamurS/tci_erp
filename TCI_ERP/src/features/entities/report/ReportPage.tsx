@@ -29,6 +29,7 @@ import type { DisplayCurrency } from '../financials/fx'
 import { useFxRates } from '../financials/fxApi'
 import { BALANCE_SHEET_SECTIONS, INCOME_STATEMENT_SECTIONS, bsVerticalBase } from '../financials/lines'
 import type { SectionDef } from '../financials/lines'
+import { ReportGroupSection } from './ReportGroupSection'
 import { RATIO_DEFS, computeRatios } from '../financials/ratios'
 import { RISK_ROWS, buildRiskPeriods } from '../financials/risk'
 import { useBuyerExposure } from '../../limits/api'
@@ -285,7 +286,10 @@ export function ReportPage() {
           />
         </section>
 
-        {/* 7. Dynamic graphs */}
+        {/* 7. The corporate group, when there is one */}
+        <ReportGroupSection entityId={buyer.id} t={t} locale={locale} />
+
+        {/* 8. Dynamic graphs */}
         {allConverted.length >= 2 && (
           <section className="report-section">
             <h2 className="report-h2">{t('report.sections.dynamicGraphs')}</h2>

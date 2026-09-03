@@ -20,6 +20,7 @@ export const CLAIM_REFUSALS: readonly { fragment: string; key: string }[] = [
   { fragment: 'invalid claim transition', key: 'claims.errors.invalidTransition' },
   { fragment: 'only the claims department may approve a claim', key: 'claims.errors.claimsOnly' },
   { fragment: 'computes to nothing payable', key: 'claims.errors.nothingPayable' },
+  { fragment: 'is below the non-qualifying loss threshold', key: 'claims.errors.belowNql' },
   { fragment: 'cannot be approved', key: 'claims.errors.notAssessable' },
   { fragment: 'only the claims department may record an indemnity payment', key: 'claims.errors.claimsOnly' },
   { fragment: 'nothing has been approved on this claim yet', key: 'claims.errors.notApprovedYet' },

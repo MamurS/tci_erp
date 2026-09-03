@@ -50,6 +50,10 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   // claim is refused nothing downstream happens on its own, so a human decides
   // the conversation with the policyholder is over.
   claim_declined_review: 'manual',
+  // Phase 6 (migration 0041). Both are generated AND retired by
+  // refresh_agenda, so neither needs a button.
+  group_exposure_near_limit: 'auto', // refresh_agenda: exposure falls back, or the limit changes
+  group_limit_missing: 'auto', // refresh_agenda: a group limit exists
 }
 
 /** Mirrors tci.complete_task's guard: it refuses every other type. Two are
@@ -59,12 +63,19 @@ export function canCompleteByHand(taskType: TaskType): boolean {
 }
 
 /** Where the row's «open» action goes. Null when nothing is routable. */
-export function taskLink(task: Pick<Task, 'object_type' | 'object_id' | 'params'>): string | null {
+export function taskLink(
+  task: Pick<Task, 'object_type' | 'object_id' | 'params'> & { task_type?: TaskType },
+): string | null {
   switch (task.object_type) {
     case 'insurance_request':
       return `/requests/${task.object_id}`
     case 'legal_entity':
-      return `/entities/${task.object_id}`
+      // The two group tasks hang off the ULTIMATE PARENT company, and the work
+      // they ask for is on its Группа tab, not on the card's default tab.
+      return task.task_type === 'group_exposure_near_limit' ||
+        task.task_type === 'group_limit_missing'
+        ? `/entities/${task.object_id}?tab=group`
+        : `/entities/${task.object_id}`
     case 'credit_limit_request':
       return `/limits/${task.object_id}`
     case 'credit_limit_decision': {

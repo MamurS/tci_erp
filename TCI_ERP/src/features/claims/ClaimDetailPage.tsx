@@ -24,6 +24,7 @@ import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
 import { CLAIM_STATUS_TONE } from './ClaimsPage'
 import { ClaimDocumentsTab } from './ClaimDocumentsTab'
 import { ClaimHistoryTab } from './ClaimHistoryTab'
+import { GroupChip } from '../groups'
 import { ClaimIndemnityTab } from './ClaimIndemnityTab'
 import { ClaimInvoicesTab } from './ClaimInvoicesTab'
 import { ClaimMoneyTab } from './ClaimMoneyTab'
@@ -98,6 +99,10 @@ export function ClaimDetailPage() {
           </div>
         }
       />
+
+      {/* An open claim on a sister company is exactly the thing a group view
+          exists to surface, so the group is named where the claim is judged. */}
+      <GroupChip entityId={claim.buyer_entity_id} />
 
       {error && (
         <p role="alert" className="rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">

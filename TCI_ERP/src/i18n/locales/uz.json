@@ -563,7 +563,8 @@
       "pnl": "Foyda va zararlar hisoboti",
       "ratios": "Moliyaviy koeffitsientlar",
       "riskSummary": "Qaltisliklar tahlili xulosasi",
-      "dynamicGraphs": "Dinamik grafiklar"
+      "dynamicGraphs": "Dinamik grafiklar",
+      "group": "Kompaniyalar guruhi"
     },
     "charts": {
       "revRecPay": "Tushum / Debitorlik qarzi / Kreditorlik qarzi",
@@ -945,7 +946,8 @@
       "policies": "Polislar va portfel",
       "requests": "Sug‘urta arizalari",
       "access": "Mijoz kirishi",
-      "claims": "Da’volar"
+      "claims": "Da’volar",
+      "group": "Guruh"
     },
     "portfolioLimitsTitle": "Ularning polislari bo‘yicha bayer limitlari",
     "portfolioSummary": "Sug‘urtalanuvchi portfeli:",
@@ -1287,7 +1289,9 @@
       "claim_info_requested": "{{claim_number}} da’vosi bo‘yicha ma’lumot so‘ralgan",
       "claim_awaiting_payment": "Tan olingan da’vo to‘lovni kutmoqda: {{claim_number}}",
       "claim_limit_reinstatement": "{{claim_number}} da’vosidan keyin limit to‘xtatilgan holicha",
-      "claim_declined_review": "Da’vo rad etildi — sug‘urtalanuvchiga xabar bering: {{claim_number}}"
+      "claim_declined_review": "Da’vo rad etildi — sug‘urtalanuvchiga xabar bering: {{claim_number}}",
+      "group_exposure_near_limit": "{{group_name}} guruhi guruh limitining {{utilisation_pct}}% dan foydalangan",
+      "group_limit_missing": "{{group_name}} guruhida limitlar bor, lekin guruh limiti belgilanmagan"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
@@ -1865,11 +1869,17 @@
       "step": {
         "coveredDebt": "Qoplangan qarz",
         "insuredPercentage": "Qoplash foizi",
-        "nql": "Qoplanmaydigan zarar (NQL) chegirilgan",
         "deductible": "Franshiza chegirilgan",
         "aggregateFirstLoss": "Yig‘ma franshiza chegirilgan",
-        "maxLiability": "Maksimal javobgarlik bilan cheklangan"
-      }
+        "maxLiability": "Maksimal javobgarlik bilan cheklangan",
+        "nqlThreshold": "Qoplanmaydigan zarar chegarasi (NQL)"
+      },
+      "qualifies": "Chegaradan o‘tadi",
+      "doesNotQualify": "Chegaradan o‘tmaydi",
+      "nqlMet": "{{threshold}} dan kam emas — summa to‘liq o‘tadi",
+      "nqlNotMet": "{{threshold}} dan kam — tovon to‘lanmaydi",
+      "nqlShortfall": "{{amount}} yetishmaydi",
+      "belowNql": "Tasdiqlangan qoplangan zarar {{covered}} qoplanmaydigan zarar chegarasi {{threshold}} dan kam, shuning uchun da’vo bo‘yicha tovon to‘lanmaydi. NQL — bu chegirma emas, zararning eng kam hajmi: hech narsa to‘lanmaydi."
     },
     "money": {
       "approved": "Tan olingan",
@@ -1953,7 +1963,150 @@
       "invoiceAmount": "Hisob-faktura summasi musbat bo‘lishi kerak.",
       "invoiceDates": "To‘lov muddati hisob-faktura sanasidan oldin bo‘la olmaydi.",
       "invoiceSplit": "To‘langan va bahsli summalar hisob-faktura summasidan oshmasligi kerak.",
-      "notFound": "Da’vo topilmadi."
+      "notFound": "Da’vo topilmadi.",
+      "belowNql": "Qoplangan zarar NQL chegarasidan kam — da’vo bo‘yicha tovon to‘lanmaydi. Shu asos bilan rad eting."
+    }
+  },
+  "groups": {
+    "ultimateParent": "Yakuniy bosh tashkilot",
+    "cyclicEdge": "O‘zaro egalik",
+    "escalatedResult": "Guruh limiti oshib ketardi ({{after}}, limit {{limit}} UZS), shuning uchun so‘rov butun guruhni baholay oladigan anderrayterga oshirildi.",
+    "limitModalHint": "Cheklov butun guruhga tegishli va {{name}} guruhning yakuniy bosh tashkiloti sifatida biriktirilgan.",
+    "tabTitle": "Guruh",
+    "tree": {
+      "title": "Egalik tuzilmasi",
+      "alone": "Bu tashkilot uchun qayd etilgan bog‘lanish yo‘q: u guruhga kirmaydi.",
+      "summary": "Guruhdagi tashkilotlar: {{count}}, yakuniy bosh tashkilot — {{parent}}.",
+      "outside": "Egalik chizig‘isiz bog‘langan",
+      "outsideHint": "Guruhga kiradi, lekin daraxt egalik sifatida chizmaydigan bog‘lanish orqali.",
+      "cyclicNote": "O‘zaro egalik: bu tashkilot daraxtda yuqorida uchragan, shuning uchun bog‘lanish ko‘rsatiladi, lekin qayta ochilmaydi."
+    },
+    "relationshipTypes": {
+      "ownership": "Egalik",
+      "control": "Nazorat",
+      "common_owner": "Umumiy egasi",
+      "affiliate": "Affillanganlik"
+    },
+    "sources": {
+      "manual": "Qo‘lda kiritilgan",
+      "external": "Tashqi reyestr",
+      "suggested_accepted": "Qabul qilingan taklif"
+    },
+    "direction": {
+      "thisIsParent": "{{name}} — bosh tashkilot",
+      "thisIsChild": "{{name}} — sho‘ba tashkilot",
+      "thisOwnsOther": "Bu tashkilot — bosh tashkilot",
+      "otherOwnsThis": "Boshqa tashkilot — bosh tashkilot"
+    },
+    "fields": {
+      "direction": "Yo‘nalish",
+      "counterparty": "Bog‘liq tashkilot",
+      "relationshipType": "Bog‘lanish",
+      "ownershipPct": "Egalik ulushi, %",
+      "validFrom": "Amal qilish boshlanishi",
+      "validTo": "Amal qilish tugashi",
+      "sourceNote": "Manba",
+      "maxAmount": "Guruh limiti",
+      "currency": "Valyuta"
+    },
+    "actions": {
+      "addRelationship": "Bog‘lanish qo‘shish",
+      "endRelationship": "To‘xtatish",
+      "setGroupLimit": "Guruh limitini belgilash",
+      "changeGroupLimit": "Guruh limitini o‘zgartirish",
+      "endGroupLimit": "Guruh limitini olib tashlash"
+    },
+    "exposure": {
+      "title": "Guruhga ekspozitsiya",
+      "hint": "Guruh a’zolarining barcha amaldagi limitlari, standart qoida bo‘yicha UZS ga o‘tkazilgan.",
+      "total": "Ekspozitsiya, UZS",
+      "groupLimit": "Guruh limiti",
+      "utilisation": "Foydalanish",
+      "none": "belgilanmagan",
+      "noGroupLimit": "Guruh limiti belgilanmagan, shuning uchun a’zolarning umumiy limitlari hech nima bilan cheklanmagan.",
+      "missingRates": "Bugungi kursi yo‘q valyutadagi limitlar soni: {{count}}. Ular yuqoridagi summaga kirmagan.",
+      "empty": "Guruhning hech bir a’zosida amaldagi limit yo‘q.",
+      "byMember": "Tashkilotlar bo‘yicha",
+      "byPolicyholder": "Sug‘urtalanuvchilar bo‘yicha",
+      "member": "Tashkilot",
+      "policyholder": "Sug‘urtalanuvchi",
+      "limits": "Limitlar",
+      "policies": "Shartnomalar",
+      "amountUzs": "UZS",
+      "rateMissingShort": "kurs yo‘q"
+    },
+    "members": {
+      "title": "Guruh a’zolari",
+      "company": "Tashkilot",
+      "depth": "Uzoqlik",
+      "grade": "Reyting",
+      "limits": "Limitlar",
+      "exposureUzs": "Ekspozitsiya, UZS",
+      "openClaims": "Ochiq da’volar",
+      "thisCompany": "shu tashkilot"
+    },
+    "financials": {
+      "title": "Jamlangan ko‘rsatkichlar",
+      "simpleSum": "Hisobotlari bizda mavjud bo‘lgan a’zolarning oxirgi hisobotlari oddiy yig‘indisi. Bu MHXS bo‘yicha konsolidatsiya EMAS: guruh ichidagi aylanma va qoldiqlar chiqarib tashlanmaydi va ikki marta hisobga olinadi.",
+      "empty": "Guruhning birorta a’zosi bo‘yicha moliyaviy hisobot yo‘q.",
+      "missing": "{{total}} a’zodan {{missing}} tasining hisoboti yo‘q, shuning uchun quyidagi ko‘rsatkichlar guruhning faqat bir qismini qamrab oladi.",
+      "mixedCurrencies": "Hisobotlar {{count}} xil valyutada va o‘zgartirilmasdan qo‘shilgan.",
+      "rankBy": "Saralash",
+      "fiscalYear": "Yil",
+      "revenue": "Tushum",
+      "netProfit": "Sof foyda",
+      "totalAssets": "Jami aktivlar",
+      "totalEquity": "Kapital",
+      "longTermAssets": "Uzoq muddatli aktivlar",
+      "totalNonCurrentAssets": "Uzoq muddatli aktivlar",
+      "grossDebt": "Jami qarz"
+    },
+    "suggestions": {
+      "title": "Mumkin bo‘lgan bog‘lanishlar",
+      "hint": "Mos keluvchi rekvizitlar bo‘yicha taxminlar — o‘zi bog‘lanish emas. Qabul qilishda yo‘nalish va turini siz ko‘rsatasiz.",
+      "empty": "Bu tashkilot uchun taklif yo‘q.",
+      "score": "baho {{score}}",
+      "accept": "Qabul qilish",
+      "reject": "Rad etish",
+      "confirmHint": "Yo‘nalish va bog‘lanish turini ko‘rsating. Bog‘lanish taklifdan qabul qilingan deb qayd etiladi.",
+      "createEdge": "Bog‘lanishni qayd etish"
+    },
+    "signals": {
+      "email_domain": "umumiy pochta domeni",
+      "address": "bir xil manzil",
+      "contact_person": "bir xil aloqa shaxsi",
+      "name_similarity": "o‘xshash nomi",
+      "registration_prefix": "yaqin ro‘yxat raqami"
+    },
+    "preflight": {
+      "within": "Guruhga ekspozitsiya: {{members}} ta tashkilot bo‘yicha {{exposure}} UZS; bu qaror uni {{limit}} UZS dan {{after}} ga yetkazadi.",
+      "warn": "Guruhga ekspozitsiya {{limit}} UZS dan {{after}} ga yetadi (guruh limitining {{pct}}%).",
+      "over": "Bu qaror guruhga ekspozitsiyani {{after}} UZS ga yetkazadi, guruh limiti esa {{limit}} UZS. Sizning vakolatingiz doirasida bu mumkin emas va so‘rov oshiriladi.",
+      "overAdmin": "Bu qaror guruhga ekspozitsiyani {{after}} UZS ga yetkazadi, guruh limiti esa {{limit}} UZS. Administrator sifatida davom etishingiz mumkin.",
+      "noLimit": "Guruhga ekspozitsiya: {{members}} ta tashkilot bo‘yicha {{exposure}} UZS; bu qaror uni {{after}} UZS ga yetkazadi. Guruh limiti belgilanmagan.",
+      "missingRates": "(Kursi yo‘q valyutadagi {{count}} ta limit hisobga olinmagan.)"
+    },
+    "chip": {
+      "label": "Guruh",
+      "body": "{{parent}} — tashkilotlar: {{count}}, amaldagi limitlar {{exposure}} UZS"
+    },
+    "errors": {
+      "notPermitted": "Sizning rolingiz tashkilotlar o‘rtasidagi bog‘lanishlarni qayd eta olmaydi.",
+      "selfReference": "Tashkilot o‘zi bilan bog‘lana olmaydi.",
+      "pctOnlyOnOwnership": "Egalik ulushi faqat «egalik» bog‘lanishida ma’noga ega.",
+      "pctRange": "Egalik ulushi 0 dan 100 gacha bo‘lishi kerak.",
+      "relationshipNotFound": "Bunday bog‘lanish endi mavjud emas.",
+      "entityNotFound": "Tashkilot topilmadi.",
+      "duplicateEdge": "Bunday bog‘lanish allaqachon qayd etilgan va amalda.",
+      "limitNotPermitted": "Guruh limitini faqat kredit anderrayting belgilashi va olib tashlashi mumkin.",
+      "limitAmount": "Guruh limiti musbat bo‘lishi kerak.",
+      "limitAuthority": "Guruh limiti yakuniy bosh tashkilot reyting guruhi bo‘yicha vakolatingizdan oshadi.",
+      "noLimitInForce": "Bu guruhda amaldagi limit yo‘q.",
+      "suggestionNotFound": "Bunday taklif endi mavjud emas.",
+      "suggestionReviewed": "Bu taklif allaqachon ko‘rib chiqilgan.",
+      "suggestionParent": "Bosh tashkilot taklif qilingan ikki tashkilotdan biri bo‘lishi kerak.",
+      "adjustmentOverLimit": "Bu tuzatish guruh limitidan oshib ketadi.",
+      "saveFailed": "Saqlab bo‘lmadi. Qaytadan urinib ko‘ring."
     }
   }
 }

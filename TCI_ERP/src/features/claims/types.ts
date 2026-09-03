@@ -178,6 +178,11 @@ export interface IndemnityTrace {
   disputed_amount: number
   covered_amount: number
   uncovered_amount: number
+  /** The threshold that was tested, and whether the covered loss met it. */
+  nql_amount: number
+  nql_met: boolean
+  /** i18n key when the claim is not indemnifiable, else null. */
+  not_indemnifiable_reason: string | null
   afl_consumed: number
   payable: number
   fully_covered: boolean
