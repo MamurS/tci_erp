@@ -3,14 +3,16 @@
  * the guard tci.complete_task actually enforces.
  *
  * Phase 4 added seven types in 0029 and made a second one manual; Phase 5 adds
- * seven more in 0036 and a third manual one. All three headers are read:
- * MIGRATION is 0024, PHASE4 is 0029, PHASE5 is 0036. */
+ * seven more in 0036 and a third manual one; Phase 6 adds two in 0041, both
+ * automatic. All four headers are read: MIGRATION is 0024, PHASE4 is 0029,
+ * PHASE5 is 0036, PHASE6 is 0041. */
 
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0024_agenda_tasks.sql?raw'
 import PHASE4 from '../../../supabase/migrations/0029_phase4_agenda_portal.sql?raw'
 import PHASE5 from '../../../supabase/migrations/0036_claims_agenda_portal.sql?raw'
+import PHASE6 from '../../../supabase/migrations/0041_group_agenda_financials.sql?raw'
 import {
   AGENDA_GROUPS,
   agendaCounts,
@@ -65,6 +67,7 @@ describe('task type enum', () => {
     const appended = [
       ...PHASE4.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
       ...PHASE5.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
+      ...PHASE6.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
     ].map((m) => m[1])
     expect([...created, ...appended]).toEqual([...TASK_TYPES])
   })
@@ -82,7 +85,12 @@ describe('task type enum', () => {
       l.startsWith('alter type tci.task_type add value '),
     )
     expect(addedP5).toHaveLength(7)
-    expect(TASK_TYPES).toHaveLength(25)
+    // 0041 adds the two group types.
+    const addedP6 = PHASE6.split('\n').filter((l) =>
+      l.startsWith('alter type tci.task_type add value '),
+    )
+    expect(addedP6).toHaveLength(2)
+    expect(TASK_TYPES).toHaveLength(27)
   })
 
   it('lists exactly the values of tci.task_priority', () => {
@@ -122,7 +130,7 @@ describe('completion rules', () => {
 
   it('agrees with the catalogue table in the migration headers', () => {
     // Each header row is "<type>  <target>  AUTO ..." or "... MANUAL - ...".
-    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}`.split('\n')
+    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}`.split('\n')
     for (const type of TASK_TYPES) {
       const row = headers.find(
         (line) => line.startsWith(`--   ${type}`) && /\b(AUTO|MANUAL)\b/.test(line),
@@ -304,5 +312,43 @@ describe('sidebar counts', () => {
       NOW,
     )
     expect(counts).toEqual({ open: 2, overdue: 1 })
+  })
+})
+
+describe('the Phase 6 group tasks (0041)', () => {
+  it('both close themselves — refresh_agenda retires them', () => {
+    expect(canCompleteByHand('group_exposure_near_limit')).toBe(false)
+    expect(canCompleteByHand('group_limit_missing')).toBe(false)
+    expect(PHASE6).toContain('Both close themselves')
+  })
+
+  it('deep-links to the group tab, not to the card default', () => {
+    // Both hang off the ultimate parent company, and the work is on its
+    // Группа tab.
+    expect(
+      taskLink({
+        task_type: 'group_exposure_near_limit',
+        object_type: 'legal_entity',
+        object_id: 'e1',
+        params: {},
+      }),
+    ).toBe('/entities/e1?tab=group')
+    expect(
+      taskLink({
+        task_type: 'group_limit_missing',
+        object_type: 'legal_entity',
+        object_id: 'e1',
+        params: {},
+      }),
+    ).toBe('/entities/e1?tab=group')
+    // Every other legal_entity task keeps the plain card link.
+    expect(
+      taskLink({
+        task_type: 'buyer_needs_rating',
+        object_type: 'legal_entity',
+        object_id: 'e1',
+        params: {},
+      }),
+    ).toBe('/entities/e1')
   })
 })

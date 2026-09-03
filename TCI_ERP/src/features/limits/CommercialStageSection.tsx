@@ -22,6 +22,7 @@ import {
 } from './api'
 import { commercialPreflight } from './authority'
 import { outcomeTone } from './machine'
+import { GroupPreflightNotice, groupErrorKey, useGroupPreflight } from '../groups'
 import { ReleaseBadge } from './ReleaseBadge'
 import type { LimitRequestWithRefs } from './types'
 
@@ -78,6 +79,15 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
     [amountValid, limit, parsedAmount, roles, band, grants, rates, todayIso],
   )
 
+  // Where the adjusted amount would leave the group. The scope being
+  // superseded is netted off by the SQL preflight, not here.
+  const { data: groupCheck } = useGroupPreflight({
+    entityId: request.entity_id,
+    amount: amountValid ? parsedAmount : null,
+    currency: limit?.currency_code ?? null,
+    excludeScope: request.policy_id ?? request.insurance_request_id,
+  })
+
   // Making the limit smaller is an emergency action: it reaches the client
   // at once, skipping the sales window (tci.apply_emergency_release).
   const isReduction =
@@ -105,8 +115,11 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
       )
       setAmount('')
       setComment('')
-    } catch {
-      setError(t('limits.commercial.adjustFailed'))
+    } catch (e) {
+      // The group control refuses an INCREASE outright here — there is no
+      // escalated state for a commercial adjustment — so it gets its own
+      // message rather than the generic failure.
+      setError(t(groupErrorKey(e) ?? 'limits.commercial.adjustFailed'))
     }
   }
 
@@ -212,6 +225,12 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
                 })}
               </div>
             )
+          )}
+
+          {/* The group control applies to INCREASES only: a reduction lowers
+              the group's exposure and is never blocked. */}
+          {!isReduction && (
+            <GroupPreflightNotice preflight={groupCheck} isAdmin={hasRole(roles, 'admin')} />
           )}
 
           {result && (

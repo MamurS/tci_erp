@@ -20,6 +20,7 @@ import { OverviewTab } from './overview/OverviewTab'
 import { PoliciesTab } from './PoliciesTab'
 import { EntityRequestsSection } from '../requests'
 import { ClaimsSection } from '../claims'
+import { GroupTab } from '../groups'
 import { useRequestsForEntity } from '../requests/api'
 import { EntityClientAccessSection } from '../admin'
 import { useAuth } from '../../auth/AuthContext'
@@ -36,6 +37,7 @@ type TabKey =
   | 'policies'
   | 'requests'
   | 'claims'
+  | 'group'
   | 'access'
 
 export function EntityDetailPage() {
@@ -68,6 +70,9 @@ export function EntityDetailPage() {
     'requests',
     // Claims hang off the buyer: this is the company that did not pay.
     ...(roles?.is_buyer ? (['claims'] as const) : []),
+    // The group is a property of the company itself, not of a role it plays:
+    // a policyholder's parent matters as much as a buyer's.
+    'group',
     ...(showClientAccess ? (['access'] as const) : []),
   ]
 
@@ -137,6 +142,7 @@ export function EntityDetailPage() {
         {activeTab === 'policies' && <PoliciesTab entityId={id} />}
         {activeTab === 'requests' && <EntityRequestsSection entityId={id} />}
         {activeTab === 'claims' && <ClaimsSection entityId={id} />}
+        {activeTab === 'group' && <GroupTab entityId={id} entityName={entity.name} />}
         {activeTab === 'access' && <EntityClientAccessSection entityId={id} />}
       </div>
 

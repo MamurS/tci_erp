@@ -31,6 +31,9 @@ export const TASK_TYPES = [
   'claim_awaiting_payment',
   'claim_limit_reinstatement',
   'claim_declined_review',
+  // Phase 6 (migration 0041)
+  'group_exposure_near_limit',
+  'group_limit_missing',
 ] as const
 
 export type TaskType = (typeof TASK_TYPES)[number]

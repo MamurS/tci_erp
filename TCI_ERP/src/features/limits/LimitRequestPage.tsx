@@ -39,6 +39,7 @@ import {
   useWithdrawLimitRequest,
 } from './api'
 import { preflight } from './authority'
+import { GroupChip, GroupPreflightNotice, useGroupPreflight } from '../groups'
 import { CommercialStageSection } from './CommercialStageSection'
 import { ReleaseBadge } from './ReleaseBadge'
 import {
@@ -238,6 +239,10 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
           <Link to={`/entities/${request.entity_id}`} className="text-accent-700 hover:underline">
             {request.legal_entities?.name ?? EM_DASH}
           </Link>
+          {/* Is this buyer part of a group we are already exposed to? */}
+          <div className="mt-1">
+            <GroupChip entityId={request.entity_id} />
+          </div>
         </dd>
         <dt className="text-slate-500">{t('policies.fields.policyNumber')}</dt>
         <dd>
@@ -409,6 +414,16 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
   const amountValid = Number.isFinite(parsedAmount) && parsedAmount > 0
   const needsAmount = outcome !== 'declined'
 
+  // Where this decision would leave the whole group. The scope of the request
+  // being decided is netted off, because the new decision supersedes it rather
+  // than adding to it - the SQL preflight does that netting, not this call.
+  const { data: groupCheck } = useGroupPreflight({
+    entityId: request.entity_id,
+    amount: needsAmount && amountValid ? parsedAmount : null,
+    currency,
+    excludeScope: request.policy_id ?? request.insurance_request_id,
+  })
+
   const todayIso = new Date().toISOString().slice(0, 10)
   const check = useMemo(
     () =>
@@ -436,6 +451,15 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
       if (result.result === 'escalated') {
         setEscalatedInfo(
           t('limits.escalatedResult', { band: t(`limits.bands.${result.grade_band}`) }),
+        )
+      } else if (result.result === 'group_limit_exceeded') {
+        // Not an error: the database escalated the request so a wider
+        // authority can weigh the whole group.
+        setEscalatedInfo(
+          t('groups.escalatedResult', {
+            after: formatAmount(Number(result.group.exposure_after_uzs), locale),
+            limit: formatAmount(Number(result.group.group_limit_uzs ?? 0), locale),
+          }),
         )
       }
     } catch {
@@ -543,6 +567,8 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
           </div>
         )
       )}
+
+      <GroupPreflightNotice preflight={groupCheck} isAdmin={hasRole(roles, 'admin')} />
 
       {escalatedInfo && (
         <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500" role="status">
