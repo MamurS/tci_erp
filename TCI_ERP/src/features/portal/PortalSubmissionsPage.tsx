@@ -272,7 +272,7 @@ function RespondModal({
     } catch (err) {
       const code = (err as { code?: string } | null)?.code
       setError(
-        code === 'P0001' || code === 'P0004'
+        code === 'P0001' || code === '42501'
           ? t('portal.submissions.respondRefused')
           : t('portal.submissions.respondFailed'),
       )
