@@ -85,11 +85,25 @@ silence means the default below applies.
   policies per role, before any UI touches it.
 - Business logic and state machines live in **SQL functions**, not in the
   client: transitions, guards, authority checks, derived visibility. The UI
-  mirrors them so it can grey out a button; the database is what enforces.
+  mirrors them so it can grey out a button; the database is what enforces —
+  and since Phase A that is a checked property, not a hope: every
+  `SECURITY DEFINER` function executable by `authenticated` opens with a
+  `tci.require_*()` gate or is allow-listed with a reason, and both the
+  migration assertion and `tests/db/definer_gates.sql` fail otherwise. See
+  **Security closure rules** below.
 - `SECURITY INVOKER` by default. Reach for `SECURITY DEFINER` only when the
   function must read what the caller cannot (`tci.has_role` and the admin
   views) or when a policy would recurse into itself — and say why in a
-  comment.
+  comment. **A `SECURITY DEFINER` function never starts without a gate**
+  (`perform tci.require_staff()` / `require_role(...)` /
+  `require_claim_access(id)` / `require_staff_or_internal()` /
+  `require_internal_call()`), or an entry on `tci.definer_gate_allowlist()`
+  with a one-line justification.
+- Permission refusals raise `errcode = '42501'`; rule refusals `P0001`;
+  not-found `P0002`. **Never `P0004`** — it is `assert_failure`, which
+  `exception when others` does not catch (the audit's own probes aborted on
+  it). `src/lib/securityContract.test.ts` fails on any later migration that
+  uses it.
 - History is immutable: decisions, status history and event rows are
   inserted and superseded, never updated in place. A new row supersedes an
   old one; the chain stays readable.
@@ -357,6 +371,15 @@ is fine for internal test accounts and not fine for customers.
   «Группа» tab, the «Возможные связи» panel, a preflight banner on both
   decision forms, a group chip on the limit and claim pages, and a group
   section in the printed risk report
+- [x] Audit (Prompt 19): `docs/AUDIT-2026-09.md` + `docs/UPGRADE-ROADMAP.md`
+- [x] Audit Phase A — security closure (migration 0043): every `SECURITY
+  DEFINER` function executable by `authenticated` carries a gate or sits on
+  `tci.definer_gate_allowlist()` with a reason; an unforgeable per-transaction
+  internal-call token marks trusted workflow code; permission refusals raise
+  `42501` (P0004 is gone); `must_change_password` is enforced inside
+  `has_role`/`is_staff`; residual PUBLIC grants revoked. Locked by
+  `tests/db/definer_gates.sql` and `src/lib/securityContract.test.ts`
+- [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
 ## Design notes (future phases — recorded, not built)
@@ -660,6 +683,104 @@ type-checks and passes any test where the branch is not taken.
 `tci.claim_submission_blockers` casts every key `::text` for exactly this
 reason. It cost a debugging round twice: once in the migration, once in the
 smoke script itself.
+
+### Security closure rules (migration 0043 — audit Phase A)
+
+**The grant is load-bearing, so the gate must be inside.** Internal helpers
+(`open_task`, `emit_workflow_event`, `suspend_limit_for_*`, …) are granted to
+`authenticated` because their `SECURITY INVOKER` callers execute as the
+caller and need the grant. The audit found 44 such functions with no check
+inside them, and verified from a client-only login that they filed an NOA
+and revoked a limit on a stranger's policy. Every one now opens with a
+`tci.require_*()` line, and the catalog is asserted at the end of 0043,
+by `tests/db/definer_gates.sql`, and by `src/lib/securityContract.test.ts`.
+
+**The internal-call token.** Trusted code marks the transaction, and the
+token-gated helpers refuse without it:
+
+```sql
+perform tci.begin_internal_call();  -- from SECURITY INVOKER workflow functions
+                                    -- (decide_limit_request …): refuses non-staff
+perform tci.begin_trusted_call();   -- from SECURITY DEFINER code (client_* entry
+                                    -- points, trigger functions): NO grant to
+                                    -- authenticated, reachable only as the owner
+```
+
+The token is `md5(current xid || a salt)` where the salt lives in
+`tci.internal_secrets`, a table no API role may read. A caller cannot forge
+it, cannot call `set_config` through PostgREST, and a REST call is a
+single-statement transaction anyway. Two entry points exist because inside a
+`SECURITY DEFINER` function `current_user` is the owner, so "am I being
+called from trusted code?" cannot be detected from within — the GRANT is the
+proof. `require_staff_or_internal()` accepts either a staff caller or the
+token; `require_internal_call()` accepts the token only (the five Agenda /
+event / suspension primitives).
+
+**Impersonated smokes must clear the token when they switch actor.** The
+token is transaction-scoped. A smoke that inserts fixtures (whose triggers
+run trusted code) and then impersonates a client in the SAME transaction
+still carries the token, and every `staff_or_internal` gate will pass.
+Production never shares a transaction between trusted code and an API
+caller; the smoke has to model that:
+
+```sql
+perform set_config('role', 'authenticated', true);
+perform set_config('tci.internal_call', '', true);   -- a new REST call has no token
+```
+
+**Revoking the PUBLIC default takes `authenticated` with it.** Most tci
+functions never had an explicit grant: `authenticated` reached them only
+through the PUBLIC default. `revoke ... from public` on such a function
+therefore closes it to the API roles entirely, and three `security_invoker`
+views (`v_claims`, `v_claim_position`, `v_policy_liability`) call
+`claim_eligible_from`, `claim_covered_totals` and `policy_*_consumed` as the
+querying user — every claims screen would have failed with "permission denied
+for function". 0043 restates `grant execute … to authenticated, service_role`
+before each revoke, and `definer_gates.sql` asserts that every function a
+`security_invoker` view calls stays executable by `authenticated`. The rule:
+the gate inside the function is the control; the grant is reach, and a
+revoke is never a substitute for a gate.
+
+**A gated STABLE function under `unnest()` in a smoke is evaluated twice.**
+The planner pre-evaluates a STABLE function that feeds a set-returning
+function for its row estimate, with the snapshot from BEFORE the statement's
+CommandCounterIncrement. In a smoke that opened the claim in the previous
+statement of the same transaction, that first evaluation cannot see the
+claim, `may_access_claim` is false and the gate raises `42501` during
+planning. Committed rows (every REST call) are never affected. In a fixture,
+assign the result to a variable first (`v_docs := tci.missing_claim_documents(id)`)
+and `unnest(v_docs)`.
+
+**`must_change_password` is enforced in `has_role` and `is_staff`.** While
+the flag is set both return false, so every staff policy, every
+`v_client_*` view and every gate closes. The change-password screen works
+because it reads `user_profiles` and `user_roles` through their
+`user_id = auth.uid()` policies and calls `complete_password_change`, none of
+which consult `has_role`. Verified through the REST path, not the UI gate.
+
+**Advisor warnings that remain, and why.** The Supabase advisor flags every
+`SECURITY DEFINER` function executable by `authenticated` regardless of the
+gate inside it; that list cannot reach zero without breaking the invoker
+callers. The property that IS zero is "ungated", and `definer_gates.sql`
+measures exactly that. `anon` executes no **tci** definer function at all;
+the one `anon_security_definer_function_executable` hit left is
+`public.rls_auto_enable`, an event-trigger function the Supabase MCP tooling
+installs (not ours, and an event trigger cannot be called through SQL).
+
+**0043 sits in the migration ledger in one entry that carries only its
+sections 5–6.** The 191 KB file exceeds what one `apply_migration` call can
+carry, so sections 1–4 went to canonical as six `execute_sql` chunks, each
+an implicit transaction, cut at function boundaries and replayed the same
+way locally first; the ledger entry named `0043_security_closure` then
+applied sections 5–6 and ran the closing assertions over the whole result.
+The committed file is the authoritative text.
+
+**MFA position (decision, September 2026).** Staff MFA is a follow-up, not
+part of Phase A: Supabase MFA needs enrolment screens and a recovery path,
+and the two staff accounts today are the owner's own. Leaked-password
+protection is a dashboard setting (Authentication → Providers → Email →
+"Prevent use of leaked passwords"); it cannot be set through a migration or
+the MCP tooling, so the owner switches it on by hand.
 
 ### Phase 6 rules that are easy to get wrong
 

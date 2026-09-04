@@ -195,7 +195,7 @@ function ResolveModal({
       setError(
         code === 'P0001'
           ? t('limits.proposals.refused')
-          : code === 'P0004'
+          : code === '42501'
             ? t('limits.proposals.notAllowed')
             : t('limits.proposals.failed'),
       )

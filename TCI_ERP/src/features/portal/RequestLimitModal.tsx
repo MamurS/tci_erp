@@ -83,7 +83,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
       setError(
         code === 'P0001'
           ? t('portal.limits.requestRefused')
-          : code === 'P0004'
+          : code === '42501'
             ? t('portal.limits.requestNotAllowed')
             : t('portal.limits.requestFailed'),
       )

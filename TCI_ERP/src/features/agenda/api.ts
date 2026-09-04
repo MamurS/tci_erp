@@ -21,7 +21,7 @@ async function refreshAgenda(): Promise<void> {
   const { error } = await tci().rpc('refresh_agenda')
   // A refusal here must not blank the board: the tasks the event mapping
   // already opened are still worth showing. Only the two lazy kinds go stale.
-  if (error && error.code !== 'P0004') throw error
+  if (error && error.code !== '42501') throw error
 }
 
 async function fetchOpenTasks(): Promise<Task[]> {

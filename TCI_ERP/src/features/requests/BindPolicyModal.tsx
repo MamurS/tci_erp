@@ -62,7 +62,7 @@ export function BindPolicyModal({ request, open, onClose }: Props) {
       // genuinely unknown and says so rather than pretending to know.
       const code = (error as { code?: string } | null)?.code
       setServerError(
-        code === 'P0004'
+        code === '42501'
           ? t('requests.bind.errors.notAllowed')
           : code === 'P0001'
             ? t('requests.bind.errors.refused')
