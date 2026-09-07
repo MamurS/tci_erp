@@ -32,6 +32,8 @@ jobs:
           cache: npm
           cache-dependency-path: TCI_ERP/package-lock.json
 
+      # `npm ci` refuses to run without a lockfile that matches package.json,
+      # which is how the lockfile is enforced.
       - name: Install dependencies
         run: npm ci
 
@@ -54,6 +56,46 @@ jobs:
       - name: Build (vite)
         if: ${{ !cancelled() }}
         run: npm run build
+
+      # Phase A2: the bundle may carry the anon key and nothing else. A
+      # service-role key (`service_role` in its JWT payload, or the newer
+      # sb_secret_ prefix) in dist/ fails the build.
+      - name: No secret in the bundle
+        if: ${{ !cancelled() }}
+        run: |
+          # supabase-js itself contains the literal "sb_secret_" (its key-format
+          # check), so only a key-shaped value after the prefix counts.
+          if grep -rEl 'sb_secret_[A-Za-z0-9_-]{16,}' dist/; then
+            echo "::error::a secret-shaped string is in the built bundle"; exit 1
+          fi
+          # every JWT in the bundle must be an anon token: decode the payload
+          # of each and refuse any whose role is not "anon"
+          for tok in $(grep -rhoE 'eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+' dist/ | sort -u); do
+            payload=$(echo "$tok" | cut -d. -f2 | tr '_-' '/+' | awk '{ l=length($0)%4; if (l==2) print $0"=="; else if (l==3) print $0"="; else print $0 }' | base64 -d 2>/dev/null || true)
+            if echo "$payload" | grep -q '"role"' && ! echo "$payload" | grep -q '"role":"anon"'; then
+              echo "::error::a non-anon JWT is in the built bundle"; exit 1
+            fi
+          done
+          echo "bundle carries no service-role or secret key"
+
+      # Phase A2: dependency audit. High and critical advisories fail the
+      # build unless .audit-allowlist.json accepts them with a reason and an
+      # expiry (scripts/audit-gate.mjs); moderate and low are reported only.
+      - name: npm audit (fail on high/critical)
+        if: ${{ !cancelled() }}
+        run: node scripts/audit-gate.mjs
+
+      # Phase A2: SBOM of the frontend (CycloneDX), kept as an artifact.
+      - name: SBOM (CycloneDX)
+        if: ${{ !cancelled() }}
+        run: npx --yes @cyclonedx/cyclonedx-npm@2 --output-format JSON --output-file sbom-frontend.cdx.json --ignore-npm-errors
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: sbom-frontend
+          path: TCI_ERP/sbom-frontend.cdx.json
+          retention-days: 90
 
   analytics:
     name: Analytics service (services/analytics)
@@ -84,11 +126,39 @@ jobs:
           restore-keys: |
             uv-${{ runner.os }}-py312-
 
+      # --frozen refuses to run if uv.lock is out of date with pyproject.toml,
+      # which is how the lockfile is enforced.
       - name: Install dependencies
         run: uv sync --frozen
 
       - name: Tests (pytest)
         run: uv run pytest -q
+
+      # Phase A2: dependency audit over the locked environment. High and
+      # critical advisories fail the build.
+      - name: pip-audit (fail on high/critical)
+        if: ${{ !cancelled() }}
+        run: |
+          uv export --frozen --no-hashes --no-emit-project --format requirements-txt > /tmp/requirements.txt
+          uv run --with pip-audit pip-audit -r /tmp/requirements.txt --strict --progress-spinner off \
+            --vulnerability-service osv --format json --output /tmp/pip-audit.json || status=$?
+          uv run --with pip-audit python - <<'PY'
+          import json, sys
+          report = json.load(open('/tmp/pip-audit.json'))
+          bad = []
+          for dep in report.get('dependencies', []):
+              for v in dep.get('vulns', []):
+                  # pip-audit (osv) carries no severity in the JSON; treat every
+                  # advisory with a fix available as blocking, others as report.
+                  if v.get('fix_versions'):
+                      bad.append(f"{dep['name']} {dep['version']}: {v['id']} (fix: {', '.join(v['fix_versions'])})")
+                  else:
+                      print(f"::warning::{dep['name']} {dep['version']}: {v['id']} (no fix released)")
+          if bad:
+              print('::error::vulnerable dependencies with a fix available:\n  ' + '\n  '.join(bad))
+              sys.exit(1)
+          print('pip-audit: no fixable vulnerabilities')
+          PY
 
   # The service is deployed as a container from Phase 3d on, so the image has
   # to build. Build only - nothing is pushed to a registry from CI.
@@ -133,3 +203,80 @@ jobs:
           # And provisioning must report itself unconfigured rather than crash.
           curl -fsS http://127.0.0.1:8000/users/provisioning-status
           docker rm -f tci-analytics-ci
+
+      # Phase A2: SBOM of the image (syft, SPDX JSON), kept as an artifact.
+      - name: SBOM (syft)
+        uses: anchore/sbom-action@v0
+        with:
+          image: tci-analytics:ci
+          format: spdx-json
+          output-file: sbom-analytics-image.spdx.json
+          upload-artifact: false
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-analytics-image
+          path: sbom-analytics-image.spdx.json
+          retention-days: 90
+
+  # Phase A2: secret scanning over the FULL history. A committed secret has
+  # to be rotated, not deleted - the scan is what makes it visible at all.
+  # Acknowledged findings live in .gitleaksignore with their reason.
+  secrets:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_SUMMARY: "true"
+
+  # Phase A2: OWASP ZAP baseline (passive DAST) against the Cloudflare Pages
+  # preview of this branch. NON-BLOCKING for now (continue-on-error): the
+  # report is an artifact and a PR annotation. The authenticated recipe
+  # for a manual run is in docs/PENTEST-BRIEF.md.
+  #
+  # Pull requests only: the preview URL is derived from the branch name the
+  # way Cloudflare Pages derives it (lower-cased, non-alphanumerics -> '-',
+  # cut at 28 characters). The deploy is asynchronous, so the job waits for
+  # the preview to answer before scanning.
+  zap:
+    name: ZAP baseline (preview)
+    if: ${{ github.event_name == 'pull_request' }}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Resolve the Pages preview URL
+        id: preview
+        run: |
+          alias=$(echo "${{ github.head_ref }}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g' | cut -c1-28 | sed -E 's/-+$//')
+          url="https://${alias}.tci-erp.pages.dev"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "preview: $url"
+
+      - name: Wait for the preview
+        run: |
+          for i in $(seq 1 40); do
+            if curl -fsS -o /dev/null "${{ steps.preview.outputs.url }}/login"; then echo "up after ${i} tries"; exit 0; fi
+            sleep 15
+          done
+          echo "::warning::the preview never answered; the scan is skipped"
+          exit 1
+
+      - name: ZAP baseline scan
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: ${{ steps.preview.outputs.url }}
+          rules_file_name: .zap/rules.tsv
+          cmd_options: '-a -j'
+          allow_issue_writing: false
+          artifact_name: zap-baseline-report

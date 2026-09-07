@@ -12,6 +12,7 @@ import { useAuth } from '../../auth/AuthContext'
 import { Button, Card, Field, Input, PageHeader, Spinner } from '../../components/ui'
 import { tci } from '../../lib/supabase'
 import { useMyEntity } from './api'
+import { MfaSection, SessionsSection } from '../account'
 
 interface ProfileRow {
   user_id: string
@@ -134,6 +135,9 @@ export function PortalAccountPage() {
             {t('account.changePassword')}
           </Link>
         </Card>
+
+        <MfaSection />
+        <SessionsSection />
       </div>
     </div>
   )

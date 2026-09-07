@@ -29,6 +29,11 @@ CLIENT_PROVISIONER_ROLES = frozenset({"sales", "commercial_underwriter"})
 
 TEMP_PASSWORD_LENGTH = 20
 MIN_TEMP_PASSWORD_LENGTH = 16
+#: The floor for a password a PERSON chooses (change-password screen, Supabase
+#: Auth's minimum-length setting). Temporary passwords are longer on purpose:
+#: they are machine-made and read off a screen. Kept here so the two floors
+#: are never edited apart.
+MIN_USER_PASSWORD_LENGTH = 12
 
 #: Excludes look-alike characters — these passwords get read off a screen
 #: and typed by hand, so O/0 and l/1/I would cost support calls.

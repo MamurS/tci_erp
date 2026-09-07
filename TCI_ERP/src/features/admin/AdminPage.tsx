@@ -8,10 +8,11 @@ import { useTranslation } from 'react-i18next'
 
 import { PageHeader, Tabs } from '../../components/ui'
 import { AuthoritiesTab } from './AuthoritiesTab'
+import { SecurityTab } from './SecurityTab'
 import { UsersRolesTab } from './UsersRolesTab'
 import { useAdminUsers } from './api'
 
-type TabKey = 'users' | 'authorities'
+type TabKey = 'users' | 'authorities' | 'security'
 
 export function AdminPage() {
   const { t } = useTranslation()
@@ -20,7 +21,8 @@ export function AdminPage() {
   const { data: users } = useAdminUsers()
 
   const requested = searchParams.get('tab')
-  const activeTab: TabKey = requested === 'authorities' ? 'authorities' : 'users'
+  const activeTab: TabKey =
+    requested === 'authorities' ? 'authorities' : requested === 'security' ? 'security' : 'users'
   const selectedUser = users?.find((u) => u.user_id === selectedUserId) ?? null
 
   return (
@@ -31,6 +33,7 @@ export function AdminPage() {
         tabs={[
           { key: 'users', label: t('admin.tabs.users') },
           { key: 'authorities', label: t('admin.tabs.authorities') },
+          { key: 'security', label: t('admin.tabs.security') },
         ]}
         active={activeTab}
         onChange={(key) => setSearchParams({ tab: key }, { replace: true })}
@@ -47,6 +50,7 @@ export function AdminPage() {
           />
         )}
         {activeTab === 'authorities' && <AuthoritiesTab user={selectedUser} />}
+        {activeTab === 'security' && <SecurityTab />}
       </div>
     </div>
   )

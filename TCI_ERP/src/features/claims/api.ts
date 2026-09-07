@@ -462,12 +462,29 @@ export function useDeleteClaimDocument() {
   })
 }
 
+/** Signed-URL lifetime for a claim document: one minute is enough to start
+ * the download and short enough that a copied link is useless by the time
+ * it is pasted anywhere. */
+export const SIGNED_URL_TTL_SECONDS = 60
+
+/** Types the browser may render inline. Everything else - PDF, Office,
+ * CSV, text - is served as an attachment so it is never executed in the
+ * app's origin context. */
+export function shouldForceDownload(contentType: string | null | undefined): boolean {
+  return !(contentType ?? '').toLowerCase().startsWith('image/')
+}
+
 /** A short-lived link to a private object. The bucket is not public, so this is
- * the only way to open one. */
-export async function signedDocumentUrl(storagePath: string): Promise<string> {
+ * the only way to open one. Non-image types get `Content-Disposition:
+ * attachment; filename=...` on the signed URL (Supabase's `download` option). */
+export async function signedDocumentUrl(
+  storagePath: string,
+  file?: { filename: string; contentType: string | null },
+): Promise<string> {
+  const download = file && shouldForceDownload(file.contentType) ? file.filename : undefined
   const { data, error } = await supabase.storage
     .from(CLAIM_DOCUMENTS_BUCKET)
-    .createSignedUrl(storagePath, 60)
+    .createSignedUrl(storagePath, SIGNED_URL_TTL_SECONDS, download ? { download } : undefined)
   if (error) throw error
   return data.signedUrl
 }

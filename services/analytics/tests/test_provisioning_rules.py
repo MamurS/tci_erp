@@ -131,3 +131,13 @@ class TestHelpers:
         assert requires_entity(["client"]) is True
         assert requires_entity(["sales", "client"]) is True
         assert requires_entity(["sales"]) is False
+
+
+def test_temporary_floor_is_above_the_user_floor():
+    # Phase A2: a person chooses at least 12 characters; a temporary password
+    # is machine-made and read off a screen, so it is longer, never shorter.
+    from app.provisioning_rules import MIN_TEMP_PASSWORD_LENGTH, MIN_USER_PASSWORD_LENGTH, TEMP_PASSWORD_LENGTH
+
+    assert MIN_USER_PASSWORD_LENGTH == 12
+    assert MIN_TEMP_PASSWORD_LENGTH >= MIN_USER_PASSWORD_LENGTH
+    assert TEMP_PASSWORD_LENGTH >= MIN_TEMP_PASSWORD_LENGTH

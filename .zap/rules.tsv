@@ -1,0 +1,6 @@
+# ZAP baseline rule overrides (audit Phase A2). Format: id	action	comment
+# IGNORE = do not report; WARN = report, never fail; FAIL = fail the scan.
+# The baseline job is non-blocking for now, so these only shape the report.
+10055	WARN	CSP: the style-src 'unsafe-inline' is deliberate (inline style attributes from Recharts/React); see public/_headers
+10098	IGNORE	Cross-domain misconfiguration: the API is Supabase, on another origin by design
+10109	IGNORE	Modern web application: SPA, expected

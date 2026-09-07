@@ -379,6 +379,22 @@ is fine for internal test accounts and not fine for customers.
   `42501` (P0004 is gone); `must_change_password` is enforced inside
   `has_role`/`is_staff`; residual PUBLIC grants revoked. Locked by
   `tests/db/definer_gates.sql` and `src/lib/securityContract.test.ts`
+- [x] Audit Phase A2 — application security hardening (migrations 0044–0045):
+  account lockout fed by the Supabase Auth password/MFA verification hooks
+  (`tci.auth_attempts`, `tci.auth_lockouts`, hashed identifiers, admin
+  unlock), TOTP MFA with the policy enforced INSIDE `has_role`/`is_staff`
+  (`tci.mfa_satisfied`: admin mandatory, other staff from
+  `mfa_staff_enforced_from`, clients optional, enrolled ⇒ step-up), an
+  append-only `tci.auth_events` trail with admin views (events, lockouts,
+  sessions, per-user state, alerts) and session revocation; Turnstile on
+  sign-in, readable sign-in errors (`src/auth/signInErrors.ts`), staff
+  `/account` (password, MFA, other devices), `/mfa/verify`, admin
+  «Безопасность»; strict CSP/HSTS in `public/_headers` (verified headlessly);
+  claim documents served as attachments; CI: npm-audit gate with a dated
+  allow-list, pip-audit, gitleaks over the full history, SBOMs, Dependabot,
+  ZAP baseline on the branch preview; `docs/SECURITY.md`,
+  `docs/PENTEST-BRIEF.md`. Enabling the hooks, CAPTCHA, MFA and the
+  rate-limit/session settings are DASHBOARD steps (listed in the PR).
 - [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -781,6 +797,62 @@ and the two staff accounts today are the owner's own. Leaked-password
 protection is a dashboard setting (Authentication → Providers → Email →
 "Prevent use of leaked passwords"); it cannot be set through a migration or
 the MCP tooling, so the owner switches it on by hand.
+
+### Authentication hardening rules (migration 0044 — audit Phase A2)
+
+**The lockout's facts come from GoTrue, never from the browser.** Only the
+`password_verification_attempt` hook (called by GoTrue as
+`supabase_auth_admin`, gated on `session_user`) records a failed password.
+A client-reported failure could lock any account by name, so the login page
+reports nothing and `tci.auth_attempts` has no API grant at all. The hook
+is a Teams-plan feature and a dashboard toggle (Authentication → Hooks);
+until it is enabled the tables stay empty and the lockout is inert, which
+the admin screen says in so many words.
+
+**MFA is enforced where every policy looks.** `tci.mfa_satisfied()` sits
+inside `has_role()` and `is_staff()` next to the rotation predicate:
+`aal2` passes; a verified factor at `aal1` must step up; no factor passes
+only while the policy does not require one for the caller's roles (admin
+always; other staff from `workflow_settings.mfa_staff_enforced_from`;
+client never). The UI gate `RequireMfa` only decides WHERE to send the
+person (`/mfa/verify` or `/account`); the database is what refuses.
+`tci.my_auth_status()` answers while the gates are closed, which is why it
+is allow-listed.
+
+**Hashed, never plain.** `tci.security_hash(x)` = sha256(internal salt ||
+x) and is closed to every API role; attempts carry hashed user ids and
+hashed IPs (`tci.request_ip_hash()` from `request.headers`). Lockouts and
+events carry the user id because an admin must be able to find and unlock
+a person. The sessions view shows a /24 (v4) or /48 (v6), not the address.
+
+**A view's function calls run as the querying user.** Table reads in a
+`SECURITY DEFINER` view run as the owner, but EXECUTE on a function it
+calls is checked against the caller. `v_admin_user_security` therefore
+calls the admin-gated `tci.admin_user_failures(uid)`, not `security_hash`
+directly — a view that called a closed function would fail for everyone.
+
+**Stub search_path.** The replay harness sets the database `search_path`
+to `public, extensions` like Supabase does; pgcrypto lives in
+`extensions`, and unqualified `gen_random_bytes()` in 0043 depends on it.
+
+**Two password floors, on purpose.** A person chooses ≥ 12 characters
+(`password.ts`, the Supabase minimum-length setting); a temporary password
+is machine-made and ≥ 16 (`provisioning_rules.py`, `create-user.sql`).
+
+**The CSP is verified, not assumed.** `public/_headers` ships
+`script-src 'self' + Turnstile`; `style-src` needs `'unsafe-inline'`
+(Recharts/React inline style ATTRIBUTES). When the analytics service is
+hosted, its origin goes into `connect-src` or every rating call is blocked
+— the headless check reports exactly those blocks today as "expected".
+
+**Unlock refuses unless a lockout is ACTIVE (0045).** `tci.auth_lockouts`
+keeps one row per user as history after it is cleared or expires, so a
+lookup by user alone "unlocks" the same account any number of times, each
+time writing a `lockout.cleared` event and forgiving the failures again.
+`unlock_account` therefore matches `cleared_at is null and locked_until >
+now()` and raises `P0002` otherwise. The canonical smoke caught it; the
+local test had only tried a user who was never locked, and now tries the
+same user twice.
 
 ### Phase 6 rules that are easy to get wrong
 

@@ -1,0 +1,35 @@
+# Cloudflare Pages response headers (audit Phase A2). Applied to every
+# route of the deployed app; the dev server does not read this file.
+#
+# CSP notes:
+#  - script-src 'self' + Turnstile only. Vite emits no inline scripts; the
+#    Turnstile widget script is the one third-party script the app loads.
+#  - style-src needs 'unsafe-inline': Recharts and React set inline style
+#    ATTRIBUTES (not <style> blocks), which CSP counts as inline. Scripts
+#    are what matter for injection; styles stay locked to self + inline.
+#  - connect-src: the Supabase project (REST, Auth, Storage) and its
+#    websocket. `https://*.supabase.co` is the project host; narrow it to
+#    the project URL if the domain is ever custom. WHEN THE ANALYTICS
+#    SERVICE IS HOSTED, append its origin (the value of
+#    VITE_ANALYTICS_API_URL) to connect-src, or every rating call is
+#    blocked by the browser.
+#  - frame-src: the Turnstile challenge iframe. frame-ancestors 'none' means
+#    no one may frame the app (clickjacking).
+#  - img-src: QR codes for MFA enrolment are data: URIs; storage previews
+#    load from the Supabase host; blob: covers client-side exports.
+#  - The print report route (/entities/:id/report) uses the same bundle and
+#    the same rules; verified headlessly under this CSP.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+  X-Permitted-Cross-Domain-Policies: none
+
+# The built assets are content-hashed: cache them for a year.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
