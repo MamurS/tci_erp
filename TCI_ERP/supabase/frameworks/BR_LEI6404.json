@@ -1,0 +1,1690 @@
+{
+ "framework": {
+  "code": "BR_LEI6404",
+  "kind": "ifrs_based",
+  "short": {
+   "en": "BR GAAP",
+   "ru": "BR GAAP",
+   "uz": "BR GAAP"
+  },
+  "name": {
+   "en": "Brazilian accounting practices (Lei 6.404/1976 and CPC pronouncements)",
+   "ru": "Бухгалтерская практика Бразилии (Закон 6.404/1976 и стандарты CPC)",
+   "uz": "Braziliya buxgalteriya amaliyoti (6.404/1976-son qonun va CPC standartlari)"
+  },
+  "legal_basis": "Lei nº 6.404, de 15 de dezembro de 1976, arts. 178 a 182 e 187 (redação das Leis nº 11.638/2007 e nº 11.941/2009); CPC 26 (R1) – Apresentação das Demonstrações Contábeis",
+  "countries": [
+   "BR"
+  ]
+ },
+ "templates": [
+  {
+   "code": "BR_LEI6404_BS",
+   "form_kind": "balance_sheet",
+   "fidelity": "prescribed_captions",
+   "local_language": "pt",
+   "name": {
+    "en": "Balance sheet (Brazil, Lei 6.404 art. 178)",
+    "ru": "Бухгалтерский баланс (Бразилия, Закон 6.404, ст. 178)",
+    "uz": "Buxgalteriya balansi (Braziliya, 6.404-son qonun, 178-modda)",
+    "local": "Balanço Patrimonial"
+   },
+   "lines": [
+    {
+     "code": "A01",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Current assets",
+      "ru": "Оборотные активы",
+      "uz": "Joriy aktivlar",
+      "local": "Ativo circulante"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "A02",
+       "A03",
+       "A04",
+       "A06",
+       "A07",
+       "A08",
+       "A09",
+       "A10"
+      ],
+      "minus": [
+       "A05"
+      ]
+     },
+     "check": "total_current_assets",
+     "note": null
+    },
+    {
+     "code": "A02",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Cash and cash equivalents",
+      "ru": "Денежные средства и их эквиваленты",
+      "uz": "Pul mablag‘lari va ularning ekvivalentlari",
+      "local": "Caixa e equivalentes de caixa"
+     },
+     "map": {
+      "column": "cash_and_equivalents",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A03",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term financial investments",
+      "ru": "Краткосрочные финансовые вложения",
+      "uz": "Qisqa muddatli moliyaviy investitsiyalar",
+      "local": "Aplicações financeiras"
+     },
+     "map": {
+      "column": "short_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A04",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Trade receivables",
+      "ru": "Дебиторская задолженность покупателей",
+      "uz": "Xaridorlarning debitorlik qarzlari",
+      "local": "Contas a receber de clientes"
+     },
+     "map": {
+      "column": "trade_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "if the company presents receivables net, type the net amount here and leave A05 empty"
+    },
+    {
+     "code": "A05",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Allowance for expected credit losses (−)",
+      "ru": "Резерв под ожидаемые кредитные убытки (−)",
+      "uz": "Kutilayotgan kredit zararlari bo‘yicha zaxira (−)",
+      "local": "(−) Perdas estimadas em créditos de liquidação duvidosa"
+     },
+     "map": {
+      "column": "trade_receivables",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "deduction typed positive"
+    },
+    {
+     "code": "A06",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Inventories",
+      "ru": "Запасы",
+      "uz": "Tovar-moddiy zaxiralar",
+      "local": "Estoques"
+     },
+     "map": {
+      "column": "inventories",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A07",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Recoverable taxes",
+      "ru": "Налоги к возмещению",
+      "uz": "Qoplanadigan soliqlar",
+      "local": "Tributos a recuperar"
+     },
+     "map": {
+      "column": "other_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "ICMS, PIS/COFINS and income-tax credits recoverable from the State"
+    },
+    {
+     "code": "A08",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Prepaid expenses",
+      "ru": "Расходы будущих периодов",
+      "uz": "Kelgusi davr xarajatlari",
+      "local": "Despesas antecipadas"
+     },
+     "map": {
+      "column": "other_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A09",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other current assets",
+      "ru": "Прочие оборотные активы",
+      "uz": "Boshqa joriy aktivlar",
+      "local": "Outros ativos circulantes"
+     },
+     "map": {
+      "column": "other_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A10",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Non-current assets held for sale",
+      "ru": "Внеоборотные активы, предназначенные для продажи",
+      "uz": "Sotish uchun saqlanayotgan uzoq muddatli aktivlar",
+      "local": "Ativos não circulantes mantidos para venda"
+     },
+     "map": {
+      "column": "other_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "CPC 31 / IFRS 5, presented within current assets"
+    },
+    {
+     "code": "A11",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Non-current assets",
+      "ru": "Внеоборотные активы",
+      "uz": "Uzoq muddatli aktivlar",
+      "local": "Ativo não circulante"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "A12",
+       "A19",
+       "A23",
+       "A24"
+      ],
+      "minus": []
+     },
+     "check": "total_non_current_assets",
+     "note": null
+    },
+    {
+     "code": "A12",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Long-term receivables and assets",
+      "ru": "Долгосрочные реализуемые активы",
+      "uz": "Uzoq muddatda realizatsiya qilinadigan aktivlar",
+      "local": "Realizável a longo prazo"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "A13",
+       "A14",
+       "A15",
+       "A16",
+       "A17",
+       "A18"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A13",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term financial investments",
+      "ru": "Долгосрочные финансовые вложения",
+      "uz": "Uzoq muddatli moliyaviy investitsiyalar",
+      "local": "Aplicações financeiras"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A14",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Trade receivables (long-term)",
+      "ru": "Дебиторская задолженность покупателей (долгосрочная)",
+      "uz": "Xaridorlarning debitorlik qarzlari (uzoq muddatli)",
+      "local": "Contas a receber de clientes"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A15",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Recoverable taxes (long-term)",
+      "ru": "Налоги к возмещению (долгосрочные)",
+      "uz": "Qoplanadigan soliqlar (uzoq muddatli)",
+      "local": "Tributos a recuperar"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A16",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Deferred income tax and social contribution",
+      "ru": "Отложенный налог на прибыль и социальный взнос (CSLL)",
+      "uz": "Kechiktirilgan foyda solig‘i va ijtimoiy badal (CSLL)",
+      "local": "Imposto de renda e contribuição social diferidos"
+     },
+     "map": {
+      "column": "deferred_tax_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A17",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Judicial deposits",
+      "ru": "Судебные депозиты",
+      "uz": "Sud depozitlari",
+      "local": "Depósitos judiciais"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A18",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other non-current assets",
+      "ru": "Прочие внеоборотные активы",
+      "uz": "Boshqa uzoq muddatli aktivlar",
+      "local": "Outros ativos não circulantes"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "including related-party receivables"
+    },
+    {
+     "code": "A19",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Investments",
+      "ru": "Инвестиции",
+      "uz": "Investitsiyalar",
+      "local": "Investimentos"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "A20",
+       "A21",
+       "A22"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A20",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Equity interests (subsidiaries, associates, joint ventures)",
+      "ru": "Участия в капитале (дочерние, ассоциированные и совместные предприятия)",
+      "uz": "Kapitaldagi ulushlar (sho‘ba, qaram va qo‘shma korxonalar)",
+      "local": "Participações societárias"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A21",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Investment property",
+      "ru": "Инвестиционная недвижимость",
+      "uz": "Investitsiya ko‘chmas mulki",
+      "local": "Propriedades para investimento"
+     },
+     "map": {
+      "column": "investment_property",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A22",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other investments",
+      "ru": "Прочие инвестиции",
+      "uz": "Boshqa investitsiyalar",
+      "local": "Outros investimentos"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "A23",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Property, plant and equipment",
+      "ru": "Основные средства",
+      "uz": "Asosiy vositalar",
+      "local": "Imobilizado"
+     },
+     "map": {
+      "column": "property_plant_equipment",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "net of depreciation; includes right-of-use assets (CPC 06 (R2)) where presented here"
+    },
+    {
+     "code": "A24",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Intangible assets",
+      "ru": "Нематериальные активы",
+      "uz": "Nomoddiy aktivlar",
+      "local": "Intangível"
+     },
+     "map": {
+      "column": "intangible_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "includes goodwill (ágio) when not presented separately"
+    },
+    {
+     "code": "A25",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Total assets",
+      "ru": "Итого активы",
+      "uz": "Aktivlar jami",
+      "local": "Total do ativo"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "A01",
+       "A11"
+      ],
+      "minus": []
+     },
+     "check": "total_assets",
+     "note": null
+    },
+    {
+     "code": "P01",
+     "section": "liabilities_current",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Current liabilities",
+      "ru": "Краткосрочные обязательства",
+      "uz": "Qisqa muddatli majburiyatlar",
+      "local": "Passivo circulante"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "P02",
+       "P03",
+       "P04",
+       "P05",
+       "P06",
+       "P07",
+       "P08",
+       "P09",
+       "P10",
+       "P11"
+      ],
+      "minus": []
+     },
+     "check": "total_current_liabilities",
+     "note": null
+    },
+    {
+     "code": "P02",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Trade payables (suppliers)",
+      "ru": "Кредиторская задолженность поставщикам",
+      "uz": "Mol yetkazib beruvchilarga qarzlar",
+      "local": "Fornecedores"
+     },
+     "map": {
+      "column": "trade_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "P03",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Loans and financing",
+      "ru": "Займы и кредиты",
+      "uz": "Kreditlar va qarzlar",
+      "local": "Empréstimos e financiamentos"
+     },
+     "map": {
+      "column": "short_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "including debentures and the current portion of long-term debt"
+    },
+    {
+     "code": "P04",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Lease liabilities",
+      "ru": "Обязательства по аренде",
+      "uz": "Ijara majburiyatlari",
+      "local": "Passivo de arrendamento"
+     },
+     "map": {
+      "column": "short_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "CPC 06 (R2) / IFRS 16 lease liabilities treated as debt"
+    },
+    {
+     "code": "P05",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Payroll and social obligations",
+      "ru": "Обязательства перед персоналом и по социальным взносам",
+      "uz": "Xodimlar oldidagi va ijtimoiy majburiyatlar",
+      "local": "Obrigações trabalhistas"
+     },
+     "map": {
+      "column": "other_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "P06",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Tax obligations",
+      "ru": "Налоговые обязательства",
+      "uz": "Soliq majburiyatlari",
+      "local": "Obrigações fiscais"
+     },
+     "map": {
+      "column": "other_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "sales and payroll taxes (ICMS, PIS/COFINS, ISS, withholdings); income tax payable goes to P07 when shown separately"
+    },
+    {
+     "code": "P07",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Income tax and social contribution payable",
+      "ru": "Налог на прибыль и социальный взнос (CSLL) к уплате",
+      "uz": "To‘lanadigan foyda solig‘i va ijtimoiy badal (CSLL)",
+      "local": "Imposto de renda e contribuição social a pagar"
+     },
+     "map": {
+      "column": "current_tax_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "P08",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Dividends and interest on equity payable",
+      "ru": "Дивиденды и проценты на собственный капитал к выплате",
+      "uz": "To‘lanadigan dividendlar va o‘z kapitaliga foizlar",
+      "local": "Dividendos e juros sobre o capital próprio a pagar"
+     },
+     "map": {
+      "column": "other_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "P09",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Advances from customers",
+      "ru": "Авансы, полученные от покупателей",
+      "uz": "Xaridorlardan olingan bo‘naklar",
+      "local": "Adiantamentos de clientes"
+     },
+     "map": {
+      "column": "other_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "contract liabilities (CPC 47 / IFRS 15)"
+    },
+    {
+     "code": "P10",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Provisions",
+      "ru": "Резервы (оценочные обязательства)",
+      "uz": "Zaxiralar (baholangan majburiyatlar)",
+      "local": "Provisões"
+     },
+     "map": {
+      "column": "short_term_provisions",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "P11",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other obligations",
+      "ru": "Прочие обязательства",
+      "uz": "Boshqa majburiyatlar",
+      "local": "Outras obrigações"
+     },
+     "map": {
+      "column": "other_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "P12",
+     "section": "liabilities_long_term",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Non-current liabilities",
+      "ru": "Долгосрочные обязательства",
+      "uz": "Uzoq muddatli majburiyatlar",
+      "local": "Passivo não circulante"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "P13",
+       "P14",
+       "P15",
+       "P16",
+       "P17"
+      ],
+      "minus": []
+     },
+     "check": "total_non_current_liabilities",
+     "note": null
+    },
+    {
+     "code": "P13",
+     "section": "liabilities_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Loans and financing (long-term)",
+      "ru": "Займы и кредиты (долгосрочные)",
+      "uz": "Kreditlar va qarzlar (uzoq muddatli)",
+      "local": "Empréstimos e financiamentos"
+     },
+     "map": {
+      "column": "long_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "including debentures"
+    },
+    {
+     "code": "P14",
+     "section": "liabilities_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Lease liabilities (long-term)",
+      "ru": "Обязательства по аренде (долгосрочные)",
+      "uz": "Ijara majburiyatlari (uzoq muddatli)",
+      "local": "Passivo de arrendamento"
+     },
+     "map": {
+      "column": "long_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "P15",
+     "section": "liabilities_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Deferred income tax and social contribution",
+      "ru": "Отложенный налог на прибыль и социальный взнос (CSLL)",
+      "uz": "Kechiktirilgan foyda solig‘i va ijtimoiy badal (CSLL)",
+      "local": "Imposto de renda e contribuição social diferidos"
+     },
+     "map": {
+      "column": "deferred_tax_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "P16",
+     "section": "liabilities_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Provisions for tax, civil and labour risks",
+      "ru": "Резервы под налоговые, гражданские и трудовые риски",
+      "uz": "Soliq, fuqarolik va mehnat qaltisliklari bo‘yicha zaxiralar",
+      "local": "Provisões para riscos tributários, cíveis e trabalhistas"
+     },
+     "map": {
+      "column": "long_term_provisions",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "P17",
+     "section": "liabilities_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other obligations (long-term)",
+      "ru": "Прочие обязательства (долгосрочные)",
+      "uz": "Boshqa majburiyatlar (uzoq muddatli)",
+      "local": "Outras obrigações"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "including tax instalment programmes and related-party payables"
+    },
+    {
+     "code": "P18",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Equity",
+      "ru": "Собственный капитал",
+      "uz": "O‘z kapitali",
+      "local": "Patrimônio líquido"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "P19",
+       "P21",
+       "P22",
+       "P23",
+       "P25",
+       "P26"
+      ],
+      "minus": [
+       "P20",
+       "P24"
+      ]
+     },
+     "check": "total_equity",
+     "note": null
+    },
+    {
+     "code": "P19",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Share capital",
+      "ru": "Уставный капитал",
+      "uz": "Ustav kapitali",
+      "local": "Capital social"
+     },
+     "map": {
+      "column": "share_capital",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "subscribed capital (art. 182)"
+    },
+    {
+     "code": "P20",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Unpaid capital (−)",
+      "ru": "Неоплаченный капитал (−)",
+      "uz": "To‘lanmagan kapital (−)",
+      "local": "(−) Capital a integralizar"
+     },
+     "map": {
+      "column": "share_capital",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "deduction typed positive (art. 182: unrealised portion deducted)"
+    },
+    {
+     "code": "P21",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Capital reserves",
+      "ru": "Резервы капитала",
+      "uz": "Kapital zaxiralari",
+      "local": "Reservas de capital"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "share premium and other capital reserves (art. 182 §1º)"
+    },
+    {
+     "code": "P22",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Equity valuation adjustments",
+      "ru": "Корректировки оценки капитала",
+      "uz": "Kapitalni baholash tuzatishlari",
+      "local": "Ajustes de avaliação patrimonial"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "OCI-type fair value and translation adjustments (art. 182 §3º)"
+    },
+    {
+     "code": "P23",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Profit reserves",
+      "ru": "Резервы из прибыли",
+      "uz": "Foydadan shakllangan zaxiralar",
+      "local": "Reservas de lucros"
+     },
+     "map": {
+      "column": "retained_earnings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "legal, statutory and retention reserves are appropriated profit; mapped to retained earnings because S.A. companies must allocate all profit, leaving lucros acumulados at nil"
+    },
+    {
+     "code": "P24",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Treasury shares (−)",
+      "ru": "Собственные выкупленные акции (−)",
+      "uz": "Sotib olingan xususiy aksiyalar (−)",
+      "local": "(−) Ações em tesouraria"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "deduction typed positive"
+    },
+    {
+     "code": "P25",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Retained earnings (accumulated losses)",
+      "ru": "Нераспределённая прибыль (непокрытый убыток)",
+      "uz": "Taqsimlanmagan foyda (qoplanmagan zarar)",
+      "local": "Lucros (prejuízos) acumulados"
+     },
+     "map": {
+      "column": "retained_earnings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "signed: type an accumulated deficit as a negative number"
+    },
+    {
+     "code": "P26",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Non-controlling interests",
+      "ru": "Неконтролирующие доли",
+      "uz": "Nazorat qilinmaydigan ulushlar",
+      "local": "Participação dos acionistas não controladores"
+     },
+     "map": {
+      "column": "non_controlling_interests",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "consolidated statements only"
+    },
+    {
+     "code": "P27",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Total liabilities and equity",
+      "ru": "Итого пассивы",
+      "uz": "Passivlar jami",
+      "local": "Total do passivo e do patrimônio líquido"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "P01",
+       "P12",
+       "P18"
+      ],
+      "minus": []
+     },
+     "check": "total_equity_and_liabilities",
+     "note": null
+    }
+   ]
+  },
+  {
+   "code": "BR_LEI6404_PL",
+   "form_kind": "income_statement",
+   "fidelity": "prescribed_captions",
+   "local_language": "pt",
+   "name": {
+    "en": "Income statement (Brazil, Lei 6.404 art. 187)",
+    "ru": "Отчёт о финансовых результатах (Бразилия, Закон 6.404, ст. 187)",
+    "uz": "Moliyaviy natijalar to‘g‘risidagi hisobot (Braziliya, 6.404-son qonun, 187-modda)",
+    "local": "Demonstração do Resultado do Exercício"
+   },
+   "lines": [
+    {
+     "code": "R01",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Gross operating revenue",
+      "ru": "Валовая операционная выручка",
+      "uz": "Yalpi operatsion tushum",
+      "local": "Receita operacional bruta"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "R02",
+       "R03"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "R02",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Sales of products and goods",
+      "ru": "Продажа продукции и товаров",
+      "uz": "Mahsulot va tovarlarni sotish",
+      "local": "Vendas de produtos e mercadorias"
+     },
+     "map": {
+      "column": "revenue",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "R03",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Services rendered",
+      "ru": "Оказание услуг",
+      "uz": "Xizmatlar ko‘rsatish",
+      "local": "Prestação de serviços"
+     },
+     "map": {
+      "column": "revenue",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "R04",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": true,
+     "name": {
+      "en": "Deductions from gross revenue (−)",
+      "ru": "Вычеты из валовой выручки (−)",
+      "uz": "Yalpi tushumdan chegirmalar (−)",
+      "local": "(−) Deduções da receita bruta"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "R05",
+       "R06",
+       "R07"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "R05",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Sales returns and cancellations (−)",
+      "ru": "Возвраты и аннулирование продаж (−)",
+      "uz": "Qaytarilgan va amalga oshmagan sotishlar (−)",
+      "local": "(−) Devoluções e cancelamentos de vendas"
+     },
+     "map": {
+      "column": "revenue",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "deducted from revenue so that net revenue = IFRS revenue"
+    },
+    {
+     "code": "R06",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Unconditional discounts and rebates (−)",
+      "ru": "Безусловные скидки и уценки (−)",
+      "uz": "Shartsiz chegirmalar va narx tushirishlar (−)",
+      "local": "(−) Descontos incondicionais e abatimentos"
+     },
+     "map": {
+      "column": "revenue",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "deducted from revenue so that net revenue = IFRS revenue"
+    },
+    {
+     "code": "R07",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Taxes on sales (−)",
+      "ru": "Налоги с продаж (−)",
+      "uz": "Sotishdan olinadigan soliqlar (−)",
+      "local": "(−) Impostos incidentes sobre vendas"
+     },
+     "map": {
+      "column": "revenue",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "ICMS, PIS, COFINS, ISS (and IPI where included in gross revenue); deducted from revenue"
+    },
+    {
+     "code": "R08",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Net operating revenue",
+      "ru": "Чистая операционная выручка",
+      "uz": "Sof operatsion tushum",
+      "local": "Receita operacional líquida"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "R01"
+      ],
+      "minus": [
+       "R04"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "R09",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Cost of products, goods and services sold (−)",
+      "ru": "Себестоимость проданной продукции, товаров и услуг (−)",
+      "uz": "Sotilgan mahsulot, tovar va xizmatlar tannarxi (−)",
+      "local": "(−) Custo dos produtos, das mercadorias e dos serviços vendidos"
+     },
+     "map": {
+      "column": "cost_of_sales",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "R10",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Gross profit",
+      "ru": "Валовая прибыль",
+      "uz": "Yalpi foyda",
+      "local": "Lucro bruto"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "R08"
+      ],
+      "minus": [
+       "R09"
+      ]
+     },
+     "check": "gross_profit",
+     "note": null
+    },
+    {
+     "code": "R11",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Operating income (expenses)",
+      "ru": "Операционные доходы (расходы)",
+      "uz": "Operatsion daromadlar (xarajatlar)",
+      "local": "Receitas (despesas) operacionais"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "R14",
+       "R16"
+      ],
+      "minus": [
+       "R12",
+       "R13",
+       "R15"
+      ]
+     },
+     "check": null,
+     "note": "signed net, normally negative"
+    },
+    {
+     "code": "R12",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Selling expenses (−)",
+      "ru": "Коммерческие расходы (−)",
+      "uz": "Sotish xarajatlari (−)",
+      "local": "(−) Despesas com vendas"
+     },
+     "map": {
+      "column": "distribution_expenses",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "R13",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "General and administrative expenses (−)",
+      "ru": "Общие и административные расходы (−)",
+      "uz": "Umumiy va ma‘muriy xarajatlar (−)",
+      "local": "(−) Despesas gerais e administrativas"
+     },
+     "map": {
+      "column": "administrative_expenses",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "R14",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other operating income",
+      "ru": "Прочие операционные доходы",
+      "uz": "Boshqa operatsion daromadlar",
+      "local": "Outras receitas operacionais"
+     },
+     "map": {
+      "column": "other_operating_income",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "R15",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Other operating expenses (−)",
+      "ru": "Прочие операционные расходы (−)",
+      "uz": "Boshqa operatsion xarajatlar (−)",
+      "local": "(−) Outras despesas operacionais"
+     },
+     "map": {
+      "column": "other_operating_expenses",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "including impairment losses when not shown separately"
+    },
+    {
+     "code": "R16",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Share of profit (loss) of equity-accounted investees",
+      "ru": "Доля в прибыли (убытке) объектов, учитываемых методом долевого участия",
+      "uz": "Ulushda qatnashish usulidagi investitsiyalar foydasidagi (zararidagi) ulush",
+      "local": "Resultado de equivalência patrimonial"
+     },
+     "map": {
+      "column": "other_non_operating",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "signed (a loss is typed negative); kept outside IFRS operating profit, which is why R17 is not cross-checked"
+    },
+    {
+     "code": "R17",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Result before finance result and taxes",
+      "ru": "Результат до финансового результата и налогов",
+      "uz": "Moliyaviy natija va soliqlarga qadar natija",
+      "local": "Resultado antes do resultado financeiro e dos tributos"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "R10",
+       "R11"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": "not cross-checked: includes the equity-method result (R16), which maps to non-operating"
+    },
+    {
+     "code": "R18",
+     "section": "financial",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Finance result",
+      "ru": "Финансовый результат",
+      "uz": "Moliyaviy natija",
+      "local": "Resultado financeiro"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "R19"
+      ],
+      "minus": [
+       "R20"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "R19",
+     "section": "financial",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Finance income",
+      "ru": "Финансовые доходы",
+      "uz": "Moliyaviy daromadlar",
+      "local": "Receitas financeiras"
+     },
+     "map": {
+      "column": "finance_income",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "R20",
+     "section": "financial",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Finance expenses (−)",
+      "ru": "Финансовые расходы (−)",
+      "uz": "Moliyaviy xarajatlar (−)",
+      "local": "(−) Despesas financeiras"
+     },
+     "map": {
+      "column": "finance_costs",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "R21",
+     "section": "result",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Result before taxes on profit",
+      "ru": "Результат до налогов на прибыль",
+      "uz": "Foyda soliqlariga qadar natija",
+      "local": "Resultado antes dos tributos sobre o lucro"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "R17",
+       "R18"
+      ],
+      "minus": []
+     },
+     "check": "profit_before_tax",
+     "note": null
+    },
+    {
+     "code": "R22",
+     "section": "result",
+     "indent": 0,
+     "subtotal": true,
+     "negative": true,
+     "name": {
+      "en": "Income tax and social contribution (−)",
+      "ru": "Налог на прибыль и социальный взнос (CSLL) (−)",
+      "uz": "Foyda solig‘i va ijtimoiy badal (CSLL) (−)",
+      "local": "(−) Imposto de renda e contribuição social"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "R23",
+       "R24"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "R23",
+     "section": "result",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Current",
+      "ru": "Текущий",
+      "uz": "Joriy",
+      "local": "Corrente"
+     },
+     "map": {
+      "column": "income_tax",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "R24",
+     "section": "result",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Deferred",
+      "ru": "Отложенный",
+      "uz": "Kechiktirilgan",
+      "local": "Diferido"
+     },
+     "map": {
+      "column": "income_tax",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "expense typed positive; a deferred tax benefit is typed negative"
+    },
+    {
+     "code": "R25",
+     "section": "result",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Net profit (loss) for the year",
+      "ru": "Чистая прибыль (убыток) за год",
+      "uz": "Yilning sof foydasi (zarari)",
+      "local": "Lucro (prejuízo) líquido do exercício"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "R21"
+      ],
+      "minus": [
+       "R22"
+      ]
+     },
+     "check": "net_profit",
+     "note": null
+    }
+   ]
+  }
+ ]
+}

@@ -28,7 +28,8 @@
     "pin": "Menyuni mahkamlash",
     "hide": "Menyuni yashirish",
     "show": "Menyuni ko‘rsatish",
-    "shortcutHint": "Ctrl/⌘ B — menyuni ko‘rsatish yoki yashirish · Ctrl/⌘ K — qidiruv"
+    "shortcutHint": "Ctrl/⌘ B — menyuni ko‘rsatish yoki yashirish · Ctrl/⌘ K — qidiruv",
+    "wording": "Shartnoma shablonlari"
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -348,13 +349,12 @@
     "local": {
       "basis": "Hisob standarti",
       "basisIfrs": "XMHS (IFRS)",
-      "basisLocal": "Mahalliy shakl (BHMS)",
+      "basisLocal": "Milliy shakl",
       "noTemplates": "Mahalliy shablonlar mavjud emas.",
-      "noTemplatesForCountry": "Bu mamlakat uchun mahalliy shablonlar hali yo‘q",
       "enterAsReported": "Raqamlarni rasmiy shakldagidek aynan kiriting.",
       "crossCheckTitle": "XMHS mapping tekshiruvi:",
       "crossCheckItem": "{{line}}-satr: shaklda {{local}}, hisoblangan {{column}} = {{computed}}",
-      "badgeLocal": "UZ BHMS",
+      "badgeLocal": "Milliy shakl",
       "badgeIfrs": "XMHS",
       "mappedIndicator": "Mahalliy shakldan o‘girilgan:",
       "viewSource": "asl shakl",
@@ -362,16 +362,26 @@
       "mappingStatus": {
         "mapped": "o‘girilgan",
         "stale": "eskirgan"
+      },
+      "basisLocalNamed": "Milliy shakl ({{framework}})",
+      "ifrsFramework": "Bu mamlakatda hisobot «{{framework}}» standarti bo‘yicha tuziladi: MHXS shaklida kiritiladi.",
+      "ifrsInsteadOfLocal": "Milliy shakl ({{framework}}) o‘rniga MHXS shaklida kiritish — bayer MHXS bo‘yicha hisobot tuzsa.",
+      "noFrameworkForCountry": "Bu mamlakat uchun milliy shakl sozlanmagan: hisobotni MHXS shaklida kiriting.",
+      "deductionHint": "Ayiriladigan satr: shakldagi qavs ichidagidek musbat son bilan kiriting.",
+      "fidelity": {
+        "official_codes": "Satr kodlari rasmiy shakldagidek.",
+        "prescribed_captions": "Satr nomlari va tartibi qonun bilan belgilangan; kodlar ma’lumot uchun.",
+        "framework_layout": "Ushbu standart uchun odatiy tuzilma; kodlar ma’lumot uchun."
       }
     },
     "localSections": {
-      "assets_long_term": "I. Uzoq muddatli aktivlar",
-      "assets_current": "II. Joriy aktivlar",
-      "equity": "I. O‘z mablag‘lari manbalari",
-      "liabilities_long_term": "II. Majburiyatlar — uzoq muddatli",
-      "liabilities_current": "II. Majburiyatlar — joriy",
+      "assets_long_term": "Uzoq muddatli aktivlar",
+      "assets_current": "Joriy aktivlar",
+      "equity": "O‘z kapitali",
+      "liabilities_long_term": "Uzoq muddatli majburiyatlar",
+      "liabilities_current": "Joriy majburiyatlar",
       "operating": "Asosiy faoliyat",
-      "financial": "Moliyaviy faoliyat",
+      "financial": "Moliyaviy daromad va xarajatlar",
       "result": "Moliyaviy natija"
     },
     "reportTypes": {
@@ -1113,7 +1123,8 @@
     "tabs": {
       "premium": "Sug‘urta mukofoti",
       "terms": "Shartlar",
-      "claims": "Da’volar"
+      "claims": "Da’volar",
+      "contract": "Shartnoma"
     }
   },
   "limits": {
@@ -2658,6 +2669,170 @@
       "hint": "Agar bu siz bo‘lmasangiz — parolni almashtiring va administratorga xabar bering.",
       "changePassword": "Parolni almashtirish",
       "dismiss": "Yopish"
+    }
+  },
+  "wording": {
+    "title": "Shartnoma shablonlari",
+    "subtitle": "Polis yoki ariza bo‘yicha shartnoma loyihasi tuziladigan sug‘urta shartnomasi shablonlaringiz (.docx, {{braces}} maydonlari bilan).",
+    "fields": {
+      "name": "Nomi",
+      "language": "Til",
+      "country": "Yurisdiktsiya",
+      "countryHint": "Har qanday mamlakat uchun bo‘sh qoldiring.",
+      "anyCountry": "Har qanday",
+      "product": "Qoplama tuzilmasi",
+      "anyProduct": "Har qanday",
+      "description": "Tavsif",
+      "version": "Versiya",
+      "status": "Holat",
+      "uploaded": "Yuklangan"
+    },
+    "statuses": {
+      "draft": "Qoralama",
+      "active": "Amalda",
+      "retired": "Arxivda"
+    },
+    "templates": {
+      "title": "Shablonlar",
+      "empty": "Hozircha shartnoma shablonlari yo‘q",
+      "emptyHint": "Shartnomangizni {{braces}} maydonlari bilan .docx shaklida yuklang yoki standart shablonlarni o‘rnatib, moslashtiring.",
+      "download": "Yuklab olish",
+      "activate": "Amalga kiritish",
+      "retire": "Arxivga o‘tkazish"
+    },
+    "upload": {
+      "open": "Shablon yuklash",
+      "title": "Shartnoma shablonini yuklash",
+      "file": "Shablon fayli (.docx)",
+      "fileHint": "Hujjatga {{example}} kabi maydonlarni yozing — quyidagi ma’lumotnomaga qarang.",
+      "found": "Topilgan maydonlar: {{count}}.",
+      "unknown": "Ma’lumotnomada yo‘q (tuzatilmaguncha shablonni amalga kiritib bo‘lmaydi):",
+      "submit": "Yuklash"
+    },
+    "standard": {
+      "install": "Standart shablonlarni o‘rnatish",
+      "name": "Savdo kreditlarini sug‘urtalash standart shartnomasi",
+      "description": "TCI ERP bilan birga keladi; o‘z sug‘urta qoidalaringizga moslashtiring."
+    },
+    "insurer": {
+      "title": "Sug‘urtalovchi rekvizitlari",
+      "hint": "Shartnomalarga {{insurerTag}} sifatida qo‘yiladi. Faqat administrator o‘zgartira oladi.",
+      "saved": "Saqlandi.",
+      "fields": {
+        "legal_name": "Nomi",
+        "legal_form": "Tashkiliy-huquqiy shakli",
+        "registration_number": "Ro‘yxat raqami",
+        "tax_id": "STIR",
+        "license_number": "Litsenziya raqami",
+        "license_date": "Litsenziya sanasi",
+        "country_code": "Mamlakat",
+        "address": "Manzil",
+        "phone": "Telefon",
+        "email": "E-pochta",
+        "website": "Sayt",
+        "bank_name": "Bank",
+        "bank_account": "Hisob raqami",
+        "bank_code": "Bank kodi (SWIFT / BIK / MFO)",
+        "signatory_name": "Imzolovchi",
+        "signatory_title": "Imzolovchining lavozimi",
+        "signatory_basis": "Asosida harakat qiladi"
+      }
+    },
+    "reference": {
+      "title": "Maydonlar ma’lumotnomasi",
+      "hint": ".docx ga aynan ko‘rsatilganidek yozing. Qiymatlar shablon tilida formatlanadi.",
+      "syntaxValue": "{{example}} — qiymatni qo‘yadi.",
+      "syntaxLoop": "{{loopOpen}} … {{loopClose}} — mazmunini har bir kredit limiti uchun takrorlaydi; jadval satri atrofiga qo‘ysangiz, har bir bayer uchun bitta satr chiqadi.",
+      "syntaxCondition": "{{condOpen}} … {{condClose}} — bandni faqat qiymat berilgan bo‘lsa chiqaradi.",
+      "groups": {
+        "insurer": "Sug‘urtalovchi",
+        "policyholder": "Sug‘urtalanuvchi",
+        "policy": "Polis shartlari",
+        "limits": "Kredit limitlari ({{loopOpen}} ichida)",
+        "document": "Hujjat"
+      }
+    },
+    "generate": {
+      "title": "Shartnoma loyihasi",
+      "open": "Shartnoma loyihasini tuzish",
+      "empty": "Shartnoma loyihasi hali tuzilmagan",
+      "emptyHint": "Uni amaldagi shablon bo‘yicha tuzing; har bir versiya shu yerda saqlanadi.",
+      "generatedAt": "Tuzilgan",
+      "template": "Shablon",
+      "templateHint": "Sug‘urtalanuvchi mamlakati, qoplama tuzilmasi va tilingizga eng mos shablon oldindan tanlangan.",
+      "draftNote": "Hujjat joriy ma’lumotlar bo‘yicha tuziladi va tahrirlash uchun .docx shaklida yuklab olinadi; uning mazmuni saqlanadi.",
+      "submit": "Tuzish",
+      "working": "Tuzilmoqda…",
+      "noTemplates": "Amaldagi shartnoma shabloni yo‘q. «Shartnoma shablonlari» bo‘limida shablonni amalga kiritishni tijorat anderrayteri yoki administratordan so‘rang."
+    },
+    "errors": {
+      "invalidTemplate": "Fayl to‘g‘ri shablon emas:",
+      "unknownPlaceholders": "Shablonda ma’lumotnomada yo‘q maydonlar bor; ularni .docx da tuzatib, qayta yuklang.",
+      "retired": "Arxivdagi shablonni qayta amalga kiritib bo‘lmaydi; uni yangi versiya sifatida yuklang.",
+      "notActive": "Hujjatni faqat amaldagi shablon bo‘yicha tuzish mumkin.",
+      "notDocx": "Faqat .docx fayllar qabul qilinadi.",
+      "uploadLost": "Fayl saqlanmadi; uni qayta yuklang.",
+      "tooLarge": "Fayl 10 MB dan katta."
+    },
+    "placeholders": {
+      "insurer_name": "Sug‘urtalovchining nomi",
+      "insurer_legal_form": "Sug‘urtalovchining tashkiliy-huquqiy shakli",
+      "insurer_registration_number": "Sug‘urtalovchining ro‘yxat raqami",
+      "insurer_tax_id": "Sug‘urtalovchining STIRi",
+      "insurer_license_number": "Sug‘urta litsenziyasi raqami",
+      "insurer_license_date": "Litsenziya sanasi",
+      "insurer_country": "Sug‘urtalovchining mamlakati",
+      "insurer_address": "Sug‘urtalovchining manzili",
+      "insurer_phone": "Sug‘urtalovchining telefoni",
+      "insurer_email": "Sug‘urtalovchining e-pochtasi",
+      "insurer_website": "Sug‘urtalovchining sayti",
+      "insurer_bank_name": "Sug‘urtalovchining banki",
+      "insurer_bank_account": "Sug‘urtalovchining hisob raqami",
+      "insurer_bank_code": "Bank kodi (SWIFT / BIK / MFO)",
+      "insurer_signatory_name": "Imzolovchining F.I.Sh.",
+      "insurer_signatory_title": "Imzolovchining lavozimi",
+      "insurer_signatory_basis": "Imzolovchi asosida harakat qiladi",
+      "policyholder_name": "Sug‘urtalanuvchining nomi",
+      "policyholder_legal_form": "Sug‘urtalanuvchining tashkiliy-huquqiy shakli",
+      "policyholder_registration_number": "Sug‘urtalanuvchining ro‘yxat raqami",
+      "policyholder_country": "Sug‘urtalanuvchining mamlakati",
+      "policyholder_address": "Sug‘urtalanuvchining manzili",
+      "policyholder_contact_person": "Sug‘urtalanuvchining aloqa shaxsi",
+      "policyholder_email": "Sug‘urtalanuvchining e-pochtasi",
+      "policyholder_phone": "Sug‘urtalanuvchining telefoni",
+      "policy_number": "Polis raqami (ariza uchun — ariza raqami)",
+      "policy_status": "Holat",
+      "policy_product": "Qoplama tuzilmasi",
+      "policy_inception_date": "Boshlanish sanasi",
+      "policy_expiry_date": "Tugash sanasi",
+      "policy_currency": "Shartnoma valyutasi",
+      "policy_insured_percentage": "Sug‘urtalangan ulush",
+      "policy_max_liability_amount": "Eng yuqori javobgarlik",
+      "policy_max_liability_multiple": "Eng yuqori javobgarlik, mukofotga karrali",
+      "policy_nql_amount": "Qoplanmaydigan zarar (NQL)",
+      "policy_deductible": "Har bir zarar bo‘yicha franshiza",
+      "policy_aggregate_first_loss": "Agregat franshiza",
+      "policy_premium_rate": "Mukofot stavkasi, aylanmaning %",
+      "policy_minimum_premium": "Minimal mukofot",
+      "policy_premium_basis": "Mukofot hisoblash asosi",
+      "policy_estimated_turnover": "Kutilayotgan yillik aylanma",
+      "policy_discretionary_limit": "Diskretsion limit",
+      "policy_waiting_period_days": "Kutish davri, kun",
+      "policy_max_extension_days": "Eng uzoq uzaytirish muddati, kun",
+      "policy_max_payment_terms_days": "To‘lovni kechiktirishning eng uzoq muddati, kun",
+      "policy_declaration_frequency": "Deklaratsiyalar davriyligi",
+      "policy_noa_window_days": "Muddati o‘tganlik haqida xabar berish muddati, kun",
+      "limits": "Kredit limitlari jadvali: mazmunini (masalan, jadval satrini) har bir bayer uchun takrorlaydi",
+      "limits_buyer_name": "Bayerning nomi",
+      "limits_buyer_country": "Bayerning mamlakati",
+      "limits_buyer_registration_number": "Bayerning ro‘yxat raqami",
+      "limits_amount": "Kredit limiti summasi",
+      "limits_currency": "Limit valyutasi",
+      "limits_payment_terms_days": "To‘lovni kechiktirish, kun",
+      "limits_valid_from": "Amal qilish boshlanishi",
+      "limits_valid_until": "Amal qilish tugashi",
+      "document_date": "Hujjat yaratilgan sana",
+      "document_language": "Shablon tili kodi"
     }
   }
 }

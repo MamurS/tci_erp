@@ -428,6 +428,25 @@ is fine for internal test accounts and not fine for customers.
   wait for `docs/deploy/canonical-apply-0046-0048.sql` to be run in the SQL
   Editor** — the MCP tooling cannot send a statement containing DELETE/DROP
   here (see **Sign-in gate rules** below)
+- [x] National statement forms + policy wording (migrations 0049–0051):
+  manual entry follows the BUYER'S COUNTRY — `tci.country_reporting_frameworks`
+  → `tci.reporting_frameworks` → statement templates (Russia, Belarus,
+  Kazakhstan, Ukraine, Uzbekistan with official line codes; Germany/Austria
+  HGB, France PCG, UK/Ireland, the rest of Europe on the Directive 2013/34/EU
+  layout, US GAAP, China CAS, Japan, India Schedule III, Turkey TDHP, Brazil,
+  Vietnam VAS; IFRS-reporting countries such as Kyrgyzstan, Mongolia and
+  Nepal entered on the IFRS form under their own label). Each form carries
+  its own arithmetic, IFRS cross-checks, deduction flags and the caption in
+  its own language AS DATA; analysis and display stay IFRS everywhere.
+  Sources and the authoring validator in `supabase/frameworks/`. Policy
+  wording: the insurer uploads its own .docx contract templates
+  ({{placeholders}}, per jurisdiction × language × product, versioned, one
+  active per key), and a draft contract is generated from a policy or a
+  submission (merge data from `tci.wording_merge_data`, rendered in the
+  browser with docxtemplater, stored and registered with a server-made
+  snapshot); «Шаблоны договоров» page, insurer particulars, standard
+  ru/en/uz templates. See **Statement framework rules** and **Policy
+  wording rules** below
 - [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -952,6 +971,78 @@ to the owner as one transactional SQL Editor script that ends with the
 closing assertions and the ledger insert
 (`docs/deploy/canonical-apply-0046-0048.sql` is the template). Do not
 disguise the keywords to get past the check.
+
+### Statement framework rules (migrations 0049, 0051)
+
+**The country chooses the form, the statement keeps it.** A new statement
+opens on the form of the buyer's country (`country_reporting_frameworks`);
+a statement already saved keeps the forms it was ENTERED on
+(`financial_statements.template_id` → its framework), whatever the country
+points at later. A country with no row, or a framework of kind `ifrs`, is
+entered on the IFRS form, with the national standard named above it.
+
+**A form is data, never code.** The subtotal arithmetic
+(`statement_template_lines.formula`), the cross-checks against the computed
+IFRS totals (`crosscheck_column`), the deduction flag (`is_deduction`: typed
+positive, subtracted) and the original caption (`name_local`) all live on
+the template line. `mapping.ts` takes them as `TemplateRules`; there are no
+per-country constants left in TypeScript, and none may be added.
+
+**Every seeded form must reconcile.** `frameworkSeeds.test.ts` (and
+`supabase/frameworks/validate.py`, which the authors ran) fills the leaf
+lines with arbitrary amounts, lets the form compute its own totals, maps to
+IFRS, and requires every cross-checked total to agree. That is what finds
+double counting, a missing mapping or a wrong sign; it found one in the
+original UZ NAS data (line 770 vs IFRS total liabilities, which line 470's
+reclassification makes differ by design — the check was a false warning
+and is gone). A total that genuinely cannot reconcile is left UNCHECKED
+with a note saying why, never checked against something it does not equal.
+
+**The loader never removes or re-keys a line.** `tci.seed_statement_framework`
+upserts by (template, line code): values already entered keep their line
+ids. Fix a form by editing its JSON in `supabase/frameworks/`, validating,
+and loading it again in a new migration (`build_migration.py`); the sync
+test fails if the JSON and the migrations disagree.
+
+**Judgement calls recorded on the lines, to review as one rule later.**
+Share premium sits in share capital in UZ NAS and in other reserves in most
+European forms; reserves built from appropriated profit (Turkey 54, Brazil
+reservas de lucros, Vietnam 418–420) map to retained earnings. Total equity
+is the same either way; ratios that use retained earnings (Altman X2) are
+not. Unsplit receivables / payables lines map wholly to trade. By-nature
+P&Ls (HGB, Directive, France) put material costs in cost of sales, so their
+"gross profit" means revenue less materials.
+
+### Policy wording rules (migration 0050)
+
+**The database says WHAT, the template says HOW, the browser only renders.**
+`tci.wording_merge_data(policy | submission)` is the single source of a
+contract's data (SECURITY INVOKER: a caller sees only what RLS shows them;
+raw numbers, ISO dates, enum codes). `src/features/wording/context.ts`
+formats it in the TEMPLATE's language (format.ts, never the UI language),
+and docxtemplater fills the .docx. There is no server to render on, and no
+business logic in the rendering.
+
+**What a document said is recorded by the server.** `register_policy_document`
+re-derives the merge data itself and stores it as the document's
+`merge_data`; the browser's copy is never trusted. Documents and templates
+are immutable: no table write grant, no storage UPDATE or remove policy; a
+template is replaced by uploading a new version and retired, never edited.
+
+**One active template per (country, language, product).** NULL means "any"
+and is compared NOT DISTINCT. Activation refuses a template whose recorded
+placeholders are not all in `tci.wording_placeholder_catalogue()`, which
+`catalogue.ts` mirrors (contract-tested). Placeholders are `{{dotted.path}}`,
+`{{#limits}}…{{/limits}}` repeats per credit limit (around a table row it
+yields a row per buyer), and any other `{{#x}}…{{/x}}` is a condition.
+
+**A literal `{{…}}` in a translation is eaten by i18next.** Every sentence
+that shows template syntax takes it as a value (`WORDING_SYNTAX`), never as
+literal text in the locale file.
+
+**InspectModule pulls lodash.** Template inspection uses
+`Docxtemplater#getTags()` (present at runtime, missing from the typings)
+instead; docxtemplater lives in its own lazy chunk.
 
 ### Phase 6 rules that are easy to get wrong
 

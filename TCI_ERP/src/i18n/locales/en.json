@@ -28,7 +28,8 @@
     "pin": "Keep the menu open",
     "hide": "Hide the menu",
     "show": "Show the menu",
-    "shortcutHint": "Ctrl/⌘ B — show or hide the menu · Ctrl/⌘ K — search"
+    "shortcutHint": "Ctrl/⌘ B — show or hide the menu · Ctrl/⌘ K — search",
+    "wording": "Contract templates"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -348,13 +349,12 @@
     "local": {
       "basis": "Accounting basis",
       "basisIfrs": "IFRS",
-      "basisLocal": "Local form (NAS)",
+      "basisLocal": "National form",
       "noTemplates": "No statutory templates available.",
-      "noTemplatesForCountry": "No statutory templates for this country yet",
       "enterAsReported": "Enter figures exactly as reported on the official form.",
       "crossCheckTitle": "IFRS mapping cross-check:",
       "crossCheckItem": "line {{line}}: reported {{local}}, mapped {{column}} = {{computed}}",
-      "badgeLocal": "UZ NAS",
+      "badgeLocal": "Local",
       "badgeIfrs": "IFRS",
       "mappedIndicator": "Mapped from a local statutory form:",
       "viewSource": "view source",
@@ -362,16 +362,26 @@
       "mappingStatus": {
         "mapped": "mapped",
         "stale": "stale"
+      },
+      "basisLocalNamed": "National form ({{framework}})",
+      "ifrsFramework": "Statutory accounts in this country are prepared under {{framework}}: they are entered on the IFRS form.",
+      "ifrsInsteadOfLocal": "Entered on the IFRS form instead of the national form ({{framework}}) — use this when the buyer files IFRS accounts.",
+      "noFrameworkForCountry": "No national form is configured for this country: enter the statements on the IFRS form.",
+      "deductionHint": "Deduction: enter it as a positive number, as printed in brackets on the form.",
+      "fidelity": {
+        "official_codes": "Line codes are those of the official form.",
+        "prescribed_captions": "Captions and order as prescribed by law; line codes are for reference only.",
+        "framework_layout": "Customary layout under this framework; line codes are for reference only."
       }
     },
     "localSections": {
-      "assets_long_term": "I. Long-term assets",
-      "assets_current": "II. Current assets",
-      "equity": "I. Sources of own funds",
-      "liabilities_long_term": "II. Liabilities — long-term",
-      "liabilities_current": "II. Liabilities — current",
+      "assets_long_term": "Non-current assets",
+      "assets_current": "Current assets",
+      "equity": "Equity",
+      "liabilities_long_term": "Non-current liabilities",
+      "liabilities_current": "Current liabilities",
       "operating": "Operating activity",
-      "financial": "Financing activity",
+      "financial": "Financial income and expenses",
       "result": "Financial result"
     },
     "reportTypes": {
@@ -1113,7 +1123,8 @@
     "tabs": {
       "premium": "Premium",
       "terms": "Terms",
-      "claims": "Claims"
+      "claims": "Claims",
+      "contract": "Contract"
     }
   },
   "limits": {
@@ -2658,6 +2669,170 @@
       "hint": "If this was not you, change your password and tell the administrator.",
       "changePassword": "Change password",
       "dismiss": "Dismiss"
+    }
+  },
+  "wording": {
+    "title": "Contract templates",
+    "subtitle": "Your policy wording templates (.docx with {{braces}} placeholders), from which draft contracts are generated on a policy or a submission.",
+    "fields": {
+      "name": "Name",
+      "language": "Language",
+      "country": "Jurisdiction",
+      "countryHint": "Leave empty for any country.",
+      "anyCountry": "Any",
+      "product": "Cover structure",
+      "anyProduct": "Any",
+      "description": "Description",
+      "version": "Version",
+      "status": "Status",
+      "uploaded": "Uploaded"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "active": "Active",
+      "retired": "Retired"
+    },
+    "templates": {
+      "title": "Templates",
+      "empty": "No contract templates yet",
+      "emptyHint": "Upload your policy wording as a .docx with {{braces}} placeholders, or install the standard templates and adapt them.",
+      "download": "Download",
+      "activate": "Activate",
+      "retire": "Retire"
+    },
+    "upload": {
+      "open": "Upload template",
+      "title": "Upload a contract template",
+      "file": "Template file (.docx)",
+      "fileHint": "Write placeholders such as {{example}} in the document; see the reference below.",
+      "found": "Placeholders found: {{count}}.",
+      "unknown": "Not in the reference (the template cannot be activated until they are fixed):",
+      "submit": "Upload"
+    },
+    "standard": {
+      "install": "Install standard templates",
+      "name": "Standard trade credit insurance policy",
+      "description": "Shipped with TCI ERP; adapt it to your rules of insurance."
+    },
+    "insurer": {
+      "title": "Insurer particulars",
+      "hint": "Printed into contracts as {{insurerTag}}. Only an administrator can change them.",
+      "saved": "Saved.",
+      "fields": {
+        "legal_name": "Legal name",
+        "legal_form": "Legal form",
+        "registration_number": "Registration number",
+        "tax_id": "Tax ID",
+        "license_number": "Licence number",
+        "license_date": "Licence date",
+        "country_code": "Country",
+        "address": "Address",
+        "phone": "Phone",
+        "email": "E-mail",
+        "website": "Website",
+        "bank_name": "Bank",
+        "bank_account": "Bank account",
+        "bank_code": "Bank code (SWIFT / BIC / MFO)",
+        "signatory_name": "Signatory",
+        "signatory_title": "Signatory's position",
+        "signatory_basis": "Acting on the basis of"
+      }
+    },
+    "reference": {
+      "title": "Placeholder reference",
+      "hint": "Type these into the .docx exactly as shown. Values are formatted in the template's language.",
+      "syntaxValue": "{{example}} — prints a value.",
+      "syntaxLoop": "{{loopOpen}} … {{loopClose}} — repeats its content for every credit limit; put it around a table row to get one row per buyer.",
+      "syntaxCondition": "{{condOpen}} … {{condClose}} — prints the clause only when the value is set.",
+      "groups": {
+        "insurer": "Insurer",
+        "policyholder": "Policyholder",
+        "policy": "Policy terms",
+        "limits": "Credit limits (inside {{loopOpen}})",
+        "document": "Document"
+      }
+    },
+    "generate": {
+      "title": "Draft contract",
+      "open": "Generate draft contract",
+      "empty": "No draft contract generated yet",
+      "emptyHint": "Generate one from the active template; every version is kept here.",
+      "generatedAt": "Generated",
+      "template": "Template",
+      "templateHint": "The best match for the policyholder's country, the cover structure and your language is preselected.",
+      "draftNote": "The document is generated from the data as it stands now and downloaded as .docx for editing; what it said is recorded.",
+      "submit": "Generate",
+      "working": "Generating…",
+      "noTemplates": "There is no active contract template. Ask a commercial underwriter or an administrator to activate one under «Contract templates»."
+    },
+    "errors": {
+      "invalidTemplate": "The file is not a valid template:",
+      "unknownPlaceholders": "The template uses placeholders that are not in the reference; fix them in the .docx and upload it again.",
+      "retired": "A retired template cannot be activated again; upload it as a new version.",
+      "notActive": "Only an active template can generate a document.",
+      "notDocx": "Only .docx files are accepted.",
+      "uploadLost": "The file was not stored; upload it again.",
+      "tooLarge": "The file is larger than 10 MB."
+    },
+    "placeholders": {
+      "insurer_name": "Insurer's legal name",
+      "insurer_legal_form": "Insurer's legal form",
+      "insurer_registration_number": "Insurer's registration number",
+      "insurer_tax_id": "Insurer's tax ID",
+      "insurer_license_number": "Insurance licence number",
+      "insurer_license_date": "Licence date",
+      "insurer_country": "Insurer's country",
+      "insurer_address": "Insurer's address",
+      "insurer_phone": "Insurer's phone",
+      "insurer_email": "Insurer's e-mail",
+      "insurer_website": "Insurer's website",
+      "insurer_bank_name": "Insurer's bank",
+      "insurer_bank_account": "Insurer's bank account",
+      "insurer_bank_code": "Bank code (SWIFT / BIC / MFO)",
+      "insurer_signatory_name": "Signatory's name",
+      "insurer_signatory_title": "Signatory's position",
+      "insurer_signatory_basis": "Signatory acts on the basis of",
+      "policyholder_name": "Policyholder's name",
+      "policyholder_legal_form": "Policyholder's legal form",
+      "policyholder_registration_number": "Policyholder's registration number",
+      "policyholder_country": "Policyholder's country",
+      "policyholder_address": "Policyholder's address",
+      "policyholder_contact_person": "Policyholder's contact person",
+      "policyholder_email": "Policyholder's e-mail",
+      "policyholder_phone": "Policyholder's phone",
+      "policy_number": "Policy number (submission number for a submission)",
+      "policy_status": "Status",
+      "policy_product": "Cover structure",
+      "policy_inception_date": "Inception date",
+      "policy_expiry_date": "Expiry date",
+      "policy_currency": "Policy currency",
+      "policy_insured_percentage": "Insured percentage",
+      "policy_max_liability_amount": "Maximum liability",
+      "policy_max_liability_multiple": "Maximum liability as a multiple of premium",
+      "policy_nql_amount": "Non-qualifying loss (NQL)",
+      "policy_deductible": "Deductible each loss",
+      "policy_aggregate_first_loss": "Aggregate first loss",
+      "policy_premium_rate": "Premium rate, % of turnover",
+      "policy_minimum_premium": "Minimum premium",
+      "policy_premium_basis": "Premium basis",
+      "policy_estimated_turnover": "Estimated annual turnover",
+      "policy_discretionary_limit": "Discretionary limit",
+      "policy_waiting_period_days": "Waiting period, days",
+      "policy_max_extension_days": "Maximum extension period, days",
+      "policy_max_payment_terms_days": "Maximum credit period, days",
+      "policy_declaration_frequency": "Declaration frequency",
+      "policy_noa_window_days": "Overdue notification deadline, days",
+      "limits": "Credit limit schedule: repeats its content (e.g. a table row) for every buyer",
+      "limits_buyer_name": "Buyer's name",
+      "limits_buyer_country": "Buyer's country",
+      "limits_buyer_registration_number": "Buyer's registration number",
+      "limits_amount": "Credit limit amount",
+      "limits_currency": "Limit currency",
+      "limits_payment_terms_days": "Credit period, days",
+      "limits_valid_from": "Valid from",
+      "limits_valid_until": "Valid until",
+      "document_date": "Date the document was generated",
+      "document_language": "Template language code"
     }
   }
 }

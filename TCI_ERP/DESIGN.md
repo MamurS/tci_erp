@@ -127,6 +127,24 @@ identifier, report date) repeated on every printed page, footer in the
 sentences from `report/commentary.ts` and `report/narrative.ts`, never
 from the component.
 
+## National forms and IFRS
+
+Statements are typed on the national form of the buyer's country (official
+line codes, captions in the UI language with the original caption beneath,
+"(−)" on deduction lines, live amber checks of the form's own totals and of
+the IFRS cross-checks) and are always ANALYSED and SHOWN in IFRS: every
+table, ratio, chart and report reads the mapped IFRS rows. The national form
+stays reachable as «исходная форма» — the audit trail of what was typed —
+and the statement badge names its framework (РСБУ, HGB, US GAAP…).
+
+## Contract templates
+
+«Шаблоны договоров» lists the insurer's .docx templates with status badges
+(draft amber, active green, retired neutral), the insurer's particulars and
+the placeholder reference (monospace, select-all). A draft contract is
+generated from the «Договор» tab of a policy or the submission page; the
+history of generated documents stays beside the button.
+
 ## Financial data display rules (apply everywhere)
 
 * Numbers **right-aligned** with `tabular-nums` — use the `num` utility class.

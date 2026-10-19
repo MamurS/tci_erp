@@ -1,0 +1,1862 @@
+{
+ "framework": {
+  "code": "TR_TDHP",
+  "kind": "national_gaap",
+  "short": {
+   "en": "TR TDHP",
+   "ru": "TDHP Турции",
+   "uz": "TR TDHP"
+  },
+  "name": {
+   "en": "Turkey Uniform Chart of Accounts (Tekdüzen Hesap Planı, MSUGT)",
+   "ru": "Единый план счетов Турции (Tekdüzen Hesap Planı, MSUGT)",
+   "uz": "Turkiya yagona hisoblar rejasi (Tekdüzen Hesap Planı, MSUGT)"
+  },
+  "legal_basis": "Muhasebe Sistemi Uygulama Genel Tebliği (Sıra No: 1), Resmî Gazete 26.12.1992, Sayı 21447 (Mükerrer): Tekdüzen Hesap Planı, Bilanço ve Gelir Tablosu",
+  "countries": [
+   "TR"
+  ]
+ },
+ "templates": [
+  {
+   "code": "TR_TDHP_BS",
+   "form_kind": "balance_sheet",
+   "fidelity": "official_codes",
+   "local_language": "tr",
+   "name": {
+    "en": "Balance sheet (Turkey TDHP, detailed form)",
+    "ru": "Бухгалтерский баланс (Турция, TDHP, подробная форма)",
+    "uz": "Buxgalteriya balansi (Turkiya, TDHP, batafsil shakl)",
+    "local": "Ayrıntılı Bilanço"
+   },
+   "lines": [
+    {
+     "code": "I",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Current assets",
+      "ru": "Оборотные активы",
+      "uz": "Joriy aktivlar",
+      "local": "Dönen Varlıklar"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "10",
+       "11",
+       "12",
+       "13",
+       "15",
+       "17",
+       "18",
+       "19"
+      ],
+      "minus": []
+     },
+     "check": "total_current_assets",
+     "note": null
+    },
+    {
+     "code": "10",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Cash and cash equivalents",
+      "ru": "Денежные средства и их эквиваленты",
+      "uz": "Pul mablag‘lari va ularning ekvivalentlari",
+      "local": "Hazır Değerler"
+     },
+     "map": {
+      "column": "cash_and_equivalents",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "group 10 as printed: cash, cheques received, banks, less cheques and payment orders issued (103)"
+    },
+    {
+     "code": "11",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Marketable securities",
+      "ru": "Ценные бумаги",
+      "uz": "Qimmatli qog‘ozlar",
+      "local": "Menkul Kıymetler"
+     },
+     "map": {
+      "column": "short_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "net of the impairment allowance (119)"
+    },
+    {
+     "code": "12",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Trade receivables",
+      "ru": "Торговая дебиторская задолженность",
+      "uz": "Savdo debitorlik qarzlari",
+      "local": "Ticari Alacaklar"
+     },
+     "map": {
+      "column": "trade_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "net of rediscount (122) and the doubtful receivables allowance (129); includes deposits given (126)"
+    },
+    {
+     "code": "13",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other receivables",
+      "ru": "Прочая дебиторская задолженность",
+      "uz": "Boshqa debitorlik qarzlari",
+      "local": "Diğer Alacaklar"
+     },
+     "map": {
+      "column": "other_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "receivables from shareholders, associates, subsidiaries and personnel"
+    },
+    {
+     "code": "15",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Inventories",
+      "ru": "Запасы",
+      "uz": "Tovar-moddiy zaxiralar",
+      "local": "Stoklar"
+     },
+     "map": {
+      "column": "inventories",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "includes advances given for orders (159) as printed in the group; IFRS would show them as prepayments"
+    },
+    {
+     "code": "17",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Multi-year construction and repair costs",
+      "ru": "Затраты по долгосрочным строительным и ремонтным контрактам",
+      "uz": "Ko‘p yillik qurilish va ta‘mirlash xarajatlari",
+      "local": "Yıllara Yaygın İnşaat ve Onarım Maliyetleri"
+     },
+     "map": {
+      "column": "other_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "contract costs incurred (IFRS 15 contract asset); billings are in group 35"
+    },
+    {
+     "code": "18",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Prepaid expenses and accrued income (next months)",
+      "ru": "Расходы будущих месяцев и начисленные доходы",
+      "uz": "Kelgusi oylar xarajatlari va hisoblangan daromadlar",
+      "local": "Gelecek Aylara Ait Giderler ve Gelir Tahakkukları"
+     },
+     "map": {
+      "column": "other_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "19",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other current assets",
+      "ru": "Прочие оборотные активы",
+      "uz": "Boshqa joriy aktivlar",
+      "local": "Diğer Dönen Varlıklar"
+     },
+     "map": {
+      "column": "other_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "mostly VAT carried forward / deductible VAT (190-191), prepaid taxes (193) and job and personnel advances"
+    },
+    {
+     "code": "II",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Non-current assets",
+      "ru": "Внеоборотные активы",
+      "uz": "Uzoq muddatli aktivlar",
+      "local": "Duran Varlıklar"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "22",
+       "23",
+       "24",
+       "25",
+       "26",
+       "27",
+       "28",
+       "29"
+      ],
+      "minus": []
+     },
+     "check": "total_non_current_assets",
+     "note": null
+    },
+    {
+     "code": "22",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Trade receivables (long-term)",
+      "ru": "Торговая дебиторская задолженность (долгосрочная)",
+      "uz": "Savdo debitorlik qarzlari (uzoq muddatli)",
+      "local": "Ticari Alacaklar"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "long-term trade receivables; no separate IFRS column, shown in other non-current assets"
+    },
+    {
+     "code": "23",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other receivables (long-term)",
+      "ru": "Прочая дебиторская задолженность (долгосрочная)",
+      "uz": "Boshqa debitorlik qarzlari (uzoq muddatli)",
+      "local": "Diğer Alacaklar"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "24",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Financial non-current assets",
+      "ru": "Долгосрочные финансовые активы",
+      "uz": "Uzoq muddatli moliyaviy aktivlar",
+      "local": "Mali Duran Varlıklar"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "long-term securities, associates and subsidiaries, net of allowances and unpaid capital commitments"
+    },
+    {
+     "code": "25",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Property, plant and equipment",
+      "ru": "Основные средства",
+      "uz": "Asosiy vositalar",
+      "local": "Maddi Duran Varlıklar"
+     },
+     "map": {
+      "column": "property_plant_equipment",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "net of accumulated depreciation (257); includes construction in progress (258) and advances given (259)"
+    },
+    {
+     "code": "26",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Intangible assets",
+      "ru": "Нематериальные активы",
+      "uz": "Nomoddiy aktivlar",
+      "local": "Maddi Olmayan Duran Varlıklar"
+     },
+     "map": {
+      "column": "intangible_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "includes goodwill (261), organisation costs (262) and capitalised R&D (263); goodwill is not separable at group level"
+    },
+    {
+     "code": "27",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Assets subject to depletion",
+      "ru": "Активы, подлежащие истощению",
+      "uz": "Tugaydigan tabiiy resurslar (aktivlar)",
+      "local": "Özel Tükenmeye Tabi Varlıklar"
+     },
+     "map": {
+      "column": "property_plant_equipment",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "mineral and exploration assets (IFRS 6 / IAS 16), shown with PP&E"
+    },
+    {
+     "code": "28",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Prepaid expenses and accrued income (next years)",
+      "ru": "Расходы будущих лет и начисленные доходы",
+      "uz": "Kelgusi yillar xarajatlari va hisoblangan daromadlar",
+      "local": "Gelecek Yıllara Ait Giderler ve Gelir Tahakkukları"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "29",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other non-current assets",
+      "ru": "Прочие внеоборотные активы",
+      "uz": "Boshqa uzoq muddatli aktivlar",
+      "local": "Diğer Duran Varlıklar"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "AKTIF",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Total assets",
+      "ru": "Итого активы",
+      "uz": "Aktivlar jami",
+      "local": "Aktif (Varlıklar) Toplamı"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "I",
+       "II"
+      ],
+      "minus": []
+     },
+     "check": "total_assets",
+     "note": "printed without a code; code assigned"
+    },
+    {
+     "code": "III",
+     "section": "liabilities_current",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Short-term liabilities",
+      "ru": "Краткосрочные обязательства",
+      "uz": "Qisqa muddatli majburiyatlar",
+      "local": "Kısa Vadeli Yabancı Kaynaklar"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "30",
+       "32",
+       "33",
+       "34",
+       "35",
+       "36",
+       "37",
+       "38",
+       "39"
+      ],
+      "minus": []
+     },
+     "check": "total_current_liabilities",
+     "note": null
+    },
+    {
+     "code": "30",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Financial liabilities (short-term)",
+      "ru": "Финансовые обязательства (краткосрочные)",
+      "uz": "Kreditlar va qarzlar (qisqa muddatli)",
+      "local": "Mali Borçlar"
+     },
+     "map": {
+      "column": "short_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "bank loans, current portion of long-term loans (303), finance lease payables, bonds issued"
+    },
+    {
+     "code": "32",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Trade payables",
+      "ru": "Торговая кредиторская задолженность",
+      "uz": "Savdo kreditorlik qarzlari",
+      "local": "Ticari Borçlar"
+     },
+     "map": {
+      "column": "trade_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "33",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other payables",
+      "ru": "Прочая кредиторская задолженность",
+      "uz": "Boshqa kreditorlik qarzlari",
+      "local": "Diğer Borçlar"
+     },
+     "map": {
+      "column": "other_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "34",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Advances received",
+      "ru": "Полученные авансы",
+      "uz": "Olingan bo‘naklar",
+      "local": "Alınan Avanslar"
+     },
+     "map": {
+      "column": "other_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "35",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Multi-year construction and repair progress billings",
+      "ru": "Промежуточные счета по долгосрочным строительным и ремонтным контрактам",
+      "uz": "Ko‘p yillik qurilish va ta‘mirlash ishlari bo‘yicha oraliq hisob-kitoblar",
+      "local": "Yıllara Yaygın İnşaat ve Onarım Hakedişleri"
+     },
+     "map": {
+      "column": "other_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "progress billings (IFRS 15 contract liability); costs are in group 17"
+    },
+    {
+     "code": "36",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Taxes and other obligations payable",
+      "ru": "Налоги и прочие обязательства к уплате",
+      "uz": "To‘lanadigan soliqlar va boshqa majburiyatlar",
+      "local": "Ödenecek Vergi ve Diğer Yükümlülükler"
+     },
+     "map": {
+      "column": "other_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "VAT, withholding taxes and social security payable; corporate income tax is in group 37 (370-371), so this group is not current income tax"
+    },
+    {
+     "code": "37",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Provisions for liabilities and expenses (short-term)",
+      "ru": "Резервы по обязательствам и расходам (краткосрочные)",
+      "uz": "Majburiyatlar va xarajatlar bo‘yicha zaxiralar (qisqa muddatli)",
+      "local": "Borç ve Gider Karşılıkları"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "370",
+       "372",
+       "373",
+       "379"
+      ],
+      "minus": [
+       "371"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "370",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Provision for tax on period profit and other legal obligations",
+      "ru": "Резерв по налогу на прибыль периода и прочим законным обязательствам",
+      "uz": "Davr foydasidan soliq va boshqa qonuniy majburiyatlar zaxirasi",
+      "local": "Dönem Kârı Vergi ve Diğer Yasal Yükümlülük Karşılıkları"
+     },
+     "map": {
+      "column": "current_tax_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "371",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Prepaid taxes and other obligations on period profit (−)",
+      "ru": "Авансовые платежи по налогу на прибыль периода (−)",
+      "uz": "Davr foydasidan oldindan to‘langan soliqlar va boshqa majburiyatlar (−)",
+      "local": "Dönem Kârının Peşin Ödenen Vergi ve Diğer Yükümlülükleri (−)"
+     },
+     "map": {
+      "column": "current_tax_liabilities",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "advance corporate tax netted against 370; an excess is shown in assets (193)"
+    },
+    {
+     "code": "372",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Provision for severance pay",
+      "ru": "Резерв на выходные пособия",
+      "uz": "Ishdan bo‘shatish nafaqasi zaxirasi",
+      "local": "Kıdem Tazminatı Karşılığı"
+     },
+     "map": {
+      "column": "short_term_provisions",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "373",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Provision for cost expenses",
+      "ru": "Резерв на затраты",
+      "uz": "Tannarx xarajatlari zaxirasi",
+      "local": "Maliyet Giderleri Karşılığı"
+     },
+     "map": {
+      "column": "short_term_provisions",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "379",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other provisions for liabilities and expenses",
+      "ru": "Прочие резервы по обязательствам и расходам",
+      "uz": "Majburiyatlar va xarajatlar bo‘yicha boshqa zaxiralar",
+      "local": "Diğer Borç ve Gider Karşılıkları"
+     },
+     "map": {
+      "column": "short_term_provisions",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "38",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Deferred income and accrued expenses (next months)",
+      "ru": "Доходы будущих месяцев и начисленные расходы",
+      "uz": "Kelgusi oylar daromadlari va hisoblangan xarajatlar",
+      "local": "Gelecek Aylara Ait Gelirler ve Gider Tahakkukları"
+     },
+     "map": {
+      "column": "other_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "39",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other short-term liabilities",
+      "ru": "Прочие краткосрочные обязательства",
+      "uz": "Boshqa qisqa muddatli majburiyatlar",
+      "local": "Diğer Kısa Vadeli Yabancı Kaynaklar"
+     },
+     "map": {
+      "column": "other_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "mainly output VAT (391)"
+    },
+    {
+     "code": "IV",
+     "section": "liabilities_long_term",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Long-term liabilities",
+      "ru": "Долгосрочные обязательства",
+      "uz": "Uzoq muddatli majburiyatlar",
+      "local": "Uzun Vadeli Yabancı Kaynaklar"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "40",
+       "42",
+       "43",
+       "44",
+       "47",
+       "48",
+       "49"
+      ],
+      "minus": []
+     },
+     "check": "total_non_current_liabilities",
+     "note": null
+    },
+    {
+     "code": "40",
+     "section": "liabilities_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Financial liabilities (long-term)",
+      "ru": "Финансовые обязательства (долгосрочные)",
+      "uz": "Kreditlar va qarzlar (uzoq muddatli)",
+      "local": "Mali Borçlar"
+     },
+     "map": {
+      "column": "long_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "42",
+     "section": "liabilities_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Trade payables (long-term)",
+      "ru": "Торговая кредиторская задолженность (долгосрочная)",
+      "uz": "Savdo kreditorlik qarzlari (uzoq muddatli)",
+      "local": "Ticari Borçlar"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "long-term trade payables; no separate IFRS column"
+    },
+    {
+     "code": "43",
+     "section": "liabilities_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other payables (long-term)",
+      "ru": "Прочая кредиторская задолженность (долгосрочная)",
+      "uz": "Boshqa kreditorlik qarzlari (uzoq muddatli)",
+      "local": "Diğer Borçlar"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "44",
+     "section": "liabilities_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Advances received (long-term)",
+      "ru": "Полученные авансы (долгосрочные)",
+      "uz": "Olingan bo‘naklar (uzoq muddatli)",
+      "local": "Alınan Avanslar"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "47",
+     "section": "liabilities_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Provisions for liabilities and expenses (long-term)",
+      "ru": "Резервы по обязательствам и расходам (долгосрочные)",
+      "uz": "Majburiyatlar va xarajatlar bo‘yicha zaxiralar (uzoq muddatli)",
+      "local": "Borç ve Gider Karşılıkları"
+     },
+     "map": {
+      "column": "long_term_provisions",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "mainly the severance pay provision (472)"
+    },
+    {
+     "code": "48",
+     "section": "liabilities_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Deferred income and accrued expenses (next years)",
+      "ru": "Доходы будущих лет и начисленные расходы",
+      "uz": "Kelgusi yillar daromadlari va hisoblangan xarajatlar",
+      "local": "Gelecek Yıllara Ait Gelirler ve Gider Tahakkukları"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "49",
+     "section": "liabilities_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other long-term liabilities",
+      "ru": "Прочие долгосрочные обязательства",
+      "uz": "Boshqa uzoq muddatli majburiyatlar",
+      "local": "Diğer Uzun Vadeli Yabancı Kaynaklar"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "V",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Equity",
+      "ru": "Собственный капитал",
+      "uz": "O‘z kapitali",
+      "local": "Özkaynaklar"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "50",
+       "52",
+       "54",
+       "57",
+       "59"
+      ],
+      "minus": [
+       "58"
+      ]
+     },
+     "check": "total_equity",
+     "note": null
+    },
+    {
+     "code": "50",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Paid-in capital",
+      "ru": "Оплаченный капитал",
+      "uz": "To‘langan kapital",
+      "local": "Ödenmiş Sermaye"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "500",
+       "502"
+      ],
+      "minus": [
+       "501",
+       "503"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "500",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Capital",
+      "ru": "Капитал",
+      "uz": "Ustav kapitali",
+      "local": "Sermaye"
+     },
+     "map": {
+      "column": "share_capital",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "501",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Unpaid capital (−)",
+      "ru": "Неоплаченный капитал (−)",
+      "uz": "To‘lanmagan kapital (−)",
+      "local": "Ödenmemiş Sermaye (−)"
+     },
+     "map": {
+      "column": "share_capital",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "deduction typed positive"
+    },
+    {
+     "code": "502",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Positive capital adjustment differences",
+      "ru": "Положительные разницы от корректировки капитала",
+      "uz": "Kapitalni tuzatishning ijobiy farqlari",
+      "local": "Sermaye Düzeltmesi Olumlu Farkları"
+     },
+     "map": {
+      "column": "share_capital",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "inflation adjustment of paid-in capital (IAS 29 restated capital); added to TDHP with inflation accounting (2004), its presence as a separate printed line on the detailed form: code to be verified"
+    },
+    {
+     "code": "503",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Negative capital adjustment differences (−)",
+      "ru": "Отрицательные разницы от корректировки капитала (−)",
+      "uz": "Kapitalni tuzatishning salbiy farqlari (−)",
+      "local": "Sermaye Düzeltmesi Olumsuz Farkları (−)"
+     },
+     "map": {
+      "column": "share_capital",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "deduction typed positive; added with inflation accounting (2004), printed-line presence: code to be verified"
+    },
+    {
+     "code": "52",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Capital reserves",
+      "ru": "Капитальные резервы",
+      "uz": "Kapital zaxiralari",
+      "local": "Sermaye Yedekleri"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "share premium (520), share cancellation gains (521) and revaluation surpluses (522-523); not split at group level"
+    },
+    {
+     "code": "54",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Profit reserves",
+      "ru": "Резервы из прибыли",
+      "uz": "Foydadan shakllangan zaxiralar",
+      "local": "Kâr Yedekleri"
+     },
+     "map": {
+      "column": "retained_earnings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "legal, statutory and extraordinary reserves appropriated from profit: earned capital, kept with retained earnings"
+    },
+    {
+     "code": "57",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Retained earnings of prior years",
+      "ru": "Нераспределённая прибыль прошлых лет",
+      "uz": "O‘tgan yillar foydasi",
+      "local": "Geçmiş Yıllar Kârları"
+     },
+     "map": {
+      "column": "retained_earnings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "58",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Accumulated losses of prior years (−)",
+      "ru": "Непокрытые убытки прошлых лет (−)",
+      "uz": "O‘tgan yillar zararlari (−)",
+      "local": "Geçmiş Yıllar Zararları (−)"
+     },
+     "map": {
+      "column": "retained_earnings",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "accumulated loss typed positive, deducted"
+    },
+    {
+     "code": "59",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Net profit (loss) for the period",
+      "ru": "Чистая прибыль (убыток) периода",
+      "uz": "Davrning sof foydasi (zarari)",
+      "local": "Dönem Net Kârı (Zararı)"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "590"
+      ],
+      "minus": [
+       "591"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "590",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Net profit for the period",
+      "ru": "Чистая прибыль периода",
+      "uz": "Davrning sof foydasi",
+      "local": "Dönem Net Kârı"
+     },
+     "map": {
+      "column": "retained_earnings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "591",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Net loss for the period (−)",
+      "ru": "Чистый убыток периода (−)",
+      "uz": "Davrning sof zarari (−)",
+      "local": "Dönem Net Zararı (−)"
+     },
+     "map": {
+      "column": "retained_earnings",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "loss typed positive, deducted"
+    },
+    {
+     "code": "PASIF",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Total liabilities and equity",
+      "ru": "Итого пассивы",
+      "uz": "Passivlar jami",
+      "local": "Pasif (Kaynaklar) Toplamı"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "III",
+       "IV",
+       "V"
+      ],
+      "minus": []
+     },
+     "check": "total_equity_and_liabilities",
+     "note": "printed without a code; code assigned"
+    }
+   ]
+  },
+  {
+   "code": "TR_TDHP_PL",
+   "form_kind": "income_statement",
+   "fidelity": "official_codes",
+   "local_language": "tr",
+   "name": {
+    "en": "Income statement (Turkey TDHP, detailed form)",
+    "ru": "Отчёт о прибылях и убытках (Турция, TDHP, подробная форма)",
+    "uz": "Foyda va zararlar to‘g‘risidagi hisobot (Turkiya, TDHP, batafsil shakl)",
+    "local": "Ayrıntılı Gelir Tablosu"
+   },
+   "lines": [
+    {
+     "code": "A",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Gross sales",
+      "ru": "Валовые продажи",
+      "uz": "Yalpi sotishlar",
+      "local": "Brüt Satışlar"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "600",
+       "601",
+       "602"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "600",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Domestic sales",
+      "ru": "Продажи на внутреннем рынке",
+      "uz": "Ichki bozorda sotishlar",
+      "local": "Yurt İçi Satışlar"
+     },
+     "map": {
+      "column": "revenue",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "601",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Export sales",
+      "ru": "Экспортные продажи",
+      "uz": "Eksport sotishlari",
+      "local": "Yurt Dışı Satışlar"
+     },
+     "map": {
+      "column": "revenue",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "602",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other revenue",
+      "ru": "Прочие доходы от продаж",
+      "uz": "Boshqa sotish daromadlari",
+      "local": "Diğer Gelirler"
+     },
+     "map": {
+      "column": "revenue",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "B",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": true,
+     "name": {
+      "en": "Sales deductions (−)",
+      "ru": "Скидки и возвраты с продаж (−)",
+      "uz": "Sotishdan chegirmalar (−)",
+      "local": "Satış İndirimleri (−)"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "610",
+       "611",
+       "612"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "610",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Sales returns (−)",
+      "ru": "Возвраты продаж (−)",
+      "uz": "Sotishdan qaytarishlar (−)",
+      "local": "Satıştan İadeler (−)"
+     },
+     "map": {
+      "column": "revenue",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "deducted from revenue so that net sales = IFRS revenue"
+    },
+    {
+     "code": "611",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Sales discounts (−)",
+      "ru": "Скидки с продаж (−)",
+      "uz": "Sotish chegirmalari (−)",
+      "local": "Satış İskontoları (−)"
+     },
+     "map": {
+      "column": "revenue",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "deducted from revenue so that net sales = IFRS revenue"
+    },
+    {
+     "code": "612",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Other deductions (−)",
+      "ru": "Прочие скидки (−)",
+      "uz": "Boshqa chegirmalar (−)",
+      "local": "Diğer İndirimler (−)"
+     },
+     "map": {
+      "column": "revenue",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "deducted from revenue so that net sales = IFRS revenue"
+    },
+    {
+     "code": "C",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Net sales",
+      "ru": "Чистые продажи",
+      "uz": "Sof sotishlar",
+      "local": "Net Satışlar"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "A"
+      ],
+      "minus": [
+       "B"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "D",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": true,
+     "name": {
+      "en": "Cost of sales (−)",
+      "ru": "Себестоимость продаж (−)",
+      "uz": "Sotilgan mahsulot tannarxi (−)",
+      "local": "Satışların Maliyeti (−)"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "620",
+       "621",
+       "622",
+       "623"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "620",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Cost of finished goods sold (−)",
+      "ru": "Себестоимость проданной готовой продукции (−)",
+      "uz": "Sotilgan tayyor mahsulot tannarxi (−)",
+      "local": "Satılan Mamuller Maliyeti (−)"
+     },
+     "map": {
+      "column": "cost_of_sales",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "621",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Cost of merchandise sold (−)",
+      "ru": "Себестоимость проданных товаров (−)",
+      "uz": "Sotilgan tovarlar tannarxi (−)",
+      "local": "Satılan Ticari Mallar Maliyeti (−)"
+     },
+     "map": {
+      "column": "cost_of_sales",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "622",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Cost of services rendered (−)",
+      "ru": "Себестоимость оказанных услуг (−)",
+      "uz": "Ko‘rsatilgan xizmatlar tannarxi (−)",
+      "local": "Satılan Hizmet Maliyeti (−)"
+     },
+     "map": {
+      "column": "cost_of_sales",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "623",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Cost of other sales (−)",
+      "ru": "Себестоимость прочих продаж (−)",
+      "uz": "Boshqa sotishlar tannarxi (−)",
+      "local": "Diğer Satışların Maliyeti (−)"
+     },
+     "map": {
+      "column": "cost_of_sales",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "BSK",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Gross profit (loss) on sales",
+      "ru": "Валовая прибыль (убыток) от продаж",
+      "uz": "Sotishdan yalpi foyda (zarar)",
+      "local": "Brüt Satış Kârı veya Zararı"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "C"
+      ],
+      "minus": [
+       "D"
+      ]
+     },
+     "check": "gross_profit",
+     "note": "printed without a letter; code assigned"
+    },
+    {
+     "code": "E",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": true,
+     "name": {
+      "en": "Operating expenses (−)",
+      "ru": "Операционные расходы (−)",
+      "uz": "Faoliyat xarajatlari (−)",
+      "local": "Faaliyet Giderleri (−)"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "630",
+       "631",
+       "632"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "630",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Research and development expenses (−)",
+      "ru": "Расходы на исследования и разработки (−)",
+      "uz": "Ilmiy-tadqiqot va tajriba-konstruktorlik xarajatlari (−)",
+      "local": "Araştırma ve Geliştirme Giderleri (−)"
+     },
+     "map": {
+      "column": "other_operating_expenses",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "631",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Marketing, selling and distribution expenses (−)",
+      "ru": "Расходы на маркетинг, продажу и сбыт (−)",
+      "uz": "Marketing, sotish va tarqatish xarajatlari (−)",
+      "local": "Pazarlama, Satış ve Dağıtım Giderleri (−)"
+     },
+     "map": {
+      "column": "distribution_expenses",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "632",
+     "section": "operating",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "General administrative expenses (−)",
+      "ru": "Общие административные расходы (−)",
+      "uz": "Umumiy boshqaruv xarajatlari (−)",
+      "local": "Genel Yönetim Giderleri (−)"
+     },
+     "map": {
+      "column": "administrative_expenses",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "FK",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Operating profit (loss)",
+      "ru": "Операционная прибыль (убыток)",
+      "uz": "Faoliyatdan foyda (zarar)",
+      "local": "Faaliyet Kârı veya Zararı"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "BSK"
+      ],
+      "minus": [
+       "E"
+      ]
+     },
+     "check": "operating_profit",
+     "note": "printed without a letter; code assigned. Reconciles because groups 64/65 are mapped to finance income / finance costs"
+    },
+    {
+     "code": "F",
+     "section": "financial",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Ordinary income and gains from other activities",
+      "ru": "Обычные доходы и прибыли от прочей деятельности",
+      "uz": "Boshqa faoliyatdan odatdagi daromadlar va foydalar",
+      "local": "Diğer Faaliyetlerden Olağan Gelir ve Kârlar"
+     },
+     "map": {
+      "column": "finance_income",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "group 64: dividends, interest, commissions, securities gains, FX gains, rediscount interest, inflation adjustment gains, reversed provisions (644) and other (649). Mapped as a whole to finance income because it is predominantly financial and sits below Faaliyet Kârı; reversed provisions and sundry items are a known, usually small, misclassification"
+    },
+    {
+     "code": "G",
+     "section": "financial",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Ordinary expenses and losses from other activities (−)",
+      "ru": "Обычные расходы и убытки от прочей деятельности (−)",
+      "uz": "Boshqa faoliyatdan odatdagi xarajatlar va zararlar (−)",
+      "local": "Diğer Faaliyetlerden Olağan Gider ve Zararlar (−)"
+     },
+     "map": {
+      "column": "finance_costs",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "group 65: commissions, provision expenses (654), securities losses, FX losses, rediscount interest, inflation adjustment losses and other. Mapped as a whole to finance costs for the same reason as F; provision expenses (e.g. doubtful receivables) would be operating under IFRS"
+    },
+    {
+     "code": "H",
+     "section": "financial",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Finance costs (−)",
+      "ru": "Расходы на финансирование (−)",
+      "uz": "Moliyalashtirish xarajatlari (−)",
+      "local": "Finansman Giderleri (−)"
+     },
+     "map": {
+      "column": "finance_costs",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "group 66: short- and long-term borrowing costs"
+    },
+    {
+     "code": "OK",
+     "section": "result",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Ordinary profit (loss)",
+      "ru": "Прибыль (убыток) от обычной деятельности",
+      "uz": "Odatdagi faoliyatdan foyda (zarar)",
+      "local": "Olağan Kâr veya Zarar"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "FK",
+       "F"
+      ],
+      "minus": [
+       "G",
+       "H"
+      ]
+     },
+     "check": null,
+     "note": "printed without a letter; code assigned. After finance costs, so not an IFRS total: not cross-checked"
+    },
+    {
+     "code": "I",
+     "section": "result",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Extraordinary income and gains",
+      "ru": "Чрезвычайные доходы и прибыли",
+      "uz": "Favqulodda daromadlar va foydalar",
+      "local": "Olağandışı Gelir ve Kârlar"
+     },
+     "map": {
+      "column": "other_non_operating",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "group 67, incl. prior-period income (671)"
+    },
+    {
+     "code": "J",
+     "section": "result",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Extraordinary expenses and losses (−)",
+      "ru": "Чрезвычайные расходы и убытки (−)",
+      "uz": "Favqulodda xarajatlar va zararlar (−)",
+      "local": "Olağandışı Gider ve Zararlar (−)"
+     },
+     "map": {
+      "column": "other_non_operating",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "group 68, incl. idle capacity costs (680) and prior-period expenses (681)"
+    },
+    {
+     "code": "DK",
+     "section": "result",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Profit (loss) for the period",
+      "ru": "Прибыль (убыток) периода",
+      "uz": "Davr foydasi (zarari)",
+      "local": "Dönem Kârı veya Zararı"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "OK",
+       "I"
+      ],
+      "minus": [
+       "J"
+      ]
+     },
+     "check": "profit_before_tax",
+     "note": "printed without a letter (account 690); code assigned"
+    },
+    {
+     "code": "K",
+     "section": "result",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Provisions for tax and other legal obligations on period profit (−)",
+      "ru": "Резервы по налогу на прибыль и прочим законным обязательствам (−)",
+      "uz": "Davr foydasidan soliq va boshqa qonuniy majburiyatlar zaxiralari (−)",
+      "local": "Dönem Kârı Vergi ve Diğer Yasal Yükümlülük Karşılıkları (−)"
+     },
+     "map": {
+      "column": "income_tax",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "account 691"
+    },
+    {
+     "code": "DNK",
+     "section": "result",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Net profit (loss) for the period",
+      "ru": "Чистая прибыль (убыток) периода",
+      "uz": "Davrning sof foydasi (zarari)",
+      "local": "Dönem Net Kârı veya Zararı"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "DK"
+      ],
+      "minus": [
+       "K"
+      ]
+     },
+     "check": "net_profit",
+     "note": "printed without a letter (account 692); code assigned"
+    }
+   ]
+  }
+ ]
+}

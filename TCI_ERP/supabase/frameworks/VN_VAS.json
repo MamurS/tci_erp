@@ -1,0 +1,2899 @@
+{
+ "framework": {
+  "code": "VN_VAS",
+  "kind": "national_gaap",
+  "short": {
+   "en": "VAS",
+   "ru": "VAS Вьетнам",
+   "uz": "VAS"
+  },
+  "name": {
+   "en": "Vietnamese Accounting Standards (VAS, Circular 200/2014/TT-BTC)",
+   "ru": "Вьетнамские стандарты бухгалтерского учёта (VAS, Циркуляр 200/2014/TT-BTC)",
+   "uz": "Vyetnam buxgalteriya hisobi standartlari (VAS, 200/2014/TT-BTC-son sirkulyar)"
+  },
+  "legal_basis": "Thông tư số 200/2014/TT-BTC ngày 22/12/2014 của Bộ Tài chính hướng dẫn Chế độ kế toán doanh nghiệp (Mẫu số B 01 - DN, Mẫu số B 02 - DN)",
+  "countries": [
+   "VN"
+  ]
+ },
+ "templates": [
+  {
+   "code": "VN_VAS_BS",
+   "form_kind": "balance_sheet",
+   "fidelity": "official_codes",
+   "local_language": "vi",
+   "name": {
+    "en": "Balance sheet (Vietnam VAS, Form B 01 - DN)",
+    "ru": "Бухгалтерский баланс (Вьетнам, VAS, форма B 01 - DN)",
+    "uz": "Buxgalteriya balansi (Vyetnam, VAS, B 01 - DN shakli)",
+    "local": "Bảng cân đối kế toán (Mẫu số B 01 - DN)"
+   },
+   "lines": [
+    {
+     "code": "100",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Current assets",
+      "ru": "Краткосрочные активы",
+      "uz": "Qisqa muddatli aktivlar",
+      "local": "TÀI SẢN NGẮN HẠN"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "110",
+       "120",
+       "130",
+       "140",
+       "150"
+      ],
+      "minus": []
+     },
+     "check": "total_current_assets",
+     "note": null
+    },
+    {
+     "code": "110",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Cash and cash equivalents",
+      "ru": "Денежные средства и их эквиваленты",
+      "uz": "Pul mablag‘lari va ularning ekvivalentlari",
+      "local": "Tiền và các khoản tương đương tiền"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "111",
+       "112"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "111",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Cash",
+      "ru": "Денежные средства",
+      "uz": "Pul mablag‘lari",
+      "local": "Tiền"
+     },
+     "map": {
+      "column": "cash_and_equivalents",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "112",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Cash equivalents",
+      "ru": "Эквиваленты денежных средств",
+      "uz": "Pul mablag‘lari ekvivalentlari",
+      "local": "Các khoản tương đương tiền"
+     },
+     "map": {
+      "column": "cash_and_equivalents",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "120",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Short-term financial investments",
+      "ru": "Краткосрочные финансовые вложения",
+      "uz": "Qisqa muddatli moliyaviy investitsiyalar",
+      "local": "Đầu tư tài chính ngắn hạn"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "121",
+       "123"
+      ],
+      "minus": [
+       "122"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "121",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Trading securities",
+      "ru": "Торговые ценные бумаги",
+      "uz": "Savdo qimmatli qog‘ozlari",
+      "local": "Chứng khoán kinh doanh"
+     },
+     "map": {
+      "column": "short_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "122",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Provision for diminution in value of trading securities (*)",
+      "ru": "Резерв под обесценение торговых ценных бумаг (*)",
+      "uz": "Savdo qimmatli qog‘ozlari qadrsizlanishi bo‘yicha zaxira (*)",
+      "local": "Dự phòng giảm giá chứng khoán kinh doanh (*)"
+     },
+     "map": {
+      "column": "short_term_investments",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "shown in brackets (*) on the form; typed positive and deducted"
+    },
+    {
+     "code": "123",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Held-to-maturity investments",
+      "ru": "Вложения, удерживаемые до погашения",
+      "uz": "Muddati tugaguncha saqlanadigan investitsiyalar",
+      "local": "Đầu tư nắm giữ đến ngày đáo hạn"
+     },
+     "map": {
+      "column": "short_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "130",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Short-term receivables",
+      "ru": "Краткосрочная дебиторская задолженность",
+      "uz": "Qisqa muddatli debitorlik qarzlari",
+      "local": "Các khoản phải thu ngắn hạn"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "131",
+       "132",
+       "133",
+       "134",
+       "135",
+       "136",
+       "139"
+      ],
+      "minus": [
+       "137"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "131",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term trade receivables",
+      "ru": "Краткосрочная задолженность покупателей",
+      "uz": "Xaridorlarning qisqa muddatli qarzlari",
+      "local": "Phải thu ngắn hạn của khách hàng"
+     },
+     "map": {
+      "column": "trade_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "132",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term advances to suppliers",
+      "ru": "Краткосрочные авансы поставщикам",
+      "uz": "Mol yetkazib beruvchilarga qisqa muddatli bo‘naklar",
+      "local": "Trả trước cho người bán ngắn hạn"
+     },
+     "map": {
+      "column": "other_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "133",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term intra-company receivables",
+      "ru": "Краткосрочная внутрихозяйственная дебиторская задолженность",
+      "uz": "Qisqa muddatli ichki xo‘jalik debitorlik qarzlari",
+      "local": "Phải thu nội bộ ngắn hạn"
+     },
+     "map": {
+      "column": "other_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "134",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Receivables under construction contracts by progress billing",
+      "ru": "Задолженность по графику исполнения строительных контрактов",
+      "uz": "Qurilish shartnomalari reja-jadvali bo‘yicha debitorlik qarzlari",
+      "local": "Phải thu theo tiến độ kế hoạch hợp đồng xây dựng"
+     },
+     "map": {
+      "column": "trade_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "IFRS 15 contract asset / receivable from customers"
+    },
+    {
+     "code": "135",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term loans receivable",
+      "ru": "Краткосрочные выданные займы",
+      "uz": "Berilgan qisqa muddatli qarzlar",
+      "local": "Phải thu về cho vay ngắn hạn"
+     },
+     "map": {
+      "column": "other_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "136",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other short-term receivables",
+      "ru": "Прочая краткосрочная дебиторская задолженность",
+      "uz": "Boshqa qisqa muddatli debitorlik qarzlari",
+      "local": "Phải thu ngắn hạn khác"
+     },
+     "map": {
+      "column": "other_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "137",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Provision for doubtful short-term receivables (*)",
+      "ru": "Резерв по сомнительной краткосрочной задолженности (*)",
+      "uz": "Shubhali qisqa muddatli debitorlik qarzlari bo‘yicha zaxira (*)",
+      "local": "Dự phòng phải thu ngắn hạn khó đòi (*)"
+     },
+     "map": {
+      "column": "trade_receivables",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "shown in brackets (*) on the form; typed positive and deducted; deducted from trade receivables, where most doubtful debts sit"
+    },
+    {
+     "code": "139",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Shortages of assets awaiting resolution",
+      "ru": "Недостачи активов, ожидающие решения",
+      "uz": "Hal etilishini kutayotgan aktivlar kamomadi",
+      "local": "Tài sản thiếu chờ xử lý"
+     },
+     "map": {
+      "column": "other_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "140",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Inventories",
+      "ru": "Запасы",
+      "uz": "Tovar-moddiy zaxiralar",
+      "local": "Hàng tồn kho"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "141"
+      ],
+      "minus": [
+       "149"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "141",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Inventories (at cost)",
+      "ru": "Запасы (по себестоимости)",
+      "uz": "Tovar-moddiy zaxiralar (tannarx bo‘yicha)",
+      "local": "Hàng tồn kho"
+     },
+     "map": {
+      "column": "inventories",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "149",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Provision for decline in value of inventories (*)",
+      "ru": "Резерв под снижение стоимости запасов (*)",
+      "uz": "Tovar-moddiy zaxiralar qiymati pasayishi bo‘yicha zaxira (*)",
+      "local": "Dự phòng giảm giá hàng tồn kho (*)"
+     },
+     "map": {
+      "column": "inventories",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "shown in brackets (*) on the form; typed positive and deducted"
+    },
+    {
+     "code": "150",
+     "section": "assets_current",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Other current assets",
+      "ru": "Прочие краткосрочные активы",
+      "uz": "Boshqa qisqa muddatli aktivlar",
+      "local": "Tài sản ngắn hạn khác"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "151",
+       "152",
+       "153",
+       "154",
+       "155"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "151",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term prepaid expenses",
+      "ru": "Краткосрочные расходы будущих периодов",
+      "uz": "Qisqa muddatli kelgusi davr xarajatlari",
+      "local": "Chi phí trả trước ngắn hạn"
+     },
+     "map": {
+      "column": "other_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "152",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Deductible VAT",
+      "ru": "НДС к вычету",
+      "uz": "Hisobga olinadigan QQS",
+      "local": "Thuế GTGT được khấu trừ"
+     },
+     "map": {
+      "column": "other_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "tax receivable from the State"
+    },
+    {
+     "code": "153",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Taxes and other receivables from the State",
+      "ru": "Налоги и прочая задолженность государства",
+      "uz": "Davlatdan undiriladigan soliqlar va boshqa summalar",
+      "local": "Thuế và các khoản khác phải thu Nhà nước"
+     },
+     "map": {
+      "column": "other_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "154",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Government bond repurchase transactions",
+      "ru": "Операции обратного РЕПО с государственными облигациями",
+      "uz": "Davlat obligatsiyalari bo‘yicha REPO bitimlari",
+      "local": "Giao dịch mua bán lại trái phiếu Chính phủ"
+     },
+     "map": {
+      "column": "short_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "155",
+     "section": "assets_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other current assets",
+      "ru": "Прочие краткосрочные активы",
+      "uz": "Boshqa qisqa muddatli aktivlar",
+      "local": "Tài sản ngắn hạn khác"
+     },
+     "map": {
+      "column": "other_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "200",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Long-term assets",
+      "ru": "Долгосрочные активы",
+      "uz": "Uzoq muddatli aktivlar",
+      "local": "TÀI SẢN DÀI HẠN"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "210",
+       "220",
+       "230",
+       "240",
+       "250",
+       "260"
+      ],
+      "minus": []
+     },
+     "check": "total_non_current_assets",
+     "note": null
+    },
+    {
+     "code": "210",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Long-term receivables",
+      "ru": "Долгосрочная дебиторская задолженность",
+      "uz": "Uzoq muddatli debitorlik qarzlari",
+      "local": "Các khoản phải thu dài hạn"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "211",
+       "212",
+       "213",
+       "214",
+       "215",
+       "216"
+      ],
+      "minus": [
+       "219"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "211",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term trade receivables",
+      "ru": "Долгосрочная задолженность покупателей",
+      "uz": "Xaridorlarning uzoq muddatli qarzlari",
+      "local": "Phải thu dài hạn của khách hàng"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "212",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term advances to suppliers",
+      "ru": "Долгосрочные авансы поставщикам",
+      "uz": "Mol yetkazib beruvchilarga uzoq muddatli bo‘naklar",
+      "local": "Trả trước cho người bán dài hạn"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "213",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Working capital provided to dependent units",
+      "ru": "Оборотный капитал, переданный подведомственным подразделениям",
+      "uz": "Bo‘ysunuvchi bo‘linmalarga berilgan aylanma kapital",
+      "local": "Vốn kinh doanh ở đơn vị trực thuộc"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "intra-entity; nil in combined statements of the whole enterprise"
+    },
+    {
+     "code": "214",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term intra-company receivables",
+      "ru": "Долгосрочная внутрихозяйственная дебиторская задолженность",
+      "uz": "Uzoq muddatli ichki xo‘jalik debitorlik qarzlari",
+      "local": "Phải thu nội bộ dài hạn"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "215",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term loans receivable",
+      "ru": "Долгосрочные выданные займы",
+      "uz": "Berilgan uzoq muddatli qarzlar",
+      "local": "Phải thu về cho vay dài hạn"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "216",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other long-term receivables",
+      "ru": "Прочая долгосрочная дебиторская задолженность",
+      "uz": "Boshqa uzoq muddatli debitorlik qarzlari",
+      "local": "Phải thu dài hạn khác"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "219",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Provision for doubtful long-term receivables (*)",
+      "ru": "Резерв по сомнительной долгосрочной задолженности (*)",
+      "uz": "Shubhali uzoq muddatli debitorlik qarzlari bo‘yicha zaxira (*)",
+      "local": "Dự phòng phải thu dài hạn khó đòi (*)"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "shown in brackets (*) on the form; typed positive and deducted"
+    },
+    {
+     "code": "220",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Fixed assets",
+      "ru": "Основные средства и нематериальные активы",
+      "uz": "Asosiy vositalar va nomoddiy aktivlar",
+      "local": "Tài sản cố định"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "221",
+       "224",
+       "227"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "221",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Tangible fixed assets",
+      "ru": "Основные средства",
+      "uz": "Asosiy vositalar",
+      "local": "Tài sản cố định hữu hình"
+     },
+     "map": {
+      "column": "property_plant_equipment",
+      "sign": 1
+     },
+     "formula": {
+      "plus": [
+       "222"
+      ],
+      "minus": [
+       "223"
+      ]
+     },
+     "check": null,
+     "note": "net book value = cost (222) less accumulated depreciation (223)"
+    },
+    {
+     "code": "222",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Cost",
+      "ru": "Первоначальная стоимость",
+      "uz": "Boshlang‘ich qiymati",
+      "local": "Nguyên giá"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "gross cost; the net book value above is mapped"
+    },
+    {
+     "code": "223",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Accumulated depreciation (*)",
+      "ru": "Накопленная амортизация (*)",
+      "uz": "To‘plangan eskirish (*)",
+      "local": "Giá trị hao mòn lũy kế (*)"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "accumulated depreciation, shown in brackets on the form and typed positive; the net book value above is mapped"
+    },
+    {
+     "code": "224",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Finance-leased fixed assets",
+      "ru": "Основные средства, полученные в финансовую аренду",
+      "uz": "Moliyaviy ijaraga olingan asosiy vositalar",
+      "local": "Tài sản cố định thuê tài chính"
+     },
+     "map": {
+      "column": "property_plant_equipment",
+      "sign": 1
+     },
+     "formula": {
+      "plus": [
+       "225"
+      ],
+      "minus": [
+       "226"
+      ]
+     },
+     "check": null,
+     "note": "net book value; leased assets shown with PP&E (IFRS 16 right-of-use)"
+    },
+    {
+     "code": "225",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Cost",
+      "ru": "Первоначальная стоимость",
+      "uz": "Boshlang‘ich qiymati",
+      "local": "Nguyên giá"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "gross cost; the net book value above is mapped"
+    },
+    {
+     "code": "226",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Accumulated depreciation (*)",
+      "ru": "Накопленная амортизация (*)",
+      "uz": "To‘plangan eskirish (*)",
+      "local": "Giá trị hao mòn lũy kế (*)"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "accumulated depreciation, shown in brackets on the form and typed positive; the net book value above is mapped"
+    },
+    {
+     "code": "227",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Intangible fixed assets",
+      "ru": "Нематериальные активы",
+      "uz": "Nomoddiy aktivlar",
+      "local": "Tài sản cố định vô hình"
+     },
+     "map": {
+      "column": "intangible_assets",
+      "sign": 1
+     },
+     "formula": {
+      "plus": [
+       "228"
+      ],
+      "minus": [
+       "229"
+      ]
+     },
+     "check": null,
+     "note": "net book value = cost (228) less accumulated amortisation (229)"
+    },
+    {
+     "code": "228",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Cost",
+      "ru": "Первоначальная стоимость",
+      "uz": "Boshlang‘ich qiymati",
+      "local": "Nguyên giá"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "gross cost; the net book value above is mapped"
+    },
+    {
+     "code": "229",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Accumulated depreciation (*)",
+      "ru": "Накопленная амортизация (*)",
+      "uz": "To‘plangan eskirish (*)",
+      "local": "Giá trị hao mòn lũy kế (*)"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "accumulated depreciation, shown in brackets on the form and typed positive; the net book value above is mapped"
+    },
+    {
+     "code": "230",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Investment property",
+      "ru": "Инвестиционная недвижимость",
+      "uz": "Investitsiya ko‘chmas mulki",
+      "local": "Bất động sản đầu tư"
+     },
+     "map": {
+      "column": "investment_property",
+      "sign": 1
+     },
+     "formula": {
+      "plus": [
+       "231"
+      ],
+      "minus": [
+       "232"
+      ]
+     },
+     "check": null,
+     "note": "net book value = cost (231) less accumulated depreciation (232)"
+    },
+    {
+     "code": "231",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Cost",
+      "ru": "Первоначальная стоимость",
+      "uz": "Boshlang‘ich qiymati",
+      "local": "Nguyên giá"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "gross cost; the net book value above is mapped"
+    },
+    {
+     "code": "232",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Accumulated depreciation (*)",
+      "ru": "Накопленная амортизация (*)",
+      "uz": "To‘plangan eskirish (*)",
+      "local": "Giá trị hao mòn lũy kế (*)"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "accumulated depreciation, shown in brackets on the form and typed positive; the net book value above is mapped"
+    },
+    {
+     "code": "240",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Long-term assets in progress",
+      "ru": "Долгосрочные незавершённые активы",
+      "uz": "Uzoq muddatli tugallanmagan aktivlar",
+      "local": "Tài sản dở dang dài hạn"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "241",
+       "242"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "241",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term work in progress",
+      "ru": "Долгосрочное незавершённое производство",
+      "uz": "Uzoq muddatli tugallanmagan ishlab chiqarish",
+      "local": "Chi phí sản xuất, kinh doanh dở dang dài hạn"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "production cost in progress beyond 12 months (e.g. property development); IFRS would show it in inventories, kept non-current so that line 200 reconciles"
+    },
+    {
+     "code": "242",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Construction in progress",
+      "ru": "Незавершённое капитальное строительство",
+      "uz": "Tugallanmagan kapital qurilish",
+      "local": "Chi phí xây dựng cơ bản dở dang"
+     },
+     "map": {
+      "column": "property_plant_equipment",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "assets under construction (IAS 16)"
+    },
+    {
+     "code": "250",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Long-term financial investments",
+      "ru": "Долгосрочные финансовые вложения",
+      "uz": "Uzoq muddatli moliyaviy investitsiyalar",
+      "local": "Đầu tư tài chính dài hạn"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "251",
+       "252",
+       "253",
+       "255"
+      ],
+      "minus": [
+       "254"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "251",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Investments in subsidiaries",
+      "ru": "Вложения в дочерние компании",
+      "uz": "Sho‘ba korxonalarga investitsiyalar",
+      "local": "Đầu tư vào công ty con"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "252",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Investments in joint ventures and associates",
+      "ru": "Вложения в совместные и ассоциированные компании",
+      "uz": "Qo‘shma va qaram korxonalarga investitsiyalar",
+      "local": "Đầu tư vào công ty liên doanh, liên kết"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "253",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Equity investments in other entities",
+      "ru": "Вложения в капитал других организаций",
+      "uz": "Boshqa tashkilotlar kapitaliga investitsiyalar",
+      "local": "Đầu tư góp vốn vào đơn vị khác"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "254",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Provision for long-term financial investments (*)",
+      "ru": "Резерв под обесценение долгосрочных финансовых вложений (*)",
+      "uz": "Uzoq muddatli moliyaviy investitsiyalar qadrsizlanishi bo‘yicha zaxira (*)",
+      "local": "Dự phòng đầu tư tài chính dài hạn (*)"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "shown in brackets (*) on the form; typed positive and deducted"
+    },
+    {
+     "code": "255",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Held-to-maturity investments (long-term)",
+      "ru": "Вложения, удерживаемые до погашения (долгосрочные)",
+      "uz": "Muddati tugaguncha saqlanadigan investitsiyalar (uzoq muddatli)",
+      "local": "Đầu tư nắm giữ đến ngày đáo hạn"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "260",
+     "section": "assets_long_term",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Other long-term assets",
+      "ru": "Прочие долгосрочные активы",
+      "uz": "Boshqa uzoq muddatli aktivlar",
+      "local": "Tài sản dài hạn khác"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "261",
+       "262",
+       "263",
+       "268"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "261",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term prepaid expenses",
+      "ru": "Долгосрочные расходы будущих периодов",
+      "uz": "Uzoq muddatli kelgusi davr xarajatlari",
+      "local": "Chi phí trả trước dài hạn"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "262",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Deferred income tax assets",
+      "ru": "Отложенные налоговые активы",
+      "uz": "Kechiktirilgan soliq aktivlari",
+      "local": "Tài sản thuế thu nhập hoãn lại"
+     },
+     "map": {
+      "column": "deferred_tax_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "263",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term equipment, supplies and spare parts",
+      "ru": "Долгосрочные запасные части, материалы и оборудование",
+      "uz": "Uzoq muddatli ehtiyot qismlar, materiallar va uskunalar",
+      "local": "Thiết bị, vật tư, phụ tùng thay thế dài hạn"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "268",
+     "section": "assets_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other long-term assets",
+      "ru": "Прочие долгосрочные активы",
+      "uz": "Boshqa uzoq muddatli aktivlar",
+      "local": "Tài sản dài hạn khác"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "270",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Total assets",
+      "ru": "Итого активы",
+      "uz": "Aktivlar jami",
+      "local": "TỔNG CỘNG TÀI SẢN"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "100",
+       "200"
+      ],
+      "minus": []
+     },
+     "check": "total_assets",
+     "note": null
+    },
+    {
+     "code": "300",
+     "section": "liabilities_current",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Liabilities",
+      "ru": "Обязательства",
+      "uz": "Majburiyatlar",
+      "local": "NỢ PHẢI TRẢ"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "310",
+       "330"
+      ],
+      "minus": []
+     },
+     "check": "total_liabilities",
+     "note": null
+    },
+    {
+     "code": "310",
+     "section": "liabilities_current",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Current liabilities",
+      "ru": "Краткосрочные обязательства",
+      "uz": "Qisqa muddatli majburiyatlar",
+      "local": "Nợ ngắn hạn"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "311",
+       "312",
+       "313",
+       "314",
+       "315",
+       "316",
+       "317",
+       "318",
+       "319",
+       "320",
+       "321",
+       "322",
+       "323",
+       "324"
+      ],
+      "minus": []
+     },
+     "check": "total_current_liabilities",
+     "note": null
+    },
+    {
+     "code": "311",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term trade payables",
+      "ru": "Краткосрочная задолженность поставщикам",
+      "uz": "Mol yetkazib beruvchilarga qisqa muddatli qarzlar",
+      "local": "Phải trả người bán ngắn hạn"
+     },
+     "map": {
+      "column": "trade_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "312",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term advances from customers",
+      "ru": "Краткосрочные авансы покупателей",
+      "uz": "Xaridorlardan olingan qisqa muddatli bo‘naklar",
+      "local": "Người mua trả tiền trước ngắn hạn"
+     },
+     "map": {
+      "column": "other_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "313",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Taxes and amounts payable to the State",
+      "ru": "Налоги и платежи в бюджет",
+      "uz": "Davlatga to‘lanadigan soliqlar va boshqa to‘lovlar",
+      "local": "Thuế và các khoản phải nộp Nhà nước"
+     },
+     "map": {
+      "column": "current_tax_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "all taxes payable (corporate income tax, VAT, personal income tax…); not split at form level"
+    },
+    {
+     "code": "314",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Payables to employees",
+      "ru": "Задолженность перед персоналом",
+      "uz": "Xodimlarga qarzlar",
+      "local": "Phải trả người lao động"
+     },
+     "map": {
+      "column": "other_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "315",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term accrued expenses",
+      "ru": "Краткосрочные начисленные расходы",
+      "uz": "Qisqa muddatli hisoblangan xarajatlar",
+      "local": "Chi phí phải trả ngắn hạn"
+     },
+     "map": {
+      "column": "other_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "316",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term intra-company payables",
+      "ru": "Краткосрочная внутрихозяйственная кредиторская задолженность",
+      "uz": "Qisqa muddatli ichki xo‘jalik kreditorlik qarzlari",
+      "local": "Phải trả nội bộ ngắn hạn"
+     },
+     "map": {
+      "column": "other_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "317",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Payables under construction contracts by progress billing",
+      "ru": "Задолженность по графику исполнения строительных контрактов",
+      "uz": "Qurilish shartnomalari reja-jadvali bo‘yicha kreditorlik qarzlari",
+      "local": "Phải trả theo tiến độ kế hoạch hợp đồng xây dựng"
+     },
+     "map": {
+      "column": "other_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "IFRS 15 contract liability"
+    },
+    {
+     "code": "318",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term unearned revenue",
+      "ru": "Краткосрочные доходы будущих периодов",
+      "uz": "Qisqa muddatli kelgusi davr daromadlari",
+      "local": "Doanh thu chưa thực hiện ngắn hạn"
+     },
+     "map": {
+      "column": "other_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "319",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other short-term payables",
+      "ru": "Прочая краткосрочная кредиторская задолженность",
+      "uz": "Boshqa qisqa muddatli kreditorlik qarzlari",
+      "local": "Phải trả ngắn hạn khác"
+     },
+     "map": {
+      "column": "other_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "320",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term borrowings and finance lease liabilities",
+      "ru": "Краткосрочные займы и обязательства по финансовой аренде",
+      "uz": "Qisqa muddatli kreditlar, qarzlar va moliyaviy ijara majburiyatlari",
+      "local": "Vay và nợ thuê tài chính ngắn hạn"
+     },
+     "map": {
+      "column": "short_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "321",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term provisions",
+      "ru": "Краткосрочные оценочные обязательства",
+      "uz": "Qisqa muddatli zaxiralar (baholangan majburiyatlar)",
+      "local": "Dự phòng phải trả ngắn hạn"
+     },
+     "map": {
+      "column": "short_term_provisions",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "322",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Bonus and welfare fund",
+      "ru": "Фонд поощрения и социального обеспечения",
+      "uz": "Rag‘batlantirish va ijtimoiy ta‘minot jamg‘armasi",
+      "local": "Quỹ khen thưởng, phúc lợi"
+     },
+     "map": {
+      "column": "other_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "appropriated from after-tax profit; a liability under VAS, kept in current liabilities so that line 310 reconciles"
+    },
+    {
+     "code": "323",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Price stabilisation fund",
+      "ru": "Фонд стабилизации цен",
+      "uz": "Narxlarni barqarorlashtirish jamg‘armasi",
+      "local": "Quỹ bình ổn giá"
+     },
+     "map": {
+      "column": "other_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "324",
+     "section": "liabilities_current",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Government bond repurchase transactions",
+      "ru": "Операции РЕПО с государственными облигациями",
+      "uz": "Davlat obligatsiyalari bo‘yicha REPO bitimlari",
+      "local": "Giao dịch mua bán lại trái phiếu Chính phủ"
+     },
+     "map": {
+      "column": "short_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "330",
+     "section": "liabilities_long_term",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Long-term liabilities",
+      "ru": "Долгосрочные обязательства",
+      "uz": "Uzoq muddatli majburiyatlar",
+      "local": "Nợ dài hạn"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "331",
+       "332",
+       "333",
+       "334",
+       "335",
+       "336",
+       "337",
+       "338",
+       "339",
+       "340",
+       "341",
+       "342",
+       "343"
+      ],
+      "minus": []
+     },
+     "check": "total_non_current_liabilities",
+     "note": null
+    },
+    {
+     "code": "331",
+     "section": "liabilities_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term trade payables",
+      "ru": "Долгосрочная задолженность поставщикам",
+      "uz": "Mol yetkazib beruvchilarga uzoq muddatli qarzlar",
+      "local": "Phải trả người bán dài hạn"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "332",
+     "section": "liabilities_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term advances from customers",
+      "ru": "Долгосрочные авансы покупателей",
+      "uz": "Xaridorlardan olingan uzoq muddatli bo‘naklar",
+      "local": "Người mua trả tiền trước dài hạn"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "333",
+     "section": "liabilities_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term accrued expenses",
+      "ru": "Долгосрочные начисленные расходы",
+      "uz": "Uzoq muddatli hisoblangan xarajatlar",
+      "local": "Chi phí phải trả dài hạn"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "334",
+     "section": "liabilities_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Intra-company payables for working capital",
+      "ru": "Внутрихозяйственная задолженность по оборотному капиталу",
+      "uz": "Aylanma kapital bo‘yicha ichki xo‘jalik qarzlari",
+      "local": "Phải trả nội bộ về vốn kinh doanh"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "intra-entity; nil in combined statements of the whole enterprise"
+    },
+    {
+     "code": "335",
+     "section": "liabilities_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term intra-company payables",
+      "ru": "Долгосрочная внутрихозяйственная кредиторская задолженность",
+      "uz": "Uzoq muddatli ichki xo‘jalik kreditorlik qarzlari",
+      "local": "Phải trả nội bộ dài hạn"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "336",
+     "section": "liabilities_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term unearned revenue",
+      "ru": "Долгосрочные доходы будущих периодов",
+      "uz": "Uzoq muddatli kelgusi davr daromadlari",
+      "local": "Doanh thu chưa thực hiện dài hạn"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "337",
+     "section": "liabilities_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other long-term payables",
+      "ru": "Прочая долгосрочная кредиторская задолженность",
+      "uz": "Boshqa uzoq muddatli kreditorlik qarzlari",
+      "local": "Phải trả dài hạn khác"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "338",
+     "section": "liabilities_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term borrowings and finance lease liabilities",
+      "ru": "Долгосрочные займы и обязательства по финансовой аренде",
+      "uz": "Uzoq muddatli kreditlar, qarzlar va moliyaviy ijara majburiyatlari",
+      "local": "Vay và nợ thuê tài chính dài hạn"
+     },
+     "map": {
+      "column": "long_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "339",
+     "section": "liabilities_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Convertible bonds",
+      "ru": "Конвертируемые облигации",
+      "uz": "Konvertatsiya qilinadigan obligatsiyalar",
+      "local": "Trái phiếu chuyển đổi"
+     },
+     "map": {
+      "column": "long_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "liability component; the conversion option is in equity (413)"
+    },
+    {
+     "code": "340",
+     "section": "liabilities_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Preference shares (classified as liabilities)",
+      "ru": "Привилегированные акции (классифицированные как обязательства)",
+      "uz": "Imtiyozli aksiyalar (majburiyat sifatida tasniflangan)",
+      "local": "Cổ phiếu ưu đãi"
+     },
+     "map": {
+      "column": "long_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "mandatorily redeemable preference shares; debt-like"
+    },
+    {
+     "code": "341",
+     "section": "liabilities_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Deferred income tax liabilities",
+      "ru": "Отложенные налоговые обязательства",
+      "uz": "Kechiktirilgan soliq majburiyatlari",
+      "local": "Thuế thu nhập hoãn lại phải trả"
+     },
+     "map": {
+      "column": "deferred_tax_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "342",
+     "section": "liabilities_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term provisions",
+      "ru": "Долгосрочные оценочные обязательства",
+      "uz": "Uzoq muddatli zaxiralar (baholangan majburiyatlar)",
+      "local": "Dự phòng phải trả dài hạn"
+     },
+     "map": {
+      "column": "long_term_provisions",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "343",
+     "section": "liabilities_long_term",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Science and technology development fund",
+      "ru": "Фонд развития науки и технологий",
+      "uz": "Fan va texnologiyalarni rivojlantirish jamg‘armasi",
+      "local": "Quỹ phát triển khoa học và công nghệ"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "set aside from pre-tax income; a liability under VAS, kept in long-term liabilities so that line 330 reconciles"
+    },
+    {
+     "code": "400",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Owners' equity",
+      "ru": "Собственный капитал",
+      "uz": "O‘z kapitali",
+      "local": "VỐN CHỦ SỞ HỮU"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "410",
+       "430"
+      ],
+      "minus": []
+     },
+     "check": "total_equity",
+     "note": null
+    },
+    {
+     "code": "410",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Owners' equity",
+      "ru": "Собственный капитал",
+      "uz": "O‘z kapitali",
+      "local": "Vốn chủ sở hữu"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "411",
+       "412",
+       "413",
+       "414",
+       "416",
+       "417",
+       "418",
+       "419",
+       "420",
+       "421",
+       "422"
+      ],
+      "minus": [
+       "415"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "411",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Owners' contributed capital",
+      "ru": "Вклады собственников в капитал",
+      "uz": "Mulkdorlarning kapitalga qo‘shgan hissalari",
+      "local": "Vốn góp của chủ sở hữu"
+     },
+     "map": {
+      "column": "share_capital",
+      "sign": 1
+     },
+     "formula": {
+      "plus": [
+       "411a",
+       "411b"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": "total mapped; 411a/411b breakdown is informational"
+    },
+    {
+     "code": "411a",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Ordinary shares with voting rights",
+      "ru": "Обыкновенные голосующие акции",
+      "uz": "Ovoz beruvchi oddiy aksiyalar",
+      "local": "Cổ phiếu phổ thông có quyền biểu quyết"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "breakdown of 411; informational, not mapped"
+    },
+    {
+     "code": "411b",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Preference shares",
+      "ru": "Привилегированные акции",
+      "uz": "Imtiyozli aksiyalar",
+      "local": "Cổ phiếu ưu đãi"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "breakdown of 411; informational, not mapped"
+    },
+    {
+     "code": "412",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Share premium",
+      "ru": "Эмиссионный доход",
+      "uz": "Aksiyalar emissiya daromadi",
+      "local": "Thặng dư vốn cổ phần"
+     },
+     "map": {
+      "column": "share_capital",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "share premium aggregated into share capital (paid-in capital), as in UZ NAS"
+    },
+    {
+     "code": "413",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Bond conversion options",
+      "ru": "Опционы на конвертацию облигаций",
+      "uz": "Obligatsiyalarni konvertatsiya qilish opsionlari",
+      "local": "Quyền chọn chuyển đổi trái phiếu"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "414",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other owners' capital",
+      "ru": "Прочий капитал собственников",
+      "uz": "Mulkdorlarning boshqa kapitali",
+      "local": "Vốn khác của chủ sở hữu"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "415",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Treasury shares (*)",
+      "ru": "Собственные выкупленные акции (*)",
+      "uz": "Sotib olingan xususiy aksiyalar (*)",
+      "local": "Cổ phiếu quỹ (*)"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "shown in brackets (*) on the form; typed positive and deducted"
+    },
+    {
+     "code": "416",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Asset revaluation differences",
+      "ru": "Разница от переоценки активов",
+      "uz": "Aktivlarni qayta baholash farqlari",
+      "local": "Chênh lệch đánh giá lại tài sản"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "signed"
+    },
+    {
+     "code": "417",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Foreign exchange differences",
+      "ru": "Курсовые разницы",
+      "uz": "Valyuta kursi farqlari",
+      "local": "Chênh lệch tỷ giá hối đoái"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "signed"
+    },
+    {
+     "code": "418",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Development investment fund",
+      "ru": "Фонд инвестиционного развития",
+      "uz": "Investitsion rivojlanish jamg‘armasi",
+      "local": "Quỹ đầu tư phát triển"
+     },
+     "map": {
+      "column": "retained_earnings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "appropriated from after-tax profit: earned capital, kept with retained earnings"
+    },
+    {
+     "code": "419",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Enterprise reorganisation support fund",
+      "ru": "Фонд поддержки реорганизации предприятий",
+      "uz": "Korxonalarni qayta tashkil etishni qo‘llab-quvvatlash jamg‘armasi",
+      "local": "Quỹ hỗ trợ sắp xếp doanh nghiệp"
+     },
+     "map": {
+      "column": "retained_earnings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "appropriated from after-tax profit (state-owned enterprises)"
+    },
+    {
+     "code": "420",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other funds within owners' equity",
+      "ru": "Прочие фонды собственного капитала",
+      "uz": "O‘z kapitalidagi boshqa jamg‘armalar",
+      "local": "Quỹ khác thuộc vốn chủ sở hữu"
+     },
+     "map": {
+      "column": "retained_earnings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "appropriated from after-tax profit"
+    },
+    {
+     "code": "421",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Undistributed profit after tax",
+      "ru": "Нераспределённая прибыль после налогообложения",
+      "uz": "Taqsimlanmagan sof foyda",
+      "local": "Lợi nhuận sau thuế chưa phân phối"
+     },
+     "map": {
+      "column": "retained_earnings",
+      "sign": 1
+     },
+     "formula": {
+      "plus": [
+       "421a",
+       "421b"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": "signed (a loss is shown in brackets and typed negative); total mapped, 421a/421b breakdown informational"
+    },
+    {
+     "code": "421a",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Undistributed profit accumulated to the end of the prior period",
+      "ru": "Нераспределённая прибыль, накопленная на конец предыдущего периода",
+      "uz": "O‘tgan davr oxirigacha to‘plangan taqsimlanmagan foyda",
+      "local": "LNST chưa phân phối lũy kế đến cuối kỳ trước"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "breakdown of 421; informational, not mapped"
+    },
+    {
+     "code": "421b",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Undistributed profit of the current period",
+      "ru": "Нераспределённая прибыль текущего периода",
+      "uz": "Joriy davrning taqsimlanmagan foydasi",
+      "local": "LNST chưa phân phối kỳ này"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "breakdown of 421; informational, not mapped"
+    },
+    {
+     "code": "422",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Capital construction investment fund",
+      "ru": "Источник финансирования капитального строительства",
+      "uz": "Kapital qurilishga investitsiyalar manbai",
+      "local": "Nguồn vốn đầu tư XDCB"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "430",
+     "section": "equity",
+     "indent": 1,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Funding sources and other funds",
+      "ru": "Источники финансирования и прочие фонды",
+      "uz": "Moliyalashtirish manbalari va boshqa jamg‘armalar",
+      "local": "Nguồn kinh phí và quỹ khác"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "431",
+       "432"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "431",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Funding sources",
+      "ru": "Источники финансирования",
+      "uz": "Moliyalashtirish manbalari",
+      "local": "Nguồn kinh phí"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "non-business (budget) funding"
+    },
+    {
+     "code": "432",
+     "section": "equity",
+     "indent": 2,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Funding sources used to acquire fixed assets",
+      "ru": "Источники финансирования, вложенные в основные средства",
+      "uz": "Asosiy vositalarni shakllantirgan moliyalashtirish manbalari",
+      "local": "Nguồn kinh phí đã hình thành TSCĐ"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "440",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Total liabilities and owners' equity",
+      "ru": "Итого пассивы",
+      "uz": "Passivlar jami",
+      "local": "TỔNG CỘNG NGUỒN VỐN"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "300",
+       "400"
+      ],
+      "minus": []
+     },
+     "check": "total_equity_and_liabilities",
+     "note": null
+    }
+   ]
+  },
+  {
+   "code": "VN_VAS_PL",
+   "form_kind": "income_statement",
+   "fidelity": "official_codes",
+   "local_language": "vi",
+   "name": {
+    "en": "Income statement (Vietnam VAS, Form B 02 - DN)",
+    "ru": "Отчёт о результатах деятельности (Вьетнам, VAS, форма B 02 - DN)",
+    "uz": "Faoliyat natijalari to‘g‘risidagi hisobot (Vyetnam, VAS, B 02 - DN shakli)",
+    "local": "Báo cáo kết quả hoạt động kinh doanh (Mẫu số B 02 - DN)"
+   },
+   "lines": [
+    {
+     "code": "01",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Revenue from sales of goods and rendering of services",
+      "ru": "Выручка от продажи товаров и оказания услуг",
+      "uz": "Tovarlarni sotish va xizmatlar ko‘rsatishdan tushum",
+      "local": "Doanh thu bán hàng và cung cấp dịch vụ"
+     },
+     "map": {
+      "column": "revenue",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "02",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Revenue deductions (−)",
+      "ru": "Вычеты из выручки (−)",
+      "uz": "Tushumdan chegirmalar (−)",
+      "local": "Các khoản giảm trừ doanh thu"
+     },
+     "map": {
+      "column": "revenue",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "trade discounts, sales allowances and returns; deducted so that net revenue (10) = IFRS revenue"
+    },
+    {
+     "code": "10",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Net revenue from sales of goods and rendering of services",
+      "ru": "Чистая выручка от продажи товаров и оказания услуг",
+      "uz": "Tovarlarni sotish va xizmatlar ko‘rsatishdan sof tushum",
+      "local": "Doanh thu thuần về bán hàng và cung cấp dịch vụ"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "01"
+      ],
+      "minus": [
+       "02"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "11",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Cost of goods sold",
+      "ru": "Себестоимость продаж",
+      "uz": "Sotilgan mahsulot tannarxi",
+      "local": "Giá vốn hàng bán"
+     },
+     "map": {
+      "column": "cost_of_sales",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "20",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Gross profit from sales of goods and rendering of services",
+      "ru": "Валовая прибыль от продажи товаров и оказания услуг",
+      "uz": "Tovarlarni sotish va xizmatlar ko‘rsatishdan yalpi foyda",
+      "local": "Lợi nhuận gộp về bán hàng và cung cấp dịch vụ"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "10"
+      ],
+      "minus": [
+       "11"
+      ]
+     },
+     "check": "gross_profit",
+     "note": null
+    },
+    {
+     "code": "21",
+     "section": "financial",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Financial income",
+      "ru": "Доходы от финансовой деятельности",
+      "uz": "Moliyaviy faoliyatdan daromadlar",
+      "local": "Doanh thu hoạt động tài chính"
+     },
+     "map": {
+      "column": "finance_income",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "interest, dividends, FX gains, gains on investments"
+    },
+    {
+     "code": "22",
+     "section": "financial",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Financial expenses",
+      "ru": "Финансовые расходы",
+      "uz": "Moliyaviy xarajatlar",
+      "local": "Chi phí tài chính"
+     },
+     "map": {
+      "column": "finance_costs",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "interest, FX losses, investment provisions and losses on investments"
+    },
+    {
+     "code": "23",
+     "section": "financial",
+     "indent": 1,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Of which: interest expense",
+      "ru": "В том числе: расходы на проценты",
+      "uz": "Shu jumladan: foiz xarajatlari",
+      "local": "Trong đó: Chi phí lãi vay"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "breakdown of 22; informational, not mapped"
+    },
+    {
+     "code": "25",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Selling expenses",
+      "ru": "Коммерческие расходы",
+      "uz": "Sotish xarajatlari",
+      "local": "Chi phí bán hàng"
+     },
+     "map": {
+      "column": "distribution_expenses",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "26",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "General and administrative expenses",
+      "ru": "Управленческие расходы",
+      "uz": "Ma‘muriy xarajatlar",
+      "local": "Chi phí quản lý doanh nghiệp"
+     },
+     "map": {
+      "column": "administrative_expenses",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "30",
+     "section": "result",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Net operating profit",
+      "ru": "Чистая прибыль от основной деятельности",
+      "uz": "Asosiy faoliyatdan sof foyda",
+      "local": "Lợi nhuận thuần từ hoạt động kinh doanh"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "20",
+       "21"
+      ],
+      "minus": [
+       "22",
+       "25",
+       "26"
+      ]
+     },
+     "check": null,
+     "note": "30 = 20 + (21 − 22) − (25 + 26): includes the financial result, so it is not IFRS operating profit and is not cross-checked"
+    },
+    {
+     "code": "31",
+     "section": "result",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other income",
+      "ru": "Прочие доходы",
+      "uz": "Boshqa daromadlar",
+      "local": "Thu nhập khác"
+     },
+     "map": {
+      "column": "other_non_operating",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "gains on disposal of fixed assets, penalties received, etc."
+    },
+    {
+     "code": "32",
+     "section": "result",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Other expenses",
+      "ru": "Прочие расходы",
+      "uz": "Boshqa xarajatlar",
+      "local": "Chi phí khác"
+     },
+     "map": {
+      "column": "other_non_operating",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "typed positive; deducted from non-operating result"
+    },
+    {
+     "code": "40",
+     "section": "result",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Other profit",
+      "ru": "Прочая прибыль",
+      "uz": "Boshqa foyda",
+      "local": "Lợi nhuận khác"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "31"
+      ],
+      "minus": [
+       "32"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "50",
+     "section": "result",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Total accounting profit before tax",
+      "ru": "Общая бухгалтерская прибыль до налогообложения",
+      "uz": "Soliq to‘lagunga qadar umumiy buxgalteriya foydasi",
+      "local": "Tổng lợi nhuận kế toán trước thuế"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "30",
+       "40"
+      ],
+      "minus": []
+     },
+     "check": "profit_before_tax",
+     "note": null
+    },
+    {
+     "code": "51",
+     "section": "result",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Current corporate income tax expense",
+      "ru": "Расход по текущему налогу на прибыль",
+      "uz": "Joriy foyda solig‘i xarajati",
+      "local": "Chi phí thuế TNDN hiện hành"
+     },
+     "map": {
+      "column": "income_tax",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "52",
+     "section": "result",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Deferred corporate income tax expense",
+      "ru": "Расход по отложенному налогу на прибыль",
+      "uz": "Kechiktirilgan foyda solig‘i xarajati",
+      "local": "Chi phí thuế TNDN hoãn lại"
+     },
+     "map": {
+      "column": "income_tax",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "expense typed positive; a deferred tax benefit is typed negative"
+    },
+    {
+     "code": "60",
+     "section": "result",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Profit after corporate income tax",
+      "ru": "Прибыль после налогообложения",
+      "uz": "Foyda solig‘idan keyingi foyda",
+      "local": "Lợi nhuận sau thuế thu nhập doanh nghiệp"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "50"
+      ],
+      "minus": [
+       "51",
+       "52"
+      ]
+     },
+     "check": "net_profit",
+     "note": null
+    },
+    {
+     "code": "70",
+     "section": "result",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Basic earnings per share",
+      "ru": "Базовая прибыль на акцию",
+      "uz": "Bir aksiyaga to‘g‘ri keladigan asosiy foyda",
+      "local": "Lãi cơ bản trên cổ phiếu"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "per-share memo (joint-stock companies only); not an amount, not mapped"
+    },
+    {
+     "code": "71",
+     "section": "result",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Diluted earnings per share",
+      "ru": "Разводнённая прибыль на акцию",
+      "uz": "Bir aksiyaga to‘g‘ri keladigan suyultirilgan foyda",
+      "local": "Lãi suy giảm trên cổ phiếu"
+     },
+     "map": null,
+     "formula": null,
+     "check": null,
+     "note": "per-share memo (joint-stock companies only); not an amount, not mapped"
+    }
+   ]
+  }
+ ]
+}

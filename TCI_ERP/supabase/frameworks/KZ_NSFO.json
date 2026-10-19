@@ -1,0 +1,1703 @@
+{
+ "framework": {
+  "code": "KZ_NSFO",
+  "kind": "ifrs_based",
+  "short": {
+   "en": "KZ IFRS",
+   "ru": "МСФО РК",
+   "uz": "QR MHXS"
+  },
+  "name": {
+   "en": "Kazakhstan statutory financial statements (IFRS-based forms)",
+   "ru": "Финансовая отчётность Республики Казахстан (формы на основе МСФО)",
+   "uz": "Qozog‘iston Respublikasi moliyaviy hisoboti (MHXS asosidagi shakllar)"
+  },
+  "legal_basis": "Приказ Министра финансов Республики Казахстан от 28.06.2017 № 404 «Об утверждении перечня и форм годовой финансовой отчетности для публикации организациями публичного интереса (кроме финансовых организаций)»",
+  "countries": [
+   "KZ"
+  ]
+ },
+ "templates": [
+  {
+   "code": "KZ_NSFO_BS",
+   "form_kind": "balance_sheet",
+   "fidelity": "official_codes",
+   "local_language": "ru",
+   "name": {
+    "en": "Balance sheet (Kazakhstan, Order No. 404)",
+    "ru": "Бухгалтерский баланс (Приказ МФ РК № 404)",
+    "uz": "Buxgalteriya balansi (QR MV 404-son buyrug‘i)",
+    "local": "Бухгалтерский баланс"
+   },
+   "lines": [
+    {
+     "code": "010",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Cash and cash equivalents",
+      "ru": "Денежные средства и их эквиваленты",
+      "uz": "Pul mablag‘lari va ularning ekvivalentlari",
+      "local": "Денежные средства и их эквиваленты"
+     },
+     "map": {
+      "column": "cash_and_equivalents",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "011",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Financial assets measured at amortised cost",
+      "ru": "Финансовые активы, оцениваемые по амортизированной стоимости",
+      "uz": "Amortizatsiyalangan qiymatda baholanadigan moliyaviy aktivlar",
+      "local": "Финансовые активы, оцениваемые по амортизированной стоимости"
+     },
+     "map": {
+      "column": "short_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "IFRS 9 caption; the 2017 original edition listed IAS 39 categories here; code to be verified"
+    },
+    {
+     "code": "012",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Financial assets at fair value through other comprehensive income",
+      "ru": "Финансовые активы, оцениваемые по справедливой стоимости через прочий совокупный доход",
+      "uz": "Boshqa yalpi daromad orqali adolatli qiymatda baholanadigan moliyaviy aktivlar",
+      "local": "Финансовые активы, оцениваемые по справедливой стоимости через прочий совокупный доход"
+     },
+     "map": {
+      "column": "short_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "013",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Financial assets at fair value through profit or loss",
+      "ru": "Финансовые активы, оцениваемые по справедливой стоимости через прибыли или убытки",
+      "uz": "Foyda yoki zarar orqali adolatli qiymatda baholanadigan moliyaviy aktivlar",
+      "local": "Финансовые активы, оцениваемые по справедливой стоимости через прибыли или убытки"
+     },
+     "map": {
+      "column": "short_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "014",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Derivative financial instruments",
+      "ru": "Производные финансовые инструменты",
+      "uz": "Hosila moliyaviy instrumentlar",
+      "local": "Производные финансовые инструменты"
+     },
+     "map": {
+      "column": "short_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "015",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other short-term financial assets",
+      "ru": "Прочие краткосрочные финансовые активы",
+      "uz": "Boshqa qisqa muddatli moliyaviy aktivlar",
+      "local": "Прочие краткосрочные финансовые активы"
+     },
+     "map": {
+      "column": "short_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "016",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term trade and other receivables",
+      "ru": "Краткосрочная торговая и прочая дебиторская задолженность",
+      "uz": "Qisqa muddatli savdo va boshqa debitorlik qarzlari",
+      "local": "Краткосрочная торговая и прочая дебиторская задолженность"
+     },
+     "map": {
+      "column": "trade_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "the form combines trade and other receivables; the whole line is mapped to trade receivables"
+    },
+    {
+     "code": "017",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Current income tax",
+      "ru": "Текущий подоходный налог",
+      "uz": "Joriy daromad solig‘i",
+      "local": "Текущий подоходный налог"
+     },
+     "map": {
+      "column": "other_receivables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "corporate income tax prepaid / recoverable; code to be verified"
+    },
+    {
+     "code": "018",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Inventories",
+      "ru": "Запасы",
+      "uz": "Tovar-moddiy zaxiralar",
+      "local": "Запасы"
+     },
+     "map": {
+      "column": "inventories",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "019",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Biological assets (current)",
+      "ru": "Биологические активы",
+      "uz": "Biologik aktivlar (qisqa muddatli)",
+      "local": "Биологические активы"
+     },
+     "map": {
+      "column": "other_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "020",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other short-term assets",
+      "ru": "Прочие краткосрочные активы",
+      "uz": "Boshqa qisqa muddatli aktivlar",
+      "local": "Прочие краткосрочные активы"
+     },
+     "map": {
+      "column": "other_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "100",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Total short-term assets",
+      "ru": "Итого краткосрочных активов",
+      "uz": "Qisqa muddatli aktivlar jami",
+      "local": "Итого краткосрочных активов"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "010",
+       "011",
+       "012",
+       "013",
+       "014",
+       "015",
+       "016",
+       "017",
+       "018",
+       "019",
+       "020"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": "not cross-checked: IFRS current assets also include 101 (assets held for sale), which the form shows outside this total"
+    },
+    {
+     "code": "101",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Assets (or disposal groups) held for sale",
+      "ru": "Активы (или выбывающие группы), предназначенные для продажи",
+      "uz": "Sotish uchun mo‘ljallangan aktivlar (yoki chiqib ketuvchi guruhlar)",
+      "local": "Активы (или выбывающие группы), предназначенные для продажи"
+     },
+     "map": {
+      "column": "other_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "IFRS 5; presented within current assets"
+    },
+    {
+     "code": "110",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Financial assets measured at amortised cost (long-term)",
+      "ru": "Финансовые активы, оцениваемые по амортизированной стоимости",
+      "uz": "Amortizatsiyalangan qiymatda baholanadigan moliyaviy aktivlar (uzoq muddatli)",
+      "local": "Финансовые активы, оцениваемые по амортизированной стоимости"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "111",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Financial assets at fair value through other comprehensive income (long-term)",
+      "ru": "Финансовые активы, оцениваемые по справедливой стоимости через прочий совокупный доход",
+      "uz": "Boshqa yalpi daromad orqali adolatli qiymatda baholanadigan moliyaviy aktivlar (uzoq muddatli)",
+      "local": "Финансовые активы, оцениваемые по справедливой стоимости через прочий совокупный доход"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "112",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Financial assets at fair value through profit or loss (long-term)",
+      "ru": "Финансовые активы, оцениваемые по справедливой стоимости через прибыли или убытки",
+      "uz": "Foyda yoki zarar orqali adolatli qiymatda baholanadigan moliyaviy aktivlar (uzoq muddatli)",
+      "local": "Финансовые активы, оцениваемые по справедливой стоимости через прибыли или убытки"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "113",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Derivative financial instruments (long-term)",
+      "ru": "Производные финансовые инструменты",
+      "uz": "Hosila moliyaviy instrumentlar (uzoq muddatli)",
+      "local": "Производные финансовые инструменты"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "114",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Investments accounted for using the equity method",
+      "ru": "Инвестиции, учитываемые методом долевого участия",
+      "uz": "Ulushli ishtirok usulida hisobga olinadigan investitsiyalar",
+      "local": "Инвестиции, учитываемые методом долевого участия"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "115",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other long-term financial assets",
+      "ru": "Прочие долгосрочные финансовые активы",
+      "uz": "Boshqa uzoq muddatli moliyaviy aktivlar",
+      "local": "Прочие долгосрочные финансовые активы"
+     },
+     "map": {
+      "column": "long_term_investments",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "116",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term trade and other receivables",
+      "ru": "Долгосрочная торговая и прочая дебиторская задолженность",
+      "uz": "Uzoq muddatli savdo va boshqa debitorlik qarzlari",
+      "local": "Долгосрочная торговая и прочая дебиторская задолженность"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "117",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Investment property",
+      "ru": "Инвестиционное имущество",
+      "uz": "Investitsiya mulki",
+      "local": "Инвестиционное имущество"
+     },
+     "map": {
+      "column": "investment_property",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "118",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Property, plant and equipment",
+      "ru": "Основные средства",
+      "uz": "Asosiy vositalar",
+      "local": "Основные средства"
+     },
+     "map": {
+      "column": "property_plant_equipment",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "119",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Right-of-use asset",
+      "ru": "Актив в форме права пользования",
+      "uz": "Foydalanish huquqi shaklidagi aktiv",
+      "local": "Актив в форме права пользования"
+     },
+     "map": {
+      "column": "property_plant_equipment",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "IFRS 16 line added by a later amendment; right-of-use assets presented with PP&E; code to be verified"
+    },
+    {
+     "code": "120",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Biological assets (long-term)",
+      "ru": "Биологические активы",
+      "uz": "Biologik aktivlar (uzoq muddatli)",
+      "local": "Биологические активы"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "121",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Exploration and evaluation assets",
+      "ru": "Разведочные и оценочные активы",
+      "uz": "Qidiruv va baholash aktivlari",
+      "local": "Разведочные и оценочные активы"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "IFRS 6; the form does not split tangible and intangible E&E assets; code to be verified"
+    },
+    {
+     "code": "122",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Intangible assets",
+      "ru": "Нематериальные активы",
+      "uz": "Nomoddiy aktivlar",
+      "local": "Нематериальные активы"
+     },
+     "map": {
+      "column": "intangible_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "includes goodwill where the entity reports any; code to be verified"
+    },
+    {
+     "code": "123",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Deferred tax assets",
+      "ru": "Отложенные налоговые активы",
+      "uz": "Kechiktirilgan soliq aktivlari",
+      "local": "Отложенные налоговые активы"
+     },
+     "map": {
+      "column": "deferred_tax_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "124",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other long-term assets",
+      "ru": "Прочие долгосрочные активы",
+      "uz": "Boshqa uzoq muddatli aktivlar",
+      "local": "Прочие долгосрочные активы"
+     },
+     "map": {
+      "column": "other_non_current_assets",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "200",
+     "section": "assets_long_term",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Total long-term assets",
+      "ru": "Итого долгосрочных активов",
+      "uz": "Uzoq muddatli aktivlar jami",
+      "local": "Итого долгосрочных активов"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "110",
+       "111",
+       "112",
+       "113",
+       "114",
+       "115",
+       "116",
+       "117",
+       "118",
+       "119",
+       "120",
+       "121",
+       "122",
+       "123",
+       "124"
+      ],
+      "minus": []
+     },
+     "check": "total_non_current_assets",
+     "note": null
+    },
+    {
+     "code": "BAL_A",
+     "section": "assets_current",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Balance (total assets)",
+      "ru": "Баланс",
+      "uz": "Balans (aktivlar jami)",
+      "local": "Баланс"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "100",
+       "101",
+       "200"
+      ],
+      "minus": []
+     },
+     "check": "total_assets",
+     "note": "printed on the form without a line code (line 100 + line 101 + line 200); code assigned by this template"
+    },
+    {
+     "code": "210",
+     "section": "liabilities_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Financial liabilities measured at amortised cost",
+      "ru": "Финансовые обязательства, оцениваемые по амортизированной стоимости",
+      "uz": "Amortizatsiyalangan qiymatda baholanadigan moliyaviy majburiyatlar",
+      "local": "Финансовые обязательства, оцениваемые по амортизированной стоимости"
+     },
+     "map": {
+      "column": "short_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "mainly bank loans, bonds and other borrowings"
+    },
+    {
+     "code": "211",
+     "section": "liabilities_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Financial liabilities at fair value through profit or loss",
+      "ru": "Финансовые обязательства, оцениваемые по справедливой стоимости через прибыли или убытки",
+      "uz": "Foyda yoki zarar orqali adolatli qiymatda baholanadigan moliyaviy majburiyatlar",
+      "local": "Финансовые обязательства, оцениваемые по справедливой стоимости через прибыли или убытки"
+     },
+     "map": {
+      "column": "other_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "212",
+     "section": "liabilities_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Derivative financial instruments",
+      "ru": "Производные финансовые инструменты",
+      "uz": "Hosila moliyaviy instrumentlar",
+      "local": "Производные финансовые инструменты"
+     },
+     "map": {
+      "column": "other_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "213",
+     "section": "liabilities_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other short-term financial liabilities",
+      "ru": "Прочие краткосрочные финансовые обязательства",
+      "uz": "Boshqa qisqa muddatli moliyaviy majburiyatlar",
+      "local": "Прочие краткосрочные финансовые обязательства"
+     },
+     "map": {
+      "column": "short_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "typically loans from related parties, lease liabilities and other debt"
+    },
+    {
+     "code": "214",
+     "section": "liabilities_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term trade and other payables",
+      "ru": "Краткосрочная торговая и прочая кредиторская задолженность",
+      "uz": "Qisqa muddatli savdo va boshqa kreditorlik qarzlari",
+      "local": "Краткосрочная торговая и прочая кредиторская задолженность"
+     },
+     "map": {
+      "column": "trade_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "the form combines trade and other payables; the whole line is mapped to trade payables"
+    },
+    {
+     "code": "215",
+     "section": "liabilities_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Short-term provisions",
+      "ru": "Краткосрочные резервы",
+      "uz": "Qisqa muddatli zaxiralar",
+      "local": "Краткосрочные резервы"
+     },
+     "map": {
+      "column": "short_term_provisions",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "216",
+     "section": "liabilities_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Current income tax liabilities",
+      "ru": "Текущие налоговые обязательства по подоходному налогу",
+      "uz": "Daromad solig‘i bo‘yicha joriy soliq majburiyatlari",
+      "local": "Текущие налоговые обязательства по подоходному налогу"
+     },
+     "map": {
+      "column": "current_tax_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "217",
+     "section": "liabilities_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Employee benefits",
+      "ru": "Вознаграждения работникам",
+      "uz": "Xodimlarga beriladigan mukofotlar",
+      "local": "Вознаграждения работникам"
+     },
+     "map": {
+      "column": "other_payables",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "218",
+     "section": "liabilities_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other short-term liabilities",
+      "ru": "Прочие краткосрочные обязательства",
+      "uz": "Boshqa qisqa muddatli majburiyatlar",
+      "local": "Прочие краткосрочные обязательства"
+     },
+     "map": {
+      "column": "other_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "includes advances received (contract liabilities), other taxes and government grants unless shown separately; code to be verified"
+    },
+    {
+     "code": "300",
+     "section": "liabilities_current",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Total short-term liabilities",
+      "ru": "Итого краткосрочных обязательств",
+      "uz": "Qisqa muddatli majburiyatlar jami",
+      "local": "Итого краткосрочных обязательств"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "210",
+       "211",
+       "212",
+       "213",
+       "214",
+       "215",
+       "216",
+       "217",
+       "218"
+      ],
+      "minus": []
+     },
+     "check": null,
+     "note": "not cross-checked: IFRS current liabilities also include 301, which the form shows outside this total"
+    },
+    {
+     "code": "301",
+     "section": "liabilities_current",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Liabilities of disposal groups held for sale",
+      "ru": "Обязательства выбывающих групп, предназначенных для продажи",
+      "uz": "Sotish uchun mo‘ljallangan chiqib ketuvchi guruhlarning majburiyatlari",
+      "local": "Обязательства выбывающих групп, предназначенных для продажи"
+     },
+     "map": {
+      "column": "other_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "310",
+     "section": "liabilities_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Financial liabilities measured at amortised cost (long-term)",
+      "ru": "Финансовые обязательства, оцениваемые по амортизированной стоимости",
+      "uz": "Amortizatsiyalangan qiymatda baholanadigan moliyaviy majburiyatlar (uzoq muddatli)",
+      "local": "Финансовые обязательства, оцениваемые по амортизированной стоимости"
+     },
+     "map": {
+      "column": "long_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "mainly bank loans, bonds and other borrowings"
+    },
+    {
+     "code": "311",
+     "section": "liabilities_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Financial liabilities at fair value through profit or loss (long-term)",
+      "ru": "Финансовые обязательства, оцениваемые по справедливой стоимости через прибыли или убытки",
+      "uz": "Foyda yoki zarar orqali adolatli qiymatda baholanadigan moliyaviy majburiyatlar (uzoq muddatli)",
+      "local": "Финансовые обязательства, оцениваемые по справедливой стоимости через прибыли или убытки"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "312",
+     "section": "liabilities_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Derivative financial instruments (long-term)",
+      "ru": "Производные финансовые инструменты",
+      "uz": "Hosila moliyaviy instrumentlar (uzoq muddatli)",
+      "local": "Производные финансовые инструменты"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "313",
+     "section": "liabilities_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other long-term financial liabilities",
+      "ru": "Прочие долгосрочные финансовые обязательства",
+      "uz": "Boshqa uzoq muddatli moliyaviy majburiyatlar",
+      "local": "Прочие долгосрочные финансовые обязательства"
+     },
+     "map": {
+      "column": "long_term_borrowings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "typically loans from related parties, lease liabilities and other debt"
+    },
+    {
+     "code": "314",
+     "section": "liabilities_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term trade and other payables",
+      "ru": "Долгосрочная торговая и прочая кредиторская задолженность",
+      "uz": "Uzoq muddatli savdo va boshqa kreditorlik qarzlari",
+      "local": "Долгосрочная торговая и прочая кредиторская задолженность"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "315",
+     "section": "liabilities_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Long-term provisions",
+      "ru": "Долгосрочные резервы",
+      "uz": "Uzoq muddatli zaxiralar",
+      "local": "Долгосрочные резервы"
+     },
+     "map": {
+      "column": "long_term_provisions",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "316",
+     "section": "liabilities_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Deferred tax liabilities",
+      "ru": "Отложенные налоговые обязательства",
+      "uz": "Kechiktirilgan soliq majburiyatlari",
+      "local": "Отложенные налоговые обязательства"
+     },
+     "map": {
+      "column": "deferred_tax_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "317",
+     "section": "liabilities_long_term",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other long-term liabilities",
+      "ru": "Прочие долгосрочные обязательства",
+      "uz": "Boshqa uzoq muddatli majburiyatlar",
+      "local": "Прочие долгосрочные обязательства"
+     },
+     "map": {
+      "column": "other_non_current_liabilities",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "400",
+     "section": "liabilities_long_term",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Total long-term liabilities",
+      "ru": "Итого долгосрочных обязательств",
+      "uz": "Uzoq muddatli majburiyatlar jami",
+      "local": "Итого долгосрочных обязательств"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "310",
+       "311",
+       "312",
+       "313",
+       "314",
+       "315",
+       "316",
+       "317"
+      ],
+      "minus": []
+     },
+     "check": "total_non_current_liabilities",
+     "note": null
+    },
+    {
+     "code": "410",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Share capital",
+      "ru": "Уставный (акционерный) капитал",
+      "uz": "Ustav (aksiyadorlik) kapitali",
+      "local": "Уставный (акционерный) капитал"
+     },
+     "map": {
+      "column": "share_capital",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "411",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Share premium",
+      "ru": "Эмиссионный доход",
+      "uz": "Emissiya daromadi",
+      "local": "Эмиссионный доход"
+     },
+     "map": {
+      "column": "share_capital",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "share premium is contributed capital; aggregated into share capital"
+    },
+    {
+     "code": "412",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Treasury equity instruments repurchased",
+      "ru": "Выкупленные собственные долевые инструменты",
+      "uz": "Sotib olingan xususiy ulush instrumentlari",
+      "local": "Выкупленные собственные долевые инструменты"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "printed with a minus / in parentheses; type it positive. Treasury shares reduce equity"
+    },
+    {
+     "code": "413",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Components of other comprehensive income",
+      "ru": "Компоненты прочего совокупного дохода",
+      "uz": "Boshqa yalpi daromad tarkibiy qismlari",
+      "local": "Компоненты прочего совокупного дохода"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "revaluation, translation and other OCI reserves; signed"
+    },
+    {
+     "code": "414",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Retained earnings (uncovered loss)",
+      "ru": "Нераспределенная прибыль (непокрытый убыток)",
+      "uz": "Taqsimlanmagan foyda (qoplanmagan zarar)",
+      "local": "Нераспределенная прибыль (непокрытый убыток)"
+     },
+     "map": {
+      "column": "retained_earnings",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "signed: an uncovered loss is typed as a negative number"
+    },
+    {
+     "code": "415",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other capital",
+      "ru": "Прочий капитал",
+      "uz": "Boshqa kapital",
+      "local": "Прочий капитал"
+     },
+     "map": {
+      "column": "other_reserves",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "420",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Total equity attributable to owners of the parent",
+      "ru": "Итого капитал, относимый на собственников материнской организации",
+      "uz": "Bosh tashkilot egalariga tegishli kapital jami",
+      "local": "Итого капитал, относимый на собственников материнской организации"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "410",
+       "411",
+       "413",
+       "414",
+       "415"
+      ],
+      "minus": [
+       "412"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "421",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Non-controlling interests",
+      "ru": "Доля неконтролирующих собственников",
+      "uz": "Nazorat qilmaydigan egalar ulushi",
+      "local": "Доля неконтролирующих собственников"
+     },
+     "map": {
+      "column": "non_controlling_interests",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "signed; consolidated statements only"
+    },
+    {
+     "code": "500",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Total equity",
+      "ru": "Всего капитал",
+      "uz": "Kapital jami",
+      "local": "Всего капитал"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "420",
+       "421"
+      ],
+      "minus": []
+     },
+     "check": "total_equity",
+     "note": null
+    },
+    {
+     "code": "BAL_P",
+     "section": "equity",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Balance (total equity and liabilities)",
+      "ru": "Баланс",
+      "uz": "Balans (passivlar jami)",
+      "local": "Баланс"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "300",
+       "301",
+       "400",
+       "500"
+      ],
+      "minus": []
+     },
+     "check": "total_equity_and_liabilities",
+     "note": "printed on the form without a line code (line 300 + line 301 + line 400 + line 500); code assigned by this template"
+    }
+   ]
+  },
+  {
+   "code": "KZ_NSFO_PL",
+   "form_kind": "income_statement",
+   "fidelity": "official_codes",
+   "local_language": "ru",
+   "name": {
+    "en": "Profit and loss statement (Kazakhstan, Order No. 404)",
+    "ru": "Отчёт о прибылях и убытках (Приказ МФ РК № 404)",
+    "uz": "Foyda va zararlar to‘g‘risidagi hisobot (QR MV 404-son buyrug‘i)",
+    "local": "Отчет о прибылях и убытках"
+   },
+   "lines": [
+    {
+     "code": "010",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Revenue",
+      "ru": "Выручка",
+      "uz": "Tushum",
+      "local": "Выручка"
+     },
+     "map": {
+      "column": "revenue",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "011",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Cost of goods and services sold",
+      "ru": "Себестоимость реализованных товаров и услуг",
+      "uz": "Sotilgan tovarlar va xizmatlar tannarxi",
+      "local": "Себестоимость реализованных товаров и услуг"
+     },
+     "map": {
+      "column": "cost_of_sales",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "type it positive"
+    },
+    {
+     "code": "012",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Gross profit (loss)",
+      "ru": "Валовая прибыль (убыток)",
+      "uz": "Yalpi foyda (zarar)",
+      "local": "Валовая прибыль (убыток)"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "010"
+      ],
+      "minus": [
+       "011"
+      ]
+     },
+     "check": "gross_profit",
+     "note": null
+    },
+    {
+     "code": "013",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Selling expenses",
+      "ru": "Расходы по реализации",
+      "uz": "Sotish xarajatlari",
+      "local": "Расходы по реализации"
+     },
+     "map": {
+      "column": "distribution_expenses",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "type it positive"
+    },
+    {
+     "code": "014",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Administrative expenses",
+      "ru": "Административные расходы",
+      "uz": "Ma‘muriy xarajatlar",
+      "local": "Административные расходы"
+     },
+     "map": {
+      "column": "administrative_expenses",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "type it positive"
+    },
+    {
+     "code": "015",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Other expenses",
+      "ru": "Прочие расходы",
+      "uz": "Boshqa xarajatlar",
+      "local": "Прочие расходы"
+     },
+     "map": {
+      "column": "other_operating_expenses",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "type it positive; code to be verified"
+    },
+    {
+     "code": "016",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other income",
+      "ru": "Прочие доходы",
+      "uz": "Boshqa daromadlar",
+      "local": "Прочие доходы"
+     },
+     "map": {
+      "column": "other_operating_income",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "020",
+     "section": "operating",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Total operating profit (loss)",
+      "ru": "Итого операционная прибыль (убыток)",
+      "uz": "Operatsion foyda (zarar) jami",
+      "local": "Итого операционная прибыль (убыток)"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "012",
+       "016"
+      ],
+      "minus": [
+       "013",
+       "014",
+       "015"
+      ]
+     },
+     "check": "operating_profit",
+     "note": null
+    },
+    {
+     "code": "021",
+     "section": "financial",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Finance income",
+      "ru": "Доходы по финансированию",
+      "uz": "Moliyalashtirish bo‘yicha daromadlar",
+      "local": "Доходы по финансированию"
+     },
+     "map": {
+      "column": "finance_income",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "022",
+     "section": "financial",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Finance costs",
+      "ru": "Расходы по финансированию",
+      "uz": "Moliyalashtirish bo‘yicha xarajatlar",
+      "local": "Расходы по финансированию"
+     },
+     "map": {
+      "column": "finance_costs",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "type it positive"
+    },
+    {
+     "code": "023",
+     "section": "financial",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Share of profit (loss) of associates and joint arrangements accounted for using the equity method",
+      "ru": "Доля организации в прибыли (убытке) ассоциированных организаций и совместной деятельности, учитываемых по методу долевого участия",
+      "uz": "Ulushli ishtirok usulida hisobga olinadigan qaram tashkilotlar va birgalikdagi faoliyat foydasidagi (zararidagi) tashkilot ulushi",
+      "local": "Доля организации в прибыли (убытке) ассоциированных организаций и совместной деятельности, учитываемых по методу долевого участия"
+     },
+     "map": {
+      "column": "other_non_operating",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "signed: a share of loss is typed negative"
+    },
+    {
+     "code": "024",
+     "section": "financial",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Other non-operating income",
+      "ru": "Прочие неоперационные доходы",
+      "uz": "Boshqa nooperatsion daromadlar",
+      "local": "Прочие неоперационные доходы"
+     },
+     "map": {
+      "column": "other_non_operating",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "code to be verified"
+    },
+    {
+     "code": "025",
+     "section": "financial",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Other non-operating expenses",
+      "ru": "Прочие неоперационные расходы",
+      "uz": "Boshqa nooperatsion xarajatlar",
+      "local": "Прочие неоперационные расходы"
+     },
+     "map": {
+      "column": "other_non_operating",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "type it positive; code to be verified"
+    },
+    {
+     "code": "100",
+     "section": "result",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Profit (loss) before tax",
+      "ru": "Прибыль (убыток) до налогообложения",
+      "uz": "Soliqqa tortilgunga qadar foyda (zarar)",
+      "local": "Прибыль (убыток) до налогообложения"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "020",
+       "021",
+       "023",
+       "024"
+      ],
+      "minus": [
+       "022",
+       "025"
+      ]
+     },
+     "check": "profit_before_tax",
+     "note": null
+    },
+    {
+     "code": "101",
+     "section": "result",
+     "indent": 0,
+     "subtotal": false,
+     "negative": true,
+     "name": {
+      "en": "Income tax expense (benefit)",
+      "ru": "Расходы (доходы) по подоходному налогу",
+      "uz": "Daromad solig‘i bo‘yicha xarajatlar (daromadlar)",
+      "local": "Расходы (доходы) по подоходному налогу"
+     },
+     "map": {
+      "column": "income_tax",
+      "sign": 1
+     },
+     "formula": null,
+     "check": null,
+     "note": "type an expense positive and a tax benefit negative"
+    },
+    {
+     "code": "200",
+     "section": "result",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Profit (loss) after tax from continuing operations",
+      "ru": "Прибыль (убыток) после налогообложения от продолжающейся деятельности",
+      "uz": "Davom etayotgan faoliyatdan soliqqa tortilgandan keyingi foyda (zarar)",
+      "local": "Прибыль (убыток) после налогообложения от продолжающейся деятельности"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "100"
+      ],
+      "minus": [
+       "101"
+      ]
+     },
+     "check": null,
+     "note": null
+    },
+    {
+     "code": "201",
+     "section": "result",
+     "indent": 0,
+     "subtotal": false,
+     "negative": false,
+     "name": {
+      "en": "Profit (loss) after tax from discontinued operations",
+      "ru": "Прибыль (убыток) после налогообложения от прекращенной деятельности",
+      "uz": "To‘xtatilgan faoliyatdan soliqqa tortilgandan keyingi foyda (zarar)",
+      "local": "Прибыль (убыток) после налогообложения от прекращенной деятельности"
+     },
+     "map": {
+      "column": "income_tax",
+      "sign": -1
+     },
+     "formula": null,
+     "check": null,
+     "note": "signed: a loss is typed negative. Post-tax item below profit before tax; mapped to income tax with sign -1 so that net profit (300) reconciles while profit before tax stays continuing-only"
+    },
+    {
+     "code": "300",
+     "section": "result",
+     "indent": 0,
+     "subtotal": true,
+     "negative": false,
+     "name": {
+      "en": "Profit (loss) for the year",
+      "ru": "Прибыль за год",
+      "uz": "Yil uchun foyda (zarar)",
+      "local": "Прибыль за год"
+     },
+     "map": null,
+     "formula": {
+      "plus": [
+       "200",
+       "201"
+      ],
+      "minus": []
+     },
+     "check": "net_profit",
+     "note": "the attribution to owners of the parent / non-controlling interests printed below this line is not captured"
+    }
+   ]
+  }
+ ]
+}
