@@ -535,3 +535,170 @@
     print-color-adjust: exact;
   }
 }
+
+/* ---------- Online report (company card, Overview tab) ----------
+ * The same document on screen: a white sheet as wide as the content area,
+ * type scaled up from the A4 sizes for reading at arm's length, and the
+ * two-column blocks stacking on narrow screens. */
+
+.rpt-embedded {
+  background: transparent;
+  font-size: 13.5px;
+}
+.rpt-paper {
+  padding: 28px 32px 32px;
+  background: #fff;
+  border: 1px solid rgb(201 221 233 / 0.7);
+  border-radius: 10px;
+  box-shadow: var(--shadow-card);
+}
+.rpt-embedded .rpt-head-title {
+  font-size: 26px;
+}
+.rpt-embedded .rpt-head-meta {
+  font-size: 13px;
+}
+.rpt-embedded .rpt-section {
+  margin-top: 26px;
+}
+.rpt-embedded .rpt-h2 {
+  font-size: 19px;
+  margin-bottom: 10px;
+}
+.rpt-embedded .rpt-h2::before {
+  width: 10px;
+  height: 10px;
+}
+.rpt-embedded .rpt-caption {
+  font-size: 14px;
+  margin-top: 14px;
+}
+.rpt-embedded .rpt-note {
+  font-size: 11.5px;
+}
+.rpt-embedded .rpt-table {
+  font-size: 12.5px;
+}
+.rpt-embedded .rpt-table th {
+  font-size: 12.5px;
+  padding: 6px 8px;
+}
+.rpt-embedded .rpt-table td {
+  padding: 5px 8px;
+}
+.rpt-embedded .rpt-table tr.is-subtotal > td:first-child,
+.rpt-embedded .rpt-table tr.is-grand > td:first-child {
+  font-size: 11.5px;
+}
+.rpt-embedded .rpt-arrow {
+  width: 12px;
+  font-size: 9px;
+}
+.rpt-embedded .rpt-general {
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+}
+.rpt-embedded .rpt-kv td {
+  padding: 6px 10px;
+}
+.rpt-embedded .rpt-kv td:first-child {
+  font-size: 12.5px;
+}
+.rpt-embedded .rpt-kv .rpt-big {
+  font-size: 15px;
+}
+.rpt-embedded .rpt-kv .rpt-basis {
+  font-size: 12.5px;
+}
+.rpt-embedded .rpt-bullets.is-small > li {
+  font-size: 12.5px;
+}
+.rpt-embedded .rpt-kf {
+  gap: 16px;
+}
+.rpt-embedded .rpt-kf > div {
+  padding: 10px 14px 12px;
+}
+.rpt-embedded .rpt-kf-label {
+  font-size: 13px;
+}
+.rpt-embedded .rpt-kf-value {
+  font-size: 28px;
+}
+.rpt-embedded .rpt-kf-sub {
+  font-size: 12px;
+}
+.rpt-embedded .rpt-overall-title {
+  font-size: 13px;
+}
+.rpt-embedded .rpt-grid-2,
+.rpt-embedded .rpt-glossary {
+  gap: 0 28px;
+}
+.rpt-embedded .rpt-glossary dl {
+  grid-template-columns: 90px 1fr;
+}
+.rpt-embedded .rpt-glossary dt,
+.rpt-embedded .rpt-glossary dd {
+  padding: 5px 6px;
+}
+.rpt-embedded .rpt-disclaimer {
+  font-size: 12px;
+}
+
+/* Wide tables scroll sideways inside the sheet rather than the page. */
+.rpt-scroll {
+  overflow-x: auto;
+}
+
+/* A bullet that drills into a tab: text first, link on hover. */
+.rpt-link {
+  all: unset;
+  cursor: pointer;
+  text-underline-offset: 2px;
+}
+.rpt-link:hover,
+.rpt-link:focus-visible {
+  text-decoration: underline;
+  color: var(--rpt-navy);
+}
+.rpt-link:focus-visible {
+  outline: 2px solid var(--rpt-blue);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1100px) {
+  .rpt-embedded .rpt-general {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rpt-embedded .rpt-gauge-card {
+    max-width: 420px;
+  }
+}
+@media (max-width: 760px) {
+  .rpt-paper {
+    padding: 18px 14px 20px;
+  }
+  .rpt-embedded .rpt-kf,
+  .rpt-embedded .rpt-grid-2,
+  .rpt-embedded .rpt-glossary {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  .rpt-embedded .rpt-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .rpt-embedded .rpt-head .text-right {
+    text-align: left;
+  }
+}
+@media (min-width: 761px) and (max-width: 1100px) {
+  .rpt-embedded .rpt-kf {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media print {
+  .rpt-scroll {
+    overflow: visible;
+  }
+}

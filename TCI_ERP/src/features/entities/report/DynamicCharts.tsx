@@ -96,7 +96,7 @@ function DynamicsLineChart({
       <XAxis dataKey="period" tick={axis} tickLine={false} axisLine={{ stroke: '#c9dde9' }} />
       <YAxis
         tick={axis}
-        width={days ? 34 : 46}
+        width={days ? 34 : locale === 'en' ? 46 : 64}
         tickFormatter={tick}
         tickLine={false}
         axisLine={false}

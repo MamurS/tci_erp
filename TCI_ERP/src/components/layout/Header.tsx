@@ -78,10 +78,11 @@ export function Header({ onOpenPalette, sidebarHidden, onShowSidebar, onPeekSide
       <button
         type="button"
         onClick={onOpenPalette}
-        className="flex h-9 w-full max-w-md items-center gap-2.5 rounded-md border border-slate-200 bg-slate-50 px-3 text-left text-sm text-slate-400 transition-colors hover:border-slate-300 hover:bg-white"
+        aria-label={t('palette.trigger')}
+        className="flex h-9 shrink-0 items-center gap-2.5 rounded-md border border-slate-200 bg-slate-50 px-2.5 text-left text-sm text-slate-400 transition-colors hover:border-slate-300 hover:bg-white sm:w-full sm:max-w-md sm:shrink sm:px-3"
       >
         <Search className="size-4" />
-        <span className="flex-1 truncate">{t('palette.trigger')}</span>
+        <span className="hidden flex-1 truncate sm:inline">{t('palette.trigger')}</span>
         <kbd className="hidden rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[11px] font-medium text-slate-500 sm:inline">
           {isMac ? '⌘K' : 'Ctrl K'}
         </kbd>
