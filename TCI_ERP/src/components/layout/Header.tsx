@@ -18,13 +18,12 @@ export function Header() {
           {roles.length ? roles.map((r) => t(`roles.${r}`)).join(' · ') : t('roles.unassigned')}
         </span>
       </div>
-      {/* Self-service password change, for everyone - not only the users
-          who were forced here after provisioning. */}
+      {/* Password, second factor and sessions live on the account page. */}
       <Link
-        to="/change-password"
+        to="/account"
         className="rounded-md px-2 py-1 text-[13px] font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-700"
       >
-        {t('account.changePassword')}
+        {t('account.title')}
       </Link>
       <Button variant="ghost" size="sm" onClick={() => void signOut()}>
         {t('auth.signOut')}

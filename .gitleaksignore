@@ -1,0 +1,9 @@
+# gitleaks fingerprints that are acknowledged (commit:file:rule:line).
+#
+# 40ddb4e41a97a5b9f7fb6eb14ccd7f7164e2a680:Fineye_dim/src/adapters/api_input/russia/group_data/fns.py:generic-api-key:157
+#   An api-fns.ru token hard-coded in the vendored Fineye_dim project, in a
+#   __main__ test call, vendored on 2026-08-24 (commit 40ddb4e). Removed from
+#   the tree in Phase A2 (read from FNS_API_TOKEN now); the value stays in
+#   history, so the token must be ROTATED on api-fns.ru - rotation is the
+#   only remedy for a committed secret. Not a TCI credential.
+40ddb4e41a97a5b9f7fb6eb14ccd7f7164e2a680:Fineye_dim/src/adapters/api_input/russia/group_data/fns.py:generic-api-key:157

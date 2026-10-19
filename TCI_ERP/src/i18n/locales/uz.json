@@ -28,7 +28,14 @@
     "noSelfSignup": "Hisoblarni administrator yaratadi.",
     "errors": {
       "invalidCredentials": "Pochta yoki parol noto'g'ri",
-      "generic": "Kirish amalga oshmadi. Qayta urinib ko'ring."
+      "generic": "Kirish amalga oshmadi. Qayta urinib ko'ring.",
+      "rateLimited": "Bu tarmoqdan kirish urinishlari juda ko‘p. Bir necha daqiqa kutib, qayta urinib ko‘ring.",
+      "locked_one": "Takroriy muvaffaqiyatsiz kirishlardan so‘ng hisob vaqtincha bloklangan. {{count}} daqiqadan keyin qayta urinib ko‘ring yoki administratorga murojaat qiling.",
+      "locked_other": "Takroriy muvaffaqiyatsiz kirishlardan so‘ng hisob vaqtincha bloklangan. {{count}} daqiqadan keyin qayta urinib ko‘ring yoki administratorga murojaat qiling.",
+      "captcha": "Robot emasligingiz tekshiruvidan o‘tilmadi. Qayta urinib ko‘ring.",
+      "captchaUnavailable": "Tekshiruvni yuklab bo‘lmadi — internet aloqasi yoki reklama bloklagichni tekshiring.",
+      "emailNotConfirmed": "Bu elektron pochta manzili hali tasdiqlanmagan.",
+      "userBanned": "Hisob o‘chirilgan. Administratorga murojaat qiling."
     }
   },
   "roles": {
@@ -963,7 +970,8 @@
     "subtitle": "Foydalanuvchilar, bo‘lim rollari va anderrayting vakolatlari",
     "tabs": {
       "users": "Foydalanuvchilar va rollar",
-      "authorities": "Vakolatlar"
+      "authorities": "Vakolatlar",
+      "security": "Xavfsizlik"
     },
     "noUsers": "Hozircha foydalanuvchilar yo‘q",
     "editRoles": "Rollar",
@@ -998,7 +1006,82 @@
       "periodOrder": "«Amal qilish tugashi» boshlanishidan oldin bo‘lmasligi kerak",
       "validFromRequired": "«Amal qilish boshlanishi» ni ko‘rsating"
     },
-    "usersCount": "Foydalanuvchilar: {{count}}"
+    "usersCount": "Foydalanuvchilar: {{count}}",
+    "security": {
+      "policy": {
+        "title": "Autentifikatsiya siyosati",
+        "lockout": "Bloklash: {{window}} daqiqa ichida {{failures}} ta muvaffaqiyatsiz kirish hisobni {{duration}} daqiqaga bloklaydi.",
+        "mfaAdminOn": "Ikki bosqichli autentifikatsiya: administratorlar uchun majburiy.",
+        "mfaAdminOff": "Ikki bosqichli autentifikatsiya: administratorlar uchun majburiy emas.",
+        "mfaStaffFrom": "{{date}} dan boshlab barcha xodimlar uchun majburiy.",
+        "mfaStaffGrace": "Boshqa xodimlar uchun hozircha majburiy emas (sana belgilanmagan).",
+        "retention": "Hodisalar {{days}} kun saqlanadi."
+      },
+      "hookNotice": "Bloklash Supabase Auth parol tekshiruvi huki orqali qo‘llanadi. Huk Supabase panelida (Authentication → Hooks; Teams tarifi va undan yuqori) yoqilmaguncha urinishlar yozilmaydi va hisoblar bloklanmaydi — kirishni faqat IP bo‘yicha limit va CAPTCHA himoya qiladi.",
+      "alerts": {
+        "title": "Ogohlantirishlar",
+        "lockout_burst": "So‘nggi bir soatda bloklangan hisoblar: {{count}} ({{since}} dan).",
+        "failed_login_spike": "So‘nggi 15 daqiqada muvaffaqiyatsiz kirishlar: {{count}} ({{since}} dan).",
+        "admin_role_granted": "So‘nggi 24 soatda administrator roli {{count}} marta berildi ({{since}} dan)."
+      },
+      "lockouts": {
+        "title": "Bloklashlar",
+        "none": "Bloklangan hisoblar yo‘q.",
+        "noneHint": "Auth huki yoqilgach, takroriy muvaffaqiyatsiz kirishlardan so‘ng bloklash shu yerda ko‘rinadi.",
+        "lockedAt": "Bloklangan vaqt",
+        "until": "Gacha",
+        "failures": "Muvaffaqiyatsiz urinishlar",
+        "state": "Holat",
+        "active": "Bloklangan",
+        "clearedBy": "Blokdan chiqardi: {{email}}",
+        "expired": "Muddati o‘tgan",
+        "unlock": "Blokdan chiqarish"
+      },
+      "users": {
+        "title": "Foydalanuvchilar",
+        "mfa": "Ikki bosqichli",
+        "sessions": "Seanslar",
+        "failures": "So‘nggi muvaffaqiyatsizliklar",
+        "lastFailure": "Oxirgi muvaffaqiyatsizlik",
+        "lastSuccess": "Oxirgi kirish"
+      },
+      "sessions": {
+        "title": "Faol seanslar",
+        "hint": "Kirilgan barcha brauzer va qurilmalar. IP manzillar faqat tarmoq darajasida ko‘rsatiladi.",
+        "none": "Faol seanslar yo‘q.",
+        "started": "Boshlangan",
+        "lastActive": "Oxirgi faollik",
+        "aal": "Daraja",
+        "network": "Tarmoq",
+        "agent": "Brauzer",
+        "current": "(bu seans)",
+        "revoke": "Barcha seanslarni yakunlash",
+        "confirmRevoke": "{{email}} seanslari barcha qurilmalarda yakunlansinmi? Joriy kirish tokenlari JWT muddati ichida tugaydi."
+      },
+      "events": {
+        "title": "So‘nggi hodisalar",
+        "none": "Hodisalar hali yo‘q.",
+        "noneHint": "Kirishlarni Auth huki yozadi; rol o‘zgarishlari, blokdan chiqarish, seanslarni yakunlash va parol almashtirishni ilova yozadi.",
+        "at": "Qachon",
+        "type": "Hodisa",
+        "user": "Hisob",
+        "actor": "Kim",
+        "details": "Tafsilotlar"
+      },
+      "eventTypes": {
+        "sign_in_success": "Kirish",
+        "sign_in_failure": "Muvaffaqiyatsiz kirish",
+        "sign_in_locked": "Rad etildi (bloklangan)",
+        "lockout_started": "Hisob bloklandi",
+        "lockout_cleared": "Blokdan chiqarildi",
+        "mfa_verify_success": "Kod qabul qilindi",
+        "mfa_verify_failure": "Kod rad etildi",
+        "password_changed": "Parol o‘zgartirildi",
+        "user_role_granted": "Rol berildi",
+        "user_role_revoked": "Rol olib tashlandi",
+        "session_revoked": "Seanslar yakunlandi"
+      }
+    }
   },
   "requests": {
     "subtitle": "Sug‘urta arizalari: so‘rovdan rasmiylashtirilgan polisgacha",
@@ -1162,6 +1245,36 @@
       "digit": "raqam mavjud",
       "notEmail": "e-mail bilan bir xil emas",
       "match": "ikkala maydon mos keladi"
+    },
+    "title": "Mening hisobim",
+    "passwordHint": "Tizimga kirish parolini o‘zgartiring.",
+    "mfa": {
+      "title": "Ikki bosqichli autentifikatsiya",
+      "hint": "Har safar kirishda autentifikator ilovasidan (Google Authenticator, Microsoft Authenticator, 1Password…) bir martalik kod so‘raladi.",
+      "on": "Yoqilgan",
+      "off": "Yoqilmagan",
+      "requiredNotice": "Sizning rolingiz uchun ikki bosqichli autentifikatsiya majburiy. Ishni davom ettirish uchun uni yoqing — u yoqilmaguncha tizimning qolgan qismi ochilmaydi.",
+      "graceNotice": "{{date}} dan boshlab barcha xodimlar uchun ikki bosqichli autentifikatsiya majburiy bo‘ladi. O‘sha kuni kirish imkonini yo‘qotmaslik uchun uni hozir yoqing.",
+      "enrolledNow": "Ikki bosqichli autentifikatsiya yoqildi. Autentifikator ilovasini asrang: usiz tizimga kirib bo‘lmaydi.",
+      "factorName": "Autentifikator ilovasi",
+      "enable": "Yoqish",
+      "disable": "O‘chirish",
+      "confirmDisable": "Bu hisob uchun ikki bosqichli autentifikatsiya o‘chirilsinmi?",
+      "confirmDisableRequired": "Sizning rolingiz uchun ikki bosqichli autentifikatsiya majburiy. O‘chirilsa, uni qayta yoqmaguningizcha barcha ekranlar yopiladi. Davom etilsinmi?",
+      "disableFailed": "O‘chirib bo‘lmadi. Kod bilan qayta kiring va yana urinib ko‘ring — faktorni olib tashlash uchun yangi ikki bosqichli seans kerak.",
+      "enrolFailed": "Ulashni boshlab bo‘lmadi. Qayta urinib ko‘ring.",
+      "scan": "Kodni autentifikator ilovasi bilan skanerlang va u ko‘rsatgan 6 xonali kodni kiriting.",
+      "qrAlt": "Autentifikator ilovasi uchun QR-kod",
+      "secret": "Yoki bu kalitni qo‘lda kiriting:",
+      "code": "6 xonali kod",
+      "verify": "Tasdiqlash",
+      "badCode": "Kod noto‘g‘ri. Kodlar har 30 soniyada o‘zgaradi — joriy kodni kiriting."
+    },
+    "sessions": {
+      "title": "Boshqa qurilmalar",
+      "hint": "Bu hisob bilan kirilgan barcha boshqa brauzer va qurilmalardagi seanslarni yakunlash. Bu seans saqlanib qoladi.",
+      "signOutOthers": "Boshqa qurilmalardan chiqish",
+      "signedOutOthers": "Boshqa qurilmalardagi seanslar yakunlandi."
     }
   },
   "provisioning": {
@@ -2108,5 +2221,14 @@
       "adjustmentOverLimit": "Bu tuzatish guruh limitidan oshib ketadi.",
       "saveFailed": "Saqlab bo‘lmadi. Qaytadan urinib ko‘ring."
     }
+  },
+  "mfaVerify": {
+    "title": "Bu siz ekanligingizni tasdiqlang",
+    "hint": "Autentifikator ilovasidagi kodni kiriting.",
+    "code": "6 xonali kod",
+    "verify": "Davom etish",
+    "verifying": "Tekshirilmoqda…",
+    "badCode": "Kod noto‘g‘ri. Joriy kodni kiriting.",
+    "noFactor": "Bu hisob uchun autentifikator sozlanmagan. Administratorga murojaat qiling."
   }
 }

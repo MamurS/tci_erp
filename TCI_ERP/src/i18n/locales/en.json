@@ -28,7 +28,14 @@
     "noSelfSignup": "Accounts are created by the administrator.",
     "errors": {
       "invalidCredentials": "Invalid email or password",
-      "generic": "Sign-in failed. Please try again."
+      "generic": "Sign-in failed. Please try again.",
+      "rateLimited": "Too many sign-in attempts from this network. Wait a few minutes and try again.",
+      "locked_one": "This account is temporarily locked after repeated failed sign-ins. Try again in {{count}} minute or contact your administrator.",
+      "locked_other": "This account is temporarily locked after repeated failed sign-ins. Try again in {{count}} minutes or contact your administrator.",
+      "captcha": "The anti-bot check did not pass. Please try again.",
+      "captchaUnavailable": "The check could not be loaded — check your connection or ad blocker.",
+      "emailNotConfirmed": "This email address has not been confirmed yet.",
+      "userBanned": "This account is disabled. Contact your administrator."
     }
   },
   "roles": {
@@ -963,7 +970,8 @@
     "subtitle": "Users, department roles and underwriting authority",
     "tabs": {
       "users": "Users & roles",
-      "authorities": "Authorities"
+      "authorities": "Authorities",
+      "security": "Security"
     },
     "noUsers": "No users yet",
     "editRoles": "Roles",
@@ -998,7 +1006,82 @@
       "periodOrder": "“Valid to” must not precede “valid from”",
       "validFromRequired": "“Valid from” is required"
     },
-    "usersCount": "{{count}} users"
+    "usersCount": "{{count}} users",
+    "security": {
+      "policy": {
+        "title": "Authentication policy",
+        "lockout": "Lockout: {{failures}} failed sign-ins within {{window}} min lock the account for {{duration}} min.",
+        "mfaAdminOn": "Two-factor authentication: mandatory for administrators.",
+        "mfaAdminOff": "Two-factor authentication: not mandatory for administrators.",
+        "mfaStaffFrom": "Mandatory for all staff from {{date}}.",
+        "mfaStaffGrace": "Optional for other staff (no enforcement date set).",
+        "retention": "Events are kept for {{days}} days."
+      },
+      "hookNotice": "The lockout is enforced by the Supabase Auth password-verification hook. Until the hook is enabled in the Supabase dashboard (Authentication → Hooks; Teams plan and above) no attempt is recorded and no account is locked — only the per-IP rate limit and the CAPTCHA protect sign-in.",
+      "alerts": {
+        "title": "Alerts",
+        "lockout_burst": "{{count}} accounts locked in the last hour (since {{since}}).",
+        "failed_login_spike": "{{count}} failed sign-ins in the last 15 minutes (since {{since}}).",
+        "admin_role_granted": "The administrator role was granted {{count}} time(s) in the last 24 hours (since {{since}})."
+      },
+      "lockouts": {
+        "title": "Lockouts",
+        "none": "No account has been locked.",
+        "noneHint": "A lockout appears here after repeated failed sign-ins, once the Auth hook is enabled.",
+        "lockedAt": "Locked at",
+        "until": "Until",
+        "failures": "Failures",
+        "state": "State",
+        "active": "Locked",
+        "clearedBy": "Unlocked by {{email}}",
+        "expired": "Expired",
+        "unlock": "Unlock"
+      },
+      "users": {
+        "title": "Users",
+        "mfa": "Two-factor",
+        "sessions": "Sessions",
+        "failures": "Recent failures",
+        "lastFailure": "Last failure",
+        "lastSuccess": "Last sign-in"
+      },
+      "sessions": {
+        "title": "Live sessions",
+        "hint": "Every signed-in browser and device. IP addresses are shown as their network only.",
+        "none": "No live sessions.",
+        "started": "Started",
+        "lastActive": "Last active",
+        "aal": "Level",
+        "network": "Network",
+        "agent": "Browser",
+        "current": "(this session)",
+        "revoke": "Sign out everywhere",
+        "confirmRevoke": "Sign {{email}} out of every device? Their current access tokens expire within the JWT lifetime."
+      },
+      "events": {
+        "title": "Recent events",
+        "none": "No events recorded yet.",
+        "noneHint": "Sign-ins are recorded by the Auth hook; role changes, unlocks, session revocations and password changes are recorded by the application.",
+        "at": "When",
+        "type": "Event",
+        "user": "Account",
+        "actor": "By",
+        "details": "Details"
+      },
+      "eventTypes": {
+        "sign_in_success": "Sign-in",
+        "sign_in_failure": "Failed sign-in",
+        "sign_in_locked": "Refused (locked)",
+        "lockout_started": "Account locked",
+        "lockout_cleared": "Unlocked",
+        "mfa_verify_success": "Code accepted",
+        "mfa_verify_failure": "Code rejected",
+        "password_changed": "Password changed",
+        "user_role_granted": "Role granted",
+        "user_role_revoked": "Role revoked",
+        "session_revoked": "Sessions revoked"
+      }
+    }
   },
   "requests": {
     "subtitle": "Insurance submissions: from request to bound policy",
@@ -1162,6 +1245,36 @@
       "digit": "contains a digit",
       "notEmail": "is not your email address",
       "match": "both entries match"
+    },
+    "title": "My account",
+    "passwordHint": "Change the password you use to sign in.",
+    "mfa": {
+      "title": "Two-factor authentication",
+      "hint": "A one-time code from an authenticator app (Google Authenticator, Microsoft Authenticator, 1Password…) is asked for at every sign-in.",
+      "on": "Enabled",
+      "off": "Not enabled",
+      "requiredNotice": "Your role requires two-factor authentication. Enable it to continue working — the rest of the application stays unavailable until you do.",
+      "graceNotice": "From {{date}} every staff account must have two-factor authentication. Enable it now to avoid being locked out that day.",
+      "enrolledNow": "Two-factor authentication is on. Keep the authenticator app safe: without it you cannot sign in.",
+      "factorName": "Authenticator app",
+      "enable": "Enable",
+      "disable": "Disable",
+      "confirmDisable": "Disable two-factor authentication for this account?",
+      "confirmDisableRequired": "Your role requires two-factor authentication. Disabling it closes every screen until you enable it again. Continue?",
+      "disableFailed": "Could not disable. Sign in again with your code and retry — removing a factor needs a fresh two-factor session.",
+      "enrolFailed": "Could not start the enrolment. Please try again.",
+      "scan": "Scan the code with your authenticator app, then enter the 6-digit code it shows.",
+      "qrAlt": "QR code for the authenticator app",
+      "secret": "Or enter this key manually:",
+      "code": "6-digit code",
+      "verify": "Confirm",
+      "badCode": "That code is not valid. Codes change every 30 seconds — try the current one."
+    },
+    "sessions": {
+      "title": "Other devices",
+      "hint": "Sign out every other browser and device where this account is signed in. This one stays.",
+      "signOutOthers": "Sign out other devices",
+      "signedOutOthers": "Other devices have been signed out."
     }
   },
   "provisioning": {
@@ -2108,5 +2221,14 @@
       "adjustmentOverLimit": "This adjustment would take the group past its group limit.",
       "saveFailed": "Could not save. Please try again."
     }
+  },
+  "mfaVerify": {
+    "title": "Confirm it is you",
+    "hint": "Enter the code from your authenticator app.",
+    "code": "6-digit code",
+    "verify": "Continue",
+    "verifying": "Checking…",
+    "badCode": "That code is not valid. Try the current one.",
+    "noFactor": "No authenticator is set up for this account. Contact your administrator."
   }
 }

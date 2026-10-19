@@ -154,7 +154,7 @@ class FNSGroupDataAdapter(BaseGroupDataAdapter):
 
 if __name__ == "__main__":
     async def main():
-        identifiers = await FNSGroupDataAdapter(token="070bbb6a6fa0e2ed3f5e9ce18de83856b656513c", request_uuid="test", identifier="1123327005603").get_group_identifiers()
+        identifiers = await FNSGroupDataAdapter(token=os.environ.get("FNS_API_TOKEN", ""), request_uuid="test", identifier="1123327005603").get_group_identifiers()
         print(identifiers)
     
     asyncio.run(main())

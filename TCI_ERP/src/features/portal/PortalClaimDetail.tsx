@@ -141,7 +141,7 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
                   type="button"
                   className="text-accent-600 hover:underline"
                   onClick={() =>
-                    signedDocumentUrl(d.storage_path)
+                    signedDocumentUrl(d.storage_path, { filename: d.original_filename, contentType: d.content_type })
                       .then((url) => window.open(url, '_blank', 'noopener'))
                       .catch(() => setError(t('claims.errors.documentUnavailable')))
                   }

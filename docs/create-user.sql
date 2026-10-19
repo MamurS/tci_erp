@@ -44,6 +44,13 @@
 -- * Passwords: pick one of at least 16 characters, or generate one with
 --   snippet 0. Hand it over out of band. It is never stored in plain text
 --   — only the bcrypt hash is written.
+--   Two floors apply, on purpose (Phase A2): a TEMPORARY password written
+--   here or by the provisioning service is at least 16 characters, because
+--   it is machine-made and read off a screen; the password a person then
+--   chooses on «Сменить пароль» is at least 12 characters with a letter and
+--   a digit (src/features/account/password.ts), and Supabase Auth applies
+--   the same 12-character minimum plus the leaked-password check (dashboard:
+--   Authentication → Providers → Email).
 --
 -- * A client user is only useful once the portal can actually serve them.
 --   See "PORTAL READINESS" at the bottom of this file.

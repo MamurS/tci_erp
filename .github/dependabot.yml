@@ -1,0 +1,56 @@
+# Dependency updates (audit Phase A2). Weekly, grouped, so the PR stream is
+# one review a week per ecosystem rather than one per package. Security
+# advisories are raised immediately regardless of the schedule.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /TCI_ERP
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Asia/Tashkent
+    open-pull-requests-limit: 5
+    groups:
+      frontend-minor-and-patch:
+        update-types: [minor, patch]
+    labels: [dependencies, frontend]
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: pip
+    directory: /services/analytics
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Asia/Tashkent
+    open-pull-requests-limit: 5
+    groups:
+      analytics-minor-and-patch:
+        update-types: [minor, patch]
+    labels: [dependencies, analytics]
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Asia/Tashkent
+    labels: [dependencies, ci]
+    commit-message:
+      prefix: "chore(ci)"
+
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Asia/Tashkent
+    labels: [dependencies, analytics]
+    commit-message:
+      prefix: "chore(deps)"

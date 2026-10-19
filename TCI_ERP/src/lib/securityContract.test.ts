@@ -1,17 +1,20 @@
-/** Security closure contract (migration 0043, audit Phase A).
+/** Security closure contract (migration 0043, audit Phase A) and the
+ * authentication hardening that builds on it (migration 0044, Phase A2).
  *
- * Three things must stay true, and each is locked to the migration TEXT so
- * a drift fails CI rather than waiting for the next audit:
+ * Everything here is locked to the migration TEXT so a drift fails CI rather
+ * than waiting for the next audit:
  *
  *  1. No migration after 0042 raises `P0004`. It is `assert_failure`, which
  *     `exception when others` does not catch; permission refusals are 42501.
  *  2. The allow-list of SECURITY DEFINER functions that may skip a gate is the
  *     one below, with a justification each. It starts small and grows only
  *     with a reason. tests/db/definer_gates.sql proves the same thing against
- *     the catalog on the replay harness; this test proves the migration still
- *     SAYS it.
+ *     the catalog on the replay harness; this test proves the latest migration
+ *     that defines the list still SAYS it.
  *  3. The token machinery keeps its shape: two entry points, one closed to
  *     `authenticated`, and a gate helper for every mechanism the rule names.
+ *  4. The Auth hooks and the hashing helpers of 0044 are closed to every API
+ *     role, and the gates enforce the MFA policy next to the rotation flag.
  */
 
 import { describe, expect, it } from 'vitest'
@@ -28,8 +31,21 @@ function number(path: string): number {
   return Number(m[1])
 }
 
-const M43 = Object.entries(MIGRATIONS).find(([p]) => p.endsWith('0043_security_closure.sql'))?.[1]
-if (!M43) throw new Error('0043_security_closure.sql not found')
+function migration(suffix: string): string {
+  const found = Object.entries(MIGRATIONS).find(([p]) => p.endsWith(suffix))?.[1]
+  if (!found) throw new Error(`${suffix} not found`)
+  return found
+}
+
+const M43 = migration('0043_security_closure.sql')
+const M44 = migration('0044_auth_hardening.sql')
+
+/** The LATEST migration that (re)defines tci.definer_gate_allowlist(). */
+const ALLOWLIST_SOURCE = Object.entries(MIGRATIONS)
+  .filter(([, sql]) => /create (or replace )?function tci\.definer_gate_allowlist\(\)/.test(sql))
+  .sort(([a], [b]) => number(a) - number(b))
+  .slice(-1)[0]?.[1]
+if (!ALLOWLIST_SOURCE) throw new Error('no migration defines tci.definer_gate_allowlist()')
 
 /** Mirror of tci.definer_gate_allowlist(). Order and names must match. */
 export const DEFINER_GATE_ALLOWLIST: readonly { name: string; why: string }[] = [
@@ -46,12 +62,15 @@ export const DEFINER_GATE_ALLOWLIST: readonly { name: string; why: string }[] = 
   { name: 'require_staff', why: 'a gate: only raises' },
   { name: 'require_role', why: 'a gate: only raises' },
   { name: 'require_claim_access', why: 'a gate: only raises' },
+  { name: 'auth_policy', why: 'non-sensitive policy numbers the UI mirrors to explain a refusal' },
+  { name: 'mfa_satisfied', why: "reads only the caller's own factors, roles and JWT claims; part of the gate" },
+  { name: 'my_auth_status', why: "reads only the caller's own rotation, MFA and lockout state" },
 ]
 
 describe('no migration after 0042 raises P0004', () => {
   it('scans every numbered migration above 0042', () => {
     const late = Object.entries(MIGRATIONS).filter(([p]) => number(p) > 42)
-    expect(late.length).toBeGreaterThan(0)
+    expect(late.length).toBeGreaterThan(1)
     for (const [path, sql] of late) {
       // The rule statement in 0043's header mentions the code by name; only a
       // `raise` that USES it is forbidden.
@@ -69,14 +88,18 @@ describe('no migration after 0042 raises P0004', () => {
 })
 
 describe('the allow-list in tci.definer_gate_allowlist()', () => {
-  const block = M43.slice(
-    M43.indexOf('create function tci.definer_gate_allowlist()'),
-    M43.indexOf('grant execute on function tci.definer_gate_allowlist()'),
+  const block = ALLOWLIST_SOURCE.slice(
+    ALLOWLIST_SOURCE.search(/create (or replace )?function tci\.definer_gate_allowlist\(\)/),
   )
-  const listed = [...block.matchAll(/\(\s*'([a-z_]+)',\s*'((?:[^']|'')*)'\)/g)].map((m) => ({
+  const body = block.slice(0, block.indexOf('$$;') + 3)
+  const listed = [...body.matchAll(/\(\s*'([a-z_]+)',\s*'((?:[^']|'')*)'\)/g)].map((m) => ({
     name: m[1],
     why: m[2].replace(/''/g, "'"),
   }))
+
+  it('is defined last by 0044', () => {
+    expect(ALLOWLIST_SOURCE).toBe(M44)
+  })
 
   it('matches this mirror exactly, name for name, reason for reason', () => {
     expect(listed).toEqual(DEFINER_GATE_ALLOWLIST)
@@ -86,15 +109,17 @@ describe('the allow-list in tci.definer_gate_allowlist()', () => {
     for (const e of DEFINER_GATE_ALLOWLIST) expect(e.why.length, e.name).toBeGreaterThan(12)
   })
 
-  it('names no workflow writer', () => {
+  it('names no workflow writer and none of the auth-hardening writers', () => {
     const writers = ['open_task', 'close_tasks', 'emit_workflow_event', 'file_overdue_notification',
       'generate_premium_instalments', 'suspend_limit_for_noa', 'suspend_limit_for_claim',
-      'submit_declaration', 'correct_declaration', 'verify_claim_coverage']
+      'submit_declaration', 'correct_declaration', 'verify_claim_coverage',
+      'password_verification_hook', 'mfa_verification_hook', 'log_auth_event', 'security_hash',
+      'unlock_account', 'revoke_user_sessions', 'prune_auth_data']
     for (const w of writers) expect(DEFINER_GATE_ALLOWLIST.map((e) => e.name)).not.toContain(w)
   })
 })
 
-describe('the internal-call token and the gates', () => {
+describe('the internal-call token and the gates (0043)', () => {
   it('has the two entry points, and only the staff one is granted to authenticated', () => {
     expect(M43).toContain('create function tci.begin_internal_call()')
     expect(M43).toContain('create function tci.begin_trusted_call()')
@@ -128,15 +153,62 @@ describe('the internal-call token and the gates', () => {
     }
   })
 
-  it('the password rotation is enforced inside has_role and is_staff', () => {
-    expect(M43).toContain('and not tci.password_rotation_pending()')
-    expect((M43.match(/and not tci\.password_rotation_pending\(\)/g) ?? []).length).toBe(2)
-  })
-
   it('the in-migration assertion covers the same four properties this file relies on', () => {
     expect(M43).toContain("0043: ungated SECURITY DEFINER functions executable by authenticated")
     expect(M43).toContain("0043: anon-executable SECURITY DEFINER functions remain")
     expect(M43).toContain("0043: P0004 still raised by")
     expect(M43).toContain("0043: the internal-call token is reachable by authenticated")
+  })
+})
+
+describe('authentication hardening (0044)', () => {
+  it('has_role and is_staff enforce BOTH the rotation flag and the MFA policy, in their latest definition', () => {
+    for (const fn of ['has_role', 'is_staff']) {
+      const at = M44.lastIndexOf(`create or replace function tci.${fn}(`)
+      expect(at, fn).toBeGreaterThan(-1)
+      const body = M44.slice(at, M44.indexOf('$$;', at))
+      expect(body, fn).toContain('and not tci.password_rotation_pending()')
+      expect(body, fn).toContain('and tci.mfa_satisfied()')
+    }
+  })
+
+  it('the hooks are executable by supabase_auth_admin only and gated on session_user', () => {
+    for (const hook of ['password_verification_hook', 'mfa_verification_hook']) {
+      expect(M44).toContain(`revoke execute on function tci.${hook}(jsonb) from public, anon, authenticated, service_role;`)
+      expect(M44).toContain(`grant execute on function tci.${hook}(jsonb) to supabase_auth_admin;`)
+      const body = M44.slice(M44.indexOf(`create function tci.${hook}(event jsonb)`))
+      expect(body.slice(0, body.indexOf('$$;')), hook).toContain('perform tci.require_auth_admin();')
+    }
+    expect(M44).toContain("if session_user <> 'supabase_auth_admin' then")
+  })
+
+  it('a lockout refuses even the right password, and the reject message carries the machine token', () => {
+    const body = M44.slice(M44.indexOf('create function tci.password_verification_hook(event jsonb)'))
+    const hook = body.slice(0, body.indexOf('$$;'))
+    // the standing-lockout check comes BEFORE the valid-password branch
+    expect(hook.indexOf('v_lock := tci.active_lockout(v_user);')).toBeLessThan(hook.indexOf('if v_valid then'))
+    expect(hook).toContain("'account_locked: too many failed sign-in attempts")
+  })
+
+  it('identifiers are stored hashed with the server salt, and the hash is closed to the API roles', () => {
+    expect(M44).toContain("(select salt from tci.internal_secrets) || ':' || p_value, 'sha256'")
+    expect(M44).toContain('revoke execute on function tci.security_hash(text) from public, anon, authenticated, service_role;')
+    expect(M44).toContain('revoke all on tci.auth_attempts from public, anon, authenticated, service_role;')
+    expect(M44).toContain('revoke all on tci.auth_events from public, anon, authenticated, service_role;')
+    expect(M44).toContain('revoke all on tci.auth_lockouts from public, anon, authenticated, service_role;')
+  })
+
+  it('the lockout thresholds and the MFA policy live in workflow_settings', () => {
+    for (const col of ['lockout_max_failures', 'lockout_window_minutes', 'lockout_duration_minutes',
+      'mfa_required_for_admin', 'mfa_staff_enforced_from', 'auth_events_retention_days']) {
+      expect(M44).toContain(`add column ${col}`)
+    }
+  })
+
+  it('the closing assertion covers the new surface', () => {
+    expect(M44).toContain('0044: ungated SECURITY DEFINER functions executable by authenticated')
+    expect(M44).toContain('0044: an auth-hardening internal is reachable by an API role')
+    expect(M44).toContain('0044: GoTrue cannot execute the password verification hook')
+    expect(M44).toContain('0044: has_role/is_staff do not enforce the MFA policy')
   })
 })

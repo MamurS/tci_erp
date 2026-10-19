@@ -1,9 +1,11 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import { RequirePasswordChange } from './auth/RequirePasswordChange'
+import { RequireMfa } from './auth/RequireMfa'
 import { RoleGuard } from './auth/RoleGuard'
 import { AppShell } from './components/layout/AppShell'
 import { LoginPage } from './pages/LoginPage'
+import { MfaVerifyPage } from './pages/MfaVerifyPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { NoAccessPage } from './pages/NoAccessPage'
 import { NotFoundPage } from './pages/NotFoundPage'
@@ -18,7 +20,7 @@ import { OverdueDetailPage, OverduesPage } from './features/overdue'
 import { ClaimDetailPage, ClaimsPage } from './features/claims'
 import { AdminPage } from './features/admin'
 import { AgendaPage } from './features/agenda'
-import { ChangePasswordPage } from './features/account'
+import { AccountPage, ChangePasswordPage } from './features/account'
 import {
   PortalAccountPage,
   PortalDeclarationsPage,
@@ -49,7 +51,10 @@ export default function App() {
         {/* The portal: its own shell, its own navigation, no staff sections.
             Still behind the password gate — a provisioned client must rotate
             their temporary password before reaching any of it. */}
+        {/* The MFA step-up, standalone like the login page. */}
+        <Route path="mfa/verify" element={<MfaVerifyPage />} />
         <Route element={<RequirePasswordChange />}>
+          <Route element={<RequireMfa />}>
           <Route element={<PortalRedirect />}>
             <Route path="portal" element={<PortalShell />}>
               <Route index element={<PortalPoliciesPage />} />
@@ -61,6 +66,7 @@ export default function App() {
               <Route path="submissions" element={<PortalSubmissionsPage />} />
               <Route path="account" element={<PortalAccountPage />} />
             </Route>
+          </Route>
           </Route>
         </Route>
 
@@ -79,6 +85,9 @@ export default function App() {
           {/* Everything below is unreachable until a temporary password
               has been rotated, then gated by the role map (navigation.ts) */}
           <Route element={<RequirePasswordChange />}>
+            {/* Above the MFA gate: the policy sends people HERE to enrol. */}
+            <Route path="account" element={<AccountPage />} />
+            <Route element={<RequireMfa />}>
             <Route element={<PortalRedirect />}>
               <Route element={<RoleGuard />}>
                 <Route index element={<DashboardPage />} />
@@ -106,6 +115,7 @@ export default function App() {
                 <Route path="claims/:id" element={<ClaimDetailPage />} />
                 <Route path="admin" element={<AdminPage />} />
               </Route>
+            </Route>
             </Route>
           </Route>
 

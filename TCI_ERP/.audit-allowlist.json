@@ -1,0 +1,15 @@
+{
+  "_comment": "npm audit advisories accepted with a reason and an expiry (scripts/audit-gate.mjs). An entry past its expiry fails CI again, so every exception is re-decided.",
+  "1108110": {
+    "package": "xlsx",
+    "advisory": "GHSA-4r6h-8v6p-xvw6 Prototype Pollution in sheetJS",
+    "reason": "Only reachable when PARSING an untrusted workbook. TCI uses xlsx solely to WRITE exports (src/lib/exportTable.ts: table_to_book + writeFile); no spreadsheet is ever read. The fixed SheetJS 0.20.x is not published on npm - it must be installed from cdn.sheetjs.com, which is the planned replacement.",
+    "expires": "2026-12-31"
+  },
+  "1108111": {
+    "package": "xlsx",
+    "advisory": "GHSA-5pgg-2g8v-p4x9 SheetJS ReDoS",
+    "reason": "Regular-expression DoS in the PARSER on attacker-supplied cell content. TCI never parses a workbook (write-only use in src/lib/exportTable.ts). Same replacement plan as 1108110.",
+    "expires": "2026-12-31"
+  }
+}
