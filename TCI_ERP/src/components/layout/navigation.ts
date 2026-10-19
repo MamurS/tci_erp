@@ -1,11 +1,16 @@
 import type { UserRole } from '../../lib/roles'
 
+/** Sidebar sections, in display order (i18n under "nav.groups."). */
+export const NAV_GROUPS = ['work', 'underwriting', 'portfolio', 'system'] as const
+export type NavGroup = (typeof NAV_GROUPS)[number]
+
 export interface NavItem {
   /** i18n key under "nav." */
   key: string
   path: string
   /** Roles allowed to see this item (ANY match grants access). */
   roles: readonly UserRole[]
+  group: NavGroup
 }
 
 const STAFF: readonly UserRole[] = [
@@ -33,42 +38,48 @@ const STAFF: readonly UserRole[] = [
  *   client                  portal reads only (no new screens until Phase 3d)
  */
 export const NAV_ITEMS: readonly NavItem[] = [
-  { key: 'dashboard', path: '/', roles: STAFF },
+  { key: 'dashboard', path: '/', roles: STAFF, group: 'work' },
   // The Agenda is staff-only: tci.refresh_agenda() refuses a client outright.
-  { key: 'agenda', path: '/agenda', roles: STAFF },
-  { key: 'entities', path: '/entities', roles: STAFF },
+  { key: 'agenda', path: '/agenda', roles: STAFF, group: 'work' },
+  { key: 'entities', path: '/entities', roles: STAFF, group: 'underwriting' },
   {
     key: 'requests',
     path: '/requests',
     roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'client'],
+    group: 'underwriting',
   },
   {
     key: 'limits',
     path: '/limits',
     roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'client'],
+    group: 'underwriting',
   },
   {
     key: 'policies',
     path: '/policies',
     roles: ['admin', 'sales', 'commercial_underwriter', 'client'],
+    group: 'portfolio',
   },
   {
     key: 'declarations',
     path: '/declarations',
     // sales too: the declaration-due tasks are addressed to them.
     roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'client'],
+    group: 'portfolio',
   },
   {
     key: 'overdues',
     path: '/overdues',
     roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'claims'],
+    group: 'portfolio',
   },
   {
     key: 'claims',
     path: '/claims',
     roles: ['admin', 'claims', 'commercial_underwriter', 'credit_underwriter'],
+    group: 'portfolio',
   },
-  { key: 'admin', path: '/admin', roles: ['admin'] },
+  { key: 'admin', path: '/admin', roles: ['admin'], group: 'system' },
 ]
 
 export function navItemsForRoles(roles: readonly UserRole[]): readonly NavItem[] {

@@ -15,7 +15,15 @@
     "entities": "Tashkilotlar",
     "requests": "Sug‘urta arizalari",
     "agenda": "Kun tartibi",
-    "overdues": "Muddati o‘tgan qarzlar"
+    "overdues": "Muddati o‘tgan qarzlar",
+    "groups": {
+      "work": "Ish joyi",
+      "underwriting": "Anderrayting",
+      "portfolio": "Portfel",
+      "system": "Tizim"
+    },
+    "collapse": "Yig‘ish",
+    "expand": "Yoyish"
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -36,7 +44,9 @@
       "captchaUnavailable": "Tekshiruvni yuklab bo‘lmadi — internet aloqasi yoki reklama bloklagichni tekshiring.",
       "emailNotConfirmed": "Bu elektron pochta manzili hali tasdiqlanmagan.",
       "userBanned": "Hisob o‘chirilgan. Administratorga murojaat qiling."
-    }
+    },
+    "heroTitle": "Savdo kreditlarini sug‘urtalash — tahlildan to‘lovgacha",
+    "heroText": "Bayerlar tahlili va reytingi, kredit limitlari, polislar, deklaratsiyalar va sug‘urta da’volari — yagona ish maydonida."
   },
   "roles": {
     "admin": "Administrator",
@@ -551,7 +561,21 @@
       "currency": "Valyuta",
       "open": "Hisobotni ochish"
     },
-    "notAssessed": "Baholash hali hisoblanmagan"
+    "notAssessed": "Baholash hali hisoblanmagan",
+    "vsPrevious": "oldingi reytingga nisbatan",
+    "legendTitle": "Izoh: kredit reytingi shkalasi",
+    "scale10": {
+      "exceptional": "Istisno darajada",
+      "veryStrong": "Juda kuchli",
+      "strong": "Kuchli",
+      "good": "Yaxshi",
+      "average": "O‘rtacha",
+      "watch": "Kuzatuvda",
+      "weak": "Zaif",
+      "distressed": "Muammoli",
+      "uninsurable": "Sug‘urtalanmaydi",
+      "insolvent": "To‘lovga qobiliyatsiz"
+    }
   },
   "report": {
     "title": "QALTISLIK HISOBOTI",
@@ -2230,5 +2254,13 @@
     "verifying": "Tekshirilmoqda…",
     "badCode": "Kod noto‘g‘ri. Joriy kodni kiriting.",
     "noFactor": "Bu hisob uchun autentifikator sozlanmagan. Administratorga murojaat qiling."
+  },
+  "palette": {
+    "title": "Qidiruv",
+    "trigger": "Tashkilotlar va bo‘limlarni qidirish…",
+    "placeholder": "Tashkilot nomi, ro‘yxatdan o‘tish raqami yoki bo‘lim",
+    "empty": "Hech narsa topilmadi",
+    "hintNavigate": "harakatlanish",
+    "hintOpen": "ochish"
   }
 }

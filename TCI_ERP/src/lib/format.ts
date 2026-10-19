@@ -62,3 +62,28 @@ export function formatMoment(value: string | Date, locale: string): string {
 }
 
 export { EM_DASH }
+
+const COMPACT_STEPS: { min: number; suffix: Record<'en' | 'ru' | 'uz', string> }[] = [
+  { min: 1e12, suffix: { en: 'T', ru: ' трлн', uz: ' trln' } },
+  { min: 1e9, suffix: { en: 'B', ru: ' млрд', uz: ' mlrd' } },
+  { min: 1e6, suffix: { en: 'M', ru: ' млн', uz: ' mln' } },
+  { min: 1e3, suffix: { en: 'K', ru: ' тыс.', uz: ' ming' } },
+]
+
+/**
+ * Compact amount for prose and key figures: 261 369 829 000 → "261.37B"
+ * (en) / "261,37 млрд" (ru) / "261,37 mlrd" (uz). Below 1 000 the plain
+ * amount. Null renders as an em dash, never as 0.
+ */
+export function formatCompact(
+  value: number | null | undefined,
+  locale: string,
+  decimals = 2,
+): string {
+  if (value === null || value === undefined || !Number.isFinite(value)) return EM_DASH
+  const lang = locale === 'ru' || locale === 'uz' ? locale : 'en'
+  const abs = Math.abs(value)
+  const step = COMPACT_STEPS.find((s) => abs >= s.min)
+  if (!step) return formatAmount(value, locale, 0)
+  return `${formatAmount(value / step.min, locale, decimals)}${step.suffix[lang]}`
+}

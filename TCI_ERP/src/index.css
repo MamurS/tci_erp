@@ -2,36 +2,74 @@
 
 /*
  * TCI ERP design tokens — see DESIGN.md.
- * Neutral slate base, indigo accent, semantic green/red for dynamics.
+ * Delcreda corporate palette: navy + process blue, orange accent,
+ * semantic green/red for dynamics, a five-colour rating scale.
  */
 @theme {
-  --color-accent-50: #eef2ff;
-  --color-accent-100: #e0e7ff;
-  --color-accent-500: #6366f1;
-  --color-accent-600: #4f46e5;
-  --color-accent-700: #4338ca;
+  /* Brand (Delcreda corporate palette, measured from the reference risk
+   * reports: Pantone 2955 / Process Blue / orange / amber). */
+  --color-brand-navy: #005288;
+  --color-brand-blue: #0093d0;
+  --color-brand-orange: #f7941e;
+  --color-brand-amber: #fcaf17;
+  --color-ink: #191919; /* black 90% */
+  --color-ink-muted: #666666; /* black 60% */
 
-  --color-pos-500: #16a34a;
-  --color-pos-50: #f0fdf4;
-  --color-neg-500: #dc2626;
-  --color-neg-600: #b91c1c;
-  --color-neg-50: #fef2f2;
-  --color-warn-500: #d97706;
-  --color-warn-50: #fffbeb;
+  /* accent = the brand blue ramp. Every existing accent-* class (primary
+   * buttons, active nav, focus, links) re-colours from here. */
+  --color-accent-50: #f2f8fc;
+  --color-accent-100: #dceff8;
+  --color-accent-200: #c9dde9;
+  --color-accent-300: #8cc8e6;
+  --color-accent-400: #3aaedc;
+  --color-accent-500: #0093d0;
+  --color-accent-600: #005288;
+  --color-accent-700: #00446f;
+  --color-accent-800: #003557;
+  --color-accent-900: #00243c;
 
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
-    'Helvetica Neue', Arial, sans-serif;
+  --color-pos-500: #2e8b3e;
+  --color-pos-50: #eaf5ec;
+  --color-neg-500: #d62828;
+  --color-neg-600: #b21f1f;
+  --color-neg-50: #fdecec;
+  --color-warn-500: #c27c00;
+  --color-warn-50: #fff5e0;
 
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
+  /* Credit rating scale, 10 (exceptional) .. 100 (insolvent), in pairs. */
+  --color-scale-1: #17b81a;
+  --color-scale-2: #a6c419;
+  --color-scale-3: #f2a900;
+  --color-scale-4: #f2661a;
+  --color-scale-5: #ee1c1c;
+
+  --font-sans: 'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* Condensed display face of the brand: titles, labels, table headers,
+   * key figures. */
+  --font-display: 'PT Sans Narrow', 'Arial Narrow', 'Roboto Condensed', sans-serif;
+  /* Body face of the printed report (Arial metrics, like the reference). */
+  --font-report: 'Arimo', 'Liberation Sans', Arial, Helvetica, sans-serif;
+
+  --radius-md: 0.375rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+
+  --shadow-card: 0 1px 2px 0 rgb(0 53 87 / 0.05), 0 1px 3px 0 rgb(0 53 87 / 0.04);
+  --shadow-pop: 0 12px 32px -8px rgb(0 36 60 / 0.22), 0 4px 10px -4px rgb(0 36 60 / 0.12);
 }
 
 @layer base {
   html {
     @apply antialiased;
+    font-feature-settings: 'cv11', 'ss01';
   }
   body {
-    @apply bg-slate-50 text-slate-900 text-[14px] leading-normal;
+    @apply text-[14px] leading-normal text-slate-900;
+    background-color: #f3f6f9;
+  }
+  ::selection {
+    background-color: var(--color-accent-100);
   }
 }
 
@@ -40,6 +78,26 @@
   font-variant-numeric: tabular-nums;
   text-align: right;
   white-space: nowrap;
+}
+
+/* Thin scrollbars inside the app (Chromium / Firefox). */
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(148 163 184 / 0.6) transparent;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@utility animate-fade-in {
+  animation: fade-in 160ms ease-out both;
 }
 
 /* ---------- Risk Report print layout ---------- */

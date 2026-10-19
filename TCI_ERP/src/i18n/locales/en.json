@@ -15,7 +15,15 @@
     "entities": "Companies",
     "requests": "Submissions",
     "agenda": "Agenda",
-    "overdues": "Overdue accounts"
+    "overdues": "Overdue accounts",
+    "groups": {
+      "work": "Workspace",
+      "underwriting": "Underwriting",
+      "portfolio": "Portfolio",
+      "system": "System"
+    },
+    "collapse": "Collapse",
+    "expand": "Expand"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -36,7 +44,9 @@
       "captchaUnavailable": "The check could not be loaded — check your connection or ad blocker.",
       "emailNotConfirmed": "This email address has not been confirmed yet.",
       "userBanned": "This account is disabled. Contact your administrator."
-    }
+    },
+    "heroTitle": "Trade credit insurance, end to end",
+    "heroText": "Buyer analysis and rating, credit limits, policies, declarations and claims — in one workspace."
   },
   "roles": {
     "admin": "Administrator",
@@ -551,7 +561,21 @@
       "currency": "Currency",
       "open": "Open report"
     },
-    "notAssessed": "Not assessed yet"
+    "notAssessed": "Not assessed yet",
+    "vsPrevious": "vs previous rating",
+    "legendTitle": "Legend: credit rating scale",
+    "scale10": {
+      "exceptional": "Exceptional",
+      "veryStrong": "Very strong",
+      "strong": "Strong",
+      "good": "Good",
+      "average": "Average",
+      "watch": "Watch",
+      "weak": "Weak",
+      "distressed": "Distressed",
+      "uninsurable": "Uninsurable",
+      "insolvent": "Insolvent"
+    }
   },
   "report": {
     "title": "RISK REPORT",
@@ -2230,5 +2254,13 @@
     "verifying": "Checking…",
     "badCode": "That code is not valid. Try the current one.",
     "noFactor": "No authenticator is set up for this account. Contact your administrator."
+  },
+  "palette": {
+    "title": "Search",
+    "trigger": "Search organizations, sections…",
+    "placeholder": "Organization name, registration number or section",
+    "empty": "Nothing found",
+    "hintNavigate": "navigate",
+    "hintOpen": "open"
   }
 }
