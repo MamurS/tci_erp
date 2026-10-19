@@ -20,7 +20,17 @@ import {
   YAxis,
 } from 'recharts'
 
-import { Badge, Button, Card, GradeScale, Select, Spinner, Table } from '../../../components/ui'
+import {
+  Badge,
+  Button,
+  Card,
+  GradeScale,
+  RatingGauge,
+  RatingLegend,
+  Select,
+  Spinner,
+  Table,
+} from '../../../components/ui'
 import {
   AnalyticsUnavailableError,
   postCreditLimit,
@@ -231,6 +241,7 @@ export function RatingTab({ entityId }: { entityId: string }) {
           locale={locale}
           bands={gradeBands}
           change={change}
+          previousScore={previousRow ? Number(previousRow.rating_score) : null}
         />
       ) : (
         <Card className="p-5 text-sm text-slate-500">{t('rating.notAssessed')}</Card>
@@ -266,11 +277,13 @@ function ResultView({
   locale,
   bands,
   change,
+  previousScore,
 }: {
   result: { rating: RatingResponse; limit: CreditLimitResponse }
   locale: string
   bands: GradeBand[] | undefined
   change: ReturnType<typeof gradeChange> | null
+  previousScore: number | null
 }) {
   const { t } = useTranslation()
   const { rating, limit } = result
@@ -279,14 +292,22 @@ function ResultView({
   return (
     <>
       <Card className="flex flex-col gap-4 p-5">
-        {rating.score !== null && rating.grade && (
-          <GradeScale
-            score={rating.score}
-            grade={rating.grade}
-            bands={bands}
-            change={change}
-          />
-        )}
+        <div className="grid items-center gap-5 lg:grid-cols-[240px_1fr]">
+          <div className="flex justify-center rounded-lg bg-accent-50/60 px-3 pt-3 pb-2">
+            <RatingGauge score={rating.score} previousScore={previousScore} />
+          </div>
+          <div className="flex min-w-0 flex-col gap-4">
+            {rating.score !== null && rating.grade && (
+              <GradeScale
+                score={rating.score}
+                grade={rating.grade}
+                bands={bands}
+                change={change}
+              />
+            )}
+            <RatingLegend score={rating.score} />
+          </div>
+        </div>
         <div className="grid gap-3 lg:grid-cols-2">
           <div>
             <h4 className="mb-1.5 text-[13px] font-semibold text-slate-600">

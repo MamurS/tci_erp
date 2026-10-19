@@ -15,7 +15,7 @@ import { useQuery } from '@tanstack/react-query'
 
 import { tci } from '../../../lib/supabase'
 
-import { Button, Card, EmptyState, GradeScale } from '../../../components/ui'
+import { Button, Card, EmptyState, GradeScale, RatingGauge } from '../../../components/ui'
 import { EM_DASH, formatAmount } from '../../../lib/format'
 import { gradeChange, useGradeScale } from '../../../lib/gradeScale'
 import { countryFlag } from '../../../lib/countryFlag'
@@ -135,13 +135,21 @@ export function OverviewTab({
             {t('buyers.ratingSummary.title')}
           </h2>
           {latestAssessment ? (
-            <GradeScale
+            <>
+              <div className="flex justify-center">
+                <RatingGauge
+                  score={Number(latestAssessment.rating_score)}
+                  previousScore={previousAssessment ? Number(previousAssessment.rating_score) : null}
+                />
+              </div>
+              <GradeScale
               score={Number(latestAssessment.rating_score)}
               grade={latestAssessment.rating_grade}
               bands={gradeBands}
               change={change}
               size="compact"
             />
+            </>
           ) : all.length > 0 ? (
             <div className="flex flex-col items-start gap-2">
               <p className="text-[13px] text-slate-500">{t('buyers.overview.noAssessmentHint')}</p>
@@ -152,7 +160,7 @@ export function OverviewTab({
           ) : (
             <p className="text-[13px] text-slate-500">{t('buyers.ratingSummary.pending')}</p>
           )}
-          <Button variant="secondary" size="sm" onClick={() => setReportOpen(true)}>
+          <Button variant="accent" size="sm" onClick={() => setReportOpen(true)}>
             {t('rating.generateReport')}
           </Button>
         </Card>
@@ -367,13 +375,17 @@ function KeyFigures({
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
       {figures.map((figure) => (
-        <Card key={figure.key} className="flex flex-col gap-1 p-4">
-          <p className="text-xs text-slate-500">{figure.label}</p>
-          <p>
+        <Card
+          key={figure.key}
+          className="flex min-w-0 flex-col gap-1 border-t-[3px] border-t-accent-500 p-4"
+        >
+          <p className="text-xs font-medium text-slate-500">{figure.label}</p>
+          <p className="min-w-0">
             <span
-              className={`num text-lg font-semibold ${
-                figure.value < 0 ? 'text-neg-500' : 'text-slate-900'
+              className={`num block truncate font-display text-[22px] leading-tight font-bold ${
+                figure.value < 0 ? 'text-neg-500' : 'text-accent-600'
               }`}
+              title={formatAmount(figure.value, locale)}
             >
               {formatAmount(figure.value, locale)}
             </span>

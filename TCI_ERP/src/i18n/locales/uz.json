@@ -108,7 +108,11 @@
     "premiumAccrualHint": "Sizga ko‘rinadigan shartnomalar bo‘yicha. Tuzatish hech qachon manfiy bo‘lmaydi — minimal mukofotdan pastga qaytarish yo‘q.",
     "claimsOpen": "Ishdagi da’volar",
     "claimsAwaitingInfo": "Ma’lumot kutilmoqda",
-    "claimsPaidThisPeriod": "Shu oyda to‘langan"
+    "claimsPaidThisPeriod": "Shu oyda to‘langan",
+    "agendaOpen": "Kun tartibingizdagi vazifalar",
+    "agendaOverdue": "muddati o‘tgan: {{count}}",
+    "openAgenda": "Kun tartibini ochish",
+    "allClear": "Sizni hech narsa kutmayapti"
   },
   "buyers": {
     "subtitle": "Kredit bahosidagi bayerlar (debitorlar) reyestri",

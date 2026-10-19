@@ -108,7 +108,11 @@
     "premiumAccrualHint": "Across the policies you can see. The adjustment is never negative — there is no refund below the minimum.",
     "claimsOpen": "Claims in progress",
     "claimsAwaitingInfo": "Awaiting information",
-    "claimsPaidThisPeriod": "Paid this month"
+    "claimsPaidThisPeriod": "Paid this month",
+    "agendaOpen": "Tasks on your agenda",
+    "agendaOverdue": "overdue: {{count}}",
+    "openAgenda": "Open agenda",
+    "allClear": "Nothing is waiting for you"
   },
   "buyers": {
     "subtitle": "Register of buyers (debtors) under credit assessment",
