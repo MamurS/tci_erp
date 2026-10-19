@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import {
   Badge,
   Button,
+  CountryFlag,
   EmptyState,
   Input,
   PageHeader,
@@ -26,7 +27,6 @@ import {
   useLatestGrades,
 } from './api'
 import { EntityFormModal } from './EntityFormModal'
-import { countryFlag } from '../../lib/countryFlag'
 import { gradeTone } from '../../lib/grade'
 import { EM_DASH } from '../../lib/format'
 import type { EntityRoles } from './types'
@@ -162,7 +162,7 @@ export function EntitiesPage() {
                     )}
                   </td>
                   <td>
-                    <span className="mr-1.5">{countryFlag(entity.country_code)}</span>
+                    <CountryFlag code={entity.country_code} className="mr-1.5" />
                     {refName(entity.countries, locale)}
                   </td>
                   <td className="text-slate-500">{refName(entity.industries, locale) || EM_DASH}</td>

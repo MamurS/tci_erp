@@ -5,7 +5,9 @@
  * here hints at the internal workflow behind it.
  */
 
+import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
+import { PageLoading } from '../../components/layout/PageLoading'
 import { useTranslation } from 'react-i18next'
 import { LogOut } from 'lucide-react'
 
@@ -70,7 +72,9 @@ export function PortalShell() {
       </header>
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-7">
-        <Outlet />
+        <Suspense fallback={<PageLoading />}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   )

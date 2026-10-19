@@ -1,13 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ChevronDown, LogOut, Search, UserRound } from 'lucide-react'
+import { ChevronDown, LogOut, PanelLeftOpen, Search, UserRound } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { navIcon } from './navIcons'
+import { sectionFor } from './shell'
 
 interface HeaderProps {
   onOpenPalette: () => void
+  /** The sidebar is not on screen: offer the button that brings it back. */
+  sidebarHidden: boolean
+  onShowSidebar: () => void
+  /** Hovering the button peeks at the panel without pinning it (desktop). */
+  onPeekSidebar?: () => void
 }
 
 /** Initials for the avatar: first letters of the e-mail's local part words. */
@@ -18,8 +25,12 @@ function initials(email: string | undefined): string {
   return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || local[0]?.toUpperCase() || '·'
 }
 
-export function Header({ onOpenPalette }: HeaderProps) {
+export function Header({ onOpenPalette, sidebarHidden, onShowSidebar, onPeekSidebar }: HeaderProps) {
   const { t } = useTranslation()
+  const { pathname } = useLocation()
+  const section = sectionFor(pathname)
+  const SectionIcon = section ? navIcon(section.key) : null
+  const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
   const { session, roles, signOut } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -41,10 +52,29 @@ export function Header({ onOpenPalette }: HeaderProps) {
     }
   }, [menuOpen])
 
-  const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
-
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-slate-200/80 bg-white/85 px-6 backdrop-blur">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200/80 bg-white/85 px-4 backdrop-blur sm:gap-4 sm:px-6">
+      {sidebarHidden && (
+        <button
+          type="button"
+          onClick={onShowSidebar}
+          onMouseEnter={onPeekSidebar}
+          className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-accent-600"
+          title={`${t('nav.show')} (${isMac ? '⌘B' : 'Ctrl B'})`}
+          aria-label={t('nav.show')}
+        >
+          <PanelLeftOpen className="size-5" />
+        </button>
+      )}
+      {section && SectionIcon && (
+        <Link
+          to={section.path}
+          className="hidden shrink-0 items-center gap-2 font-display text-[16px] font-bold tracking-wide text-accent-600 uppercase hover:text-accent-500 md:flex"
+        >
+          <SectionIcon className="size-[18px] text-accent-500" strokeWidth={2} />
+          {t(`nav.${section.key}`)}
+        </Link>
+      )}
       <button
         type="button"
         onClick={onOpenPalette}

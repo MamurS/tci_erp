@@ -18,7 +18,8 @@
 import { useMemo } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { Trans, useTranslation } from 'react-i18next'
+import { Trans } from 'react-i18next'
+import { useFixedT } from '../../../i18n/useFixedT'
 import type { TFunction } from 'i18next'
 import { ArrowLeft, Printer } from 'lucide-react'
 
@@ -90,8 +91,7 @@ export function ReportPage() {
   const displayCurrency: DisplayCurrency =
     ccyParam === 'UZS' || ccyParam === 'USD' || ccyParam === 'EUR' ? ccyParam : 'original'
 
-  const { i18n } = useTranslation()
-  const t = useMemo(() => i18n.getFixedT(lang), [i18n, lang])
+  const { t, ready: languageReady } = useFixedT(lang)
   const locale = lang
 
   const { data: entity, isLoading: entityLoading } = useEntity(id)
@@ -231,7 +231,7 @@ export function ReportPage() {
       : []
   }, [memberEntities.data, memberStatements.data, reportType, baseCurrency, locale])
 
-  if (entityLoading || statementsLoading) {
+  if (entityLoading || statementsLoading || !languageReady) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Spinner />

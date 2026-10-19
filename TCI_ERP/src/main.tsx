@@ -7,7 +7,7 @@ import '@fontsource/pt-sans-narrow/400.css'
 import '@fontsource/pt-sans-narrow/700.css'
 import '@fontsource/arimo/400.css'
 import '@fontsource/arimo/700.css'
-import './i18n'
+import { i18nReady } from './i18n'
 import './index.css'
 import App from './App'
 import { AuthProvider } from './auth/AuthContext'
@@ -21,6 +21,8 @@ const queryClient = new QueryClient({
   },
 })
 
+// First paint waits for the language bundle (instant for the bundled ru).
+void i18nReady.finally(() => {
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
@@ -32,3 +34,4 @@ createRoot(document.getElementById('root')!).render(
     </QueryClientProvider>
   </StrictMode>,
 )
+})

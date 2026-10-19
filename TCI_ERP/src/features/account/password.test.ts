@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 
 import { MIN_PASSWORD_LENGTH, checkPassword, passwordStrength } from './password'
 
-const EMAIL = 'mamur@mosaic.uz'
+const EMAIL = 'mamur@example.uz'
 const GOOD = 'Zarafshon2026river'
 
 describe('checkPassword', () => {
@@ -27,12 +27,12 @@ describe('checkPassword', () => {
   })
 
   it('rejects the email address itself', () => {
-    const asPassword = 'mamur@mosaic.uz'
+    const asPassword = 'mamur@example.uz'
     expect(checkPassword(asPassword, asPassword, EMAIL).problems).toContain('sameAsEmail')
   })
 
   it('also rejects just the local part, which is the real temptation', () => {
-    // «mamur» for mamur@mosaic.uz passes a literal "not equal to the email"
+    // «mamur» for mamur@example.uz passes a literal "not equal to the email"
     // reading, and is exactly what the rule exists to stop.
     const local = 'mamur'.padEnd(MIN_PASSWORD_LENGTH, 'mamur').slice(0, MIN_PASSWORD_LENGTH)
     expect(checkPassword('mamur', 'mamur', EMAIL).problems).toContain('sameAsEmail')
@@ -40,7 +40,7 @@ describe('checkPassword', () => {
   })
 
   it('compares the address case- and space-insensitively', () => {
-    expect(checkPassword('  MAMUR@MOSAIC.UZ ', '  MAMUR@MOSAIC.UZ ', EMAIL).problems).toContain(
+    expect(checkPassword('  MAMUR@EXAMPLE.UZ ', '  MAMUR@EXAMPLE.UZ ', EMAIL).problems).toContain(
       'sameAsEmail',
     )
   })

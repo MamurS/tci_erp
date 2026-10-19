@@ -1,26 +1,13 @@
 /**
- * Navy navigation rail, grouped by line of work. Collapses to icons; the
- * choice is remembered per browser (a convenience, so storage failures are
- * ignored and the rail simply opens expanded).
+ * The navigation panel, grouped by line of work. Like Claude's, it is either
+ * there or gone: docked beside the content, or hidden entirely — and, while
+ * hidden, it can be peeked at as an overlay (hover the left edge or the
+ * toggle) without being pinned back. On small screens it is always a drawer.
  */
 
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import {
-  AlarmClock,
-  Building2,
-  ChevronsLeft,
-  ChevronsRight,
-  ClipboardList,
-  FileText,
-  FileWarning,
-  Inbox,
-  LayoutDashboard,
-  ListChecks,
-  Settings,
-  ShieldCheck,
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { PanelLeftClose, Pin } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
 import { hasRole, isStaff } from '../../lib/roles'
@@ -29,26 +16,20 @@ import { useAgendaTasks } from '../../features/agenda/api'
 import { agendaCounts } from '../../features/agenda/catalogue'
 import { BrandMark } from '../ui/BrandMark'
 import { NAV_GROUPS, navItemsForRoles } from './navigation'
-
-const ICONS: Record<string, LucideIcon> = {
-  dashboard: LayoutDashboard,
-  agenda: ListChecks,
-  entities: Building2,
-  requests: Inbox,
-  limits: ShieldCheck,
-  policies: FileText,
-  declarations: ClipboardList,
-  overdues: AlarmClock,
-  claims: FileWarning,
-  admin: Settings,
-}
+import { navIcon } from './navIcons'
 
 interface SidebarProps {
-  collapsed: boolean
-  onToggle: () => void
+  /** docked: in the page flow; overlay: floating (peek or mobile drawer). */
+  variant: 'docked' | 'overlay'
+  /** Hide (docked) / dismiss (overlay). */
+  onClose: () => void
+  /** Overlay only: pin the panel open again. */
+  onPin?: () => void
+  /** Called after a destination is chosen (closes a drawer). */
+  onNavigate?: () => void
 }
 
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export function Sidebar({ variant, onClose, onPin, onNavigate }: SidebarProps) {
   const { t } = useTranslation()
   const { roles } = useAuth()
   const items = navItemsForRoles(roles)
@@ -62,23 +43,36 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
 
   return (
     <aside
-      className={`sticky top-0 flex h-screen shrink-0 flex-col bg-gradient-to-b from-accent-700 via-accent-800 to-accent-900 text-white transition-[width] duration-200 ${
-        collapsed ? 'w-[68px]' : 'w-64'
-      }`}
+      className="flex h-full w-64 flex-col bg-gradient-to-b from-accent-700 via-accent-800 to-accent-900 text-white"
+      aria-label={t('nav.title')}
     >
-      <div className={`flex h-16 items-center border-b border-white/10 ${collapsed ? 'justify-center px-2' : 'px-5'}`}>
-        {collapsed ? (
-          <span className="font-display text-[22px] leading-none font-bold">
-            <span className="text-accent-400">M</span>
+      <div className="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 pr-2 pl-5">
+        <div className="flex min-w-0 flex-1 flex-col">
+          <BrandMark size="sm" inverse />
+          <span className="mt-1 text-[10px] leading-tight font-medium tracking-[0.08em] text-white/45 uppercase">
+            {t('app.company')}
           </span>
-        ) : (
-          <div className="flex flex-col">
-            <BrandMark size="sm" inverse />
-            <span className="mt-1 text-[10.5px] font-medium tracking-[0.18em] text-white/50 uppercase">
-              {t('app.title')}
-            </span>
-          </div>
+        </div>
+        {variant === 'overlay' && onPin && (
+          <button
+            type="button"
+            onClick={onPin}
+            className="flex size-8 items-center justify-center rounded-md text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+            title={t('nav.pin')}
+            aria-label={t('nav.pin')}
+          >
+            <Pin className="size-4" />
+          </button>
         )}
+        <button
+          type="button"
+          onClick={onClose}
+          className="flex size-8 items-center justify-center rounded-md text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+          title={`${t('nav.hide')} (Ctrl B)`}
+          aria-label={t('nav.hide')}
+        >
+          <PanelLeftClose className="size-[18px]" />
+        </button>
       </div>
 
       <nav className="scrollbar-thin flex-1 overflow-y-auto px-3 py-4">
@@ -87,26 +81,23 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           if (!groupItems.length) return null
           return (
             <div key={group} className="mb-5 last:mb-0">
-              {!collapsed && (
-                <div className="mb-1.5 px-3 text-[10.5px] font-semibold tracking-[0.16em] text-white/40 uppercase">
-                  {t(`nav.groups.${group}`)}
-                </div>
-              )}
+              <div className="mb-1.5 px-3 text-[10.5px] font-semibold tracking-[0.16em] text-white/40 uppercase">
+                {t(`nav.groups.${group}`)}
+              </div>
               <div className="flex flex-col gap-0.5">
                 {groupItems.map((item) => {
-                  const Icon = ICONS[item.key] ?? LayoutDashboard
-                  const showEscalated = item.key === 'limits' && canDecide && (escalatedCount ?? 0) > 0
+                  const Icon = navIcon(item.key)
+                  const showEscalated =
+                    item.key === 'limits' && canDecide && (escalatedCount ?? 0) > 0
                   const showAgenda = item.key === 'agenda' && agenda.open > 0
                   return (
                     <NavLink
                       key={item.key}
                       to={item.path}
                       end={item.path === '/'}
-                      title={collapsed ? t(`nav.${item.key}`) : undefined}
+                      onClick={onNavigate}
                       className={({ isActive }) =>
-                        `group relative flex items-center gap-3 rounded-md py-2 text-[13.5px] transition-colors ${
-                          collapsed ? 'justify-center px-0' : 'px-3'
-                        } ${
+                        `group relative flex items-center gap-3 rounded-md px-3 py-2 text-[13.5px] transition-colors ${
                           isActive
                             ? 'bg-white/12 font-semibold text-white before:absolute before:top-1.5 before:bottom-1.5 before:left-0 before:w-[3px] before:rounded-r before:bg-accent-400'
                             : 'text-white/70 hover:bg-white/6 hover:text-white'
@@ -114,8 +105,8 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                       }
                     >
                       <Icon className="size-[18px] shrink-0" strokeWidth={1.8} />
-                      {!collapsed && <span className="flex-1 truncate">{t(`nav.${item.key}`)}</span>}
-                      {!collapsed && showEscalated && (
+                      <span className="flex-1 truncate">{t(`nav.${item.key}`)}</span>
+                      {showEscalated && (
                         <span
                           className="rounded-full bg-brand-amber px-1.5 text-[11px] font-bold text-accent-900"
                           title={t('limits.tabs.escalated')}
@@ -125,7 +116,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                       )}
                       {/* Overdue gets its own tone: an overdue count is a
                           different statement from a busy one. */}
-                      {!collapsed && showAgenda && (
+                      {showAgenda && (
                         <span className="flex items-center gap-1">
                           {agenda.overdue > 0 && (
                             <span
@@ -143,9 +134,6 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                           </span>
                         </span>
                       )}
-                      {collapsed && (showEscalated || (showAgenda && agenda.overdue > 0)) && (
-                        <span className="absolute top-1 right-2 size-2 rounded-full bg-brand-orange" />
-                      )}
                     </NavLink>
                   )
                 })}
@@ -155,17 +143,9 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
         })}
       </nav>
 
-      <button
-        type="button"
-        onClick={onToggle}
-        className={`flex h-11 items-center gap-2 border-t border-white/10 text-[12px] text-white/55 transition-colors hover:bg-white/5 hover:text-white ${
-          collapsed ? 'justify-center' : 'px-5'
-        }`}
-        aria-label={collapsed ? t('nav.expand') : t('nav.collapse')}
-      >
-        {collapsed ? <ChevronsRight className="size-4" /> : <ChevronsLeft className="size-4" />}
-        {!collapsed && t('nav.collapse')}
-      </button>
+      <div className="shrink-0 border-t border-white/10 px-5 py-3 text-[11px] text-white/35">
+        {t('nav.shortcutHint')}
+      </div>
     </aside>
   )
 }

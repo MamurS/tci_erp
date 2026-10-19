@@ -26,7 +26,7 @@ export function BrandMark({ size = 'md', inverse = false, className = '' }: Bran
       aria-label={`${first} ${second}`}
     >
       <span className="text-accent-500">{first}</span>
-      <span className={`ml-[0.14em] ${inverse ? 'text-white' : 'text-accent-600'}`}>{second}</span>
+      <span className={`ml-[0.24em] ${inverse ? 'text-white' : 'text-accent-600'}`}>{second}</span>
     </span>
   )
 }

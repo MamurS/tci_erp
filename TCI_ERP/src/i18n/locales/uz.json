@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "TCI ERP",
-    "company": "Mosaic Insurance Group"
+    "company": "Savdo kreditlarini sug‘urtalash"
   },
   "nav": {
     "dashboard": "Boshqaruv paneli",
@@ -23,7 +23,12 @@
       "system": "Tizim"
     },
     "collapse": "Yig‘ish",
-    "expand": "Yoyish"
+    "expand": "Yoyish",
+    "title": "Asosiy menyu",
+    "pin": "Menyuni mahkamlash",
+    "hide": "Menyuni yashirish",
+    "show": "Menyuni ko‘rsatish",
+    "shortcutHint": "Ctrl/⌘ B — menyuni ko‘rsatish yoki yashirish · Ctrl/⌘ K — qidiruv"
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -112,7 +117,31 @@
     "agendaOpen": "Kun tartibingizdagi vazifalar",
     "agendaOverdue": "muddati o‘tgan: {{count}}",
     "openAgenda": "Kun tartibini ochish",
-    "allClear": "Sizni hech narsa kutmayapti"
+    "allClear": "Sizni hech narsa kutmayapti",
+    "greeting": {
+      "morning": "Xayrli tong",
+      "day": "Xayrli kun",
+      "evening": "Xayrli kech"
+    },
+    "needsAttention": "E’tiboringizni talab qiladi",
+    "allTasks": "Barcha vazifalar ({{count}})",
+    "noTasks": "Sizni hech narsa kutmayapti — barcha vazifalar bajarilgan.",
+    "signals": "Signallar",
+    "noSignals": "Signallar yo‘q: kech bildirilgan muddati o‘tgan qarzlar, eskalatsiyalar va bahsli deklaratsiyalar yo‘q.",
+    "signalLabels": {
+      "overduesLate": "Kech bildirilgan muddati o‘tgan qarzlar",
+      "escalatedLimits": "Eskalatsiyadagi limitlar",
+      "declarationsDisputed": "Bahsli deklaratsiyalar",
+      "claimsAwaitingInfo": "Ma’lumot kutayotgan da’volar",
+      "declarationsAwaiting": "Qabul qilinishi kerak bo‘lgan deklaratsiyalar"
+    },
+    "kpis": "Portfel qisqacha",
+    "policyholdersSub": "sug‘urtalanuvchilar: {{count}}",
+    "lateSub": "kech bildirilgan: {{count}}",
+    "paidSub": "shu oyda to‘langan: {{count}}",
+    "premiumOfMinimum": "minimal mukofotning {{pct}}",
+    "premiumEarned": "Ishlab topilgan mukofot",
+    "tasksMore": "yana {{count}}"
   },
   "buyers": {
     "subtitle": "Kredit bahosidagi bayerlar (debitorlar) reyestri",
@@ -583,7 +612,7 @@
   },
   "report": {
     "title": "QALTISLIK HISOBOTI",
-    "generatedBy": "MIG TCI ERP tizimida yaratilgan",
+    "generatedBy": "TCI ERP tizimida yaratilgan",
     "reportDate": "Hisobot sanasi",
     "generalInfo": "Umumiy ma’lumotlar",
     "calculatedLimit": "Hisoblangan limit (dvijok)",
@@ -838,7 +867,7 @@
     "nm": "m/e",
     "pp": "f.p.",
     "endOfReport": "*** HISOBOT YAKUNI ***",
-    "disclaimer": "Ushbu hisobot qat’iy maxfiylik asosida faqat sizning foydalanishingiz uchun tayyorlangan; uning biror qismi uchinchi shaxslarga oshkor etilmasligi kerak. {{company}} ushbu hisobot ma’lumotlariga asoslangan qarorlar natijasida yetkazilgan zarar yoki ziyon uchun javobgar emas. Tavsiya etilgan kredit limiti — tasdiqlangan limit emas, balki hisoblash natijasi.",
+    "disclaimer": "Ushbu hisobot qat’iy maxfiylik asosida faqat sizning foydalanishingiz uchun tayyorlangan; uning biror qismi uchinchi shaxslarga oshkor etilmasligi kerak. Hisobotni tuzuvchi ushbu hisobot ma’lumotlariga asoslangan qarorlar natijasida yetkazilgan zarar yoki ziyon uchun javobgar emas. Tavsiya etilgan kredit limiti — tasdiqlangan limit emas, balki hisoblash natijasi.",
     "noStatements": "Bu turdagi yillik hisobot mavjud emas — moliyaviy bo‘limlar tushirib qoldirildi.",
     "sections2": {
       "generalInfo": "Umumiy ma’lumot",

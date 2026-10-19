@@ -9,9 +9,8 @@ import { useQuery } from '@tanstack/react-query'
 
 import { tci } from '../../lib/supabase'
 
-import { Badge, Button, EmptyState, PageHeader, Spinner, Tabs } from '../../components/ui'
+import { Badge, Button, CountryFlag, EmptyState, PageHeader, Spinner, Tabs } from '../../components/ui'
 import { useEntity, useEntityRoles } from './api'
-import { countryFlag } from '../../lib/countryFlag'
 import { BuyerLimitsTab } from '../limits/BuyerLimitsTab'
 import { EntityFormModal } from './EntityFormModal'
 import { RoleBadges } from './EntitiesPage'
@@ -100,7 +99,7 @@ export function EntityDetailPage() {
         title={
           <span className="inline-flex items-center gap-3">
             <span>
-              <span className="mr-2">{countryFlag(entity.country_code)}</span>
+              <CountryFlag code={entity.country_code} className="mr-2.5" />
               {entity.name}
             </span>
             <GradeHeaderBadge
