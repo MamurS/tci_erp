@@ -37,6 +37,7 @@ import {
   useSubmitClientDeclaration,
 } from './api'
 import type { ClientDeclaration, ClientPolicy } from './types'
+import { refusalKey } from '../../lib/refusals'
 
 const STATUS_TONE: Record<ClientDeclaration['status'], 'neutral' | 'accent' | 'pos' | 'warn'> =
   {
@@ -65,8 +66,8 @@ export function PortalDeclarationsPage() {
 
   const run = (p: Promise<unknown>) => {
     setError(null)
-    return p.catch((e: { message?: string }) =>
-      setError(e.message ?? t('common.somethingWentWrong')),
+    return p.catch((e: unknown) =>
+      setError(t(refusalKey(e))),
     )
   }
 
@@ -270,8 +271,8 @@ function DeclarationEditor({
                       onClick={() =>
                         void remove
                           .mutateAsync(l.id)
-                          .catch((e: { message?: string }) =>
-                            onError(e.message ?? t('common.somethingWentWrong')),
+                          .catch((e: unknown) =>
+                            onError(t(refusalKey(e))),
                           )
                       }
                     >
@@ -318,8 +319,8 @@ function DeclarationEditor({
                     setBuyerId('')
                     setTurnover('')
                   })
-                  .catch((e: { message?: string }) =>
-                    onError(e.message ?? t('common.somethingWentWrong')),
+                  .catch((e: unknown) =>
+                    onError(t(refusalKey(e))),
                   )
               }
             >

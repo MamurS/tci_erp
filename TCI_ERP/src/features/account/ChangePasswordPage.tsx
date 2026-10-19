@@ -13,6 +13,7 @@ import { Button, Card, Field, Input, PageHeader } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { supabase, tci } from '../../lib/supabase'
 import { MIN_PASSWORD_LENGTH, checkPassword, passwordStrength } from './password'
+import { rotationErrorKey, updateUserErrorKey } from './passwordErrors'
 
 export function ChangePasswordPage() {
   const { t } = useTranslation()
@@ -37,13 +38,21 @@ export function ChangePasswordPage() {
     try {
       const { error: updateError } = await supabase.auth.updateUser({ password })
       if (updateError) {
-        setError(updateError.message)
+        setError(t(updateUserErrorKey(updateError)))
         return
       }
       // Record the rotation. The password itself already changed, so a
-      // failure here must not look like the change failed.
+      // failure here must not look like the change failed - unless the
+      // database says it did not change (0048), which keeps the gate shut.
       const { error: flagError } = await tci().rpc('complete_password_change')
-      if (flagError) console.error('Failed to clear the password-change flag', flagError)
+      if (flagError) {
+        const key = rotationErrorKey(flagError)
+        if (key) {
+          setError(t(key))
+          return
+        }
+        console.error('Failed to clear the password-change flag', flagError)
+      }
       clearPasswordChangeFlag()
       void navigate('/', { replace: true })
     } catch {

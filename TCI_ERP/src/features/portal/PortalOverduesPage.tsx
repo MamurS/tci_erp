@@ -34,6 +34,7 @@ import {
   useMyPolicies,
 } from './api'
 import type { ClientPolicy } from './types'
+import { refusalKey } from '../../lib/refusals'
 
 export function PortalOverduesPage() {
   const { t, i18n } = useTranslation()
@@ -123,8 +124,8 @@ export function PortalOverduesPage() {
                     setFirstDue('')
                     setAmount('')
                   })
-                  .catch((e: { message?: string }) =>
-                    setError(e.message ?? t('common.somethingWentWrong')),
+                  .catch((e: unknown) =>
+                    setError(t(refusalKey(e))),
                   )
               }}
             >

@@ -102,7 +102,9 @@
     "add": "Qo‘shish",
     "loadFailed": "Yuklab bo‘lmadi",
     "tryAgain": "Bir lahzadan so‘ng urinib ko‘ring.",
-    "somethingWentWrong": "Nimadir noto‘g‘ri ketdi."
+    "somethingWentWrong": "Nimadir noto‘g‘ri ketdi.",
+    "notPermitted": "Sizda bu amalni bajarish huquqi yo‘q.",
+    "recordNotFound": "Yozuv topilmadi — ehtimol, u o‘chirilgan. Sahifani yangilang."
   },
   "dashboard": {
     "welcome": "Xush kelibsiz, {{email}}",
@@ -1655,6 +1657,11 @@
       "hint": "Bu hisob bilan kirilgan barcha boshqa brauzer va qurilmalardagi seanslarni yakunlash. Bu seans saqlanib qoladi.",
       "signOutOthers": "Boshqa qurilmalardan chiqish",
       "signedOutOthers": "Boshqa qurilmalardagi seanslar yakunlandi."
+    },
+    "errors": {
+      "samePassword": "Yangi parol joriy paroldan farq qilishi kerak.",
+      "weakPassword": "Parol server talablariga javob bermaydi. Uzunroq yoki kamroq tarqalgan parol tanlang.",
+      "changeFailed": "Parolni o‘zgartirib bo‘lmadi. Qaytadan urinib ko‘ring."
     }
   },
   "provisioning": {
@@ -2066,6 +2073,17 @@
       "disputeNote": "Sabab",
       "submittedAt": "Topshirilgan",
       "acceptedAt": "Qabul qilingan"
+    },
+    "errors": {
+      "noLines": "Satrlarsiz deklaratsiyani topshirib bo‘lmaydi.",
+      "invalidTransition": "Deklaratsiyaning joriy holatida bu amal mavjud emas.",
+      "disputeReason": "Bahs sababini ko‘rsating — sug‘urtalanuvchi deklaratsiyani unga ko‘ra tuzata olsin.",
+      "correctOnlyFinal": "Faqat qabul qilingan yoki bahsli deklaratsiyani tuzatish mumkin.",
+      "acceptCommercialOnly": "Deklaratsiyani faqat tijorat anderrayteri qabul qilishi mumkin.",
+      "draftOnly": "Deklaratsiyani faqat qoralama holatida o‘zgartirish mumkin.",
+      "policyNotActive": "Deklaratsiyalar faqat amaldagi polis bo‘yicha topshiriladi.",
+      "periodTaken": "Bu davr uchun deklaratsiya allaqachon mavjud.",
+      "negativeTurnover": "Aylanma manfiy bo‘lishi mumkin emas."
     }
   },
   "premium": {
@@ -2108,6 +2126,9 @@
       "status": "Holat",
       "scheduleTotal": "Jadval bo‘yicha jami",
       "computedAt": "Hisoblangan"
+    },
+    "errors": {
+      "scheduleLocked": "Jadvalni qayta yaratib bo‘lmaydi: ayrim to‘lovlar uchun hisob-faktura berilgan yoki ular to‘langan."
     }
   },
   "overdues": {
@@ -2144,6 +2165,13 @@
       "reportedAt": "Bildirilgan",
       "resolution": "Natija",
       "resolutionNote": "Izoh"
+    },
+    "errors": {
+      "amountPositive": "Muddati o‘tgan summa noldan katta bo‘lishi kerak.",
+      "policyNotActive": "Muddati o‘tgan qarz haqida faqat amaldagi polis bo‘yicha xabar berish mumkin.",
+      "dueInFuture": "Eng eski hisob muddati o‘tgan sana bo‘lishi kerak.",
+      "alreadyOpen": "Bu polis bo‘yicha ushbu bayer uchun ochiq xabarnoma allaqachon mavjud.",
+      "alreadyResolved": "Bu xabarnoma allaqachon yopilgan."
     }
   },
   "claims": {

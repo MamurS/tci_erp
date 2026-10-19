@@ -23,6 +23,7 @@ import {
   usePremiumInstalments,
   useUpdateInstalment,
 } from './premiumApi'
+import { refusalKey } from '../../lib/refusals'
 
 const STATUS_TONE: Record<InstalmentStatus, 'neutral' | 'accent' | 'pos' | 'warn'> = {
   pending: 'neutral',
@@ -46,7 +47,7 @@ export function PolicyPremiumTab({ policyId }: { policyId: string }) {
 
   const run = (p: Promise<unknown>) => {
     setError(null)
-    p.catch((e: { message?: string }) => setError(e.message ?? t('common.somethingWentWrong')))
+    p.catch((e: unknown) => setError(t(refusalKey(e))))
   }
 
   const belowMinimum = isBelowMinimum(

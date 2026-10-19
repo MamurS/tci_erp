@@ -40,6 +40,7 @@ function migration(suffix: string): string {
 const M43 = migration('0043_security_closure.sql')
 const M44 = migration('0044_auth_hardening.sql')
 const M46 = migration('0046_login_gate.sql')
+const M48 = migration('0048_rotation_and_claim_documents.sql')
 
 /** The LATEST migration that (re)defines tci.definer_gate_allowlist(). */
 const ALLOWLIST_SOURCE = Object.entries(MIGRATIONS)
@@ -68,6 +69,11 @@ export const DEFINER_GATE_ALLOWLIST: readonly { name: string; why: string }[] = 
   { name: 'my_auth_status', why: "reads only the caller's own rotation, MFA and lockout state" },
   { name: 'login_begin', why: 'pre-sign-in entry point: salted hashes only, names no account (see pre_auth_entry_points)' },
   { name: 'my_sign_in_notice', why: "reads only the caller's own sign-in attempts, keyed by auth.uid()" },
+  { name: 'require_trusted_write', why: 'a gate: only raises (the guard on workflow-written tables)' },
+  {
+    name: 'may_remove_claim_object',
+    why: "a storage-policy predicate: true only for the caller's own unregistered upload to a claim they may upload to",
+  },
 ]
 
 describe('no migration after 0042 raises P0004', () => {
@@ -100,8 +106,8 @@ describe('the allow-list in tci.definer_gate_allowlist()', () => {
     why: m[2].replace(/''/g, "'"),
   }))
 
-  it('is defined last by 0046', () => {
-    expect(ALLOWLIST_SOURCE).toBe(M46)
+  it('is defined last by 0048', () => {
+    expect(ALLOWLIST_SOURCE).toBe(M48)
   })
 
   it('matches this mirror exactly, name for name, reason for reason', () => {
@@ -237,5 +243,17 @@ describe('the sign-in gate (0046)', () => {
   it('refuses the right password while locked, and only a bypass ends sessions', () => {
     expect(M46).toContain("if v_lock.user_id is not null and v_lock.reason = 'bypass' then")
     expect(M46).toContain("if v_method <> 'password' then")
+  })
+})
+
+describe('rotation and claim documents (0048)', () => {
+  it('refuses to clear the rotation flag while the password is unchanged', () => {
+    expect(M48).toContain('and p.temp_password_hash = tci.security_hash(u.encrypted_password)')
+    expect(M48).toContain("revoke select (temp_password_hash) on tci.user_profiles from authenticated, anon;")
+  })
+
+  it('registers size and type from Storage, never from the browser', () => {
+    expect(M48).toContain("where o.bucket_id = 'claim-documents' and o.name = p_storage_path;")
+    expect(M48).toContain('v_size, v_type, p_note')
   })
 })

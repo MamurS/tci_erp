@@ -102,7 +102,9 @@
     "add": "Add",
     "loadFailed": "Could not load this",
     "tryAgain": "Try again in a moment.",
-    "somethingWentWrong": "Something went wrong."
+    "somethingWentWrong": "Something went wrong.",
+    "notPermitted": "You are not permitted to do this.",
+    "recordNotFound": "The record was not found — it may have been removed. Refresh the page."
   },
   "dashboard": {
     "welcome": "Welcome, {{email}}",
@@ -1655,6 +1657,11 @@
       "hint": "Sign out every other browser and device where this account is signed in. This one stays.",
       "signOutOthers": "Sign out other devices",
       "signedOutOthers": "Other devices have been signed out."
+    },
+    "errors": {
+      "samePassword": "The new password must differ from the current one.",
+      "weakPassword": "The password does not meet the server’s requirements. Choose a longer or less common one.",
+      "changeFailed": "The password could not be changed. Try again."
     }
   },
   "provisioning": {
@@ -2066,6 +2073,17 @@
       "disputeNote": "Reason",
       "submittedAt": "Submitted",
       "acceptedAt": "Accepted"
+    },
+    "errors": {
+      "noLines": "A declaration cannot be submitted without lines.",
+      "invalidTransition": "This action is not available for the declaration in its current status.",
+      "disputeReason": "A dispute needs a reason the policyholder can act on.",
+      "correctOnlyFinal": "Only an accepted or disputed declaration can be corrected.",
+      "acceptCommercialOnly": "Only a commercial underwriter may accept a declaration.",
+      "draftOnly": "A declaration can only be edited while it is a draft.",
+      "policyNotActive": "Declarations are made only under an active policy.",
+      "periodTaken": "A declaration for this period already exists.",
+      "negativeTurnover": "Turnover cannot be negative."
     }
   },
   "premium": {
@@ -2108,6 +2126,9 @@
       "status": "Status",
       "scheduleTotal": "Schedule total",
       "computedAt": "Earned"
+    },
+    "errors": {
+      "scheduleLocked": "The schedule cannot be regenerated: some instalments are already invoiced or paid."
     }
   },
   "overdues": {
@@ -2144,6 +2165,13 @@
       "reportedAt": "Reported at",
       "resolution": "Outcome",
       "resolutionNote": "Note"
+    },
+    "errors": {
+      "amountPositive": "The overdue amount must be positive.",
+      "policyNotActive": "Overdue accounts can only be reported under an active policy.",
+      "dueInFuture": "The due date of the oldest invoice must be in the past.",
+      "alreadyOpen": "This buyer already has an open overdue notification on this policy.",
+      "alreadyResolved": "This notification has already been closed."
     }
   },
   "claims": {

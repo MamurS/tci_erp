@@ -20,6 +20,7 @@ import { formatAmount, formatMoment } from '../../lib/format'
 import { useOverdueNotification, useResolveNoa } from './api'
 import { canResolve, RESOLUTION_STATUSES } from './noa'
 import type { NoaStatus } from './types'
+import { refusalKey } from '../../lib/refusals'
 
 export function OverdueDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -133,8 +134,8 @@ export function OverdueDetailPage() {
                   setError(null)
                   resolve
                     .mutateAsync({ id: noa.id, status, note })
-                    .catch((e: { message?: string }) =>
-                      setError(e.message ?? t('common.somethingWentWrong')),
+                    .catch((e: unknown) =>
+                      setError(t(refusalKey(e))),
                     )
                 }}
               >

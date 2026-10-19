@@ -417,7 +417,7 @@ export function useRecordRecovery() {
 
 /** Upload: the bytes go straight to Storage under the claim's folder, then the
  * register row is written by tci.register_claim_document, which re-checks the
- * path, the size and the declared type. */
+ * path and takes the size and type from what Storage stored (0048). */
 export function useUploadClaimDocument() {
   const invalidate = useInvalidateClaims()
   return useMutation({
@@ -455,8 +455,16 @@ export function useDeleteClaimDocument() {
   const invalidate = useInvalidateClaims()
   return useMutation({
     mutationFn: async (input: { claim_id: string; document_id: string }) => {
-      const { error } = await tci().rpc('delete_claim_document', { p_document_id: input.document_id })
+      const { data: path, error } = await tci().rpc('delete_claim_document', { p_document_id: input.document_id })
       if (error) throw error
+      // The register row is gone; the bytes go through the Storage API (SQL
+      // may not delete them, 0048). A failure leaves an unregistered object
+      // that its uploader or claims can still remove, so it is not an error
+      // the person who asked to delete the document needs to see.
+      if (typeof path === 'string') {
+        const { error: rmErr } = await supabase.storage.from(CLAIM_DOCUMENTS_BUCKET).remove([path])
+        if (rmErr) console.error('Failed to remove the claim document file', rmErr)
+      }
     },
     onSuccess: (_d, v) => invalidate(v.claim_id),
   })
