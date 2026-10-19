@@ -395,6 +395,16 @@ is fine for internal test accounts and not fine for customers.
   ZAP baseline on the branch preview; `docs/SECURITY.md`,
   `docs/PENTEST-BRIEF.md`. Enabling the hooks, CAPTCHA, MFA and the
   rate-limit/session settings are DASHBOARD steps (listed in the PR).
+- [x] Design upgrade (Delcreda style) — brand tokens measured from the
+  reference reports (navy #005288, process blue #0093D0, orange #F7941E,
+  PT Sans Narrow display face), restyled primitives + StatCard / SectionTitle /
+  RatingGauge / RatingLegend, grouped collapsible navy sidebar, Ctrl/⌘ K
+  command palette, split login, dashboard hero; the **risk report rebuilt to
+  the Delcreda layout** online and as an A4 PDF (running header, gauge +
+  factor bullets, ten-band legend, key figures, COMBINED group statements,
+  ratio tables with % change, commentary, glossary, group structure, page
+  x of y). The NAME on every screen and report comes from `src/lib/brand.ts`
+  (Mosaic), never Delcreda's. See DESIGN.md and **Risk report rules** below
 - [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -945,6 +955,43 @@ and an email domain through `/rest/v1/rpc/`. The Supabase **security advisor**
 caught it after the apply; 0042 closes it and asserts that no Phase 6
 `SECURITY DEFINER` function is anon-executable. Run `get_advisors` after every
 phase — the local replay cannot see PostgREST exposure.
+
+### Risk report rules (design upgrade)
+
+**Normalise units before adding anything.** Statements are stored as entered
+(units / thousands / millions). `report/model.ts` multiplies every amount to
+whole units first; the group view `v_group_member_financials` does NOT, so
+never sum members from it.
+
+**The COMBINED group is a sum, not a consolidation.** It adds the members'
+own annual statements in the company's currency (members in another currency
+are left out and counted), with no intra-group eliminations; the report says
+so under the table. The subject company is part of the sum but is left out of
+the key-companies RANKINGS (it would crowd its affiliates out); its share
+stays in the totals.
+
+**Changes come from the original currency.** With `?ccy=` the amounts are
+converted for display, but every arrow, % change and commentary move is
+computed on the original statement-currency series, and two years in
+different currencies are never compared.
+
+**Commentary is structured, never generated.** `report/commentary.ts` emits
+(metric, subject, move, strength, from, to) and the page renders it through
+`report.commentary.*` templates. Strength: < 5% slight, < 20% moderate,
+< 50% strong, otherwise sharp; a move is n/m across a sign change, from a
+zero base or beyond ±1 000%. "Loss narrowed / deepened" applies only to
+result metrics (profit, margins) — a negative cash conversion cycle is not
+a loss.
+
+**The page footer lives in the `@page` margin boxes.** Only they can print
+"page x of y", and their `content` must be a literal, so `PrintPageRules`
+generates the rule in the report language (`report/printRules.ts`). The
+running header is the `thead` of the one-cell layout table.
+
+**Headless check.** Render `/entities/:id/report` with Supabase stubbed in
+the browser (Playwright `context.route` on `/rest/v1/**` + a fake session in
+localStorage) and `page.pdf({ format: 'A4', preferCSSPageSize: true })`; the
+reference Internet Resheniya figures produce 6 pages in en and uz, 7 in ru.
 
 ### Replaying the migration chain locally
 
