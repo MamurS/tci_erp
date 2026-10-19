@@ -20,11 +20,12 @@ import time
 import uuid
 from collections.abc import Awaitable, Callable
 
-from fastapi import Request, Response
+from fastapi import HTTPException, Request, Response
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.settings import Settings
+from app.ratelimit import compute_limiter
+from app.settings import Settings, get_settings
 
 logger = logging.getLogger("app.access")
 
@@ -34,14 +35,37 @@ REDACTED_HEADERS = frozenset(
 )
 
 
+def throttle_compute(request: Request) -> None:
+    """Per-IP bucket for /rating, /credit-limit and /fx, as a route
+    dependency so it runs before the body is validated."""
+    settings = get_settings()
+    decision = compute_limiter.check(f"ip:{client_ip(request, settings)}", settings.compute_per_ip_per_hour)
+    if not decision.allowed:
+        raise HTTPException(
+            status_code=429,
+            detail="too many requests, try again later",
+            headers={"Retry-After": str(decision.retry_after)},
+        )
+
+
 def client_ip(request: Request, settings: Settings) -> str:
-    """The caller's address. X-Forwarded-For is only trusted when the deploy
+    """The caller's address. Proxy headers are only trusted when the deploy
     says it sits behind a proxy — otherwise a client could forge its own
-    rate-limit bucket just by sending the header."""
+    rate-limit bucket just by sending the header.
+
+    Behind a proxy, CF-Connecting-IP wins (Cloudflare overwrites whatever the
+    client sent). Otherwise the RIGHT-most X-Forwarded-For hop: each proxy
+    appends the address it saw, so the left-most entries are whatever the
+    client chose to send and a fresh one per request would mint a fresh
+    bucket each time.
+    """
     if settings.behind_proxy:
-        forwarded = request.headers.get("x-forwarded-for", "")
-        if forwarded:
-            return forwarded.split(",")[0].strip()
+        cf = request.headers.get("cf-connecting-ip", "").strip()
+        if cf:
+            return cf
+        hops = [h.strip() for h in request.headers.get("x-forwarded-for", "").split(",") if h.strip()]
+        if hops:
+            return hops[-1]
     return request.client.host if request.client else "unknown"
 
 

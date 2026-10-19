@@ -155,8 +155,9 @@ service's environment and Supabase itself.
 | Timeouts | `REQUEST_TIMEOUT_SECONDS` (default 30) → 504; 15 s on Supabase calls, 10 s on CBU |
 | Error opacity | unhandled errors return `{"detail":"internal error","request_id":…}`; the traceback goes to the log only. The CBU proxy no longer echoes the upstream error, which named the URL it called. |
 | Logging | one JSON line per request (method, path, status, ms, ip, request id). No header values, no bodies, no token, no key. |
-| Rate limits | provisioning only: `PROVISIONING_PER_IP_PER_HOUR` (20) as a **router dependency**, so it applies before authentication and an unauthenticated flood is not free; `PROVISIONING_PER_CALLER_PER_HOUR` (30) on top. 429 + `Retry-After`, and the body never says which bucket ran out. |
-| Proxy headers | `X-Forwarded-For` is only believed when `TRUST_PROXY_HEADERS` is set, so a caller cannot forge its own rate-limit bucket |
+| Rate limits | provisioning: `PROVISIONING_PER_IP_PER_HOUR` (20) as a **router dependency**, so it applies before authentication and an unauthenticated flood is not free; `PROVISIONING_PER_CALLER_PER_HOUR` (30) on top. 429 + `Retry-After`, and the body never says which bucket ran out. `/rating`, `/credit-limit` and `/fx`: `COMPUTE_PER_IP_PER_HOUR` (600) per IP, counted before the body is validated. |
+| Proxy headers | only believed when `TRUST_PROXY_HEADERS` is set, so a caller cannot forge its own rate-limit bucket; then `CF-Connecting-IP` wins, else the RIGHT-most `X-Forwarded-For` hop (the one the proxy appended — the left ones are whatever the client sent) |
+| Caller state | provisioning resolves the caller AND asks `tci.my_auth_status()` with the caller's own token: an unrotated temporary password, an unmet MFA policy or an active lockout is a 403 (`password_rotation_required` / `mfa_required` / `account_locked`), exactly as `has_role`/`is_staff` close in the database. The roles themselves are read with the service key, which would otherwise see past those gates |
 | Container | non-root user (uid 10001), single worker, no build tools in the final image |
 | Health | `GET /health`, used by `healthCheckPath` |
 
@@ -176,7 +177,8 @@ instance; if this is ever scaled out, that is the piece to move to Redis.
 | `REQUEST_TIMEOUT_SECONDS` | no | `30` | per-request deadline |
 | `PROVISIONING_PER_IP_PER_HOUR` | no | `20` | rate limit |
 | `PROVISIONING_PER_CALLER_PER_HOUR` | no | `30` | rate limit |
-| `TRUST_PROXY_HEADERS` | on a host | unset | believe `X-Forwarded-For` |
+| `COMPUTE_PER_IP_PER_HOUR` | no | `600` | rate limit on rating / limit / fx |
+| `TRUST_PROXY_HEADERS` | on a host | unset | believe `CF-Connecting-IP` / `X-Forwarded-For` |
 | `LOG_LEVEL` | no | `INFO` | |
 
 ## Running the container locally

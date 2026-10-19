@@ -1716,7 +1716,10 @@
       "selfDisable": "You cannot disable your own account.",
       "invalidInput": "Check the values entered.",
       "noSession": "Your session has expired — sign in again.",
-      "unknown": "Something went wrong. Try again."
+      "unknown": "Something went wrong. Try again.",
+      "rotationRequired": "Change your temporary password before managing users.",
+      "mfaRequired": "Complete two-factor authentication before managing users.",
+      "accountLocked": "Your account is temporarily locked. Try again later."
     }
   },
   "agenda": {

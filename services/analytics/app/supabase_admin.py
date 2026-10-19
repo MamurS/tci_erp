@@ -90,6 +90,26 @@ class SupabaseAdmin:
             raise SupabaseAdminError(401, "invalid or expired access token")
         return response.json()
 
+    async def auth_status_as_caller(self, access_token: str) -> dict[str, Any]:
+        """tci.my_auth_status() evaluated AS THE CALLER (their token, not the
+        service key): rotation, MFA and lockout are decided by the database,
+        exactly as has_role/is_staff decide them for every policy."""
+        async with httpx.AsyncClient(timeout=TIMEOUT) as client:
+            response = await client.post(
+                f"{self.url}/rest/v1/rpc/my_auth_status",
+                headers={
+                    "apikey": self._key,
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json",
+                    "Content-Profile": "tci",
+                    "Accept-Profile": "tci",
+                },
+                json={},
+            )
+        self._raise_for_status(response)
+        body = response.json()
+        return body if isinstance(body, dict) else {}
+
     # -- REST (service role: bypasses RLS) ----------------------------------
 
     async def select(

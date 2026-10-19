@@ -25,6 +25,7 @@ from app.settings import get_settings
 
 from app.provisioning_rules import (
     ProvisioningDenied,
+    auth_status_refusal,
     authorize_admin_only,
     authorize_create,
     authorize_manage,
@@ -138,6 +139,18 @@ async def get_caller(
     user_id = user.get("id")
     if not user_id:
         raise HTTPException(status_code=401, detail="invalid or expired access token")
+
+    # The roles below are read with the service key, which sees them whatever
+    # the caller's state. The database's own gates (has_role/is_staff) close
+    # while a temporary password is unrotated, MFA is owed or the account is
+    # locked, so the same must hold here: ask the database, as the caller.
+    try:
+        status = await admin.auth_status_as_caller(token)
+    except SupabaseAdminError as exc:
+        raise HTTPException(status_code=401, detail="invalid or expired access token") from exc
+    refusal = auth_status_refusal(status)
+    if refusal:
+        raise HTTPException(status_code=403, detail={"code": refusal, "message": refusal.replace("_", " ")})
 
     rows = await admin.select(
         "user_roles", {"select": "role", "user_id": f"eq.{user_id}"}

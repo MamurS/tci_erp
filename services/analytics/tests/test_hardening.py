@@ -279,3 +279,53 @@ class TestProxyHeaderTrust:
 
         monkeypatch.setenv("TRUST_PROXY_HEADERS", "true")
         assert client_ip(request, Settings()) == "1.2.3.4"
+
+    def test_takes_the_hop_the_proxy_appended_not_the_one_the_client_sent(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from starlette.requests import Request
+
+        from app.hardening import client_ip
+
+        monkeypatch.setenv("TRUST_PROXY_HEADERS", "true")
+        forged = Request(
+            {
+                "type": "http",
+                "headers": [(b"x-forwarded-for", b"6.6.6.6, 203.0.113.9")],
+                "client": ("10.0.0.1", 1234),
+            }  # type: ignore[arg-type]
+        )
+        assert client_ip(forged, Settings()) == "203.0.113.9"
+
+        behind_cloudflare = Request(
+            {
+                "type": "http",
+                "headers": [
+                    (b"x-forwarded-for", b"6.6.6.6, 198.51.100.7"),
+                    (b"cf-connecting-ip", b"192.0.2.44"),
+                ],
+                "client": ("10.0.0.1", 1234),
+            }  # type: ignore[arg-type]
+        )
+        assert client_ip(behind_cloudflare, Settings()) == "192.0.2.44"
+
+        monkeypatch.delenv("TRUST_PROXY_HEADERS", raising=False)
+        assert client_ip(behind_cloudflare, Settings()) == "10.0.0.1"
+
+
+class TestComputeRateLimit:
+    def test_rating_limit_and_fx_are_capped_per_ip(self, monkeypatch: pytest.MonkeyPatch) -> None:
+        from fastapi.testclient import TestClient
+
+        from app.main import app
+
+        monkeypatch.setenv("COMPUTE_PER_IP_PER_HOUR", "2")
+        client = TestClient(app)
+        # The cap is counted before the body is validated, so even malformed
+        # calls spend it - a flood of junk is not free either.
+        codes = [client.post("/rating", json={}).status_code for _ in range(3)]
+        assert codes[:2] == [422, 422]
+        assert codes[2] == 429
+        assert client.post("/credit-limit", json={}).status_code == 429
+        assert client.get("/fx", params={"ccy": "US", "date": "2025-01-01"}).status_code == 429
+        assert client.get("/health").status_code == 200

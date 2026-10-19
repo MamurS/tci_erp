@@ -29,6 +29,13 @@ class FakeSupabase:
         self.rows: dict[str, list[dict[str, Any]]] = {}
         self.fail_on_insert_into: str | None = None
         self.create_error: SupabaseAdminError | None = None
+        self.auth_status: dict[str, Any] = {"rotation_pending": False, "mfa_satisfied": True, "locked_until": None}
+
+    async def auth_status_as_caller(self, access_token: str) -> dict[str, Any]:
+        return self.auth_status
+
+    async def user_from_token(self, access_token: str) -> dict[str, Any]:
+        return {"id": "caller-1", "email": "caller@example.com"}
 
     async def select(self, table: str, params: dict[str, str]) -> list[dict[str, Any]]:
         return self.rows.get(table, [])
@@ -355,3 +362,33 @@ class TestProvisioningStatus:
         as_caller({"admin"})
         response = client.post("/users", json=CLIENT_BODY)
         assert response.status_code == 503
+
+
+@pytest.mark.anyio
+class TestCallerGate:
+    """get_caller itself, not overridden: the database's gates apply here too."""
+
+    async def test_admits_a_caller_the_database_admits(self, fake: FakeSupabase) -> None:
+        fake.rows["user_roles"] = [{"role": "admin"}]
+        caller = await get_caller(authorization="Bearer token")
+        assert caller.roles == {"admin"}
+
+    @pytest.mark.parametrize(
+        ("status", "code"),
+        [
+            ({"rotation_pending": True, "mfa_satisfied": True, "locked_until": None}, "password_rotation_required"),
+            ({"rotation_pending": False, "mfa_satisfied": False, "locked_until": None}, "mfa_required"),
+            ({"rotation_pending": False, "mfa_satisfied": True, "locked_until": "2099-01-01T00:00:00Z"}, "account_locked"),
+        ],
+    )
+    async def test_refuses_an_admin_the_database_would_refuse(
+        self, fake: FakeSupabase, status: dict[str, Any], code: str
+    ) -> None:
+        from fastapi import HTTPException
+
+        fake.rows["user_roles"] = [{"role": "admin"}]
+        fake.auth_status = status
+        with pytest.raises(HTTPException) as info:
+            await get_caller(authorization="Bearer token")
+        assert info.value.status_code == 403
+        assert info.value.detail["code"] == code

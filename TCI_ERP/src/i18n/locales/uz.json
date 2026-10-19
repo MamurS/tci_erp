@@ -1716,7 +1716,10 @@
       "selfDisable": "O‘z hisobingizni o‘chirib qo‘ya olmaysiz.",
       "invalidInput": "Kiritilgan ma’lumotlarni tekshiring.",
       "noSession": "Sessiya tugadi — qaytadan kiring.",
-      "unknown": "Nimadir noto‘g‘ri ketdi. Qayta urinib ko‘ring."
+      "unknown": "Nimadir noto‘g‘ri ketdi. Qayta urinib ko‘ring.",
+      "rotationRequired": "Foydalanuvchilarni boshqarishdan oldin vaqtinchalik parolni o‘zgartiring.",
+      "mfaRequired": "Foydalanuvchilarni boshqarishdan oldin ikki bosqichli autentifikatsiyadan o‘ting.",
+      "accountLocked": "Hisobingiz vaqtincha bloklangan. Keyinroq urinib ko‘ring."
     }
   },
   "agenda": {

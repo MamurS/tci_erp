@@ -20,6 +20,9 @@ export const PROVISIONING_ERROR_KEYS = {
   self_disable: 'selfDisable',
   invalid_input: 'invalidInput',
   no_session: 'noSession',
+  password_rotation_required: 'rotationRequired',
+  mfa_required: 'mfaRequired',
+  account_locked: 'accountLocked',
 } as const
 
 export type ProvisioningErrorKey =

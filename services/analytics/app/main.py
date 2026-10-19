@@ -16,7 +16,7 @@ from __future__ import annotations
 import logging
 import os
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -34,6 +34,7 @@ from app.hardening import (
     RequestSizeLimitMiddleware,
     SecurityHeadersMiddleware,
     TimeoutMiddleware,
+    throttle_compute,
 )
 from app.settings import get_settings
 from app.users import router as users_router
@@ -124,7 +125,7 @@ def health() -> HealthResponse:
     return HealthResponse(status="ok", engine_version=engine_version)
 
 
-@app.post("/rating", response_model=RatingResponse)
+@app.post("/rating", response_model=RatingResponse, dependencies=[Depends(throttle_compute)])
 def rating(payload: StatementPayload) -> RatingResponse:
     inputs, adapter_warnings, company = _factor_inputs(payload)
     result = calculate_rating(company, inputs)
@@ -159,7 +160,7 @@ def rating(payload: StatementPayload) -> RatingResponse:
     )
 
 
-@app.post("/credit-limit", response_model=CreditLimitResponse)
+@app.post("/credit-limit", response_model=CreditLimitResponse, dependencies=[Depends(throttle_compute)])
 def credit_limit(payload: CreditLimitRequest) -> CreditLimitResponse:
     inputs, _, company = _factor_inputs(payload)
 

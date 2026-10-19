@@ -9,6 +9,7 @@ from __future__ import annotations
 import pytest
 
 from app.provisioning_rules import (
+    auth_status_refusal,
     MIN_TEMP_PASSWORD_LENGTH,
     ProvisioningDenied,
     authorize_admin_only,
@@ -141,3 +142,19 @@ def test_temporary_floor_is_above_the_user_floor():
     assert MIN_USER_PASSWORD_LENGTH == 12
     assert MIN_TEMP_PASSWORD_LENGTH >= MIN_USER_PASSWORD_LENGTH
     assert TEMP_PASSWORD_LENGTH >= MIN_TEMP_PASSWORD_LENGTH
+
+
+class TestAuthStatusRefusal:
+    OK = {"rotation_pending": False, "mfa_satisfied": True, "locked_until": None}
+
+    def test_a_caller_the_database_would_admit_passes(self) -> None:
+        assert auth_status_refusal(self.OK) is None
+
+    def test_each_closed_gate_refuses_by_name(self) -> None:
+        assert auth_status_refusal({**self.OK, "rotation_pending": True}) == "password_rotation_required"
+        assert auth_status_refusal({**self.OK, "mfa_satisfied": False}) == "mfa_required"
+        assert auth_status_refusal({**self.OK, "locked_until": "2026-10-19T12:00:00Z"}) == "account_locked"
+
+    def test_an_unreadable_status_is_not_a_pass(self) -> None:
+        assert auth_status_refusal({}) == "password_rotation_required"
+        assert auth_status_refusal({"rotation_pending": False}) == "mfa_required"

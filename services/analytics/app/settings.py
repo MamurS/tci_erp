@@ -70,6 +70,11 @@ class Settings:
     provisioning_per_caller_per_hour: int = field(
         default_factory=lambda: _int("PROVISIONING_PER_CALLER_PER_HOUR", 30)
     )
+    #: Rating, credit-limit and FX calls per IP. Generous: an analyst
+    #: re-rating a company recomputes on every edit.
+    compute_per_ip_per_hour: int = field(
+        default_factory=lambda: _int("COMPUTE_PER_IP_PER_HOUR", 600)
+    )
     #: Set by the host (Render sets RENDER, Railway RAILWAY_*). Only used to
     #: decide whether to trust X-Forwarded-For.
     behind_proxy: bool = field(
