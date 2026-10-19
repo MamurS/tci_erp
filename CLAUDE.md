@@ -410,6 +410,24 @@ is fine for internal test accounts and not fine for customers.
   dashboard (KPI strip + own Agenda + non-zero signals), and the company
   card's **Overview tab is the online risk report** (same `RiskReportBody`
   as the PDF). See DESIGN.md and **Risk report rules** below
+- [x] Security audit 2026-10 (migrations 0046–0048): an ENFORCED sign-in
+  lockout on the Free plan (`tci.login_begin` ticket counted as a failure
+  until `tci.custom_access_token_hook` refunds it; 3 free attempts per
+  e-mail + IP, then 30 s doubling to 60 min; distributed-guess and
+  credential-stuffing locks; a ticketless correct password hard-locks once
+  `login_gate_enforced` is on), countdown + last-attempt warning +
+  «Забыли пароль?» on the sign-in page, the «было N неудачных попыток»
+  notice after sign-in; `anon` executes ONLY `tci.login_begin`; direct REST
+  writes around the workflow functions closed (guard triggers + revoked
+  grants, 0047); a temporary password must actually change (0048); claim
+  documents registered from what Storage holds; CSP host narrowed; the
+  analytics service applies the database's rotation/MFA/lockout gates to
+  provisioning callers, trusts only CF-Connecting-IP / the right-most XFF
+  hop, and caps the compute endpoints. **Canonical: 0046 is PARTLY applied
+  (sections 1–4, 6, most of 5); the rest of 0046, all of 0047 and 0048
+  wait for `docs/deploy/canonical-apply-0046-0048.sql` to be run in the SQL
+  Editor** — the MCP tooling cannot send a statement containing DELETE/DROP
+  here (see **Sign-in gate rules** below)
 - [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -868,6 +886,72 @@ time writing a `lockout.cleared` event and forgiving the failures again.
 now()` and raises `P0002` otherwise. The canonical smoke caught it; the
 local test had only tried a user who was never locked, and now tries the
 same user twice.
+
+### Sign-in gate rules (migrations 0046–0048, security audit 2026-10)
+
+**The Free plan has no failure hook, so failures are counted up front.**
+`tci.login_begin(email)` (the only function `anon` may execute) refuses
+while locked and otherwise inserts a `pending` ticket that COUNTS AS A
+FAILURE. `tci.custom_access_token_hook` — GoTrue's own token issuance, on
+the Free plan — marks the latest pending ticket `succeeded` and forgives
+that e-mail + IP's other pending rows. A wrong password never reaches the
+hook, so its ticket simply stays pending. The schedule
+(`tci.login_lock_seconds`) is mirrored in `src/auth/loginGate.ts` and
+locked by a contract test.
+
+**Enforcement is a switch, flipped only after the new sign-in page is
+live.** With `workflow_settings.login_gate_enforced = false` a ticketless
+password sign-in is allowed and logged `sign_in.no_ticket`; with it on,
+the account is hard-locked (`reason = 'bypass'`, 10 years) until an admin
+unlocks it, which also forces `must_change_password`. Turning it on while
+an old bundle is cached would lock out every user of that bundle.
+
+**What the gate cannot see.** Within a ticket's 90 s a direct
+`/auth/v1/token` guess is bounded only by GoTrue's per-IP limit and
+CAPTCHA; that is why Turnstile and a low sign-in rate limit are dashboard
+steps, not optional extras.
+
+**Every new tci function revokes PUBLIC and anon explicitly.** Since 0046
+`anon` holds USAGE on `tci`, so the PUBLIC default execute would reach it.
+A per-schema default privilege cannot remove the global PUBLIC grant, so
+the rule is written down instead and `tests/db/definer_gates.sql` (check 3,
+over ALL tci functions) fails the first migration that forgets.
+
+**Workflow-written tables refuse direct writes (0047).**
+`tci.guard_workflow_write()` on `credit_limit_decisions`,
+`decision_conditions`, `policy_status_history` and
+`insurance_request_history` requires the internal-call token, so every
+SECURITY INVOKER function that writes them calls
+`tci.begin_internal_call()` first (asserted on the catalog in 0047).
+`policies` may only be inserted as `draft` and its status changes only
+through `change_policy_status`. Claims money, group limits, relationships,
+events and settings lost INSERT/UPDATE/DELETE for `authenticated`
+altogether — their writers are all SECURITY DEFINER.
+
+**Rotation is verified, not declared (0048).** A BEFORE trigger stores
+`security_hash(auth.users.encrypted_password)` whenever
+`must_change_password` is written true (both reset paths re-write it
+AFTER the new password), and `complete_password_change` raises
+`password_unchanged` (P0001) while the password still hashes to it. The
+column is closed to every API role — a column revoke means nothing next
+to a table-level SELECT, so 0048 replaces that grant with column grants.
+
+**Storage bytes are removed through the Storage API, never SQL.**
+Supabase's `storage.protect_delete` refuses DELETE on `storage.objects`,
+and a row deleted there would orphan the bytes anyway.
+`delete_claim_document` returns the path and the client removes the
+object; the uploader may remove their own UNREGISTERED object
+(`tci.may_remove_claim_object`).
+
+**The MCP tooling cannot apply a statement containing DELETE/DROP here.**
+It holds such a query for an approval prompt this environment never shows
+and times out after 60 s — even when the words are only inside a function
+body (a quoted string literal is fine). Split a migration at section
+boundaries, apply the clean sections with `execute_sql`, and hand the rest
+to the owner as one transactional SQL Editor script that ends with the
+closing assertions and the ledger insert
+(`docs/deploy/canonical-apply-0046-0048.sql` is the template). Do not
+disguise the keywords to get past the check.
 
 ### Phase 6 rules that are easy to get wrong
 

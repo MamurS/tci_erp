@@ -83,9 +83,22 @@ For a tester's orientation (details in `docs/PENTEST-BRIEF.md`):
   migrations and in CI;
 * sign-in is password + optional CAPTCHA (Cloudflare Turnstile) + TOTP
   second factor (mandatory for administrators, enforced in the database);
-  repeated failures lock the account (Auth hook), and every authentication
-  event is recorded;
-* strict CSP, HSTS with preload, no inline scripts; the browser holds only
-  the public anon key;
+  every sign-in starts with `tci.login_begin`, which counts the attempt as a
+  failure until the custom-access-token hook confirms a success: three free
+  attempts per e-mail and address, then an exponential wait (30 s doubling
+  to 60 min) shown as a countdown, plus distributed-guess and
+  credential-stuffing locks; a correct password presented outside the form
+  hard-locks the account once enforcement is switched on; the answer never
+  says whether an account exists, and every authentication event is
+  recorded;
+* writes that bypass a workflow function are refused: decision, status and
+  history tables are guarded by triggers that require the internal-call
+  token, and the claims-money, group-limit, relationship and event tables
+  have no direct write grant at all;
+* a temporary password must really change before the rotation flag clears,
+  and the provisioning service applies the same rotation, MFA and lockout
+  gates as the database;
+* strict CSP (API host named exactly, not `*.supabase.co`), HSTS with
+  preload, no inline scripts; the browser holds only the public anon key;
 * dependency audit, secret scanning over the full history, SBOMs and a
   DAST baseline run in CI.
