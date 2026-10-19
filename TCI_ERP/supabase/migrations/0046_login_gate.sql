@@ -501,6 +501,14 @@ $$;
 grant usage on schema tci to anon;
 grant execute on function tci.login_begin(text) to anon;
 
+-- And for every function a LATER migration creates: Postgres grants EXECUTE
+-- to PUBLIC by default, which now includes anon. A per-schema default cannot
+-- take that away (default privileges per schema only ADD to the global ones),
+-- and changing the global default would reach other schemas in this
+-- database. So the rule is explicit: every new tci function revokes PUBLIC
+-- and anon, and tests/db/definer_gates.sql (check 3, over ALL tci functions)
+-- fails the first migration that forgets.
+
 create or replace function tci.pre_auth_entry_points()
 returns table (proname text, justification text)
 language sql
