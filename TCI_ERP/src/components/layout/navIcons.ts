@@ -2,6 +2,7 @@ import {
   AlarmClock,
   Building2,
   ClipboardList,
+  FileSignature,
   FileText,
   FileWarning,
   Inbox,
@@ -23,6 +24,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   declarations: ClipboardList,
   overdues: AlarmClock,
   claims: FileWarning,
+  wording: FileSignature,
   admin: Settings,
 }
 

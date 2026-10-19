@@ -31,8 +31,8 @@ const STAFF: readonly UserRole[] = [
  *
  *   admin                   everything
  *   credit_underwriter      dashboard, agenda, companies, submissions, limits, declarations, claims
- *   commercial_underwriter  dashboard, companies, submissions, policies, limits, declarations, claims
- *   sales                   dashboard, companies, submissions, policies, limits
+ *   commercial_underwriter  dashboard, companies, submissions, policies, limits, declarations, claims, contract templates
+ *   sales                   dashboard, companies, submissions, policies, limits, contract templates
  *   information_manager     dashboard, companies
  *   claims                  dashboard, companies, claims
  *   client                  portal reads only (no new screens until Phase 3d)
@@ -78,6 +78,13 @@ export const NAV_ITEMS: readonly NavItem[] = [
     path: '/claims',
     roles: ['admin', 'claims', 'commercial_underwriter', 'credit_underwriter'],
     group: 'portfolio',
+  },
+  // Wording templates: commercial manages them, sales generates from them.
+  {
+    key: 'wording',
+    path: '/wording',
+    roles: ['admin', 'commercial_underwriter', 'sales'],
+    group: 'system',
   },
   { key: 'admin', path: '/admin', roles: ['admin'], group: 'system' },
 ]

@@ -44,6 +44,7 @@ const claims = () => import('./features/claims')
 const ClaimsPage = lazyPage(claims, 'ClaimsPage')
 const ClaimDetailPage = lazyPage(claims, 'ClaimDetailPage')
 const AdminPage = lazyPage(() => import('./features/admin'), 'AdminPage')
+const WordingPage = lazyPage(() => import('./features/wording'), 'WordingPage')
 const AgendaPage = lazyPage(() => import('./features/agenda'), 'AgendaPage')
 const account = () => import('./features/account')
 const AccountPage = lazyPage(account, 'AccountPage')
@@ -139,6 +140,7 @@ export default function App() {
                 <Route path="overdues/:id" element={<OverdueDetailPage />} />
                 <Route path="claims" element={<ClaimsPage />} />
                 <Route path="claims/:id" element={<ClaimDetailPage />} />
+                <Route path="wording" element={<WordingPage />} />
                 <Route path="admin" element={<AdminPage />} />
               </Route>
             </Route>
