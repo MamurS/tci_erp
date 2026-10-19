@@ -6,10 +6,11 @@ titles and figures, and the risk report as the reference document. Implemented
 with Tailwind CSS v4; tokens live in `src/index.css` under `@theme` and are
 the single source of truth.
 
-**The look is Delcreda's, the name is ours.** The wordmark, the copyright
-line and the legal block come from `src/lib/brand.ts` (MOSAIC TCI / Mosaic
-Insurance Group JSC). Never put another company's name, logo or legal entity
-on a screen or a report; re-brand by editing that one file.
+**The look is Delcreda's, the name is neutral.** The wordmark, the copyright
+line and the (optional, currently empty) legal block come from
+`src/lib/brand.ts` — "TCI ERP". No insurer's or vendor's name appears on a
+screen, a report, the page title or a placeholder; re-brand by editing that
+one file.
 
 ## Tokens
 
@@ -60,10 +61,28 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
 
 ## App shell
 
-Collapsible navy sidebar grouped Work / Underwriting / Portfolio / System
-(`src/components/layout/navigation.ts`), sticky header with the command
-palette (Ctrl/⌘ K — companies by name or registration number, plus every
-destination the caller's roles allow), language switcher and user menu.
+* **Sidebar, Claude-style:** docked (w-64) or hidden — never an icon rail.
+  Hide it from its own header, bring it back from the top bar or with
+  Ctrl/⌘ B; while hidden, hovering the left edge (or the top-bar button)
+  peeks it as an overlay, which can be pinned back. Below 1024px it is a
+  drawer with a backdrop that closes on navigation and on Escape. The state
+  is remembered per browser (`tci-erp-sidebar`). Logic: `layout/shell.ts`.
+* **Top bar:** sidebar button (when hidden), the current section (icon +
+  name), the command palette (Ctrl/⌘ K — companies by name or registration
+  number, plus every destination the caller's roles allow; icon-only below
+  640px), language switcher, account menu.
+* **Pages load lazily**, one chunk per feature module (`lib/lazyPage.ts`),
+  with a skeleton inside the shell while a chunk arrives. Only the Russian
+  strings are bundled; en / uz are fetched on first use (`i18n/index.ts`,
+  `useFixedT` for a report printed in another language).
+* **Flags** are SVG (`CountryFlag`), loaded per country — Windows does not
+  draw emoji flags.
+
+## Dashboard
+
+Work first, not a wall of cards: one KPI strip (each figure links to its
+screen), the caller's own Agenda worst-first ("Требует вашего внимания"),
+and a signals column listing only what is not zero (`pages/dashboard.ts`).
 
 ## Core components (`src/components/ui`)
 
@@ -88,6 +107,13 @@ between Weak and Distressed). Gauge, legend and report text all use that
 one rule.
 
 ## The risk report (`src/features/entities/report`)
+
+Two faces, one document: `useRiskReport` assembles the data,
+`RiskReportBody` lays it out. The A4 route `/entities/:id/report` renders it
+in the print sheet; the company card's **Overview tab renders the same
+document on screen** (`.rpt-embedded`: larger type, stacking below 1100px,
+wide tables scroll inside the sheet; conclusion and factor bullets drill
+into their tab).
 
 One document for screen and PDF, styled by `report.css` (scoped `.rpt-*`):
 A4 sheet, running header (wordmark, RISK REPORT, name | registration

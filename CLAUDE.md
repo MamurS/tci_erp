@@ -403,8 +403,13 @@ is fine for internal test accounts and not fine for customers.
   the Delcreda layout** online and as an A4 PDF (running header, gauge +
   factor bullets, ten-band legend, key figures, COMBINED group statements,
   ratio tables with % change, commentary, glossary, group structure, page
-  x of y). The NAME on every screen and report comes from `src/lib/brand.ts`
-  (Mosaic), never Delcreda's. See DESIGN.md and **Risk report rules** below
+  x of y). The NAME on every screen and report is the neutral "TCI ERP"
+  from `src/lib/brand.ts`, never an insurer's or Delcreda's. Second pass:
+  Claude-style hideable sidebar (docked / hidden / hover-peek / drawer,
+  Ctrl/⌘ B), lazily loaded pages and en/uz strings, SVG flags, a work-first
+  dashboard (KPI strip + own Agenda + non-zero signals), and the company
+  card's **Overview tab is the online risk report** (same `RiskReportBody`
+  as the PDF). See DESIGN.md and **Risk report rules** below
 - [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -987,6 +992,13 @@ a loss.
 "page x of y", and their `content` must be a literal, so `PrintPageRules`
 generates the rule in the report language (`report/printRules.ts`). The
 running header is the `thead` of the one-cell layout table.
+
+**One document, two faces.** `useRiskReport` (data) + `RiskReportBody`
+(content) serve both the A4 route and the Overview tab; never fork the
+sections. The tab passes `reportType: 'auto'` (the latest annual
+statement's type) and the original currency; the A4 route takes `?type=`
+and `?ccy=`. A report in a language other than the UI's must wait for
+`useFixedT(lang).ready` — en / uz are not bundled.
 
 **Headless check.** Render `/entities/:id/report` with Supabase stubbed in
 the browser (Playwright `context.route` on `/rest/v1/**` + a fake session in
