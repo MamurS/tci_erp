@@ -8,6 +8,7 @@ import { isPaletteShortcut } from './commandPalette'
 import { SIDEBAR_KEY, isSidebarShortcut, parseSidebarState } from './shell'
 import type { SidebarState } from './shell'
 import { PageLoading } from './PageLoading'
+import { SignInNotice } from '../../auth/SignInNotice'
 
 const DESKTOP = '(min-width: 1024px)'
 
@@ -138,6 +139,7 @@ export function AppShell() {
           onPeekSidebar={isDesktop ? peek : undefined}
         />
         <main className="mx-auto w-full max-w-[1480px] flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-7">
+          <SignInNotice accountPath="/account" />
           <Suspense fallback={<PageLoading />}>
             <Outlet />
           </Suspense>

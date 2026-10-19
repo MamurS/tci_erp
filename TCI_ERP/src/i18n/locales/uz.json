@@ -40,18 +40,23 @@
     "signOut": "Chiqish",
     "noSelfSignup": "Hisoblarni administrator yaratadi.",
     "errors": {
-      "invalidCredentials": "Pochta yoki parol noto'g'ri",
+      "invalidCredentials": "Login yoki parol noto‘g‘ri.",
       "generic": "Kirish amalga oshmadi. Qayta urinib ko'ring.",
       "rateLimited": "Bu tarmoqdan kirish urinishlari juda ko‘p. Bir necha daqiqa kutib, qayta urinib ko‘ring.",
-      "locked_one": "Takroriy muvaffaqiyatsiz kirishlardan so‘ng hisob vaqtincha bloklangan. {{count}} daqiqadan keyin qayta urinib ko‘ring yoki administratorga murojaat qiling.",
-      "locked_other": "Takroriy muvaffaqiyatsiz kirishlardan so‘ng hisob vaqtincha bloklangan. {{count}} daqiqadan keyin qayta urinib ko‘ring yoki administratorga murojaat qiling.",
+      "locked_one": "Xavfsizlik maqsadida kirish vaqtincha bloklangan. Keyinroq urinib ko‘ring yoki administratorga murojaat qiling.",
+      "locked_other": "Xavfsizlik maqsadida kirish vaqtincha bloklangan. Keyinroq urinib ko‘ring yoki administratorga murojaat qiling.",
       "captcha": "Robot emasligingiz tekshiruvidan o‘tilmadi. Qayta urinib ko‘ring.",
       "captchaUnavailable": "Tekshiruvni yuklab bo‘lmadi — internet aloqasi yoki reklama bloklagichni tekshiring.",
       "emailNotConfirmed": "Bu elektron pochta manzili hali tasdiqlanmagan.",
-      "userBanned": "Hisob o‘chirilgan. Administratorga murojaat qiling."
+      "userBanned": "Hisob o‘chirilgan. Administratorga murojaat qiling.",
+      "throttled": "Kirish uchun muvaffaqiyatsiz urinishlar juda ko‘p. {{time}} dan keyin qayta urinib ko‘ring."
     },
     "heroTitle": "Savdo kreditlarini sug‘urtalash — tahlildan to‘lovgacha",
-    "heroText": "Bayerlar tahlili va reytingi, kredit limitlari, polislar, deklaratsiyalar va sug‘urta da’volari — yagona ish maydonida."
+    "heroText": "Bayerlar tahlili va reytingi, kredit limitlari, polislar, deklaratsiyalar va sug‘urta da’volari — yagona ish maydonida.",
+    "lastAttemptWarning": "Yana bitta muvaffaqiyatsiz urinish — va kirish qisqa vaqtga to‘xtatiladi.",
+    "retryIn": "{{time}} dan keyin qayta urinish",
+    "forgotPassword": "Parolni unutdingizmi?",
+    "forgotPasswordHelp": "Parolni tizim administratori tiklaydi. Unga murojaat qiling: siz vaqtinchalik parol olasiz va kirishda uni yangisiga almashtirishingiz kerak bo‘ladi."
   },
   "roles": {
     "admin": "Administrator",
@@ -1381,7 +1386,8 @@
         "mfaAdminOff": "Ikki bosqichli autentifikatsiya: administratorlar uchun majburiy emas.",
         "mfaStaffFrom": "{{date}} dan boshlab barcha xodimlar uchun majburiy.",
         "mfaStaffGrace": "Boshqa xodimlar uchun hozircha majburiy emas (sana belgilanmagan).",
-        "retention": "Hodisalar {{days}} kun saqlanadi."
+        "retention": "Hodisalar {{days}} kun saqlanadi.",
+        "loginSchedule": "Kirish: bitta pochta va tarmoqdan {{free}} ta muvaffaqiyatsiz urinishdan keyin {{base}} s tanaffus, har bir keyingi xatoda u ikki baravar oshadi, eng ko‘pi {{max}} daq. 15 daqiqa va undan uzoq tanaffus quyida bloklash sifatida ko‘rsatiladi."
       },
       "hookNotice": "Bloklash Supabase Auth parol tekshiruvi huki orqali qo‘llanadi. Huk Supabase panelida (Authentication → Hooks; Teams tarifi va undan yuqori) yoqilmaguncha urinishlar yozilmaydi va hisoblar bloklanmaydi — kirishni faqat IP bo‘yicha limit va CAPTCHA himoya qiladi.",
       "alerts": {
@@ -1401,7 +1407,8 @@
         "active": "Bloklangan",
         "clearedBy": "Blokdan chiqardi: {{email}}",
         "expired": "Muddati o‘tgan",
-        "unlock": "Blokdan chiqarish"
+        "unlock": "Blokdan chiqarish",
+        "reasonBypass": "shaklni chetlab o‘tib kirish — parolni tiklang, so‘ng blokdan chiqaring"
       },
       "users": {
         "title": "Foydalanuvchilar",
@@ -1446,6 +1453,13 @@
         "user_role_granted": "Rol berildi",
         "user_role_revoked": "Rol olib tashlandi",
         "session_revoked": "Seanslar yakunlandi"
+      },
+      "gate": {
+        "enforcedOn": "Kirish nazorati yoqilgan:",
+        "enforcedOff": "Kirish nazorati hali yoqilmagan:",
+        "hookSteps": "Supabase Auth «Customize Access Token» → Postgres → tci.custom_access_token_hook ilgagi kerak (Authentication → Hooks). Yangi kirish sahifasi ishlay boshlagach yoqing: kirish shaklini chetlab o‘tib kiritilgan to‘g‘ri parol hisobni parol tiklanguncha bloklaydi.",
+        "enable": "Yoqish",
+        "disable": "O‘chirish"
       }
     }
   },
@@ -2604,5 +2618,15 @@
     "empty": "Hech narsa topilmadi",
     "hintNavigate": "harakatlanish",
     "hintOpen": "ochish"
+  },
+  "security": {
+    "notice": {
+      "title": "Hisobingizga muvaffaqiyatsiz kirish urinishlari",
+      "body_one": "Oldingi kirishingizdan beri hisobingizga {{count}} marta muvaffaqiyatsiz kirishga urinilgan.",
+      "body_other": "Oldingi kirishingizdan beri hisobingizga {{count}} marta muvaffaqiyatsiz kirishga urinilgan.",
+      "hint": "Agar bu siz bo‘lmasangiz — parolni almashtiring va administratorga xabar bering.",
+      "changePassword": "Parolni almashtirish",
+      "dismiss": "Yopish"
+    }
   }
 }

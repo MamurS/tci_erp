@@ -40,18 +40,23 @@
     "signOut": "Sign out",
     "noSelfSignup": "Accounts are created by the administrator.",
     "errors": {
-      "invalidCredentials": "Invalid email or password",
+      "invalidCredentials": "Wrong email or password.",
       "generic": "Sign-in failed. Please try again.",
       "rateLimited": "Too many sign-in attempts from this network. Wait a few minutes and try again.",
-      "locked_one": "This account is temporarily locked after repeated failed sign-ins. Try again in {{count}} minute or contact your administrator.",
-      "locked_other": "This account is temporarily locked after repeated failed sign-ins. Try again in {{count}} minutes or contact your administrator.",
+      "locked_one": "Sign-in is temporarily blocked for security reasons. Try again later or contact your administrator.",
+      "locked_other": "Sign-in is temporarily blocked for security reasons. Try again later or contact your administrator.",
       "captcha": "The anti-bot check did not pass. Please try again.",
       "captchaUnavailable": "The check could not be loaded — check your connection or ad blocker.",
       "emailNotConfirmed": "This email address has not been confirmed yet.",
-      "userBanned": "This account is disabled. Contact your administrator."
+      "userBanned": "This account is disabled. Contact your administrator.",
+      "throttled": "Too many failed sign-in attempts. Try again in {{time}}."
     },
     "heroTitle": "Trade credit insurance, end to end",
-    "heroText": "Buyer analysis and rating, credit limits, policies, declarations and claims — in one workspace."
+    "heroText": "Buyer analysis and rating, credit limits, policies, declarations and claims — in one workspace.",
+    "lastAttemptWarning": "One more failed attempt and sign-in will be paused for a short time.",
+    "retryIn": "Try again in {{time}}",
+    "forgotPassword": "Forgot your password?",
+    "forgotPasswordHelp": "Passwords are reset by the system administrator. Contact them: you will receive a temporary password and will be asked to set a new one when you sign in."
   },
   "roles": {
     "admin": "Administrator",
@@ -1381,7 +1386,8 @@
         "mfaAdminOff": "Two-factor authentication: not mandatory for administrators.",
         "mfaStaffFrom": "Mandatory for all staff from {{date}}.",
         "mfaStaffGrace": "Optional for other staff (no enforcement date set).",
-        "retention": "Events are kept for {{days}} days."
+        "retention": "Events are kept for {{days}} days.",
+        "loginSchedule": "Sign-in: after {{free}} failed attempts from one email and network a {{base}} s pause, doubling with every further failure up to {{max}} min. A pause of 15 min or more is listed below as a lockout."
       },
       "hookNotice": "The lockout is enforced by the Supabase Auth password-verification hook. Until the hook is enabled in the Supabase dashboard (Authentication → Hooks; Teams plan and above) no attempt is recorded and no account is locked — only the per-IP rate limit and the CAPTCHA protect sign-in.",
       "alerts": {
@@ -1401,7 +1407,8 @@
         "active": "Locked",
         "clearedBy": "Unlocked by {{email}}",
         "expired": "Expired",
-        "unlock": "Unlock"
+        "unlock": "Unlock",
+        "reasonBypass": "sign-in outside the form — reset the password, then unlock"
       },
       "users": {
         "title": "Users",
@@ -1446,6 +1453,13 @@
         "user_role_granted": "Role granted",
         "user_role_revoked": "Role revoked",
         "session_revoked": "Sessions revoked"
+      },
+      "gate": {
+        "enforcedOn": "Sign-in gate enforced:",
+        "enforcedOff": "Sign-in gate not enforced yet:",
+        "hookSteps": "it needs the Supabase Auth hook «Customize Access Token» → Postgres → tci.custom_access_token_hook (Authentication → Hooks). Enforce it once the new sign-in page is live: a correct password presented outside the sign-in form will then lock the account until its password is reset.",
+        "enable": "Enforce",
+        "disable": "Stop enforcing"
       }
     }
   },
@@ -2604,5 +2618,15 @@
     "empty": "Nothing found",
     "hintNavigate": "navigate",
     "hintOpen": "open"
+  },
+  "security": {
+    "notice": {
+      "title": "Failed sign-in attempts on your account",
+      "body_one": "Since your previous sign-in there was {{count}} failed attempt to sign in to your account.",
+      "body_other": "Since your previous sign-in there were {{count}} failed attempts to sign in to your account.",
+      "hint": "If this was not you, change your password and tell the administrator.",
+      "changePassword": "Change password",
+      "dismiss": "Dismiss"
+    }
   }
 }

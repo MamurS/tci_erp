@@ -37,6 +37,9 @@ export interface LockoutRow {
   cleared_at: string | null
   cleared_by_email: string | null
   active: boolean
+  /** failures: wrong passwords (ends by itself); bypass: a correct password
+   * arrived without the sign-in form — reset the password, then unlock. */
+  reason?: 'failures' | 'bypass'
 }
 
 export interface SessionRow {
@@ -79,6 +82,11 @@ export interface AuthPolicy {
   mfa_required_for_admin: boolean
   mfa_staff_enforced_from: string | null
   auth_events_retention_days: number
+  /** Migration 0046 (absent on an older backend). */
+  login_gate_enforced?: boolean
+  login_free_attempts?: number
+  login_base_lock_seconds?: number
+  login_max_lock_seconds?: number
 }
 
 export function useAuthPolicy() {
@@ -188,6 +196,18 @@ export function useRevokeSessions() {
       })
       if (error) throw error
       return Number(data ?? 0)
+    },
+    onSuccess: () => void invalidate(),
+  })
+}
+
+/** Switch the sign-in gate's enforcement (tci.set_login_gate_enforced). */
+export function useSetLoginGateEnforced() {
+  const invalidate = useInvalidateSecurity()
+  return useMutation({
+    mutationFn: async (enforced: boolean) => {
+      const { error } = await tci().rpc('set_login_gate_enforced', { p_enforced: enforced })
+      if (error) throw error
     },
     onSuccess: () => void invalidate(),
   })

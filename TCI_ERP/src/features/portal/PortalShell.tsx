@@ -8,6 +8,7 @@
 import { Suspense } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { PageLoading } from '../../components/layout/PageLoading'
+import { SignInNotice } from '../../auth/SignInNotice'
 import { useTranslation } from 'react-i18next'
 import { LogOut } from 'lucide-react'
 
@@ -72,6 +73,7 @@ export function PortalShell() {
       </header>
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-7">
+        <SignInNotice accountPath="/portal/account" />
         <Suspense fallback={<PageLoading />}>
           <Outlet />
         </Suspense>

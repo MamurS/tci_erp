@@ -4,6 +4,7 @@ import { Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../auth/AuthContext'
 import { signInErrorKey } from '../auth/signInErrors'
+import { formatCountdown } from '../auth/loginGate'
 import type { SignInFailure } from '../auth/signInErrors'
 import { isTurnstileEnabled, mountTurnstile, turnstileSiteKey } from '../auth/turnstile'
 import type { TurnstileHandle } from '../auth/turnstile'
@@ -18,6 +19,23 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [failure, setFailure] = useState<SignInFailure | null>(null)
+  // When the next attempt may start (epoch ms): the form stays put, the
+  // button counts down (the gate refuses earlier attempts anyway).
+  const [waitUntil, setWaitUntil] = useState<number | null>(null)
+  const [now, setNow] = useState(() => Date.now())
+  const [helpOpen, setHelpOpen] = useState(false)
+
+  useEffect(() => {
+    if (waitUntil === null) return
+    const tick = window.setInterval(() => {
+      const t = Date.now()
+      setNow(t)
+      if (t >= waitUntil) setWaitUntil(null)
+    }, 250)
+    return () => window.clearInterval(tick)
+  }, [waitUntil])
+  const waitSeconds = waitUntil === null ? 0 : Math.max(0, (waitUntil - now) / 1000)
+  const waiting = waitSeconds > 0
 
   // Cloudflare Turnstile, invisible. Mounted once; a token is requested at
   // submit time. Absent site key = no CAPTCHA (dev, previews, CI).
@@ -69,11 +87,19 @@ export function LoginPage() {
     const { error } = await signIn(email, password, captchaToken)
     if (error) {
       setFailure(error)
+      if (error.seconds) {
+        setNow(Date.now())
+        setWaitUntil(Date.now() + error.seconds * 1000)
+      }
+      setPassword('')
       setSubmitting(false)
     }
   }
 
-  const tone = failure?.kind === 'locked' || failure?.kind === 'rateLimited' ? 'warn' : 'neg'
+  const tone =
+    waiting || failure?.kind === 'locked' || failure?.kind === 'rateLimited' || failure?.kind === 'throttled'
+      ? 'warn'
+      : 'neg'
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -143,16 +169,50 @@ export function LoginPage() {
               }
               role="alert"
             >
-              {t(signInErrorKey(failure), { minutes: failure.minutes ?? 0, count: failure.minutes ?? 0 })}
-              {failure.kind === 'captcha' && captchaBroken && (
-                <span className="ml-1">{t('auth.errors.captchaUnavailable')}</span>
+              <p>
+                {t(signInErrorKey(failure), {
+                  minutes: failure.minutes ?? 0,
+                  count: failure.minutes ?? 0,
+                  time: formatCountdown(waitSeconds),
+                })}
+                {failure.kind === 'captcha' && captchaBroken && (
+                  <span className="ml-1">{t('auth.errors.captchaUnavailable')}</span>
+                )}
+              </p>
+              {failure.kind === 'invalidCredentials' && failure.attemptsLeft === 1 && !waiting && (
+                <p className="mt-1 text-[12.5px]">{t('auth.lastAttemptWarning')}</p>
+              )}
+              {failure.kind === 'invalidCredentials' && waiting && (
+                <p className="mt-1 text-[12.5px]">
+                  {t('auth.errors.throttled', { time: formatCountdown(waitSeconds) })}
+                </p>
               )}
             </div>
           )}
 
-          <Button type="submit" disabled={submitting} className="h-11 w-full text-[15px]">
-            {submitting ? t('auth.signingIn') : t('auth.signIn')}
+          <Button type="submit" disabled={submitting || waiting} className="h-11 w-full text-[15px]">
+            {waiting
+              ? t('auth.retryIn', { time: formatCountdown(waitSeconds) })
+              : submitting
+                ? t('auth.signingIn')
+                : t('auth.signIn')}
           </Button>
+
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => setHelpOpen((v) => !v)}
+              className="text-[13px] font-medium text-accent-600 hover:text-accent-500 hover:underline"
+              aria-expanded={helpOpen}
+            >
+              {t('auth.forgotPassword')}
+            </button>
+            {helpOpen && (
+              <p className="mt-2 rounded-md bg-accent-50 px-3 py-2 text-left text-[12.5px] leading-relaxed text-slate-600">
+                {t('auth.forgotPasswordHelp')}
+              </p>
+            )}
+          </div>
 
           <p className="text-center text-xs text-slate-400">{t('auth.noSelfSignup')}</p>
         </form>

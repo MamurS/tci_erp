@@ -13,6 +13,8 @@
 
 export type SignInErrorKind =
   | 'invalidCredentials'
+  /** tci.login_begin refused: too many failures from this email + network. */
+  | 'throttled'
   | 'rateLimited'
   | 'locked'
   | 'captcha'
@@ -24,6 +26,11 @@ export interface SignInFailure {
   kind: SignInErrorKind
   /** Minutes until the lockout ends, when the server said so. */
   minutes?: number
+  /** Seconds until another attempt may start (throttled, or the attempt
+   * that just failed started the wait). Drives the countdown. */
+  seconds?: number
+  /** Wrong password: tries left before the first wait. */
+  attemptsLeft?: number
 }
 
 export interface RawAuthError {
