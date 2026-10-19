@@ -1,51 +1,90 @@
 /**
- * Risk Report: print-optimized route /buyers/:id/report?lang=&type=&ccy=.
- * Clean paginated A4 HTML generated to PDF via the browser print dialog.
- * Report language is independent of the UI language (i18n getFixedT).
+ * Risk Report: /entities/:id/report?lang=&type=&ccy=
+ *
+ * One document for the screen and for the PDF, laid out like the reference
+ * credit-risk report: running header, general information beside the rating
+ * gauge, the scale legend, key figures, conclusion and overall assessment,
+ * then the group's key companies, the company and COMBINED group statements
+ * with commentary, ratio tables, dynamics, glossary, group structure and
+ * the disclaimer. Print gives the same page through report.css: the header
+ * repeats on every page and the footer is drawn in the @page margin boxes
+ * with "page x of y".
+ *
+ * The report language is independent of the UI language (getFixedT). Every
+ * figure comes from report/model.ts (pure, tested); every sentence from
+ * narrative.ts or commentary.ts through i18n templates.
  */
 
 import { useMemo } from 'react'
+import type { ReactNode } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
+import { ArrowLeft, Printer } from 'lucide-react'
 
-import { Button, Spinner } from '../../../components/ui'
-import { GradeScale } from '../../../components/ui/GradeScale'
-import { EM_DASH, formatAmount, formatPercent, formatRatio } from '../../../lib/format'
-import { gradeChange, useGradeScale } from '../../../lib/gradeScale'
-import { refName, useEntity, useStatements } from '../api'
-import type { StatementBundle } from '../types'
-import { statementPeriodLabel } from '../types'
+import { BrandMark, RatingGauge, RatingLegend, Spinner } from '../../../components/ui'
+import { BRAND } from '../../../lib/brand'
 import {
-  applyDisplayCurrency,
-  balanceSheetColumns,
-  incomeStatementColumns,
-  relativeChange,
-  sortChronological,
-  verticalShare,
-} from '../financials/analysis'
+  EM_DASH,
+  formatAmount,
+  formatCompact,
+  formatLongDate,
+  formatPercent,
+  formatRatio,
+  formatSignedPercent,
+} from '../../../lib/format'
+import { SCALE_LABEL_KEYS, placeScore } from '../../../lib/ratingScale'
+import type { ScalePoint } from '../../../lib/ratingScale'
+import { refName, useEntity, useStatements } from '../api'
+import { statementPeriodLabel } from '../types'
+import type { StatementBundle } from '../types'
 import { buildCashFlowColumns, hasPersistentNegativeCfo } from '../financials/cashflow'
-import { convertStatements, requiredRates, rateKey } from '../financials/fx'
+import { convertStatements, rateKey, requiredRates } from '../financials/fx'
 import type { DisplayCurrency } from '../financials/fx'
 import { useFxRates } from '../financials/fxApi'
-import { BALANCE_SHEET_SECTIONS, INCOME_STATEMENT_SECTIONS, bsVerticalBase } from '../financials/lines'
-import type { SectionDef } from '../financials/lines'
-import { ReportGroupSection } from './ReportGroupSection'
-import { RATIO_DEFS, computeRatios } from '../financials/ratios'
 import { RISK_ROWS, buildRiskPeriods } from '../financials/risk'
 import { useBuyerExposure } from '../../limits/api'
+import { useEntityGroup } from '../../groups/api'
 import { useAssessments } from '../rating/assessmentsApi'
-import { buildFactorChips } from '../rating/chips'
-import { FactorChipList } from '../rating/FactorChips'
+import { buildFactorBullets } from '../rating/chips'
+import type { FactorBullet } from '../rating/chips'
+import { useMemberEntities, useMemberStatements, useOwners } from './api'
+import type { CommentaryParagraph, CommentarySentence, ValueFormat } from './commentary'
+import { buildCommentary } from './commentary'
 import { DynamicCharts } from './DynamicCharts'
+import {
+  BS_REPORT_ROWS,
+  PL_REPORT_ROWS,
+  annualSeries,
+  bsBase,
+  combineGroupSeries,
+  isStale,
+  keyFigures,
+  memberFigures,
+  plBase,
+  ratioTables,
+  statementRows,
+} from './model'
+import type { KeyFigure, MemberInfo } from './model'
 import { buildNarrative } from './narrative'
 import { formatNarrativeParams } from './narrativeParams'
+import { pageCounterContent, cssString } from './printRules'
+import { ReportGroupSection } from './ReportGroupSection'
+import {
+  GroupKeyCompanies,
+  GroupStructureTable,
+  RatioReportTable,
+  StatementReportTable,
+} from './ReportTables'
+import './report.css'
+
+type Lang = 'en' | 'ru' | 'uz'
 
 export function ReportPage() {
   const { id = '' } = useParams()
   const [searchParams] = useSearchParams()
-  const lang = ['en', 'ru', 'uz'].includes(searchParams.get('lang') ?? '')
-    ? (searchParams.get('lang') as string)
-    : 'ru'
+  const langParam = searchParams.get('lang')
+  const lang: Lang = langParam === 'en' || langParam === 'uz' ? langParam : 'ru'
   const reportType = searchParams.get('type') === 'management' ? 'management' : 'statutory'
   const ccyParam = searchParams.get('ccy')
   const displayCurrency: DisplayCurrency =
@@ -55,482 +94,967 @@ export function ReportPage() {
   const t = useMemo(() => i18n.getFixedT(lang), [i18n, lang])
   const locale = lang
 
-  const { data: buyer, isLoading: buyerLoading } = useEntity(id)
-  const { data: statements, isLoading: stLoading } = useStatements(id)
-  const { data: gradeBands } = useGradeScale()
-
+  const { data: entity, isLoading: entityLoading } = useEntity(id)
+  const { data: statements, isLoading: statementsLoading } = useStatements(id)
   const assessments = useAssessments(id)
   const exposure = useBuyerExposure(id)
+  const owners = useOwners(id)
 
-  const all = useMemo(() => statements ?? [], [statements])
-  const sameType = useMemo(
-    () => sortChronological(all.filter((s) => s.report_type === reportType)),
-    [all, reportType],
+  const group = useEntityGroup(id)
+  const memberIds = useMemo(() => (group.data ?? []).map((m) => m.member_id), [group.data])
+  const parentId = group.data?.[0]?.ultimate_parent_id ?? id
+  const hasGroup = memberIds.length > 1
+  const memberEntities = useMemberEntities(memberIds)
+  const memberStatements = useMemberStatements(memberIds)
+
+  // ---- company series (original currency, whole units) -------------------
+  const companyAll = useMemo(
+    () => annualSeries(statements ?? [], reportType),
+    [statements, reportType],
   )
-  const displayedRaw = useMemo(() => sameType.slice(-3), [sameType])
+  const company = useMemo(() => companyAll.slice(-3), [companyAll])
+  const latest = company[company.length - 1] ?? null
+  const baseCurrency = latest?.currency_code ?? ''
 
+  // ---- group COMBINED series, aligned to the company's years --------------
+  const combined = useMemo(
+    () =>
+      hasGroup && baseCurrency
+        ? combineGroupSeries(memberStatements.data ?? [], reportType, baseCurrency, parentId)
+        : null,
+    [hasGroup, baseCurrency, memberStatements.data, reportType, parentId],
+  )
+  const groupAll = useMemo(() => combined?.series ?? [], [combined])
+  const groupSeries = useMemo(() => {
+    const years = new Set(company.map((s) => s.fiscal_year))
+    return groupAll.filter((s) => years.has(s.fiscal_year))
+  }, [groupAll, company])
+
+  // ---- display currency: amounts converted, every change read from the original
   const rateNeeds = useMemo(
-    () => (displayCurrency === 'original' ? [] : requiredRates(sameType, displayCurrency)),
-    [sameType, displayCurrency],
+    () =>
+      displayCurrency === 'original'
+        ? []
+        : requiredRates([...companyAll, ...groupAll], displayCurrency),
+    [companyAll, groupAll, displayCurrency],
   )
   const { data: rates } = useFxRates(rateNeeds)
   const rateFor = useMemo(
     () => (ccy: string, date: string) => rates?.[rateKey(ccy, date)] ?? null,
     [rates],
   )
+  const convert = useMemo(
+    () => (list: StatementBundle[]) => convertStatements(list, displayCurrency, rateFor),
+    [displayCurrency, rateFor],
+  )
+  const companyAllShown = useMemo(() => convert(companyAll).statements, [convert, companyAll])
+  const companyConverted = useMemo(() => convert(company), [convert, company])
+  const companyShown = companyConverted.statements
+  const groupAllShown = useMemo(() => convert(groupAll).statements, [convert, groupAll])
+  const groupShown = useMemo(() => convert(groupSeries).statements, [convert, groupSeries])
+  const currency = displayCurrency === 'original' ? baseCurrency : displayCurrency
 
-  const convertedAll = useMemo(
-    () => convertStatements(sameType, displayCurrency, rateFor),
-    [sameType, displayCurrency, rateFor],
+  // ---- derived content ----------------------------------------------------
+  const bsCompany = useMemo(
+    () => statementRows(company, BS_REPORT_ROWS, bsBase, companyShown),
+    [company, companyShown],
   )
-  const converted = useMemo(
-    () => convertStatements(displayedRaw, displayCurrency, rateFor),
-    [displayedRaw, displayCurrency, rateFor],
+  const plCompany = useMemo(
+    () => statementRows(company, PL_REPORT_ROWS, plBase, companyShown),
+    [company, companyShown],
   )
-  const displayed = converted.statements
-  const allConverted = convertedAll.statements
+  const bsGroup = useMemo(
+    () => statementRows(groupSeries, BS_REPORT_ROWS, bsBase, groupShown),
+    [groupSeries, groupShown],
+  )
+  const plGroup = useMemo(
+    () => statementRows(groupSeries, PL_REPORT_ROWS, plBase, groupShown),
+    [groupSeries, groupShown],
+  )
+  const figures = useMemo(() => keyFigures(company, companyShown), [company, companyShown])
+  const ratiosCompany = useMemo(
+    () => ratioTables(company, companyAll, companyShown, companyAllShown),
+    [company, companyAll, companyShown, companyAllShown],
+  )
+  const ratiosGroup = useMemo(
+    () => ratioTables(groupSeries, groupAll, groupShown, groupAllShown),
+    [groupSeries, groupAll, groupShown, groupAllShown],
+  )
+  const commentaryInput = useMemo(
+    () => ({
+      company,
+      companyDisplay: companyShown,
+      group: groupSeries,
+      groupDisplay: groupShown,
+    }),
+    [company, companyShown, groupSeries, groupShown],
+  )
+  const bsCommentary = useMemo(
+    () => buildCommentary('balanceSheet', commentaryInput),
+    [commentaryInput],
+  )
+  const plCommentary = useMemo(() => buildCommentary('pnl', commentaryInput), [commentaryInput])
+  const ratioCommentary = useMemo(
+    () => buildCommentary('ratios', commentaryInput),
+    [commentaryInput],
+  )
 
   const cashFlowColumns = useMemo(
-    () => buildCashFlowColumns(allConverted, allConverted),
-    [allConverted],
+    () => buildCashFlowColumns(companyAllShown, companyAllShown),
+    [companyAllShown],
   )
   const riskPeriods = useMemo(
-    () => buildRiskPeriods(displayed, allConverted),
-    [displayed, allConverted],
+    () => buildRiskPeriods(companyShown, companyAllShown),
+    [companyShown, companyAllShown],
   )
   const narrative = useMemo(
     () =>
       buildNarrative({
-        statements: displayed,
-        all: allConverted,
+        statements: companyShown,
+        all: companyAllShown,
         riskPeriods,
         cashFlowColumns,
-        // Growth %: always from original statement-currency values.
-        originalAll: sameType,
+        originalAll: companyAll,
       }),
-    [displayed, allConverted, riskPeriods, cashFlowColumns, sameType],
+    [companyShown, companyAllShown, riskPeriods, cashFlowColumns, companyAll],
   )
 
-  if (buyerLoading || stLoading) return <Spinner label="…" />
-  if (!buyer) return null
+  const members = useMemo(() => {
+    const info: MemberInfo[] = (memberEntities.data ?? []).map((m) => ({
+      id: m.id,
+      name: m.name,
+      registration_number: m.registration_number ?? '',
+      industry: m.industries ? refName(m.industries, locale) : null,
+    }))
+    return baseCurrency
+      ? memberFigures(info, memberStatements.data ?? [], reportType, baseCurrency)
+      : []
+  }, [memberEntities.data, memberStatements.data, reportType, baseCurrency, locale])
 
+  if (entityLoading || statementsLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner />
+      </div>
+    )
+  }
+  if (!entity) return null
+
+  const today = new Date()
+  const todayIso = today.toISOString().slice(0, 10)
+  const reportDate = formatLongDate(today, locale)
   const latestAssessment = assessments.data?.[0] ?? null
   const previousAssessment = assessments.data?.[1] ?? null
+  const score = latestAssessment ? Number(latestAssessment.rating_score) : null
   const rating = latestAssessment?.calculation_trace?.rating ?? null
-  const change =
-    latestAssessment && previousAssessment && gradeBands
-      ? gradeChange(
-          gradeBands,
-          {
-            score: Number(latestAssessment.rating_score),
-            grade: latestAssessment.rating_grade,
-          },
-          {
-            score: Number(previousAssessment.rating_score),
-            grade: previousAssessment.rating_grade,
-          },
-        )
-      : null
-  const chips = rating ? buildFactorChips(rating.components, t, locale) : null
-  const reportDate = new Date().toISOString().slice(0, 10)
-  const latestRisk = riskPeriods[riskPeriods.length - 1] ?? null
+  const bullets = rating ? buildFactorBullets(rating.components, t, locale) : []
+  const stale = latest ? isStale(latest.period_end_date, todayIso) : false
+  const latestYear = latest?.fiscal_year ?? null
+  const showGroupTables = hasGroup && members.length > 1 && latestYear !== null
+
+  const money = (v: number | null) =>
+    v === null ? EM_DASH : `${formatCompact(v, locale, 2)} ${currency}`
 
   return (
-    <div className="report-root min-h-screen bg-white text-slate-900">
-      {/* Screen-only toolbar */}
-      <div className="no-print sticky top-0 z-20 flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
-        <Link to={`/buyers/${id}?tab=rating`} className="text-sm text-accent-700 hover:underline">
-          ← {t('report.backToBuyer')}
+    <div className="rpt min-h-screen" lang={lang}>
+      <PrintPageRules t={t} />
+
+      <div className="rpt-toolbar">
+        <Link
+          to={`/entities/${id}?tab=rating`}
+          className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[13px] text-white/85 hover:bg-white/10 hover:text-white"
+        >
+          <ArrowLeft className="size-4" />
+          {t('report.backToBuyer')}
         </Link>
-        <Button onClick={() => window.print()}>{t('report.print')}</Button>
+        <div className="flex-1 truncate text-center font-display text-[15px] tracking-wide uppercase">
+          {entity.name}
+        </div>
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="inline-flex items-center gap-1.5 rounded-md bg-brand-orange px-3 py-1.5 text-[13px] font-semibold text-white shadow-sm hover:brightness-105"
+        >
+          <Printer className="size-4" />
+          {t('report.print')}
+        </button>
       </div>
 
-      {/* Single-cell layout table: the repeating tfoot reserves a bottom band
-       * on EVERY printed page so content never collides with the fixed
-       * footer (Chrome prints fixed elements inside the page area). */}
-      <div className="mx-auto max-w-[210mm] p-8 print:p-0">
-        <table className="report-layout">
-          <tbody>
-            <tr>
-              <td>
-        {/* 1. Cover / general information */}
-        <section className="report-section">
-          <p className="text-xs font-semibold tracking-[0.3em] text-accent-700">
-            {t('report.title')}
-          </p>
-          <h1 className="mt-1 text-2xl font-bold">{buyer.name}</h1>
-          <p className="text-sm text-slate-500">
-            {t('report.reportDate')}: {reportDate}
-          </p>
+      <div className="rpt-viewport">
+        <article className="rpt-sheet">
+          <table className="rpt-layout">
+            <thead>
+              <tr>
+                <td>
+                  <ReportHeader
+                    t={t}
+                    name={entity.name}
+                    registration={entity.registration_number}
+                    date={reportDate}
+                  />
+                </td>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  {/* 1. General information ---------------------------------- */}
+                  <section className="rpt-section" style={{ marginTop: 4 }}>
+                    <h2 className="rpt-h2">{t('report.sections2.generalInfo')}</h2>
+                    <div className="rpt-general">
+                      <table className="rpt-kv">
+                        <tbody>
+                          <Kv label={t('report.general.companyName')} strong>
+                            {entity.name}
+                          </Kv>
+                          {entity.legal_form && (
+                            <Kv label={t('report.general.legalForm')}>{entity.legal_form}</Kv>
+                          )}
+                          <Kv label={t('report.general.registrationDate')} strong>
+                            {entity.founded_date ?? EM_DASH}
+                          </Kv>
+                          <Kv label={t('report.general.country')}>
+                            {refName(entity.countries, locale) || EM_DASH}
+                          </Kv>
+                          <Kv label={t('report.general.owners')}>
+                            {owners.data && owners.data.length > 0
+                              ? owners.data.map((o) => ownerText(o, locale)).join('; ')
+                              : EM_DASH}
+                          </Kv>
+                          <Kv label={t('report.general.lineOfBusiness')}>
+                            {refName(entity.industries, locale) || EM_DASH}
+                          </Kv>
+                          <Kv label={t('report.general.registrationCodes')}>{''}</Kv>
+                          <Kv label={t('report.registrationId')} sub>
+                            {entity.registration_number ?? EM_DASH}
+                          </Kv>
+                          <Kv label={t('report.general.address')}>{entity.address ?? EM_DASH}</Kv>
+                          {entity.website && (
+                            <Kv label={t('report.general.website')}>{entity.website}</Kv>
+                          )}
+                          <Kv label={t('report.general.affiliatedCompanies')}>
+                            {hasGroup ? memberIds.length - 1 : EM_DASH}
+                          </Kv>
+                          <Kv label={t('report.general.latestStatements')}>
+                            {latestYear !== null ? (
+                              <>
+                                <span className={stale ? 'is-neg' : ''} style={{ fontWeight: 700 }}>
+                                  {t('report.general.fy', { year: latestYear })}
+                                </span>
+                                {stale && (
+                                  <span className="is-neg">
+                                    {' '}
+                                    – {t('report.general.olderThanYear')}
+                                  </span>
+                                )}
+                              </>
+                            ) : (
+                              EM_DASH
+                            )}
+                          </Kv>
+                          <tr className="is-limit is-limit-first">
+                            <td>{t('report.general.recommendedLimit')}:</td>
+                            <td>
+                              <span className="rpt-big">
+                                {latestAssessment
+                                  ? `${formatAmount(Number(latestAssessment.suggested_limit), locale, 0)} ${latestAssessment.limit_currency}`
+                                  : EM_DASH}
+                              </span>
+                            </td>
+                          </tr>
+                          <tr className="is-limit">
+                            <td>{t('report.general.limitBasis')}:</td>
+                            <td className="rpt-basis">
+                              {latestAssessment && score !== null
+                                ? limitBasisText(
+                                    t,
+                                    locale,
+                                    score,
+                                    Number(latestAssessment.suggested_limit),
+                                    latestAssessment.limit_currency,
+                                    latest,
+                                  )
+                                : t('report.noAssessment')}
+                            </td>
+                          </tr>
+                          <tr className="is-limit">
+                            <td>{t('report.general.creditRating')}:</td>
+                            <td>
+                              <span className="rpt-big">
+                                {score === null ? EM_DASH : formatAmount(score, locale, 0)}
+                              </span>
+                            </td>
+                          </tr>
+                          {exposure.data?.exposure_uzs != null && (
+                            <tr className="is-limit">
+                              <td>{t('report.general.approvedExposure')}:</td>
+                              <td style={{ fontWeight: 700 }}>
+                                {formatAmount(Number(exposure.data.exposure_uzs), locale, 0)} UZS
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
 
-          <h2 className="report-h2">{t('report.generalInfo')}</h2>
-          <dl className="grid grid-cols-[240px_1fr] gap-y-1.5 text-sm">
-            <dt className="text-slate-500">{t('buyers.fields.legalForm')}</dt>
-            <dd>{buyer.legal_form ?? EM_DASH}</dd>
-            <dt className="text-slate-500">{t('buyers.fields.registrationNumber')}</dt>
-            <dd>{buyer.registration_number}</dd>
-            <dt className="text-slate-500">{t('buyers.fields.country')}</dt>
-            <dd>{refName(buyer.countries, locale)}</dd>
-            <dt className="text-slate-500">{t('buyers.fields.industry')}</dt>
-            <dd>{refName(buyer.industries, locale) || EM_DASH}</dd>
-            <dt className="text-slate-500">{t('buyers.fields.foundedDate')}</dt>
-            <dd>{buyer.founded_date ?? EM_DASH}</dd>
-            {latestAssessment && (
-              <>
-                <dt className="text-slate-500">{t('report.calculatedLimit')}</dt>
-                <dd>
-                  <span className="num font-semibold">
-                    {formatAmount(Number(latestAssessment.suggested_limit), locale)}{' '}
-                    {latestAssessment.limit_currency}
-                  </span>
-                  <span className="ml-2 text-xs text-slate-400">
-                    {t('report.limitDisclaimer')}
-                  </span>
-                </dd>
-              </>
-            )}
-            {exposure.data?.exposure_uzs != null && (
-              <>
-                <dt className="text-slate-500">{t('report.approvedAggregateLimit')}</dt>
-                <dd>
-                  <span className="num font-semibold">
-                    {formatAmount(Number(exposure.data.exposure_uzs), locale, 0)} UZS
-                  </span>
-                </dd>
-              </>
-            )}
-          </dl>
+                      <div className="rpt-gauge-card">
+                        <div className="rpt-gauge">
+                          <RatingGauge
+                            score={score}
+                            previousScore={
+                              previousAssessment ? Number(previousAssessment.rating_score) : null
+                            }
+                            t={t}
+                          />
+                        </div>
+                        {bullets.length > 0 && <FactorBullets bullets={bullets} />}
+                      </div>
+                    </div>
 
-          {latestAssessment ? (
-            <div className="mt-5">
-              <GradeScale
-                score={Number(latestAssessment.rating_score)}
-                grade={latestAssessment.rating_grade}
-                bands={gradeBands}
-                change={change}
-              />
-              {chips && (
-                <div className="mt-4 grid grid-cols-2 gap-3">
-                  <div>
-                    <h4 className="mb-1.5 text-[13px] font-semibold text-slate-600">
-                      {t('rating.strengths')}
-                    </h4>
-                    <FactorChipList chips={chips.strengths} />
+                    <RatingLegend t={t} score={score} className="rpt-keep mt-4" />
+                    {stale && latestYear !== null && (
+                      <div className="rpt-freshness">
+                        <strong>{t('report.freshness.label')}</strong>{' '}
+                        {t('report.freshness.stale', { year: latestYear })}
+                      </div>
+                    )}
+                  </section>
+
+                  {/* 2. Key figures -------------------------------------------- */}
+                  {latest && (
+                    <section className="rpt-section">
+                      <h2 className="rpt-h2">
+                        {t('report.sections2.keyFigures', { year: latest.fiscal_year })}
+                      </h2>
+                      <div className="rpt-kf">
+                        {figures.map((f) => (
+                          <KeyFigureCard
+                            key={f.key}
+                            figure={f}
+                            t={t}
+                            locale={locale}
+                            money={money}
+                          />
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
+                  {/* 3. Conclusion + overall assessment ------------------------ */}
+                  <section className="rpt-section">
+                    <h2 className="rpt-h2">{t('report.sections.conclusion')}</h2>
+                    {narrative.length > 0 && (
+                      <ul className="rpt-bullets is-prose">
+                        {narrative.map((bullet) => (
+                          <li key={bullet.key}>
+                            {t(
+                              `report.narrative.${bullet.key}`,
+                              formatNarrativeParams(bullet, t, locale),
+                            )}
+                          </li>
+                        ))}
+                        {stale && latestYear !== null && (
+                          <li>{t('report.freshness.conclusion', { year: latestYear })}</li>
+                        )}
+                      </ul>
+                    )}
+                    <div className="rpt-overall">
+                      <div className="rpt-overall-title">{t('report.overall.title')}</div>
+                      <p style={{ margin: 0 }}>
+                        {latestAssessment && score !== null
+                          ? overallText(
+                              t,
+                              locale,
+                              score,
+                              bullets,
+                              Number(latestAssessment.suggested_limit),
+                              latestAssessment.limit_currency,
+                            )
+                          : t('report.noAssessment')}
+                      </p>
+                    </div>
+                  </section>
+
+                  {company.length === 0 ? (
+                    <p className="rpt-note" style={{ marginTop: 16 }}>
+                      {t('report.noStatements')}
+                    </p>
+                  ) : (
+                    <>
+                      {/* 4. Group: key companies ------------------------------- */}
+                      {showGroupTables && (
+                        <section className="rpt-section rpt-page-break">
+                          <h2 className="rpt-h2">{t('report.sections2.groupKeyCompanies')}</h2>
+                          <GroupKeyCompanies
+                            t={t}
+                            locale={locale}
+                            members={members}
+                            currency={baseCurrency}
+                            year={latestYear}
+                            subjectId={entity.id}
+                          />
+                        </section>
+                      )}
+
+                      {/* 5. Balance sheet ---------------------------------------- */}
+                      <section className={`rpt-section ${showGroupTables ? '' : 'rpt-page-break'}`}>
+                        <h2 className="rpt-h2">{t('report.sections.balanceSheet')}</h2>
+                        <p className="rpt-caption">
+                          {t('report.tables.bsCompany', { to: latestYear })}
+                        </p>
+                        <StatementReportTable
+                          t={t}
+                          locale={locale}
+                          columns={company}
+                          rows={bsCompany}
+                          currency={currency}
+                          kind="bs"
+                        />
+                        {groupSeries.length > 0 && (
+                          <>
+                            <p className="rpt-caption">
+                              {t('report.tables.bsGroup', { to: latestYear })}
+                            </p>
+                            <StatementReportTable
+                              t={t}
+                              locale={locale}
+                              columns={groupSeries}
+                              rows={bsGroup}
+                              currency={currency}
+                              kind="bs"
+                            />
+                            <GroupNote
+                              t={t}
+                              currency={baseCurrency}
+                              otherCurrency={combined?.otherCurrencyMembers ?? 0}
+                            />
+                          </>
+                        )}
+                        <CommentaryList
+                          paragraphs={bsCommentary}
+                          t={t}
+                          locale={locale}
+                          currency={currency}
+                        />
+                      </section>
+
+                      {/* 6. Profit & loss ---------------------------------------- */}
+                      <section className="rpt-section">
+                        <h2 className="rpt-h2">{t('report.sections.pnl')}</h2>
+                        <p className="rpt-caption">
+                          {t('report.tables.plCompany', { to: latestYear })}
+                        </p>
+                        <StatementReportTable
+                          t={t}
+                          locale={locale}
+                          columns={company}
+                          rows={plCompany}
+                          currency={currency}
+                          kind="pl"
+                        />
+                        {groupSeries.length > 0 && (
+                          <>
+                            <p className="rpt-caption">
+                              {t('report.tables.plGroup', { to: latestYear })}
+                            </p>
+                            <StatementReportTable
+                              t={t}
+                              locale={locale}
+                              columns={groupSeries}
+                              rows={plGroup}
+                              currency={currency}
+                              kind="pl"
+                            />
+                          </>
+                        )}
+                        <CommentaryList
+                          paragraphs={plCommentary}
+                          t={t}
+                          locale={locale}
+                          currency={currency}
+                        />
+                      </section>
+
+                      {/* 7. Ratios, dynamics, risk summary ------------------------ */}
+                      <section className="rpt-section">
+                        <h2 className="rpt-h2">{t('report.sections.ratios')}</h2>
+                        {ratiosCompany.map((table) => (
+                          <RatioReportTable
+                            key={`c-${table.key}`}
+                            t={t}
+                            locale={locale}
+                            table={table}
+                            columns={company}
+                            currency={currency}
+                            subject={entity.name}
+                          />
+                        ))}
+                        {groupSeries.length > 0 &&
+                          ratiosGroup.map((table) => (
+                            <RatioReportTable
+                              key={`g-${table.key}`}
+                              t={t}
+                              locale={locale}
+                              table={table}
+                              columns={groupSeries}
+                              currency={currency}
+                              subject={t('report.tables.combined')}
+                            />
+                          ))}
+                      </section>
+
+                      {companyAllShown.length >= 2 && (
+                        <section className="rpt-section rpt-chart">
+                          <h2 className="rpt-h2">{t('report.sections.dynamicGraphs')}</h2>
+                          <DynamicCharts
+                            statements={companyAllShown}
+                            variant="print"
+                            t={t}
+                            locale={locale}
+                            currency={currency}
+                          />
+                          <p className="rpt-note">{t('report.charts2.note')}</p>
+                        </section>
+                      )}
+
+                      {ratioCommentary.length > 0 && (
+                        <section className="rpt-section">
+                          <CommentaryList
+                            paragraphs={ratioCommentary}
+                            t={t}
+                            locale={locale}
+                            currency={currency}
+                          />
+                        </section>
+                      )}
+
+                      <RiskSummary
+                        t={t}
+                        latestRisk={riskPeriods[riskPeriods.length - 1] ?? null}
+                        negativeCfo={hasPersistentNegativeCfo(cashFlowColumns)}
+                      />
+                    </>
+                  )}
+
+                  <ReportGroupSection entityId={entity.id} t={t} locale={locale} />
+
+                  {/* 8. Glossary ----------------------------------------------- */}
+                  <section className="rpt-section">
+                    <h2 className="rpt-h2">{t('report.sections2.glossary')}</h2>
+                    <Glossary t={t} />
+                  </section>
+
+                  {/* 9. Group structure ---------------------------------------- */}
+                  {showGroupTables && (
+                    <section className="rpt-section">
+                      <h2 className="rpt-h2">{t('report.sections2.groupStructure')}</h2>
+                      <GroupStructureTable
+                        t={t}
+                        locale={locale}
+                        members={members}
+                        currency={baseCurrency}
+                        subjectId={entity.id}
+                      />
+                    </section>
+                  )}
+
+                  {displayCurrency !== 'original' && companyConverted.footnotes.length > 0 && (
+                    <p className="rpt-note">
+                      {t('fin.fx.growthFootnote')} {t('report.fxFootnote')}:{' '}
+                      {companyConverted.footnotes
+                        .map(
+                          (f) =>
+                            `${statementPeriodLabel(f.statement)}: ${f.rates
+                              .map(
+                                (r) =>
+                                  `${r.currency_code} = ${formatAmount(r.rate_to_uzs, locale, 2)} UZS (${r.rate_date})`,
+                              )
+                              .join(', ')}`,
+                        )
+                        .join('; ')}
+                    </p>
+                  )}
+
+                  <div className="rpt-disclaimer rpt-keep">
+                    {t('report.disclaimer', { company: BRAND.copyright })}
                   </div>
-                  <div>
-                    <h4 className="mb-1.5 text-[13px] font-semibold text-slate-600">
-                      {t('rating.weaknesses')}
-                    </h4>
-                    <FactorChipList chips={chips.weaknesses} />
+                  <p className="rpt-end">{t('report.endOfReport')}</p>
+
+                  <div className="rpt-legal">
+                    {BRAND.legalEntities.map((le) => (
+                      <div key={le.name}>
+                        <strong>{le.name}</strong>
+                        {le.lines.map((line) => (
+                          <div key={line}>{line}</div>
+                        ))}
+                      </div>
+                    ))}
                   </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            <p className="mt-4 text-sm text-slate-500">{t('report.noAssessment')}</p>
-          )}
-        </section>
 
-        {/* 2. Conclusion */}
-        {narrative.length > 0 && (
-          <section className="report-section">
-            <h2 className="report-h2">{t('report.sections.conclusion')}</h2>
-            <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm leading-relaxed">
-              {narrative.map((bullet) => (
-                <li key={bullet.key}>
-                  {t(`report.narrative.${bullet.key}`, formatNarrativeParams(bullet, t, locale))}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {/* 3-4. Statement tables */}
-        <section className="report-section">
-          <h2 className="report-h2">{t('report.sections.balanceSheet')}</h2>
-          <StatementTable
-            t={t}
-            locale={locale}
-            columns={applyDisplayCurrency(balanceSheetColumns(displayedRaw), displayed)}
-            sections={BALANCE_SHEET_SECTIONS}
-            getValues={(s) => s.balance_sheets}
-            verticalBaseFor={bsVerticalBase}
-          />
-        </section>
-
-        <section className="report-section">
-          <h2 className="report-h2">{t('report.sections.pnl')}</h2>
-          <StatementTable
-            t={t}
-            locale={locale}
-            columns={applyDisplayCurrency(incomeStatementColumns(displayedRaw, sameType), displayed)}
-            sections={INCOME_STATEMENT_SECTIONS}
-            getValues={(s) => s.income_statements}
-            verticalBaseFor={() => 'revenue'}
-          />
-        </section>
-
-        {/* 5. Ratios */}
-        <section className="report-section">
-          <h2 className="report-h2">{t('report.sections.ratios')}</h2>
-          <RatioReportTable t={t} locale={locale} displayed={displayed} />
-        </section>
-
-        {/* 6. Risk summary */}
-        <section className="report-section">
-          <h2 className="report-h2">{t('report.sections.riskSummary')}</h2>
-          <RiskSummary
-            t={t}
-            latestRisk={latestRisk}
-            negativeCfo={hasPersistentNegativeCfo(cashFlowColumns)}
-          />
-        </section>
-
-        {/* 7. The corporate group, when there is one */}
-        <ReportGroupSection entityId={buyer.id} t={t} locale={locale} />
-
-        {/* 8. Dynamic graphs */}
-        {allConverted.length >= 2 && (
-          <section className="report-section">
-            <h2 className="report-h2">{t('report.sections.dynamicGraphs')}</h2>
-            <DynamicCharts statements={allConverted} variant="print" t={t} />
-          </section>
-        )}
-
-        {/* FX footnotes */}
-        {displayCurrency !== 'original' && (
-          <p className="mt-4 text-xs text-slate-400">{t('fin.fx.growthFootnote')}</p>
-        )}
-        {displayCurrency !== 'original' && converted.footnotes.length > 0 && (
-          <p className="mt-4 text-xs text-slate-400">
-            {t('report.fxFootnote')}:{' '}
-            {converted.footnotes
-              .map(
-                (f) =>
-                  `${statementPeriodLabel(f.statement)}: ${f.rates
-                    .map(
-                      (r) =>
-                        `${r.currency_code} = ${formatAmount(r.rate_to_uzs, locale, 2)} UZS (${r.rate_date})`,
-                    )
-                    .join(', ')}`,
-              )
-              .join('; ')}
-          </p>
-        )}
-              </td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr>
-              <td>
-                <div className="report-footer-space" />
-              </td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-
-      {/* Print footer (repeats on each printed page) */}
-      <div className="report-footer">
-        {buyer.name} · {reportDate} · {t('report.generatedBy')}
+                  <div className="rpt-footer">
+                    <span>
+                      © {BRAND.copyright} {today.getFullYear()}
+                    </span>
+                    <span className="mid">{t('report.tagline')}</span>
+                    <span>{entity.name}</span>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
       </div>
     </div>
   )
 }
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Header and print page rules
 // ---------------------------------------------------------------------------
 
-type Tf = ReturnType<typeof useTranslation>['t']
-
-// ---------------------------------------------------------------------------
-// Statement table (amounts + % of base, compact for print)
-// ---------------------------------------------------------------------------
-
-type Values = Partial<Record<string, number | null>> | null
-
-function StatementTable<K extends string>({
+function ReportHeader({
   t,
-  locale,
-  columns,
-  sections,
-  getValues,
-  verticalBaseFor,
+  name,
+  registration,
+  date,
 }: {
-  t: Tf
-  locale: string
-  columns: { statement: StatementBundle }[]
-  sections: SectionDef<K>[]
-  getValues: (s: StatementBundle) => Values
-  verticalBaseFor: (key: K) => string
+  t: TFunction
+  name: string
+  registration: string | null
+  date: string
 }) {
-  const valueOf = (s: StatementBundle, key: K): number | null =>
-    (getValues(s)?.[key] as number | null | undefined) ?? null
-
   return (
-    <table className="report-table">
-      <thead>
-        <tr>
-          <th className="text-left">{t('fin.lineHeader')}</th>
-          {columns.map((c) => (
-            <th key={c.statement.id} colSpan={2} className="border-l border-slate-200 text-center">
-              {statementPeriodLabel(c.statement)}
-              <span className="ml-1 font-normal text-slate-400">
-                {c.statement.currency_code}
-              </span>
-            </th>
-          ))}
-        </tr>
-        <tr className="text-[10px] font-normal text-slate-400">
-          <th />
-          {columns.map((c) => (
+    <header className="rpt-head">
+      <BrandMark size="xl" />
+      <div className="text-right">
+        <div className="rpt-head-title">{t('report.title')}</div>
+        <div className="rpt-head-meta">
+          <strong>{name}</strong>
+          {registration && (
             <>
-              <th key={`${c.statement.id}-a`} className="border-l border-slate-200 text-right">
-                {t('fin.amount')}
-              </th>
-              <th key={`${c.statement.id}-s`} className="text-right">
-                {t('fin.shareOfBase')}
-              </th>
+              <span className="sep">|</span>
+              {t('report.registrationId')}: {registration}
             </>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {sections.map((section) =>
-          section.lines
-            .filter((line) => columns.some((c) => valueOf(c.statement, line.key) !== null))
-            .map((line) => (
-              <tr
-                key={line.key}
-                className={
-                  line.level === 'grand'
-                    ? 'bg-slate-100 font-semibold'
-                    : line.level === 'subtotal'
-                      ? 'bg-slate-50 font-medium'
-                      : ''
-                }
-              >
-                <td>{t(`fin.lines.${line.key}`)}</td>
-                {columns.map((c) => {
-                  const value = valueOf(c.statement, line.key)
-                  const base = valueOf(c.statement, verticalBaseFor(line.key) as K)
-                  return (
-                    <>
-                      <td key={`${c.statement.id}-a`} className="border-l border-slate-100">
-                        <span className={`num block ${value !== null && value < 0 ? 'text-neg-500' : ''}`}>
-                          {value === null ? EM_DASH : formatAmount(value, locale)}
-                        </span>
-                      </td>
-                      <td key={`${c.statement.id}-s`}>
-                        <span className="num block text-slate-400">
-                          {formatPercent(verticalShare(value, base), locale)}
-                        </span>
-                      </td>
-                    </>
-                  )
-                })}
-              </tr>
-            )),
-        )}
-      </tbody>
-    </table>
+          )}
+        </div>
+        <div className="rpt-head-meta" style={{ marginTop: 1 }}>
+          {t('report.reportDate')}: {date}
+        </div>
+      </div>
+    </header>
   )
 }
 
+const PAGE = '\u0001'
+const PAGES = '\u0002'
+
+/** The A4 page and its footer, in the report language. The margin boxes are
+ * the only place "page x of y" can be drawn, and their content must be a
+ * literal — hence a generated rule rather than a class. */
+function PrintPageRules({ t }: { t: TFunction }) {
+  const box =
+    "font-family: 'PT Sans Narrow', 'Arial Narrow', sans-serif; font-size: 8pt; vertical-align: top; padding-top: 2.5mm; border-top: 0.6pt solid #c9dde9;"
+  const css = `@page {
+  size: A4;
+  margin: 11mm 12mm 15mm;
+  @bottom-left { content: ${cssString(`© ${BRAND.copyright} ${new Date().getFullYear()}`)}; color: #666666; ${box} }
+  @bottom-center { content: ${cssString(`■  ${t('report.tagline')}`)}; color: #005288; font-weight: 700; ${box} }
+  @bottom-right { content: ${pageCounterContent(t('report.pageOf', { page: PAGE, pages: PAGES }), PAGE, PAGES)}; color: #666666; ${box} }
+}`
+  return <style>{css}</style>
+}
+
 // ---------------------------------------------------------------------------
-// Ratio table with Δ per period
+// General information
 // ---------------------------------------------------------------------------
 
-function RatioReportTable({
-  t,
-  locale,
-  displayed,
+function Kv({
+  label,
+  children,
+  strong = false,
+  sub = false,
 }: {
-  t: Tf
-  locale: string
-  displayed: StatementBundle[]
+  label: string
+  children: ReactNode
+  strong?: boolean
+  sub?: boolean
 }) {
-  const sets = displayed.map((s) =>
-    computeRatios(s.statement_kind, s.balance_sheets, s.income_statements),
+  return (
+    <tr className={`${strong ? 'is-strong' : ''} ${sub ? 'is-sub' : ''}`}>
+      <td>{label}:</td>
+      <td>{children}</td>
+    </tr>
   )
+}
 
-  const fmt = (format: 'percent' | 'ratio' | 'days', value: number | null): string => {
-    if (value === null) return EM_DASH
-    if (format === 'percent') return formatPercent(value, locale)
-    if (format === 'days') return formatAmount(value, locale, 0)
-    return formatRatio(value, locale)
+function ownerText(o: { parent_name: string; ownership_pct: number | null }, locale: string) {
+  return o.ownership_pct === null
+    ? o.parent_name
+    : `${o.parent_name} (${formatAmount(Number(o.ownership_pct), locale, 2)}%)`
+}
+
+function scaleLabel(t: TFunction, point: ScalePoint): string {
+  return t(`rating.scale10.${SCALE_LABEL_KEYS[point]}`)
+}
+
+function bandText(t: TFunction, score: number): string {
+  const placement = placeScore(score)
+  return placement.kind === 'in'
+    ? t('report.placement.in', { band: scaleLabel(t, placement.point) })
+    : t('report.placement.between', {
+        lower: scaleLabel(t, placement.lower),
+        upper: scaleLabel(t, placement.upper),
+      })
+}
+
+function limitBasisText(
+  t: TFunction,
+  locale: string,
+  score: number,
+  limit: number,
+  limitCurrency: string,
+  base: StatementBundle | null,
+): string {
+  const band = bandText(t, score)
+  const shownScore = formatAmount(score, locale, 0)
+  const revenue = base?.income_statements?.revenue ?? null
+  // The ratios mean something only in the limit's own currency.
+  if (!base || base.currency_code !== limitCurrency || !limit || !revenue || revenue <= 0) {
+    return t('report.limitBasis.ratingOnly', { score: shownScore, band })
   }
+  const revenuePct = formatPercent(limit / revenue, locale, 2)
+  const equity = base.balance_sheets?.total_equity ?? null
+  if (!equity || equity <= 0) {
+    return t('report.limitBasis.revenueOnly', {
+      score: shownScore,
+      band,
+      revenuePct,
+      year: base.fiscal_year,
+    })
+  }
+  return t('report.limitBasis.full', {
+    score: shownScore,
+    band,
+    revenuePct,
+    equityPct: formatPercent(limit / equity, locale, 1),
+    year: base.fiscal_year,
+  })
+}
 
-  const groups = ['profitability', 'solvency', 'efficiency'] as const
+function overallText(
+  t: TFunction,
+  locale: string,
+  score: number,
+  bullets: FactorBullet[],
+  limit: number,
+  limitCurrency: string,
+): string {
+  const placement = placeScore(score)
+  const shownScore = formatAmount(score, locale, 0)
+  const parts = [
+    placement.kind === 'in'
+      ? t('report.overall.rating', {
+          score: shownScore,
+          band: scaleLabel(t, placement.point),
+          point: placement.point,
+        })
+      : t('report.overall.ratingBetween', {
+          score: shownScore,
+          lower: scaleLabel(t, placement.lower),
+          lowerPoint: placement.lower,
+          upper: scaleLabel(t, placement.upper),
+          upperPoint: placement.upper,
+        }),
+  ]
+  // bullets are best-first: strengths from the front, weaknesses from the back
+  const factorNames = (list: FactorBullet[]) =>
+    list.slice(0, 3).map((b) => t(`rating.factors.${b.factor}`))
+  const strengths = factorNames(bullets.filter((b) => b.tone === 'strength'))
+  const weaknesses = factorNames(bullets.filter((b) => b.tone === 'weakness').reverse())
+  if (strengths.length) parts.push(t('report.overall.strengths', { list: strengths.join(', ') }))
+  if (weaknesses.length) parts.push(t('report.overall.weaknesses', { list: weaknesses.join(', ') }))
+  parts.push(
+    limit > 0
+      ? t('report.overall.limit', { amount: `${formatAmount(limit, locale, 0)} ${limitCurrency}` })
+      : t('report.overall.noLimit'),
+  )
+  return parts.join(' ')
+}
 
+function FactorBullets({ bullets }: { bullets: FactorBullet[] }) {
   return (
-    <table className="report-table">
-      <thead>
-        <tr>
-          <th className="text-left">{t('fin.ratioHeader')}</th>
-          {displayed.map((s) => (
-            <>
-              <th key={`${s.id}-v`} className="border-l border-slate-200 text-right">
-                {statementPeriodLabel(s)}
-              </th>
-              <th key={`${s.id}-d`} className="text-right text-[10px] font-normal text-slate-400">
-                Δ%
-              </th>
-            </>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {groups.map((group) => (
-          <>
-            <tr key={group}>
-              <td
-                colSpan={1 + displayed.length * 2}
-                className="pt-2 text-[10px] font-semibold tracking-wide text-slate-400 uppercase"
-              >
-                {t(`fin.ratioGroups.${group}`)}
-              </td>
-            </tr>
-            {RATIO_DEFS.filter((d) => d.group === group).map((def) => (
-              <tr key={def.key}>
-                <td>{t(`fin.ratios.${def.key}`)}</td>
-                {displayed.map((s, idx) => {
-                  const value = sets[idx][def.key].value
-                  const prev = idx > 0 ? sets[idx - 1][def.key].value : null
-                  const delta = relativeChange(value, prev)
-                  return (
-                    <>
-                      <td key={`${s.id}-v`} className="border-l border-slate-100">
-                        <span className="num block">{fmt(def.format, value)}</span>
-                      </td>
-                      <td key={`${s.id}-d`}>
-                        <span
-                          className={`num block text-[10px] ${
-                            delta === null || Math.abs(delta) < 0.0005
-                              ? 'text-slate-300'
-                              : delta > 0
-                                ? 'text-pos-500'
-                                : 'text-neg-500'
-                          }`}
-                        >
-                          {delta === null ? EM_DASH : formatPercent(delta, locale)}
-                        </span>
-                      </td>
-                    </>
-                  )
-                })}
-              </tr>
-            ))}
-          </>
-        ))}
-      </tbody>
-    </table>
+    <ul className="rpt-bullets is-small">
+      {bullets.map((b) => (
+        <li key={b.factor} className={`is-${b.tone}`}>
+          {b.text}
+        </li>
+      ))}
+    </ul>
   )
 }
 
 // ---------------------------------------------------------------------------
-// Risk summary
+// Key figures
+// ---------------------------------------------------------------------------
+
+function KeyFigureCard({
+  figure,
+  t,
+  locale,
+  money,
+}: {
+  figure: KeyFigure
+  t: TFunction
+  locale: string
+  money: (v: number | null) => string
+}) {
+  const show = (v: number | null) =>
+    v === null
+      ? EM_DASH
+      : figure.format === 'amount'
+        ? money(v)
+        : figure.format === 'percent'
+          ? formatPercent(v, locale, 2)
+          : `${formatRatio(v, locale)}x`
+
+  const change = figure.change
+  const sign = (v: number) => (v >= 0 ? '+' : '−')
+  const changeText =
+    change === null
+      ? figure.previous !== null
+        ? t('report.nm')
+        : ''
+      : change.kind === 'pct'
+        ? formatSignedPercent(change.value, locale)
+        : change.kind === 'pp'
+          ? `${sign(change.value)}${formatAmount(Math.abs(change.value * 100), locale, 2)} ${t('report.pp')}`
+          : `${sign(change.value)}${formatRatio(Math.abs(change.value), locale)}x`
+  const toneClass = figure.tone === 'pos' ? 'is-pos' : figure.tone === 'neg' ? 'is-neg' : ''
+
+  return (
+    <div>
+      <div className="rpt-kf-label">{t(`report.keyFigureLabels.${figure.key}`)}</div>
+      <div className={`rpt-kf-value ${figure.value !== null && figure.value < 0 ? 'is-neg' : ''}`}>
+        {show(figure.value)}
+      </div>
+      {figure.previousYear !== null && (
+        <div className="rpt-kf-sub">
+          {figure.previousYear}: {show(figure.previous)}
+          {changeText && (
+            <b className={toneClass}>
+              {changeText}
+              {figure.trend && ` ${figure.trend === 'up' ? '▲' : '▼'}`}
+            </b>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Commentary
+// ---------------------------------------------------------------------------
+
+function formatValue(
+  format: ValueFormat,
+  value: number | null,
+  t: TFunction,
+  locale: string,
+  currency: string,
+): string {
+  if (value === null) return EM_DASH
+  switch (format) {
+    case 'amount':
+      return `${formatCompact(value, locale, 2)} ${currency}`
+    case 'percent':
+      return formatPercent(value, locale, 2)
+    case 'ratio':
+      return `${formatRatio(value, locale)}x`
+    case 'days':
+      return `${formatAmount(value, locale, 2)} ${t('report.tables.days')}`
+  }
+}
+
+function Sentence({
+  s,
+  t,
+  locale,
+  currency,
+}: {
+  s: CommentarySentence
+  t: TFunction
+  locale: string
+  currency: string
+}) {
+  const values = {
+    subject: t(`report.commentary.subjects.${s.metric}.${s.subject}`),
+    from: formatValue(s.format, s.from, t, locale, currency),
+    to: formatValue(s.format, s.to, t, locale, currency),
+  }
+  const c = s.commentary
+  if (c.kind !== 'change') return <>{t(`report.commentary.${c.kind}`, values)}</>
+  const move =
+    c.move === 'up' || c.move === 'down'
+      ? t(`report.commentary.moves.${c.move}.${c.strength}`)
+      : t(`report.commentary.moves.${c.move}`)
+  const tone = s.tone === 'pos' ? 'is-pos' : s.tone === 'neg' ? 'is-neg' : ''
+  return (
+    <Trans
+      t={t}
+      i18nKey="report.commentary.change"
+      values={{ ...values, move, pct: formatPercent(c.pct, locale, 2) }}
+      components={{ hl: <span className={`rpt-hl ${tone}`} /> }}
+    />
+  )
+}
+
+function CommentaryList({
+  paragraphs,
+  t,
+  locale,
+  currency,
+}: {
+  paragraphs: CommentaryParagraph[]
+  t: TFunction
+  locale: string
+  currency: string
+}) {
+  if (paragraphs.length === 0) return null
+  return (
+    <ul className="rpt-bullets is-prose" style={{ marginTop: 8 }}>
+      {paragraphs.map((p) => (
+        <li key={p.metric}>
+          {p.sentences.map((s, i) => (
+            <span key={s.subject}>
+              {i > 0 && ' '}
+              <Sentence s={s} t={t} locale={locale} currency={currency} />
+            </span>
+          ))}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+function GroupNote({
+  t,
+  currency,
+  otherCurrency,
+}: {
+  t: TFunction
+  currency: string
+  otherCurrency: number
+}) {
+  return (
+    <p className="rpt-note">
+      {t('report.group.combinedNote', { currency })}
+      {otherCurrency > 0 && ` ${t('report.group.otherCurrency', { count: otherCurrency })}`}
+    </p>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Risk summary and glossary
 // ---------------------------------------------------------------------------
 
 function RiskSummary({
@@ -538,29 +1062,74 @@ function RiskSummary({
   latestRisk,
   negativeCfo,
 }: {
-  t: Tf
+  t: TFunction
   latestRisk: ReturnType<typeof buildRiskPeriods>[number] | null
   negativeCfo: boolean
 }) {
   if (!latestRisk) return null
   const breached = RISK_ROWS.filter((row) => latestRisk.breaches[row.key])
-
   return (
-    <ul className="flex list-disc flex-col gap-1.5 pl-5 text-sm">
-      {latestRisk.zBand && (
+    <section className="rpt-section rpt-keep">
+      <h2 className="rpt-h2">{t('report.sections.riskSummary')}</h2>
+      <ul className="rpt-bullets is-prose">
+        {latestRisk.zBand && (
+          <li>
+            {t('report.risk.zZone')}: <strong>{t(`fin.risk.bands.${latestRisk.zBand}`)}</strong>
+          </li>
+        )}
         <li>
-          {t('report.risk.zZone')}: <strong>{t(`fin.risk.bands.${latestRisk.zBand}`)}</strong>
+          {breached.length
+            ? `${t('report.risk.breaches')}: ${breached.map((row) => t(`fin.risk.rows.${row.key}`)).join(', ')}`
+            : t('report.risk.noBreaches')}
         </li>
-      )}
-      <li>
-        {breached.length
-          ? `${t('report.risk.breaches')}: ${breached
-              .map((row) => t(`fin.risk.rows.${row.key}`))
-              .join(', ')}`
-          : t('report.risk.noBreaches')}
-      </li>
-      {negativeCfo && <li className="text-neg-500">{t('report.risk.negativeCfo')}</li>}
-    </ul>
+        {negativeCfo && <li className="is-weakness">{t('report.risk.negativeCfo')}</li>}
+      </ul>
+    </section>
   )
 }
 
+const GLOSSARY_KEYS = [
+  'ebit',
+  'cfo',
+  'fcf',
+  'nwc',
+  'dio',
+  'dso',
+  'dpo',
+  'ccc',
+  'de',
+  'ltst',
+  'pp',
+  'nm',
+  'kmbt',
+] as const
+
+function Glossary({ t }: { t: TFunction }) {
+  const half = Math.ceil(GLOSSARY_KEYS.length / 2)
+  const column = (keys: readonly string[]) => (
+    <dl>
+      {keys.map((key) => (
+        <GlossaryRow
+          key={key}
+          term={t(`report.glossaryTerms.${key}.term`)}
+          definition={t(`report.glossaryTerms.${key}.definition`)}
+        />
+      ))}
+    </dl>
+  )
+  return (
+    <div className="rpt-glossary">
+      {column(GLOSSARY_KEYS.slice(0, half))}
+      {column(GLOSSARY_KEYS.slice(half))}
+    </div>
+  )
+}
+
+function GlossaryRow({ term, definition }: { term: string; definition: string }) {
+  return (
+    <>
+      <dt>{term}</dt>
+      <dd>{definition}</dd>
+    </>
+  )
+}

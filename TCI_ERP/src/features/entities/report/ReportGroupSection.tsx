@@ -9,7 +9,12 @@
 import type { TFunction } from 'i18next'
 
 import { formatAmount } from '../../../lib/format'
-import { useCurrentGroupLimit, useEntityGroup, useGroupExposure, useGroupExposureLines } from '../../groups/api'
+import {
+  useCurrentGroupLimit,
+  useEntityGroup,
+  useGroupExposure,
+  useGroupExposureLines,
+} from '../../groups/api'
 import { exposureByMember } from '../../groups/group'
 
 interface ReportGroupSectionProps {
@@ -32,40 +37,50 @@ export function ReportGroupSection({ entityId, t, locale }: ReportGroupSectionPr
   const parentName = exposure.data?.ultimate_parent_name ?? ''
 
   return (
-    <section className="report-section">
-      <h2 className="report-h2">{t('report.sections.group')}</h2>
-      <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-sm">
-        <dt className="text-slate-500">{t('groups.ultimateParent')}</dt>
-        <dd>{parentName}</dd>
-        <dt className="text-slate-500">{t('groups.members.title')}</dt>
-        <dd className="num">{members.length}</dd>
-        <dt className="text-slate-500">{t('groups.exposure.total')}</dt>
-        <dd className="num">
-          {formatAmount(Number(exposure.data?.exposure_uzs ?? 0), locale)} UZS
-        </dd>
-        <dt className="text-slate-500">{t('groups.exposure.groupLimit')}</dt>
-        <dd className="num">
-          {groupLimit.data
-            ? `${formatAmount(Number(groupLimit.data.max_amount), locale)} ${groupLimit.data.currency_code}`
-            : t('groups.exposure.none')}
-        </dd>
-      </dl>
+    <section className="rpt-section rpt-keep">
+      <h2 className="rpt-h2">{t('report.sections2.groupExposure')}</h2>
+      <table className="rpt-kv">
+        <tbody>
+          <tr>
+            <td>{t('groups.ultimateParent')}</td>
+            <td>{parentName}</td>
+          </tr>
+          <tr>
+            <td>{t('groups.members.title')}</td>
+            <td className="rpt-num" style={{ textAlign: 'left' }}>
+              {members.length}
+            </td>
+          </tr>
+          <tr className="is-strong">
+            <td>{t('groups.exposure.total')}</td>
+            <td>{formatAmount(Number(exposure.data?.exposure_uzs ?? 0), locale)} UZS</td>
+          </tr>
+          <tr>
+            <td>{t('groups.exposure.groupLimit')}</td>
+            <td>
+              {groupLimit.data
+                ? `${formatAmount(Number(groupLimit.data.max_amount), locale)} ${groupLimit.data.currency_code}`
+                : t('groups.exposure.none')}
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
       {byMember.length > 0 && (
-        <table className="mt-3 w-full text-sm">
+        <table className="rpt-table" style={{ marginTop: 8 }}>
           <thead>
-            <tr className="border-b border-slate-300 text-left text-slate-500">
-              <th className="py-1">{t('groups.exposure.member')}</th>
-              <th className="py-1 text-right">{t('groups.exposure.limits')}</th>
-              <th className="py-1 text-right">{t('groups.exposure.amountUzs')}</th>
+            <tr>
+              <th>{t('groups.exposure.member')}</th>
+              <th>{t('groups.exposure.limits')}</th>
+              <th>{t('groups.exposure.amountUzs')}</th>
             </tr>
           </thead>
           <tbody>
             {byMember.map((row) => (
-              <tr key={row.memberId} className="border-b border-slate-100">
-                <td className="py-1">{row.memberName}</td>
-                <td className="num py-1 text-right">{row.limits}</td>
-                <td className="num py-1 text-right">{formatAmount(row.exposureUzs, locale)}</td>
+              <tr key={row.memberId}>
+                <td>{row.memberName}</td>
+                <td className="rpt-num">{row.limits}</td>
+                <td className="rpt-num">{formatAmount(row.exposureUzs, locale)}</td>
               </tr>
             ))}
           </tbody>
@@ -73,7 +88,7 @@ export function ReportGroupSection({ entityId, t, locale }: ReportGroupSectionPr
       )}
 
       {Number(exposure.data?.missing_rates ?? 0) > 0 && (
-        <p className="mt-2 text-xs text-warn-500">
+        <p className="rpt-note is-amber">
           {t('groups.exposure.missingRates', { count: Number(exposure.data?.missing_rates ?? 0) })}
         </p>
       )}

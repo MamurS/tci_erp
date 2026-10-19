@@ -633,7 +633,316 @@
       "z_distress": "The Altman Z''-score places the company in the distress zone.",
       "norm_breaches": "{{count}} indicator(s) breach their norms: {{rows}}."
     },
-    "approvedAggregateLimit": "Approved aggregate limit"
+    "approvedAggregateLimit": "Approved aggregate limit",
+    "rows": {
+      "nonCurrentAssets": "Non-current assets",
+      "inventories": "Inventories",
+      "accountsReceivable": "Accounts receivable",
+      "cash": "Cash",
+      "stInvestments": "ST investments",
+      "currentAssets": "Current assets",
+      "retainedEarnings": "Retained earnings",
+      "equity": "Equity",
+      "ltLoans": "LT loans",
+      "stLoans": "ST loans",
+      "accountsPayable": "Accounts payable",
+      "currentLiabilities": "Current liabilities",
+      "totalAssets": "Total assets",
+      "revenue": "Revenue",
+      "costOfSales": "Cost of sales",
+      "grossProfit": "Gross profit (loss)",
+      "sellingExpenses": "Selling expenses",
+      "administrativeExpenses": "Administrative expenses",
+      "otherOperatingIncome": "Other operating income",
+      "otherOperatingExpenses": "Other operating expenses",
+      "operatingProfit": "Operating profit (loss)",
+      "interestIncome": "Interest income",
+      "interestExpense": "Interest expense",
+      "profitBeforeTax": "Profit (loss) before tax",
+      "incomeTax": "Income tax",
+      "netProfit": "Net profit (loss)"
+    },
+    "ratioRows": {
+      "grossMargin": "Gross margin",
+      "ebitMargin": "EBIT margin",
+      "profitMargin": "Profit margin",
+      "cfo": "CFO",
+      "fcf": "FCF",
+      "nwc": "NWC",
+      "dio": "DIO",
+      "dpo": "DPO",
+      "dso": "DSO",
+      "ccc": "CCC"
+    },
+    "glossaryTerms": {
+      "ebit": {
+        "term": "EBIT",
+        "definition": "Earnings before interest and taxes"
+      },
+      "cfo": {
+        "term": "CFO",
+        "definition": "Cash flow from operating activities"
+      },
+      "fcf": {
+        "term": "FCF",
+        "definition": "Free cash flow: operating cash flow minus capital expenditure"
+      },
+      "nwc": {
+        "term": "NWC",
+        "definition": "Net working capital: current assets minus current liabilities"
+      },
+      "dio": {
+        "term": "DIO",
+        "definition": "Days inventory outstanding"
+      },
+      "dso": {
+        "term": "DSO",
+        "definition": "Days sales outstanding"
+      },
+      "dpo": {
+        "term": "DPO",
+        "definition": "Days payable outstanding"
+      },
+      "ccc": {
+        "term": "CCC",
+        "definition": "Cash conversion cycle: DIO + DSO − DPO"
+      },
+      "de": {
+        "term": "D/E",
+        "definition": "Debt-to-equity: (LT + ST loans) / equity"
+      },
+      "ltst": {
+        "term": "LT / ST",
+        "definition": "Long-term / short-term"
+      },
+      "pp": {
+        "term": "pp",
+        "definition": "Percentage points"
+      },
+      "nm": {
+        "term": "n/m",
+        "definition": "Not meaningful: zero base, change of sign or change above 1,000%"
+      },
+      "kmbt": {
+        "term": "K / M / B / T",
+        "definition": "Thousand / million / billion / trillion"
+      }
+    },
+    "commentary": {
+      "subjects": {
+        "grossDebt": {
+          "company": "Gross debt of the company",
+          "group": "Gross debt of the Group"
+        },
+        "longTermDebt": {
+          "company": "Long-term debt of the company",
+          "group": "Long-term debt of the Group"
+        },
+        "shortTermDebt": {
+          "company": "Short-term debt of the company",
+          "group": "Short-term debt of the Group"
+        },
+        "debtToEquity": {
+          "company": "Debt-to-equity ratio of the company",
+          "group": "Debt-to-equity ratio of the Group"
+        },
+        "equity": {
+          "company": "Equity of the company",
+          "group": "Equity of the Group"
+        },
+        "equityRatio": {
+          "company": "Equity ratio of the company",
+          "group": "Equity ratio of the Group"
+        },
+        "currentRatio": {
+          "company": "Current ratio of the company",
+          "group": "Current ratio of the Group"
+        },
+        "revenue": {
+          "company": "Revenue of the company",
+          "group": "Revenue of the Group"
+        },
+        "grossProfit": {
+          "company": "Gross financial result of the company",
+          "group": "Gross financial result of the Group"
+        },
+        "grossMargin": {
+          "company": "Gross margin of the company",
+          "group": "Gross margin of the Group"
+        },
+        "ebit": {
+          "company": "EBIT of the company",
+          "group": "EBIT of the Group"
+        },
+        "ebitMargin": {
+          "company": "EBIT margin of the company",
+          "group": "EBIT margin of the Group"
+        },
+        "interestCoverage": {
+          "company": "Interest coverage of the company",
+          "group": "Interest coverage of the Group"
+        },
+        "netProfit": {
+          "company": "Net financial result of the company",
+          "group": "Net financial result of the Group"
+        },
+        "netMargin": {
+          "company": "Net profitability of the company",
+          "group": "Net profitability of the Group"
+        },
+        "ccc": {
+          "company": "Cash conversion cycle of the company",
+          "group": "Cash conversion cycle of the Group"
+        },
+        "dso": {
+          "company": "Days sales outstanding of the company",
+          "group": "Days sales outstanding of the Group"
+        },
+        "dio": {
+          "company": "Days inventory outstanding of the company",
+          "group": "Days inventory outstanding of the Group"
+        },
+        "dpo": {
+          "company": "Days payable outstanding of the company",
+          "group": "Days payable outstanding of the Group"
+        }
+      },
+      "change": "{{subject}} {{move}} by <hl>{{pct}}</hl>, from {{from}} to {{to}}.",
+      "changeNm": "{{subject}} changed from {{from}} to {{to}}.",
+      "flat": "{{subject}} was unchanged at {{to}}.",
+      "level": "{{subject}} was {{to}}.",
+      "moves": {
+        "up": {
+          "slight": "increased slightly",
+          "moderate": "increased",
+          "strong": "increased substantially",
+          "sharp": "increased sharply"
+        },
+        "down": {
+          "slight": "decreased slightly",
+          "moderate": "decreased",
+          "strong": "decreased substantially",
+          "sharp": "decreased sharply"
+        },
+        "lossNarrowed": "showed a reduction in loss",
+        "lossWidened": "showed a deepening of loss"
+      }
+    },
+    "registrationId": "Registration identifier",
+    "tagline": "Trade credit insurance",
+    "pageOf": "Page {{page}} of {{pages}}",
+    "nm": "n/m",
+    "pp": "pp",
+    "endOfReport": "*** END OF REPORT ***",
+    "disclaimer": "This report is prepared in strict confidence solely for your use and no part of it may be disclosed to any third party. {{company}} accepts no responsibility for any loss or damage caused by decisions based on the data in this report. The recommended credit limit is an engine calculation, not an approved limit.",
+    "noStatements": "No annual statements of this type are on file — the financial sections are omitted.",
+    "sections2": {
+      "generalInfo": "General information",
+      "keyFigures": "Key figures (company, FY {{year}})",
+      "conclusion": "Conclusion",
+      "groupKeyCompanies": "Group: key companies",
+      "balanceSheet": "Balance sheet",
+      "balanceSheetComment": "Balance sheet (continued)",
+      "pnl": "Profit & loss accounts",
+      "pnlComment": "Profit & loss accounts (continued)",
+      "ratios": "Financial ratios",
+      "ratiosComment": "Financial ratios (continued)",
+      "dynamicGraphs": "Dynamic graphs",
+      "glossary": "Glossary",
+      "groupStructure": "Group structure (major companies)",
+      "groupExposure": "Group exposure"
+    },
+    "general": {
+      "companyName": "Company name",
+      "legalForm": "Legal form",
+      "registrationDate": "Registration date",
+      "country": "Country",
+      "owners": "Owners",
+      "lineOfBusiness": "Line of business",
+      "registrationCodes": "Registration codes",
+      "address": "Address",
+      "website": "Website",
+      "affiliatedCompanies": "Affiliated companies",
+      "latestStatements": "Latest financial statements",
+      "fy": "FY {{year}}",
+      "olderThanYear": "older than one year",
+      "recommendedLimit": "Recommended credit limit",
+      "limitBasis": "Limit basis",
+      "creditRating": "Credit rating",
+      "approvedExposure": "Approved limits in force"
+    },
+    "limitBasis": {
+      "full": "Rating {{score}} ({{band}}); the limit equals about {{revenuePct}} of FY {{year}} revenue and about {{equityPct}} of equity",
+      "revenueOnly": "Rating {{score}} ({{band}}); the limit equals about {{revenuePct}} of FY {{year}} revenue",
+      "ratingOnly": "Rating {{score}} ({{band}})"
+    },
+    "placement": {
+      "in": "{{band}} band",
+      "between": "between {{lower}} and {{upper}}"
+    },
+    "freshness": {
+      "label": "Data freshness:",
+      "stale": "the latest available financial statements are for FY {{year}}, i.e. older than one year. Request up-to-date figures before making a credit decision.",
+      "conclusion": "The latest available financial statements are for FY {{year}}, so the assessment may not reflect the company’s current position."
+    },
+    "keyFigureLabels": {
+      "revenue": "Revenue",
+      "netProfit": "Net profit (loss)",
+      "equityRatio": "Equity ratio",
+      "debtToEquity": "Debt-to-equity"
+    },
+    "overall": {
+      "title": "Overall risk assessment",
+      "rating": "Credit rating {{score}} lies in the {{band}} band ({{point}}).",
+      "ratingBetween": "Credit rating {{score}} lies between the {{lower}} ({{lowerPoint}}) and {{upper}} ({{upperPoint}}) bands.",
+      "strengths": "Main strengths: {{list}}.",
+      "weaknesses": "Main weaknesses: {{list}}.",
+      "limit": "The recommended credit limit is {{amount}}.",
+      "noLimit": "The engine does not recommend a credit limit."
+    },
+    "tables": {
+      "bsCompany": "Balance sheet of the company as at the end of {{to}} and previous reporting years:",
+      "bsGroup": "COMBINED balance sheet of the Group as at the end of {{to}} and previous reporting years:",
+      "plCompany": "Profit & loss accounts of the company for {{to}} and previous reporting years:",
+      "plGroup": "COMBINED profit & loss accounts of the Group for {{to}} and previous reporting years:",
+      "bsItems": "Balance sheet items",
+      "plItems": "P&L items",
+      "pctTotalAssets": "% of total assets",
+      "pctRevenue": "% of revenue",
+      "ratios": "Ratios",
+      "pctChange": "% change",
+      "days": "days",
+      "profitability": "Profitability ratios ({{subject}}):",
+      "liquidity": "Liquidity ratios ({{subject}}):",
+      "turnover": "Turnover ratios ({{subject}}):",
+      "combined": "COMBINED"
+    },
+    "group": {
+      "combinedNote": "Combined figures are the sum of the members’ own statements in {{currency}}, without intra-group eliminations: intra-group revenue and balances are counted twice.",
+      "otherCurrency": "Members reporting in another currency and not included: {{count}}.",
+      "byRevenue": "Largest companies of the Group by revenue:",
+      "byNetProfit": "Companies of the Group with the largest net profit:",
+      "byGrossDebt": "Major companies of the Group by gross debt:",
+      "byLtAssets": "Companies of the Group with the largest long-term assets:",
+      "company": "Company name",
+      "regId": "Registration identifier",
+      "revenueIn": "Revenue {{year}}, {{currency}}",
+      "netProfitIn": "Net profit {{year}}, {{currency}}",
+      "grossDebtIn": "Gross debt {{year}}, {{currency}}",
+      "ltAssetsIn": "LT assets {{year}}, {{currency}}",
+      "shareOfGroup": "% of group",
+      "lineOfBusiness": "Line of business",
+      "shareRevenue": "% of group revenue",
+      "netProfit": "Net profit ({{currency}})",
+      "shareAssets": "% of group total assets",
+      "shareEquity": "% of group equity",
+      "shareDebt": "% of group gross debt"
+    },
+    "charts2": {
+      "revRecPay": "Revenue, accounts receivable and payable ({{currency}})",
+      "turnover": "Turnover ratios (days)",
+      "note": "Company figures, annual statements."
+    }
   },
   "policyholders": {
     "subtitle": "Insured clients (sellers) holding TCI policies",

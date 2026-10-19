@@ -633,7 +633,316 @@
       "z_distress": "Altman Z''-hisobi kompaniyani yuqori qaltislik zonasiga kiritadi.",
       "norm_breaches": "{{count}} ko‘rsatkich bo‘yicha normalar buzilgan: {{rows}}."
     },
-    "approvedAggregateLimit": "Tasdiqlangan jami limit"
+    "approvedAggregateLimit": "Tasdiqlangan jami limit",
+    "rows": {
+      "nonCurrentAssets": "Uzoq muddatli aktivlar",
+      "inventories": "Tovar-moddiy zaxiralar",
+      "accountsReceivable": "Debitorlik qarzlari",
+      "cash": "Pul mablag‘lari",
+      "stInvestments": "Qisqa muddatli investitsiyalar",
+      "currentAssets": "Joriy aktivlar",
+      "retainedEarnings": "Taqsimlanmagan foyda",
+      "equity": "O‘z kapitali",
+      "ltLoans": "Uzoq muddatli kreditlar",
+      "stLoans": "Qisqa muddatli kreditlar",
+      "accountsPayable": "Kreditorlik qarzlari",
+      "currentLiabilities": "Qisqa muddatli majburiyatlar",
+      "totalAssets": "Jami aktivlar",
+      "revenue": "Tushum",
+      "costOfSales": "Sotilgan mahsulot tannarxi",
+      "grossProfit": "Yalpi foyda (zarar)",
+      "sellingExpenses": "Tijorat xarajatlari",
+      "administrativeExpenses": "Ma’muriy xarajatlar",
+      "otherOperatingIncome": "Boshqa operatsion daromadlar",
+      "otherOperatingExpenses": "Boshqa operatsion xarajatlar",
+      "operatingProfit": "Operatsion foyda (zarar)",
+      "interestIncome": "Foizli daromadlar",
+      "interestExpense": "Foizli xarajatlar",
+      "profitBeforeTax": "Soliqqacha foyda (zarar)",
+      "incomeTax": "Foyda solig‘i",
+      "netProfit": "Sof foyda (zarar)"
+    },
+    "ratioRows": {
+      "grossMargin": "Yalpi rentabellik",
+      "ebitMargin": "EBIT rentabelligi",
+      "profitMargin": "Sof rentabellik",
+      "cfo": "CFO",
+      "fcf": "FCF",
+      "nwc": "NWC",
+      "dio": "DIO",
+      "dpo": "DPO",
+      "dso": "DSO",
+      "ccc": "CCC"
+    },
+    "glossaryTerms": {
+      "ebit": {
+        "term": "EBIT",
+        "definition": "Foiz va soliqlarni to‘lashgacha bo‘lgan foyda"
+      },
+      "cfo": {
+        "term": "CFO",
+        "definition": "Operatsion faoliyatdan pul oqimi"
+      },
+      "fcf": {
+        "term": "FCF",
+        "definition": "Erkin pul oqimi: operatsion pul oqimi minus kapital xarajatlar"
+      },
+      "nwc": {
+        "term": "NWC",
+        "definition": "Sof aylanma kapital: joriy aktivlar minus qisqa muddatli majburiyatlar"
+      },
+      "dio": {
+        "term": "DIO",
+        "definition": "Zaxiralar aylanish davri, kun"
+      },
+      "dso": {
+        "term": "DSO",
+        "definition": "Debitorlik qarzi aylanish davri, kun"
+      },
+      "dpo": {
+        "term": "DPO",
+        "definition": "Kreditorlik qarzi aylanish davri, kun"
+      },
+      "ccc": {
+        "term": "CCC",
+        "definition": "Pul mablag‘lari aylanish sikli: DIO + DSO − DPO"
+      },
+      "de": {
+        "term": "D/E",
+        "definition": "Qarz / o‘z kapitali: (uzoq + qisqa muddatli kreditlar) / kapital"
+      },
+      "ltst": {
+        "term": "LT / ST",
+        "definition": "Uzoq muddatli / qisqa muddatli"
+      },
+      "pp": {
+        "term": "pp",
+        "definition": "Foiz punktlari (f.p.)"
+      },
+      "nm": {
+        "term": "n/m",
+        "definition": "Ma’nosiz: nol asos, ishora o‘zgarishi yoki 1 000% dan ortiq o‘zgarish"
+      },
+      "kmbt": {
+        "term": "K / M / B / T",
+        "definition": "ming / mln / mlrd / trln — ming / million / milliard / trillion"
+      }
+    },
+    "commentary": {
+      "subjects": {
+        "grossDebt": {
+          "company": "Tashkilotning yalpi qarzi",
+          "group": "Guruhning yalpi qarzi"
+        },
+        "longTermDebt": {
+          "company": "Tashkilotning uzoq muddatli qarzi",
+          "group": "Guruhning uzoq muddatli qarzi"
+        },
+        "shortTermDebt": {
+          "company": "Tashkilotning qisqa muddatli qarzi",
+          "group": "Guruhning qisqa muddatli qarzi"
+        },
+        "debtToEquity": {
+          "company": "Tashkilotning qarz / o‘z kapitali koeffitsienti",
+          "group": "Guruhning qarz / o‘z kapitali koeffitsienti"
+        },
+        "equity": {
+          "company": "Tashkilotning o‘z kapitali",
+          "group": "Guruhning o‘z kapitali"
+        },
+        "equityRatio": {
+          "company": "Tashkilotning o‘z kapitalining aktivlardagi ulushi",
+          "group": "Guruhning o‘z kapitalining aktivlardagi ulushi"
+        },
+        "currentRatio": {
+          "company": "Tashkilotning joriy likvidlik koeffitsienti",
+          "group": "Guruhning joriy likvidlik koeffitsienti"
+        },
+        "revenue": {
+          "company": "Tashkilotning tushumi",
+          "group": "Guruhning tushumi"
+        },
+        "grossProfit": {
+          "company": "Tashkilotning yalpi moliyaviy natijasi",
+          "group": "Guruhning yalpi moliyaviy natijasi"
+        },
+        "grossMargin": {
+          "company": "Tashkilotning yalpi rentabelligi",
+          "group": "Guruhning yalpi rentabelligi"
+        },
+        "ebit": {
+          "company": "Tashkilotning EBIT ko‘rsatkichi",
+          "group": "Guruhning EBIT ko‘rsatkichi"
+        },
+        "ebitMargin": {
+          "company": "Tashkilotning EBIT rentabelligi",
+          "group": "Guruhning EBIT rentabelligi"
+        },
+        "interestCoverage": {
+          "company": "Tashkilotning foizlarni qoplash koeffitsienti",
+          "group": "Guruhning foizlarni qoplash koeffitsienti"
+        },
+        "netProfit": {
+          "company": "Tashkilotning sof moliyaviy natijasi",
+          "group": "Guruhning sof moliyaviy natijasi"
+        },
+        "netMargin": {
+          "company": "Tashkilotning sof rentabelligi",
+          "group": "Guruhning sof rentabelligi"
+        },
+        "ccc": {
+          "company": "Tashkilotning pul mablag‘lari aylanish sikli",
+          "group": "Guruhning pul mablag‘lari aylanish sikli"
+        },
+        "dso": {
+          "company": "Tashkilotning debitorlik qarzi aylanish davri",
+          "group": "Guruhning debitorlik qarzi aylanish davri"
+        },
+        "dio": {
+          "company": "Tashkilotning zaxiralar aylanish davri",
+          "group": "Guruhning zaxiralar aylanish davri"
+        },
+        "dpo": {
+          "company": "Tashkilotning kreditorlik qarzi aylanish davri",
+          "group": "Guruhning kreditorlik qarzi aylanish davri"
+        }
+      },
+      "change": "{{subject}}: {{move}} — <hl>{{pct}}</hl> ({{from}} → {{to}}).",
+      "changeNm": "{{subject}}: {{from}} → {{to}}.",
+      "flat": "{{subject}}: o‘zgarishsiz, {{to}}.",
+      "level": "{{subject}}: {{to}}.",
+      "moves": {
+        "up": {
+          "slight": "biroz o‘sish",
+          "moderate": "o‘sish",
+          "strong": "sezilarli o‘sish",
+          "sharp": "keskin o‘sish"
+        },
+        "down": {
+          "slight": "biroz pasayish",
+          "moderate": "pasayish",
+          "strong": "sezilarli pasayish",
+          "sharp": "keskin pasayish"
+        },
+        "lossNarrowed": "zararning qisqarishi",
+        "lossWidened": "zararning ko‘payishi"
+      }
+    },
+    "registrationId": "Ro‘yxatdan o‘tish raqami",
+    "tagline": "Savdo kreditlarini sug‘urtalash",
+    "pageOf": "{{page}}-sahifa / {{pages}}",
+    "nm": "m/e",
+    "pp": "f.p.",
+    "endOfReport": "*** HISOBOT YAKUNI ***",
+    "disclaimer": "Ushbu hisobot qat’iy maxfiylik asosida faqat sizning foydalanishingiz uchun tayyorlangan; uning biror qismi uchinchi shaxslarga oshkor etilmasligi kerak. {{company}} ushbu hisobot ma’lumotlariga asoslangan qarorlar natijasida yetkazilgan zarar yoki ziyon uchun javobgar emas. Tavsiya etilgan kredit limiti — tasdiqlangan limit emas, balki hisoblash natijasi.",
+    "noStatements": "Bu turdagi yillik hisobot mavjud emas — moliyaviy bo‘limlar tushirib qoldirildi.",
+    "sections2": {
+      "generalInfo": "Umumiy ma’lumot",
+      "keyFigures": "Asosiy ko‘rsatkichlar (tashkilot, {{year}} m. y.)",
+      "conclusion": "Xulosa",
+      "groupKeyCompanies": "Guruh: asosiy kompaniyalar",
+      "balanceSheet": "Buxgalteriya balansi",
+      "balanceSheetComment": "Buxgalteriya balansi (davomi)",
+      "pnl": "Foyda va zararlar to‘g‘risidagi hisobot",
+      "pnlComment": "Foyda va zararlar to‘g‘risidagi hisobot (davomi)",
+      "ratios": "Moliyaviy koeffitsientlar",
+      "ratiosComment": "Moliyaviy koeffitsientlar (davomi)",
+      "dynamicGraphs": "Dinamik grafiklar",
+      "glossary": "Atamalar lug‘ati",
+      "groupStructure": "Guruh tuzilmasi (asosiy kompaniyalar)",
+      "groupExposure": "Guruh bo‘yicha jami javobgarlik"
+    },
+    "general": {
+      "companyName": "Nomi",
+      "legalForm": "Tashkiliy-huquqiy shakli",
+      "registrationDate": "Ro‘yxatdan o‘tgan sana",
+      "country": "Mamlakat",
+      "owners": "Egalari",
+      "lineOfBusiness": "Faoliyat turi",
+      "registrationCodes": "Ro‘yxat kodlari",
+      "address": "Manzil",
+      "website": "Veb-sayt",
+      "affiliatedCompanies": "Affillangan kompaniyalar",
+      "latestStatements": "So‘nggi moliyaviy hisobot",
+      "fy": "{{year}} m. y.",
+      "olderThanYear": "bir yildan eski",
+      "recommendedLimit": "Tavsiya etilgan kredit limiti",
+      "limitBasis": "Limit asosi",
+      "creditRating": "Kredit reytingi",
+      "approvedExposure": "Amaldagi tasdiqlangan limitlar"
+    },
+    "limitBasis": {
+      "full": "Reyting {{score}} ({{band}}); limit {{year}} m. y. tushumining taxminan {{revenuePct}} qismiga va o‘z kapitalining taxminan {{equityPct}} qismiga teng",
+      "revenueOnly": "Reyting {{score}} ({{band}}); limit {{year}} m. y. tushumining taxminan {{revenuePct}} qismiga teng",
+      "ratingOnly": "Reyting {{score}} ({{band}})"
+    },
+    "placement": {
+      "in": "«{{band}}» toifasi",
+      "between": "«{{lower}}» va «{{upper}}» toifalari oralig‘i"
+    },
+    "freshness": {
+      "label": "Ma’lumotlarning dolzarbligi:",
+      "stale": "so‘nggi mavjud moliyaviy hisobot {{year}} m. y. uchun, ya’ni bir yildan eski. Kredit qarori qabul qilishdan oldin dolzarb ma’lumotlarni so‘rang.",
+      "conclusion": "So‘nggi mavjud hisobot {{year}} m. y. uchun, shuning uchun baho tashkilotning joriy holatini aks ettirmasligi mumkin."
+    },
+    "keyFigureLabels": {
+      "revenue": "Tushum",
+      "netProfit": "Sof foyda (zarar)",
+      "equityRatio": "O‘z kapitali ulushi",
+      "debtToEquity": "Qarz / o‘z kapitali"
+    },
+    "overall": {
+      "title": "Umumiy qaltislik bahosi",
+      "rating": "Kredit reytingi {{score}} «{{band}}» toifasiga kiradi ({{point}}).",
+      "ratingBetween": "Kredit reytingi {{score}} «{{lower}}» ({{lowerPoint}}) va «{{upper}}» ({{upperPoint}}) toifalari oralig‘ida.",
+      "strengths": "Asosiy kuchli tomonlar: {{list}}.",
+      "weaknesses": "Asosiy zaif tomonlar: {{list}}.",
+      "limit": "Tavsiya etilgan kredit limiti — {{amount}}.",
+      "noLimit": "Hisoblash tizimi kredit limitini tavsiya etmaydi."
+    },
+    "tables": {
+      "bsCompany": "Tashkilotning {{to}}-yil oxiri va oldingi hisobot yillari bo‘yicha buxgalteriya balansi:",
+      "bsGroup": "Guruhning {{to}}-yil oxiri va oldingi hisobot yillari bo‘yicha JAMLANGAN balansi:",
+      "plCompany": "Tashkilotning {{to}}-yil va oldingi hisobot yillari bo‘yicha foyda va zararlar to‘g‘risidagi hisoboti:",
+      "plGroup": "Guruhning {{to}}-yil va oldingi hisobot yillari bo‘yicha JAMLANGAN foyda va zararlar hisoboti:",
+      "bsItems": "Balans moddalari",
+      "plItems": "FZH moddalari",
+      "pctTotalAssets": "Aktivlardan %",
+      "pctRevenue": "Tushumdan %",
+      "ratios": "Koeffitsientlar",
+      "pctChange": "O‘zg., %",
+      "days": "kun",
+      "profitability": "Rentabellik koeffitsientlari ({{subject}}):",
+      "liquidity": "Likvidlik ko‘rsatkichlari ({{subject}}):",
+      "turnover": "Aylanma ko‘rsatkichlari ({{subject}}):",
+      "combined": "JAMLANGAN"
+    },
+    "group": {
+      "combinedNote": "Jamlangan ko‘rsatkichlar — ishtirokchilarning {{currency}} valyutasidagi o‘z hisobotlari yig‘indisi, guruh ichidagi chiqarib tashlashlarsiz: guruh ichidagi tushum va qoldiqlar ikki marta hisobga olingan.",
+      "otherCurrency": "Boshqa valyutada hisobot beruvchi, hisobga kiritilmagan ishtirokchilar: {{count}}.",
+      "byRevenue": "Guruhning tushum bo‘yicha eng yirik kompaniyalari:",
+      "byNetProfit": "Guruhning eng ko‘p sof foyda olgan kompaniyalari:",
+      "byGrossDebt": "Guruhning yalpi qarz bo‘yicha asosiy kompaniyalari:",
+      "byLtAssets": "Guruhning eng katta uzoq muddatli aktivlarga ega kompaniyalari:",
+      "company": "Nomi",
+      "regId": "Ro‘yxatdan o‘tish raqami",
+      "revenueIn": "Tushum {{year}}, {{currency}}",
+      "netProfitIn": "Sof foyda {{year}}, {{currency}}",
+      "grossDebtIn": "Yalpi qarz {{year}}, {{currency}}",
+      "ltAssetsIn": "Uzoq muddatli aktivlar {{year}}, {{currency}}",
+      "shareOfGroup": "Guruhdagi %",
+      "lineOfBusiness": "Faoliyat turi",
+      "shareRevenue": "Guruh tushumidan %",
+      "netProfit": "Sof foyda ({{currency}})",
+      "shareAssets": "Guruh aktivlaridan %",
+      "shareEquity": "Guruh kapitalidan %",
+      "shareDebt": "Guruh yalpi qarzidan %"
+    },
+    "charts2": {
+      "revRecPay": "Tushum, debitorlik va kreditorlik qarzlari ({{currency}})",
+      "turnover": "Aylanma ko‘rsatkichlari (kun)",
+      "note": "Tashkilot ko‘rsatkichlari, yillik hisobot."
+    }
   },
   "policyholders": {
     "subtitle": "Sug‘urtalanuvchilar (sotuvchilar) — TCI polislari egalari",

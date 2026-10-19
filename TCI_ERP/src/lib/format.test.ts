@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { formatCompact } from './format'
+import { formatAmount, formatCompact, formatLongDate, formatSignedPercent } from './format'
 
 describe('formatCompact', () => {
   it('abbreviates like the reference report in English', () => {
@@ -20,5 +20,28 @@ describe('formatCompact', () => {
     expect(formatCompact(950, 'en')).toBe('950')
     expect(formatCompact(null, 'en')).toBe('—')
     expect(formatCompact(Number.NaN, 'ru')).toBe('—')
+  })
+
+  it('never prints a negative zero', () => {
+    expect(formatAmount(-0.0003, 'en', 2)).toBe('0.00')
+    expect(formatAmount(-0.004, 'ru', 2)).toBe('0,00')
+    expect(formatAmount(-0.006, 'en', 2)).toBe('-0.01')
+  })
+})
+
+describe('formatLongDate', () => {
+  it('spells the month and reads the date in Tashkent', () => {
+    expect(formatLongDate('2026-10-04T20:30:00Z', 'en')).toBe('05 October 2026')
+    expect(formatLongDate('2026-10-05T00:00:00Z', 'ru')).toMatch(/^05 октября 2026/)
+    expect(formatLongDate('2026-10-04T20:30:00Z', 'uz')).toBe('2026-yil 05-oktabr')
+    expect(formatLongDate('not a date', 'en')).toBe('—')
+  })
+})
+
+describe('formatSignedPercent', () => {
+  it('signs the change and keeps a decimal for small moves', () => {
+    expect(formatSignedPercent(0.4698, 'en')).toBe('+47%')
+    expect(formatSignedPercent(-0.0096, 'en')).toBe('−1.0%')
+    expect(formatSignedPercent(0, 'ru')).toBe('0,0%')
   })
 })

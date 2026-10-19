@@ -15,8 +15,10 @@ import {
   SCALE_POINTS,
   colorForPoint,
   gaugeAngle,
+  placeScore,
   scoreChange,
 } from '../../lib/ratingScale'
+import type { ScalePoint } from '../../lib/ratingScale'
 
 const CX = 100
 const CY = 100
@@ -59,7 +61,12 @@ export function RatingGauge({ score, previousScore, t: tProp, className = '' }: 
 
   return (
     <div className={`flex flex-col items-center ${className}`}>
-      <svg viewBox="0 0 200 116" className="w-full max-w-[230px]" role="img" aria-label={score === null ? '—' : String(Math.round(score))}>
+      <svg
+        viewBox="0 0 200 116"
+        className="w-full max-w-[230px]"
+        role="img"
+        aria-label={score === null ? '—' : String(Math.round(score))}
+      >
         {SCALE_POINTS.map((point, i) => {
           const from = 180 - i * 18 - (i === 0 ? 0 : GAP_DEG / 2)
           const to = 180 - (i + 1) * 18 + (i === 9 ? 0 : GAP_DEG / 2)
@@ -112,10 +119,13 @@ interface RatingLegendProps {
 export function RatingLegend({ t: tProp, score, className = '' }: RatingLegendProps) {
   const { t: tHook } = useTranslation()
   const t = tProp ?? tHook
-  const active =
-    score === null || score === undefined
-      ? null
-      : Math.min(100, Math.max(10, Math.ceil(score / 10) * 10))
+  // The same placement the report's text uses: "in" one band, or between two.
+  const placement = score === null || score === undefined ? null : placeScore(score)
+  const isActive = (point: ScalePoint) =>
+    placement !== null &&
+    (placement.kind === 'in'
+      ? placement.point === point
+      : placement.lower === point || placement.upper === point)
   return (
     <div className={className}>
       <div className="mb-1 font-display text-[11px] font-bold tracking-wide text-accent-600 uppercase">
@@ -126,7 +136,7 @@ export function RatingLegend({ t: tProp, score, className = '' }: RatingLegendPr
           <div
             key={point}
             className={`py-0.5 text-center font-display text-[12px] font-bold text-white ${
-              active === point ? 'ring-2 ring-accent-600 ring-inset' : ''
+              isActive(point) ? 'ring-2 ring-accent-600 ring-inset' : ''
             }`}
             style={{ backgroundColor: colorForPoint(point) }}
           >
@@ -136,7 +146,10 @@ export function RatingLegend({ t: tProp, score, className = '' }: RatingLegendPr
       </div>
       <div className="mt-0.5 grid grid-cols-10 gap-px">
         {SCALE_POINTS.map((point) => (
-          <div key={point} className="truncate text-center font-display text-[10px] leading-tight text-slate-500">
+          <div
+            key={point}
+            className="text-center font-display text-[10px] leading-tight [overflow-wrap:anywhere] text-slate-500 hyphens-auto"
+          >
             {t(`rating.scale10.${SCALE_LABEL_KEYS[point]}`)}
           </div>
         ))}
