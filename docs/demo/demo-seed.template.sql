@@ -79,21 +79,39 @@ select v.ccy, v.rate, date '2025-12-31', 'manual'
  where not exists (select 1 from tci.fx_rates f where f.currency_code = v.ccy)
 on conflict do nothing;
 
-create temp table demo_keys (key text primary key, id uuid not null) on commit drop;
-
 -- @@GENERATED@@
 
 -- ---------------------------------------------------------------------------
 -- 5. Helpers for the workflow part
 -- ---------------------------------------------------------------------------
-create function pg_temp.k(p_key text) returns uuid language sql stable as $$
-  select id from demo_keys where key = p_key
-$$;
+-- Demo ids are md5('demo:' || key), the same rule build_demo_seed.py uses,
+-- so every part of the script can be run on its own. Objects a workflow
+-- function creates (a bound policy, an NOA) and "the latest rating" are
+-- looked up instead.
+create or replace function pg_temp.k(p_key text) returns uuid language plpgsql stable as $$
+declare v uuid;
+begin
+  if p_key = 'pol:PL6' then
+    select bound_policy_id into v from tci.insurance_requests where id = md5('demo:sub:R5')::uuid;
+  elsif p_key like 'noa:%' then
+    select n.id into v from tci.overdue_notifications n
+     where n.policy_id = pg_temp.k('pol:' || split_part(p_key, ':', 2))
+       and n.entity_id = pg_temp.k('ent:' || split_part(p_key, ':', 3))
+     order by n.created_at desc limit 1;
+  elsif p_key ~ '^assess:[A-Z0-9]+$' then
+    select a.id into v from tci.credit_assessments a
+     where a.entity_id = pg_temp.k('ent:' || split_part(p_key, ':', 2))
+     order by a.created_at desc limit 1;
+  else
+    v := md5('demo:' || p_key)::uuid;
+  end if;
+  return v;
+end $$;
 
 -- Act as a demo user the way a REST call does: role authenticated, the JWT
 -- claims, MFA satisfied, and no internal-call token left over from trusted
 -- code that ran earlier in this transaction.
-create function pg_temp.act(p_user text) returns void language plpgsql as $$
+create or replace function pg_temp.act(p_user text) returns void language plpgsql as $$
 begin
   perform set_config('role', 'postgres', true);
   perform set_config('request.jwt.claims',
@@ -102,13 +120,12 @@ begin
   perform set_config('role', 'authenticated', true);
 end $$;
 
-create function pg_temp.owner() returns void language plpgsql as $$
+create or replace function pg_temp.owner() returns void language plpgsql as $$
 begin
   perform set_config('role', 'postgres', true);
   perform set_config('request.jwt.claims', '', true);
 end $$;
 
-grant select on demo_keys to authenticated;
 grant execute on function pg_temp.k(text) to authenticated;
 
 -- @@WORKFLOW@@

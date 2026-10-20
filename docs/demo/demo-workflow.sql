@@ -5,12 +5,12 @@
 -- A policy is created as a draft and activated by commercial underwriting
 -- (change_policy_status writes the history; the insert trigger generates the
 -- premium instalments).
-create function pg_temp.policy(
+create or replace function pg_temp.policy(
   p_key text, p_holder text, p_number text, p_structure tci.product_structure, p_ccy text,
   p_inception int, p_expiry int, p_rate numeric, p_min_premium numeric, p_dl numeric,
   p_max_liability numeric, p_nql numeric, p_frequency tci.declaration_frequency, p_activate boolean default true)
 returns uuid language plpgsql as $$
-declare v_id uuid := gen_random_uuid();
+declare v_id uuid := pg_temp.k('pol:' || p_key);
 begin
   perform pg_temp.owner();
   insert into tci.policies (id, entity_id, policy_number, product_structure, status, inception_date, expiry_date,
@@ -20,7 +20,6 @@ begin
   values (v_id, pg_temp.k('ent:' || p_holder), p_number, p_structure, 'draft', current_date + p_inception,
     current_date + p_expiry, p_ccy, 90, p_max_liability, p_nql, 0, p_rate, p_min_premium, p_min_premium / p_rate * 100,
     p_dl, 30, 90, 120, p_frequency, pg_temp.k('user:commercial'), now() + make_interval(days => p_inception - 20));
-  insert into demo_keys values ('pol:' || p_key, v_id);
   if p_activate then
     perform pg_temp.act('commercial');
     perform tci.change_policy_status(v_id, 'active', null);
@@ -30,17 +29,16 @@ begin
 end $$;
 
 -- A limit request: drafted and submitted by sales.
-create function pg_temp.request(p_policy text, p_buyer text, p_amount numeric, p_ccy text,
+create or replace function pg_temp.request(p_policy text, p_buyer text, p_amount numeric, p_ccy text,
   p_terms int, p_why text, p_submit boolean default true)
 returns uuid language plpgsql as $$
-declare v_id uuid := gen_random_uuid();
+declare v_id uuid := pg_temp.k('req:' || p_policy || ':' || p_buyer);
 begin
   perform pg_temp.owner();
   insert into tci.credit_limit_requests (id, policy_id, entity_id, requested_amount, currency_code,
     requested_payment_terms_days, justification, status, requested_by)
   values (v_id, pg_temp.k('pol:' || p_policy), pg_temp.k('ent:' || p_buyer), p_amount, p_ccy, p_terms, p_why,
     'draft', pg_temp.k('user:sales'));
-  insert into demo_keys values ('req:' || p_policy || ':' || p_buyer, v_id);
   if p_submit then
     perform pg_temp.act('sales');
     perform tci.submit_limit_request(v_id);
@@ -53,7 +51,7 @@ end $$;
 -- p_days_ago days ago: decided "now" through decide_limit_request, then the
 -- request and its decisions are moved into the past (owner, WHERE by id).
 -- valid_until is the FINAL review date relative to today (may be past).
-create function pg_temp.decide(p_policy text, p_buyer text, p_outcome tci.decision_outcome,
+create or replace function pg_temp.decide(p_policy text, p_buyer text, p_outcome tci.decision_outcome,
   p_amount numeric, p_valid_until int, p_who text, p_assessment text, p_comment text,
   p_days_ago int, p_conditions jsonb default '[]')
 returns jsonb language plpgsql as $$
@@ -162,10 +160,10 @@ select tci.save_entity_relationship(pg_temp.k('ent:G2'), pg_temp.k('ent:B16'), '
 select pg_temp.owner();
 
 -- 6e. Submissions (insurance requests) at every stage -------------------------
-create function pg_temp.submission(p_key text, p_applicant text, p_number text, p_ccy text, p_turnover numeric,
+create or replace function pg_temp.submission(p_key text, p_applicant text, p_number text, p_ccy text, p_turnover numeric,
   p_rate numeric, p_min_premium numeric, p_dl numeric, p_days_ago int)
 returns uuid language plpgsql as $$
-declare v_id uuid := gen_random_uuid();
+declare v_id uuid := pg_temp.k('sub:' || p_key);
 begin
   perform pg_temp.owner();
   insert into tci.insurance_requests (id, entity_id, request_number, status, product_structure, currency_code,
@@ -176,11 +174,10 @@ begin
     90, p_rate, p_min_premium, p_min_premium * 40, p_dl, 5000, 30, 90, 120, 'monthly',
     p_turnover, pg_temp.k('user:sales'), 'sales', pg_temp.k('user:sales'),
     'Prospect met at the Tashkent export forum.', now() - make_interval(days => p_days_ago));
-  insert into demo_keys values ('sub:' || p_key, v_id);
   return v_id;
 end $$;
 
-create function pg_temp.sub_buyer(p_sub text, p_buyer text, p_name text, p_amount numeric)
+create or replace function pg_temp.sub_buyer(p_sub text, p_buyer text, p_name text, p_amount numeric)
 returns uuid language plpgsql as $$
 declare v_id uuid := gen_random_uuid();
 begin
@@ -193,23 +190,22 @@ begin
 end $$;
 
 -- a limit request inside a submission (no policy yet), submitted by sales
-create function pg_temp.sub_request(p_sub text, p_buyer text, p_amount numeric, p_ccy text)
+create or replace function pg_temp.sub_request(p_sub text, p_buyer text, p_amount numeric, p_ccy text)
 returns uuid language plpgsql as $$
-declare v_id uuid := gen_random_uuid();
+declare v_id uuid := pg_temp.k('req:' || p_sub || ':' || p_buyer);
 begin
   perform pg_temp.owner();
   insert into tci.credit_limit_requests (id, insurance_request_id, entity_id, requested_amount, currency_code,
     requested_payment_terms_days, justification, status, requested_by)
   values (v_id, pg_temp.k('sub:' || p_sub), pg_temp.k('ent:' || p_buyer), p_amount, p_ccy, 90,
     'Buyer from the submission package.', 'draft', pg_temp.k('user:sales'));
-  insert into demo_keys values ('req:' || p_sub || ':' || p_buyer, v_id);
   perform pg_temp.act('sales');
   perform tci.submit_limit_request(v_id);
   perform pg_temp.owner();
   return v_id;
 end $$;
 
-create function pg_temp.move(p_sub text, p_to tci.insurance_request_status, p_who text, p_comment text default null)
+create or replace function pg_temp.move(p_sub text, p_to tci.insurance_request_status, p_who text, p_comment text default null)
 returns void language plpgsql as $$
 begin
   perform pg_temp.act(p_who);
@@ -276,7 +272,6 @@ select pg_temp.move('R5', 'accepted', 'sales', 'Client signed the offer.');
 select pg_temp.act('commercial');
 select tci.bind_insurance_request(pg_temp.k('sub:R5'), 'TCI-2026-0005', current_date - 60, current_date + 305);
 select pg_temp.owner();
-insert into demo_keys select 'pol:PL6', bound_policy_id from tci.insurance_requests where id = pg_temp.k('sub:R5');
 select pg_temp.act('commercial');
 select tci.change_policy_status(pg_temp.k('pol:PL6'), 'active', 'Signed policy received.');
 select pg_temp.owner();
@@ -305,7 +300,7 @@ values (pg_temp.k('ent:P1'), pg_temp.k('user:client'), pg_temp.k('user:sales'));
 
 -- 6h. Declarations and premium ----------------------------------------------
 -- Monthly turnover per buyer; months 1..n back from the current month.
-create function pg_temp.declaration(p_policy text, p_months_back int, p_lines jsonb, p_accept boolean)
+create or replace function pg_temp.declaration(p_policy text, p_months_back int, p_lines jsonb, p_accept boolean)
 returns uuid language plpgsql as $$
 declare
   v_id uuid := gen_random_uuid();
@@ -361,14 +356,14 @@ select pg_temp.declaration('PL4', 1, '[{"buyer":"B13","turnover":11200000000}]',
 update tci.premium_instalments i
    set status = 'paid', paid_at = (i.due_date + 3)::timestamptz
  where i.due_date < current_date - 20
-   and i.policy_id in (select id from demo_keys where key in ('pol:PL1', 'pol:PL3', 'pol:PL4', 'pol:PL5', 'pol:PL6'));
+   and i.policy_id in (select pg_temp.k(x) from unnest(array['pol:PL1', 'pol:PL3', 'pol:PL4', 'pol:PL5', 'pol:PL6']) x);
 update tci.premium_instalments i
    set status = 'paid', paid_at = (i.due_date + 5)::timestamptz
  where i.due_date < current_date - 100
    and i.policy_id = pg_temp.k('pol:PL2');
 
 -- 6i. Overdue notifications (NOA) — filing suspends the buyer's limit ---------
-create function pg_temp.noa(p_policy text, p_buyer text, p_first_due int, p_amount numeric, p_reported_after int)
+create or replace function pg_temp.noa(p_policy text, p_buyer text, p_first_due int, p_amount numeric, p_reported_after int)
 returns uuid language plpgsql as $$
 declare v jsonb; v_id uuid; v_ccy text;
 begin
@@ -384,7 +379,6 @@ begin
      set reported_at = (current_date + p_first_due + p_reported_after)::timestamptz,
          created_at  = (current_date + p_first_due + p_reported_after)::timestamptz
    where id = v_id;
-  insert into demo_keys values ('noa:' || p_policy || ':' || p_buyer, v_id);
   return v_id;
 end $$;
 
@@ -399,7 +393,7 @@ select pg_temp.owner();
 -- 6j. Claims, opened by the claims department with their invoices. Their
 --     documents are uploaded through Storage by docs/demo/after-seed.mjs,
 --     which then files and processes them (Storage bytes cannot come from SQL).
-create function pg_temp.claim(p_key text, p_policy text, p_buyer text, p_cause tci.claim_cause_of_loss,
+create or replace function pg_temp.claim(p_key text, p_policy text, p_buyer text, p_cause tci.claim_cause_of_loss,
   p_noa text, p_reference text, p_invoices jsonb)
 returns uuid language plpgsql as $$
 declare v_claim tci.claims%rowtype; v_inv jsonb; v_ccy text;
@@ -415,7 +409,6 @@ begin
       coalesce((v_inv->>'paid')::numeric, 0), 0, null, null);
   end loop;
   perform pg_temp.owner();
-  insert into demo_keys values ('claim:' || p_key, v_claim.id);
   return v_claim.id;
 end $$;
 
@@ -456,7 +449,7 @@ update tci.insurance_request_history h
 update tci.insurance_requests r
    set submitted_at = (select min(h.changed_at) from tci.insurance_request_history h where h.request_id = r.id and h.to_status = 'submitted'),
        decided_at   = (select max(h.changed_at) from tci.insurance_request_history h where h.request_id = r.id and h.to_status in ('accepted', 'declined'))
- where r.id in (select id from demo_keys where key like 'sub:%');
+ where r.id in (select pg_temp.k('sub:R' || n) from generate_series(1, 6) n);
 
 -- ---------------------------------------------------------------------------
 -- 8. The Agenda's time-based tasks (reviews due, stale ratings, declarations

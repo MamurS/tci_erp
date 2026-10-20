@@ -9,12 +9,14 @@ the way RatingTab.tsx stores it. Everything else is written by the SQL script
 itself — through the workflow functions, as impersonated demo users, wherever
 the application would go through one (see the script's header).
 
-Deterministic: ids are uuid5 of a name, so rebuilding gives the same file.
+Deterministic: ids are md5('demo:' || name), so rebuilding gives the same file
+and the SQL can find any of them without a lookup table.
 The demo password is NOT here; only its bcrypt hash, passed in DEMO_HASH.
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -27,11 +29,9 @@ sys.path.insert(0, str(HERE.parent.parent / "services" / "analytics"))
 from app.main import credit_limit, rating  # noqa: E402
 from app.schemas import CreditLimitRequest, StatementPayload  # noqa: E402
 
-NS = uuid.UUID("6f1d3c2a-9b7e-4c55-8a10-2f4e5d6c7b8a")
-
-
 def uid(name: str) -> str:
-    return str(uuid.uuid5(NS, name))
+    """md5('demo:' || name)::uuid — the rule pg_temp.k() applies in SQL."""
+    return str(uuid.UUID(hashlib.md5(f"demo:{name}".encode()).hexdigest()))
 
 
 def q(value: object) -> str:
@@ -337,25 +337,12 @@ insert into tci.user_profiles (user_id, full_name, must_change_password) values 
             w(f"insert into tci.income_statements (statement_id, {cols}) values ({q(s['id'])}, {vals});")
     credit = uid("user:credit")
     for key, days, a in assessments:
-        aid = uid(f"assess:{key}:{a['statement_id']}:{days}")
+        aid = uid(f"assess:{key}:{days}")
         w(f"insert into tci.credit_assessments (id, entity_id, statement_id, rating_score, rating_grade, suggested_limit, limit_currency, "
           f"inputs_snapshot, calculation_trace, engine_version, created_by, created_at) values ({q(aid)}, {q(uid('ent:' + key))}, "
           f"{q(a['statement_id'])}, {a['score']}, {q(a['grade'])}, {a['limit']}, {q(a['limit_ccy'])}, "
-          f"{q(json.dumps(a['payload'], ensure_ascii=False))}::jsonb, {q(json.dumps(a['trace'], ensure_ascii=False))}::jsonb, "
+          f"{q(json.dumps(a["payload"], ensure_ascii=False, separators=(",", ":")))}::jsonb, {q(json.dumps(a["trace"], ensure_ascii=False, separators=(",", ":")))}::jsonb, "
           f"{q(a['engine'])}, {q(credit)}, now() - interval '{days} days');")
-
-    # the key table the hand-written workflow section looks ids up in
-    w("")
-    w("insert into demo_keys (key, id) values")
-    keys = [(f"user:{k}", uid(f"user:{k}")) for k, *_ in USERS]
-    keys += [(f"ent:{k}", uid(f"ent:{k}")) for k in COMPANIES]
-    latest: dict[str, str] = {}
-    for key, days, a in sorted(assessments, key=lambda x: -x[1]):
-        aid = uid(f"assess:{key}:{a['statement_id']}:{days}")
-        keys.append((f"assess:{key}:{days}", aid))
-        latest[key] = aid
-    keys += [(f"assess:{k}", v) for k, v in latest.items()]
-    w(",\n".join(f"  ({q(k)}, {q(v)})" for k, v in keys) + ";")
 
     body = "\n".join(parts)
     grades = {key: a["grade"] for key, _d, a in assessments}
