@@ -1,13 +1,14 @@
 /**
  * The navigation panel, grouped by line of work. Like Claude's, it is either
- * there or gone: docked beside the content, or hidden entirely — and, while
- * hidden, it can be peeked at as an overlay (hover the left edge or the
- * toggle) without being pinned back. On small screens it is always a drawer.
+ * there or gone: docked beside the content, or hidden entirely. While hidden
+ * it floats out as a card when the pointer rests on the toggle in the top-left
+ * corner (the peek), and clicking that toggle docks it again — the toggle sits
+ * in the same corner in both states. On small screens it is a drawer.
  */
 
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { PanelLeftClose, Pin } from 'lucide-react'
+import { PanelLeftClose } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
 import { hasRole, isStaff } from '../../lib/roles'
@@ -19,17 +20,19 @@ import { NAV_GROUPS, navItemsForRoles } from './navigation'
 import { navIcon } from './navIcons'
 
 interface SidebarProps {
-  /** docked: in the page flow; overlay: floating (peek or mobile drawer). */
-  variant: 'docked' | 'overlay'
-  /** Hide (docked) / dismiss (overlay). */
+  /**
+   * docked: in the page flow; peek: the floating card shown while the pointer
+   * rests on the header toggle (that toggle docks it, so the card has none);
+   * drawer: the small-screen overlay.
+   */
+  variant: 'docked' | 'peek' | 'drawer'
+  /** Hide (docked) / dismiss (drawer). */
   onClose: () => void
-  /** Overlay only: pin the panel open again. */
-  onPin?: () => void
   /** Called after a destination is chosen (closes a drawer). */
   onNavigate?: () => void
 }
 
-export function Sidebar({ variant, onClose, onPin, onNavigate }: SidebarProps) {
+export function Sidebar({ variant, onClose, onNavigate }: SidebarProps) {
   const { t } = useTranslation()
   const { roles } = useAuth()
   const items = navItemsForRoles(roles)
@@ -46,33 +49,34 @@ export function Sidebar({ variant, onClose, onPin, onNavigate }: SidebarProps) {
       className="flex h-full w-64 flex-col bg-gradient-to-b from-accent-700 via-accent-800 to-accent-900 text-white"
       aria-label={t('nav.title')}
     >
-      <div className="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 pr-2 pl-5">
-        <div className="flex min-w-0 flex-1 flex-col">
-          <BrandMark size="sm" inverse />
-          <span className="mt-1 text-[10px] leading-tight font-medium tracking-[0.08em] text-white/45 uppercase">
-            {t('app.company')}
-          </span>
-        </div>
-        {variant === 'overlay' && onPin && (
+      <div
+        className={`flex h-16 shrink-0 items-center gap-2 border-b border-white/10 pr-5 ${
+          variant === 'peek' ? 'pl-5' : 'pl-3 sm:pl-5'
+        }`}
+      >
+        {/* The toggle lives in the top-left corner, exactly where the header
+            shows it while the panel is hidden. */}
+        {variant !== 'peek' && (
           <button
             type="button"
-            onClick={onPin}
-            className="flex size-8 items-center justify-center rounded-md text-white/60 transition-colors hover:bg-white/10 hover:text-white"
-            title={t('nav.pin')}
-            aria-label={t('nav.pin')}
+            onClick={onClose}
+            className="flex size-9 shrink-0 items-center justify-center rounded-md text-white/60 transition-colors hover:bg-white/10 hover:text-white"
+            title={`${t('nav.hide')} (Ctrl B)`}
+            aria-label={t('nav.hide')}
           >
-            <Pin className="size-4" />
+            <PanelLeftClose className="size-5" />
           </button>
         )}
-        <button
-          type="button"
-          onClick={onClose}
-          className="flex size-8 items-center justify-center rounded-md text-white/60 transition-colors hover:bg-white/10 hover:text-white"
-          title={`${t('nav.hide')} (Ctrl B)`}
-          aria-label={t('nav.hide')}
-        >
-          <PanelLeftClose className="size-[18px]" />
-        </button>
+        <div className="flex min-w-0 flex-1 flex-col">
+          <BrandMark size="sm" inverse />
+          {/* Beside the toggle there is no room for the line of business; it
+              moves to the footer there. */}
+          {variant === 'peek' && (
+            <span className="mt-1 text-[10px] leading-tight font-medium tracking-[0.08em] text-white/45 uppercase">
+              {t('app.company')}
+            </span>
+          )}
+        </div>
       </div>
 
       <nav className="scrollbar-thin flex-1 overflow-y-auto px-3 py-4">
@@ -144,6 +148,11 @@ export function Sidebar({ variant, onClose, onPin, onNavigate }: SidebarProps) {
       </nav>
 
       <div className="shrink-0 border-t border-white/10 px-5 py-3 text-[11px] text-white/35">
+        {variant !== 'peek' && (
+          <div className="mb-1 text-[10px] font-medium tracking-[0.08em] text-white/45 uppercase">
+            {t('app.company')}
+          </div>
+        )}
         {t('nav.shortcutHint')}
       </div>
     </aside>

@@ -13,8 +13,9 @@ interface HeaderProps {
   /** The sidebar is not on screen: offer the button that brings it back. */
   sidebarHidden: boolean
   onShowSidebar: () => void
-  /** Hovering the button peeks at the panel without pinning it (desktop). */
+  /** Resting on the button floats the panel out; leaving puts it away (desktop). */
   onPeekSidebar?: () => void
+  onUnpeekSidebar?: () => void
 }
 
 /** Initials for the avatar: first letters of the e-mail's local part words. */
@@ -25,7 +26,7 @@ function initials(email: string | undefined): string {
   return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || local[0]?.toUpperCase() || '·'
 }
 
-export function Header({ onOpenPalette, sidebarHidden, onShowSidebar, onPeekSidebar }: HeaderProps) {
+export function Header({ onOpenPalette, sidebarHidden, onShowSidebar, onPeekSidebar, onUnpeekSidebar }: HeaderProps) {
   const { t } = useTranslation()
   const { pathname } = useLocation()
   const section = sectionFor(pathname)
@@ -59,6 +60,7 @@ export function Header({ onOpenPalette, sidebarHidden, onShowSidebar, onPeekSide
           type="button"
           onClick={onShowSidebar}
           onMouseEnter={onPeekSidebar}
+          onMouseLeave={onUnpeekSidebar}
           className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-accent-600"
           title={`${t('nav.show')} (${isMac ? '⌘B' : 'Ctrl B'})`}
           aria-label={t('nav.show')}

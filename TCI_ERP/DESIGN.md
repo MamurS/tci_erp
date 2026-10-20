@@ -62,9 +62,12 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
 ## App shell
 
 * **Sidebar, Claude-style:** docked (w-64) or hidden — never an icon rail.
-  Hide it from its own header, bring it back from the top bar or with
-  Ctrl/⌘ B; while hidden, hovering the left edge (or the top-bar button)
-  peeks it as an overlay, which can be pinned back. Below 1024px it is a
+  The toggle sits in the top-left corner in BOTH states (the docked panel's
+  header, the top bar when hidden — same coordinates). While hidden, resting
+  the pointer on that toggle floats the panel out as a rounded card that
+  starts BELOW the toggle, so the toggle stays clickable and a click docks
+  it; leaving the toggle and the card puts it away. Nothing else peeks it:
+  no left-edge strip, no pin button. Ctrl/⌘ B toggles. Below 1024px it is a
   drawer with a backdrop that closes on navigation and on Escape. The state
   is remembered per browser (`tci-erp-sidebar`). Logic: `layout/shell.ts`.
 * **Top bar:** sidebar button (when hidden), the current section (icon +

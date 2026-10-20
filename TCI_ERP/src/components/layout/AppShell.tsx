@@ -34,10 +34,13 @@ function useIsDesktop(): boolean {
 }
 
 /**
- * The staff frame. On a desktop the sidebar is docked or hidden (remembered
- * per browser); hidden, it can be peeked at by hovering the left edge or the
- * header button, and pinned back from there. Below 1024px it is a drawer.
- * Ctrl/⌘ B toggles it, Ctrl/⌘ K opens the command palette.
+ * The staff frame, with Claude's sidebar behaviour. On a desktop the sidebar
+ * is docked or hidden (remembered per browser). Hidden, resting the pointer
+ * on the toggle in the top-left corner floats it out as a card BELOW that
+ * toggle, so the toggle stays reachable and a click docks the panel again;
+ * leaving both the toggle and the card puts it away. Nothing else peeks it —
+ * no edge strip, no pin. Below 1024px it is a drawer. Ctrl/⌘ B toggles it,
+ * Ctrl/⌘ K opens the command palette.
  */
 export function AppShell() {
   const isDesktop = useIsDesktop()
@@ -101,13 +104,24 @@ export function AppShell() {
         </div>
       )}
 
-      {!showDocked && (
+      {!showDocked && isDesktop && (
+        // The peek: a floating card under the header toggle. It starts below
+        // the toggle so it never covers it, and is inert while put away.
+        <div
+          className={`fixed top-[58px] bottom-2 left-2 z-50 overflow-hidden rounded-xl shadow-2xl shadow-accent-900/40 transition-[opacity,transform] duration-150 ease-out ${
+            overlayOpen ? 'translate-x-0 opacity-100' : 'pointer-events-none -translate-x-2 opacity-0'
+          }`}
+          onMouseEnter={peek}
+          onMouseLeave={unpeek}
+          inert={!overlayOpen}
+        >
+          <Sidebar variant="peek" onClose={() => setOverlayOpen(false)} />
+        </div>
+      )}
+
+      {!showDocked && !isDesktop && (
         <>
-          {/* Hover strip along the left edge: the peek, as in Claude. */}
-          {isDesktop && (
-            <div className="fixed inset-y-0 left-0 z-40 w-2" onMouseEnter={peek} aria-hidden="true" />
-          )}
-          {overlayOpen && !isDesktop && (
+          {overlayOpen && (
             <div
               className="animate-fade-in fixed inset-0 z-40 bg-accent-900/40 backdrop-blur-[2px]"
               onClick={() => setOverlayOpen(false)}
@@ -118,14 +132,12 @@ export function AppShell() {
             className={`fixed inset-y-0 left-0 z-50 transition-transform duration-200 ease-out ${
               overlayOpen ? 'translate-x-0 shadow-2xl shadow-accent-900/40' : '-translate-x-full'
             }`}
-            onMouseEnter={peek}
-            onMouseLeave={unpeek}
+            inert={!overlayOpen}
           >
             <Sidebar
-              variant="overlay"
+              variant="drawer"
               onClose={() => setOverlayOpen(false)}
-              onPin={isDesktop ? () => dock('open') : undefined}
-              onNavigate={isDesktop ? undefined : () => setOverlayOpen(false)}
+              onNavigate={() => setOverlayOpen(false)}
             />
           </div>
         </>
@@ -137,6 +149,7 @@ export function AppShell() {
           sidebarHidden={!showDocked}
           onShowSidebar={() => (isDesktop ? dock('open') : setOverlayOpen(true))}
           onPeekSidebar={isDesktop ? peek : undefined}
+          onUnpeekSidebar={isDesktop ? unpeek : undefined}
         />
         <main className="mx-auto w-full max-w-[1480px] flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-7">
           <SignInNotice accountPath="/account" />
