@@ -22,6 +22,24 @@ workflow settings, insurer particulars, uploaded contract templates).
    - works the claims: coverage, approval, payment, recovery, an information request;
    - generates two draft contracts through the «Договоры» screen.
 
+**When the SQL editor is not the route** — the MCP tooling cannot run the
+wipe (TRUNCATE / DELETE are held for a confirmation it never shows) nor
+carry the whole file — the same result comes in three steps:
+
+1. the owner runs only the wipe section (`truncate …` + the sequence
+   restarts + the demo-account cleanup) in the SQL editor;
+2. the demo users and the workflow section go through `execute_sql` (each
+   part is self-contained: ids are `md5('demo:' || key)`), while companies,
+   statements and ratings are loaded through the API as the demo users:
+   `DATA_JSON=… uv run python ../../docs/demo/build_demo_seed.py` then
+   `node docs/demo/load-via-api.mjs <data.json>`;
+3. `after-seed.mjs` as above.
+
+The scripts read `SUPABASE_ANON_KEY` (the project's publishable key) from
+the environment when `.env.local` holds a local placeholder; the dev server
+for the contracts step must be started with `VITE_SUPABASE_ANON_KEY` set to
+the same key.
+
 Re-running is safe: the seed wipes and rebuilds the demo, and numbering
 starts again at CL-YYYY-0001. Files that an earlier `after-seed.mjs` put in
 Storage stay there, unreferenced.

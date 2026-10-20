@@ -31,8 +31,8 @@ const env = Object.fromEntries(
     .filter((l) => l.includes('='))
     .map((l) => [l.slice(0, l.indexOf('=')).trim(), l.slice(l.indexOf('=') + 1).trim()]),
 )
-const URL_ = env.VITE_SUPABASE_URL
-const KEY = env.VITE_SUPABASE_ANON_KEY
+const URL_ = process.env.SUPABASE_URL ?? env.VITE_SUPABASE_URL
+const KEY = process.env.SUPABASE_ANON_KEY ?? env.VITE_SUPABASE_ANON_KEY
 const PASSWORD = process.env.DEMO_PASSWORD
 if (!URL_ || !KEY || !PASSWORD) throw new Error('need VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY in .env.local and DEMO_PASSWORD')
 
@@ -143,7 +143,7 @@ async function claims() {
 async function contracts() {
   let chromium
   try {
-    ;({ chromium } = require('playwright'))
+    ;({ chromium } = createRequire(process.env.PLAYWRIGHT_FROM ?? ROOT)('playwright'))
   } catch {
     console.log('contracts: playwright not installed in TCI_ERP, skipped')
     return

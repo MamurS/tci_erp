@@ -344,6 +344,33 @@ insert into tci.user_profiles (user_id, full_name, must_change_password) values 
           f"{q(json.dumps(a["payload"], ensure_ascii=False, separators=(",", ":")))}::jsonb, {q(json.dumps(a["trace"], ensure_ascii=False, separators=(",", ":")))}::jsonb, "
           f"{q(a['engine'])}, {q(credit)}, now() - interval '{days} days');")
 
+    if os.environ.get("DATA_JSON"):
+        # The same rows for an API loader (docs/demo/load-via-api.mjs).
+        info_days = 200
+        data = {"entities": [], "statements": [], "assessments": []}
+        for key, (name, lf, country, ind, reg, founded, addr, contact, domain) in COMPANIES.items():
+            data["entities"].append({
+                "id": uid("ent:" + key), "name": name, "legal_form": lf, "country_code": country,
+                "industry_id": ind, "registration_number": reg, "founded_date": founded,
+                "website": "https://" + domain, "address": addr, "contact_person": contact,
+                "contact_email": f"{contact.split()[0].lower()}@{domain}", "days_ago": info_days})
+        for key, rows in stmts.items():
+            for st in rows:
+                data["statements"].append({
+                    "row": {"id": st["id"], "entity_id": uid("ent:" + key), "statement_kind": "annual",
+                            "fiscal_year": st["year"], "period_end_date": f"{st['year']}-12-31",
+                            "currency_code": st["currency"], "unit": "thousands", "audited": st["year"] < 2025,
+                            "source": "Annual report", "accounting_basis": "ifrs", "mapping_status": "n/a",
+                            "report_type": "statutory", "created_at": f"{st['year'] + 1}-04-15T10:00:00+05:00"},
+                    "bs": st["bs"], "inc": st["inc"]})
+        for key, days, a in assessments:
+            data["assessments"].append({
+                "id": uid(f"assess:{key}:{days}"), "entity_id": uid("ent:" + key), "statement_id": a["statement_id"],
+                "rating_score": a["score"], "rating_grade": a["grade"], "suggested_limit": a["limit"],
+                "limit_currency": a["limit_ccy"], "inputs_snapshot": a["payload"], "calculation_trace": a["trace"],
+                "engine_version": a["engine"], "days_ago": days})
+        Path(os.environ["DATA_JSON"]).write_text(json.dumps(data, ensure_ascii=False))
+
     body = "\n".join(parts)
     grades = {key: a["grade"] for key, _d, a in assessments}
     print(json.dumps(grades, indent=0), file=sys.stderr)
