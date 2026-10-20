@@ -6,11 +6,10 @@
  */
 
 import { useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Card, EmptyState, Input, PageHeader, Select, Spinner, StatCard, Table } from '../../../components/ui'
+import { Card, EmptyState, Input, ViewBar, Select, Spinner, StatCard, Table } from '../../../components/ui'
 import { formatAmount, formatCompact, formatDays } from '../../../lib/format'
 import { GRADE_BANDS, num } from '../../portfolio/aggregate'
 import { useCreditPortfolio } from '../../portfolio/api'
@@ -18,7 +17,7 @@ import { useCountryName } from '../../portfolio/useCountryName'
 import { filterInForce, uzsTotal } from './model'
 import { BandBadge, EntityLink, Uzs } from './parts'
 
-export function InForceView({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
+export function InForceView() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const countryName = useCountryName()
@@ -39,9 +38,8 @@ export function InForceView({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
   const buyers = new Set(rows.map((r) => r.buyer_entity_id)).size
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <PageHeader title={t('limits.workbench.inforce.title')} subtitle={t('limits.workbench.inforce.subtitle')} />
-      {sectionTabs}
+    <div>
+      <ViewBar hint={t('limits.workbench.inforce.subtitle')} />
 
       {isLoading ? (
         <Spinner />

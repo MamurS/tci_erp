@@ -10,7 +10,7 @@ import { lazy } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Tabs } from '../../../components/ui'
+import { SectionPage } from '../../../components/ui'
 import { useAuth } from '../../../auth/AuthContext'
 import { useCreditPortfolio } from '../../portfolio/api'
 import { useOverdueNotifications } from '../../overdue/api'
@@ -70,34 +70,40 @@ export function LimitsSection() {
       { replace: true },
     )
 
-  const tabs = (
-    <div className="mb-5">
-      <Tabs
-        tabs={limitViewsFor(roles).map((key) => ({
-          key,
-          label: t(`limits.views.${key}`),
-          count: counts[key] || undefined,
-        }))}
-        active={view}
-        onChange={(key) => select(key as LimitView)}
-      />
-    </div>
-  )
+  const tabs = limitViewsFor(roles).map((key) => ({
+    key,
+    label: t(`limits.views.${key}`),
+    count: counts[key] || undefined,
+  }))
 
-  switch (view) {
-    case 'overview':
-      return <CreditPortfolioPage sectionTabs={tabs} />
-    case 'inforce':
-      return <InForceView sectionTabs={tabs} />
-    case 'monitoring':
-      return <MonitoringView sectionTabs={tabs} />
-    case 'ratings':
-      return <RatingsView sectionTabs={tabs} />
-    case 'groups':
-      return <GroupsView sectionTabs={tabs} />
-    case 'authority':
-      return <AuthorityView sectionTabs={tabs} />
-    default:
-      return <LimitsPage sectionTabs={tabs} />
-  }
+  const body = (() => {
+    switch (view) {
+      case 'overview':
+        return <CreditPortfolioPage />
+      case 'inforce':
+        return <InForceView />
+      case 'monitoring':
+        return <MonitoringView />
+      case 'ratings':
+        return <RatingsView />
+      case 'groups':
+        return <GroupsView />
+      case 'authority':
+        return <AuthorityView />
+      default:
+        return <LimitsPage />
+    }
+  })()
+
+  return (
+    <SectionPage
+      title={t('nav.limits')}
+      subtitle={t(desk ? 'limits.sectionSubtitle' : 'limits.subtitle')}
+      tabs={tabs}
+      active={view}
+      onChange={(key) => select(key as LimitView)}
+    >
+      {body}
+    </SectionPage>
+  )
 }

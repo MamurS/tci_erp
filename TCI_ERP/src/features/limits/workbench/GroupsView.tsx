@@ -6,10 +6,9 @@
  */
 
 import { useMemo } from 'react'
-import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, PageHeader, Spinner, Table } from '../../../components/ui'
+import { Badge, Card, EmptyState, ViewBar, Spinner, Table } from '../../../components/ui'
 import { formatAmount, formatPercent } from '../../../lib/format'
 import { num } from '../../portfolio/aggregate'
 import { useCountryName } from '../../portfolio/useCountryName'
@@ -25,7 +24,7 @@ const STATE_TONE: Record<GroupState, 'neg' | 'warn' | 'pos' | 'neutral'> = {
   uncapped: 'neutral',
 }
 
-export function GroupsView({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
+export function GroupsView() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const countryName = useCountryName()
@@ -33,9 +32,8 @@ export function GroupsView({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
   const rows = useMemo(() => sortGroups(data ?? []), [data])
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <PageHeader title={t('limits.workbench.groups.title')} subtitle={t('limits.workbench.groups.subtitle')} />
-      {sectionTabs}
+    <div>
+      <ViewBar hint={t('limits.workbench.groups.subtitle')} />
 
       {isLoading ? (
         <Spinner />

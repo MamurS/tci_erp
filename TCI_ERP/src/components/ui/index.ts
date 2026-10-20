@@ -8,6 +8,7 @@ export {
   Input,
   Modal,
   PageHeader,
+  SectionPage,
   SectionTitle,
   Select,
   Skeleton,
@@ -16,6 +17,7 @@ export {
   Table,
   Tabs,
   Textarea,
+  ViewBar,
 } from './primitives'
 export type { TabDef } from './primitives'
 export { BrandMark } from './BrandMark'

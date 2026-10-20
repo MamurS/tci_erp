@@ -3,10 +3,9 @@
  *  particulars, and the placeholder reference. */
 
 import { useState } from 'react'
-import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, PageHeader, SectionTitle, Spinner, Table } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, ViewBar, SectionTitle, Spinner, Table } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { formatMoment } from '../../lib/format'
 import type { WordingTemplate } from './api'
@@ -21,7 +20,7 @@ import { UploadTemplateModal } from './UploadTemplateModal'
 
 const STATUS_TONE = { active: 'pos', draft: 'warn', retired: 'neutral' } as const
 
-export function WordingPage({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
+export function WordingPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const { roles } = useAuth()
@@ -50,9 +49,8 @@ export function WordingPage({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
 
   return (
     <div>
-      <PageHeader
-        title={t('wording.title')}
-        subtitle={t('wording.subtitle', WORDING_SYNTAX)}
+      <ViewBar
+        hint={t('wording.subtitle', WORDING_SYNTAX)}
         actions={
           canManage && (
             <>
@@ -66,7 +64,6 @@ export function WordingPage({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
           )
         }
       />
-      {sectionTabs}
 
       {error && (
         <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[13px] text-neg-500" role="alert">

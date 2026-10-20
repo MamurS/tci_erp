@@ -1149,7 +1149,8 @@
       "contracts": "Contracts",
       "templates": "Contract templates",
       "overview": "Overview"
-    }
+    },
+    "sectionSubtitle": "The commercial underwriter's tools: the portfolio, the policy register, draft contracts and the templates they are made from."
   },
   "limits": {
     "subtitle": "Credit limit requests and decisions",
@@ -1427,7 +1428,8 @@
         "noGrantsHint": "An administrator grants authority on the administration screen. Without one every decision you take is escalated.",
         "stream": "Stream"
       }
-    }
+    },
+    "sectionSubtitle": "The credit underwriter's workbench: portfolio, decisions, limits in force, monitoring, ratings, groups and your own authority."
   },
   "entities": {
     "subtitle": "Unified registry — policyholders, buyers and analysis prospects",

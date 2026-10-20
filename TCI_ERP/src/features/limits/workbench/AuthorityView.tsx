@@ -5,10 +5,9 @@
  * streams. Grants are set by an administrator on the admin screen.
  */
 
-import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, PageHeader, SectionTitle, Spinner, Table } from '../../../components/ui'
+import { Badge, Card, EmptyState, ViewBar, SectionTitle, Spinner, Table } from '../../../components/ui'
 import { useAuth } from '../../../auth/AuthContext'
 import { formatAmount, formatCompact } from '../../../lib/format'
 import { AUTHORITY_SCOPES, GRADE_BANDS, hasRole } from '../../../lib/roles'
@@ -39,7 +38,7 @@ function BandAuthority({ band }: { band: GradeBand }) {
   )
 }
 
-export function AuthorityView({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
+export function AuthorityView() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const { session, roles } = useAuth()
@@ -49,9 +48,8 @@ export function AuthorityView({ sectionTabs }: { sectionTabs?: ReactNode } = {})
   const live = (grants ?? []).filter((g) => g.valid_from <= today && (g.valid_to === null || g.valid_to >= today))
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <PageHeader title={t('limits.workbench.authority.title')} subtitle={t('limits.workbench.authority.subtitle')} />
-      {sectionTabs}
+    <div>
+      <ViewBar hint={t('limits.workbench.authority.subtitle')} />
 
       {isAdmin && (
         <Card className="mb-5 border-accent-200 bg-accent-50/50 p-4 text-[13px] text-accent-700">

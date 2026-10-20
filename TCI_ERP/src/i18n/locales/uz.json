@@ -1149,7 +1149,8 @@
       "contracts": "Shartnomalar",
       "templates": "Shartnoma shablonlari",
       "overview": "Umumiy ko‘rinish"
-    }
+    },
+    "sectionSubtitle": "Tijorat anderrayterining vositalari: portfel, polislar reyestri, shartnoma loyihalari va ular tuziladigan shablonlar."
   },
   "limits": {
     "subtitle": "Kredit limiti so‘rovlari va qarorlar",
@@ -1427,7 +1428,8 @@
         "noGrantsHint": "Vakolatlarni administrator «Administratsiya» bo‘limida tayinlaydi. Ularsiz har bir qaroringiz eskalatsiya qilinadi.",
         "stream": "Yo‘nalish"
       }
-    }
+    },
+    "sectionSubtitle": "Kredit anderrayterining ish joyi: portfel, qarorlar, amaldagi limitlar, monitoring, reytinglar, guruhlar va sizning vakolatlaringiz."
   },
   "entities": {
     "subtitle": "Yagona reyestr — sug‘urtalanuvchilar, bayerlar va tahlildagi tashkilotlar",

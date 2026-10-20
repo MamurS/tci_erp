@@ -8,11 +8,10 @@
  */
 
 import { useMemo } from 'react'
-import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, PageHeader, Spinner, StatCard } from '../../components/ui'
+import { Badge, Card, EmptyState, ViewBar, Spinner, StatCard } from '../../components/ui'
 import { formatAmount, formatCompact, formatDays, formatMoment } from '../../lib/format'
 import {
   creditTotals,
@@ -33,7 +32,7 @@ const STALE_RATING_DAYS = 365
 
 const BAND_TONE = { A: 'pos', B: 'accent', C: 'warn', D: 'neg', unrated: 'neutral' } as const
 
-export function CreditPortfolioPage({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
+export function CreditPortfolioPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const countryName = useCountryName()
@@ -60,9 +59,8 @@ export function CreditPortfolioPage({ sectionTabs }: { sectionTabs?: ReactNode }
   )
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <PageHeader title={t('portfolio.credit.title')} subtitle={t('portfolio.credit.subtitle')} />
-      {sectionTabs}
+    <div>
+      <ViewBar hint={t('portfolio.credit.subtitle')} />
 
       {isLoading ? (
         <Spinner />

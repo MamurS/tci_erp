@@ -6,10 +6,9 @@
  */
 
 import { useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, PageHeader, Segmented, Spinner, Table } from '../../../components/ui'
+import { Badge, Card, EmptyState, ViewBar, Segmented, Spinner, Table } from '../../../components/ui'
 import { formatAmount, formatMoment } from '../../../lib/format'
 import { useCountryName } from '../../portfolio/useCountryName'
 import { useRatingWorklist } from './api'
@@ -33,7 +32,7 @@ const REASON_TAB: Record<RatingReason, string> = {
   stale: 'rating',
 }
 
-export function RatingsView({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
+export function RatingsView() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const countryName = useCountryName()
@@ -45,10 +44,9 @@ export function RatingsView({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
   const rows = reason === 'all' ? all : all.filter((r) => r.reason === reason)
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <PageHeader
-        title={t('limits.workbench.ratings.title')}
-        subtitle={t('limits.workbench.ratings.subtitle')}
+    <div>
+      <ViewBar
+        hint={t('limits.workbench.ratings.subtitle')}
         actions={
           all.length ? (
             <Segmented
@@ -66,7 +64,6 @@ export function RatingsView({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
           ) : undefined
         }
       />
-      {sectionTabs}
 
       {isLoading ? (
         <Spinner />

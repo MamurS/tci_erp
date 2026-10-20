@@ -5,11 +5,10 @@
  * suspension), and corporate groups over or near their cap.
  */
 
-import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, PageHeader, Spinner } from '../../../components/ui'
+import { Badge, Card, EmptyState, ViewBar, Spinner } from '../../../components/ui'
 import { formatAmount, formatDays, formatPercent } from '../../../lib/format'
 import { num } from '../../portfolio/aggregate'
 import { useCreditPortfolio } from '../../portfolio/api'
@@ -19,7 +18,7 @@ import { useGroupLimitStatus } from './api'
 import { REVIEW_WINDOW_DAYS, groupState, groupsAtRisk, ratingDeteriorated, reviewsDueOrOverdue } from './model'
 import { BandBadge, EntityLink, Uzs } from './parts'
 
-export function MonitoringView({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
+export function MonitoringView() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const portfolio = useCreditPortfolio()
@@ -35,9 +34,8 @@ export function MonitoringView({ sectionTabs }: { sectionTabs?: ReactNode } = {}
   const clear = !reviews.length && !worse.length && !openNoas.length && !atRisk.length
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <PageHeader title={t('limits.workbench.monitoring.title')} subtitle={t('limits.workbench.monitoring.subtitle')} />
-      {sectionTabs}
+    <div>
+      <ViewBar hint={t('limits.workbench.monitoring.subtitle')} />
 
       {loading ? (
         <Spinner />

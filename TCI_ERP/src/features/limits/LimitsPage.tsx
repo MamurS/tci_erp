@@ -3,7 +3,6 @@
  * whether the caller can decide it alone (tci.v_limit_request_queue). */
 
 import { useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -11,8 +10,7 @@ import {
   Badge,
   EmptyState,
   Input,
-  PageHeader,
-  Segmented,
+  ViewBar, Segmented,
   Select,
   Spinner,
   Table,
@@ -33,7 +31,7 @@ import type { QueueRow } from './workbench/types'
 type QueueTab = 'drafts' | 'review' | 'escalated' | 'decided' | 'proposals'
 const QUEUE_TABS: readonly QueueTab[] = ['drafts', 'review', 'escalated', 'decided', 'proposals']
 
-export function LimitsPage({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
+export function LimitsPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const navigate = useNavigate()
@@ -109,8 +107,7 @@ export function LimitsPage({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
 
   return (
     <div>
-      <PageHeader title={t('limits.workbench.queue.title')} subtitle={t('limits.subtitle')} />
-      {sectionTabs}
+      <ViewBar hint={t('limits.subtitle')} />
 
       <div className="overflow-x-auto">
         <Segmented

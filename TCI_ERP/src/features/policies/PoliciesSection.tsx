@@ -10,7 +10,7 @@ import { lazy } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Tabs } from '../../components/ui'
+import { SectionPage } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { PoliciesPage } from './PoliciesPage'
 import { parsePolicyView, policyViewsFor } from './views'
@@ -38,18 +38,25 @@ export function PoliciesSection() {
       { replace: true },
     )
 
-  const tabs = (
-    <div className="mb-5">
-      <Tabs
-        tabs={policyViewsFor(roles).map((key) => ({ key, label: t(`policies.views.${key}`) }))}
-        active={view}
-        onChange={(key) => select(key as PolicyView)}
-      />
-    </div>
-  )
+  const tabs = policyViewsFor(roles).map((key) => ({ key, label: t(`policies.views.${key}`) }))
 
-  if (view === 'overview') return <PolicyPortfolioPage sectionTabs={tabs} />
-  if (view === 'contracts') return <ContractsPage sectionTabs={tabs} />
-  if (view === 'templates') return <WordingPage sectionTabs={tabs} />
-  return <PoliciesPage sectionTabs={tabs} />
+  return (
+    <SectionPage
+      title={t('nav.policies')}
+      subtitle={t('policies.sectionSubtitle')}
+      tabs={tabs}
+      active={view}
+      onChange={(key) => select(key as PolicyView)}
+    >
+      {view === 'overview' ? (
+        <PolicyPortfolioPage />
+      ) : view === 'contracts' ? (
+        <ContractsPage />
+      ) : view === 'templates' ? (
+        <WordingPage />
+      ) : (
+        <PoliciesPage />
+      )}
+    </SectionPage>
+  )
 }
