@@ -76,6 +76,13 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
   has several). Below it «Общее» (dashboard, agenda, companies), then the
   workspace's own tools under its name. Switching lands on the workspace's
   first tool (`workspaces.ts`).
+* **Sections with views:** a desk's section is one sidebar item with tabs
+  under the page header (`?view=`), never several items: «Полисы» (Обзор ·
+  Реестр полисов · Договоры · Шаблоны договоров) and «Кредитные лимиты»
+  (Обзор · Очередь решений · Действующие лимиты · Мониторинг · Рейтинги ·
+  Группы · Мои полномочия). Each view keeps its own page title; a tab may
+  carry a count. A sub-choice inside a view (the request queues) is a
+  `Segmented` control, so two rows of tabs never stack.
 * **Top bar:** sidebar button (when hidden), the current section (icon +
   name), the command palette (Ctrl/⌘ K — companies by name or registration
   number, plus every destination the caller's roles allow; icon-only below

@@ -8,6 +8,7 @@
  */
 
 import { useMemo } from 'react'
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -32,7 +33,7 @@ const STALE_RATING_DAYS = 365
 
 const BAND_TONE = { A: 'pos', B: 'accent', C: 'warn', D: 'neg', unrated: 'neutral' } as const
 
-export function CreditPortfolioPage() {
+export function CreditPortfolioPage({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const countryName = useCountryName()
@@ -61,6 +62,7 @@ export function CreditPortfolioPage() {
   return (
     <div className="mx-auto max-w-7xl">
       <PageHeader title={t('portfolio.credit.title')} subtitle={t('portfolio.credit.subtitle')} />
+      {sectionTabs}
 
       {isLoading ? (
         <Spinner />

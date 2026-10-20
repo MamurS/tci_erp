@@ -6,6 +6,7 @@
  */
 
 import { useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -29,7 +30,7 @@ function lossTone(pct: number | null): 'default' | 'warn' | 'neg' {
   return 'default'
 }
 
-export function PolicyPortfolioPage() {
+export function PolicyPortfolioPage({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const countryName = useCountryName()
@@ -95,6 +96,7 @@ export function PolicyPortfolioPage() {
           />
         }
       />
+      {sectionTabs}
 
       {isLoading ? (
         <Spinner />

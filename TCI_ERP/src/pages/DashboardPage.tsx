@@ -128,7 +128,7 @@ export function DashboardPage() {
       <Card className="overflow-hidden">
         <div className="grid divide-y divide-slate-100 sm:grid-cols-2 sm:divide-y-0 lg:auto-cols-fr lg:grid-flow-col lg:divide-x">
           <Kpi
-            to="/policies"
+            to="/policies?view=registry"
             icon={FileText}
             label={t('dashboard.activePolicies')}
             value={count(activePolicies)}

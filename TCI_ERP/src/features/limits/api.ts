@@ -35,6 +35,9 @@ function invalidateWorkflow(queryClient: ReturnType<typeof useQueryClient>) {
   void queryClient.invalidateQueries({ queryKey: KEYS.effective })
   void queryClient.invalidateQueries({ queryKey: ['buyer-exposure'] })
   void queryClient.invalidateQueries({ queryKey: ['limit-decisions'] })
+  // the workbench views and the portfolio read the same decisions
+  void queryClient.invalidateQueries({ queryKey: ['limits', 'workbench'] })
+  void queryClient.invalidateQueries({ queryKey: ['portfolio'] })
 }
 
 // ---------------------------------------------------------------------------

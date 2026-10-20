@@ -1,15 +1,34 @@
-/** The three views of the «Полисы» section and their ?view= values. */
+/**
+ * The views of the «Полисы» section and their ?view= values. The portfolio
+ * overview is commercial underwriting's own (and admin's); everyone else who
+ * may open /policies gets the registry, the contracts and the templates.
+ */
 
-export const POLICY_VIEWS = ['registry', 'contracts', 'templates'] as const
+import { hasRole } from '../../lib/roles'
+import type { UserRole } from '../../lib/roles'
+
+export const POLICY_VIEWS = ['overview', 'registry', 'contracts', 'templates'] as const
 export type PolicyView = (typeof POLICY_VIEWS)[number]
 
-/** Anything but a known view is the registry. */
-export function parsePolicyView(value: string | null | undefined): PolicyView {
-  return (POLICY_VIEWS as readonly string[]).includes(value ?? '') ? (value as PolicyView) : 'registry'
+/** Commercial underwriting and admin see the portfolio overview. */
+export function isCommercialDesk(roles: readonly UserRole[]): boolean {
+  return hasRole(roles, 'admin', 'commercial_underwriter')
 }
 
-/** Where the old /contracts and /wording addresses now live. */
+export function policyViewsFor(roles: readonly UserRole[]): readonly PolicyView[] {
+  return isCommercialDesk(roles) ? POLICY_VIEWS : POLICY_VIEWS.filter((v) => v !== 'overview')
+}
+
+/** A known view the roles may see, otherwise the first one: the overview for
+ * the commercial desk, the registry for everyone else. */
+export function parsePolicyView(value: string | null | undefined, roles: readonly UserRole[]): PolicyView {
+  const available = policyViewsFor(roles)
+  return (available as readonly string[]).includes(value ?? '') ? (value as PolicyView) : available[0]
+}
+
+/** Where the old addresses now live. */
 export const LEGACY_POLICY_VIEW_PATHS: Record<string, string> = {
   '/contracts': '/policies?view=contracts',
   '/wording': '/policies?view=templates',
+  '/portfolio/policies': '/policies?view=overview',
 }

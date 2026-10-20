@@ -26,16 +26,14 @@
     "show": "Menyuni ko‘rsatish",
     "shortcutHint": "Ctrl/⌘ B — menyuni ko‘rsatish yoki yashirish · Ctrl/⌘ K — qidiruv",
     "workspace": "Ish maydoni",
-    "policyPortfolio": "Polislar portfeli",
-    "creditPortfolio": "Limitlar portfeli",
     "workspaces": {
       "commercial": {
         "name": "Tijorat anderraytingi",
-        "hint": "Polislar portfeli, arizalar, polislar va shartnomalar"
+        "hint": "Polislar va ularning portfeli, arizalar va shartnomalar"
       },
       "credit": {
         "name": "Kredit anderraytingi",
-        "hint": "Limitlar portfeli, kredit limitlari va qarorlar"
+        "hint": "Qarorlar navbati, amaldagi limitlar, monitoring, reytinglar va guruhlar"
       },
       "sales": {
         "name": "Sotuv",
@@ -1149,7 +1147,8 @@
     "views": {
       "registry": "Polislar reyestri",
       "contracts": "Shartnomalar",
-      "templates": "Shartnoma shablonlari"
+      "templates": "Shartnoma shablonlari",
+      "overview": "Umumiy ko‘rinish"
     }
   },
   "limits": {
@@ -1327,6 +1326,107 @@
     "systemReason": {
       "noaSuspension": "Muddati o‘tgan qarz xabarnomasi bo‘yicha to‘xtatilgan",
       "claimApproved": "To‘xtatilgan: bayer bo‘yicha da’vo tan olingan"
+    },
+    "views": {
+      "overview": "Umumiy ko‘rinish",
+      "queue": "Qarorlar navbati",
+      "inforce": "Amaldagi limitlar",
+      "monitoring": "Monitoring",
+      "ratings": "Reytinglar",
+      "groups": "Guruhlar",
+      "authority": "Mening vakolatlarim"
+    },
+    "workbench": {
+      "queue": {
+        "title": "Qarorlar navbati",
+        "mineOnly": "Faqat o‘zim hal qila oladiganlar",
+        "decision": "Qaror",
+        "alone": "Vakolatim doirasida",
+        "beyond": "Vakolatimdan ortiq",
+        "noRate": "UZS kursi yo‘q"
+      },
+      "inforce": {
+        "title": "Amaldagi limitlar",
+        "subtitle": "Rasmiylashtirilgan polislar bo‘yicha barcha tasdiqlangan va qisman tasdiqlangan limitlar — bayerning joriy reytingi va qayta ko‘rib chiqish sanasi bilan. Summalar so‘nggi kurs bo‘yicha UZSda.",
+        "allBands": "Barcha klasslar",
+        "allCountries": "Barcha mamlakatlar",
+        "allCurrencies": "Barcha valyutalar",
+        "noMatch": "Filtrlarga mos limit yo‘q",
+        "noMatchHint": "Ko‘proq ko‘rish uchun filtr yoki qidiruvni tozalang.",
+        "review": "Qayta ko‘rib chiqishgacha kunlar"
+      },
+      "monitoring": {
+        "title": "Monitoring",
+        "subtitle": "Portfelda hozir e’tibor talab qiladigan narsalar: yaqin qayta ko‘rib chiqishlar, qarordagidan yomonlashgan reytinglar, muddati o‘tgan qarzlar va chegaraga yaqin guruhlar.",
+        "clear": "E’tibor talab qiladigan narsa yo‘q",
+        "clearHint": "Yaqin {{days}} kun ichida qayta ko‘rib chiqish, yomonlashgan reyting, ochiq muddati o‘tganlik bildirishnomasi va chegaraga yaqin guruh yo‘q.",
+        "reviews": "Yaqin {{days}} kun ichida va muddati o‘tgan qayta ko‘rib chiqishlar",
+        "reviewsHint": "Qayta ko‘rib chiqish sanasi yaqin yoki o‘tgan limitlar, eng yaqini yuqorida.",
+        "worse": "Reyting qarordagidan yomon",
+        "worseHint": "Bayerning so‘nggi reytingi limit bo‘yicha qaror qabul qilingan klassdan yomonroq klassda.",
+        "noWorse": "Limit bo‘yicha qarordan beri birorta bayerning reytingi yomonlashmagan.",
+        "decidedIn": "Qaror klassi",
+        "ratedNow": "Hozirgi reyting",
+        "noas": "Ochiq muddati o‘tganlik bildirishnomalari",
+        "noasHint": "Sug‘urtalanuvchi muddati o‘tganligi haqida xabar bergan bayerlar. Bildirishnoma bayerning ushbu polis bo‘yicha limitini avtomatik to‘xtatadi.",
+        "noNoas": "Ochiq muddati o‘tganlik bildirishnomalari yo‘q.",
+        "overdueAmount": "Muddati o‘tgan",
+        "daysPastDue": "Kechikish kunlari",
+        "limit": "Limit",
+        "suspended": "To‘xtatilgan",
+        "notSuspended": "To‘xtatilmagan",
+        "groups": "Limitdan oshgan yoki chegaraga yaqin guruhlar",
+        "groupsHint": "Guruhning jami amaldagi ekspozitsiyasi guruh limitiga nisbatan; 90% dan belgilanadi.",
+        "noGroups": "Hech bir guruh limitdan oshmagan va chegaraga yaqinlashmagan.",
+        "overdueHint": "Manfiy son — qayta ko‘rib chiqish sanasi necha kun oldin o‘tgani"
+      },
+      "ratings": {
+        "title": "Ishlanadigan reytinglar",
+        "subtitle": "Ochiq arizasi, amaldagi limiti bor yoki faol sug‘urta arizasi paketidagi, reytingi ish talab qiladigan bayerlar.",
+        "filter": "Sabab",
+        "all": "Barchasi",
+        "reasons": {
+          "no_statements": "Hisobot yo‘q",
+          "no_rating": "Reytingsiz",
+          "new_statement": "Yangi hisobot bor",
+          "stale": "Bir yildan eski"
+        },
+        "empty": "Barcha bayerlar so‘nggi hisoboti bo‘yicha baholangan",
+        "emptyHint": "Bayer bo‘yicha kredit ishi olib borilayotgan bo‘lsa va reytingi yo‘q, keyingi davr hisoboti bor yoki reytingi bir yildan eski bo‘lsa, u shu yerda paydo bo‘ladi.",
+        "reason": "Sabab",
+        "latestStatement": "So‘nggi yil",
+        "openRequests": "Ochiq arizalar",
+        "limitsInForce": "Amaldagi limitlar"
+      },
+      "groups": {
+        "title": "Guruhlar va konsentratsiya",
+        "subtitle": "Kompaniyalar guruhlari: UZSdagi amaldagi ekspozitsiya guruh limitiga nisbatan, oshganlari yuqorida. Guruh limiti bosh kompaniyaning «Guruh» yorlig‘ida belgilanadi va olib tashlanadi.",
+        "empty": "Hozircha kompaniyalar guruhlari yo‘q",
+        "emptyHint": "Ikki kompaniya «Guruh» yorlig‘ida bog‘langanda yoki guruh limiti belgilanganda guruh paydo bo‘ladi.",
+        "members": "Limitli / a’zolar",
+        "cap": "Guruh limiti",
+        "used": "Foydalanilgan",
+        "state": "Holat",
+        "states": {
+          "over": "Limitdan oshgan",
+          "near": "Chegaraga yaqin",
+          "within": "Limit doirasida",
+          "uncapped": "Guruh limiti yo‘q"
+        }
+      },
+      "authority": {
+        "title": "Mening vakolatlarim",
+        "subtitle": "Har bir reyting klassida o‘zingiz tasdiqlashingiz mumkin bo‘lgan summa va u qaysi tayinlovlarga asoslanadi. Undan ortiq qaror eskalatsiya qilinadi.",
+        "rateMissing": "Tayinlov valyutasi uchun UZS kursi yo‘q",
+        "none": "Vakolat yo‘q",
+        "byBand": "Klasslar bo‘yicha kredit vakolatlari",
+        "byBandHint": "Klass uchun amaldagi kredit tayinlovlaringizning eng kattasi, so‘nggi kurs bo‘yicha UZSda — qaror aynan shu summa bilan solishtiriladi.",
+        "creditUzs": "UZSda",
+        "grants": "Mening tayinlovlarim",
+        "noGrants": "Sizga vakolat tayinlanmagan",
+        "noGrantsHint": "Vakolatlarni administrator «Administratsiya» bo‘limida tayinlaydi. Ularsiz har bir qaroringiz eskalatsiya qilinadi.",
+        "stream": "Yo‘nalish"
+      }
     }
   },
   "entities": {

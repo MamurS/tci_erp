@@ -1,6 +1,9 @@
-/** Limits workspace: queue tabs over credit limit requests. */
+/** «Очередь решений» — the queues over credit limit requests. On the credit
+ * desk each open request also shows the band it would be decided in and
+ * whether the caller can decide it alone (tci.v_limit_request_queue). */
 
 import { useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -9,10 +12,10 @@ import {
   EmptyState,
   Input,
   PageHeader,
+  Segmented,
   Select,
   Spinner,
   Table,
-  Tabs,
 } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { hasRole } from '../../lib/roles'
@@ -22,11 +25,15 @@ import { useLatestGrades } from '../entities/api'
 import { useLimitRequests } from './api'
 import { requestAgeDays, statusTone } from './machine'
 import { BuyerProposalsSection } from './BuyerProposalsSection'
+import { useLimitQueue } from './workbench/api'
+import { queueIndex } from './workbench/model'
+import { BandBadge } from './workbench/parts'
+import type { QueueRow } from './workbench/types'
 
 type QueueTab = 'drafts' | 'review' | 'escalated' | 'decided' | 'proposals'
 const QUEUE_TABS: readonly QueueTab[] = ['drafts', 'review', 'escalated', 'decided', 'proposals']
 
-export function LimitsPage() {
+export function LimitsPage({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const navigate = useNavigate()
@@ -36,12 +43,16 @@ export function LimitsPage() {
 
   const { data: requests, isLoading } = useLimitRequests()
   const grades = useLatestGrades()
+  const queue = useLimitQueue(canDecide)
+  const annotated = useMemo(() => queueIndex(queue.data ?? []), [queue.data])
+  const [mineOnly, setMineOnly] = useState(false)
 
   // ?tab= deep-links a queue (the dashboard's escalation signal opens it).
   const [searchParams] = useSearchParams()
   const [tab, setTab] = useState<QueueTab>(() => {
     const wanted = searchParams.get('tab') as QueueTab | null
-    return wanted && QUEUE_TABS.includes(wanted) ? wanted : 'review'
+    // the escalated queue exists only for those who may decide
+    return wanted && QUEUE_TABS.includes(wanted) && (wanted !== 'escalated' || canDecide) ? wanted : 'review'
   })
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
@@ -64,6 +75,7 @@ export function LimitsPage() {
     const query = search.trim().toLowerCase()
     return inTab.filter((r) => {
       if (statusFilter && r.status !== statusFilter) return false
+      if (mineOnly && !annotated.get(r.id)?.decide_alone) return false
       if (!query) return true
       return (
         (r.legal_entities?.name ?? '').toLowerCase().includes(query) ||
@@ -71,7 +83,7 @@ export function LimitsPage() {
         (r.policies?.legal_entities?.name ?? '').toLowerCase().includes(query)
       )
     })
-  }, [requests, tab, search, statusFilter, session?.user.id])
+  }, [requests, tab, search, statusFilter, mineOnly, annotated, session?.user.id])
 
   const escalatedCount = (requests ?? []).filter((r) => r.status === 'escalated').length
   const nowIso = new Date().toISOString()
@@ -93,13 +105,23 @@ export function LimitsPage() {
     { key: 'proposals', label: t('limits.tabs.proposals') },
   ]
 
+  const showDecision = canDecide && (tab === 'review' || tab === 'escalated')
+
   return (
     <div>
-      <PageHeader title={t('nav.limits')} subtitle={t('limits.subtitle')} />
+      <PageHeader title={t('limits.workbench.queue.title')} subtitle={t('limits.subtitle')} />
+      {sectionTabs}
 
-      <Tabs tabs={tabs} active={tab} onChange={(key) => setTab(key as QueueTab)} />
+      <div className="overflow-x-auto">
+        <Segmented
+          value={tab}
+          onChange={(key) => setTab(key as QueueTab)}
+          ariaLabel={t('limits.views.queue')}
+          options={tabs}
+        />
+      </div>
 
-      <div className="mt-4 mb-4 flex flex-wrap gap-2">
+      <div className="mt-4 mb-4 flex flex-wrap items-center gap-2">
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -116,6 +138,17 @@ export function LimitsPage() {
             <option value="decided">{t('limits.statuses.decided')}</option>
             <option value="withdrawn">{t('limits.statuses.withdrawn')}</option>
           </Select>
+        )}
+        {showDecision && (
+          <label className="ml-1 inline-flex items-center gap-2 text-[13px] text-slate-600">
+            <input
+              type="checkbox"
+              checked={mineOnly}
+              onChange={(e) => setMineOnly(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300 text-accent-600"
+            />
+            {t('limits.workbench.queue.mineOnly')}
+          </label>
         )}
       </div>
 
@@ -136,6 +169,7 @@ export function LimitsPage() {
               <th>{t('limits.fields.status')}</th>
               <th className="text-right">{t('limits.fields.ageDays')}</th>
               <th>{t('limits.fields.grade')}</th>
+              {showDecision && <th>{t('limits.workbench.queue.decision')}</th>}
             </tr>
           </thead>
           <tbody>
@@ -162,6 +196,11 @@ export function LimitsPage() {
                 <td>
                   <GradeCell grade={grades.data?.get(r.entity_id)} />
                 </td>
+                {showDecision && (
+                  <td>
+                    <DecisionCell row={annotated.get(r.id)} />
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>
@@ -174,6 +213,25 @@ export function LimitsPage() {
 function AgeCell({ days }: { days: number | null }) {
   if (days === null) return <span className="num block text-slate-400">{EM_DASH}</span>
   return <span className={`num block ${days > 5 ? 'text-warn-500' : ''}`}>{days}</span>
+}
+
+/** Who can decide this request: the caller alone, or someone with more
+ * authority in its band (escalation). */
+function DecisionCell({ row }: { row: QueueRow | undefined }) {
+  const { t } = useTranslation()
+  if (!row) return <span className="text-slate-400">{EM_DASH}</span>
+  return (
+    <span className="flex items-center gap-1.5">
+      <BandBadge band={row.band} />
+      {row.rate_missing ? (
+        <Badge tone="warn">{t('limits.workbench.queue.noRate')}</Badge>
+      ) : row.decide_alone ? (
+        <Badge tone="pos">{t('limits.workbench.queue.alone')}</Badge>
+      ) : (
+        <Badge tone="neutral">{t('limits.workbench.queue.beyond')}</Badge>
+      )}
+    </span>
+  )
 }
 
 function GradeCell({ grade }: { grade: string | undefined }) {

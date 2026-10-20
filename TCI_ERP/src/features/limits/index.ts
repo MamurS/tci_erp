@@ -1,4 +1,6 @@
 export { LimitsPage } from './LimitsPage'
+export { LimitsSection } from './workbench/LimitsSection'
+export { LEGACY_LIMIT_VIEW_PATHS } from './workbench/views'
 export { LimitRequestPage } from './LimitRequestPage'
 export { ReleaseBadge } from './ReleaseBadge'
 export { CommercialStageSection } from './CommercialStageSection'
