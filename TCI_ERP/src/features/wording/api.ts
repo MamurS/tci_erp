@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { supabase, tci } from '../../lib/supabase'
 import type { MergeData } from './context'
-import { DOCX_MIME, inspectTemplate, renderTemplate } from './docx'
+import { DOCX_MIME, inspectTemplate, renderTemplate, WordingError } from './docx'
 
 export const WORDING_BUCKET = 'wording'
 
@@ -70,11 +70,7 @@ export type WordingTarget = { policyId: string; requestId?: never } | { requestI
 const targetId = (t: WordingTarget): string => t.policyId ?? t.requestId ?? ''
 
 /** Refused with a reason the screen names (see errors.ts). */
-export class WordingError extends Error {
-  constructor(public readonly code: 'invalid_template', detail: string) {
-    super(detail)
-  }
-}
+export { WordingError }
 
 export function useWordingTemplates() {
   return useQuery({

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0050_policy_wording.sql?raw'
-import { WordingError } from './api'
+import { WordingError } from './docx'
 import { WORDING_REFUSALS, wordingErrorKey } from './errors'
 
 describe('wording refusals — contract with 0050', () => {

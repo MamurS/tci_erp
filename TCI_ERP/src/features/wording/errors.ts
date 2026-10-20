@@ -2,7 +2,7 @@
  *  tested in errors.test.ts), falling back to the shared SQLSTATE mapping. */
 
 import { refusalKey } from '../../lib/refusals'
-import { WordingError } from './api'
+import { WordingError } from './docx'
 
 export const WORDING_REFUSALS: readonly { fragment: string; key: string }[] = [
   { fragment: 'wording_unknown_placeholders', key: 'wording.errors.unknownPlaceholders' },

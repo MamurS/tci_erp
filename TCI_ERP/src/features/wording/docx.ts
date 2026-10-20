@@ -11,6 +11,13 @@ import PizZip from 'pizzip'
 
 import { isKnownPlaceholder } from './catalogue'
 
+/** A template docxtemplater cannot read (unclosed tag, broken XML, …). */
+export class WordingError extends Error {
+  constructor(public readonly code: 'invalid_template', detail: string) {
+    super(detail)
+  }
+}
+
 export const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
 const DELIMITERS = { start: '{{', end: '}}' }
 
