@@ -447,7 +447,13 @@ is fine for internal test accounts and not fine for customers.
   browser with docxtemplater, stored and registered with a server-made
   snapshot); «Шаблоны договоров» page, insurer particulars, standard
   ru/en/uz templates. See **Statement framework rules** and **Policy
-  wording rules** below
+  wording rules** below. **Canonical: applied 2026-10-20** — 0050 whole;
+  0049 sections 1–5 and every 0051 framework document through
+  `execute_sql` (the 645 KB seed one call per framework), each ledger entry
+  carrying the closing sections and assertions as with 0043; all 32 forms,
+  19 frameworks and 95 country links verified md5-identical to a local
+  replay, UZ NAS line ids and entered values unchanged, live smoke with
+  role impersonation rolled back
 - [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -972,6 +978,14 @@ to the owner as one transactional SQL Editor script that ends with the
 closing assertions and the ledger insert
 (`docs/deploy/canonical-apply-0046-0048.sql` is the template). Do not
 disguise the keywords to get past the check.
+
+*Update 2026-10-20:* the hold has moved. `alter … drop not null` and a
+JSON note containing «deleted» now pass, while an `UPDATE` with **no
+`WHERE` clause** is held (timed out; with `where id` the same statement
+runs). Write every UPDATE in a canonical script or smoke with an explicit
+`WHERE` — `tests/db/wording.sql` does — and when a call times out, first
+check that nothing reached the database (it never does), then find the
+statement the check objects to; still never disguise it.
 
 ### Statement framework rules (migrations 0049, 0051)
 

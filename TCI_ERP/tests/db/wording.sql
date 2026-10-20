@@ -35,7 +35,7 @@ values ('99999999-0000-4000-8000-0000000000a1', '99999999-0000-4000-8000-0000000
 insert into tci.credit_limit_decisions (id, request_id, outcome, approved_amount, currency_code, lifecycle, decided_by, payment_terms_days)
 values ('99999999-0000-4000-8000-0000000000d1', '99999999-0000-4000-8000-0000000000a1', 'approved', 40000, 'USD',
         'effective', '99999999-0000-4000-8000-0000000000c1', 60);
-update tci.insurer_profile set legal_name = 'W Insurer JSC', license_number = 'L-1';
+update tci.insurer_profile set legal_name = 'W Insurer JSC', license_number = 'L-1' where id;
 
 -- What the Storage API would have written for these uploads.
 insert into storage.objects (bucket_id, name, owner_id, metadata) values
@@ -118,7 +118,7 @@ begin
   -- 4. the API writes nothing directly
   perform pg_temp.refused($q$insert into tci.wording_templates (id, name, language, version, storage_path, file_name, size_bytes, uploaded_by)
     values (gen_random_uuid(), 'x', 'ru', 9, 'x', 'x.docx', 1, '99999999-0000-4000-8000-0000000000c2')$q$, '42501', 'a direct template insert');
-  perform pg_temp.refused($q$update tci.wording_templates set status = 'active'$q$, '42501', 'a direct status change');
+  perform pg_temp.refused($q$update tci.wording_templates set status = 'active' where id = '99999999-0000-4000-8000-000000000073'$q$, '42501', 'a direct status change');
 
   -- 5. merge data: the database says what the document says
   v_m := tci.wording_merge_data('99999999-0000-4000-8000-0000000000f1', null);
@@ -148,7 +148,7 @@ begin
   if v_doc.template_version <> 2 or v_doc.merge_data #>> '{policy,number}' <> 'W-1' then
     raise exception 'wording: the document must record template v2 and the merge data';
   end if;
-  perform pg_temp.refused($q$update tci.policy_documents set file_name = 'x'$q$, '42501', 'rewriting a generated document');
+  perform pg_temp.refused($q$update tci.policy_documents set file_name = 'x' where id = '99999999-0000-4000-8000-000000000081'$q$, '42501', 'rewriting a generated document');
 
   -- 8. storage: who may upload where; nothing can be replaced
   perform pg_temp.refused($q$insert into storage.objects (bucket_id, name, owner_id) values ('wording', 'templates/x/y.docx', '99999999-0000-4000-8000-0000000000c4')$q$,
