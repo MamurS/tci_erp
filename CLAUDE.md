@@ -423,11 +423,12 @@ is fine for internal test accounts and not fine for customers.
   documents registered from what Storage holds; CSP host narrowed; the
   analytics service applies the database's rotation/MFA/lockout gates to
   provisioning callers, trusts only CF-Connecting-IP / the right-most XFF
-  hop, and caps the compute endpoints. **Canonical: 0046 is PARTLY applied
-  (sections 1–4, 6, most of 5); the rest of 0046, all of 0047 and 0048
-  wait for `docs/deploy/canonical-apply-0046-0048.sql` to be run in the SQL
-  Editor** — the MCP tooling cannot send a statement containing DELETE/DROP
-  here (see **Sign-in gate rules** below)
+  hop, and caps the compute endpoints. **Canonical: 0046–0048 fully applied**
+  (2026-10-20): sections 1–4, 6 and most of 5 of 0046 through the MCP
+  tooling, the remainder of 0046 plus 0047 and 0048 by the owner running
+  `docs/deploy/canonical-apply-0046-0048.sql` in the SQL Editor; verified
+  afterwards (ledger, guard triggers, `anon` executes only `login_begin`,
+  `login_gate_enforced` still off, data counts unchanged)
 - [x] National statement forms + policy wording (migrations 0049–0051):
   manual entry follows the BUYER'S COUNTRY — `tci.country_reporting_frameworks`
   → `tci.reporting_frameworks` → statement templates (Russia, Belarus,
