@@ -27,13 +27,17 @@ const STAFF: readonly UserRole[] = [
  *   admin                   everything
  *   credit_underwriter      dashboard, agenda, companies, submissions, limits, limit portfolio,
  *                           declarations, overdues, claims
- *   commercial_underwriter  dashboard, agenda, companies, submissions, limits, policies, contracts,
- *                           policy portfolio, declarations, overdues, claims, contract templates
- *   sales                   dashboard, agenda, companies, submissions, limits, policies, contracts,
- *                           declarations, overdues, contract templates
+ *   commercial_underwriter  dashboard, agenda, companies, submissions, limits, policies,
+ *                           policy portfolio, declarations, overdues, claims
+ *   sales                   dashboard, agenda, companies, submissions, limits, policies,
+ *                           declarations, overdues
  *   information_manager     dashboard, agenda, companies
  *   claims                  dashboard, agenda, companies, overdues, claims
  *   client                  the portal only
+ *
+ * Policies is a section with three views (?view=): the registry, contracts
+ * (draft contracts generated from the wording templates) and the templates
+ * themselves; /contracts and /wording redirect there.
  *
  * How these are grouped on screen — the role workspaces — is workspaces.ts;
  * this map alone decides what may be opened.
@@ -63,8 +67,6 @@ export const NAV_ITEMS: readonly NavItem[] = [
     path: '/policies',
     roles: ['admin', 'sales', 'commercial_underwriter', 'client'],
   },
-  // Draft contracts generated from the insurer's wording templates.
-  { key: 'contracts', path: '/contracts', roles: ['admin', 'commercial_underwriter', 'sales'] },
   {
     key: 'policyPortfolio',
     path: '/portfolio/policies',
@@ -85,12 +87,6 @@ export const NAV_ITEMS: readonly NavItem[] = [
     key: 'claims',
     path: '/claims',
     roles: ['admin', 'claims', 'commercial_underwriter', 'credit_underwriter'],
-  },
-  // Wording templates: commercial manages them, sales generates from them.
-  {
-    key: 'wording',
-    path: '/wording',
-    roles: ['admin', 'commercial_underwriter', 'sales'],
   },
   { key: 'admin', path: '/admin', roles: ['admin'] },
 ]

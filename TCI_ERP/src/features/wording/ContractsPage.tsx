@@ -7,6 +7,7 @@
  */
 
 import { useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -33,7 +34,7 @@ interface Pick {
   product: ProductStructure | null
 }
 
-export function ContractsPage() {
+export function ContractsPage({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const { roles } = useAuth()
@@ -89,16 +90,17 @@ export function ContractsPage() {
   )
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div>
       <PageHeader
         title={t('contracts.title')}
         subtitle={t('contracts.subtitle')}
         actions={
-          <Link to="/wording" className="text-[13px] font-medium text-accent-600 hover:text-accent-500">
+          <Link to="/policies?view=templates" className="text-[13px] font-medium text-accent-600 hover:text-accent-500">
             {t('contracts.manageTemplates')}
           </Link>
         }
       />
+      {sectionTabs}
 
       {error && (
         <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[13px] text-neg-500" role="alert">
@@ -121,7 +123,7 @@ export function ContractsPage() {
                   {installing ? t('common.saving') : t('wording.standard.install')}
                 </Button>
                 <Link
-                  to="/wording"
+                  to="/policies?view=templates"
                   className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 text-[13px] font-medium text-slate-700 hover:bg-slate-50"
                 >
                   {t('wording.upload.open')}

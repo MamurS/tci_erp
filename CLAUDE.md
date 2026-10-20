@@ -459,9 +459,11 @@ is fine for internal test accounts and not fine for customers.
   underwriting, credit underwriting, sales, claims, administration) under a
   switcher at its top, with the shared tools (dashboard, agenda, companies)
   in every one; a person sees the workspaces of the roles they hold, an
-  admin sees all. «Договоры» (`/contracts`) generates the draft contract of
-  a policy or a live submission from the active wording template and keeps
-  the register of generated contracts; «Портфель полисов»
+  admin sees all. «Договоры» generates the draft contract of a policy or a
+  live submission from the active wording template and keeps the register
+  of generated contracts — since the follow-up it is, with «Шаблоны
+  договоров», a VIEW of «Полисы» (`/policies?view=contracts|templates`;
+  `/contracts` and `/wording` redirect); «Портфель полисов»
   (`/portfolio/policies`) and «Портфель лимитов» (`/portfolio/credit`) read
   `tci.v_policy_portfolio` / `tci.v_credit_portfolio`. See **Workspace and
   portfolio rules** below. **Canonical: 0052 applied 2026-10-20**, live
@@ -1092,6 +1094,13 @@ amount × `latest_uzs_rate`, NULL (and COUNTED) when there is no rate.
 `portfolio/aggregate.ts` only adds rows up — per currency, never across
 currencies — and its contract test reads those definitions from the
 migration text.
+
+**Contracts and templates are views of «Полисы», not sections.** One
+sidebar item, three tabs synced to `?view=` (`policies/views.ts`:
+registry | contracts | templates, unknown → registry). The old paths
+`/contracts` and `/wording` redirect there (`LEGACY_POLICY_VIEW_PATHS`), so
+a bookmark or a link inside a locale string still lands. Route access is
+`/policies`'s.
 
 **The contracts page offers live work only.** Every policy, and every
 submission except draft / declined / withdrawn (`wording/contracts.ts`).

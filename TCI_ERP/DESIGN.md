@@ -64,9 +64,10 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
 * **Sidebar, Claude-style:** docked (w-64) or hidden — never an icon rail.
   The toggle sits in the top-left corner in BOTH states (the docked panel's
   header, the top bar when hidden — same coordinates). While hidden, resting
-  the pointer on that toggle floats the panel out as a rounded card that
-  starts BELOW the toggle, so the toggle stays clickable and a click docks
-  it; leaving the toggle and the card puts it away. Nothing else peeks it:
+  the pointer on that toggle slides the panel out from the left edge, full
+  height BELOW the top bar (as in the Claude desktop app), so the toggle
+  stays clickable and a click docks it; leaving the toggle and the panel
+  slides it away. Nothing else peeks it:
   no left-edge strip, no pin button. Ctrl/⌘ B toggles. Below 1024px it is a
   drawer with a backdrop that closes on navigation and on Escape. The state
   is remembered per browser (`tci-erp-sidebar`). Logic: `layout/shell.ts`.
@@ -152,6 +153,8 @@ and the statement badge names its framework (РСБУ, HGB, US GAAP…).
 the placeholder reference (monospace, select-all). A draft contract is
 generated from the «Договор» tab of a policy or the submission page; the
 history of generated documents stays beside the button.
+Templates and the contract register are tabs of «Полисы» («Реестр
+полисов» / «Договоры» / «Шаблоны договоров»), not sidebar items of their own.
 
 ## Financial data display rules (apply everywhere)
 

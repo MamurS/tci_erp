@@ -85,13 +85,14 @@ function useIsDesktop(): boolean {
 }
 
 /**
- * The staff frame, with Claude's sidebar behaviour. On a desktop the sidebar
- * is docked or hidden (remembered per browser). Hidden, resting the pointer
- * on the toggle in the top-left corner floats it out as a card BELOW that
- * toggle, so the toggle stays reachable and a click docks the panel again;
- * leaving both the toggle and the card puts it away. Nothing else peeks it —
- * no edge strip, no pin. Below 1024px it is a drawer. Ctrl/⌘ B toggles it,
- * Ctrl/⌘ K opens the command palette.
+ * The staff frame, with the sidebar of the Claude desktop app. On a desktop
+ * the sidebar is docked or hidden (remembered per browser). Hidden, resting
+ * the pointer on the toggle in the top-left corner slides the panel out from
+ * the left edge, full height BELOW the top bar, so the toggle stays
+ * reachable and a click docks the panel; leaving both the toggle and the
+ * panel slides it away. Nothing else opens it — no edge strip, no pin.
+ * Below 1024px it is a drawer. Ctrl/⌘ B toggles it, Ctrl/⌘ K opens the
+ * command palette.
  */
 export function AppShell() {
   const isDesktop = useIsDesktop()
@@ -158,11 +159,12 @@ export function AppShell() {
       )}
 
       {!showDocked && isDesktop && (
-        // The peek: a floating card under the header toggle. It starts below
-        // the toggle so it never covers it, and is inert while put away.
+        // The peek, as in the Claude desktop app: the panel slides out from
+        // the left edge, full height below the top bar, so the toggle above
+        // it is never covered. It is inert while put away.
         <div
-          className={`fixed top-[58px] bottom-2 left-2 z-50 overflow-hidden rounded-xl shadow-2xl shadow-accent-900/40 transition-[opacity,transform] duration-150 ease-out ${
-            overlayOpen ? 'translate-x-0 opacity-100' : 'pointer-events-none -translate-x-2 opacity-0'
+          className={`fixed top-16 bottom-0 left-0 z-50 border-r border-white/10 transition-transform duration-200 ease-out ${
+            overlayOpen ? 'translate-x-0 shadow-2xl shadow-accent-900/40' : 'pointer-events-none -translate-x-full'
           }`}
           onMouseEnter={peek}
           onMouseLeave={unpeek}

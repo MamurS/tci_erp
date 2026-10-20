@@ -13,6 +13,7 @@ import { PortalRedirect } from './auth/PortalRedirect'
 import { LoadingScreen } from './components/ui'
 import { lazyPage } from './lib/lazyPage'
 import { legacyRedirect } from './features/entities/redirects'
+import { LEGACY_POLICY_VIEW_PATHS } from './features/policies/views'
 
 // Every page is its own chunk, fetched when first visited: the sign-in
 // screen does not download the claims module, and a policyholder in the
@@ -31,7 +32,7 @@ const requests = () => import('./features/requests')
 const RequestsPage = lazyPage(requests, 'RequestsPage')
 const RequestDetailPage = lazyPage(requests, 'RequestDetailPage')
 const policies = () => import('./features/policies')
-const PoliciesPage = lazyPage(policies, 'PoliciesPage')
+const PoliciesSection = lazyPage(policies, 'PoliciesSection')
 const PolicyDetailPage = lazyPage(policies, 'PolicyDetailPage')
 const PolicyFormPage = lazyPage(policies, 'PolicyFormPage')
 const declarations = () => import('./features/declarations')
@@ -44,9 +45,6 @@ const claims = () => import('./features/claims')
 const ClaimsPage = lazyPage(claims, 'ClaimsPage')
 const ClaimDetailPage = lazyPage(claims, 'ClaimDetailPage')
 const AdminPage = lazyPage(() => import('./features/admin'), 'AdminPage')
-const wording = () => import('./features/wording')
-const WordingPage = lazyPage(wording, 'WordingPage')
-const ContractsPage = lazyPage(wording, 'ContractsPage')
 const portfolio = () => import('./features/portfolio')
 const PolicyPortfolioPage = lazyPage(portfolio, 'PolicyPortfolioPage')
 const CreditPortfolioPage = lazyPage(portfolio, 'CreditPortfolioPage')
@@ -135,7 +133,7 @@ export default function App() {
                 <Route path="requests/:id" element={<RequestDetailPage />} />
                 <Route path="limits" element={<LimitsPage />} />
                 <Route path="limits/:id" element={<LimitRequestPage />} />
-                <Route path="policies" element={<PoliciesPage />} />
+                <Route path="policies" element={<PoliciesSection />} />
                 <Route path="policies/new" element={<PolicyFormPage />} />
                 <Route path="policies/:id" element={<PolicyDetailPage />} />
                 <Route path="policies/:id/edit" element={<PolicyFormPage />} />
@@ -145,8 +143,9 @@ export default function App() {
                 <Route path="overdues/:id" element={<OverdueDetailPage />} />
                 <Route path="claims" element={<ClaimsPage />} />
                 <Route path="claims/:id" element={<ClaimDetailPage />} />
-                <Route path="wording" element={<WordingPage />} />
-                <Route path="contracts" element={<ContractsPage />} />
+                {/* Contracts and their templates are views of «Полисы» now. */}
+                <Route path="contracts" element={<Navigate to={LEGACY_POLICY_VIEW_PATHS['/contracts']} replace />} />
+                <Route path="wording" element={<Navigate to={LEGACY_POLICY_VIEW_PATHS['/wording']} replace />} />
                 <Route path="portfolio/policies" element={<PolicyPortfolioPage />} />
                 <Route path="portfolio/credit" element={<CreditPortfolioPage />} />
                 <Route path="admin" element={<AdminPage />} />

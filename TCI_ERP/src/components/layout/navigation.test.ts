@@ -32,12 +32,10 @@ describe('role → screen map', () => {
       'requests',
       'limits',
       'policies',
-      'contracts',
       'policyPortfolio',
       'declarations',
       'overdues',
       'claims',
-      'wording',
     ])
     // Sales chases declarations (the declaration_due tasks are theirs) and
     // sees the overdue queue, but does not accept or dispute.
@@ -48,10 +46,8 @@ describe('role → screen map', () => {
       'requests',
       'limits',
       'policies',
-      'contracts',
       'declarations',
       'overdues',
-      'wording',
     ])
     expect(keys(['information_manager'])).toEqual(['dashboard', 'agenda', 'entities'])
     expect(keys(['claims'])).toEqual([
@@ -84,11 +80,9 @@ describe('role → screen map', () => {
       'requests',
       'limits',
       'policies',
-      'contracts',
       'declarations',
       'overdues',
       'claims',
-      'wording',
     ])
   })
 

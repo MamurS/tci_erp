@@ -1,10 +1,11 @@
 /**
  * The navigation panel: the role-workspace switcher, the shared tools, then
- * the current workspace's own tools (workspaces.ts). Like Claude's, it is either
- * there or gone: docked beside the content, or hidden entirely. While hidden
- * it floats out as a card when the pointer rests on the toggle in the top-left
- * corner (the peek), and clicking that toggle docks it again — the toggle sits
- * in the same corner in both states. On small screens it is a drawer.
+ * the current workspace's own tools (workspaces.ts). As in the Claude desktop
+ * app it is either there or gone: docked beside the content, or hidden
+ * entirely. While hidden it slides out below the top-left toggle when the
+ * pointer rests on that toggle (the peek), and clicking the toggle docks it
+ * again — the toggle sits in the same corner in both states. On small
+ * screens it is a drawer.
  */
 
 import { NavLink } from 'react-router-dom'
@@ -25,8 +26,9 @@ import type { WorkspaceKey } from './workspaces'
 
 interface SidebarProps {
   /**
-   * docked: in the page flow; peek: the floating card shown while the pointer
-   * rests on the header toggle (that toggle docks it, so the card has none);
+   * docked: in the page flow; peek: the panel slid out below the top-bar
+   * toggle while the pointer rests on it (that toggle docks it, so the peek
+   * has no header row);
    * drawer: the small-screen overlay.
    */
   variant: 'docked' | 'peek' | 'drawer'
@@ -110,14 +112,11 @@ export function Sidebar({ variant, onClose, onNavigate, workspace, onSwitchWorks
       className="flex h-full w-64 flex-col bg-gradient-to-b from-accent-700 via-accent-800 to-accent-900 text-white"
       aria-label={t('nav.title')}
     >
-      <div
-        className={`flex h-16 shrink-0 items-center gap-2 border-b border-white/10 pr-5 ${
-          variant === 'peek' ? 'pl-5' : 'pl-3 sm:pl-5'
-        }`}
-      >
-        {/* The toggle lives in the top-left corner, exactly where the header
-            shows it while the panel is hidden. */}
-        {variant !== 'peek' && (
+      {/* The toggle lives in the top-left corner, exactly where the top bar
+          shows it while the panel is hidden. The peek slides out below that
+          toggle, so it has no header row of its own. */}
+      {variant !== 'peek' && (
+        <div className="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 pr-5 pl-3 sm:pl-5">
           <button
             type="button"
             onClick={onClose}
@@ -127,18 +126,11 @@ export function Sidebar({ variant, onClose, onNavigate, workspace, onSwitchWorks
           >
             <PanelLeftClose className="size-5" />
           </button>
-        )}
-        <div className="flex min-w-0 flex-1 flex-col">
-          <BrandMark size="sm" inverse />
-          {/* Beside the toggle there is no room for the line of business; it
-              moves to the footer there. */}
-          {variant === 'peek' && (
-            <span className="mt-1 text-[10px] leading-tight font-medium tracking-[0.08em] text-white/45 uppercase">
-              {t('app.company')}
-            </span>
-          )}
+          <div className="flex min-w-0 flex-1 flex-col">
+            <BrandMark size="sm" inverse />
+          </div>
         </div>
-      </div>
+      )}
 
       {current && (
         <div className="shrink-0 border-b border-white/10 px-3 py-2.5">
@@ -165,11 +157,9 @@ export function Sidebar({ variant, onClose, onNavigate, workspace, onSwitchWorks
       </nav>
 
       <div className="shrink-0 border-t border-white/10 px-5 py-3 text-[11px] text-white/35">
-        {variant !== 'peek' && (
-          <div className="mb-1 text-[10px] font-medium tracking-[0.08em] text-white/45 uppercase">
-            {t('app.company')}
-          </div>
-        )}
+        <div className="mb-1 text-[10px] font-medium tracking-[0.08em] text-white/45 uppercase">
+          {t('app.company')}
+        </div>
         {t('nav.shortcutHint')}
       </div>
     </aside>

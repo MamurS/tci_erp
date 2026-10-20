@@ -25,9 +25,7 @@
     "hide": "Hide the menu",
     "show": "Show the menu",
     "shortcutHint": "Ctrl/⌘ B — show or hide the menu · Ctrl/⌘ K — search",
-    "wording": "Contract templates",
     "workspace": "Workspace",
-    "contracts": "Contracts",
     "policyPortfolio": "Policy portfolio",
     "creditPortfolio": "Limit portfolio",
     "workspaces": {
@@ -1147,6 +1145,11 @@
       "terms": "Terms",
       "claims": "Claims",
       "contract": "Contract"
+    },
+    "views": {
+      "registry": "Policy register",
+      "contracts": "Contracts",
+      "templates": "Contract templates"
     }
   },
   "limits": {
@@ -2785,7 +2788,7 @@
       "draftNote": "The document is generated from the data as it stands now and downloaded as .docx for editing; what it said is recorded.",
       "submit": "Generate",
       "working": "Generating…",
-      "noTemplates": "There is no active contract template. Ask a commercial underwriter or an administrator to activate one under «Contract templates»."
+      "noTemplates": "There is no active contract template. Ask a commercial underwriter or an administrator to activate one under Policies → «Contract templates»."
     },
     "errors": {
       "invalidTemplate": "The file is not a valid template:",
@@ -2879,7 +2882,7 @@
     "noTemplates": {
       "title": "No contract template is active yet",
       "hintManager": "A contract is generated from an active template. Install the standard templates (Russian, English, Uzbek) to start at once, or upload your own wording with placeholders.",
-      "hintOther": "A contract is generated from an active template. Ask a commercial underwriter or an administrator to activate one in «Contract templates»."
+      "hintOther": "A contract is generated from an active template. Ask a commercial underwriter or an administrator to activate one under Policies → «Contract templates»."
     },
     "empty": {
       "policies": "No policies yet",
