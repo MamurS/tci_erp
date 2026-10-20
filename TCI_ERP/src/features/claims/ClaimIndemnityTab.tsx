@@ -125,7 +125,7 @@ function StepRow({
 }) {
   const { t } = useTranslation()
   const d = step.detail as Record<string, number | boolean | null>
-  let applied = EM_DASH
+  let applied: string
   switch (step.key) {
     case 'claims.indemnity.step.nqlThreshold':
       // A test, not a subtraction: show the comparison and its verdict.

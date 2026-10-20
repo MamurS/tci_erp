@@ -32,17 +32,7 @@ export const WORKSPACES: readonly Workspace[] = [
   {
     key: 'commercial',
     roles: ['commercial_underwriter'],
-    items: [
-      'policyPortfolio',
-      'requests',
-      'policies',
-      'contracts',
-      'declarations',
-      'limits',
-      'overdues',
-      'claims',
-      'wording',
-    ],
+    items: ['policyPortfolio', 'requests', 'policies', 'declarations', 'limits', 'overdues', 'claims'],
   },
   {
     key: 'credit',
@@ -52,10 +42,10 @@ export const WORKSPACES: readonly Workspace[] = [
   {
     key: 'sales',
     roles: ['sales'],
-    items: ['requests', 'policies', 'contracts', 'limits', 'declarations', 'overdues', 'wording'],
+    items: ['requests', 'policies', 'limits', 'declarations', 'overdues'],
   },
   { key: 'claims', roles: ['claims'], items: ['claims', 'overdues'] },
-  { key: 'admin', roles: ['admin'], items: ['admin', 'wording'] },
+  { key: 'admin', roles: ['admin'], items: ['admin', 'policies'] },
 ]
 
 export const WORKSPACE_KEY = 'tci-erp-workspace'

@@ -52,7 +52,7 @@ describe('workspaces', () => {
     const commercial = WORKSPACES.find((w) => w.key === 'commercial')!
     const nav = workspaceNav(['commercial_underwriter'], commercial)
     expect(nav.common.map((i) => i.key)).toEqual(['dashboard', 'agenda', 'entities'])
-    expect(nav.own.map((i) => i.key)).toContain('contracts')
+    expect(nav.own.map((i) => i.key)).toContain('policies')
     expect(nav.own.map((i) => i.key)).not.toContain('creditPortfolio')
     // sales opening the commercial workspace would still not see its portfolio
     expect(workspaceNav(['sales'], commercial).own.map((i) => i.key)).not.toContain('policyPortfolio')
@@ -76,7 +76,7 @@ describe('workspaces', () => {
   })
 
   it('moves to a workspace that contains a page opened from elsewhere', () => {
-    expect(resolveWorkspace(['admin'], 'claims', '/contracts')).toBe('commercial')
+    expect(resolveWorkspace(['admin'], 'claims', '/portfolio/policies')).toBe('commercial')
     expect(resolveWorkspace(['admin'], 'sales', '/portfolio/credit')).toBe('credit')
     expect(resolveWorkspace(['credit_underwriter', 'sales'], 'credit', '/policies/p1')).toBe('sales')
   })

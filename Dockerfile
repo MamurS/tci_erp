@@ -11,7 +11,7 @@
 # Hosts that build from a repo (Render, Railway, Fly) all default to the
 # repository root, so this needs no extra configuration there.
 
-FROM python:3.12-slim AS base
+FROM python:3.14-slim AS base
 
 # uv resolves the workspace + path dependency that plain pip cannot.
 COPY --from=ghcr.io/astral-sh/uv:0.5.11 /uv /usr/local/bin/uv

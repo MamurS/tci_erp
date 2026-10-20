@@ -25,9 +25,7 @@
     "hide": "Menyuni yashirish",
     "show": "Menyuni ko‘rsatish",
     "shortcutHint": "Ctrl/⌘ B — menyuni ko‘rsatish yoki yashirish · Ctrl/⌘ K — qidiruv",
-    "wording": "Shartnoma shablonlari",
     "workspace": "Ish maydoni",
-    "contracts": "Shartnomalar",
     "policyPortfolio": "Polislar portfeli",
     "creditPortfolio": "Limitlar portfeli",
     "workspaces": {
@@ -1147,6 +1145,11 @@
       "terms": "Shartlar",
       "claims": "Da’volar",
       "contract": "Shartnoma"
+    },
+    "views": {
+      "registry": "Polislar reyestri",
+      "contracts": "Shartnomalar",
+      "templates": "Shartnoma shablonlari"
     }
   },
   "limits": {
@@ -2785,7 +2788,7 @@
       "draftNote": "Hujjat joriy ma’lumotlar bo‘yicha tuziladi va tahrirlash uchun .docx shaklida yuklab olinadi; uning mazmuni saqlanadi.",
       "submit": "Tuzish",
       "working": "Tuzilmoqda…",
-      "noTemplates": "Amaldagi shartnoma shabloni yo‘q. «Shartnoma shablonlari» bo‘limida shablonni amalga kiritishni tijorat anderrayteri yoki administratordan so‘rang."
+      "noTemplates": "Amaldagi shartnoma shabloni yo‘q. «Polislar» → «Shartnoma shablonlari» bo‘limida shablonni amalga kiritishni tijorat anderrayteri yoki administratordan so‘rang."
     },
     "errors": {
       "invalidTemplate": "Fayl to‘g‘ri shablon emas:",
@@ -2879,7 +2882,7 @@
     "noTemplates": {
       "title": "Hali birorta shartnoma shabloni amalda emas",
       "hintManager": "Shartnoma amaldagi shablondan tuziladi. Darhol boshlash uchun standart shablonlarni (rus, ingliz, o‘zbek) o‘rnating yoki o‘rniga qo‘yiladigan maydonlari bor o‘z matningizni yuklang.",
-      "hintOther": "Shartnoma amaldagi shablondan tuziladi. «Shartnoma shablonlari» bo‘limida shablonni amalga kiritishni tijorat anderrayteri yoki administratordan so‘rang."
+      "hintOther": "Shartnoma amaldagi shablondan tuziladi. «Polislar» → «Shartnoma shablonlari» bo‘limida shablonni amalga kiritishni tijorat anderrayteri yoki administratordan so‘rang."
     },
     "empty": {
       "policies": "Hozircha polislar yo‘q",

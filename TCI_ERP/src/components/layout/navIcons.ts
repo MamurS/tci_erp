@@ -5,7 +5,6 @@ import {
   ChartColumn,
   ChartPie,
   ClipboardList,
-  FileSignature,
   FileText,
   FileWarning,
   Gauge,
@@ -13,7 +12,6 @@ import {
   Inbox,
   LayoutDashboard,
   ListChecks,
-  ScrollText,
   Settings,
   ShieldCheck,
 } from 'lucide-react'
@@ -28,12 +26,10 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   limits: ShieldCheck,
   creditPortfolio: ChartColumn,
   policies: FileText,
-  contracts: ScrollText,
   policyPortfolio: ChartPie,
   declarations: ClipboardList,
   overdues: AlarmClock,
   claims: FileWarning,
-  wording: FileSignature,
   admin: Settings,
 }
 
