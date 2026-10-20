@@ -479,7 +479,9 @@ is fine for internal test accounts and not fine for customers.
   полисов» is likewise the «Обзор» view of «Полисы»; `/portfolio/credit` and
   `/portfolio/policies` redirect. Views `tci.v_limit_request_queue`,
   `tci.v_rating_worklist`, `tci.v_group_limit_status`. See **Credit workbench
-  rules** below
+  rules** below. **Canonical: 0053 applied 2026-10-20**, live smoke with role
+  impersonation (two credit underwriters, admin, client) rolled back, counts
+  unchanged, no new advisor finding
 - [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
