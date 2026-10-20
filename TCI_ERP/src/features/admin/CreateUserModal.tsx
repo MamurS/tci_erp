@@ -125,7 +125,7 @@ export function CreateUserModal({
             autoComplete="off"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="user@mosaic.uz"
+            placeholder="user@example.com"
           />
         </Field>
         <Field label={t('provisioning.fields.fullName')}>

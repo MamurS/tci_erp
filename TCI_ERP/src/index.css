@@ -2,36 +2,75 @@
 
 /*
  * TCI ERP design tokens — see DESIGN.md.
- * Neutral slate base, indigo accent, semantic green/red for dynamics.
+ * Delcreda corporate palette: navy + process blue, orange accent,
+ * semantic green/red for dynamics, a five-colour rating scale.
  */
 @theme {
-  --color-accent-50: #eef2ff;
-  --color-accent-100: #e0e7ff;
-  --color-accent-500: #6366f1;
-  --color-accent-600: #4f46e5;
-  --color-accent-700: #4338ca;
+  /* Brand (Delcreda corporate palette, measured from the reference risk
+   * reports: Pantone 2955 / Process Blue / orange / amber). */
+  --color-brand-navy: #005288;
+  --color-brand-blue: #0093d0;
+  --color-brand-orange: #f7941e;
+  --color-brand-amber: #fcaf17;
+  --color-ink: #191919; /* black 90% */
+  --color-ink-muted: #666666; /* black 60% */
 
-  --color-pos-500: #16a34a;
-  --color-pos-50: #f0fdf4;
-  --color-neg-500: #dc2626;
-  --color-neg-600: #b91c1c;
-  --color-neg-50: #fef2f2;
-  --color-warn-500: #d97706;
-  --color-warn-50: #fffbeb;
+  /* accent = the brand blue ramp. Every existing accent-* class (primary
+   * buttons, active nav, focus, links) re-colours from here. */
+  --color-accent-50: #f2f8fc;
+  --color-accent-100: #dceff8;
+  --color-accent-200: #c9dde9;
+  --color-accent-300: #8cc8e6;
+  --color-accent-400: #3aaedc;
+  --color-accent-500: #0093d0;
+  --color-accent-600: #005288;
+  --color-accent-700: #00446f;
+  --color-accent-800: #003557;
+  --color-accent-900: #00243c;
 
-  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+  --color-pos-500: #2e8b3e;
+  --color-pos-50: #eaf5ec;
+  --color-neg-500: #d62828;
+  --color-neg-600: #b21f1f;
+  --color-neg-50: #fdecec;
+  --color-warn-500: #c27c00;
+  --color-warn-50: #fff5e0;
+
+  /* Credit rating scale, 10 (exceptional) .. 100 (insolvent), in pairs. */
+  --color-scale-1: #17b81a;
+  --color-scale-2: #a6c419;
+  --color-scale-3: #f2a900;
+  --color-scale-4: #f2661a;
+  --color-scale-5: #ee1c1c;
+
+  --font-sans:
+    'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
+  /* Condensed display face of the brand: titles, labels, table headers,
+   * key figures. */
+  --font-display: 'PT Sans Narrow', 'Arial Narrow', 'Roboto Condensed', sans-serif;
+  /* Body face of the printed report (Arial metrics, like the reference). */
+  --font-report: 'Arimo', 'Liberation Sans', Arial, Helvetica, sans-serif;
 
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+
+  --shadow-card: 0 1px 2px 0 rgb(0 53 87 / 0.05), 0 1px 3px 0 rgb(0 53 87 / 0.04);
+  --shadow-pop: 0 12px 32px -8px rgb(0 36 60 / 0.22), 0 4px 10px -4px rgb(0 36 60 / 0.12);
 }
 
 @layer base {
   html {
     @apply antialiased;
+    font-feature-settings: 'cv11', 'ss01';
   }
   body {
-    @apply bg-slate-50 text-slate-900 text-[14px] leading-normal;
+    @apply text-[14px] leading-normal text-slate-900;
+    background-color: #f3f6f9;
+  }
+  ::selection {
+    background-color: var(--color-accent-100);
   }
 }
 
@@ -42,111 +81,32 @@
   white-space: nowrap;
 }
 
-/* ---------- Risk Report print layout ---------- */
-
-.report-h2 {
-  @apply mt-6 mb-2 border-b border-slate-200 pb-1 text-sm font-semibold tracking-wide uppercase;
+/* Thin scrollbars inside the app (Chromium / Firefox). */
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(148 163 184 / 0.6) transparent;
 }
 
-.report-table {
-  @apply w-full border-collapse text-[11px];
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
-.report-table th {
-  @apply border-b border-slate-200 px-1.5 py-1 font-medium text-slate-500;
+@utility animate-fade-in {
+  animation: fade-in 160ms ease-out both;
 }
-.report-table td {
-  @apply border-b border-slate-100 px-1.5 py-0.5;
-}
-
-.report-footer {
-  display: none;
-}
-
-/* Single-cell layout table of the report page; its tfoot repeats on every
- * printed page, reserving room for the fixed footer. Invisible on screen. */
-.report-layout {
-  width: 100%;
-  border-collapse: collapse;
-}
-.report-layout > tbody > tr > td,
-.report-layout > tfoot > tr > td {
-  padding: 0;
-}
-.report-footer-space {
-  height: 0;
-}
-
-@media print {
-  @page {
-    size: A4;
-    margin: 14mm 12mm 18mm;
+@keyframes slide-in {
+  from {
+    opacity: 0.4;
+    transform: translateX(-12px);
   }
-  .no-print {
-    display: none !important;
-  }
-  body {
-    background: #fff; /* the app's slate page bg must not print */
-  }
-  /* No fixed heights / scroll containers may fight pagination. */
-  .report-root {
-    min-height: 0 !important;
-    overflow: visible !important;
-  }
-  /* Short sections stay whole; sections with tables MAY break between rows. */
-  .report-section {
-    break-inside: avoid-page;
-    page-break-inside: avoid;
-  }
-  /* Sections with tables or charts MAY break (between rows / between
-   * charts); each row and each chart block still stays whole. */
-  .report-section:has(.report-table),
-  .report-section:has(.report-chart) {
-    break-inside: auto;
-    page-break-inside: auto;
-  }
-  /* Section titles glue to their first content block. */
-  .report-h2 {
-    break-after: avoid-page;
-    page-break-after: avoid;
-  }
-  .report-chart h3 {
-    break-after: avoid;
-    page-break-after: avoid;
-  }
-  /* Headers repeat after a natural table break — never orphaned. */
-  .report-table thead {
-    display: table-header-group;
-  }
-  .report-table thead tr {
-    break-after: avoid;
-    page-break-after: avoid;
-  }
-  /* Long tables MAY break between rows but never inside a row. */
-  .report-table tr,
-  .report-table td,
-  .report-table th {
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-  /* Chart blocks and stat groups stay whole. */
-  .report-chart {
-    break-inside: avoid-page;
-    page-break-inside: avoid;
-  }
-  .report-layout > tfoot {
-    display: table-footer-group; /* repeat the spacer on every page */
-  }
-  .report-footer-space {
-    height: 9mm;
-  }
-  .report-footer {
-    display: block;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    font-size: 9px;
-    color: #94a3b8;
-    text-align: center;
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

@@ -35,10 +35,12 @@ begin
     raise exception 'definer_gates: stale allow-list entries: %', v_bad;
   end if;
 
-  -- 3. No SECURITY DEFINER function is executable by anon.
+  -- 3. anon executes nothing in tci but the pre-auth entry points (0046:
+  --    tci.login_begin, which starts a sign-in before anyone is signed in).
   select string_agg(p.proname, ', ') into v_bad
     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-   where n.nspname = 'tci' and p.prosecdef and has_function_privilege('anon', p.oid, 'execute');
+   where n.nspname = 'tci' and has_function_privilege('anon', p.oid, 'execute')
+     and p.proname not in (select proname from tci.pre_auth_entry_points());
   if v_bad is not null then
     raise exception 'definer_gates: anon-executable SECURITY DEFINER functions: %', v_bad;
   end if;

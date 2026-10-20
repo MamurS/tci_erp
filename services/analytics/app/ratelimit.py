@@ -1,4 +1,4 @@
-"""Rate limiting for the provisioning endpoints.
+"""Rate limiting for the provisioning and the computational endpoints.
 
 These endpoints create auth users, so they are the ones worth throttling: an
 attacker who somehow obtained a sales token should not be able to mint
@@ -69,3 +69,7 @@ class FixedWindowLimiter:
 
 #: Module-level so every request shares one window.
 provisioning_limiter = FixedWindowLimiter()
+
+#: The rating, limit and FX endpoints hold no data, but each call costs CPU
+#: (or a request to cbu.uz), so an open endpoint is still worth capping per IP.
+compute_limiter = FixedWindowLimiter()

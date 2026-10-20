@@ -1,7 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
+import { rulesOf, seedTemplate } from './frameworkDocs'
 import { mapLocalStatement, validateLocalStatement } from './mapping'
 import type { MappingRule } from './mapping'
+
+// The rules come from the template data the migration loads (0049), not
+// from constants: these tests hold the UZ NAS data to its behaviour.
+const F1 = rulesOf(seedTemplate('UZ_NAS_F1'))
+const F2 = rulesOf(seedTemplate('UZ_NAS_F2'))
 
 const F1_MAPPINGS: MappingRule[] = [
   { line_code: '012', target_table: 'balance_sheet', target_column: 'property_plant_equipment', sign: 1 },
@@ -36,7 +42,7 @@ const F2_MAPPINGS: MappingRule[] = [
 describe('mapLocalStatement - balance sheet', () => {
   it('aggregates several local lines into one IFRS column', () => {
     const { balanceSheet } = mapLocalStatement(
-      'UZ_NAS_F1',
+      F1,
       { '012': 500, '080': 30, '090': 70 },
       F1_MAPPINGS,
     )
@@ -45,7 +51,7 @@ describe('mapLocalStatement - balance sheet', () => {
 
   it('applies sign -1 (treasury shares reduce reserves)', () => {
     const { balanceSheet } = mapLocalStatement(
-      'UZ_NAS_F1',
+      F1,
       { '440': 50 },
       F1_MAPPINGS,
     )
@@ -54,7 +60,7 @@ describe('mapLocalStatement - balance sheet', () => {
 
   it('unmapped lines contribute nothing', () => {
     const { balanceSheet } = mapLocalStatement(
-      'UZ_NAS_F1',
+      F1,
       { '011': 999, '150': 999, '400': 999 },
       F1_MAPPINGS,
     )
@@ -64,7 +70,7 @@ describe('mapLocalStatement - balance sheet', () => {
 
   it('computes IFRS subtotals from mapped components, not local totals', () => {
     const { balanceSheet } = mapLocalStatement(
-      'UZ_NAS_F1',
+      F1,
       {
         '012': 500, '022': 100,        // non-current
         '140': 200, '320': 50,         // current
@@ -79,7 +85,7 @@ describe('mapLocalStatement - balance sheet', () => {
 
   it('cross-checks computed totals vs local subtotal lines', () => {
     const { warnings } = mapLocalStatement(
-      'UZ_NAS_F1',
+      F1,
       { '012': 500, '140': 200, '390': 210, '400': 700 },
       F1_MAPPINGS,
     )
@@ -95,7 +101,7 @@ describe('mapLocalStatement - balance sheet', () => {
 
   it('tolerance of 1 unit suppresses rounding noise', () => {
     const { warnings } = mapLocalStatement(
-      'UZ_NAS_F1',
+      F1,
       { '140': 200, '390': 200.9 },
       F1_MAPPINGS,
     )
@@ -103,7 +109,7 @@ describe('mapLocalStatement - balance sheet', () => {
   })
 
   it('no cross-check when local subtotal is absent', () => {
-    const { warnings } = mapLocalStatement('UZ_NAS_F1', { '140': 200 }, F1_MAPPINGS)
+    const { warnings } = mapLocalStatement(F1, { '140': 200 }, F1_MAPPINGS)
     expect(warnings).toHaveLength(0)
   })
 })
@@ -115,13 +121,13 @@ describe('mapLocalStatement - income statement', () => {
   }
 
   it('maps lines and aggregates both profit taxes into income_tax', () => {
-    const { incomeStatement } = mapLocalStatement('UZ_NAS_F2', values, F2_MAPPINGS)
+    const { incomeStatement } = mapLocalStatement(F2, values, F2_MAPPINGS)
     expect(incomeStatement.revenue).toBe(1000)
     expect(incomeStatement.income_tax).toBe(36)
   })
 
   it('computes P&L subtotals with expenses stored positive', () => {
-    const { incomeStatement } = mapLocalStatement('UZ_NAS_F2', values, F2_MAPPINGS)
+    const { incomeStatement } = mapLocalStatement(F2, values, F2_MAPPINGS)
     expect(incomeStatement.gross_profit).toBe(300)
     expect(incomeStatement.operating_profit).toBe(300 - 60 - 40 + 10)
     expect(incomeStatement.profit_before_tax).toBe(210 + 5 - 25)
@@ -130,7 +136,7 @@ describe('mapLocalStatement - income statement', () => {
 
   it('cross-checks P&L subtotal lines', () => {
     const { warnings } = mapLocalStatement(
-      'UZ_NAS_F2',
+      F2,
       { ...values, '030': 290, '270': 154 },
       F2_MAPPINGS,
     )
@@ -141,7 +147,7 @@ describe('mapLocalStatement - income statement', () => {
 
   it('all-empty input yields all-null IFRS row and no warnings', () => {
     const { balanceSheet, incomeStatement, warnings } = mapLocalStatement(
-      'UZ_NAS_F2',
+      F2,
       {},
       F2_MAPPINGS,
     )
@@ -153,26 +159,26 @@ describe('mapLocalStatement - income statement', () => {
 
 describe('validateLocalStatement (local form subtotal checks)', () => {
   it('net book value formula: 012 = 010 - 011', () => {
-    const warnings = validateLocalStatement('UZ_NAS_F1', { '010': 900, '011': 300, '012': 550 })
+    const warnings = validateLocalStatement(F1, { '010': 900, '011': 300, '012': 550 })
     expect(warnings).toHaveLength(1)
     expect(warnings[0]).toMatchObject({ lineCode: '012', entered: 550, expected: 600 })
   })
 
   it('equity total subtracts treasury shares: 480 = 410+...+470 - 440', () => {
     const values = { '410': 100, '440': 20, '450': 50, '480': 130 }
-    expect(validateLocalStatement('UZ_NAS_F1', values)).toHaveLength(0)
-    expect(validateLocalStatement('UZ_NAS_F1', { ...values, '480': 150 })).toHaveLength(1)
+    expect(validateLocalStatement(F1, values)).toHaveLength(0)
+    expect(validateLocalStatement(F1, { ...values, '480': 150 })).toHaveLength(1)
   })
 
   it('F2 net profit: 270 = 240 - 250 - 260', () => {
-    const ok = validateLocalStatement('UZ_NAS_F2', { '240': 200, '250': 30, '260': 6, '270': 164 })
+    const ok = validateLocalStatement(F2, { '240': 200, '250': 30, '260': 6, '270': 164 })
     expect(ok).toHaveLength(0)
-    const bad = validateLocalStatement('UZ_NAS_F2', { '240': 200, '250': 30, '270': 180 })
+    const bad = validateLocalStatement(F2, { '240': 200, '250': 30, '270': 180 })
     expect(bad[0]).toMatchObject({ lineCode: '270', expected: 170 })
   })
 
   it('silent when subtotal or all components absent', () => {
-    expect(validateLocalStatement('UZ_NAS_F1', { '010': 900 })).toHaveLength(0)
-    expect(validateLocalStatement('UZ_NAS_F1', { '400': 900 })).toHaveLength(0)
+    expect(validateLocalStatement(F1, { '010': 900 })).toHaveLength(0)
+    expect(validateLocalStatement(F1, { '400': 900 })).toHaveLength(0)
   })
 })

@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "TCI ERP",
-    "company": "Mosaic Insurance Group"
+    "company": "Savdo kreditlarini sug‘urtalash"
   },
   "nav": {
     "dashboard": "Boshqaruv paneli",
@@ -15,7 +15,20 @@
     "entities": "Tashkilotlar",
     "requests": "Sug‘urta arizalari",
     "agenda": "Kun tartibi",
-    "overdues": "Muddati o‘tgan qarzlar"
+    "overdues": "Muddati o‘tgan qarzlar",
+    "groups": {
+      "work": "Ish joyi",
+      "underwriting": "Anderrayting",
+      "portfolio": "Portfel",
+      "system": "Tizim"
+    },
+    "collapse": "Yig‘ish",
+    "expand": "Yoyish",
+    "title": "Asosiy menyu",
+    "hide": "Menyuni yashirish",
+    "show": "Menyuni ko‘rsatish",
+    "shortcutHint": "Ctrl/⌘ B — menyuni ko‘rsatish yoki yashirish · Ctrl/⌘ K — qidiruv",
+    "wording": "Shartnoma shablonlari"
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -27,16 +40,23 @@
     "signOut": "Chiqish",
     "noSelfSignup": "Hisoblarni administrator yaratadi.",
     "errors": {
-      "invalidCredentials": "Pochta yoki parol noto'g'ri",
+      "invalidCredentials": "Login yoki parol noto‘g‘ri.",
       "generic": "Kirish amalga oshmadi. Qayta urinib ko'ring.",
       "rateLimited": "Bu tarmoqdan kirish urinishlari juda ko‘p. Bir necha daqiqa kutib, qayta urinib ko‘ring.",
-      "locked_one": "Takroriy muvaffaqiyatsiz kirishlardan so‘ng hisob vaqtincha bloklangan. {{count}} daqiqadan keyin qayta urinib ko‘ring yoki administratorga murojaat qiling.",
-      "locked_other": "Takroriy muvaffaqiyatsiz kirishlardan so‘ng hisob vaqtincha bloklangan. {{count}} daqiqadan keyin qayta urinib ko‘ring yoki administratorga murojaat qiling.",
+      "locked_one": "Xavfsizlik maqsadida kirish vaqtincha bloklangan. Keyinroq urinib ko‘ring yoki administratorga murojaat qiling.",
+      "locked_other": "Xavfsizlik maqsadida kirish vaqtincha bloklangan. Keyinroq urinib ko‘ring yoki administratorga murojaat qiling.",
       "captcha": "Robot emasligingiz tekshiruvidan o‘tilmadi. Qayta urinib ko‘ring.",
       "captchaUnavailable": "Tekshiruvni yuklab bo‘lmadi — internet aloqasi yoki reklama bloklagichni tekshiring.",
       "emailNotConfirmed": "Bu elektron pochta manzili hali tasdiqlanmagan.",
-      "userBanned": "Hisob o‘chirilgan. Administratorga murojaat qiling."
-    }
+      "userBanned": "Hisob o‘chirilgan. Administratorga murojaat qiling.",
+      "throttled": "Kirish uchun muvaffaqiyatsiz urinishlar juda ko‘p. {{time}} dan keyin qayta urinib ko‘ring."
+    },
+    "heroTitle": "Savdo kreditlarini sug‘urtalash — tahlildan to‘lovgacha",
+    "heroText": "Bayerlar tahlili va reytingi, kredit limitlari, polislar, deklaratsiyalar va sug‘urta da’volari — yagona ish maydonida.",
+    "lastAttemptWarning": "Yana bitta muvaffaqiyatsiz urinish — va kirish qisqa vaqtga to‘xtatiladi.",
+    "retryIn": "{{time}} dan keyin qayta urinish",
+    "forgotPassword": "Parolni unutdingizmi?",
+    "forgotPasswordHelp": "Parolni tizim administratori tiklaydi. Unga murojaat qiling: siz vaqtinchalik parol olasiz va kirishda uni yangisiga almashtirishingiz kerak bo‘ladi."
   },
   "roles": {
     "admin": "Administrator",
@@ -82,7 +102,9 @@
     "add": "Qo‘shish",
     "loadFailed": "Yuklab bo‘lmadi",
     "tryAgain": "Bir lahzadan so‘ng urinib ko‘ring.",
-    "somethingWentWrong": "Nimadir noto‘g‘ri ketdi."
+    "somethingWentWrong": "Nimadir noto‘g‘ri ketdi.",
+    "notPermitted": "Sizda bu amalni bajarish huquqi yo‘q.",
+    "recordNotFound": "Yozuv topilmadi — ehtimol, u o‘chirilgan. Sahifani yangilang."
   },
   "dashboard": {
     "welcome": "Xush kelibsiz, {{email}}",
@@ -98,7 +120,35 @@
     "premiumAccrualHint": "Sizga ko‘rinadigan shartnomalar bo‘yicha. Tuzatish hech qachon manfiy bo‘lmaydi — minimal mukofotdan pastga qaytarish yo‘q.",
     "claimsOpen": "Ishdagi da’volar",
     "claimsAwaitingInfo": "Ma’lumot kutilmoqda",
-    "claimsPaidThisPeriod": "Shu oyda to‘langan"
+    "claimsPaidThisPeriod": "Shu oyda to‘langan",
+    "agendaOpen": "Kun tartibingizdagi vazifalar",
+    "agendaOverdue": "muddati o‘tgan: {{count}}",
+    "openAgenda": "Kun tartibini ochish",
+    "allClear": "Sizni hech narsa kutmayapti",
+    "greeting": {
+      "morning": "Xayrli tong",
+      "day": "Xayrli kun",
+      "evening": "Xayrli kech"
+    },
+    "needsAttention": "E’tiboringizni talab qiladi",
+    "allTasks": "Barcha vazifalar ({{count}})",
+    "noTasks": "Sizni hech narsa kutmayapti — barcha vazifalar bajarilgan.",
+    "signals": "Signallar",
+    "noSignals": "Signallar yo‘q: kech bildirilgan muddati o‘tgan qarzlar, eskalatsiyalar va bahsli deklaratsiyalar yo‘q.",
+    "signalLabels": {
+      "overduesLate": "Kech bildirilgan muddati o‘tgan qarzlar",
+      "escalatedLimits": "Eskalatsiyadagi limitlar",
+      "declarationsDisputed": "Bahsli deklaratsiyalar",
+      "claimsAwaitingInfo": "Ma’lumot kutayotgan da’volar",
+      "declarationsAwaiting": "Qabul qilinishi kerak bo‘lgan deklaratsiyalar"
+    },
+    "kpis": "Portfel qisqacha",
+    "policyholdersSub": "sug‘urtalanuvchilar: {{count}}",
+    "lateSub": "kech bildirilgan: {{count}}",
+    "paidSub": "shu oyda to‘langan: {{count}}",
+    "premiumOfMinimum": "minimal mukofotning {{pct}}",
+    "premiumEarned": "Ishlab topilgan mukofot",
+    "tasksMore": "yana {{count}}"
   },
   "buyers": {
     "subtitle": "Kredit bahosidagi bayerlar (debitorlar) reyestri",
@@ -298,13 +348,12 @@
     "local": {
       "basis": "Hisob standarti",
       "basisIfrs": "XMHS (IFRS)",
-      "basisLocal": "Mahalliy shakl (BHMS)",
+      "basisLocal": "Milliy shakl",
       "noTemplates": "Mahalliy shablonlar mavjud emas.",
-      "noTemplatesForCountry": "Bu mamlakat uchun mahalliy shablonlar hali yo‘q",
       "enterAsReported": "Raqamlarni rasmiy shakldagidek aynan kiriting.",
       "crossCheckTitle": "XMHS mapping tekshiruvi:",
       "crossCheckItem": "{{line}}-satr: shaklda {{local}}, hisoblangan {{column}} = {{computed}}",
-      "badgeLocal": "UZ BHMS",
+      "badgeLocal": "Milliy shakl",
       "badgeIfrs": "XMHS",
       "mappedIndicator": "Mahalliy shakldan o‘girilgan:",
       "viewSource": "asl shakl",
@@ -312,16 +361,26 @@
       "mappingStatus": {
         "mapped": "o‘girilgan",
         "stale": "eskirgan"
+      },
+      "basisLocalNamed": "Milliy shakl ({{framework}})",
+      "ifrsFramework": "Bu mamlakatda hisobot «{{framework}}» standarti bo‘yicha tuziladi: MHXS shaklida kiritiladi.",
+      "ifrsInsteadOfLocal": "Milliy shakl ({{framework}}) o‘rniga MHXS shaklida kiritish — bayer MHXS bo‘yicha hisobot tuzsa.",
+      "noFrameworkForCountry": "Bu mamlakat uchun milliy shakl sozlanmagan: hisobotni MHXS shaklida kiriting.",
+      "deductionHint": "Ayiriladigan satr: shakldagi qavs ichidagidek musbat son bilan kiriting.",
+      "fidelity": {
+        "official_codes": "Satr kodlari rasmiy shakldagidek.",
+        "prescribed_captions": "Satr nomlari va tartibi qonun bilan belgilangan; kodlar ma’lumot uchun.",
+        "framework_layout": "Ushbu standart uchun odatiy tuzilma; kodlar ma’lumot uchun."
       }
     },
     "localSections": {
-      "assets_long_term": "I. Uzoq muddatli aktivlar",
-      "assets_current": "II. Joriy aktivlar",
-      "equity": "I. O‘z mablag‘lari manbalari",
-      "liabilities_long_term": "II. Majburiyatlar — uzoq muddatli",
-      "liabilities_current": "II. Majburiyatlar — joriy",
+      "assets_long_term": "Uzoq muddatli aktivlar",
+      "assets_current": "Joriy aktivlar",
+      "equity": "O‘z kapitali",
+      "liabilities_long_term": "Uzoq muddatli majburiyatlar",
+      "liabilities_current": "Joriy majburiyatlar",
       "operating": "Asosiy faoliyat",
-      "financial": "Moliyaviy faoliyat",
+      "financial": "Moliyaviy daromad va xarajatlar",
       "result": "Moliyaviy natija"
     },
     "reportTypes": {
@@ -551,11 +610,25 @@
       "currency": "Valyuta",
       "open": "Hisobotni ochish"
     },
-    "notAssessed": "Baholash hali hisoblanmagan"
+    "notAssessed": "Baholash hali hisoblanmagan",
+    "vsPrevious": "oldingi reytingga nisbatan",
+    "legendTitle": "Izoh: kredit reytingi shkalasi",
+    "scale10": {
+      "exceptional": "Istisno darajada",
+      "veryStrong": "Juda kuchli",
+      "strong": "Kuchli",
+      "good": "Yaxshi",
+      "average": "O‘rtacha",
+      "watch": "Kuzatuvda",
+      "weak": "Zaif",
+      "distressed": "Muammoli",
+      "uninsurable": "Sug‘urtalanmaydi",
+      "insolvent": "To‘lovga qobiliyatsiz"
+    }
   },
   "report": {
     "title": "QALTISLIK HISOBOTI",
-    "generatedBy": "MIG TCI ERP tizimida yaratilgan",
+    "generatedBy": "TCI ERP tizimida yaratilgan",
     "reportDate": "Hisobot sanasi",
     "generalInfo": "Umumiy ma’lumotlar",
     "calculatedLimit": "Hisoblangan limit (dvijok)",
@@ -609,7 +682,316 @@
       "z_distress": "Altman Z''-hisobi kompaniyani yuqori qaltislik zonasiga kiritadi.",
       "norm_breaches": "{{count}} ko‘rsatkich bo‘yicha normalar buzilgan: {{rows}}."
     },
-    "approvedAggregateLimit": "Tasdiqlangan jami limit"
+    "approvedAggregateLimit": "Tasdiqlangan jami limit",
+    "rows": {
+      "nonCurrentAssets": "Uzoq muddatli aktivlar",
+      "inventories": "Tovar-moddiy zaxiralar",
+      "accountsReceivable": "Debitorlik qarzlari",
+      "cash": "Pul mablag‘lari",
+      "stInvestments": "Qisqa muddatli investitsiyalar",
+      "currentAssets": "Joriy aktivlar",
+      "retainedEarnings": "Taqsimlanmagan foyda",
+      "equity": "O‘z kapitali",
+      "ltLoans": "Uzoq muddatli kreditlar",
+      "stLoans": "Qisqa muddatli kreditlar",
+      "accountsPayable": "Kreditorlik qarzlari",
+      "currentLiabilities": "Qisqa muddatli majburiyatlar",
+      "totalAssets": "Jami aktivlar",
+      "revenue": "Tushum",
+      "costOfSales": "Sotilgan mahsulot tannarxi",
+      "grossProfit": "Yalpi foyda (zarar)",
+      "sellingExpenses": "Tijorat xarajatlari",
+      "administrativeExpenses": "Ma’muriy xarajatlar",
+      "otherOperatingIncome": "Boshqa operatsion daromadlar",
+      "otherOperatingExpenses": "Boshqa operatsion xarajatlar",
+      "operatingProfit": "Operatsion foyda (zarar)",
+      "interestIncome": "Foizli daromadlar",
+      "interestExpense": "Foizli xarajatlar",
+      "profitBeforeTax": "Soliqqacha foyda (zarar)",
+      "incomeTax": "Foyda solig‘i",
+      "netProfit": "Sof foyda (zarar)"
+    },
+    "ratioRows": {
+      "grossMargin": "Yalpi rentabellik",
+      "ebitMargin": "EBIT rentabelligi",
+      "profitMargin": "Sof rentabellik",
+      "cfo": "CFO",
+      "fcf": "FCF",
+      "nwc": "NWC",
+      "dio": "DIO",
+      "dpo": "DPO",
+      "dso": "DSO",
+      "ccc": "CCC"
+    },
+    "glossaryTerms": {
+      "ebit": {
+        "term": "EBIT",
+        "definition": "Foiz va soliqlarni to‘lashgacha bo‘lgan foyda"
+      },
+      "cfo": {
+        "term": "CFO",
+        "definition": "Operatsion faoliyatdan pul oqimi"
+      },
+      "fcf": {
+        "term": "FCF",
+        "definition": "Erkin pul oqimi: operatsion pul oqimi minus kapital xarajatlar"
+      },
+      "nwc": {
+        "term": "NWC",
+        "definition": "Sof aylanma kapital: joriy aktivlar minus qisqa muddatli majburiyatlar"
+      },
+      "dio": {
+        "term": "DIO",
+        "definition": "Zaxiralar aylanish davri, kun"
+      },
+      "dso": {
+        "term": "DSO",
+        "definition": "Debitorlik qarzi aylanish davri, kun"
+      },
+      "dpo": {
+        "term": "DPO",
+        "definition": "Kreditorlik qarzi aylanish davri, kun"
+      },
+      "ccc": {
+        "term": "CCC",
+        "definition": "Pul mablag‘lari aylanish sikli: DIO + DSO − DPO"
+      },
+      "de": {
+        "term": "D/E",
+        "definition": "Qarz / o‘z kapitali: (uzoq + qisqa muddatli kreditlar) / kapital"
+      },
+      "ltst": {
+        "term": "LT / ST",
+        "definition": "Uzoq muddatli / qisqa muddatli"
+      },
+      "pp": {
+        "term": "pp",
+        "definition": "Foiz punktlari (f.p.)"
+      },
+      "nm": {
+        "term": "n/m",
+        "definition": "Ma’nosiz: nol asos, ishora o‘zgarishi yoki 1 000% dan ortiq o‘zgarish"
+      },
+      "kmbt": {
+        "term": "K / M / B / T",
+        "definition": "ming / mln / mlrd / trln — ming / million / milliard / trillion"
+      }
+    },
+    "commentary": {
+      "subjects": {
+        "grossDebt": {
+          "company": "Tashkilotning yalpi qarzi",
+          "group": "Guruhning yalpi qarzi"
+        },
+        "longTermDebt": {
+          "company": "Tashkilotning uzoq muddatli qarzi",
+          "group": "Guruhning uzoq muddatli qarzi"
+        },
+        "shortTermDebt": {
+          "company": "Tashkilotning qisqa muddatli qarzi",
+          "group": "Guruhning qisqa muddatli qarzi"
+        },
+        "debtToEquity": {
+          "company": "Tashkilotning qarz / o‘z kapitali koeffitsienti",
+          "group": "Guruhning qarz / o‘z kapitali koeffitsienti"
+        },
+        "equity": {
+          "company": "Tashkilotning o‘z kapitali",
+          "group": "Guruhning o‘z kapitali"
+        },
+        "equityRatio": {
+          "company": "Tashkilotning o‘z kapitalining aktivlardagi ulushi",
+          "group": "Guruhning o‘z kapitalining aktivlardagi ulushi"
+        },
+        "currentRatio": {
+          "company": "Tashkilotning joriy likvidlik koeffitsienti",
+          "group": "Guruhning joriy likvidlik koeffitsienti"
+        },
+        "revenue": {
+          "company": "Tashkilotning tushumi",
+          "group": "Guruhning tushumi"
+        },
+        "grossProfit": {
+          "company": "Tashkilotning yalpi moliyaviy natijasi",
+          "group": "Guruhning yalpi moliyaviy natijasi"
+        },
+        "grossMargin": {
+          "company": "Tashkilotning yalpi rentabelligi",
+          "group": "Guruhning yalpi rentabelligi"
+        },
+        "ebit": {
+          "company": "Tashkilotning EBIT ko‘rsatkichi",
+          "group": "Guruhning EBIT ko‘rsatkichi"
+        },
+        "ebitMargin": {
+          "company": "Tashkilotning EBIT rentabelligi",
+          "group": "Guruhning EBIT rentabelligi"
+        },
+        "interestCoverage": {
+          "company": "Tashkilotning foizlarni qoplash koeffitsienti",
+          "group": "Guruhning foizlarni qoplash koeffitsienti"
+        },
+        "netProfit": {
+          "company": "Tashkilotning sof moliyaviy natijasi",
+          "group": "Guruhning sof moliyaviy natijasi"
+        },
+        "netMargin": {
+          "company": "Tashkilotning sof rentabelligi",
+          "group": "Guruhning sof rentabelligi"
+        },
+        "ccc": {
+          "company": "Tashkilotning pul mablag‘lari aylanish sikli",
+          "group": "Guruhning pul mablag‘lari aylanish sikli"
+        },
+        "dso": {
+          "company": "Tashkilotning debitorlik qarzi aylanish davri",
+          "group": "Guruhning debitorlik qarzi aylanish davri"
+        },
+        "dio": {
+          "company": "Tashkilotning zaxiralar aylanish davri",
+          "group": "Guruhning zaxiralar aylanish davri"
+        },
+        "dpo": {
+          "company": "Tashkilotning kreditorlik qarzi aylanish davri",
+          "group": "Guruhning kreditorlik qarzi aylanish davri"
+        }
+      },
+      "change": "{{subject}}: {{move}} — <hl>{{pct}}</hl> ({{from}} → {{to}}).",
+      "changeNm": "{{subject}}: {{from}} → {{to}}.",
+      "flat": "{{subject}}: o‘zgarishsiz, {{to}}.",
+      "level": "{{subject}}: {{to}}.",
+      "moves": {
+        "up": {
+          "slight": "biroz o‘sish",
+          "moderate": "o‘sish",
+          "strong": "sezilarli o‘sish",
+          "sharp": "keskin o‘sish"
+        },
+        "down": {
+          "slight": "biroz pasayish",
+          "moderate": "pasayish",
+          "strong": "sezilarli pasayish",
+          "sharp": "keskin pasayish"
+        },
+        "lossNarrowed": "zararning qisqarishi",
+        "lossWidened": "zararning ko‘payishi"
+      }
+    },
+    "registrationId": "Ro‘yxatdan o‘tish raqami",
+    "tagline": "Savdo kreditlarini sug‘urtalash",
+    "pageOf": "{{page}}-sahifa / {{pages}}",
+    "nm": "m/e",
+    "pp": "f.p.",
+    "endOfReport": "*** HISOBOT YAKUNI ***",
+    "disclaimer": "Ushbu hisobot qat’iy maxfiylik asosida faqat sizning foydalanishingiz uchun tayyorlangan; uning biror qismi uchinchi shaxslarga oshkor etilmasligi kerak. Hisobotni tuzuvchi ushbu hisobot ma’lumotlariga asoslangan qarorlar natijasida yetkazilgan zarar yoki ziyon uchun javobgar emas. Tavsiya etilgan kredit limiti — tasdiqlangan limit emas, balki hisoblash natijasi.",
+    "noStatements": "Bu turdagi yillik hisobot mavjud emas — moliyaviy bo‘limlar tushirib qoldirildi.",
+    "sections2": {
+      "generalInfo": "Umumiy ma’lumot",
+      "keyFigures": "Asosiy ko‘rsatkichlar (tashkilot, {{year}} m. y.)",
+      "conclusion": "Xulosa",
+      "groupKeyCompanies": "Guruh: asosiy kompaniyalar",
+      "balanceSheet": "Buxgalteriya balansi",
+      "balanceSheetComment": "Buxgalteriya balansi (davomi)",
+      "pnl": "Foyda va zararlar to‘g‘risidagi hisobot",
+      "pnlComment": "Foyda va zararlar to‘g‘risidagi hisobot (davomi)",
+      "ratios": "Moliyaviy koeffitsientlar",
+      "ratiosComment": "Moliyaviy koeffitsientlar (davomi)",
+      "dynamicGraphs": "Dinamik grafiklar",
+      "glossary": "Atamalar lug‘ati",
+      "groupStructure": "Guruh tuzilmasi (asosiy kompaniyalar)",
+      "groupExposure": "Guruh bo‘yicha jami javobgarlik"
+    },
+    "general": {
+      "companyName": "Nomi",
+      "legalForm": "Tashkiliy-huquqiy shakli",
+      "registrationDate": "Ro‘yxatdan o‘tgan sana",
+      "country": "Mamlakat",
+      "owners": "Egalari",
+      "lineOfBusiness": "Faoliyat turi",
+      "registrationCodes": "Ro‘yxat kodlari",
+      "address": "Manzil",
+      "website": "Veb-sayt",
+      "affiliatedCompanies": "Affillangan kompaniyalar",
+      "latestStatements": "So‘nggi moliyaviy hisobot",
+      "fy": "{{year}} m. y.",
+      "olderThanYear": "bir yildan eski",
+      "recommendedLimit": "Tavsiya etilgan kredit limiti",
+      "limitBasis": "Limit asosi",
+      "creditRating": "Kredit reytingi",
+      "approvedExposure": "Amaldagi tasdiqlangan limitlar"
+    },
+    "limitBasis": {
+      "full": "Reyting {{score}} ({{band}}); limit {{year}} m. y. tushumining taxminan {{revenuePct}} qismiga va o‘z kapitalining taxminan {{equityPct}} qismiga teng",
+      "revenueOnly": "Reyting {{score}} ({{band}}); limit {{year}} m. y. tushumining taxminan {{revenuePct}} qismiga teng",
+      "ratingOnly": "Reyting {{score}} ({{band}})"
+    },
+    "placement": {
+      "in": "«{{band}}» toifasi",
+      "between": "«{{lower}}» va «{{upper}}» toifalari oralig‘i"
+    },
+    "freshness": {
+      "label": "Ma’lumotlarning dolzarbligi:",
+      "stale": "so‘nggi mavjud moliyaviy hisobot {{year}} m. y. uchun, ya’ni bir yildan eski. Kredit qarori qabul qilishdan oldin dolzarb ma’lumotlarni so‘rang.",
+      "conclusion": "So‘nggi mavjud hisobot {{year}} m. y. uchun, shuning uchun baho tashkilotning joriy holatini aks ettirmasligi mumkin."
+    },
+    "keyFigureLabels": {
+      "revenue": "Tushum",
+      "netProfit": "Sof foyda (zarar)",
+      "equityRatio": "O‘z kapitali ulushi",
+      "debtToEquity": "Qarz / o‘z kapitali"
+    },
+    "overall": {
+      "title": "Umumiy qaltislik bahosi",
+      "rating": "Kredit reytingi {{score}} «{{band}}» toifasiga kiradi ({{point}}).",
+      "ratingBetween": "Kredit reytingi {{score}} «{{lower}}» ({{lowerPoint}}) va «{{upper}}» ({{upperPoint}}) toifalari oralig‘ida.",
+      "strengths": "Asosiy kuchli tomonlar: {{list}}.",
+      "weaknesses": "Asosiy zaif tomonlar: {{list}}.",
+      "limit": "Tavsiya etilgan kredit limiti — {{amount}}.",
+      "noLimit": "Hisoblash tizimi kredit limitini tavsiya etmaydi."
+    },
+    "tables": {
+      "bsCompany": "Tashkilotning {{to}}-yil oxiri va oldingi hisobot yillari bo‘yicha buxgalteriya balansi:",
+      "bsGroup": "Guruhning {{to}}-yil oxiri va oldingi hisobot yillari bo‘yicha JAMLANGAN balansi:",
+      "plCompany": "Tashkilotning {{to}}-yil va oldingi hisobot yillari bo‘yicha foyda va zararlar to‘g‘risidagi hisoboti:",
+      "plGroup": "Guruhning {{to}}-yil va oldingi hisobot yillari bo‘yicha JAMLANGAN foyda va zararlar hisoboti:",
+      "bsItems": "Balans moddalari",
+      "plItems": "FZH moddalari",
+      "pctTotalAssets": "Aktivlardan %",
+      "pctRevenue": "Tushumdan %",
+      "ratios": "Koeffitsientlar",
+      "pctChange": "O‘zg., %",
+      "days": "kun",
+      "profitability": "Rentabellik koeffitsientlari ({{subject}}):",
+      "liquidity": "Likvidlik ko‘rsatkichlari ({{subject}}):",
+      "turnover": "Aylanma ko‘rsatkichlari ({{subject}}):",
+      "combined": "JAMLANGAN"
+    },
+    "group": {
+      "combinedNote": "Jamlangan ko‘rsatkichlar — ishtirokchilarning {{currency}} valyutasidagi o‘z hisobotlari yig‘indisi, guruh ichidagi chiqarib tashlashlarsiz: guruh ichidagi tushum va qoldiqlar ikki marta hisobga olingan.",
+      "otherCurrency": "Boshqa valyutada hisobot beruvchi, hisobga kiritilmagan ishtirokchilar: {{count}}.",
+      "byRevenue": "Guruhning tushum bo‘yicha eng yirik kompaniyalari:",
+      "byNetProfit": "Guruhning eng ko‘p sof foyda olgan kompaniyalari:",
+      "byGrossDebt": "Guruhning yalpi qarz bo‘yicha asosiy kompaniyalari:",
+      "byLtAssets": "Guruhning eng katta uzoq muddatli aktivlarga ega kompaniyalari:",
+      "company": "Nomi",
+      "regId": "Ro‘yxatdan o‘tish raqami",
+      "revenueIn": "Tushum {{year}}, {{currency}}",
+      "netProfitIn": "Sof foyda {{year}}, {{currency}}",
+      "grossDebtIn": "Yalpi qarz {{year}}, {{currency}}",
+      "ltAssetsIn": "Uzoq muddatli aktivlar {{year}}, {{currency}}",
+      "shareOfGroup": "Guruhdagi %",
+      "lineOfBusiness": "Faoliyat turi",
+      "shareRevenue": "Guruh tushumidan %",
+      "netProfit": "Sof foyda ({{currency}})",
+      "shareAssets": "Guruh aktivlaridan %",
+      "shareEquity": "Guruh kapitalidan %",
+      "shareDebt": "Guruh yalpi qarzidan %"
+    },
+    "charts2": {
+      "revRecPay": "Tushum, debitorlik va kreditorlik qarzlari ({{currency}})",
+      "turnover": "Aylanma ko‘rsatkichlari (kun)",
+      "note": "Tashkilot ko‘rsatkichlari, yillik hisobot."
+    }
   },
   "policyholders": {
     "subtitle": "Sug‘urtalanuvchilar (sotuvchilar) — TCI polislari egalari",
@@ -740,7 +1122,8 @@
     "tabs": {
       "premium": "Sug‘urta mukofoti",
       "terms": "Shartlar",
-      "claims": "Da’volar"
+      "claims": "Da’volar",
+      "contract": "Shartnoma"
     }
   },
   "limits": {
@@ -1015,7 +1398,8 @@
         "mfaAdminOff": "Ikki bosqichli autentifikatsiya: administratorlar uchun majburiy emas.",
         "mfaStaffFrom": "{{date}} dan boshlab barcha xodimlar uchun majburiy.",
         "mfaStaffGrace": "Boshqa xodimlar uchun hozircha majburiy emas (sana belgilanmagan).",
-        "retention": "Hodisalar {{days}} kun saqlanadi."
+        "retention": "Hodisalar {{days}} kun saqlanadi.",
+        "loginSchedule": "Kirish: bitta pochta va tarmoqdan {{free}} ta muvaffaqiyatsiz urinishdan keyin {{base}} s tanaffus, har bir keyingi xatoda u ikki baravar oshadi, eng ko‘pi {{max}} daq. 15 daqiqa va undan uzoq tanaffus quyida bloklash sifatida ko‘rsatiladi."
       },
       "hookNotice": "Bloklash Supabase Auth parol tekshiruvi huki orqali qo‘llanadi. Huk Supabase panelida (Authentication → Hooks; Teams tarifi va undan yuqori) yoqilmaguncha urinishlar yozilmaydi va hisoblar bloklanmaydi — kirishni faqat IP bo‘yicha limit va CAPTCHA himoya qiladi.",
       "alerts": {
@@ -1035,7 +1419,8 @@
         "active": "Bloklangan",
         "clearedBy": "Blokdan chiqardi: {{email}}",
         "expired": "Muddati o‘tgan",
-        "unlock": "Blokdan chiqarish"
+        "unlock": "Blokdan chiqarish",
+        "reasonBypass": "shaklni chetlab o‘tib kirish — parolni tiklang, so‘ng blokdan chiqaring"
       },
       "users": {
         "title": "Foydalanuvchilar",
@@ -1080,6 +1465,13 @@
         "user_role_granted": "Rol berildi",
         "user_role_revoked": "Rol olib tashlandi",
         "session_revoked": "Seanslar yakunlandi"
+      },
+      "gate": {
+        "enforcedOn": "Kirish nazorati yoqilgan:",
+        "enforcedOff": "Kirish nazorati hali yoqilmagan:",
+        "hookSteps": "Supabase Auth «Customize Access Token» → Postgres → tci.custom_access_token_hook ilgagi kerak (Authentication → Hooks). Yangi kirish sahifasi ishlay boshlagach yoqing: kirish shaklini chetlab o‘tib kiritilgan to‘g‘ri parol hisobni parol tiklanguncha bloklaydi.",
+        "enable": "Yoqish",
+        "disable": "O‘chirish"
       }
     }
   },
@@ -1275,6 +1667,11 @@
       "hint": "Bu hisob bilan kirilgan barcha boshqa brauzer va qurilmalardagi seanslarni yakunlash. Bu seans saqlanib qoladi.",
       "signOutOthers": "Boshqa qurilmalardan chiqish",
       "signedOutOthers": "Boshqa qurilmalardagi seanslar yakunlandi."
+    },
+    "errors": {
+      "samePassword": "Yangi parol joriy paroldan farq qilishi kerak.",
+      "weakPassword": "Parol server talablariga javob bermaydi. Uzunroq yoki kamroq tarqalgan parol tanlang.",
+      "changeFailed": "Parolni o‘zgartirib bo‘lmadi. Qaytadan urinib ko‘ring."
     }
   },
   "provisioning": {
@@ -1329,7 +1726,10 @@
       "selfDisable": "O‘z hisobingizni o‘chirib qo‘ya olmaysiz.",
       "invalidInput": "Kiritilgan ma’lumotlarni tekshiring.",
       "noSession": "Sessiya tugadi — qaytadan kiring.",
-      "unknown": "Nimadir noto‘g‘ri ketdi. Qayta urinib ko‘ring."
+      "unknown": "Nimadir noto‘g‘ri ketdi. Qayta urinib ko‘ring.",
+      "rotationRequired": "Foydalanuvchilarni boshqarishdan oldin vaqtinchalik parolni o‘zgartiring.",
+      "mfaRequired": "Foydalanuvchilarni boshqarishdan oldin ikki bosqichli autentifikatsiyadan o‘ting.",
+      "accountLocked": "Hisobingiz vaqtincha bloklangan. Keyinroq urinib ko‘ring."
     }
   },
   "agenda": {
@@ -1686,6 +2086,17 @@
       "disputeNote": "Sabab",
       "submittedAt": "Topshirilgan",
       "acceptedAt": "Qabul qilingan"
+    },
+    "errors": {
+      "noLines": "Satrlarsiz deklaratsiyani topshirib bo‘lmaydi.",
+      "invalidTransition": "Deklaratsiyaning joriy holatida bu amal mavjud emas.",
+      "disputeReason": "Bahs sababini ko‘rsating — sug‘urtalanuvchi deklaratsiyani unga ko‘ra tuzata olsin.",
+      "correctOnlyFinal": "Faqat qabul qilingan yoki bahsli deklaratsiyani tuzatish mumkin.",
+      "acceptCommercialOnly": "Deklaratsiyani faqat tijorat anderrayteri qabul qilishi mumkin.",
+      "draftOnly": "Deklaratsiyani faqat qoralama holatida o‘zgartirish mumkin.",
+      "policyNotActive": "Deklaratsiyalar faqat amaldagi polis bo‘yicha topshiriladi.",
+      "periodTaken": "Bu davr uchun deklaratsiya allaqachon mavjud.",
+      "negativeTurnover": "Aylanma manfiy bo‘lishi mumkin emas."
     }
   },
   "premium": {
@@ -1728,6 +2139,9 @@
       "status": "Holat",
       "scheduleTotal": "Jadval bo‘yicha jami",
       "computedAt": "Hisoblangan"
+    },
+    "errors": {
+      "scheduleLocked": "Jadvalni qayta yaratib bo‘lmaydi: ayrim to‘lovlar uchun hisob-faktura berilgan yoki ular to‘langan."
     }
   },
   "overdues": {
@@ -1764,6 +2178,13 @@
       "reportedAt": "Bildirilgan",
       "resolution": "Natija",
       "resolutionNote": "Izoh"
+    },
+    "errors": {
+      "amountPositive": "Muddati o‘tgan summa noldan katta bo‘lishi kerak.",
+      "policyNotActive": "Muddati o‘tgan qarz haqida faqat amaldagi polis bo‘yicha xabar berish mumkin.",
+      "dueInFuture": "Eng eski hisob muddati o‘tgan sana bo‘lishi kerak.",
+      "alreadyOpen": "Bu polis bo‘yicha ushbu bayer uchun ochiq xabarnoma allaqachon mavjud.",
+      "alreadyResolved": "Bu xabarnoma allaqachon yopilgan."
     }
   },
   "claims": {
@@ -2230,5 +2651,187 @@
     "verifying": "Tekshirilmoqda…",
     "badCode": "Kod noto‘g‘ri. Joriy kodni kiriting.",
     "noFactor": "Bu hisob uchun autentifikator sozlanmagan. Administratorga murojaat qiling."
+  },
+  "palette": {
+    "title": "Qidiruv",
+    "trigger": "Tashkilotlar va bo‘limlarni qidirish…",
+    "placeholder": "Tashkilot nomi, ro‘yxatdan o‘tish raqami yoki bo‘lim",
+    "empty": "Hech narsa topilmadi",
+    "hintNavigate": "harakatlanish",
+    "hintOpen": "ochish"
+  },
+  "security": {
+    "notice": {
+      "title": "Hisobingizga muvaffaqiyatsiz kirish urinishlari",
+      "body_one": "Oldingi kirishingizdan beri hisobingizga {{count}} marta muvaffaqiyatsiz kirishga urinilgan.",
+      "body_other": "Oldingi kirishingizdan beri hisobingizga {{count}} marta muvaffaqiyatsiz kirishga urinilgan.",
+      "hint": "Agar bu siz bo‘lmasangiz — parolni almashtiring va administratorga xabar bering.",
+      "changePassword": "Parolni almashtirish",
+      "dismiss": "Yopish"
+    }
+  },
+  "wording": {
+    "title": "Shartnoma shablonlari",
+    "subtitle": "Polis yoki ariza bo‘yicha shartnoma loyihasi tuziladigan sug‘urta shartnomasi shablonlaringiz (.docx, {{braces}} maydonlari bilan).",
+    "fields": {
+      "name": "Nomi",
+      "language": "Til",
+      "country": "Yurisdiktsiya",
+      "countryHint": "Har qanday mamlakat uchun bo‘sh qoldiring.",
+      "anyCountry": "Har qanday",
+      "product": "Qoplama tuzilmasi",
+      "anyProduct": "Har qanday",
+      "description": "Tavsif",
+      "version": "Versiya",
+      "status": "Holat",
+      "uploaded": "Yuklangan"
+    },
+    "statuses": {
+      "draft": "Qoralama",
+      "active": "Amalda",
+      "retired": "Arxivda"
+    },
+    "templates": {
+      "title": "Shablonlar",
+      "empty": "Hozircha shartnoma shablonlari yo‘q",
+      "emptyHint": "Shartnomangizni {{braces}} maydonlari bilan .docx shaklida yuklang yoki standart shablonlarni o‘rnatib, moslashtiring.",
+      "download": "Yuklab olish",
+      "activate": "Amalga kiritish",
+      "retire": "Arxivga o‘tkazish"
+    },
+    "upload": {
+      "open": "Shablon yuklash",
+      "title": "Shartnoma shablonini yuklash",
+      "file": "Shablon fayli (.docx)",
+      "fileHint": "Hujjatga {{example}} kabi maydonlarni yozing — quyidagi ma’lumotnomaga qarang.",
+      "found": "Topilgan maydonlar: {{count}}.",
+      "unknown": "Ma’lumotnomada yo‘q (tuzatilmaguncha shablonni amalga kiritib bo‘lmaydi):",
+      "submit": "Yuklash"
+    },
+    "standard": {
+      "install": "Standart shablonlarni o‘rnatish",
+      "name": "Savdo kreditlarini sug‘urtalash standart shartnomasi",
+      "description": "TCI ERP bilan birga keladi; o‘z sug‘urta qoidalaringizga moslashtiring."
+    },
+    "insurer": {
+      "title": "Sug‘urtalovchi rekvizitlari",
+      "hint": "Shartnomalarga {{insurerTag}} sifatida qo‘yiladi. Faqat administrator o‘zgartira oladi.",
+      "saved": "Saqlandi.",
+      "fields": {
+        "legal_name": "Nomi",
+        "legal_form": "Tashkiliy-huquqiy shakli",
+        "registration_number": "Ro‘yxat raqami",
+        "tax_id": "STIR",
+        "license_number": "Litsenziya raqami",
+        "license_date": "Litsenziya sanasi",
+        "country_code": "Mamlakat",
+        "address": "Manzil",
+        "phone": "Telefon",
+        "email": "E-pochta",
+        "website": "Sayt",
+        "bank_name": "Bank",
+        "bank_account": "Hisob raqami",
+        "bank_code": "Bank kodi (SWIFT / BIK / MFO)",
+        "signatory_name": "Imzolovchi",
+        "signatory_title": "Imzolovchining lavozimi",
+        "signatory_basis": "Asosida harakat qiladi"
+      }
+    },
+    "reference": {
+      "title": "Maydonlar ma’lumotnomasi",
+      "hint": ".docx ga aynan ko‘rsatilganidek yozing. Qiymatlar shablon tilida formatlanadi.",
+      "syntaxValue": "{{example}} — qiymatni qo‘yadi.",
+      "syntaxLoop": "{{loopOpen}} … {{loopClose}} — mazmunini har bir kredit limiti uchun takrorlaydi; jadval satri atrofiga qo‘ysangiz, har bir bayer uchun bitta satr chiqadi.",
+      "syntaxCondition": "{{condOpen}} … {{condClose}} — bandni faqat qiymat berilgan bo‘lsa chiqaradi.",
+      "groups": {
+        "insurer": "Sug‘urtalovchi",
+        "policyholder": "Sug‘urtalanuvchi",
+        "policy": "Polis shartlari",
+        "limits": "Kredit limitlari ({{loopOpen}} ichida)",
+        "document": "Hujjat"
+      }
+    },
+    "generate": {
+      "title": "Shartnoma loyihasi",
+      "open": "Shartnoma loyihasini tuzish",
+      "empty": "Shartnoma loyihasi hali tuzilmagan",
+      "emptyHint": "Uni amaldagi shablon bo‘yicha tuzing; har bir versiya shu yerda saqlanadi.",
+      "generatedAt": "Tuzilgan",
+      "template": "Shablon",
+      "templateHint": "Sug‘urtalanuvchi mamlakati, qoplama tuzilmasi va tilingizga eng mos shablon oldindan tanlangan.",
+      "draftNote": "Hujjat joriy ma’lumotlar bo‘yicha tuziladi va tahrirlash uchun .docx shaklida yuklab olinadi; uning mazmuni saqlanadi.",
+      "submit": "Tuzish",
+      "working": "Tuzilmoqda…",
+      "noTemplates": "Amaldagi shartnoma shabloni yo‘q. «Shartnoma shablonlari» bo‘limida shablonni amalga kiritishni tijorat anderrayteri yoki administratordan so‘rang."
+    },
+    "errors": {
+      "invalidTemplate": "Fayl to‘g‘ri shablon emas:",
+      "unknownPlaceholders": "Shablonda ma’lumotnomada yo‘q maydonlar bor; ularni .docx da tuzatib, qayta yuklang.",
+      "retired": "Arxivdagi shablonni qayta amalga kiritib bo‘lmaydi; uni yangi versiya sifatida yuklang.",
+      "notActive": "Hujjatni faqat amaldagi shablon bo‘yicha tuzish mumkin.",
+      "notDocx": "Faqat .docx fayllar qabul qilinadi.",
+      "uploadLost": "Fayl saqlanmadi; uni qayta yuklang.",
+      "tooLarge": "Fayl 10 MB dan katta."
+    },
+    "placeholders": {
+      "insurer_name": "Sug‘urtalovchining nomi",
+      "insurer_legal_form": "Sug‘urtalovchining tashkiliy-huquqiy shakli",
+      "insurer_registration_number": "Sug‘urtalovchining ro‘yxat raqami",
+      "insurer_tax_id": "Sug‘urtalovchining STIRi",
+      "insurer_license_number": "Sug‘urta litsenziyasi raqami",
+      "insurer_license_date": "Litsenziya sanasi",
+      "insurer_country": "Sug‘urtalovchining mamlakati",
+      "insurer_address": "Sug‘urtalovchining manzili",
+      "insurer_phone": "Sug‘urtalovchining telefoni",
+      "insurer_email": "Sug‘urtalovchining e-pochtasi",
+      "insurer_website": "Sug‘urtalovchining sayti",
+      "insurer_bank_name": "Sug‘urtalovchining banki",
+      "insurer_bank_account": "Sug‘urtalovchining hisob raqami",
+      "insurer_bank_code": "Bank kodi (SWIFT / BIK / MFO)",
+      "insurer_signatory_name": "Imzolovchining F.I.Sh.",
+      "insurer_signatory_title": "Imzolovchining lavozimi",
+      "insurer_signatory_basis": "Imzolovchi asosida harakat qiladi",
+      "policyholder_name": "Sug‘urtalanuvchining nomi",
+      "policyholder_legal_form": "Sug‘urtalanuvchining tashkiliy-huquqiy shakli",
+      "policyholder_registration_number": "Sug‘urtalanuvchining ro‘yxat raqami",
+      "policyholder_country": "Sug‘urtalanuvchining mamlakati",
+      "policyholder_address": "Sug‘urtalanuvchining manzili",
+      "policyholder_contact_person": "Sug‘urtalanuvchining aloqa shaxsi",
+      "policyholder_email": "Sug‘urtalanuvchining e-pochtasi",
+      "policyholder_phone": "Sug‘urtalanuvchining telefoni",
+      "policy_number": "Polis raqami (ariza uchun — ariza raqami)",
+      "policy_status": "Holat",
+      "policy_product": "Qoplama tuzilmasi",
+      "policy_inception_date": "Boshlanish sanasi",
+      "policy_expiry_date": "Tugash sanasi",
+      "policy_currency": "Shartnoma valyutasi",
+      "policy_insured_percentage": "Sug‘urtalangan ulush",
+      "policy_max_liability_amount": "Eng yuqori javobgarlik",
+      "policy_max_liability_multiple": "Eng yuqori javobgarlik, mukofotga karrali",
+      "policy_nql_amount": "Qoplanmaydigan zarar (NQL)",
+      "policy_deductible": "Har bir zarar bo‘yicha franshiza",
+      "policy_aggregate_first_loss": "Agregat franshiza",
+      "policy_premium_rate": "Mukofot stavkasi, aylanmaning %",
+      "policy_minimum_premium": "Minimal mukofot",
+      "policy_premium_basis": "Mukofot hisoblash asosi",
+      "policy_estimated_turnover": "Kutilayotgan yillik aylanma",
+      "policy_discretionary_limit": "Diskretsion limit",
+      "policy_waiting_period_days": "Kutish davri, kun",
+      "policy_max_extension_days": "Eng uzoq uzaytirish muddati, kun",
+      "policy_max_payment_terms_days": "To‘lovni kechiktirishning eng uzoq muddati, kun",
+      "policy_declaration_frequency": "Deklaratsiyalar davriyligi",
+      "policy_noa_window_days": "Muddati o‘tganlik haqida xabar berish muddati, kun",
+      "limits": "Kredit limitlari jadvali: mazmunini (masalan, jadval satrini) har bir bayer uchun takrorlaydi",
+      "limits_buyer_name": "Bayerning nomi",
+      "limits_buyer_country": "Bayerning mamlakati",
+      "limits_buyer_registration_number": "Bayerning ro‘yxat raqami",
+      "limits_amount": "Kredit limiti summasi",
+      "limits_currency": "Limit valyutasi",
+      "limits_payment_terms_days": "To‘lovni kechiktirish, kun",
+      "limits_valid_from": "Amal qilish boshlanishi",
+      "limits_valid_until": "Amal qilish tugashi",
+      "document_date": "Hujjat yaratilgan sana",
+      "document_language": "Shablon tili kodi"
+    }
   }
 }

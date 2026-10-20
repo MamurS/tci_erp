@@ -395,6 +395,65 @@ is fine for internal test accounts and not fine for customers.
   ZAP baseline on the branch preview; `docs/SECURITY.md`,
   `docs/PENTEST-BRIEF.md`. Enabling the hooks, CAPTCHA, MFA and the
   rate-limit/session settings are DASHBOARD steps (listed in the PR).
+- [x] Design upgrade (Delcreda style) — brand tokens measured from the
+  reference reports (navy #005288, process blue #0093D0, orange #F7941E,
+  PT Sans Narrow display face), restyled primitives + StatCard / SectionTitle /
+  RatingGauge / RatingLegend, grouped collapsible navy sidebar, Ctrl/⌘ K
+  command palette, split login, dashboard hero; the **risk report rebuilt to
+  the Delcreda layout** online and as an A4 PDF (running header, gauge +
+  factor bullets, ten-band legend, key figures, COMBINED group statements,
+  ratio tables with % change, commentary, glossary, group structure, page
+  x of y). The NAME on every screen and report is the neutral "TCI ERP"
+  from `src/lib/brand.ts`, never an insurer's or Delcreda's. Second pass:
+  Claude-style hideable sidebar (docked / hidden / hover-peek / drawer,
+  Ctrl/⌘ B), lazily loaded pages and en/uz strings, SVG flags, a work-first
+  dashboard (KPI strip + own Agenda + non-zero signals), and the company
+  card's **Overview tab is the online risk report** (same `RiskReportBody`
+  as the PDF). See DESIGN.md and **Risk report rules** below
+- [x] Security audit 2026-10 (migrations 0046–0048): an ENFORCED sign-in
+  lockout on the Free plan (`tci.login_begin` ticket counted as a failure
+  until `tci.custom_access_token_hook` refunds it; 3 free attempts per
+  e-mail + IP, then 30 s doubling to 60 min; distributed-guess and
+  credential-stuffing locks; a ticketless correct password hard-locks once
+  `login_gate_enforced` is on), countdown + last-attempt warning +
+  «Забыли пароль?» on the sign-in page, the «было N неудачных попыток»
+  notice after sign-in; `anon` executes ONLY `tci.login_begin`; direct REST
+  writes around the workflow functions closed (guard triggers + revoked
+  grants, 0047); a temporary password must actually change (0048); claim
+  documents registered from what Storage holds; CSP host narrowed; the
+  analytics service applies the database's rotation/MFA/lockout gates to
+  provisioning callers, trusts only CF-Connecting-IP / the right-most XFF
+  hop, and caps the compute endpoints. **Canonical: 0046–0048 fully applied**
+  (2026-10-20): sections 1–4, 6 and most of 5 of 0046 through the MCP
+  tooling, the remainder of 0046 plus 0047 and 0048 by the owner running
+  `docs/deploy/canonical-apply-0046-0048.sql` in the SQL Editor; verified
+  afterwards (ledger, guard triggers, `anon` executes only `login_begin`,
+  `login_gate_enforced` still off, data counts unchanged)
+- [x] National statement forms + policy wording (migrations 0049–0051):
+  manual entry follows the BUYER'S COUNTRY — `tci.country_reporting_frameworks`
+  → `tci.reporting_frameworks` → statement templates (Russia, Belarus,
+  Kazakhstan, Ukraine, Uzbekistan with official line codes; Germany/Austria
+  HGB, France PCG, UK/Ireland, the rest of Europe on the Directive 2013/34/EU
+  layout, US GAAP, China CAS, Japan, India Schedule III, Turkey TDHP, Brazil,
+  Vietnam VAS; IFRS-reporting countries such as Kyrgyzstan, Mongolia and
+  Nepal entered on the IFRS form under their own label). Each form carries
+  its own arithmetic, IFRS cross-checks, deduction flags and the caption in
+  its own language AS DATA; analysis and display stay IFRS everywhere.
+  Sources and the authoring validator in `supabase/frameworks/`. Policy
+  wording: the insurer uploads its own .docx contract templates
+  ({{placeholders}}, per jurisdiction × language × product, versioned, one
+  active per key), and a draft contract is generated from a policy or a
+  submission (merge data from `tci.wording_merge_data`, rendered in the
+  browser with docxtemplater, stored and registered with a server-made
+  snapshot); «Шаблоны договоров» page, insurer particulars, standard
+  ru/en/uz templates. See **Statement framework rules** and **Policy
+  wording rules** below. **Canonical: applied 2026-10-20** — 0050 whole;
+  0049 sections 1–5 and every 0051 framework document through
+  `execute_sql` (the 645 KB seed one call per framework), each ledger entry
+  carrying the closing sections and assertions as with 0043; all 32 forms,
+  19 frameworks and 95 country links verified md5-identical to a local
+  replay, UZ NAS line ids and entered values unchanged, live smoke with
+  role impersonation rolled back
 - [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -854,6 +913,152 @@ now()` and raises `P0002` otherwise. The canonical smoke caught it; the
 local test had only tried a user who was never locked, and now tries the
 same user twice.
 
+### Sign-in gate rules (migrations 0046–0048, security audit 2026-10)
+
+**The Free plan has no failure hook, so failures are counted up front.**
+`tci.login_begin(email)` (the only function `anon` may execute) refuses
+while locked and otherwise inserts a `pending` ticket that COUNTS AS A
+FAILURE. `tci.custom_access_token_hook` — GoTrue's own token issuance, on
+the Free plan — marks the latest pending ticket `succeeded` and forgives
+that e-mail + IP's other pending rows. A wrong password never reaches the
+hook, so its ticket simply stays pending. The schedule
+(`tci.login_lock_seconds`) is mirrored in `src/auth/loginGate.ts` and
+locked by a contract test.
+
+**Enforcement is a switch, flipped only after the new sign-in page is
+live.** With `workflow_settings.login_gate_enforced = false` a ticketless
+password sign-in is allowed and logged `sign_in.no_ticket`; with it on,
+the account is hard-locked (`reason = 'bypass'`, 10 years) until an admin
+unlocks it, which also forces `must_change_password`. Turning it on while
+an old bundle is cached would lock out every user of that bundle.
+
+**What the gate cannot see.** Within a ticket's 90 s a direct
+`/auth/v1/token` guess is bounded only by GoTrue's per-IP limit and
+CAPTCHA; that is why Turnstile and a low sign-in rate limit are dashboard
+steps, not optional extras.
+
+**Every new tci function revokes PUBLIC and anon explicitly.** Since 0046
+`anon` holds USAGE on `tci`, so the PUBLIC default execute would reach it.
+A per-schema default privilege cannot remove the global PUBLIC grant, so
+the rule is written down instead and `tests/db/definer_gates.sql` (check 3,
+over ALL tci functions) fails the first migration that forgets.
+
+**Workflow-written tables refuse direct writes (0047).**
+`tci.guard_workflow_write()` on `credit_limit_decisions`,
+`decision_conditions`, `policy_status_history` and
+`insurance_request_history` requires the internal-call token, so every
+SECURITY INVOKER function that writes them calls
+`tci.begin_internal_call()` first (asserted on the catalog in 0047).
+`policies` may only be inserted as `draft` and its status changes only
+through `change_policy_status`. Claims money, group limits, relationships,
+events and settings lost INSERT/UPDATE/DELETE for `authenticated`
+altogether — their writers are all SECURITY DEFINER.
+
+**Rotation is verified, not declared (0048).** A BEFORE trigger stores
+`security_hash(auth.users.encrypted_password)` whenever
+`must_change_password` is written true (both reset paths re-write it
+AFTER the new password), and `complete_password_change` raises
+`password_unchanged` (P0001) while the password still hashes to it. The
+column is closed to every API role — a column revoke means nothing next
+to a table-level SELECT, so 0048 replaces that grant with column grants.
+
+**Storage bytes are removed through the Storage API, never SQL.**
+Supabase's `storage.protect_delete` refuses DELETE on `storage.objects`,
+and a row deleted there would orphan the bytes anyway.
+`delete_claim_document` returns the path and the client removes the
+object; the uploader may remove their own UNREGISTERED object
+(`tci.may_remove_claim_object`).
+
+**The MCP tooling cannot apply a statement containing DELETE/DROP here.**
+It holds such a query for an approval prompt this environment never shows
+and times out after 60 s — even when the words are only inside a function
+body (a quoted string literal is fine). Split a migration at section
+boundaries, apply the clean sections with `execute_sql`, and hand the rest
+to the owner as one transactional SQL Editor script that ends with the
+closing assertions and the ledger insert
+(`docs/deploy/canonical-apply-0046-0048.sql` is the template). Do not
+disguise the keywords to get past the check.
+
+*Update 2026-10-20:* the hold has moved. `alter … drop not null` and a
+JSON note containing «deleted» now pass, while an `UPDATE` with **no
+`WHERE` clause** is held (timed out; with `where id` the same statement
+runs). Write every UPDATE in a canonical script or smoke with an explicit
+`WHERE` — `tests/db/wording.sql` does — and when a call times out, first
+check that nothing reached the database (it never does), then find the
+statement the check objects to; still never disguise it.
+
+### Statement framework rules (migrations 0049, 0051)
+
+**The country chooses the form, the statement keeps it.** A new statement
+opens on the form of the buyer's country (`country_reporting_frameworks`);
+a statement already saved keeps the forms it was ENTERED on
+(`financial_statements.template_id` → its framework), whatever the country
+points at later. A country with no row, or a framework of kind `ifrs`, is
+entered on the IFRS form, with the national standard named above it.
+
+**A form is data, never code.** The subtotal arithmetic
+(`statement_template_lines.formula`), the cross-checks against the computed
+IFRS totals (`crosscheck_column`), the deduction flag (`is_deduction`: typed
+positive, subtracted) and the original caption (`name_local`) all live on
+the template line. `mapping.ts` takes them as `TemplateRules`; there are no
+per-country constants left in TypeScript, and none may be added.
+
+**Every seeded form must reconcile.** `frameworkSeeds.test.ts` (and
+`supabase/frameworks/validate.py`, which the authors ran) fills the leaf
+lines with arbitrary amounts, lets the form compute its own totals, maps to
+IFRS, and requires every cross-checked total to agree. That is what finds
+double counting, a missing mapping or a wrong sign; it found one in the
+original UZ NAS data (line 770 vs IFRS total liabilities, which line 470's
+reclassification makes differ by design — the check was a false warning
+and is gone). A total that genuinely cannot reconcile is left UNCHECKED
+with a note saying why, never checked against something it does not equal.
+
+**The loader never removes or re-keys a line.** `tci.seed_statement_framework`
+upserts by (template, line code): values already entered keep their line
+ids. Fix a form by editing its JSON in `supabase/frameworks/`, validating,
+and loading it again in a new migration (`build_migration.py`); the sync
+test fails if the JSON and the migrations disagree.
+
+**Judgement calls recorded on the lines, to review as one rule later.**
+Share premium sits in share capital in UZ NAS and in other reserves in most
+European forms; reserves built from appropriated profit (Turkey 54, Brazil
+reservas de lucros, Vietnam 418–420) map to retained earnings. Total equity
+is the same either way; ratios that use retained earnings (Altman X2) are
+not. Unsplit receivables / payables lines map wholly to trade. By-nature
+P&Ls (HGB, Directive, France) put material costs in cost of sales, so their
+"gross profit" means revenue less materials.
+
+### Policy wording rules (migration 0050)
+
+**The database says WHAT, the template says HOW, the browser only renders.**
+`tci.wording_merge_data(policy | submission)` is the single source of a
+contract's data (SECURITY INVOKER: a caller sees only what RLS shows them;
+raw numbers, ISO dates, enum codes). `src/features/wording/context.ts`
+formats it in the TEMPLATE's language (format.ts, never the UI language),
+and docxtemplater fills the .docx. There is no server to render on, and no
+business logic in the rendering.
+
+**What a document said is recorded by the server.** `register_policy_document`
+re-derives the merge data itself and stores it as the document's
+`merge_data`; the browser's copy is never trusted. Documents and templates
+are immutable: no table write grant, no storage UPDATE or remove policy; a
+template is replaced by uploading a new version and retired, never edited.
+
+**One active template per (country, language, product).** NULL means "any"
+and is compared NOT DISTINCT. Activation refuses a template whose recorded
+placeholders are not all in `tci.wording_placeholder_catalogue()`, which
+`catalogue.ts` mirrors (contract-tested). Placeholders are `{{dotted.path}}`,
+`{{#limits}}…{{/limits}}` repeats per credit limit (around a table row it
+yields a row per buyer), and any other `{{#x}}…{{/x}}` is a condition.
+
+**A literal `{{…}}` in a translation is eaten by i18next.** Every sentence
+that shows template syntax takes it as a value (`WORDING_SYNTAX`), never as
+literal text in the locale file.
+
+**InspectModule pulls lodash.** Template inspection uses
+`Docxtemplater#getTags()` (present at runtime, missing from the typings)
+instead; docxtemplater lives in its own lazy chunk.
+
 ### Phase 6 rules that are easy to get wrong
 
 **Cycle safety is the visited set, not the depth cap.** Companies really do own
@@ -945,6 +1150,50 @@ and an email domain through `/rest/v1/rpc/`. The Supabase **security advisor**
 caught it after the apply; 0042 closes it and asserts that no Phase 6
 `SECURITY DEFINER` function is anon-executable. Run `get_advisors` after every
 phase — the local replay cannot see PostgREST exposure.
+
+### Risk report rules (design upgrade)
+
+**Normalise units before adding anything.** Statements are stored as entered
+(units / thousands / millions). `report/model.ts` multiplies every amount to
+whole units first; the group view `v_group_member_financials` does NOT, so
+never sum members from it.
+
+**The COMBINED group is a sum, not a consolidation.** It adds the members'
+own annual statements in the company's currency (members in another currency
+are left out and counted), with no intra-group eliminations; the report says
+so under the table. The subject company is part of the sum but is left out of
+the key-companies RANKINGS (it would crowd its affiliates out); its share
+stays in the totals.
+
+**Changes come from the original currency.** With `?ccy=` the amounts are
+converted for display, but every arrow, % change and commentary move is
+computed on the original statement-currency series, and two years in
+different currencies are never compared.
+
+**Commentary is structured, never generated.** `report/commentary.ts` emits
+(metric, subject, move, strength, from, to) and the page renders it through
+`report.commentary.*` templates. Strength: < 5% slight, < 20% moderate,
+< 50% strong, otherwise sharp; a move is n/m across a sign change, from a
+zero base or beyond ±1 000%. "Loss narrowed / deepened" applies only to
+result metrics (profit, margins) — a negative cash conversion cycle is not
+a loss.
+
+**The page footer lives in the `@page` margin boxes.** Only they can print
+"page x of y", and their `content` must be a literal, so `PrintPageRules`
+generates the rule in the report language (`report/printRules.ts`). The
+running header is the `thead` of the one-cell layout table.
+
+**One document, two faces.** `useRiskReport` (data) + `RiskReportBody`
+(content) serve both the A4 route and the Overview tab; never fork the
+sections. The tab passes `reportType: 'auto'` (the latest annual
+statement's type) and the original currency; the A4 route takes `?type=`
+and `?ccy=`. A report in a language other than the UI's must wait for
+`useFixedT(lang).ready` — en / uz are not bundled.
+
+**Headless check.** Render `/entities/:id/report` with Supabase stubbed in
+the browser (Playwright `context.route` on `/rest/v1/**` + a fake session in
+localStorage) and `page.pdf({ format: 'A4', preferCSSPageSize: true })`; the
+reference Internet Resheniya figures produce 6 pages in en and uz, 7 in ru.
 
 ### Replaying the migration chain locally
 

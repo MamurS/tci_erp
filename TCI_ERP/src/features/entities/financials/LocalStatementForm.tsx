@@ -1,8 +1,11 @@
 /**
- * Entry form for a local (UZ NAS) statement: renders both forms from
- * template lines exactly as officially structured, with live amber checks
- * on the local form's own subtotals and a live IFRS mapping preview with
- * cross-check warnings. Values are stored exactly as entered.
+ * Entry form for a statement on a national form (the buyer's country's
+ * framework, migration 0049): renders both forms from template lines exactly
+ * as officially structured — with the caption as printed on the form when
+ * it is in another language — with live amber checks on the form's own
+ * arithmetic and a live IFRS mapping preview with cross-check warnings.
+ * Values are stored exactly as entered; analysis always runs on the IFRS
+ * result.
  */
 
 import { Fragment, useEffect, useMemo, useState } from 'react'
@@ -11,26 +14,15 @@ import { useTranslation } from 'react-i18next'
 import { Card } from '../../../components/ui'
 import { formatAmount } from '../../../lib/format'
 import type { StatementBundle } from '../types'
+import { localName, originalCaption, templateName } from './frameworkText'
 import {
+  useFrameworkTemplates,
   useLocalValues,
   useTemplateMappings,
-  useTemplates,
   valueKey,
 } from './localApi'
-import type { LocalStatementSaveInput, StatementTemplate, TemplateLine } from './localApi'
-import { mapLocalStatement, validateLocalStatement } from './mapping'
-
-function templateName(t: StatementTemplate, locale: string): string {
-  if (locale === 'ru') return t.name_ru
-  if (locale === 'uz') return t.name_uz
-  return t.name_en
-}
-
-function lineName(line: TemplateLine, locale: string): string {
-  if (locale === 'ru') return line.name_ru
-  if (locale === 'uz') return line.name_uz
-  return line.name_en
-}
+import type { LocalStatementSaveInput } from './localApi'
+import { mapLocalStatement, templateRules, validateLocalStatement } from './mapping'
 
 function parseAmount(raw: string): number | null {
   const cleaned = raw.replace(/\s/g, '').replace(',', '.')
@@ -40,7 +32,9 @@ function parseAmount(raw: string): number | null {
 }
 
 interface LocalStatementFormProps {
-  countryCode: string
+  /** The framework whose forms are typed in (the buyer's country's, or the
+   *  one a saved statement was entered on). */
+  frameworkCode: string
   existing: StatementBundle | null
   /** Called on every change so the parent Save button can persist. */
   onStateChange: (state: LocalFormState) => void
@@ -51,11 +45,11 @@ export interface LocalFormState {
   buildInput: () => Omit<LocalStatementSaveInput, 'header'>
 }
 
-export function LocalStatementForm({ countryCode, existing, onStateChange }: LocalStatementFormProps) {
+export function LocalStatementForm({ frameworkCode, existing, onStateChange }: LocalStatementFormProps) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
 
-  const { data: templates } = useTemplates(countryCode)
+  const { data: templates } = useFrameworkTemplates(frameworkCode)
   const templateIds = useMemo(() => (templates ?? []).map((x) => x.id), [templates])
   const { data: mappings } = useTemplateMappings(templateIds)
   const { data: existingValues } = useLocalValues(existing?.id)
@@ -87,10 +81,11 @@ export function LocalStatementForm({ countryCode, existing, onStateChange }: Loc
         const v = values[valueKey(template.code, line.line_code)]
         if (v !== null && v !== undefined) localValues[line.line_code] = v
       }
-      const subtotalWarnings = validateLocalStatement(template.code, localValues)
+      const rules = templateRules(template.statement_template_lines)
+      const subtotalWarnings = validateLocalStatement(rules, localValues)
       const lineIdSet = new Set(template.statement_template_lines.map((l) => l.id))
       const templateMappings = (mappings ?? []).filter((m) => lineIdSet.has(m.template_line_id))
-      const mapped = mapLocalStatement(template.code, localValues, templateMappings)
+      const mapped = mapLocalStatement(rules, localValues, templateMappings)
       return { template, localValues, subtotalWarnings, crossChecks: mapped.warnings }
     })
   }, [templates, values, mappings])
@@ -123,7 +118,12 @@ export function LocalStatementForm({ countryCode, existing, onStateChange }: Loc
             <h2 className="text-sm font-semibold text-slate-900">
               {templateName(template, locale)}
             </h2>
-            <p className="text-xs text-slate-500">{t('fin.local.enterAsReported')}</p>
+            {template.name_local && template.name_local !== templateName(template, locale) && (
+              <p className="text-xs text-slate-500">{template.name_local}</p>
+            )}
+            <p className="text-xs text-slate-500">
+              {t('fin.local.enterAsReported')} {t(`fin.local.fidelity.${template.fidelity}`)}
+            </p>
           </div>
 
           <div>
@@ -141,11 +141,21 @@ export function LocalStatementForm({ countryCode, existing, onStateChange }: Loc
                     </div>
                   )}
                   <div
-                    className={`grid grid-cols-[44px_1fr_150px] items-center gap-2 border-t border-slate-100 px-4 py-1 ${emphasis}`}
+                    className={`grid grid-cols-[64px_1fr_150px] items-center gap-2 border-t border-slate-100 px-4 py-1 ${emphasis}`}
                   >
-                    <span className="num text-xs text-slate-400">{line.line_code}</span>
+                    <span className="num truncate text-xs text-slate-400" title={line.line_code}>
+                      {line.line_code}
+                    </span>
                     <div style={{ paddingLeft: `${line.indent_level * 14}px` }}>
-                      <span className="text-[13px] text-slate-700">{lineName(line, locale)}</span>
+                      <span className="text-[13px] text-slate-700">{localName(line, locale)}</span>
+                      {line.is_deduction && (
+                        <span className="ml-1 text-xs text-slate-400" title={t('fin.local.deductionHint')}>
+                          (−)
+                        </span>
+                      )}
+                      {originalCaption(line, locale) && (
+                        <span className="block text-xs text-slate-400">{originalCaption(line, locale)}</span>
+                      )}
                       {warning && (
                         <span className="ml-2 text-xs text-warn-500">
                           {t('fin.warnings.subtotalMismatch', {

@@ -1,7 +1,7 @@
 /** Limits workspace: queue tabs over credit limit requests. */
 
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -24,6 +24,7 @@ import { requestAgeDays, statusTone } from './machine'
 import { BuyerProposalsSection } from './BuyerProposalsSection'
 
 type QueueTab = 'drafts' | 'review' | 'escalated' | 'decided' | 'proposals'
+const QUEUE_TABS: readonly QueueTab[] = ['drafts', 'review', 'escalated', 'decided', 'proposals']
 
 export function LimitsPage() {
   const { t, i18n } = useTranslation()
@@ -36,7 +37,12 @@ export function LimitsPage() {
   const { data: requests, isLoading } = useLimitRequests()
   const grades = useLatestGrades()
 
-  const [tab, setTab] = useState<QueueTab>('review')
+  // ?tab= deep-links a queue (the dashboard's escalation signal opens it).
+  const [searchParams] = useSearchParams()
+  const [tab, setTab] = useState<QueueTab>(() => {
+    const wanted = searchParams.get('tab') as QueueTab | null
+    return wanted && QUEUE_TABS.includes(wanted) ? wanted : 'review'
+  })
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
 

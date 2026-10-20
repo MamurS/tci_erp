@@ -11,7 +11,7 @@ const KEYS = {
   history: (id: string) => ['policies', id, 'history'] as const,
 }
 
-const SELECT = '*, legal_entities(name)'
+const SELECT = '*, legal_entities(name, country_code)'
 
 export function usePolicies() {
   return useQuery({

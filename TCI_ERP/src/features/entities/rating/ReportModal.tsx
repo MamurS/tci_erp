@@ -33,7 +33,7 @@ export function ReportModal({
           <Button
             onClick={() => {
               window.open(
-                `/buyers/${entityId}/report?lang=${lang}&type=${reportType}&ccy=${currency}`,
+                `/entities/${entityId}/report?lang=${lang}&type=${reportType}&ccy=${currency}`,
                 '_blank',
               )
               onClose()

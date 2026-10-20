@@ -34,6 +34,7 @@ import {
 } from './api'
 import { canCorrect, canTransition } from './machine'
 import type { CoverageBasis } from './types'
+import { refusalKey } from '../../lib/refusals'
 
 const BASIS_TONE: Record<CoverageBasis, 'pos' | 'neutral' | 'warn'> = {
   limit: 'pos',
@@ -63,7 +64,7 @@ export function DeclarationDetailPage() {
 
   const run = (p: Promise<unknown>) => {
     setError(null)
-    p.catch((e: { message?: string }) => setError(e.message ?? t('common.somethingWentWrong')))
+    p.catch((e: unknown) => setError(t(refusalKey(e))))
   }
 
   const uncovered = Number(totals?.uncovered_excess ?? 0)

@@ -160,3 +160,17 @@ def authorize_admin_only(caller_roles: set[str], action: str) -> None:
 def requires_entity(roles: list[str]) -> bool:
     """A client user is meaningless without the company it belongs to."""
     return "client" in roles
+
+
+def auth_status_refusal(status: dict[str, object]) -> str | None:
+    """Why a caller in this tci.my_auth_status() state may not provision, or
+    None. Mirrors the predicates inside has_role/is_staff: a pending rotation,
+    an unmet MFA policy and an active lockout each close every gate. Anything
+    unreadable refuses - a missing field is not a pass."""
+    if status.get("rotation_pending") is not False:
+        return "password_rotation_required"
+    if status.get("mfa_satisfied") is not True:
+        return "mfa_required"
+    if status.get("locked_until"):
+        return "account_locked"
+    return None

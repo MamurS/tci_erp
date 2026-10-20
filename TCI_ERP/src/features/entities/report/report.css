@@ -1,0 +1,704 @@
+/*
+ * Risk report — one stylesheet for the online sheet and the A4 PDF, so the
+ * two cannot drift apart. Every selector is scoped under .rpt: the file is
+ * global once the route has loaded.
+ *
+ * Palette and type are the brand tokens (src/index.css); the measurements
+ * follow the reference report: navy table heads in the condensed display
+ * face, light-blue subtotal rows, a blue square before every section title.
+ */
+
+.rpt {
+  --rpt-navy: var(--color-brand-navy);
+  --rpt-blue: var(--color-brand-blue);
+  --rpt-orange: var(--color-brand-orange);
+  --rpt-ink: var(--color-ink);
+  --rpt-muted: var(--color-ink-muted);
+  --rpt-hl: #dceff8;
+  --rpt-zebra: #f2f8fc;
+  --rpt-line: #c9dde9;
+  --rpt-rule: #e3ecf2;
+  --rpt-pos: #2e8b3e;
+  --rpt-neg: #d62828;
+  --rpt-amber: #c27c00;
+  font-family: var(--font-report);
+  font-size: 10.5px;
+  line-height: 1.45;
+  color: var(--rpt-ink);
+  background: #e9eef3;
+}
+
+/* ---------- Screen: the document as a sheet ---------- */
+
+.rpt-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  background: linear-gradient(90deg, #00446f, #005288);
+  color: #fff;
+  font-family: var(--font-sans);
+}
+
+.rpt-viewport {
+  overflow-x: auto;
+  padding: 28px 16px 48px;
+}
+
+.rpt-sheet {
+  width: 210mm;
+  margin: 0 auto;
+  padding: 12mm 12mm 10mm;
+  background: #fff;
+  box-shadow:
+    0 1px 2px rgb(0 36 60 / 0.08),
+    0 12px 32px -12px rgb(0 36 60 / 0.25);
+}
+
+.rpt-layout {
+  width: 100%;
+  border-collapse: collapse;
+}
+.rpt-layout > thead > tr > td,
+.rpt-layout > tbody > tr > td {
+  padding: 0;
+  vertical-align: top;
+}
+
+/* ---------- Running header ---------- */
+
+.rpt-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--rpt-line);
+}
+.rpt-head-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1;
+  color: var(--rpt-navy);
+  text-transform: uppercase;
+}
+.rpt-head-meta {
+  margin-top: 3px;
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  color: var(--rpt-muted);
+  text-align: right;
+}
+.rpt-head-meta strong {
+  color: var(--rpt-ink);
+}
+.rpt-head-meta .sep {
+  margin: 0 6px;
+  color: var(--rpt-line);
+}
+
+/* ---------- Sections ---------- */
+
+.rpt-section {
+  margin-top: 14px;
+}
+.rpt-h2 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 7px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--rpt-blue);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1.2;
+  color: var(--rpt-navy);
+  text-transform: uppercase;
+}
+.rpt-h2::before {
+  content: '';
+  flex: none;
+  width: 8px;
+  height: 8px;
+  background: var(--rpt-blue);
+}
+.rpt-caption {
+  margin: 9px 0 3px;
+  font-family: var(--font-display);
+  font-size: 11.5px;
+  color: var(--rpt-ink);
+}
+.rpt-note {
+  margin-top: 4px;
+  font-size: 9px;
+  color: var(--rpt-muted);
+}
+
+/* ---------- Tables ---------- */
+
+.rpt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5px;
+}
+.rpt-table th {
+  padding: 3px 5px;
+  background: var(--rpt-navy);
+  color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 10px;
+  line-height: 1.15;
+  text-align: right;
+  vertical-align: bottom;
+}
+.rpt-table th:first-child {
+  text-align: left;
+}
+.rpt-table td {
+  padding: 2.5px 5px;
+  border-bottom: 1px solid var(--rpt-rule);
+  vertical-align: top;
+}
+.rpt-table tbody tr:nth-child(even) > td {
+  background: #fafcfe;
+}
+.rpt-table tr.is-subtotal > td {
+  font-weight: 700;
+}
+.rpt-table tr.is-grand > td {
+  background: var(--rpt-hl);
+  font-weight: 700;
+  border-bottom-color: var(--rpt-line);
+}
+.rpt-table tr.is-subtotal > td:first-child,
+.rpt-table tr.is-grand > td:first-child {
+  text-transform: uppercase;
+  font-size: 9px;
+}
+.rpt-pl tr.is-subtotal > td:first-child,
+.rpt-pl tr.is-grand > td:first-child {
+  text-transform: none;
+  font-size: 9.5px;
+}
+.rpt-num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.rpt-muted {
+  color: var(--rpt-muted);
+}
+.rpt .is-neg {
+  color: var(--rpt-neg);
+}
+.rpt .is-pos {
+  color: var(--rpt-pos);
+}
+.rpt .is-amber {
+  color: var(--rpt-amber);
+}
+.rpt-arrow {
+  display: inline-block;
+  width: 9px;
+  margin-left: 2px;
+  font-size: 7.5px;
+  text-align: center;
+}
+
+/* ---------- General information ---------- */
+
+.rpt-general {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 62mm;
+  gap: 5mm;
+  align-items: start;
+}
+.rpt-kv {
+  width: 100%;
+  border-collapse: collapse;
+}
+.rpt-kv td {
+  padding: 3.5px 6px;
+  border-bottom: 1px solid var(--rpt-line);
+  vertical-align: top;
+}
+.rpt-kv td:first-child {
+  width: 43%;
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  color: #3d3d3d;
+  text-transform: uppercase;
+}
+.rpt-kv tr.is-sub td:first-child {
+  padding-left: 16px;
+  text-transform: none;
+}
+.rpt-kv tr.is-strong td:last-child {
+  font-weight: 700;
+}
+.rpt-kv tr.is-limit td {
+  background: var(--rpt-hl);
+  border-bottom-color: #b7d9eb;
+}
+.rpt-kv tr.is-limit td:first-child {
+  font-weight: 700;
+  color: var(--rpt-navy);
+}
+.rpt-kv tr.is-limit-first td {
+  border-top: 2px solid var(--rpt-navy);
+}
+.rpt-kv .rpt-big {
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--rpt-navy);
+}
+.rpt-kv .rpt-basis {
+  color: var(--rpt-navy);
+  font-size: 9.5px;
+}
+
+.rpt-gauge-card {
+  border: 1px solid var(--rpt-line);
+  background: #fff;
+}
+.rpt-gauge-card > .rpt-gauge {
+  padding: 8px 8px 4px;
+}
+.rpt-gauge-card > .rpt-bullets {
+  margin: 0;
+  padding: 7px 9px 8px;
+  background: var(--rpt-zebra);
+  border-top: 1px solid var(--rpt-line);
+}
+
+/* ---------- Bullets ---------- */
+
+.rpt-bullets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.rpt-bullets > li {
+  position: relative;
+  padding-left: 12px;
+  margin: 2px 0;
+}
+.rpt-bullets > li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 5px;
+  height: 5px;
+  background: var(--rpt-blue);
+}
+.rpt-bullets.is-small > li {
+  font-size: 9.5px;
+  margin: 1px 0;
+}
+.rpt-bullets > li.is-strength {
+  color: var(--rpt-pos);
+}
+.rpt-bullets > li.is-strength::before {
+  background: var(--rpt-pos);
+}
+.rpt-bullets > li.is-neutral {
+  color: var(--rpt-amber);
+}
+.rpt-bullets > li.is-neutral::before {
+  background: #f2a900;
+}
+.rpt-bullets > li.is-weakness {
+  color: var(--rpt-neg);
+}
+.rpt-bullets > li.is-weakness::before {
+  background: var(--rpt-neg);
+}
+.rpt-bullets.is-prose > li {
+  margin: 3px 0;
+}
+.rpt-hl {
+  font-weight: 700;
+}
+
+/* ---------- Boxes ---------- */
+
+.rpt-freshness {
+  margin-top: 6px;
+  padding: 5px 9px;
+  background: #fdecec;
+  border-left: 3px solid var(--rpt-neg);
+}
+.rpt-freshness strong {
+  color: var(--rpt-neg);
+}
+.rpt-overall {
+  margin-top: 10px;
+  padding: 7px 11px 8px;
+  background: var(--rpt-hl);
+  border-left: 4px solid var(--rpt-navy);
+}
+.rpt-overall-title {
+  margin-bottom: 2px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--rpt-navy);
+  text-transform: uppercase;
+}
+.rpt-disclaimer {
+  margin-top: 14px;
+  padding: 8px 11px;
+  background: var(--rpt-zebra);
+  border-left: 3px solid var(--rpt-blue);
+  color: var(--rpt-muted);
+  font-size: 9.5px;
+}
+.rpt-end {
+  margin: 12px 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  color: var(--rpt-navy);
+  text-align: center;
+}
+
+/* ---------- Key figures ---------- */
+
+.rpt-kf {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4mm;
+}
+.rpt-kf > div {
+  padding: 5px 9px 6px;
+  background: var(--rpt-zebra);
+  border-top: 3px solid var(--rpt-blue);
+}
+.rpt-kf-label {
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  color: #3d3d3d;
+}
+.rpt-kf-value {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 1.15;
+  color: var(--rpt-navy);
+  white-space: nowrap;
+}
+.rpt-kf-sub {
+  font-family: var(--font-display);
+  font-size: 9.5px;
+  color: var(--rpt-muted);
+}
+.rpt-kf-sub b {
+  margin-left: 4px;
+}
+
+/* ---------- Group key companies ---------- */
+
+.rpt-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 6mm;
+}
+
+/* ---------- Glossary ---------- */
+
+.rpt-glossary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 6mm;
+}
+.rpt-glossary dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 17mm 1fr;
+}
+.rpt-glossary dt,
+.rpt-glossary dd {
+  margin: 0;
+  padding: 3px 4px;
+  border-bottom: 1px solid var(--rpt-line);
+}
+.rpt-glossary dt {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--rpt-navy);
+}
+
+/* ---------- Legal block and footer ---------- */
+
+.rpt-legal {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6mm;
+  margin-top: 18px;
+  padding-top: 6px;
+  border-top: 1px solid var(--rpt-blue);
+  font-size: 9px;
+  color: var(--rpt-muted);
+}
+.rpt-legal strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 10.5px;
+  color: var(--rpt-navy);
+}
+
+/* The screen footer; in print the @page margin boxes take over. */
+.rpt-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding-top: 4px;
+  border-top: 1px solid var(--rpt-line);
+  font-family: var(--font-display);
+  font-size: 9px;
+  color: var(--rpt-muted);
+}
+.rpt-footer .mid {
+  color: var(--rpt-navy);
+  font-weight: 700;
+}
+.rpt-footer .mid::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 5px;
+  background: var(--rpt-orange);
+}
+
+/* ---------- Print ---------- */
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+  }
+  .rpt {
+    background: #fff;
+  }
+  .rpt-toolbar,
+  .rpt-footer,
+  .rpt-screen-only {
+    display: none !important;
+  }
+  .rpt-viewport {
+    padding: 0;
+    overflow: visible;
+  }
+  .rpt-sheet {
+    width: auto;
+    padding: 0;
+    box-shadow: none;
+  }
+  /* The running header repeats on every page. */
+  .rpt-layout > thead {
+    display: table-header-group;
+  }
+  .rpt-page-break {
+    break-before: page;
+  }
+  .rpt-h2,
+  .rpt-caption {
+    break-after: avoid-page;
+  }
+  .rpt-keep,
+  .rpt-kf,
+  .rpt-overall,
+  .rpt-freshness,
+  .rpt-chart,
+  .rpt-general,
+  .rpt-glossary,
+  .rpt-legal,
+  .rpt-bullets > li,
+  .rpt-table tr {
+    break-inside: avoid;
+  }
+  .rpt-table thead {
+    display: table-header-group;
+  }
+  /* Colour fills are content here, not decoration. */
+  .rpt * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* ---------- Online report (company card, Overview tab) ----------
+ * The same document on screen: a white sheet as wide as the content area,
+ * type scaled up from the A4 sizes for reading at arm's length, and the
+ * two-column blocks stacking on narrow screens. */
+
+.rpt-embedded {
+  background: transparent;
+  font-size: 13.5px;
+}
+.rpt-paper {
+  padding: 28px 32px 32px;
+  background: #fff;
+  border: 1px solid rgb(201 221 233 / 0.7);
+  border-radius: 10px;
+  box-shadow: var(--shadow-card);
+}
+.rpt-embedded .rpt-head-title {
+  font-size: 26px;
+}
+.rpt-embedded .rpt-head-meta {
+  font-size: 13px;
+}
+.rpt-embedded .rpt-section {
+  margin-top: 26px;
+}
+.rpt-embedded .rpt-h2 {
+  font-size: 19px;
+  margin-bottom: 10px;
+}
+.rpt-embedded .rpt-h2::before {
+  width: 10px;
+  height: 10px;
+}
+.rpt-embedded .rpt-caption {
+  font-size: 14px;
+  margin-top: 14px;
+}
+.rpt-embedded .rpt-note {
+  font-size: 11.5px;
+}
+.rpt-embedded .rpt-table {
+  font-size: 12.5px;
+}
+.rpt-embedded .rpt-table th {
+  font-size: 12.5px;
+  padding: 6px 8px;
+}
+.rpt-embedded .rpt-table td {
+  padding: 5px 8px;
+}
+.rpt-embedded .rpt-table tr.is-subtotal > td:first-child,
+.rpt-embedded .rpt-table tr.is-grand > td:first-child {
+  font-size: 11.5px;
+}
+.rpt-embedded .rpt-arrow {
+  width: 12px;
+  font-size: 9px;
+}
+.rpt-embedded .rpt-general {
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+}
+.rpt-embedded .rpt-kv td {
+  padding: 6px 10px;
+}
+.rpt-embedded .rpt-kv td:first-child {
+  font-size: 12.5px;
+}
+.rpt-embedded .rpt-kv .rpt-big {
+  font-size: 15px;
+}
+.rpt-embedded .rpt-kv .rpt-basis {
+  font-size: 12.5px;
+}
+.rpt-embedded .rpt-bullets.is-small > li {
+  font-size: 12.5px;
+}
+.rpt-embedded .rpt-kf {
+  gap: 16px;
+}
+.rpt-embedded .rpt-kf > div {
+  padding: 10px 14px 12px;
+}
+.rpt-embedded .rpt-kf-label {
+  font-size: 13px;
+}
+.rpt-embedded .rpt-kf-value {
+  font-size: 28px;
+}
+.rpt-embedded .rpt-kf-sub {
+  font-size: 12px;
+}
+.rpt-embedded .rpt-overall-title {
+  font-size: 13px;
+}
+.rpt-embedded .rpt-grid-2,
+.rpt-embedded .rpt-glossary {
+  gap: 0 28px;
+}
+.rpt-embedded .rpt-glossary dl {
+  grid-template-columns: 90px 1fr;
+}
+.rpt-embedded .rpt-glossary dt,
+.rpt-embedded .rpt-glossary dd {
+  padding: 5px 6px;
+}
+.rpt-embedded .rpt-disclaimer {
+  font-size: 12px;
+}
+
+/* Wide tables scroll sideways inside the sheet rather than the page. */
+.rpt-scroll {
+  overflow-x: auto;
+}
+
+/* A bullet that drills into a tab: text first, link on hover. */
+.rpt-link {
+  all: unset;
+  cursor: pointer;
+  text-underline-offset: 2px;
+}
+.rpt-link:hover,
+.rpt-link:focus-visible {
+  text-decoration: underline;
+  color: var(--rpt-navy);
+}
+.rpt-link:focus-visible {
+  outline: 2px solid var(--rpt-blue);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1100px) {
+  .rpt-embedded .rpt-general {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .rpt-embedded .rpt-gauge-card {
+    max-width: 420px;
+  }
+}
+@media (max-width: 760px) {
+  .rpt-paper {
+    padding: 18px 14px 20px;
+  }
+  .rpt-embedded .rpt-kf,
+  .rpt-embedded .rpt-grid-2,
+  .rpt-embedded .rpt-glossary {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  .rpt-embedded .rpt-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .rpt-embedded .rpt-head .text-right {
+    text-align: left;
+  }
+}
+@media (min-width: 761px) and (max-width: 1100px) {
+  .rpt-embedded .rpt-kf {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media print {
+  .rpt-scroll {
+    overflow: visible;
+  }
+}

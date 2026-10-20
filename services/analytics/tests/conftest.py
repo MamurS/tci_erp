@@ -1,6 +1,6 @@
 import pytest
 
-from app.ratelimit import provisioning_limiter
+from app.ratelimit import compute_limiter, provisioning_limiter
 
 
 @pytest.fixture
@@ -16,3 +16,4 @@ def _reset_rate_limiter() -> None:
     window (every TestClient request comes from the same address) and later
     tests get 429s that have nothing to do with what they assert."""
     provisioning_limiter.reset()
+    compute_limiter.reset()

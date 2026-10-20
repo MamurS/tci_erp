@@ -7,32 +7,23 @@ import { Modal, Spinner } from '../../../components/ui'
 import { EM_DASH, formatAmount } from '../../../lib/format'
 import type { StatementBundle } from '../types'
 import { statementPeriodLabel } from '../types'
-import { useLocalValues, useTemplates } from './localApi'
-import type { StatementTemplate, TemplateLine } from './localApi'
-
-function templateName(t: StatementTemplate, locale: string): string {
-  if (locale === 'ru') return t.name_ru
-  if (locale === 'uz') return t.name_uz
-  return t.name_en
-}
-
-function lineName(line: TemplateLine, locale: string): string {
-  if (locale === 'ru') return line.name_ru
-  if (locale === 'uz') return line.name_uz
-  return line.name_en
-}
+import { localName as lineName, templateName } from './frameworkText'
+import { useFrameworkTemplates, useLocalValues, useTemplateFrameworkIndex } from './localApi'
 
 interface LocalSourceModalProps {
   open: boolean
   onClose: () => void
   statement: StatementBundle
-  countryCode: string
 }
 
-export function LocalSourceModal({ open, onClose, statement, countryCode }: LocalSourceModalProps) {
+export function LocalSourceModal({ open, onClose, statement }: LocalSourceModalProps) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const { data: templates } = useTemplates(open ? countryCode : undefined)
+  // The forms the statement was ENTERED on, whatever the buyer's country
+  // points at today.
+  const { data: templateIndex } = useTemplateFrameworkIndex()
+  const frameworkCode = statement.template_id ? templateIndex?.[statement.template_id] : undefined
+  const { data: templates } = useFrameworkTemplates(open ? frameworkCode : undefined)
   const { data: values, isLoading } = useLocalValues(open ? statement.id : undefined)
 
   return (

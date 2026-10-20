@@ -4,8 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { tci } from '../../../lib/supabase'
 import type { StatementHeaderInput } from '../api'
-import { mapLocalStatement } from './mapping'
-import type { MappingRule } from './mapping'
+import { mapLocalStatement, templateRules } from './mapping'
+import type { LocalFormula, MappingRule } from './mapping'
 
 export interface TemplateLine {
   id: string
@@ -13,43 +13,121 @@ export interface TemplateLine {
   name_en: string
   name_ru: string
   name_uz: string
+  /** The caption exactly as printed on the official form, in its language. */
+  name_local: string | null
   section: string
   display_order: number
   is_subtotal: boolean
   indent_level: number
+  /** Printed in parentheses / with a minus: typed positive, subtracted. */
+  is_deduction: boolean
+  formula: LocalFormula | null
+  crosscheck_column: string | null
+  note: string | null
 }
+
+export type TemplateFidelity = 'official_codes' | 'prescribed_captions' | 'framework_layout'
 
 export interface StatementTemplate {
   id: string
-  country_code: string
+  country_code: string | null
   form_kind: 'balance_sheet' | 'income_statement'
   code: string
   name_en: string
   name_ru: string
   name_uz: string
+  name_local: string | null
+  framework_code: string
+  fidelity: TemplateFidelity
+  local_language: string | null
   version: string
   is_active: boolean
   statement_template_lines: TemplateLine[]
 }
 
-export function useTemplates(countryCode: string | undefined) {
+export type FrameworkKind = 'ifrs' | 'ifrs_based' | 'national_gaap'
+
+export interface ReportingFramework {
+  code: string
+  kind: FrameworkKind
+  short_en: string
+  short_ru: string
+  short_uz: string
+  name_en: string
+  name_ru: string
+  name_uz: string
+  legal_basis: string | null
+  is_active: boolean
+}
+
+/** The framework a country's companies report under (migration 0049); null
+ *  when none is configured, which means "enter on the IFRS form". */
+export function useCountryFramework(countryCode: string | null | undefined) {
   return useQuery({
-    queryKey: ['ref', 'templates', countryCode],
+    queryKey: ['ref', 'country-framework', countryCode],
     enabled: Boolean(countryCode),
+    staleTime: Infinity,
+    queryFn: async (): Promise<ReportingFramework | null> => {
+      const { data, error } = await tci()
+        .from('country_reporting_frameworks')
+        .select('reporting_frameworks(*)')
+        .eq('country_code', countryCode as string)
+        .maybeSingle()
+      if (error) throw error
+      const row = data as unknown as { reporting_frameworks: ReportingFramework | null } | null
+      return row?.reporting_frameworks ?? null
+    },
+  })
+}
+
+/** Every framework, for badges and labels. Small reference table. */
+export function useFrameworks() {
+  return useQuery({
+    queryKey: ['ref', 'frameworks'],
+    staleTime: Infinity,
+    queryFn: async (): Promise<ReportingFramework[]> => {
+      const { data, error } = await tci().from('reporting_frameworks').select('*').order('code')
+      if (error) throw error
+      return (data ?? []) as unknown as ReportingFramework[]
+    },
+  })
+}
+
+/** template id -> framework code, for statements already saved on a form. */
+export function useTemplateFrameworkIndex() {
+  return useQuery({
+    queryKey: ['ref', 'template-frameworks'],
+    staleTime: Infinity,
+    queryFn: async (): Promise<Record<string, string>> => {
+      const { data, error } = await tci().from('statement_templates').select('id, framework_code')
+      if (error) throw error
+      const index: Record<string, string> = {}
+      for (const row of (data ?? []) as unknown as { id: string; framework_code: string }[]) {
+        index[row.id] = row.framework_code
+      }
+      return index
+    },
+  })
+}
+
+/** The forms of one framework (balance sheet first). */
+export function useFrameworkTemplates(frameworkCode: string | null | undefined) {
+  return useQuery({
+    queryKey: ['ref', 'templates', frameworkCode],
+    enabled: Boolean(frameworkCode),
     staleTime: Infinity,
     queryFn: async (): Promise<StatementTemplate[]> => {
       const { data, error } = await tci()
         .from('statement_templates')
         .select('*, statement_template_lines(*)')
-        .eq('country_code', countryCode as string)
+        .eq('framework_code', frameworkCode as string)
         .eq('is_active', true)
-        .order('code')
       if (error) throw error
       const templates = (data ?? []) as unknown as StatementTemplate[]
       for (const t of templates) {
         t.statement_template_lines.sort((a, b) => a.display_order - b.display_order)
       }
-      return templates
+      return templates.sort((a, b) => (a.form_kind === 'balance_sheet' ? -1 : 1) - (b.form_kind === 'balance_sheet' ? -1 : 1))
     },
   })
 }
@@ -108,7 +186,7 @@ export type TemplateMappingRule = MappingRule & { template_line_id: string }
 
 export interface LocalStatementSaveInput {
   header: StatementHeaderInput
-  /** Balance sheet + income statement templates used (both UZ NAS forms). */
+  /** The framework's balance sheet + income statement templates. */
   templates: StatementTemplate[]
   /** line_code -> amount, across both forms (codes are unique per template;
    *  values are keyed by `${templateCode}:${lineCode}` to stay unambiguous). */
@@ -166,13 +244,16 @@ async function saveLocalStatement(
   const lineIds = (template: StatementTemplate | undefined): Set<string> =>
     new Set(template?.statement_template_lines.map((l) => l.id) ?? [])
 
+  const rulesOf = (template: StatementTemplate | undefined) =>
+    templateRules(template?.statement_template_lines ?? [])
+
   const bsMapped = mapLocalStatement(
-    bsTemplate?.code ?? '',
+    rulesOf(bsTemplate),
     valuesFor(bsTemplate),
     input.mappings.filter((m) => lineIds(bsTemplate).has(m.template_line_id)),
   )
   const isMapped = mapLocalStatement(
-    isTemplate?.code ?? '',
+    rulesOf(isTemplate),
     valuesFor(isTemplate),
     input.mappings.filter((m) => lineIds(isTemplate).has(m.template_line_id)),
   )

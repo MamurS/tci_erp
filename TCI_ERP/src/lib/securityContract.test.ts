@@ -39,6 +39,8 @@ function migration(suffix: string): string {
 
 const M43 = migration('0043_security_closure.sql')
 const M44 = migration('0044_auth_hardening.sql')
+const M46 = migration('0046_login_gate.sql')
+const M48 = migration('0048_rotation_and_claim_documents.sql')
 
 /** The LATEST migration that (re)defines tci.definer_gate_allowlist(). */
 const ALLOWLIST_SOURCE = Object.entries(MIGRATIONS)
@@ -65,6 +67,13 @@ export const DEFINER_GATE_ALLOWLIST: readonly { name: string; why: string }[] = 
   { name: 'auth_policy', why: 'non-sensitive policy numbers the UI mirrors to explain a refusal' },
   { name: 'mfa_satisfied', why: "reads only the caller's own factors, roles and JWT claims; part of the gate" },
   { name: 'my_auth_status', why: "reads only the caller's own rotation, MFA and lockout state" },
+  { name: 'login_begin', why: 'pre-sign-in entry point: salted hashes only, names no account (see pre_auth_entry_points)' },
+  { name: 'my_sign_in_notice', why: "reads only the caller's own sign-in attempts, keyed by auth.uid()" },
+  { name: 'require_trusted_write', why: 'a gate: only raises (the guard on workflow-written tables)' },
+  {
+    name: 'may_remove_claim_object',
+    why: "a storage-policy predicate: true only for the caller's own unregistered upload to a claim they may upload to",
+  },
 ]
 
 describe('no migration after 0042 raises P0004', () => {
@@ -97,8 +106,8 @@ describe('the allow-list in tci.definer_gate_allowlist()', () => {
     why: m[2].replace(/''/g, "'"),
   }))
 
-  it('is defined last by 0044', () => {
-    expect(ALLOWLIST_SOURCE).toBe(M44)
+  it('is defined last by 0048', () => {
+    expect(ALLOWLIST_SOURCE).toBe(M48)
   })
 
   it('matches this mirror exactly, name for name, reason for reason', () => {
@@ -210,5 +219,41 @@ describe('authentication hardening (0044)', () => {
     expect(M44).toContain('0044: an auth-hardening internal is reachable by an API role')
     expect(M44).toContain('0044: GoTrue cannot execute the password verification hook')
     expect(M44).toContain('0044: has_role/is_staff do not enforce the MFA policy')
+  })
+})
+
+describe('the sign-in gate (0046)', () => {
+  it('lets anon reach exactly the pre-auth entry points', () => {
+    expect(M46).toContain("values ('login_begin',")
+    expect(M46).toContain('0046: anon can execute tci functions beyond the pre-auth entry points')
+    // PUBLIC is revoked only after authenticated's grant is restated.
+    const loop = M46.slice(M46.indexOf('for r in'), M46.indexOf('end loop;'))
+    expect(loop.indexOf('grant execute')).toBeGreaterThan(-1)
+    expect(loop.indexOf('grant execute')).toBeLessThan(loop.indexOf('revoke execute'))
+  })
+
+  it('keeps the hook GoTrue-only and gated', () => {
+    expect(M46).toContain(
+      'revoke execute on function tci.custom_access_token_hook(jsonb) from public, anon, authenticated, service_role;',
+    )
+    expect(M46).toContain('grant execute on function tci.custom_access_token_hook(jsonb) to supabase_auth_admin;')
+    expect(M46).toContain('0046: custom_access_token_hook is not gated')
+  })
+
+  it('refuses the right password while locked, and only a bypass ends sessions', () => {
+    expect(M46).toContain("if v_lock.user_id is not null and v_lock.reason = 'bypass' then")
+    expect(M46).toContain("if v_method <> 'password' then")
+  })
+})
+
+describe('rotation and claim documents (0048)', () => {
+  it('refuses to clear the rotation flag while the password is unchanged', () => {
+    expect(M48).toContain('and p.temp_password_hash = tci.security_hash(u.encrypted_password)')
+    expect(M48).toContain("revoke select (temp_password_hash) on tci.user_profiles from authenticated, anon;")
+  })
+
+  it('registers size and type from Storage, never from the browser', () => {
+    expect(M48).toContain("where o.bucket_id = 'claim-documents' and o.name = p_storage_path;")
+    expect(M48).toContain('v_size, v_type, p_note')
   })
 })

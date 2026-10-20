@@ -39,7 +39,7 @@ export interface Policy {
 }
 
 export interface PolicyWithRefs extends Policy {
-  legal_entities: { name: string } | null
+  legal_entities: { name: string; country_code: string } | null
 }
 
 export interface PolicyStatusHistoryRow {

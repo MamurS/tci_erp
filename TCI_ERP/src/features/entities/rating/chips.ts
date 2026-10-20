@@ -83,3 +83,35 @@ export function buildFactorChips(
   return { strengths, weaknesses }
 }
 
+export interface FactorBullet {
+  factor: string
+  text: string
+  /** strength ≤ 40, weakness ≥ 60, otherwise neutral (the reference
+   * report's green / amber / red squares). */
+  tone: 'strength' | 'neutral' | 'weakness'
+  score: number
+}
+
+/** Every scored factor, best first — the bullet list beside the gauge. */
+export function buildFactorBullets(
+  components: RatingComponent[],
+  t: TFunction,
+  locale: string,
+): FactorBullet[] {
+  return components
+    .filter(
+      (c): c is RatingComponent & { score: number; value: number } =>
+        c.status === 'scored' && c.score !== null && c.value !== null,
+    )
+    .sort((a, b) => a.score - b.score)
+    .map((c) => ({
+      factor: c.factor,
+      score: c.score,
+      tone: c.score <= STRENGTH_MAX ? 'strength' : c.score >= WEAKNESS_MIN ? 'weakness' : 'neutral',
+      // "Factor: band (value)" rather than "band Factor": an adjective in
+      // front of the factor would need gender agreement in ru and uz.
+      text: `${t(`rating.factors.${c.factor}`)}: ${
+        c.band ? t(`rating.bands.${c.band}`, { defaultValue: c.band }) : ''
+      } (${formatFactorValue(c.factor, c.value, locale)})`,
+    }))
+}

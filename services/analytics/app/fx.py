@@ -16,11 +16,13 @@ import datetime as dt
 import logging
 
 import httpx
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from app.hardening import throttle_compute
+
 logger = logging.getLogger(__name__)
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(throttle_compute)])
 
 CBU_URL = "https://cbu.uz/ru/arkhiv-kursov-valyut/json/{ccy}/{date}/"
 

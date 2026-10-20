@@ -8,8 +8,9 @@
 #    ATTRIBUTES (not <style> blocks), which CSP counts as inline. Scripts
 #    are what matter for injection; styles stay locked to self + inline.
 #  - connect-src: the Supabase project (REST, Auth, Storage) and its
-#    websocket. `https://*.supabase.co` is the project host; narrow it to
-#    the project URL if the domain is ever custom. WHEN THE ANALYTICS
+#    websocket, named exactly (the canonical project ref) rather than
+#    `*.supabase.co`, which would let an injected script exfiltrate to ANY
+#    Supabase project. Change it together with VITE_SUPABASE_URL. WHEN THE ANALYTICS
 #    SERVICE IS HOSTED, append its origin (the value of
 #    VITE_ANALYTICS_API_URL) to connect-src, or every rating call is
 #    blocked by the browser.
@@ -20,7 +21,7 @@
 #  - The print report route (/entities/:id/report) uses the same bundle and
 #    the same rules; verified headlessly under this CSP.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; font-src 'self' data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://reunqrpeumokqgarknge.supabase.co; font-src 'self' data:; connect-src 'self' https://reunqrpeumokqgarknge.supabase.co wss://reunqrpeumokqgarknge.supabase.co; frame-src https://challenges.cloudflare.com; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY

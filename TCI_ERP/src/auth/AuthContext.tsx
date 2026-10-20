@@ -6,6 +6,7 @@ import { supabase, tci } from '../lib/supabase'
 import { isUserRole } from '../lib/roles'
 import type { UserRole } from '../lib/roles'
 import { classifySignInError } from './signInErrors'
+import { attemptsLeft, lockSeconds, parseLoginBegin } from './loginGate'
 import type { SignInFailure } from './signInErrors'
 import { parseAuthStatus } from './mfaGate'
 import type { AuthStatus } from './mfaGate'
@@ -134,6 +135,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [userId, accessToken])
 
   const signIn = useCallback(async (email: string, password: string, captchaToken?: string) => {
+    // Every sign-in starts at the gate (migration 0046): it refuses while this
+    // email + network is in a wait, and otherwise records an attempt that
+    // counts as a failure until the access-token hook refunds it on success.
+    const begin = await tci().rpc('login_begin', { p_email: email })
+    // Only a backend that predates 0046 lacks the function; then GoTrue's own
+    // throttle is all there is, as before.
+    const gateMissing = begin.error?.code === 'PGRST202'
+    if (begin.error && !gateMissing) {
+      return { error: { kind: 'generic' as const } }
+    }
+    const gate = gateMissing
+      ? { allowed: true, failures: 0, retryAfterSeconds: null }
+      : parseLoginBegin(begin.data)
+    if (!gate.allowed) {
+      return { error: { kind: 'throttled' as const, seconds: gate.retryAfterSeconds ?? 30 } }
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -141,7 +159,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
     if (!error) return { error: null }
     const status = 'status' in error ? (error as { status?: number }).status : undefined
-    return { error: classifySignInError({ code: error.code, status, message: error.message }) }
+    const failure = classifySignInError({ code: error.code, status, message: error.message })
+    if (failure.kind === 'invalidCredentials' && !gateMissing) {
+      const left = attemptsLeft(gate.failures)
+      const wait = lockSeconds(gate.failures + 1)
+      return { error: { ...failure, attemptsLeft: left, seconds: wait > 0 ? wait : undefined } }
+    }
+    return { error: failure }
   }, [])
 
   const signOut = useCallback(async () => {

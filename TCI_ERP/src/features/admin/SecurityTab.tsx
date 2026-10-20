@@ -13,6 +13,7 @@ import {
   useAuthEvents,
   useAuthPolicy,
   useLockouts,
+  useSetLoginGateEnforced,
   useRevokeSessions,
   useSecurityAlerts,
   useUnlockAccount,
@@ -26,6 +27,7 @@ export function SecurityTab() {
   const policy = useAuthPolicy()
   const alerts = useSecurityAlerts()
   const lockouts = useLockouts()
+  const setGate = useSetLoginGateEnforced()
   const users = useUserSecurity()
   const sessions = useAdminSessions()
   const events = useAuthEvents()
@@ -46,11 +48,17 @@ export function SecurityTab() {
         {policy.data ? (
           <ul className="grid gap-1 text-[13px] text-slate-600 sm:grid-cols-2">
             <li>
-              {t('admin.security.policy.lockout', {
-                failures: policy.data.lockout_max_failures,
-                window: policy.data.lockout_window_minutes,
-                duration: policy.data.lockout_duration_minutes,
-              })}
+              {policy.data.login_free_attempts !== undefined
+                ? t('admin.security.policy.loginSchedule', {
+                    free: policy.data.login_free_attempts,
+                    base: policy.data.login_base_lock_seconds,
+                    max: Math.round((policy.data.login_max_lock_seconds ?? 3600) / 60),
+                  })
+                : t('admin.security.policy.lockout', {
+                    failures: policy.data.lockout_max_failures,
+                    window: policy.data.lockout_window_minutes,
+                    duration: policy.data.lockout_duration_minutes,
+                  })}
             </li>
             <li>
               {policy.data.mfa_required_for_admin
@@ -69,9 +77,36 @@ export function SecurityTab() {
         ) : (
           <Spinner label={t('common.loading')} />
         )}
-        <p className="mt-3 rounded-md border border-warn-500/30 bg-warn-50 px-3 py-2 text-[13px] text-warn-500">
-          {t('admin.security.hookNotice')}
-        </p>
+        {policy.data?.login_gate_enforced !== undefined ? (
+          <div
+            className={`mt-3 flex flex-wrap items-center gap-3 rounded-md border px-3 py-2 text-[13px] ${
+              policy.data.login_gate_enforced
+                ? 'border-pos-500/30 bg-pos-50 text-slate-700'
+                : 'border-warn-500/30 bg-warn-50 text-slate-700'
+            }`}
+          >
+            <span className="flex-1">
+              <strong>
+                {policy.data.login_gate_enforced
+                  ? t('admin.security.gate.enforcedOn')
+                  : t('admin.security.gate.enforcedOff')}
+              </strong>{' '}
+              {t('admin.security.gate.hookSteps')}
+            </span>
+            <Button
+              size="sm"
+              variant={policy.data.login_gate_enforced ? 'secondary' : 'primary'}
+              disabled={setGate.isPending}
+              onClick={() => setGate.mutate(!policy.data!.login_gate_enforced)}
+            >
+              {policy.data.login_gate_enforced ? t('admin.security.gate.disable') : t('admin.security.gate.enable')}
+            </Button>
+          </div>
+        ) : (
+          <p className="mt-3 rounded-md border border-warn-500/30 bg-warn-50 px-3 py-2 text-[13px] text-warn-500">
+            {t('admin.security.hookNotice')}
+          </p>
+        )}
       </Card>
 
       {/* --- alerts ----------------------------------------------------- */}
@@ -120,7 +155,13 @@ export function SecurityTab() {
                   <td>{l.email ?? l.user_id}</td>
                   <td>{when(l.locked_at)}</td>
                   <td>{when(l.locked_until)}</td>
-                  <td>{l.failures}</td>
+                  <td>
+                    {l.reason === 'bypass' ? (
+                      <span className="text-[13px] text-neg-500">{t('admin.security.lockouts.reasonBypass')}</span>
+                    ) : (
+                      l.failures
+                    )}
+                  </td>
                   <td>
                     {l.active ? (
                       <Badge tone="neg">{t('admin.security.lockouts.active')}</Badge>

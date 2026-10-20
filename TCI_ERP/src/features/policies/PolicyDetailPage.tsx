@@ -24,6 +24,7 @@ import { ClaimsSection } from '../claims'
 import { EM_DASH, formatAmount, formatPercent } from '../../lib/format'
 import { PolicyLimitsSection } from '../limits/PolicyLimitsSection'
 import { usePolicyOriginRequest } from '../requests/api'
+import { DraftContractSection } from '../wording'
 import { PolicyPremiumTab } from './PolicyPremiumTab'
 import { useChangePolicyStatus, usePolicy, usePolicyStatusHistory } from './api'
 import {
@@ -115,12 +116,13 @@ function PolicyBody({ policy, policyId }: { policy: PolicyWithRefs; policyId: st
   const [params, setParams] = useSearchParams()
   const requested = params.get('tab')
   const active =
-    requested === 'premium' || requested === 'claims' ? requested : 'terms'
+    requested === 'premium' || requested === 'claims' || requested === 'contract' ? requested : 'terms'
 
   const tabs: TabDef[] = [
     { key: 'terms', label: t('policies.tabs.terms') },
     { key: 'premium', label: t('policies.tabs.premium') },
     { key: 'claims', label: t('policies.tabs.claims') },
+    { key: 'contract', label: t('policies.tabs.contract') },
   ]
 
   return (
@@ -131,14 +133,21 @@ function PolicyBody({ policy, policyId }: { policy: PolicyWithRefs; policyId: st
           active={active}
           onChange={(id) => {
             const next = new URLSearchParams(params)
-            if (id === 'premium' || id === 'claims') next.set('tab', id)
+            if (id === 'premium' || id === 'claims' || id === 'contract') next.set('tab', id)
             else next.delete('tab')
             setParams(next, { replace: true })
           }}
         />
       </div>
 
-      {active === 'claims' ? (
+      {active === 'contract' ? (
+        <DraftContractSection
+          target={{ policyId }}
+          reference={policy.policy_number}
+          countryCode={policy.legal_entities?.country_code ?? null}
+          product={policy.product_structure}
+        />
+      ) : active === 'claims' ? (
         <ClaimsSection policyId={policyId} />
       ) : active === 'premium' ? (
         <PolicyPremiumTab policyId={policyId} />

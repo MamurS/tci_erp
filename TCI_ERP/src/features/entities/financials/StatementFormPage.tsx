@@ -35,7 +35,15 @@ import { validateBalanceSheet, validateIncomeStatement } from './validation'
 import type { ValidationWarning } from './validation'
 import { LocalStatementForm } from './LocalStatementForm'
 import type { LocalFormState } from './LocalStatementForm'
-import { useCreateLocalStatement, useTemplates, useUpdateLocalStatement } from './localApi'
+import { defaultStatementCurrency } from './countryCurrency'
+import { frameworkShort, localName, templateName } from './frameworkText'
+import {
+  useCountryFramework,
+  useCreateLocalStatement,
+  useFrameworkTemplates,
+  useTemplateFrameworkIndex,
+  useUpdateLocalStatement,
+} from './localApi'
 
 /** Permissive numeric parsing: "1 234,56" and "1234.56" both accepted. */
 function parseAmount(raw: string): number | null {
@@ -46,7 +54,8 @@ function parseAmount(raw: string): number | null {
 }
 
 export function StatementFormPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const locale = i18n.resolvedLanguage ?? 'en'
   const navigate = useNavigate()
   const { id: entityId = '', statementId } = useParams()
   const isEdit = Boolean(statementId)
@@ -77,11 +86,36 @@ export function StatementFormPage() {
   const [error, setError] = useState<string | null>(null)
 
   const [basis, setBasis] = useState<'ifrs' | 'local'>('ifrs')
+  const [basisTouched, setBasisTouched] = useState(false)
   const [localState, setLocalState] = useState<LocalFormState | null>(null)
-  const { data: templates } = useTemplates(buyer?.country_code)
+  // The form follows the buyer's country (0049). A statement already saved
+  // keeps the forms it was entered on, whatever the country points at now.
+  const { data: countryFramework } = useCountryFramework(buyer?.country_code)
+  const { data: templateIndex } = useTemplateFrameworkIndex()
+  const frameworkCode = existing?.template_id
+    ? templateIndex?.[existing.template_id]
+    : countryFramework && countryFramework.kind !== 'ifrs'
+      ? countryFramework.code
+      : undefined
+  const { data: templates } = useFrameworkTemplates(frameworkCode)
   const createLocalStatement = useCreateLocalStatement(entityId)
   const updateLocalStatement = useUpdateLocalStatement(entityId, statementId ?? '')
   const localAvailable = Boolean(templates?.length)
+  const frameworkLabel = countryFramework ? frameworkShort(countryFramework, locale) : ''
+
+  // A new statement opens on the country's own form when there is one; the
+  // analyst can still switch to IFRS (a buyer that files IFRS accounts).
+  useEffect(() => {
+    if (!isEdit && !basisTouched && localAvailable) setBasis('local')
+  }, [isEdit, basisTouched, localAvailable])
+
+  // ...and in the country's currency, when the reference table has it.
+  const [currencyTouched, setCurrencyTouched] = useState(false)
+  useEffect(() => {
+    if (isEdit || currencyTouched) return
+    const preset = defaultStatementCurrency(buyer?.country_code, (currencies ?? []).map((c) => c.code))
+    if (preset) setCurrency(preset)
+  }, [isEdit, currencyTouched, buyer?.country_code, currencies])
 
   useEffect(() => {
     if (existing) {
@@ -186,24 +220,37 @@ export function StatementFormPage() {
         <span className="text-[13px] font-medium text-slate-600">{t('fin.local.basis')}</span>
         <Segmented
           value={basis}
-          onChange={(key) => setBasis(key as 'ifrs' | 'local')}
+          onChange={(key) => {
+            setBasisTouched(true)
+            setBasis(key as 'ifrs' | 'local')
+          }}
           options={[
             { key: 'ifrs', label: t('fin.local.basisIfrs'), disabled: isEdit },
             {
               key: 'local',
-              label: t('fin.local.basisLocal'),
+              label: localAvailable && frameworkLabel
+                ? t('fin.local.basisLocalNamed', { framework: frameworkLabel })
+                : t('fin.local.basisLocal'),
               disabled: isEdit || !localAvailable,
             },
           ]}
         />
-        {basis === 'local' && (
-          <span className="text-[13px] text-slate-500">
-            {(templates ?? []).map((x) => x.code).join(' + ')}
-          </span>
-        )}
-        {!localAvailable && !isEdit && (
-          <span className="text-xs text-slate-400">{t('fin.local.noTemplatesForCountry')}</span>
-        )}
+        <div className="basis-full text-[13px] text-slate-500">
+          {basis === 'local' && templates?.length ? (
+            <>
+              {templates.map((x) => templateName(x, locale)).join(' + ')}
+              {countryFramework?.legal_basis && (
+                <span className="block text-xs text-slate-400">{countryFramework.legal_basis}</span>
+              )}
+            </>
+          ) : countryFramework?.kind === 'ifrs' ? (
+            t('fin.local.ifrsFramework', { framework: localName(countryFramework, locale) })
+          ) : countryFramework && localAvailable ? (
+            t('fin.local.ifrsInsteadOfLocal', { framework: localName(countryFramework, locale) })
+          ) : (
+            !isEdit && t('fin.local.noFrameworkForCountry')
+          )}
+        </div>
       </Card>
 
       {/* Header fields */}
@@ -247,7 +294,13 @@ export function StatementFormPage() {
           <Input type="date" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} required />
         </Field>
         <Field label={t('fin.fields.currency')}>
-          <Select value={currency} onChange={(e) => setCurrency(e.target.value)}>
+          <Select
+            value={currency}
+            onChange={(e) => {
+              setCurrencyTouched(true)
+              setCurrency(e.target.value)
+            }}
+          >
             {(currencies ?? []).map((c) => (
               <option key={c.code} value={c.code}>
                 {c.code}
@@ -278,7 +331,7 @@ export function StatementFormPage() {
 
       {basis === 'local' ? (
         <LocalStatementForm
-          countryCode={buyer?.country_code ?? ''}
+          frameworkCode={frameworkCode ?? ''}
           existing={existing}
           onStateChange={setLocalState}
         />

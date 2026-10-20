@@ -24,6 +24,8 @@ import { convertStatements, requiredRates } from './fx'
 import type { DisplayCurrency, RateNeed } from './fx'
 import { useFxRates, useSaveManualRate } from './fxApi'
 import { rateKey } from './fx'
+import { frameworkShort } from './frameworkText'
+import { useFrameworks, useTemplateFrameworkIndex } from './localApi'
 import { LocalSourceModal } from './LocalSourceModal'
 import { BALANCE_SHEET_SECTIONS, INCOME_STATEMENT_SECTIONS, bsVerticalBase } from './lines'
 import { RatiosTable } from './RatiosTable'
@@ -290,7 +292,6 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
           open
           onClose={() => setSourceStatement(null)}
           statement={sourceStatement}
-          countryCode={buyer?.country_code ?? ''}
         />
       )}
 
@@ -413,7 +414,16 @@ function ManageStatementsModal({
   entityId: string
   statements: StatementBundle[]
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const locale = i18n.resolvedLanguage ?? 'en'
+  const { data: frameworks } = useFrameworks()
+  const { data: templateIndex } = useTemplateFrameworkIndex()
+  /** The badge names the national form a statement was entered on. */
+  const localBadge = (templateId: string | null): string => {
+    const code = templateId ? templateIndex?.[templateId] : undefined
+    const framework = frameworks?.find((f) => f.code === code)
+    return framework ? frameworkShort(framework, locale) : t('fin.local.badgeLocal')
+  }
   const deleteStatement = useDeleteStatement(entityId)
   const [confirmingId, setConfirmingId] = useState<string | null>(null)
 
@@ -441,7 +451,7 @@ function ManageStatementsModal({
                 <span className="ml-2 inline-flex gap-1">
                   <Badge tone={s.accounting_basis === 'local' ? 'accent' : 'neutral'}>
                     {s.accounting_basis === 'local'
-                      ? t('fin.local.badgeLocal')
+                      ? localBadge(s.template_id)
                       : t('fin.local.badgeIfrs')}
                   </Badge>
                   {s.report_type === 'management' && (

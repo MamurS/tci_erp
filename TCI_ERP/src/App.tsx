@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import { RequirePasswordChange } from './auth/RequirePasswordChange'
@@ -6,33 +7,58 @@ import { RoleGuard } from './auth/RoleGuard'
 import { AppShell } from './components/layout/AppShell'
 import { LoginPage } from './pages/LoginPage'
 import { MfaVerifyPage } from './pages/MfaVerifyPage'
-import { DashboardPage } from './pages/DashboardPage'
 import { NoAccessPage } from './pages/NoAccessPage'
 import { NotFoundPage } from './pages/NotFoundPage'
-import { EntitiesPage, EntityDetailPage, StatementFormPage } from './features/entities'
-import { ReportPage } from './features/entities/report/ReportPage'
-import { legacyRedirect } from './features/entities/redirects'
-import { LimitRequestPage, LimitsPage } from './features/limits'
-import { RequestDetailPage, RequestsPage } from './features/requests'
-import { PoliciesPage, PolicyDetailPage, PolicyFormPage } from './features/policies'
-import { DeclarationDetailPage, DeclarationsPage } from './features/declarations'
-import { OverdueDetailPage, OverduesPage } from './features/overdue'
-import { ClaimDetailPage, ClaimsPage } from './features/claims'
-import { AdminPage } from './features/admin'
-import { AgendaPage } from './features/agenda'
-import { AccountPage, ChangePasswordPage } from './features/account'
-import {
-  PortalAccountPage,
-  PortalDeclarationsPage,
-  PortalLimitsPage,
-  PortalClaimsPage,
-  PortalOverduesPage,
-  PortalPoliciesPage,
-  PortalPremiumPage,
-  PortalShell,
-  PortalSubmissionsPage,
-} from './features/portal'
 import { PortalRedirect } from './auth/PortalRedirect'
+import { LoadingScreen } from './components/ui'
+import { lazyPage } from './lib/lazyPage'
+import { legacyRedirect } from './features/entities/redirects'
+
+// Every page is its own chunk, fetched when first visited: the sign-in
+// screen does not download the claims module, and a policyholder in the
+// portal never downloads the staff app. The shells keep their frame on
+// screen while a page loads (Suspense inside AppShell / PortalShell).
+const DashboardPage = lazyPage(() => import('./pages/DashboardPage'), 'DashboardPage')
+const entities = () => import('./features/entities')
+const EntitiesPage = lazyPage(entities, 'EntitiesPage')
+const EntityDetailPage = lazyPage(entities, 'EntityDetailPage')
+const StatementFormPage = lazyPage(entities, 'StatementFormPage')
+const ReportPage = lazyPage(() => import('./features/entities/report/ReportPage'), 'ReportPage')
+const limits = () => import('./features/limits')
+const LimitsPage = lazyPage(limits, 'LimitsPage')
+const LimitRequestPage = lazyPage(limits, 'LimitRequestPage')
+const requests = () => import('./features/requests')
+const RequestsPage = lazyPage(requests, 'RequestsPage')
+const RequestDetailPage = lazyPage(requests, 'RequestDetailPage')
+const policies = () => import('./features/policies')
+const PoliciesPage = lazyPage(policies, 'PoliciesPage')
+const PolicyDetailPage = lazyPage(policies, 'PolicyDetailPage')
+const PolicyFormPage = lazyPage(policies, 'PolicyFormPage')
+const declarations = () => import('./features/declarations')
+const DeclarationsPage = lazyPage(declarations, 'DeclarationsPage')
+const DeclarationDetailPage = lazyPage(declarations, 'DeclarationDetailPage')
+const overdue = () => import('./features/overdue')
+const OverduesPage = lazyPage(overdue, 'OverduesPage')
+const OverdueDetailPage = lazyPage(overdue, 'OverdueDetailPage')
+const claims = () => import('./features/claims')
+const ClaimsPage = lazyPage(claims, 'ClaimsPage')
+const ClaimDetailPage = lazyPage(claims, 'ClaimDetailPage')
+const AdminPage = lazyPage(() => import('./features/admin'), 'AdminPage')
+const WordingPage = lazyPage(() => import('./features/wording'), 'WordingPage')
+const AgendaPage = lazyPage(() => import('./features/agenda'), 'AgendaPage')
+const account = () => import('./features/account')
+const AccountPage = lazyPage(account, 'AccountPage')
+const ChangePasswordPage = lazyPage(account, 'ChangePasswordPage')
+const portal = () => import('./features/portal')
+const PortalShell = lazyPage(portal, 'PortalShell')
+const PortalPoliciesPage = lazyPage(portal, 'PortalPoliciesPage')
+const PortalLimitsPage = lazyPage(portal, 'PortalLimitsPage')
+const PortalDeclarationsPage = lazyPage(portal, 'PortalDeclarationsPage')
+const PortalPremiumPage = lazyPage(portal, 'PortalPremiumPage')
+const PortalOverduesPage = lazyPage(portal, 'PortalOverduesPage')
+const PortalClaimsPage = lazyPage(portal, 'PortalClaimsPage')
+const PortalSubmissionsPage = lazyPage(portal, 'PortalSubmissionsPage')
+const PortalAccountPage = lazyPage(portal, 'PortalAccountPage')
 
 /** Old /buyers and /policyholders bookmarks land on /entities (query kept). */
 function LegacyRedirect() {
@@ -43,6 +69,7 @@ function LegacyRedirect() {
 
 export default function App() {
   return (
+    <Suspense fallback={<LoadingScreen />}>
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route element={<ProtectedRoute />}>
@@ -113,6 +140,7 @@ export default function App() {
                 <Route path="overdues/:id" element={<OverdueDetailPage />} />
                 <Route path="claims" element={<ClaimsPage />} />
                 <Route path="claims/:id" element={<ClaimDetailPage />} />
+                <Route path="wording" element={<WordingPage />} />
                 <Route path="admin" element={<AdminPage />} />
               </Route>
             </Route>
@@ -123,5 +151,6 @@ export default function App() {
         </Route>
       </Route>
     </Routes>
+    </Suspense>
   )
 }

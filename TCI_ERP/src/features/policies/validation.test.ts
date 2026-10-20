@@ -7,7 +7,7 @@ import type { PolicyFormValues } from './validation'
 
 const VALID: PolicyFormValues = {
   entity_id: 'ph-1',
-  policy_number: 'MIG-TCI-2026-001',
+  policy_number: 'TCI-2026-001',
   status: 'draft',
   inception_date: '2026-01-01',
   expiry_date: '2026-12-31',

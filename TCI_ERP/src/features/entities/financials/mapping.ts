@@ -12,6 +12,9 @@
  *   local subtotal lines.
  * - Computed IFRS totals are cross-checked against the corresponding local
  *   subtotal lines; discrepancies surface as non-blocking amber warnings.
+ * - Which lines are cross-checked, and each form's own subtotal arithmetic,
+ *   are template DATA (statement_template_lines.crosscheck_column / formula),
+ *   never constants here.
  */
 
 import type { BalanceSheetValues, IncomeStatementValues } from '../types'
@@ -41,27 +44,35 @@ export interface CrossCheckWarning {
 
 const TOLERANCE = 1
 
-/**
- * Local subtotal line -> the computed IFRS total it must agree with.
- * Data per template code; extend when seeding new countries.
- */
-export const SUBTOTAL_CROSSCHECKS: Record<string, Record<string, string>> = {
-  UZ_NAS_F1: {
-    '120': 'total_non_current_assets',
-    '390': 'total_current_assets',
-    '400': 'total_assets',
-    // 480 intentionally NOT cross-checked against total_equity: line 470
-    // (provisions) is reclassified to liabilities under IFRS, so the local
-    // section I total differs from IFRS equity by design.
-    '770': 'total_liabilities',
-    '780': 'total_equity_and_liabilities',
-  },
-  UZ_NAS_F2: {
-    '030': 'gross_profit',
-    '100': 'operating_profit',
-    '240': 'profit_before_tax',
-    '270': 'net_profit',
-  },
+/** The form's own arithmetic for one line (codes of the same template). */
+export interface LocalFormula {
+  plus: string[]
+  minus: string[]
+}
+
+/** Per-template rules, read from the template lines (migration 0049): the
+ *  local form's subtotal arithmetic and which local totals must agree with
+ *  which computed IFRS totals. A new country is data, not code. */
+export interface TemplateRules {
+  /** Local total line code -> computed IFRS column it must agree with. */
+  crosschecks: Record<string, string>
+  /** Line code -> the form's own formula for it. */
+  formulas: Record<string, LocalFormula>
+}
+
+export interface RuleLine {
+  line_code: string
+  formula: LocalFormula | null
+  crosscheck_column: string | null
+}
+
+export function templateRules(lines: readonly RuleLine[]): TemplateRules {
+  const rules: TemplateRules = { crosschecks: {}, formulas: {} }
+  for (const line of lines) {
+    if (line.formula) rules.formulas[line.line_code] = line.formula
+    if (line.crosscheck_column) rules.crosschecks[line.line_code] = line.crosscheck_column
+  }
+  return rules
 }
 
 function sumOrNull(values: (number | null)[]): number | null {
@@ -112,7 +123,7 @@ function computeIncomeSubtotals(is: IncomeStatementValues): void {
 }
 
 export function mapLocalStatement(
-  templateCode: string,
+  rules: TemplateRules,
   /** line_code -> entered amount (as reported on the local form). */
   localValues: Record<string, number | null>,
   mappings: MappingRule[],
@@ -136,21 +147,18 @@ export function mapLocalStatement(
   computeBalanceSubtotals(balanceSheet)
   computeIncomeSubtotals(incomeStatement)
 
-  const warnings = crossCheck(templateCode, localValues, balanceSheet, incomeStatement)
+  const warnings = crossCheck(rules, localValues, balanceSheet, incomeStatement)
   return { balanceSheet, incomeStatement, warnings }
 }
 
 function crossCheck(
-  templateCode: string,
+  rules: TemplateRules,
   localValues: Record<string, number | null>,
   bs: BalanceSheetValues,
   is: IncomeStatementValues,
 ): CrossCheckWarning[] {
-  const checks = SUBTOTAL_CROSSCHECKS[templateCode]
-  if (!checks) return []
-
   const warnings: CrossCheckWarning[] = []
-  for (const [lineCode, ifrsColumn] of Object.entries(checks)) {
+  for (const [lineCode, ifrsColumn] of Object.entries(rules.crosschecks)) {
     const localValue = localValues[lineCode]
     if (localValue === null || localValue === undefined) continue
     const computed =
@@ -169,40 +177,6 @@ function crossCheck(
 // Local-form subtotal validation (amber checks on the local form itself)
 // ---------------------------------------------------------------------------
 
-export interface LocalFormula {
-  plus: string[]
-  minus: string[]
-}
-
-/** Official arithmetic of local subtotal lines, per template code. */
-export const LOCAL_SUBTOTAL_FORMULAS: Record<string, Record<string, LocalFormula>> = {
-  UZ_NAS_F1: {
-    '012': { plus: ['010'], minus: ['011'] },
-    '022': { plus: ['020'], minus: ['021'] },
-    '030': { plus: ['040', '050', '060', '070'], minus: [] },
-    '120': { plus: ['012', '022', '030', '080', '090', '100', '110'], minus: [] },
-    '140': { plus: ['150', '160', '170', '180'], minus: [] },
-    '210': { plus: ['230', '270', '280', '310'], minus: [] },
-    '390': { plus: ['140', '190', '200', '210', '320', '370', '380'], minus: [] },
-    '400': { plus: ['120', '390'], minus: [] },
-    '480': { plus: ['410', '420', '430', '450', '460', '470'], minus: ['440'] },
-    '490': { plus: ['500', '510', '520', '530'], minus: [] },
-    '600': { plus: ['610', '620', '630', '640', '650', '730', '740', '750', '760'], minus: [] },
-    '770': { plus: ['490', '600'], minus: [] },
-    '780': { plus: ['480', '770'], minus: [] },
-  },
-  UZ_NAS_F2: {
-    '030': { plus: ['010'], minus: ['020'] },
-    '040': { plus: ['050', '060', '070'], minus: [] },
-    '100': { plus: ['030', '090'], minus: ['040'] },
-    '110': { plus: ['120', '130', '140', '160'], minus: [] },
-    '170': { plus: ['180', '190', '200'], minus: [] },
-    '220': { plus: ['100', '110'], minus: ['170'] },
-    '240': { plus: ['220', '230'], minus: [] },
-    '270': { plus: ['240'], minus: ['250', '260'] },
-  },
-}
-
 export interface LocalSubtotalWarning {
   lineCode: string
   entered: number
@@ -211,14 +185,11 @@ export interface LocalSubtotalWarning {
 
 /** Non-blocking amber checks: entered subtotal vs sum of its components. */
 export function validateLocalStatement(
-  templateCode: string,
+  rules: TemplateRules,
   localValues: Record<string, number | null>,
 ): LocalSubtotalWarning[] {
-  const formulas = LOCAL_SUBTOTAL_FORMULAS[templateCode]
-  if (!formulas) return []
-
   const warnings: LocalSubtotalWarning[] = []
-  for (const [lineCode, formula] of Object.entries(formulas)) {
+  for (const [lineCode, formula] of Object.entries(rules.formulas)) {
     const entered = localValues[lineCode]
     if (entered === null || entered === undefined) continue
     const components = [

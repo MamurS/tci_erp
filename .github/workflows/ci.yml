@@ -257,8 +257,12 @@ jobs:
 
       - name: Resolve the Pages preview URL
         id: preview
+        # The branch name is attacker-chosen on a fork PR: pass it through the
+        # environment, never interpolate it into the script.
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          alias=$(echo "${{ github.head_ref }}" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g' | cut -c1-28 | sed -E 's/-+$//')
+          alias=$(printf '%s' "$HEAD_REF" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9]+/-/g; s/^-+|-+$//g' | cut -c1-28 | sed -E 's/-+$//')
           url="https://${alias}.tci-erp.pages.dev"
           echo "url=$url" >> "$GITHUB_OUTPUT"
           echo "preview: $url"

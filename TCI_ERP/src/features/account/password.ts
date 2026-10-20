@@ -39,7 +39,7 @@ export function checkPassword(
   if (value.length < MIN_PASSWORD_LENGTH) problems.push('tooShort')
 
   // "Not equal to the email" read literally would let «mamur» through for
-  // «mamur@mosaic.uz», which is the case the rule exists to stop.
+  // «mamur@example.uz», which is the case the rule exists to stop.
   const normalised = value.trim().toLowerCase()
   const address = (email ?? '').trim().toLowerCase()
   if (normalised && (normalised === address || normalised === localPart(address))) {

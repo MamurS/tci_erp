@@ -1,7 +1,7 @@
 {
   "app": {
     "title": "TCI ERP",
-    "company": "Mosaic Insurance Group"
+    "company": "Trade credit insurance"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -15,7 +15,20 @@
     "entities": "Companies",
     "requests": "Submissions",
     "agenda": "Agenda",
-    "overdues": "Overdue accounts"
+    "overdues": "Overdue accounts",
+    "groups": {
+      "work": "Workspace",
+      "underwriting": "Underwriting",
+      "portfolio": "Portfolio",
+      "system": "System"
+    },
+    "collapse": "Collapse",
+    "expand": "Expand",
+    "title": "Main menu",
+    "hide": "Hide the menu",
+    "show": "Show the menu",
+    "shortcutHint": "Ctrl/⌘ B — show or hide the menu · Ctrl/⌘ K — search",
+    "wording": "Contract templates"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -27,16 +40,23 @@
     "signOut": "Sign out",
     "noSelfSignup": "Accounts are created by the administrator.",
     "errors": {
-      "invalidCredentials": "Invalid email or password",
+      "invalidCredentials": "Wrong email or password.",
       "generic": "Sign-in failed. Please try again.",
       "rateLimited": "Too many sign-in attempts from this network. Wait a few minutes and try again.",
-      "locked_one": "This account is temporarily locked after repeated failed sign-ins. Try again in {{count}} minute or contact your administrator.",
-      "locked_other": "This account is temporarily locked after repeated failed sign-ins. Try again in {{count}} minutes or contact your administrator.",
+      "locked_one": "Sign-in is temporarily blocked for security reasons. Try again later or contact your administrator.",
+      "locked_other": "Sign-in is temporarily blocked for security reasons. Try again later or contact your administrator.",
       "captcha": "The anti-bot check did not pass. Please try again.",
       "captchaUnavailable": "The check could not be loaded — check your connection or ad blocker.",
       "emailNotConfirmed": "This email address has not been confirmed yet.",
-      "userBanned": "This account is disabled. Contact your administrator."
-    }
+      "userBanned": "This account is disabled. Contact your administrator.",
+      "throttled": "Too many failed sign-in attempts. Try again in {{time}}."
+    },
+    "heroTitle": "Trade credit insurance, end to end",
+    "heroText": "Buyer analysis and rating, credit limits, policies, declarations and claims — in one workspace.",
+    "lastAttemptWarning": "One more failed attempt and sign-in will be paused for a short time.",
+    "retryIn": "Try again in {{time}}",
+    "forgotPassword": "Forgot your password?",
+    "forgotPasswordHelp": "Passwords are reset by the system administrator. Contact them: you will receive a temporary password and will be asked to set a new one when you sign in."
   },
   "roles": {
     "admin": "Administrator",
@@ -82,7 +102,9 @@
     "add": "Add",
     "loadFailed": "Could not load this",
     "tryAgain": "Try again in a moment.",
-    "somethingWentWrong": "Something went wrong."
+    "somethingWentWrong": "Something went wrong.",
+    "notPermitted": "You are not permitted to do this.",
+    "recordNotFound": "The record was not found — it may have been removed. Refresh the page."
   },
   "dashboard": {
     "welcome": "Welcome, {{email}}",
@@ -98,7 +120,35 @@
     "premiumAccrualHint": "Across the policies you can see. The adjustment is never negative — there is no refund below the minimum.",
     "claimsOpen": "Claims in progress",
     "claimsAwaitingInfo": "Awaiting information",
-    "claimsPaidThisPeriod": "Paid this month"
+    "claimsPaidThisPeriod": "Paid this month",
+    "agendaOpen": "Tasks on your agenda",
+    "agendaOverdue": "overdue: {{count}}",
+    "openAgenda": "Open agenda",
+    "allClear": "Nothing is waiting for you",
+    "greeting": {
+      "morning": "Good morning",
+      "day": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "needsAttention": "Needs your attention",
+    "allTasks": "All tasks ({{count}})",
+    "noTasks": "Nothing is waiting for you — every task is done.",
+    "signals": "Signals",
+    "noSignals": "No signals: no late overdue reports, escalations or disputed declarations.",
+    "signalLabels": {
+      "overduesLate": "Overdue reports filed late",
+      "escalatedLimits": "Limits escalated to you",
+      "declarationsDisputed": "Disputed declarations",
+      "claimsAwaitingInfo": "Claims awaiting information",
+      "declarationsAwaiting": "Declarations to accept"
+    },
+    "kpis": "Portfolio at a glance",
+    "policyholdersSub": "policyholders: {{count}}",
+    "lateSub": "filed late: {{count}}",
+    "paidSub": "paid this month: {{count}}",
+    "premiumOfMinimum": "{{pct}} of the minimum premium",
+    "premiumEarned": "Earned premium",
+    "tasksMore": "+{{count}} more"
   },
   "buyers": {
     "subtitle": "Register of buyers (debtors) under credit assessment",
@@ -298,13 +348,12 @@
     "local": {
       "basis": "Accounting basis",
       "basisIfrs": "IFRS",
-      "basisLocal": "Local form (NAS)",
+      "basisLocal": "National form",
       "noTemplates": "No statutory templates available.",
-      "noTemplatesForCountry": "No statutory templates for this country yet",
       "enterAsReported": "Enter figures exactly as reported on the official form.",
       "crossCheckTitle": "IFRS mapping cross-check:",
       "crossCheckItem": "line {{line}}: reported {{local}}, mapped {{column}} = {{computed}}",
-      "badgeLocal": "UZ NAS",
+      "badgeLocal": "Local",
       "badgeIfrs": "IFRS",
       "mappedIndicator": "Mapped from a local statutory form:",
       "viewSource": "view source",
@@ -312,16 +361,26 @@
       "mappingStatus": {
         "mapped": "mapped",
         "stale": "stale"
+      },
+      "basisLocalNamed": "National form ({{framework}})",
+      "ifrsFramework": "Statutory accounts in this country are prepared under {{framework}}: they are entered on the IFRS form.",
+      "ifrsInsteadOfLocal": "Entered on the IFRS form instead of the national form ({{framework}}) — use this when the buyer files IFRS accounts.",
+      "noFrameworkForCountry": "No national form is configured for this country: enter the statements on the IFRS form.",
+      "deductionHint": "Deduction: enter it as a positive number, as printed in brackets on the form.",
+      "fidelity": {
+        "official_codes": "Line codes are those of the official form.",
+        "prescribed_captions": "Captions and order as prescribed by law; line codes are for reference only.",
+        "framework_layout": "Customary layout under this framework; line codes are for reference only."
       }
     },
     "localSections": {
-      "assets_long_term": "I. Long-term assets",
-      "assets_current": "II. Current assets",
-      "equity": "I. Sources of own funds",
-      "liabilities_long_term": "II. Liabilities — long-term",
-      "liabilities_current": "II. Liabilities — current",
+      "assets_long_term": "Non-current assets",
+      "assets_current": "Current assets",
+      "equity": "Equity",
+      "liabilities_long_term": "Non-current liabilities",
+      "liabilities_current": "Current liabilities",
       "operating": "Operating activity",
-      "financial": "Financing activity",
+      "financial": "Financial income and expenses",
       "result": "Financial result"
     },
     "reportTypes": {
@@ -551,11 +610,25 @@
       "currency": "Currency",
       "open": "Open report"
     },
-    "notAssessed": "Not assessed yet"
+    "notAssessed": "Not assessed yet",
+    "vsPrevious": "vs previous rating",
+    "legendTitle": "Legend: credit rating scale",
+    "scale10": {
+      "exceptional": "Exceptional",
+      "veryStrong": "Very strong",
+      "strong": "Strong",
+      "good": "Good",
+      "average": "Average",
+      "watch": "Watch",
+      "weak": "Weak",
+      "distressed": "Distressed",
+      "uninsurable": "Uninsurable",
+      "insolvent": "Insolvent"
+    }
   },
   "report": {
     "title": "RISK REPORT",
-    "generatedBy": "Generated by MIG TCI ERP",
+    "generatedBy": "Generated by TCI ERP",
     "reportDate": "Report date",
     "generalInfo": "General information",
     "calculatedLimit": "Calculated limit (engine)",
@@ -609,7 +682,316 @@
       "z_distress": "The Altman Z''-score places the company in the distress zone.",
       "norm_breaches": "{{count}} indicator(s) breach their norms: {{rows}}."
     },
-    "approvedAggregateLimit": "Approved aggregate limit"
+    "approvedAggregateLimit": "Approved aggregate limit",
+    "rows": {
+      "nonCurrentAssets": "Non-current assets",
+      "inventories": "Inventories",
+      "accountsReceivable": "Accounts receivable",
+      "cash": "Cash",
+      "stInvestments": "ST investments",
+      "currentAssets": "Current assets",
+      "retainedEarnings": "Retained earnings",
+      "equity": "Equity",
+      "ltLoans": "LT loans",
+      "stLoans": "ST loans",
+      "accountsPayable": "Accounts payable",
+      "currentLiabilities": "Current liabilities",
+      "totalAssets": "Total assets",
+      "revenue": "Revenue",
+      "costOfSales": "Cost of sales",
+      "grossProfit": "Gross profit (loss)",
+      "sellingExpenses": "Selling expenses",
+      "administrativeExpenses": "Administrative expenses",
+      "otherOperatingIncome": "Other operating income",
+      "otherOperatingExpenses": "Other operating expenses",
+      "operatingProfit": "Operating profit (loss)",
+      "interestIncome": "Interest income",
+      "interestExpense": "Interest expense",
+      "profitBeforeTax": "Profit (loss) before tax",
+      "incomeTax": "Income tax",
+      "netProfit": "Net profit (loss)"
+    },
+    "ratioRows": {
+      "grossMargin": "Gross margin",
+      "ebitMargin": "EBIT margin",
+      "profitMargin": "Profit margin",
+      "cfo": "CFO",
+      "fcf": "FCF",
+      "nwc": "NWC",
+      "dio": "DIO",
+      "dpo": "DPO",
+      "dso": "DSO",
+      "ccc": "CCC"
+    },
+    "glossaryTerms": {
+      "ebit": {
+        "term": "EBIT",
+        "definition": "Earnings before interest and taxes"
+      },
+      "cfo": {
+        "term": "CFO",
+        "definition": "Cash flow from operating activities"
+      },
+      "fcf": {
+        "term": "FCF",
+        "definition": "Free cash flow: operating cash flow minus capital expenditure"
+      },
+      "nwc": {
+        "term": "NWC",
+        "definition": "Net working capital: current assets minus current liabilities"
+      },
+      "dio": {
+        "term": "DIO",
+        "definition": "Days inventory outstanding"
+      },
+      "dso": {
+        "term": "DSO",
+        "definition": "Days sales outstanding"
+      },
+      "dpo": {
+        "term": "DPO",
+        "definition": "Days payable outstanding"
+      },
+      "ccc": {
+        "term": "CCC",
+        "definition": "Cash conversion cycle: DIO + DSO − DPO"
+      },
+      "de": {
+        "term": "D/E",
+        "definition": "Debt-to-equity: (LT + ST loans) / equity"
+      },
+      "ltst": {
+        "term": "LT / ST",
+        "definition": "Long-term / short-term"
+      },
+      "pp": {
+        "term": "pp",
+        "definition": "Percentage points"
+      },
+      "nm": {
+        "term": "n/m",
+        "definition": "Not meaningful: zero base, change of sign or change above 1,000%"
+      },
+      "kmbt": {
+        "term": "K / M / B / T",
+        "definition": "Thousand / million / billion / trillion"
+      }
+    },
+    "commentary": {
+      "subjects": {
+        "grossDebt": {
+          "company": "Gross debt of the company",
+          "group": "Gross debt of the Group"
+        },
+        "longTermDebt": {
+          "company": "Long-term debt of the company",
+          "group": "Long-term debt of the Group"
+        },
+        "shortTermDebt": {
+          "company": "Short-term debt of the company",
+          "group": "Short-term debt of the Group"
+        },
+        "debtToEquity": {
+          "company": "Debt-to-equity ratio of the company",
+          "group": "Debt-to-equity ratio of the Group"
+        },
+        "equity": {
+          "company": "Equity of the company",
+          "group": "Equity of the Group"
+        },
+        "equityRatio": {
+          "company": "Equity ratio of the company",
+          "group": "Equity ratio of the Group"
+        },
+        "currentRatio": {
+          "company": "Current ratio of the company",
+          "group": "Current ratio of the Group"
+        },
+        "revenue": {
+          "company": "Revenue of the company",
+          "group": "Revenue of the Group"
+        },
+        "grossProfit": {
+          "company": "Gross financial result of the company",
+          "group": "Gross financial result of the Group"
+        },
+        "grossMargin": {
+          "company": "Gross margin of the company",
+          "group": "Gross margin of the Group"
+        },
+        "ebit": {
+          "company": "EBIT of the company",
+          "group": "EBIT of the Group"
+        },
+        "ebitMargin": {
+          "company": "EBIT margin of the company",
+          "group": "EBIT margin of the Group"
+        },
+        "interestCoverage": {
+          "company": "Interest coverage of the company",
+          "group": "Interest coverage of the Group"
+        },
+        "netProfit": {
+          "company": "Net financial result of the company",
+          "group": "Net financial result of the Group"
+        },
+        "netMargin": {
+          "company": "Net profitability of the company",
+          "group": "Net profitability of the Group"
+        },
+        "ccc": {
+          "company": "Cash conversion cycle of the company",
+          "group": "Cash conversion cycle of the Group"
+        },
+        "dso": {
+          "company": "Days sales outstanding of the company",
+          "group": "Days sales outstanding of the Group"
+        },
+        "dio": {
+          "company": "Days inventory outstanding of the company",
+          "group": "Days inventory outstanding of the Group"
+        },
+        "dpo": {
+          "company": "Days payable outstanding of the company",
+          "group": "Days payable outstanding of the Group"
+        }
+      },
+      "change": "{{subject}} {{move}} by <hl>{{pct}}</hl>, from {{from}} to {{to}}.",
+      "changeNm": "{{subject}} changed from {{from}} to {{to}}.",
+      "flat": "{{subject}} was unchanged at {{to}}.",
+      "level": "{{subject}} was {{to}}.",
+      "moves": {
+        "up": {
+          "slight": "increased slightly",
+          "moderate": "increased",
+          "strong": "increased substantially",
+          "sharp": "increased sharply"
+        },
+        "down": {
+          "slight": "decreased slightly",
+          "moderate": "decreased",
+          "strong": "decreased substantially",
+          "sharp": "decreased sharply"
+        },
+        "lossNarrowed": "showed a reduction in loss",
+        "lossWidened": "showed a deepening of loss"
+      }
+    },
+    "registrationId": "Registration identifier",
+    "tagline": "Trade credit insurance",
+    "pageOf": "Page {{page}} of {{pages}}",
+    "nm": "n/m",
+    "pp": "pp",
+    "endOfReport": "*** END OF REPORT ***",
+    "disclaimer": "This report is prepared in strict confidence solely for your use and no part of it may be disclosed to any third party. The issuer accepts no responsibility for any loss or damage caused by decisions based on the data in this report. The recommended credit limit is an engine calculation, not an approved limit.",
+    "noStatements": "No annual statements of this type are on file — the financial sections are omitted.",
+    "sections2": {
+      "generalInfo": "General information",
+      "keyFigures": "Key figures (company, FY {{year}})",
+      "conclusion": "Conclusion",
+      "groupKeyCompanies": "Group: key companies",
+      "balanceSheet": "Balance sheet",
+      "balanceSheetComment": "Balance sheet (continued)",
+      "pnl": "Profit & loss accounts",
+      "pnlComment": "Profit & loss accounts (continued)",
+      "ratios": "Financial ratios",
+      "ratiosComment": "Financial ratios (continued)",
+      "dynamicGraphs": "Dynamic graphs",
+      "glossary": "Glossary",
+      "groupStructure": "Group structure (major companies)",
+      "groupExposure": "Group exposure"
+    },
+    "general": {
+      "companyName": "Company name",
+      "legalForm": "Legal form",
+      "registrationDate": "Registration date",
+      "country": "Country",
+      "owners": "Owners",
+      "lineOfBusiness": "Line of business",
+      "registrationCodes": "Registration codes",
+      "address": "Address",
+      "website": "Website",
+      "affiliatedCompanies": "Affiliated companies",
+      "latestStatements": "Latest financial statements",
+      "fy": "FY {{year}}",
+      "olderThanYear": "older than one year",
+      "recommendedLimit": "Recommended credit limit",
+      "limitBasis": "Limit basis",
+      "creditRating": "Credit rating",
+      "approvedExposure": "Approved limits in force"
+    },
+    "limitBasis": {
+      "full": "Rating {{score}} ({{band}}); the limit equals about {{revenuePct}} of FY {{year}} revenue and about {{equityPct}} of equity",
+      "revenueOnly": "Rating {{score}} ({{band}}); the limit equals about {{revenuePct}} of FY {{year}} revenue",
+      "ratingOnly": "Rating {{score}} ({{band}})"
+    },
+    "placement": {
+      "in": "{{band}} band",
+      "between": "between {{lower}} and {{upper}}"
+    },
+    "freshness": {
+      "label": "Data freshness:",
+      "stale": "the latest available financial statements are for FY {{year}}, i.e. older than one year. Request up-to-date figures before making a credit decision.",
+      "conclusion": "The latest available financial statements are for FY {{year}}, so the assessment may not reflect the company’s current position."
+    },
+    "keyFigureLabels": {
+      "revenue": "Revenue",
+      "netProfit": "Net profit (loss)",
+      "equityRatio": "Equity ratio",
+      "debtToEquity": "Debt-to-equity"
+    },
+    "overall": {
+      "title": "Overall risk assessment",
+      "rating": "Credit rating {{score}} lies in the {{band}} band ({{point}}).",
+      "ratingBetween": "Credit rating {{score}} lies between the {{lower}} ({{lowerPoint}}) and {{upper}} ({{upperPoint}}) bands.",
+      "strengths": "Main strengths: {{list}}.",
+      "weaknesses": "Main weaknesses: {{list}}.",
+      "limit": "The recommended credit limit is {{amount}}.",
+      "noLimit": "The engine does not recommend a credit limit."
+    },
+    "tables": {
+      "bsCompany": "Balance sheet of the company as at the end of {{to}} and previous reporting years:",
+      "bsGroup": "COMBINED balance sheet of the Group as at the end of {{to}} and previous reporting years:",
+      "plCompany": "Profit & loss accounts of the company for {{to}} and previous reporting years:",
+      "plGroup": "COMBINED profit & loss accounts of the Group for {{to}} and previous reporting years:",
+      "bsItems": "Balance sheet items",
+      "plItems": "P&L items",
+      "pctTotalAssets": "% of total assets",
+      "pctRevenue": "% of revenue",
+      "ratios": "Ratios",
+      "pctChange": "% change",
+      "days": "days",
+      "profitability": "Profitability ratios ({{subject}}):",
+      "liquidity": "Liquidity ratios ({{subject}}):",
+      "turnover": "Turnover ratios ({{subject}}):",
+      "combined": "COMBINED"
+    },
+    "group": {
+      "combinedNote": "Combined figures are the sum of the members’ own statements in {{currency}}, without intra-group eliminations: intra-group revenue and balances are counted twice.",
+      "otherCurrency": "Members reporting in another currency and not included: {{count}}.",
+      "byRevenue": "Largest companies of the Group by revenue:",
+      "byNetProfit": "Companies of the Group with the largest net profit:",
+      "byGrossDebt": "Major companies of the Group by gross debt:",
+      "byLtAssets": "Companies of the Group with the largest long-term assets:",
+      "company": "Company name",
+      "regId": "Registration identifier",
+      "revenueIn": "Revenue {{year}}, {{currency}}",
+      "netProfitIn": "Net profit {{year}}, {{currency}}",
+      "grossDebtIn": "Gross debt {{year}}, {{currency}}",
+      "ltAssetsIn": "LT assets {{year}}, {{currency}}",
+      "shareOfGroup": "% of group",
+      "lineOfBusiness": "Line of business",
+      "shareRevenue": "% of group revenue",
+      "netProfit": "Net profit ({{currency}})",
+      "shareAssets": "% of group total assets",
+      "shareEquity": "% of group equity",
+      "shareDebt": "% of group gross debt"
+    },
+    "charts2": {
+      "revRecPay": "Revenue, accounts receivable and payable ({{currency}})",
+      "turnover": "Turnover ratios (days)",
+      "note": "Company figures, annual statements."
+    }
   },
   "policyholders": {
     "subtitle": "Insured clients (sellers) holding TCI policies",
@@ -740,7 +1122,8 @@
     "tabs": {
       "premium": "Premium",
       "terms": "Terms",
-      "claims": "Claims"
+      "claims": "Claims",
+      "contract": "Contract"
     }
   },
   "limits": {
@@ -1015,7 +1398,8 @@
         "mfaAdminOff": "Two-factor authentication: not mandatory for administrators.",
         "mfaStaffFrom": "Mandatory for all staff from {{date}}.",
         "mfaStaffGrace": "Optional for other staff (no enforcement date set).",
-        "retention": "Events are kept for {{days}} days."
+        "retention": "Events are kept for {{days}} days.",
+        "loginSchedule": "Sign-in: after {{free}} failed attempts from one email and network a {{base}} s pause, doubling with every further failure up to {{max}} min. A pause of 15 min or more is listed below as a lockout."
       },
       "hookNotice": "The lockout is enforced by the Supabase Auth password-verification hook. Until the hook is enabled in the Supabase dashboard (Authentication → Hooks; Teams plan and above) no attempt is recorded and no account is locked — only the per-IP rate limit and the CAPTCHA protect sign-in.",
       "alerts": {
@@ -1035,7 +1419,8 @@
         "active": "Locked",
         "clearedBy": "Unlocked by {{email}}",
         "expired": "Expired",
-        "unlock": "Unlock"
+        "unlock": "Unlock",
+        "reasonBypass": "sign-in outside the form — reset the password, then unlock"
       },
       "users": {
         "title": "Users",
@@ -1080,6 +1465,13 @@
         "user_role_granted": "Role granted",
         "user_role_revoked": "Role revoked",
         "session_revoked": "Sessions revoked"
+      },
+      "gate": {
+        "enforcedOn": "Sign-in gate enforced:",
+        "enforcedOff": "Sign-in gate not enforced yet:",
+        "hookSteps": "it needs the Supabase Auth hook «Customize Access Token» → Postgres → tci.custom_access_token_hook (Authentication → Hooks). Enforce it once the new sign-in page is live: a correct password presented outside the sign-in form will then lock the account until its password is reset.",
+        "enable": "Enforce",
+        "disable": "Stop enforcing"
       }
     }
   },
@@ -1275,6 +1667,11 @@
       "hint": "Sign out every other browser and device where this account is signed in. This one stays.",
       "signOutOthers": "Sign out other devices",
       "signedOutOthers": "Other devices have been signed out."
+    },
+    "errors": {
+      "samePassword": "The new password must differ from the current one.",
+      "weakPassword": "The password does not meet the server’s requirements. Choose a longer or less common one.",
+      "changeFailed": "The password could not be changed. Try again."
     }
   },
   "provisioning": {
@@ -1329,7 +1726,10 @@
       "selfDisable": "You cannot disable your own account.",
       "invalidInput": "Check the values entered.",
       "noSession": "Your session has expired — sign in again.",
-      "unknown": "Something went wrong. Try again."
+      "unknown": "Something went wrong. Try again.",
+      "rotationRequired": "Change your temporary password before managing users.",
+      "mfaRequired": "Complete two-factor authentication before managing users.",
+      "accountLocked": "Your account is temporarily locked. Try again later."
     }
   },
   "agenda": {
@@ -1686,6 +2086,17 @@
       "disputeNote": "Reason",
       "submittedAt": "Submitted",
       "acceptedAt": "Accepted"
+    },
+    "errors": {
+      "noLines": "A declaration cannot be submitted without lines.",
+      "invalidTransition": "This action is not available for the declaration in its current status.",
+      "disputeReason": "A dispute needs a reason the policyholder can act on.",
+      "correctOnlyFinal": "Only an accepted or disputed declaration can be corrected.",
+      "acceptCommercialOnly": "Only a commercial underwriter may accept a declaration.",
+      "draftOnly": "A declaration can only be edited while it is a draft.",
+      "policyNotActive": "Declarations are made only under an active policy.",
+      "periodTaken": "A declaration for this period already exists.",
+      "negativeTurnover": "Turnover cannot be negative."
     }
   },
   "premium": {
@@ -1728,6 +2139,9 @@
       "status": "Status",
       "scheduleTotal": "Schedule total",
       "computedAt": "Earned"
+    },
+    "errors": {
+      "scheduleLocked": "The schedule cannot be regenerated: some instalments are already invoiced or paid."
     }
   },
   "overdues": {
@@ -1764,6 +2178,13 @@
       "reportedAt": "Reported at",
       "resolution": "Outcome",
       "resolutionNote": "Note"
+    },
+    "errors": {
+      "amountPositive": "The overdue amount must be positive.",
+      "policyNotActive": "Overdue accounts can only be reported under an active policy.",
+      "dueInFuture": "The due date of the oldest invoice must be in the past.",
+      "alreadyOpen": "This buyer already has an open overdue notification on this policy.",
+      "alreadyResolved": "This notification has already been closed."
     }
   },
   "claims": {
@@ -2230,5 +2651,187 @@
     "verifying": "Checking…",
     "badCode": "That code is not valid. Try the current one.",
     "noFactor": "No authenticator is set up for this account. Contact your administrator."
+  },
+  "palette": {
+    "title": "Search",
+    "trigger": "Search organizations, sections…",
+    "placeholder": "Organization name, registration number or section",
+    "empty": "Nothing found",
+    "hintNavigate": "navigate",
+    "hintOpen": "open"
+  },
+  "security": {
+    "notice": {
+      "title": "Failed sign-in attempts on your account",
+      "body_one": "Since your previous sign-in there was {{count}} failed attempt to sign in to your account.",
+      "body_other": "Since your previous sign-in there were {{count}} failed attempts to sign in to your account.",
+      "hint": "If this was not you, change your password and tell the administrator.",
+      "changePassword": "Change password",
+      "dismiss": "Dismiss"
+    }
+  },
+  "wording": {
+    "title": "Contract templates",
+    "subtitle": "Your policy wording templates (.docx with {{braces}} placeholders), from which draft contracts are generated on a policy or a submission.",
+    "fields": {
+      "name": "Name",
+      "language": "Language",
+      "country": "Jurisdiction",
+      "countryHint": "Leave empty for any country.",
+      "anyCountry": "Any",
+      "product": "Cover structure",
+      "anyProduct": "Any",
+      "description": "Description",
+      "version": "Version",
+      "status": "Status",
+      "uploaded": "Uploaded"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "active": "Active",
+      "retired": "Retired"
+    },
+    "templates": {
+      "title": "Templates",
+      "empty": "No contract templates yet",
+      "emptyHint": "Upload your policy wording as a .docx with {{braces}} placeholders, or install the standard templates and adapt them.",
+      "download": "Download",
+      "activate": "Activate",
+      "retire": "Retire"
+    },
+    "upload": {
+      "open": "Upload template",
+      "title": "Upload a contract template",
+      "file": "Template file (.docx)",
+      "fileHint": "Write placeholders such as {{example}} in the document; see the reference below.",
+      "found": "Placeholders found: {{count}}.",
+      "unknown": "Not in the reference (the template cannot be activated until they are fixed):",
+      "submit": "Upload"
+    },
+    "standard": {
+      "install": "Install standard templates",
+      "name": "Standard trade credit insurance policy",
+      "description": "Shipped with TCI ERP; adapt it to your rules of insurance."
+    },
+    "insurer": {
+      "title": "Insurer particulars",
+      "hint": "Printed into contracts as {{insurerTag}}. Only an administrator can change them.",
+      "saved": "Saved.",
+      "fields": {
+        "legal_name": "Legal name",
+        "legal_form": "Legal form",
+        "registration_number": "Registration number",
+        "tax_id": "Tax ID",
+        "license_number": "Licence number",
+        "license_date": "Licence date",
+        "country_code": "Country",
+        "address": "Address",
+        "phone": "Phone",
+        "email": "E-mail",
+        "website": "Website",
+        "bank_name": "Bank",
+        "bank_account": "Bank account",
+        "bank_code": "Bank code (SWIFT / BIC / MFO)",
+        "signatory_name": "Signatory",
+        "signatory_title": "Signatory's position",
+        "signatory_basis": "Acting on the basis of"
+      }
+    },
+    "reference": {
+      "title": "Placeholder reference",
+      "hint": "Type these into the .docx exactly as shown. Values are formatted in the template's language.",
+      "syntaxValue": "{{example}} — prints a value.",
+      "syntaxLoop": "{{loopOpen}} … {{loopClose}} — repeats its content for every credit limit; put it around a table row to get one row per buyer.",
+      "syntaxCondition": "{{condOpen}} … {{condClose}} — prints the clause only when the value is set.",
+      "groups": {
+        "insurer": "Insurer",
+        "policyholder": "Policyholder",
+        "policy": "Policy terms",
+        "limits": "Credit limits (inside {{loopOpen}})",
+        "document": "Document"
+      }
+    },
+    "generate": {
+      "title": "Draft contract",
+      "open": "Generate draft contract",
+      "empty": "No draft contract generated yet",
+      "emptyHint": "Generate one from the active template; every version is kept here.",
+      "generatedAt": "Generated",
+      "template": "Template",
+      "templateHint": "The best match for the policyholder's country, the cover structure and your language is preselected.",
+      "draftNote": "The document is generated from the data as it stands now and downloaded as .docx for editing; what it said is recorded.",
+      "submit": "Generate",
+      "working": "Generating…",
+      "noTemplates": "There is no active contract template. Ask a commercial underwriter or an administrator to activate one under «Contract templates»."
+    },
+    "errors": {
+      "invalidTemplate": "The file is not a valid template:",
+      "unknownPlaceholders": "The template uses placeholders that are not in the reference; fix them in the .docx and upload it again.",
+      "retired": "A retired template cannot be activated again; upload it as a new version.",
+      "notActive": "Only an active template can generate a document.",
+      "notDocx": "Only .docx files are accepted.",
+      "uploadLost": "The file was not stored; upload it again.",
+      "tooLarge": "The file is larger than 10 MB."
+    },
+    "placeholders": {
+      "insurer_name": "Insurer's legal name",
+      "insurer_legal_form": "Insurer's legal form",
+      "insurer_registration_number": "Insurer's registration number",
+      "insurer_tax_id": "Insurer's tax ID",
+      "insurer_license_number": "Insurance licence number",
+      "insurer_license_date": "Licence date",
+      "insurer_country": "Insurer's country",
+      "insurer_address": "Insurer's address",
+      "insurer_phone": "Insurer's phone",
+      "insurer_email": "Insurer's e-mail",
+      "insurer_website": "Insurer's website",
+      "insurer_bank_name": "Insurer's bank",
+      "insurer_bank_account": "Insurer's bank account",
+      "insurer_bank_code": "Bank code (SWIFT / BIC / MFO)",
+      "insurer_signatory_name": "Signatory's name",
+      "insurer_signatory_title": "Signatory's position",
+      "insurer_signatory_basis": "Signatory acts on the basis of",
+      "policyholder_name": "Policyholder's name",
+      "policyholder_legal_form": "Policyholder's legal form",
+      "policyholder_registration_number": "Policyholder's registration number",
+      "policyholder_country": "Policyholder's country",
+      "policyholder_address": "Policyholder's address",
+      "policyholder_contact_person": "Policyholder's contact person",
+      "policyholder_email": "Policyholder's e-mail",
+      "policyholder_phone": "Policyholder's phone",
+      "policy_number": "Policy number (submission number for a submission)",
+      "policy_status": "Status",
+      "policy_product": "Cover structure",
+      "policy_inception_date": "Inception date",
+      "policy_expiry_date": "Expiry date",
+      "policy_currency": "Policy currency",
+      "policy_insured_percentage": "Insured percentage",
+      "policy_max_liability_amount": "Maximum liability",
+      "policy_max_liability_multiple": "Maximum liability as a multiple of premium",
+      "policy_nql_amount": "Non-qualifying loss (NQL)",
+      "policy_deductible": "Deductible each loss",
+      "policy_aggregate_first_loss": "Aggregate first loss",
+      "policy_premium_rate": "Premium rate, % of turnover",
+      "policy_minimum_premium": "Minimum premium",
+      "policy_premium_basis": "Premium basis",
+      "policy_estimated_turnover": "Estimated annual turnover",
+      "policy_discretionary_limit": "Discretionary limit",
+      "policy_waiting_period_days": "Waiting period, days",
+      "policy_max_extension_days": "Maximum extension period, days",
+      "policy_max_payment_terms_days": "Maximum credit period, days",
+      "policy_declaration_frequency": "Declaration frequency",
+      "policy_noa_window_days": "Overdue notification deadline, days",
+      "limits": "Credit limit schedule: repeats its content (e.g. a table row) for every buyer",
+      "limits_buyer_name": "Buyer's name",
+      "limits_buyer_country": "Buyer's country",
+      "limits_buyer_registration_number": "Buyer's registration number",
+      "limits_amount": "Credit limit amount",
+      "limits_currency": "Limit currency",
+      "limits_payment_terms_days": "Credit period, days",
+      "limits_valid_from": "Valid from",
+      "limits_valid_until": "Valid until",
+      "document_date": "Date the document was generated",
+      "document_language": "Template language code"
+    }
   }
 }

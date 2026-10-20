@@ -21,6 +21,7 @@ import { EntityResolutionSection } from './EntityResolutionSection'
 import { ProposedTermsSection } from './ProposedTermsSection'
 import { RequestHistoryTimeline } from './RequestHistoryTimeline'
 import { SalesWindowPanel } from './SalesWindowPanel'
+import { DraftContractSection } from '../wording'
 import { bindBlocker, canBindAs } from './bind'
 import {
   creditComplete,
@@ -191,6 +192,12 @@ export function RequestDetailPage() {
         </div>
         <div className="flex flex-col gap-5">
           <ProposedTermsSection request={request} />
+          <DraftContractSection
+            target={{ requestId: request.id }}
+            reference={request.request_number}
+            countryCode={request.legal_entities?.country_code ?? null}
+            product={request.product_structure}
+          />
           <RequestHistoryTimeline requestId={request.id} notes={request.notes} />
         </div>
       </div>
