@@ -454,6 +454,18 @@ is fine for internal test accounts and not fine for customers.
   19 frameworks and 95 country links verified md5-identical to a local
   replay, UZ NAS line ids and entered values unchanged, live smoke with
   role impersonation rolled back
+- [x] Role workspaces, contracts and portfolios (migration 0052): the
+  sidebar is grouped into ROLE WORKSPACES (`workspaces.ts`: commercial
+  underwriting, credit underwriting, sales, claims, administration) under a
+  switcher at its top, with the shared tools (dashboard, agenda, companies)
+  in every one; a person sees the workspaces of the roles they hold, an
+  admin sees all. «Договоры» (`/contracts`) generates the draft contract of
+  a policy or a live submission from the active wording template and keeps
+  the register of generated contracts; «Портфель полисов»
+  (`/portfolio/policies`) and «Портфель лимитов» (`/portfolio/credit`) read
+  `tci.v_policy_portfolio` / `tci.v_credit_portfolio`. See **Workspace and
+  portfolio rules** below. **Canonical: 0052 applied 2026-10-20**, live
+  smoke with role impersonation rolled back
 - [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1058,6 +1070,33 @@ literal text in the locale file.
 **InspectModule pulls lodash.** Template inspection uses
 `Docxtemplater#getTags()` (present at runtime, missing from the typings)
 instead; docxtemplater lives in its own lazy chunk.
+
+### Workspace and portfolio rules (migration 0052)
+
+**A workspace groups, it never grants.** `navigation.ts` (`NAV_ITEMS` +
+`canAccessPath`) is still the only map of what a role may open, and the
+database is still what refuses. `workspaces.ts` only decides where a screen
+sits in the sidebar; `workspaces.test.ts` asserts every screen belongs to
+the shared set or to a workspace, and that every screen a role may open is
+reachable from that role's own workspaces. Opening a screen from elsewhere
+(a link, the palette) switches to a workspace that contains it
+(`resolveWorkspace`); the choice is remembered per browser
+(`tci-erp-workspace`). An information manager has no workspace of their own
+and sees the shared tools only.
+
+**The definitions live in the views.** premium base = greatest(earned,
+minimum premium); incurred = indemnity paid + approved-but-unpaid − the
+insurer's recoveries; loss ratio = incurred ÷ premium base; in force =
+effective approved/partial decision on a bound policy; amount in UZS =
+amount × `latest_uzs_rate`, NULL (and COUNTED) when there is no rate.
+`portfolio/aggregate.ts` only adds rows up — per currency, never across
+currencies — and its contract test reads those definitions from the
+migration text.
+
+**The contracts page offers live work only.** Every policy, and every
+submission except draft / declined / withdrawn (`wording/contracts.ts`).
+Generation needs an ACTIVE template; with none, the page says so and offers
+the standard templates to whoever may manage them.
 
 ### Phase 6 rules that are easy to get wrong
 

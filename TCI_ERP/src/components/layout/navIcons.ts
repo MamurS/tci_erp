@@ -1,13 +1,19 @@
 import {
   AlarmClock,
+  BriefcaseBusiness,
   Building2,
+  ChartColumn,
+  ChartPie,
   ClipboardList,
   FileSignature,
   FileText,
   FileWarning,
+  Gauge,
+  Handshake,
   Inbox,
   LayoutDashboard,
   ListChecks,
+  ScrollText,
   Settings,
   ShieldCheck,
 } from 'lucide-react'
@@ -20,7 +26,10 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   entities: Building2,
   requests: Inbox,
   limits: ShieldCheck,
+  creditPortfolio: ChartColumn,
   policies: FileText,
+  contracts: ScrollText,
+  policyPortfolio: ChartPie,
   declarations: ClipboardList,
   overdues: AlarmClock,
   claims: FileWarning,
@@ -30,4 +39,17 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
 
 export function navIcon(key: string): LucideIcon {
   return NAV_ICONS[key] ?? LayoutDashboard
+}
+
+/** One icon per role workspace — the switcher at the top of the sidebar. */
+export const WORKSPACE_ICONS: Record<string, LucideIcon> = {
+  commercial: BriefcaseBusiness,
+  credit: Gauge,
+  sales: Handshake,
+  claims: FileWarning,
+  admin: Settings,
+}
+
+export function workspaceIcon(key: string): LucideIcon {
+  return WORKSPACE_ICONS[key] ?? LayoutDashboard
 }

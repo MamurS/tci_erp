@@ -1,5 +1,5 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import { CommandPalette } from './CommandPalette'
 import { Header } from './Header'
@@ -9,6 +9,9 @@ import { SIDEBAR_KEY, isSidebarShortcut, parseSidebarState } from './shell'
 import type { SidebarState } from './shell'
 import { PageLoading } from './PageLoading'
 import { SignInNotice } from '../../auth/SignInNotice'
+import { useAuth } from '../../auth/AuthContext'
+import { WORKSPACE_KEY, availableWorkspaces, resolveWorkspace, workspaceHome } from './workspaces'
+import type { WorkspaceKey } from './workspaces'
 
 const DESKTOP = '(min-width: 1024px)'
 
@@ -18,6 +21,54 @@ function readSidebar(): SidebarState {
   } catch {
     return 'open'
   }
+}
+
+function readWorkspace(): string | null {
+  try {
+    return window.localStorage.getItem(WORKSPACE_KEY)
+  } catch {
+    return null
+  }
+}
+
+function rememberWorkspace(key: WorkspaceKey) {
+  try {
+    window.localStorage.setItem(WORKSPACE_KEY, key)
+  } catch {
+    // a per-browser convenience; nothing to do when storage is blocked
+  }
+}
+
+/**
+ * The role workspace on screen: the remembered one while it contains the
+ * page, else one that does (workspaces.ts). Switching lands on the chosen
+ * workspace's first tool.
+ */
+function useWorkspace(pathname: string) {
+  const { roles } = useAuth()
+  const navigate = useNavigate()
+  const [stored, setStored] = useState<string | null>(readWorkspace)
+  const workspace = resolveWorkspace(roles, stored, pathname)
+
+  useEffect(() => {
+    if (workspace && workspace !== stored) {
+      setStored(workspace)
+      rememberWorkspace(workspace)
+    }
+  }, [workspace, stored])
+
+  const switchTo = useCallback(
+    (key: WorkspaceKey) => {
+      const target = availableWorkspaces(roles).find((w) => w.key === key)
+      if (!target) return
+      setStored(key)
+      rememberWorkspace(key)
+      navigate(workspaceHome(roles, target))
+    },
+    [roles, navigate],
+  )
+
+  return { workspace, switchTo }
 }
 
 function useIsDesktop(): boolean {
@@ -49,6 +100,8 @@ export function AppShell() {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const leaveTimer = useRef<number | undefined>(undefined)
   const { pathname } = useLocation()
+  const { workspace, switchTo } = useWorkspace(pathname)
+  const workspaceProps = { workspace, onSwitchWorkspace: switchTo }
 
   const dock = useCallback((next: SidebarState) => {
     setDocked(next)
@@ -100,7 +153,7 @@ export function AppShell() {
     <div className="flex min-h-screen">
       {showDocked && (
         <div className="sticky top-0 h-screen shrink-0 animate-[slide-in_160ms_ease-out]">
-          <Sidebar variant="docked" onClose={() => dock('closed')} />
+          <Sidebar variant="docked" onClose={() => dock('closed')} {...workspaceProps} />
         </div>
       )}
 
@@ -115,7 +168,7 @@ export function AppShell() {
           onMouseLeave={unpeek}
           inert={!overlayOpen}
         >
-          <Sidebar variant="peek" onClose={() => setOverlayOpen(false)} />
+          <Sidebar variant="peek" onClose={() => setOverlayOpen(false)} {...workspaceProps} />
         </div>
       )}
 
@@ -138,6 +191,7 @@ export function AppShell() {
               variant="drawer"
               onClose={() => setOverlayOpen(false)}
               onNavigate={() => setOverlayOpen(false)}
+              {...workspaceProps}
             />
           </div>
         </>

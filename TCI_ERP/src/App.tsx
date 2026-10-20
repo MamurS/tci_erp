@@ -44,7 +44,12 @@ const claims = () => import('./features/claims')
 const ClaimsPage = lazyPage(claims, 'ClaimsPage')
 const ClaimDetailPage = lazyPage(claims, 'ClaimDetailPage')
 const AdminPage = lazyPage(() => import('./features/admin'), 'AdminPage')
-const WordingPage = lazyPage(() => import('./features/wording'), 'WordingPage')
+const wording = () => import('./features/wording')
+const WordingPage = lazyPage(wording, 'WordingPage')
+const ContractsPage = lazyPage(wording, 'ContractsPage')
+const portfolio = () => import('./features/portfolio')
+const PolicyPortfolioPage = lazyPage(portfolio, 'PolicyPortfolioPage')
+const CreditPortfolioPage = lazyPage(portfolio, 'CreditPortfolioPage')
 const AgendaPage = lazyPage(() => import('./features/agenda'), 'AgendaPage')
 const account = () => import('./features/account')
 const AccountPage = lazyPage(account, 'AccountPage')
@@ -141,6 +146,9 @@ export default function App() {
                 <Route path="claims" element={<ClaimsPage />} />
                 <Route path="claims/:id" element={<ClaimDetailPage />} />
                 <Route path="wording" element={<WordingPage />} />
+                <Route path="contracts" element={<ContractsPage />} />
+                <Route path="portfolio/policies" element={<PolicyPortfolioPage />} />
+                <Route path="portfolio/credit" element={<CreditPortfolioPage />} />
                 <Route path="admin" element={<AdminPage />} />
               </Route>
             </Route>

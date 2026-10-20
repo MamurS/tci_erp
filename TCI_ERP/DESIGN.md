@@ -70,6 +70,11 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
   no left-edge strip, no pin button. Ctrl/⌘ B toggles. Below 1024px it is a
   drawer with a backdrop that closes on navigation and on Escape. The state
   is remembered per browser (`tci-erp-sidebar`). Logic: `layout/shell.ts`.
+* **Role workspaces:** the top of the sidebar is the workspace switcher
+  (icon, «Рабочее пространство», the workspace name; a list when the person
+  has several). Below it «Общее» (dashboard, agenda, companies), then the
+  workspace's own tools under its name. Switching lands on the workspace's
+  first tool (`workspaces.ts`).
 * **Top bar:** sidebar button (when hidden), the current section (icon +
   name), the command palette (Ctrl/⌘ K — companies by name or registration
   number, plus every destination the caller's roles allow; icon-only below

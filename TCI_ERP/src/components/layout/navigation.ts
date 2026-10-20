@@ -1,16 +1,11 @@
 import type { UserRole } from '../../lib/roles'
 
-/** Sidebar sections, in display order (i18n under "nav.groups."). */
-export const NAV_GROUPS = ['work', 'underwriting', 'portfolio', 'system'] as const
-export type NavGroup = (typeof NAV_GROUPS)[number]
-
 export interface NavItem {
   /** i18n key under "nav." */
   key: string
   path: string
   /** Roles allowed to see this item (ANY match grants access). */
   roles: readonly UserRole[]
-  group: NavGroup
 }
 
 const STAFF: readonly UserRole[] = [
@@ -30,63 +25,74 @@ const STAFF: readonly UserRole[] = [
  * INTERNAL queue, and tci.refresh_agenda() refuses a non-staff caller).
  *
  *   admin                   everything
- *   credit_underwriter      dashboard, agenda, companies, submissions, limits, declarations, claims
- *   commercial_underwriter  dashboard, companies, submissions, policies, limits, declarations, claims, contract templates
- *   sales                   dashboard, companies, submissions, policies, limits, contract templates
- *   information_manager     dashboard, companies
- *   claims                  dashboard, companies, claims
- *   client                  portal reads only (no new screens until Phase 3d)
+ *   credit_underwriter      dashboard, agenda, companies, submissions, limits, limit portfolio,
+ *                           declarations, overdues, claims
+ *   commercial_underwriter  dashboard, agenda, companies, submissions, limits, policies, contracts,
+ *                           policy portfolio, declarations, overdues, claims, contract templates
+ *   sales                   dashboard, agenda, companies, submissions, limits, policies, contracts,
+ *                           declarations, overdues, contract templates
+ *   information_manager     dashboard, agenda, companies
+ *   claims                  dashboard, agenda, companies, overdues, claims
+ *   client                  the portal only
+ *
+ * How these are grouped on screen — the role workspaces — is workspaces.ts;
+ * this map alone decides what may be opened.
  */
 export const NAV_ITEMS: readonly NavItem[] = [
-  { key: 'dashboard', path: '/', roles: STAFF, group: 'work' },
+  { key: 'dashboard', path: '/', roles: STAFF },
   // The Agenda is staff-only: tci.refresh_agenda() refuses a client outright.
-  { key: 'agenda', path: '/agenda', roles: STAFF, group: 'work' },
-  { key: 'entities', path: '/entities', roles: STAFF, group: 'underwriting' },
+  { key: 'agenda', path: '/agenda', roles: STAFF },
+  { key: 'entities', path: '/entities', roles: STAFF },
   {
     key: 'requests',
     path: '/requests',
     roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'client'],
-    group: 'underwriting',
   },
   {
     key: 'limits',
     path: '/limits',
     roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'client'],
-    group: 'underwriting',
+  },
+  {
+    key: 'creditPortfolio',
+    path: '/portfolio/credit',
+    roles: ['admin', 'credit_underwriter'],
   },
   {
     key: 'policies',
     path: '/policies',
     roles: ['admin', 'sales', 'commercial_underwriter', 'client'],
-    group: 'portfolio',
+  },
+  // Draft contracts generated from the insurer's wording templates.
+  { key: 'contracts', path: '/contracts', roles: ['admin', 'commercial_underwriter', 'sales'] },
+  {
+    key: 'policyPortfolio',
+    path: '/portfolio/policies',
+    roles: ['admin', 'commercial_underwriter'],
   },
   {
     key: 'declarations',
     path: '/declarations',
     // sales too: the declaration-due tasks are addressed to them.
     roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'client'],
-    group: 'portfolio',
   },
   {
     key: 'overdues',
     path: '/overdues',
     roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'claims'],
-    group: 'portfolio',
   },
   {
     key: 'claims',
     path: '/claims',
     roles: ['admin', 'claims', 'commercial_underwriter', 'credit_underwriter'],
-    group: 'portfolio',
   },
   // Wording templates: commercial manages them, sales generates from them.
   {
     key: 'wording',
     path: '/wording',
     roles: ['admin', 'commercial_underwriter', 'sales'],
-    group: 'system',
   },
-  { key: 'admin', path: '/admin', roles: ['admin'], group: 'system' },
+  { key: 'admin', path: '/admin', roles: ['admin'] },
 ]
 
 export function navItemsForRoles(roles: readonly UserRole[]): readonly NavItem[] {
