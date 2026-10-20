@@ -191,6 +191,30 @@ export function usePolicyDocuments(target: WordingTarget) {
   })
 }
 
+export interface PolicyDocumentWithRefs extends PolicyDocument {
+  generated_by: string
+  policies: { policy_number: string } | null
+  insurance_requests: { request_number: string } | null
+}
+
+/** Every generated draft contract, newest first — the contracts register. */
+export function useAllPolicyDocuments() {
+  return useQuery({
+    queryKey: ['wording', 'documents', 'all'],
+    queryFn: async (): Promise<PolicyDocumentWithRefs[]> => {
+      const { data, error } = await tci()
+        .from('policy_documents')
+        .select(
+          'id, policy_id, insurance_request_id, template_id, template_version, language, storage_path, file_name, generated_at, generated_by, wording_templates(name), policies(policy_number), insurance_requests(request_number)',
+        )
+        .order('generated_at', { ascending: false })
+        .limit(500)
+      if (error) throw error
+      return (data ?? []) as unknown as PolicyDocumentWithRefs[]
+    },
+  })
+}
+
 async function fetchTemplateBytes(path: string): Promise<ArrayBuffer> {
   const { data, error } = await supabase.storage.from(WORDING_BUCKET).download(path)
   if (error) throw error
@@ -235,8 +259,8 @@ export function useGenerateDocument() {
       if (regError) throw regError
       return blob
     },
-    onSuccess: (_blob, input) =>
-      void queryClient.invalidateQueries({ queryKey: ['wording', 'documents', targetId(input.target)] }),
+    // The target's own list and the contracts register both change.
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: ['wording', 'documents'] }),
   })
 }
 

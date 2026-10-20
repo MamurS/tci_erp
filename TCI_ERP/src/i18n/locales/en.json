@@ -17,10 +17,7 @@
     "agenda": "Agenda",
     "overdues": "Overdue accounts",
     "groups": {
-      "work": "Workspace",
-      "underwriting": "Underwriting",
-      "portfolio": "Portfolio",
-      "system": "System"
+      "common": "Shared"
     },
     "collapse": "Collapse",
     "expand": "Expand",
@@ -28,7 +25,33 @@
     "hide": "Hide the menu",
     "show": "Show the menu",
     "shortcutHint": "Ctrl/⌘ B — show or hide the menu · Ctrl/⌘ K — search",
-    "wording": "Contract templates"
+    "wording": "Contract templates",
+    "workspace": "Workspace",
+    "contracts": "Contracts",
+    "policyPortfolio": "Policy portfolio",
+    "creditPortfolio": "Limit portfolio",
+    "workspaces": {
+      "commercial": {
+        "name": "Commercial underwriting",
+        "hint": "Policy portfolio, submissions, policies and contracts"
+      },
+      "credit": {
+        "name": "Credit underwriting",
+        "hint": "Limit portfolio, credit limits and decisions"
+      },
+      "sales": {
+        "name": "Sales",
+        "hint": "Submissions, policies, contracts and declarations"
+      },
+      "claims": {
+        "name": "Claims",
+        "hint": "Claims and overdue accounts"
+      },
+      "admin": {
+        "name": "Administration",
+        "hint": "Users, roles, authorities and contract templates"
+      }
+    }
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -2832,6 +2855,115 @@
       "limits_valid_until": "Valid until",
       "document_date": "Date the document was generated",
       "document_language": "Template language code"
+    }
+  },
+  "contracts": {
+    "title": "Contracts",
+    "subtitle": "Generate the draft contract of a policy or a submission from the insurer's active template — policyholder, terms and credit limits are filled in from the system — and find every contract generated so far.",
+    "manageTemplates": "Contract templates →",
+    "generate": "Generate contract",
+    "searchPlaceholder": "Number, company or template",
+    "tabs": {
+      "policies": "Policies",
+      "submissions": "Submissions",
+      "register": "Generated contracts"
+    },
+    "columns": {
+      "documents": "Contracts",
+      "submission": "Submission",
+      "applicant": "Applicant",
+      "for": "For"
+    },
+    "forPolicy": "Policy {{number}}",
+    "forSubmission": "Submission {{number}}",
+    "noTemplates": {
+      "title": "No contract template is active yet",
+      "hintManager": "A contract is generated from an active template. Install the standard templates (Russian, English, Uzbek) to start at once, or upload your own wording with placeholders.",
+      "hintOther": "A contract is generated from an active template. Ask a commercial underwriter or an administrator to activate one in «Contract templates»."
+    },
+    "empty": {
+      "policies": "No policies yet",
+      "policiesHint": "A policy appears here once it is created or bound from a submission.",
+      "submissions": "No live submissions",
+      "submissionsHint": "Drafts, declined and withdrawn submissions are not shown: a contract is drawn up for a submission that is under way.",
+      "register": "No contracts generated yet",
+      "registerHint": "Generate a contract from the Policies or Submissions tab; every generated document is kept here with what it said."
+    }
+  },
+  "portfolio": {
+    "none": "Nothing to show yet.",
+    "share": "Share",
+    "missingRates": "No UZS rate",
+    "missingRatesHint": "Limits in a currency with no UZS rate: counted, not added as zero",
+    "scope": {
+      "label": "Policies shown",
+      "inForce": "In force",
+      "all": "All policies"
+    },
+    "policies": {
+      "title": "Policy portfolio",
+      "subtitle": "The book per currency — premium, liability, claims and loss ratio — with its make-up, the renewals coming up and the worst loss ratios.",
+      "empty": "No policies in this view",
+      "emptyHint": "In-force means active or suspended. Switch to «All policies» to include drafts and ended policies.",
+      "inCurrency_one": "{{count}} policy",
+      "inCurrency_other": "{{count}} policies",
+      "premiumBase": "Premium due",
+      "earned": "earned {{amount}}",
+      "premiumPaid": "Premium paid",
+      "overdue": "overdue {{amount}}",
+      "maxLiability": "Maximum liability",
+      "claims": "Claims",
+      "openClaims_one": "{{count}} open",
+      "openClaims_other": "{{count}} open",
+      "incurred": "Incurred",
+      "lossRatio": "Loss ratio",
+      "lossRatioHint": "incurred ÷ premium due",
+      "limitsInForce": "Credit limits on these policies",
+      "limitsUzs": "{{amount}} UZS in total",
+      "byProduct": "By product",
+      "byStatus": "By status",
+      "byCountry": "By policyholder country",
+      "count": "Policies",
+      "renewals": "Ending within {{days}} days",
+      "renewalsHint": "In-force policies to renew or let run off, soonest first.",
+      "noRenewals": "No in-force policy ends in this window.",
+      "daysLeft": "Days left",
+      "worst": "Highest loss ratios",
+      "noLosses": "No policy has incurred a loss."
+    },
+    "credit": {
+      "title": "Limit portfolio",
+      "subtitle": "In-force credit limits on bound policies, in UZS: by the buyer's current rating band, by country and currency, the largest buyers and groups, reviews due and stale ratings.",
+      "empty": "No credit limit in force",
+      "emptyHint": "A limit appears here once it is approved (fully or partly) on a bound policy.",
+      "exposure": "Exposure",
+      "limits": "Limits",
+      "buyers": "Buyers",
+      "policies": "Policies",
+      "byBand": "By rating band",
+      "byBandHint": "The band of the buyer's latest rating.",
+      "band": "Band",
+      "byCountry": "By buyer country",
+      "country": "Country",
+      "topBuyers": "Largest buyers",
+      "buyer": "Buyer",
+      "rating": "Rating",
+      "reviews": "Limits due for review within {{days}} days",
+      "noReviews": "No limit is due for review in this window.",
+      "amount": "Amount",
+      "daysLeft": "Days left",
+      "stale": "Stale or missing ratings",
+      "staleHint": "Buyers with an in-force limit whose latest rating is more than a year old, or who were never rated.",
+      "noStale": "Every buyer with a limit has a current rating.",
+      "ratedAt": "Rated",
+      "notRated": "not rated",
+      "byCurrency": "By limit currency",
+      "byCurrencyHint": "Amounts as granted, in their own currency — not converted.",
+      "groups": "Largest corporate groups",
+      "groupsHint": "Groups with limits on more than one member, by combined exposure.",
+      "noGroups": "No group has limits on more than one member.",
+      "group": "Group (ultimate parent)",
+      "members": "Members with limits"
     }
   }
 }

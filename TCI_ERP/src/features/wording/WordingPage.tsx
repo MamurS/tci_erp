@@ -9,22 +9,14 @@ import { Badge, Button, Card, EmptyState, PageHeader, SectionTitle, Spinner, Tab
 import { useAuth } from '../../auth/AuthContext'
 import { formatMoment } from '../../lib/format'
 import type { WordingTemplate } from './api'
-import { useSetTemplateStatus, useUploadWordingTemplate, useWordingTemplates, wordingDownloadUrl } from './api'
-import EN_URL from './defaults/policy-wording-en.docx?url'
-import RU_URL from './defaults/policy-wording-ru.docx?url'
-import UZ_URL from './defaults/policy-wording-uz.docx?url'
+import { useSetTemplateStatus, useWordingTemplates, wordingDownloadUrl } from './api'
 import { WORDING_SYNTAX } from './catalogue'
 import { wordingErrorKey } from './errors'
 import { InsurerProfileCard } from './InsurerProfileCard'
 import { languageName } from './labels'
 import { PlaceholderReference } from './PlaceholderReference'
+import { useInstallStandardTemplates } from './standardTemplates'
 import { UploadTemplateModal } from './UploadTemplateModal'
-
-const STANDARD = [
-  { language: 'ru', url: RU_URL },
-  { language: 'en', url: EN_URL },
-  { language: 'uz', url: UZ_URL },
-] as const
 
 const STATUS_TONE = { active: 'pos', draft: 'warn', retired: 'neutral' } as const
 
@@ -35,43 +27,18 @@ export function WordingPage() {
   const canManage = roles.includes('admin') || roles.includes('commercial_underwriter')
   const { data: templates, isLoading } = useWordingTemplates()
   const setStatus = useSetTemplateStatus()
-  const upload = useUploadWordingTemplate()
   const [uploadOpen, setUploadOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [installing, setInstalling] = useState(false)
+  const { install, installing } = useInstallStandardTemplates()
 
   const act = (id: string, status: 'active' | 'retired') => {
     setError(null)
     setStatus.mutateAsync({ id, status }).catch((e: unknown) => setError(t(wordingErrorKey(e))))
   }
 
-  /** Uploads the shipped templates (ru/en/uz, any country, any product) and
-   *  activates each one only where no active template exists for its key. */
-  const installStandard = async () => {
+  const installStandard = () => {
     setError(null)
-    setInstalling(true)
-    try {
-      for (const std of STANDARD) {
-        const blob = await (await fetch(std.url)).blob()
-        const { template } = await upload.mutateAsync({
-          file: blob,
-          fileName: `policy-wording-${std.language}.docx`,
-          name: t('wording.standard.name', { lng: std.language }),
-          description: t('wording.standard.description'),
-          countryCode: null,
-          language: std.language,
-          product: null,
-        })
-        const taken = (templates ?? []).some(
-          (x) => x.status === 'active' && x.country_code === null && x.product_structure === null && x.language === std.language,
-        )
-        if (!taken) await setStatus.mutateAsync({ id: template.id, status: 'active' })
-      }
-    } catch (e) {
-      setError(t(wordingErrorKey(e)))
-    } finally {
-      setInstalling(false)
-    }
+    install().catch((e: unknown) => setError(t(wordingErrorKey(e))))
   }
 
   const download = (template: WordingTemplate) => {
@@ -88,7 +55,7 @@ export function WordingPage() {
         actions={
           canManage && (
             <>
-              <Button variant="secondary" disabled={installing} onClick={() => void installStandard()}>
+              <Button variant="secondary" disabled={installing} onClick={installStandard}>
                 {installing ? t('common.saving') : t('wording.standard.install')}
               </Button>
               <Button variant="accent" onClick={() => setUploadOpen(true)}>

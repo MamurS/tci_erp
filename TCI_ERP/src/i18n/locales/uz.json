@@ -17,10 +17,7 @@
     "agenda": "Kun tartibi",
     "overdues": "Muddati o‘tgan qarzlar",
     "groups": {
-      "work": "Ish joyi",
-      "underwriting": "Anderrayting",
-      "portfolio": "Portfel",
-      "system": "Tizim"
+      "common": "Umumiy"
     },
     "collapse": "Yig‘ish",
     "expand": "Yoyish",
@@ -28,7 +25,33 @@
     "hide": "Menyuni yashirish",
     "show": "Menyuni ko‘rsatish",
     "shortcutHint": "Ctrl/⌘ B — menyuni ko‘rsatish yoki yashirish · Ctrl/⌘ K — qidiruv",
-    "wording": "Shartnoma shablonlari"
+    "wording": "Shartnoma shablonlari",
+    "workspace": "Ish maydoni",
+    "contracts": "Shartnomalar",
+    "policyPortfolio": "Polislar portfeli",
+    "creditPortfolio": "Limitlar portfeli",
+    "workspaces": {
+      "commercial": {
+        "name": "Tijorat anderraytingi",
+        "hint": "Polislar portfeli, arizalar, polislar va shartnomalar"
+      },
+      "credit": {
+        "name": "Kredit anderraytingi",
+        "hint": "Limitlar portfeli, kredit limitlari va qarorlar"
+      },
+      "sales": {
+        "name": "Sotuv",
+        "hint": "Arizalar, polislar, shartnomalar va deklaratsiyalar"
+      },
+      "claims": {
+        "name": "Sug‘urta da’volari",
+        "hint": "Sug‘urta da’volari va muddati o‘tgan qarzlar"
+      },
+      "admin": {
+        "name": "Administratsiya",
+        "hint": "Foydalanuvchilar, rollar, vakolatlar va shartnoma shablonlari"
+      }
+    }
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -2832,6 +2855,115 @@
       "limits_valid_until": "Amal qilish tugashi",
       "document_date": "Hujjat yaratilgan sana",
       "document_language": "Shablon tili kodi"
+    }
+  },
+  "contracts": {
+    "title": "Shartnomalar",
+    "subtitle": "Polis yoki ariza bo‘yicha shartnoma loyihasini sug‘urtalovchining amaldagi shablonidan tuzing — sug‘urtalanuvchi, shartlar va kredit limitlari tizimdan olinadi — va avval tuzilgan barcha shartnomalarni toping.",
+    "manageTemplates": "Shartnoma shablonlari →",
+    "generate": "Shartnoma tuzish",
+    "searchPlaceholder": "Raqam, tashkilot yoki shablon",
+    "tabs": {
+      "policies": "Polislar",
+      "submissions": "Arizalar",
+      "register": "Tuzilgan shartnomalar"
+    },
+    "columns": {
+      "documents": "Shartnomalar",
+      "submission": "Ariza",
+      "applicant": "Ariza beruvchi",
+      "for": "Hujjat"
+    },
+    "forPolicy": "Polis {{number}}",
+    "forSubmission": "Ariza {{number}}",
+    "noTemplates": {
+      "title": "Hali birorta shartnoma shabloni amalda emas",
+      "hintManager": "Shartnoma amaldagi shablondan tuziladi. Darhol boshlash uchun standart shablonlarni (rus, ingliz, o‘zbek) o‘rnating yoki o‘rniga qo‘yiladigan maydonlari bor o‘z matningizni yuklang.",
+      "hintOther": "Shartnoma amaldagi shablondan tuziladi. «Shartnoma shablonlari» bo‘limida shablonni amalga kiritishni tijorat anderrayteri yoki administratordan so‘rang."
+    },
+    "empty": {
+      "policies": "Hozircha polislar yo‘q",
+      "policiesHint": "Polis yaratilgandan yoki arizadan rasmiylashtirilgandan so‘ng shu yerda paydo bo‘ladi.",
+      "submissions": "Ishdagi arizalar yo‘q",
+      "submissionsHint": "Qoralamalar, rad etilgan va qaytarib olingan arizalar ko‘rsatilmaydi: shartnoma ishdagi ariza bo‘yicha tuziladi.",
+      "register": "Hali shartnoma tuzilmagan",
+      "registerHint": "«Polislar» yoki «Arizalar» ichki bo‘limida shartnoma tuzing — har bir hujjat unga kirgan ma’lumotlar bilan shu yerda saqlanadi."
+    }
+  },
+  "portfolio": {
+    "none": "Hozircha ko‘rsatadigan narsa yo‘q.",
+    "share": "Ulush",
+    "missingRates": "UZS kursi yo‘q",
+    "missingRatesHint": "UZS kursi bo‘lmagan valyutadagi limitlar: soni hisobga olinadi, nol sifatida qo‘shilmaydi",
+    "scope": {
+      "label": "Qaysi polislar ko‘rsatiladi",
+      "inForce": "Amaldagi",
+      "all": "Barcha polislar"
+    },
+    "policies": {
+      "title": "Polislar portfeli",
+      "subtitle": "Valyutalar bo‘yicha portfel — mukofot, javobgarlik, zararlar va zararlilik — uning tarkibi, yaqinlashayotgan uzaytirishlar va zararliligi eng yuqori polislar.",
+      "empty": "Bu ko‘rinishda polislar yo‘q",
+      "emptyHint": "Amaldagi — bu amaldagi va to‘xtatilgan polislar. Qoralamalar va tugaganlarni ko‘rish uchun «Barcha polislar»ga o‘ting.",
+      "inCurrency_one": "{{count}} ta polis",
+      "inCurrency_other": "{{count}} ta polis",
+      "premiumBase": "To‘lanadigan mukofot",
+      "earned": "ishlab topilgan {{amount}}",
+      "premiumPaid": "To‘langan mukofot",
+      "overdue": "muddati o‘tgan {{amount}}",
+      "maxLiability": "Maksimal javobgarlik",
+      "claims": "Sug‘urta da’volari",
+      "openClaims_one": "{{count}} ta ishda",
+      "openClaims_other": "{{count}} ta ishda",
+      "incurred": "Ko‘rilgan zararlar",
+      "lossRatio": "Zararlilik",
+      "lossRatioHint": "zararlar ÷ to‘lanadigan mukofot",
+      "limitsInForce": "Ushbu polislar bo‘yicha kredit limitlari",
+      "limitsUzs": "jami {{amount}} UZS",
+      "byProduct": "Mahsulot bo‘yicha",
+      "byStatus": "Holat bo‘yicha",
+      "byCountry": "Sug‘urtalanuvchi mamlakati bo‘yicha",
+      "count": "Polislar",
+      "renewals": "Yaqin {{days}} kun ichida tugaydi",
+      "renewalsHint": "Uzaytirish yoki yakunlash uchun amaldagi polislar, eng yaqini yuqorida.",
+      "noRenewals": "Bu oraliqda birorta amaldagi polis tugamaydi.",
+      "daysLeft": "Qolgan kunlar",
+      "worst": "Eng yuqori zararlilik",
+      "noLosses": "Hech bir polis bo‘yicha zarar ko‘rilmagan."
+    },
+    "credit": {
+      "title": "Limitlar portfeli",
+      "subtitle": "Rasmiylashtirilgan polislar bo‘yicha amaldagi kredit limitlari UZSda: bayerning joriy reyting diapazoni, mamlakatlar va valyutalar bo‘yicha, eng yirik bayerlar va guruhlar, qayta ko‘rib chiqishlar va eskirgan reytinglar.",
+      "empty": "Amaldagi kredit limitlari yo‘q",
+      "emptyHint": "Limit rasmiylashtirilgan polis bo‘yicha (to‘liq yoki qisman) tasdiqlangandan so‘ng shu yerda paydo bo‘ladi.",
+      "exposure": "Ekspozitsiya",
+      "limits": "Limitlar",
+      "buyers": "Bayerlar",
+      "policies": "Polislar",
+      "byBand": "Reyting diapazoni bo‘yicha",
+      "byBandHint": "Bayerning so‘nggi reytingi diapazoni.",
+      "band": "Diapazon",
+      "byCountry": "Bayer mamlakati bo‘yicha",
+      "country": "Mamlakat",
+      "topBuyers": "Eng yirik bayerlar",
+      "buyer": "Bayer",
+      "rating": "Reyting",
+      "reviews": "Yaqin {{days}} kun ichida qayta ko‘riladigan limitlar",
+      "noReviews": "Bu oraliqda qayta ko‘riladigan limit yo‘q.",
+      "amount": "Summa",
+      "daysLeft": "Qolgan kunlar",
+      "stale": "Eskirgan va mavjud bo‘lmagan reytinglar",
+      "staleHint": "So‘nggi reytingi bir yildan eski yoki umuman baholanmagan, amaldagi limiti bor bayerlar.",
+      "noStale": "Limiti bor har bir bayerning reytingi dolzarb.",
+      "ratedAt": "Reyting sanasi",
+      "notRated": "reytingsiz",
+      "byCurrency": "Limit valyutasi bo‘yicha",
+      "byCurrencyHint": "Summalar tasdiqlanganidek, o‘z valyutasida — qayta hisoblanmagan.",
+      "groups": "Eng yirik kompaniyalar guruhlari",
+      "groupsHint": "Bir nechta a’zosiga limit berilgan guruhlar, jami ekspozitsiya bo‘yicha.",
+      "noGroups": "Bir nechta a’zosiga limit berilgan guruh yo‘q.",
+      "group": "Guruh (bosh kompaniya)",
+      "members": "Limitli a’zolar"
     }
   }
 }
