@@ -175,7 +175,10 @@
     "paidSub": "shu oyda to‘langan: {{count}}",
     "premiumOfMinimum": "minimal mukofotning {{pct}}",
     "premiumEarned": "Ishlab topilgan mukofot",
-    "tasksMore": "yana {{count}}"
+    "tasksMore": "yana {{count}}",
+    "premiumUzsUnit": "UZS ekv.",
+    "premiumConverted": "Barcha valyutalar mavjud so‘nggi kurs bo‘yicha UZS ga qayta hisoblangan. Hisoblangan:",
+    "premiumNoRate": "UZS kursi yo‘q, kiritilmagan: {{currencies}}"
   },
   "buyers": {
     "subtitle": "Kredit bahosidagi bayerlar (debitorlar) reyestri",
@@ -1483,7 +1486,8 @@
     },
     "portfolioLimitsTitle": "Ularning polislari bo‘yicha bayer limitlari",
     "portfolioSummary": "Sug‘urtalanuvchi portfeli:",
-    "portfolioLimits": "amaldagi limitlar"
+    "portfolioLimits": "amaldagi limitlar",
+    "portfolioLimitsEmpty": "Ushbu tashkilot polislari bo‘yicha hozircha limitlar yo‘q"
   },
   "access": {
     "denied": "Ruxsat yo‘q",
@@ -1877,10 +1881,10 @@
   },
   "agenda": {
     "title": "Mening kun tartibim",
-    "subtitle": "Qaysi obyektga tegishli bo‘lishidan qat’i nazar, aynan sizni kutayotgan hamma ish. «Sug‘urta arizalari» va «Kredit limitlari» navbatlari bo‘lim ko‘rinishi bo‘lib qoladi.",
+    "subtitle": "Qaysi obyektga tegishli bo‘lishidan qat’i nazar, aynan sizni kutayotgan hamma ish. «Sug‘urta arizalari» va «Kredit limitlari» navbatlari bo‘limning umumiy ko‘rinishi bo‘lib qoladi.",
     "open": "Ochish",
     "openCount": "Ochiq vazifalar",
-    "openSelected": "Tanlanganlarni ochish ({{count}})",
+    "openSelected": "Yangi ilovalarda ochish",
     "openSelectedHint": "Har bir tanlangan vazifaning obyektini yangi ilovada ochadi.",
     "selectRow": "Vazifani tanlash",
     "markDone": "Bajarildi deb belgilash",
@@ -1905,7 +1909,14 @@
       "insurance_request": "Sug‘urta arizasi",
       "legal_entity": "Tashkilot",
       "credit_limit_request": "Limit arizasi",
-      "credit_limit_decision": "Limit bo‘yicha qaror"
+      "credit_limit_decision": "Limit bo‘yicha qaror",
+      "policy": "Polis",
+      "declaration": "Aylanma deklaratsiyasi",
+      "premium_instalment": "Mukofot to‘lovi",
+      "overdue_notification": "Muddati o‘tganlik haqida bildirishnoma",
+      "claim": "Da’vo",
+      "entity_request": "Ma’lumot so‘rovi",
+      "client_buyer_proposal": "Taklif qilingan bayer"
     },
     "taskTypes": {
       "buyer_needs_entity": "Bayerni aniqlash",
@@ -1980,7 +1991,9 @@
       "hint": "Vazifalar ish jarayon bo‘ylab harakatlangani sari bu yerda o‘zi paydo bo‘ladi va obyekt keyingi bosqichga o‘tganda o‘zi yopiladi.",
       "filtered": "Bu filtrlarga birorta vazifa mos kelmadi",
       "filteredHint": "Butun kun tartibini ko‘rish uchun filtrlarni tozalang."
-    }
+    },
+    "selected": "Tanlangan: {{count}}",
+    "clearSelection": "Tanlovni olib tashlash"
   },
   "portal": {
     "title": "Mijoz portali",
@@ -2786,7 +2799,10 @@
       "limits": "Limitlar",
       "policies": "Shartnomalar",
       "amountUzs": "UZS",
-      "rateMissingShort": "kurs yo‘q"
+      "rateMissingShort": "kurs yo‘q",
+      "overBy": "Limitdan {{amount}} ortiq",
+      "headroom": "Bo‘sh qoldiq: {{amount}}",
+      "limitNoRate": "Bugun {{currency}} kursi yo‘q — foydalanishni hisoblab bo‘lmaydi"
     },
     "members": {
       "title": "Guruh a’zolari",
@@ -2860,7 +2876,16 @@
       "suggestionReviewed": "Bu taklif allaqachon ko‘rib chiqilgan.",
       "suggestionParent": "Bosh tashkilot taklif qilingan ikki tashkilotdan biri bo‘lishi kerak.",
       "adjustmentOverLimit": "Bu tuzatish guruh limitidan oshib ketadi.",
-      "saveFailed": "Saqlab bo‘lmadi. Qaytadan urinib ko‘ring."
+      "saveFailed": "Saqlab bo‘lmadi. Qaytadan urinib ko‘ring.",
+      "amountRequired": "Guruh limiti summasini kiriting",
+      "counterpartyRequired": "Bog‘liq tashkilotni tanlang"
+    },
+    "confirm": {
+      "endRelationshipTitle": "Bog‘lanish to‘xtatilsinmi?",
+      "endRelationshipMessage": "{{parent}} (bosh tashkilot) va {{child}} o‘rtasidagi bog‘lanish bugundan boshlab hisobga olinmaydi. Guruh tarkibi va guruhga ekspozitsiya qayta hisoblanadi; yozuv tarixda qoladi.",
+      "endRelationshipAction": "Bog‘lanishni to‘xtatish",
+      "endLimitTitle": "Guruh limiti olib tashlansinmi?",
+      "endLimitMessage": "{{name}} guruh limiti bugundan amal qilmaydi: guruh a’zolari bo‘yicha qarorlar endi u bilan solishtirilmaydi. Limit tarixda qoladi."
     }
   },
   "mfaVerify": {

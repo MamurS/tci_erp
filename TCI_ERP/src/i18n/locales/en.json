@@ -175,7 +175,10 @@
     "paidSub": "paid this month: {{count}}",
     "premiumOfMinimum": "{{pct}} of the minimum premium",
     "premiumEarned": "Earned premium",
-    "tasksMore": "+{{count}} more"
+    "tasksMore": "+{{count}} more",
+    "premiumUzsUnit": "UZS equiv.",
+    "premiumConverted": "All currencies converted to UZS at the latest rate on record. Booked:",
+    "premiumNoRate": "No UZS rate, not included: {{currencies}}"
   },
   "buyers": {
     "subtitle": "Register of buyers (debtors) under credit assessment",
@@ -1483,7 +1486,8 @@
     },
     "portfolioLimitsTitle": "Buyer limits under their policies",
     "portfolioSummary": "Policyholder portfolio:",
-    "portfolioLimits": "effective limits"
+    "portfolioLimits": "effective limits",
+    "portfolioLimitsEmpty": "No credit limits on this company's policies yet"
   },
   "access": {
     "denied": "No access",
@@ -1877,10 +1881,10 @@
   },
   "agenda": {
     "title": "My agenda",
-    "subtitle": "Everything waiting on you, whatever it hangs off. The queues under Submissions and Credit Limits stay the departmental view.",
+    "subtitle": "Everything waiting on you, whatever it hangs off. The queues under Submissions and Credit Limits remain each department's shared view.",
     "open": "Open",
     "openCount": "Open tasks",
-    "openSelected": "Open selected ({{count}})",
+    "openSelected": "Open in new tabs",
     "openSelectedHint": "Opens each selected task's object in a new tab.",
     "selectRow": "Select task",
     "markDone": "Mark done",
@@ -1905,7 +1909,14 @@
       "insurance_request": "Insurance submission",
       "legal_entity": "Company",
       "credit_limit_request": "Limit request",
-      "credit_limit_decision": "Limit decision"
+      "credit_limit_decision": "Limit decision",
+      "policy": "Policy",
+      "declaration": "Turnover declaration",
+      "premium_instalment": "Premium instalment",
+      "overdue_notification": "Overdue notification",
+      "claim": "Claim",
+      "entity_request": "Data request",
+      "client_buyer_proposal": "Proposed buyer"
     },
     "taskTypes": {
       "buyer_needs_entity": "Identify buyer",
@@ -1980,7 +1991,9 @@
       "hint": "Tasks appear here on their own as work moves through the pipeline, and close themselves when it moves on.",
       "filtered": "No task matches these filters",
       "filteredHint": "Reset the filters to see the whole agenda."
-    }
+    },
+    "selected": "{{count}} selected",
+    "clearSelection": "Clear selection"
   },
   "portal": {
     "title": "Client portal",
@@ -2786,7 +2799,10 @@
       "limits": "Limits",
       "policies": "Policies",
       "amountUzs": "UZS",
-      "rateMissingShort": "no rate"
+      "rateMissingShort": "no rate",
+      "overBy": "Over the limit by {{amount}}",
+      "headroom": "{{amount}} still available",
+      "limitNoRate": "No {{currency}} rate today, so utilisation cannot be computed"
     },
     "members": {
       "title": "Members",
@@ -2860,7 +2876,16 @@
       "suggestionReviewed": "This suggestion has already been reviewed.",
       "suggestionParent": "The parent must be one of the two suggested companies.",
       "adjustmentOverLimit": "This adjustment would take the group past its group limit.",
-      "saveFailed": "Could not save. Please try again."
+      "saveFailed": "Could not save. Please try again.",
+      "amountRequired": "Enter the group limit amount",
+      "counterpartyRequired": "Choose the related company"
+    },
+    "confirm": {
+      "endRelationshipTitle": "End this relationship?",
+      "endRelationshipMessage": "The link between {{parent}} (parent) and {{child}} stops counting from today. Group membership and group exposure are recalculated; the record stays in the history.",
+      "endRelationshipAction": "End the relationship",
+      "endLimitTitle": "Remove the group limit?",
+      "endLimitMessage": "The group limit of {{name}} stops applying today: decisions on its members are no longer checked against it. The limit stays in the history."
     }
   },
   "mfaVerify": {
