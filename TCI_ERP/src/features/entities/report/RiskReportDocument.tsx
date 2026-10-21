@@ -19,6 +19,7 @@ import {
   formatPercent,
   formatRatio,
   formatSignedPercent,
+  formatDate,
 } from '../../../lib/format'
 import { SCALE_LABEL_KEYS, placeScore } from '../../../lib/ratingScale'
 import type { ScalePoint } from '../../../lib/ratingScale'
@@ -107,7 +108,7 @@ export function RiskReportBody({ report, t, locale, variant, onNarrative, onFact
                             <Kv label={t('report.general.legalForm')}>{entity.legal_form}</Kv>
                           )}
                           <Kv label={t('report.general.registrationDate')} strong>
-                            {entity.founded_date ?? EM_DASH}
+                            {entity.founded_date ? formatDate(entity.founded_date, locale) : EM_DASH}
                           </Kv>
                           <Kv label={t('report.general.country')}>
                             {refName(entity.countries, locale) || EM_DASH}
@@ -699,7 +700,9 @@ function KeyFigureCard({
   const sign = (v: number, places: number) =>
     Math.round(Math.abs(v) * 10 ** places) === 0 ? '' : v > 0 ? '+' : '−'
   const changeText =
-    change === null
+    figure.unchanged
+      ? ''
+      : change === null
       ? figure.previous !== null
         ? t('report.nm')
         : ''
@@ -719,11 +722,16 @@ function KeyFigureCard({
       {figure.previousYear !== null && (
         <div className="rpt-kf-sub">
           {figure.previousYear}: {show(figure.previous)}
-          {changeText && (
-            <b className={toneClass}>
-              {changeText}
-              {figure.trend && ` ${figure.trend === 'up' ? '▲' : '▼'}`}
-            </b>
+          {figure.unchanged ? (
+            // Zero at the precision shown: words, neutral, no arrow.
+            <span className="rpt-muted rpt-kf-flat">{t('report.unchanged')}</span>
+          ) : (
+            changeText && (
+              <b className={toneClass}>
+                {changeText}
+                {figure.trend && ` ${figure.trend === 'up' ? '▲' : '▼'}`}
+              </b>
+            )
           )}
         </div>
       )}

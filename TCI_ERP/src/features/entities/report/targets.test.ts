@@ -13,7 +13,7 @@ import {
 /** Complete inventory of keys buildNarrative can emit (narrative.ts). */
 const NARRATIVE_KEYS = [
   'revenue_grew', 'revenue_fell', 'revenue_flat', 'revenue_level',
-  'gross_margin_up', 'gross_margin_down', 'net_profit_positive', 'net_loss',
+  'gross_margin_up', 'gross_margin_down', 'gross_margin_flat', 'net_profit_positive', 'net_loss',
   'leverage_low', 'leverage_moderate', 'leverage_high',
   'liquidity_ok', 'liquidity_breach',
   'cfo_positive', 'cfo_negative', 'cfo_negative_persistent',

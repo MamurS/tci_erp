@@ -5,7 +5,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Field, Input, Modal, PageHeader, Select, Spinner, Table, SectionTitle } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Field, Input, Modal, PageHeader, Select, Spinner, Table, SectionTitle, Truncate } from '../../components/ui'
 import { claimErrorKey } from '../claims/errors'
 import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
 import {
@@ -81,7 +81,9 @@ export function PortalClaimsPage() {
             <tbody>
               {ready.map((c) => (
                 <tr key={c.noa_id}>
-                  <td>{c.buyer_name}</td>
+                  <td>
+                    <Truncate text={c.buyer_name}>{c.buyer_name}</Truncate>
+                  </td>
                   <td className="text-slate-600">{c.policy_number}</td>
                   <td className="num">
                     {formatAmount(Number(c.overdue_amount), locale)} {c.currency_code}
@@ -132,7 +134,9 @@ export function PortalClaimsPage() {
                     {c.claim_number}
                   </button>
                 </td>
-                <td>{c.buyer_name}</td>
+                <td>
+                  <Truncate text={c.buyer_name}>{c.buyer_name}</Truncate>
+                </td>
                 <td className="num">
                   {formatAmount(Number(c.claimed_amount), locale)} {c.currency_code}
                 </td>

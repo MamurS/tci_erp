@@ -8,7 +8,7 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, PanelGrid, ViewBar, Spinner } from '../../../components/ui'
+import { Badge, Card, EmptyState, PanelGrid, ViewBar, Spinner, Truncate } from '../../../components/ui'
 import { formatAmount, formatDays, formatPercent } from '../../../lib/format'
 import { num } from '../../portfolio/aggregate'
 import { useCreditPortfolio } from '../../portfolio/api'
@@ -136,7 +136,9 @@ export function MonitoringView() {
                     {n.buyer_name}
                   </Link>
                 </td>
-                <td className="text-slate-600">{n.policyholder_name}</td>
+                <td className="text-slate-600">
+                  <Truncate text={n.policyholder_name}>{n.policyholder_name}</Truncate>
+                </td>
                 <td className="num text-right whitespace-nowrap">
                   {formatAmount(num(n.overdue_amount), locale)} {n.currency_code}
                 </td>

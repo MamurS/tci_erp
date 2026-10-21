@@ -10,7 +10,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, KeyFigures, Panel, Segmented, Spinner, Table, ViewBar } from '../../components/ui'
+import { Badge, Card, EmptyState, KeyFigures, Panel, Segmented, Spinner, Table, ViewBar, Truncate } from '../../components/ui'
 import { formatAmount, formatCompact, formatDate, formatDays, formatPercent } from '../../lib/format'
 import { statusTone } from '../policies/statusMachine'
 import type { PolicyPortfolioRow } from './aggregate'
@@ -286,7 +286,9 @@ export function PolicyPortfolioPage() {
             {renewals.map((r) => (
               <tr key={r.policy_id}>
                 <td>{policyLink(r)}</td>
-                <td className="text-slate-600">{r.policyholder_name}</td>
+                <td className="text-slate-600">
+                  <Truncate text={r.policyholder_name}>{r.policyholder_name}</Truncate>
+                </td>
                 <td className="text-slate-500">{formatDate(r.expiry_date, locale)}</td>
                 <td className="num text-right">{formatDays(r.days_to_expiry, locale)}</td>
                 <td className="num text-right">{money(r.premium_base, r.currency_code)}</td>
@@ -312,7 +314,9 @@ export function PolicyPortfolioPage() {
             {worst.map((r) => (
               <tr key={r.policy_id}>
                 <td>{policyLink(r)}</td>
-                <td className="text-slate-600">{r.policyholder_name}</td>
+                <td className="text-slate-600">
+                  <Truncate text={r.policyholder_name}>{r.policyholder_name}</Truncate>
+                </td>
                 <td>
                   <Badge tone={statusTone(r.status as Parameters<typeof statusTone>[0])}>
                     {t(`policies.statuses.${r.status}`)}

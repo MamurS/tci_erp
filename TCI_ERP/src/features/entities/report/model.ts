@@ -416,10 +416,25 @@ export interface KeyFigure {
   previous: number | null
   previousYear: number | null
   change: { kind: ChangeKind; value: number } | null
+  /** The change reads as zero at the precision it is shown at (0.0%,
+   * 0.00 pp, 0.00x): «unchanged», with no arrow and no colour. */
+  unchanged: boolean
   trend: Trend
   tone: Tone
   /** amount = currency figure, percent = fraction, ratio = multiple */
   format: 'amount' | 'percent' | 'ratio'
+}
+
+/**
+ * Whether a key-figure change SHOWS as zero. The card prints a relative change
+ * as a percentage (0.0%), an equity-ratio move in percentage points with two
+ * decimals and a leverage move as a multiple with two decimals; a change that
+ * rounds to nothing there is no change, whatever the raw digits say — a red
+ * arrow next to «0.00 pp» is noise the reader has to explain away.
+ */
+export function isUnchangedShown(change: { kind: ChangeKind; value: number }): boolean {
+  const places = change.kind === 'pct' ? 3 : change.kind === 'pp' ? 4 : 2
+  return Math.round(Math.abs(change.value) * 10 ** places) === 0
 }
 
 /** `display` as in statementRows: shown values; changes come from `series`. */
@@ -452,13 +467,15 @@ export function keyFigures(
         change = { kind, value: current - before }
       }
     }
-    const trend = trendOf(current, before)
+    const unchanged = change !== null && isUnchangedShown(change)
+    const trend = unchanged ? null : trendOf(current, before)
     return {
       key,
       value: fn(shownLatest),
       previous: shownPrior ? fn(shownPrior) : null,
       previousYear: prior?.fiscal_year ?? null,
       change,
+      unchanged,
       trend,
       tone: toneFor(trend, direction),
       format,

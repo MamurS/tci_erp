@@ -13,7 +13,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AmountInput, Badge, Button, Card, EmptyState, Field, Input, PageHeader, Select, Spinner, Table, SectionTitle } from '../../components/ui'
+import { AmountInput, Badge, Button, Card, EmptyState, Field, Input, PageHeader, Select, Spinner, Table, SectionTitle, Truncate } from '../../components/ui'
 import { formatAmount, formatMoment } from '../../lib/format'
 import { isReportedLate, noaDeadline } from '../overdue/noa'
 import {
@@ -161,7 +161,9 @@ export function PortalOverduesPage() {
           <tbody>
             {overdues.map((n) => (
               <tr key={n.id}>
-                <td className="font-medium">{n.buyer_name}</td>
+                <td className="font-medium">
+                  <Truncate text={n.buyer_name}>{n.buyer_name}</Truncate>
+                </td>
                 <td>
                   <span className="num block">
                     {formatAmount(Number(n.overdue_amount), locale)} {n.currency_code}

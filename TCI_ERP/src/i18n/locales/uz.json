@@ -707,7 +707,8 @@
       "z_safe": "Altman Z''-hisobi kompaniyani xavfsiz zonaga kiritadi.",
       "z_grey": "Altman Z''-hisobi kompaniyani kulrang zonaga kiritadi.",
       "z_distress": "Altman Z''-hisobi kompaniyani yuqori qaltislik zonasiga kiritadi.",
-      "norm_breaches": "{{count}} ko‘rsatkich bo‘yicha normalar buzilgan: {{rows}}."
+      "norm_breaches": "{{count}} ko‘rsatkich bo‘yicha normalar buzilgan: {{rows}}.",
+      "gross_margin_flat": "Yalpi rentabellik o‘zgarmadi: {{to}}%."
     },
     "approvedAggregateLimit": "Tasdiqlangan jami limit",
     "rows": {
@@ -1018,7 +1019,8 @@
       "revRecPay": "Tushum, debitorlik va kreditorlik qarzlari ({{currency}})",
       "turnover": "Aylanma ko‘rsatkichlari (kun)",
       "note": "Tashkilot ko‘rsatkichlari, yillik hisobot."
-    }
+    },
+    "unchanged": "o‘zgarishsiz"
   },
   "policyholders": {
     "subtitle": "Sug‘urtalanuvchilar (sotuvchilar) — TCI polislari egalari",
@@ -2003,7 +2005,28 @@
       "subtitle": "Sizdagi sug‘urta qoplamasi va u qanday shartlarda berilgani.",
       "empty": "Sizda hali polis yo‘q",
       "emptyHint": "Ariza qabul qilinib, polis chiqarilgach, u shu yerda paydo bo‘ladi.",
-      "premiumMultiple": "{{value}} × mukofot"
+      "premiumMultiple": "{{value}} × mukofot",
+      "terms": "Polis shartlari",
+      "period": "Sug‘urta davri",
+      "next": {
+        "title": "Nima qilish mumkin",
+        "limits": {
+          "title": "Kredit limitini so‘rash",
+          "hint": "Yangi bayer uchun yoki kattaroq summaga."
+        },
+        "declarations": {
+          "title": "Aylanmani deklaratsiya qilish",
+          "hint": "Yopilgan davr uchun sug‘urtalanadigan sotuvlar."
+        },
+        "overdues": {
+          "title": "Muddati o‘tgan qarz haqida xabar berish",
+          "hint": "Bayer ruxsat etilgan muddatdan kech to‘lasa."
+        },
+        "claims": {
+          "title": "Da’vo bildirish",
+          "hint": "Muddati o‘tgan qarz bo‘yicha kutish davri tugagach."
+        }
+      }
     },
     "limits": {
       "title": "Mening kredit limitlarim",
@@ -2060,7 +2083,10 @@
       "sentProposal": "Yuborildi. Avval tashkilotni aniqlaymiz, so‘ng limitni ko‘rib chiqamiz.",
       "requestRefused": "So‘rovni qabul qilib bo‘lmaydi: polis amalda ekanini va bu bayer bo‘yicha ochiq so‘rov yo‘qligini tekshiring.",
       "requestNotAllowed": "Bu hisob limit so‘rovlarini bera olmaydi.",
-      "requestFailed": "So‘rovni yuborib bo‘lmadi. Qaytadan urinib ko‘ring."
+      "requestFailed": "So‘rovni yuborib bo‘lmadi. Qaytadan urinib ko‘ring.",
+      "decided": "Qaror sanasi",
+      "limitsTitle": "Bayerlar bo‘yicha limitlar",
+      "revokedHint": "Limitni sug‘urtalovchi bekor qilgan: bu bayerga yangi jo‘natmalar sug‘urtalanmagan."
     },
     "submissions": {
       "title": "Mening sug‘urta arizalarim",
@@ -2138,12 +2164,15 @@
       "cover": "Qoplash",
       "suspended": "To‘xtatilgan",
       "noLimitAffected": "Tasdiqlangan limit yo‘q",
-      "lateWarning": "Bu {{date}} muddatidan kech. Kech xabarnoma qoplashingizga ta‘sir qilishi mumkin.",
+      "lateWarning": "Bu {{date}} muddatidan kech. Kech xabarnoma qoplashingizga ta’sir qilishi mumkin.",
       "deadlineHint": "Xabar berish muddati: {{date}}.",
       "suspensionWarning": "Muddati o‘tgan qarz haqida xabar berish o‘sha bayerning kredit limitini darhol to‘xtatadi. Kredit anderrayteri tiklamaguncha yangi jo‘natmalar qoplanmaydi.",
       "actions": {
         "file": "Xabar berish"
-      }
+      },
+      "listTitle": "Bildirilgan muddati o‘tgan qarzlar",
+      "fillToFile": "Bayerni tanlang, muddat va summani kiriting",
+      "suspensionTitle": "Bu bayerning kredit limiti to‘xtatiladi"
     },
     "premium": {
       "title": "Sug‘urta mukofoti",
@@ -2169,7 +2198,7 @@
       "recoveryHint": "Da’vo to‘langandan keyin bayerdan undirilgan mablag‘ siz va sug‘urtalovchi o‘rtasida ko‘rilgan zarar nisbatida taqsimlanadi.",
       "declinedNote": "Rad javobini o‘z menejeringiz bilan muhokama qilishingiz mumkin.",
       "file": {
-        "title": "{{buyer}} bo‘yicha da’vo bildirish",
+        "title": "Da’vo bildirish",
         "hint": "Qoralama yaratiladi. To‘lanmagan hisob-fakturalar va majburiy hujjatlarni qo‘shing, so‘ng da’voni taqdim eting."
       },
       "respond": {
@@ -2204,7 +2233,9 @@
         "covered": "Qoplangan",
         "verdict": "Xulosa",
         "message": "Xabar"
-      }
+      },
+      "listTitle": "Mening da’volarim",
+      "withdrawConfirm": "{{number}} da’vo qoralamasi qaytarib olinadi. Bu amal qaytarilmas."
     }
   },
   "declarations": {

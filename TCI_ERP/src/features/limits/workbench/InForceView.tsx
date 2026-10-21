@@ -9,7 +9,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Card, EmptyState, Input, KeyFigures, ViewBar, Select, Spinner, Table } from '../../../components/ui'
+import { Card, EmptyState, Input, KeyFigures, ViewBar, Select, Spinner, Table, Truncate } from '../../../components/ui'
 import { formatAmount, formatCompact, formatDays } from '../../../lib/format'
 import { GRADE_BANDS, num } from '../../portfolio/aggregate'
 import { useCreditPortfolio } from '../../portfolio/api'
@@ -127,7 +127,9 @@ export function InForceView() {
                         {r.policy_number}
                       </Link>
                     </td>
-                    <td className="text-slate-600">{r.policyholder_name}</td>
+                    <td className="text-slate-600">
+                      <Truncate text={r.policyholder_name}>{r.policyholder_name}</Truncate>
+                    </td>
                     <td className="num text-right whitespace-nowrap">
                       {formatAmount(num(r.approved_amount), locale)} {r.currency_code}
                     </td>

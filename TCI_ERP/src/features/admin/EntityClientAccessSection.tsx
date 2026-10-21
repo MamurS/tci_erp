@@ -10,7 +10,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Spinner, Table, SectionTitle } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Spinner, Table, SectionTitle, Truncate } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH, formatMoment } from '../../lib/format'
 import { canProvision } from './provisioningAccess'
@@ -102,7 +102,9 @@ export function EntityClientAccessSection({ entityId }: { entityId: string }) {
             {users.map((u) => (
               <tr key={u.user_id}>
                 <td className="font-medium text-slate-800">{u.email}</td>
-                <td className="text-slate-600">{u.full_name ?? EM_DASH}</td>
+                <td className="text-slate-600">
+                  <Truncate text={u.full_name}>{u.full_name ?? EM_DASH}</Truncate>
+                </td>
                 <td className="text-slate-500">
                   {u.last_sign_in_at
                     ? formatMoment(u.last_sign_in_at, i18n.language)

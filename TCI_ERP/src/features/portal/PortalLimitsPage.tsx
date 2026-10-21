@@ -8,7 +8,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Modal, PageHeader, Spinner, Table, SectionTitle } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Modal, PageHeader, Spinner, Table, SectionTitle, Truncate } from '../../components/ui'
 import { EM_DASH, formatAmount, formatMoment, formatDate } from '../../lib/format'
 import {
   useMyLimitConditions,
@@ -124,7 +124,9 @@ export function PortalLimitsPage() {
               const rowConditions = conditionsByDecision.get(limit.decision_id) ?? []
               return (
                 <tr key={limit.decision_id}>
-                  <td className="font-medium text-slate-900">{limit.buyer_name}</td>
+                  <td className="font-medium text-slate-900">
+                    <Truncate text={limit.buyer_name}>{limit.buyer_name}</Truncate>
+                  </td>
                   <td className="num text-slate-500">{limit.policy_number}</td>
                   <td className="num text-right font-semibold">
                     {limit.approved_amount === null

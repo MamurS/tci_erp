@@ -10,7 +10,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AmountInput, Badge, Button, Card, EmptyState, Field, PageHeader, Select, Spinner, Table, SectionTitle } from '../../components/ui'
+import { AmountInput, Badge, Button, Card, EmptyState, Field, PageHeader, Select, Spinner, Table, SectionTitle, Truncate } from '../../components/ui'
 import { EM_DASH, formatAmount, formatPeriod } from '../../lib/format'
 import { classifyLine } from '../declarations/coverage'
 import { lastClosedPeriodStart } from '../declarations/period'
@@ -230,7 +230,9 @@ function DeclarationEditor({
           <tbody>
             {lines.map((l) => (
               <tr key={l.id}>
-                <td className="font-medium">{l.entity_name}</td>
+                <td className="font-medium">
+                  <Truncate text={l.entity_name}>{l.entity_name}</Truncate>
+                </td>
                 <td>
                   <span className="num block">
                     {formatAmount(Number(l.insurable_turnover), locale)}

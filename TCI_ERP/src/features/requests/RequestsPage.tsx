@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, EmptyState, Input, PageHeader, Spinner, Table, Tabs } from '../../components/ui'
+import { Badge, Button, EmptyState, Input, PageHeader, Spinner, Table, Tabs, Truncate } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH } from '../../lib/format'
 import { useInsuranceRequests } from './api'
@@ -115,7 +115,9 @@ export function RequestsPage() {
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
                 <td className="font-medium whitespace-nowrap text-slate-800 tabular-nums">{r.request_number}</td>
-                <td className="text-slate-700">{r.legal_entities?.name ?? EM_DASH}</td>
+                <td className="text-slate-700">
+                  <Truncate text={r.legal_entities?.name}>{r.legal_entities?.name ?? EM_DASH}</Truncate>
+                </td>
                 <td className="num">{r.insurance_request_buyers?.length ?? 0}</td>
                 <td>
                   <Badge tone={statusTone(r.status)}>{t(`requests.statuses.${r.status}`)}</Badge>

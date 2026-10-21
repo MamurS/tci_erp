@@ -18,6 +18,7 @@ import {
   PageHeader,
   Spinner,
   Table,
+  Truncate,
 } from '../../components/ui'
 import { EM_DASH, formatAmount, formatMoment, formatPercent } from '../../lib/format'
 import {
@@ -188,7 +189,9 @@ function SubmissionCard({
                   <tbody>
                     {buyers.map((b) => (
                       <tr key={b.id}>
-                        <td>{b.buyer_name ?? EM_DASH}</td>
+                        <td>
+                          <Truncate text={b.buyer_name}>{b.buyer_name ?? EM_DASH}</Truncate>
+                        </td>
                         <td className="num text-right">
                           {formatAmount(b.requested_amount, locale)}
                         </td>

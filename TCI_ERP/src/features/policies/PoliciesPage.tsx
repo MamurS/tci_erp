@@ -12,6 +12,7 @@ import {
   ViewBar, Select,
   Spinner,
   Table,
+  Truncate,
 } from '../../components/ui'
 import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { usePolicies } from './api'
@@ -153,7 +154,9 @@ export function PoliciesPage() {
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
                 <td className="font-medium whitespace-nowrap text-slate-800">{p.policy_number}</td>
-                <td className="text-slate-600">{p.legal_entities?.name ?? EM_DASH}</td>
+                <td className="text-slate-600">
+                  <Truncate text={p.legal_entities?.name}>{p.legal_entities?.name ?? EM_DASH}</Truncate>
+                </td>
                 <td className="text-slate-500">{t(`policies.structures.${p.product_structure}`)}</td>
                 <td className="whitespace-nowrap text-slate-500">
                   {formatDate(p.inception_date, locale)} — {formatDate(p.expiry_date, locale)}

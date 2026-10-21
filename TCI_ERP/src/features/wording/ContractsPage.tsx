@@ -10,7 +10,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Input, ViewBar, Spinner, Table, Tabs } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Input, ViewBar, Spinner, Table, Tabs, Truncate } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH, formatMoment, formatDate } from '../../lib/format'
 import { usePolicies } from '../policies/api'
@@ -173,7 +173,9 @@ export function ContractsPage() {
                           {p.policy_number}
                         </Link>
                       </td>
-                      <td className="text-slate-600">{p.legal_entities?.name ?? EM_DASH}</td>
+                      <td className="text-slate-600">
+                        <Truncate text={p.legal_entities?.name}>{p.legal_entities?.name ?? EM_DASH}</Truncate>
+                      </td>
                       <td className="text-slate-500">{t(`policies.structures.${p.product_structure}`)}</td>
                       <td className="whitespace-nowrap text-slate-500">
                         {formatDate(p.inception_date, locale)} — {formatDate(p.expiry_date, locale)}
@@ -223,7 +225,9 @@ export function ContractsPage() {
                           {r.request_number}
                         </Link>
                       </td>
-                      <td className="text-slate-600">{r.legal_entities?.name ?? EM_DASH}</td>
+                      <td className="text-slate-600">
+                        <Truncate text={r.legal_entities?.name}>{r.legal_entities?.name ?? EM_DASH}</Truncate>
+                      </td>
                       <td className="text-slate-500">
                         {r.product_structure ? t(`policies.structures.${r.product_structure}`) : EM_DASH}
                       </td>

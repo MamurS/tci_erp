@@ -134,9 +134,67 @@ export function taskLink(
 export const AGENDA_GROUPS = ['overdue', 'urgent', 'high', 'normal'] as const
 export type AgendaGroup = (typeof AGENDA_GROUPS)[number]
 
-export function isOverdue(task: Pick<Task, 'due_at'>, now: Date): boolean {
-  return task.due_at !== null && new Date(task.due_at).getTime() <= now.getTime()
+/** A deadline stored as a calendar DATE: a plain ISO date, or the UTC midnight
+ * timestamp `due_date::timestamptz` turns one into (instalments, declarations).
+ * Same reading as formatDue, which shows these without a time. */
+const DATE_DEADLINE = /^(\d{4}-\d{2}-\d{2})(?:T00:00(?::00(?:\.0+)?)?(?:Z|\+00(?::00)?))?$/
+
+/** Tashkent is UTC+5 all year (no DST), as every date in the product. */
+const TASHKENT_OFFSET = '+05:00'
+
+/**
+ * The moment a deadline has passed. A date is due for the WHOLE of that day
+ * in Tashkent — a payment due on 21 October is on time until midnight, not
+ * late from 05:00 — which is also the SQL's reading (`due_date < current_date`
+ * is what turns an instalment overdue). A real timestamp passes at itself.
+ */
+export function deadlinePassesAt(due: string): number {
+  const date = DATE_DEADLINE.exec(due)
+  if (date) return new Date(`${date[1]}T00:00:00${TASHKENT_OFFSET}`).getTime() + 86_400_000
+  return new Date(due).getTime()
 }
+
+export function isOverdue(task: Pick<Task, 'due_at'>, now: Date): boolean {
+  return task.due_at !== null && deadlinePassesAt(task.due_at) <= now.getTime()
+}
+
+/** The task types that come as a due / overdue pair. The database picks one
+ * when it opens the row, but the row is generated lazily and can be read a
+ * day later, so the screen re-derives the pair from the same clock the due
+ * chip and the «Просроченные» group use — the title, the chip and the group
+ * can then never disagree. */
+const DUE_PAIRS: Partial<Record<TaskType, readonly [TaskType, TaskType]>> = {
+  instalment_due: ['instalment_due', 'instalment_overdue'],
+  instalment_overdue: ['instalment_due', 'instalment_overdue'],
+  declaration_due: ['declaration_due', 'declaration_overdue'],
+  declaration_overdue: ['declaration_due', 'declaration_overdue'],
+}
+
+/** The task type to show (badge, title) as of `now`. */
+export function displayTaskType(task: Pick<Task, 'task_type' | 'due_at'>, now: Date): TaskType {
+  const pair = DUE_PAIRS[task.task_type]
+  if (!pair) return task.task_type
+  return isOverdue(task, now) ? pair[1] : pair[0]
+}
+
+/** The i18n key of the row's title as of `now` (see displayTaskType). */
+export function taskTitleKey(task: Pick<Task, 'task_type' | 'due_at' | 'title_key'>, now: Date): string {
+  const shown = displayTaskType(task, now)
+  return shown === task.task_type ? task.title_key : `agenda.tasks.${shown}`
+}
+
+/** Titles that already name the task's subject through `{{subject}}`. Every
+ * other row names it on the line under the title instead, so a row never
+ * says the same name twice and never says none. Mirrors the en locale
+ * (asserted in catalogue.test.ts). */
+export const SUBJECT_IN_TITLE: ReadonlySet<TaskType> = new Set<TaskType>([
+  'buyer_needs_entity',
+  'buyer_needs_rating',
+  'limit_needs_decision',
+  'limit_escalated',
+  'limit_review_due',
+  'rating_stale',
+])
 
 export function groupOf(task: Pick<Task, 'due_at' | 'priority'>, now: Date): AgendaGroup {
   if (isOverdue(task, now)) return 'overdue'

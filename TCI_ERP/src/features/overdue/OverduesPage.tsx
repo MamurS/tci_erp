@@ -11,7 +11,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, EmptyState, Field, PageHeader, Select, Spinner, Table } from '../../components/ui'
+import { Badge, EmptyState, Field, PageHeader, Select, Spinner, Table, Truncate } from '../../components/ui'
 import { formatAmount } from '../../lib/format'
 import { useOverdueNotifications } from './api'
 import { NOA_STATUSES } from './types'
@@ -80,8 +80,12 @@ export function OverduesPage() {
                 onClick={() => void navigate(`/overdues/${n.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="font-medium text-slate-800">{n.buyer_name}</td>
-                <td className="text-slate-500">{n.policyholder_name}</td>
+                <td className="font-medium text-slate-800">
+                  <Truncate text={n.buyer_name}>{n.buyer_name}</Truncate>
+                </td>
+                <td className="text-slate-500">
+                  <Truncate text={n.policyholder_name}>{n.policyholder_name}</Truncate>
+                </td>
                 <td>
                   <span className="num block">
                     {formatAmount(Number(n.overdue_amount), locale)} {n.currency_code}

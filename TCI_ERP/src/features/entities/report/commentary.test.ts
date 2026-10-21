@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { IncomeStatementValues, StatementBundle } from '../types'
 import { emptyBalanceSheet, emptyIncomeStatement } from '../types'
-import { COMMENTARY_METRICS, buildCommentary, describeMove, strengthOf } from './commentary'
+import { COMMENTARY_METRICS, buildCommentary, describeMove, sameAsShown, strengthOf } from './commentary'
 import COMMENTARY_EN from '../../../i18n/locales/en.json'
 
 let seq = 0
@@ -95,5 +95,34 @@ describe('buildCommentary', () => {
     for (const defs of Object.values(COMMENTARY_METRICS)) {
       for (const def of defs) expect(subjects[def.metric], def.metric).toBeDefined()
     }
+  })
+})
+
+describe('a move that does not show is no move', () => {
+  it('compares percentages, ratios and days at the precision they print at', () => {
+    expect(sameAsShown('percent', 0.56001, 0.55998)).toBe(true) // 56.00% both
+    expect(sameAsShown('percent', 0.5601, 0.5599)).toBe(false) // 56.01% vs 55.99%
+    expect(sameAsShown('ratio', 0.0201, 0.0198)).toBe(true) // 0.02x both
+    expect(sameAsShown('days', 30.001, 29.999)).toBe(true)
+    expect(sameAsShown('amount', 1, 1)).toBe(false) // amounts use the relative threshold
+  })
+
+  it('says «unchanged», neutral, when the printed margin is the same', () => {
+    const pnl = buildCommentary('pnl', {
+      company: [
+        stmt(2023, { revenue: 100000, gross_profit: 56001 }),
+        stmt(2024, { revenue: 100000, gross_profit: 55998 }),
+      ],
+    })
+    const margin = pnl.find((p) => p.metric === 'grossMargin')!.sentences[0]
+    expect(margin.commentary).toEqual({ kind: 'flat' })
+    expect(margin.tone).toBeNull()
+  })
+
+  it('never grades a printed-zero move as «slight»', () => {
+    const pnl = buildCommentary('pnl', {
+      company: [stmt(2023, { revenue: 1_000_000 }), stmt(2024, { revenue: 1_000_001 })],
+    })
+    expect(pnl.find((p) => p.metric === 'revenue')!.sentences[0].commentary).toEqual({ kind: 'flat' })
   })
 })

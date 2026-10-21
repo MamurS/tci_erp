@@ -23,6 +23,7 @@ import {
   Panel,
   Spinner,
   Table,
+  Truncate,
 } from '../../components/ui'
 import { EM_DASH, formatAmount, formatMoment, formatPeriod } from '../../lib/format'
 import { STATUS_TONE } from './status'
@@ -164,7 +165,9 @@ export function DeclarationDetailPage() {
                 const excess = Number(l.uncovered_excess)
                 return (
                   <tr key={l.id}>
-                    <td className="font-medium text-slate-800">{l.entity_name}</td>
+                    <td className="font-medium text-slate-800">
+                      <Truncate text={l.entity_name}>{l.entity_name}</Truncate>
+                    </td>
                     <td className="num">{formatAmount(Number(l.insurable_turnover), locale)}</td>
                     <td>
                       <Badge tone={BASIS_TONE[l.coverage_basis]}>

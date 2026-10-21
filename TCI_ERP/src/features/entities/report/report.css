@@ -400,7 +400,8 @@
   font-size: 9.5px;
   color: var(--rpt-muted);
 }
-.rpt-kf-sub b {
+.rpt-kf-sub b,
+.rpt-kf-flat {
   margin-left: 4px;
 }
 

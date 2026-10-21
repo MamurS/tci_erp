@@ -18,6 +18,7 @@ import {
   Select,
   Spinner,
   Table,
+  Truncate,
 } from '../../components/ui'
 import { normalize } from '../../components/ui/combobox'
 import {
@@ -33,7 +34,7 @@ import { RequestEntityModal } from '../data/RequestEntityModal'
 import { canWorkRequests } from '../data/requests'
 import { EntityFormModal } from './EntityFormModal'
 import { gradeTone } from '../../lib/grade'
-import { EM_DASH } from '../../lib/format'
+import { EM_DASH, formatDate } from '../../lib/format'
 import type { EntityRoles } from './types'
 
 type RoleChip = 'all' | 'policyholders' | 'buyers'
@@ -201,14 +202,14 @@ export function EntitiesPage() {
                   className="cursor-pointer transition-colors hover:bg-slate-50"
                 >
                   <td className="font-medium text-slate-800">
-                    {entity.name}
+                    <Truncate text={entity.name} className="max-w-[20rem]" />
                     {entity.registration_number && (
-                      <span className="ml-2 text-xs font-normal text-slate-400">
+                      <span className="num block text-xs font-normal text-slate-400">
                         {entity.registration_number}
                       </span>
                     )}
                   </td>
-                  <td>
+                  <td className="whitespace-nowrap">
                     <CountryFlag code={entity.country_code} className="mr-1.5" />
                     {refName(entity.countries, locale)}
                   </td>
@@ -216,7 +217,7 @@ export function EntitiesPage() {
                   <td>
                     <RoleBadges roles={roles.data?.get(entity.id)} />
                   </td>
-                  <td className="text-slate-500">{latest ?? EM_DASH}</td>
+                  <td className="whitespace-nowrap text-slate-500">{latest ? formatDate(latest, locale) : EM_DASH}</td>
                   <td>
                     {grade ? (
                       <Badge tone={gradeTone(grade)}>{grade}</Badge>

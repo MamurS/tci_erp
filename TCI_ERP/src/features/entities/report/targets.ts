@@ -27,6 +27,7 @@ export const NARRATIVE_TARGETS: Record<string, BuyerPageTarget> = {
   revenue_level: FIN('pnl'),
   gross_margin_up: FIN('pnl'),
   gross_margin_down: FIN('pnl'),
+  gross_margin_flat: FIN('pnl'),
   net_profit_positive: FIN('pnl'),
   net_loss: FIN('pnl'),
   // leverage & activity → ratios

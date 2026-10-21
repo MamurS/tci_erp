@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, EmptyState, PageHeader, Segmented, Spinner, Table } from '../../components/ui'
+import { Badge, EmptyState, PageHeader, Segmented, Spinner, Table, Truncate } from '../../components/ui'
 import { EM_DASH, formatAmount, formatDays } from '../../lib/format'
 import { useClaims } from './api'
 import { isOpen } from './machine'
@@ -108,8 +108,8 @@ function ClaimRow({ claim, locale }: { claim: Claim; locale: string }) {
   const { t } = useTranslation()
   return (
     <tr>
-      <td>
-        <Link to={`/claims/${claim.id}`} className="font-medium whitespace-nowrap text-accent-600 hover:underline">
+      <td className="whitespace-nowrap">
+        <Link to={`/claims/${claim.id}`} className="font-medium text-accent-600 hover:underline">
           {claim.claim_number}
         </Link>
         {claim.noa_reported_late && (
@@ -121,11 +121,15 @@ function ClaimRow({ claim, locale }: { claim: Claim; locale: string }) {
         )}
       </td>
       <td>
-        <Link to={`/entities/${claim.buyer_entity_id}`} className="hover:underline">
-          {claim.buyer_name}
-        </Link>
+        <Truncate text={claim.buyer_name}>
+          <Link to={`/entities/${claim.buyer_entity_id}`} className="hover:underline">
+            {claim.buyer_name}
+          </Link>
+        </Truncate>
       </td>
-      <td className="text-slate-600">{claim.policyholder_name}</td>
+      <td className="text-slate-600">
+        <Truncate text={claim.policyholder_name} />
+      </td>
       <td className="num">
         {formatAmount(Number(claim.claimed_amount), locale)} {claim.currency_code}
       </td>
@@ -139,7 +143,7 @@ function ClaimRow({ claim, locale }: { claim: Claim; locale: string }) {
           ? EM_DASH
           : formatDays(Math.round(Number(claim.assessment_age_days)), locale)}
       </td>
-      <td>
+      <td className="whitespace-nowrap">
         <Badge tone={STATUS_TONE[claim.status]}>{t(`claims.statuses.${claim.status}`)}</Badge>
       </td>
     </tr>
