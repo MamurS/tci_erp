@@ -7,10 +7,11 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Field, Input, SectionTitle } from '../../components/ui'
+import { Badge, Button, Card, Field, Input, SectionTitle, Truncate } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { hasRole } from '../../lib/roles'
 import { EM_DASH, formatAmount } from '../../lib/format'
+import { useEntities } from '../entities/api'
 import { ReleaseBadge } from '../limits/ReleaseBadge'
 import {
   useEffectiveLimits,
@@ -27,6 +28,8 @@ export function SalesWindowPanel({ request }: { request: InsuranceRequestWithRef
   const { roles } = useAuth()
   const { data: limits } = useEffectiveLimits({ insuranceRequestId: request.id })
   const { data: windowHours } = useSalesWindowHours()
+  const { data: entities } = useEntities()
+  const nameOf = (id: string) => entities?.find((e) => e.id === id)?.name ?? EM_DASH
 
   const mayAct = hasRole(roles, 'admin', 'sales')
   const pending = (limits ?? []).filter((l) => !l.client_visible)
@@ -48,6 +51,7 @@ export function SalesWindowPanel({ request }: { request: InsuranceRequestWithRef
           {limits.map((limit) => (
             <DecisionRow
               key={limit.decision_id}
+              buyerName={nameOf(limit.entity_id)}
               limit={limit}
               salesWindowHours={windowHours ?? 24}
               mayAct={mayAct}
@@ -64,10 +68,12 @@ export function SalesWindowPanel({ request }: { request: InsuranceRequestWithRef
 }
 
 function DecisionRow({
+  buyerName,
   limit,
   salesWindowHours,
   mayAct,
 }: {
+  buyerName: string
   limit: EffectiveLimit
   salesWindowHours: number
   mayAct: boolean
@@ -96,6 +102,10 @@ function DecisionRow({
   return (
     <div className="rounded-md border border-slate-200 p-3">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        {/* Whose limit it is — an amount alone says nothing to sales. */}
+        <Truncate text={buyerName} className="max-w-[16rem] text-[13px] font-medium text-slate-800">
+          {buyerName}
+        </Truncate>
         <span className="num text-[13px] font-semibold text-slate-800">
           {limit.approved_amount !== null
             ? `${formatAmount(Number(limit.approved_amount), locale)} ${limit.currency_code}`
@@ -150,7 +160,7 @@ function DecisionRow({
               )
             }
           >
-            {t('common.confirm')}
+            {t('limits.release.holdAndDiscuss')}
           </Button>
           <Button size="sm" variant="ghost" onClick={() => setHoldOpen(false)}>
             {t('common.cancel')}

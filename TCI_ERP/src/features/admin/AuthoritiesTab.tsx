@@ -6,7 +6,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AmountInput, Badge, Button, Card, EmptyState, Input, Segmented, Select, Table, SectionTitle } from '../../components/ui'
+import { AmountInput, Badge, Button, Card, DateInput, EmptyState, Segmented, Select, Table, SectionTitle } from '../../components/ui'
 import { amountToPlain, parseAmount } from '../../components/ui/amount'
 import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { GRADE_BANDS } from '../../lib/roles'
@@ -168,10 +168,10 @@ function BandRow({
           </Select>
         </td>
         <td>
-          <Input type="date" value={validFrom} onChange={(e) => setValidFrom(e.target.value)} />
+          <DateInput value={validFrom} onChange={setValidFrom} />
         </td>
         <td>
-          <Input type="date" value={validTo} onChange={(e) => setValidTo(e.target.value)} />
+          <DateInput value={validTo} onChange={setValidTo} min={validFrom || undefined} />
         </td>
         <td className="text-right whitespace-nowrap">
           <Button size="sm" onClick={() => void commit()} disabled={save.isPending}>

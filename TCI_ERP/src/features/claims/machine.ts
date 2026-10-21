@@ -90,3 +90,41 @@ export function offeredTransitions(
 export function requiresReason(to: ClaimStatus): boolean {
   return to === 'declined'
 }
+
+/** Moves that end the file against the policyholder's interest: offered last,
+ * behind the «Действия» menu's danger section, never beside the primary. */
+export function isDestructive(to: ClaimStatus): boolean {
+  return to === 'declined' || to === 'withdrawn'
+}
+
+/** The approval step: tci.approve_claim, not a bare transition. */
+export type ClaimStep = ClaimStatus | 'approve'
+
+/**
+ * The step a claim is waiting for — the header's ONE primary action. It walks
+ * the machine forward: a draft is filed, a filing is taken into assessment, an
+ * assessment ends in approval, and a request for information is answered by
+ * resuming the assessment (approving straight from `info_requested` is legal
+ * SQL, but it is not what the file is waiting for). Once approved, the next
+ * step is a payment, which the «Выплаты» tab records; a decided file is
+ * closed. Null when nothing follows.
+ */
+export function nextStep(status: ClaimStatus): ClaimStep | null {
+  switch (status) {
+    case 'draft':
+      return 'submitted'
+    case 'submitted':
+    case 'info_requested':
+      return 'under_assessment'
+    case 'under_assessment':
+      return 'approve'
+    case 'declined':
+    case 'paid':
+    case 'withdrawn':
+      return 'closed'
+    case 'approved':
+    case 'partially_approved':
+    case 'closed':
+      return null
+  }
+}

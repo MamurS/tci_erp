@@ -135,4 +135,14 @@ describe('layout contract', () => {
       .map(([path]) => path)
     expect(offenders).toEqual([])
   })
+
+  it('takes dates in DateInput, never the browser date field', () => {
+    // <input type="date"> follows the BROWSER's locale: «mm/dd/yyyy» in a
+    // Russian interface, where «04/03/2026» reads as 4 March.
+    const offenders = files
+      .filter(([path]) => !path.endsWith('/DateInput.tsx'))
+      .filter(([, text]) => /type=["']date["']/.test(text))
+      .map(([path]) => path)
+    expect(offenders).toEqual([])
+  })
 })

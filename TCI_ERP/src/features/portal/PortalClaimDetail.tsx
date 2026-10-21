@@ -9,7 +9,9 @@ import {
   AmountInput,
   Badge,
   Button,
+  Callout,
   Card,
+  DateInput,
   Field,
   Input,
   Modal,
@@ -51,31 +53,28 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
 
   return (
     <div className="space-y-4">
-      {error && (
-        <p role="alert" className="rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">
-          {error}
-        </p>
-      )}
+      {error && <Callout tone="neg" title={error} />}
 
       {claim.decision_reason && (
-        <Card className={`p-5 ${claim.status === 'declined' ? 'border-neg-500/40 bg-neg-50' : ''}`}>
-          <p className="text-sm font-semibold">{t('portal.claims.decisionTitle')}</p>
-          <p className="mt-1 text-[13px] text-slate-700">{claim.decision_reason}</p>
+        <Callout
+          tone={claim.status === 'declined' ? 'neg' : 'info'}
+          title={t('portal.claims.decisionTitle')}
+        >
+          <p>{claim.decision_reason}</p>
           {claim.assessed_at && (
             <p className="mt-1 text-xs text-slate-500">{formatMoment(claim.assessed_at, locale)}</p>
           )}
-        </Card>
+        </Callout>
       )}
 
       {(readiness?.blockers.length ?? 0) > 0 && claim.status === 'draft' && (
-        <Card className="border-warn-500/40 bg-warn-50 p-5">
-          <p className="text-sm font-semibold text-slate-800">{t('portal.claims.blockersTitle')}</p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-[13px] text-slate-700">
+        <Callout tone="warn" title={t('portal.claims.blockersTitle')}>
+          <ul className="mt-1 list-disc space-y-1 pl-5">
             {(readiness?.blockers ?? []).map((b) => (
               <li key={b}>{t(b)}</li>
             ))}
           </ul>
-        </Card>
+        </Callout>
       )}
 
       <Card className="p-5">
@@ -94,22 +93,24 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
                 <th>{t('portal.claims.fields.invoiceNumber')}</th>
                 <th>{t('portal.claims.fields.shipmentDate')}</th>
                 <th>{t('portal.claims.fields.dueDate')}</th>
-                <th className="num">{t('portal.claims.fields.outstanding')}</th>
-                <th className="num">{t('portal.claims.fields.covered')}</th>
+                <th className="text-right">{t('portal.claims.fields.outstanding')}</th>
+                <th className="text-right">{t('portal.claims.fields.covered')}</th>
                 <th>{t('portal.claims.fields.verdict')}</th>
               </tr>
             </thead>
             <tbody>
               {(invoices ?? []).map((i) => (
                 <tr key={i.id}>
-                  <td>{i.invoice_number}</td>
-                  <td>{formatDate(i.shipment_date, locale)}</td>
-                  <td>{formatDate(i.due_date, locale)}</td>
-                  <td className="num">{formatAmount(Number(i.claimable_amount), locale)}</td>
-                  <td className="num">
+                  <td className="whitespace-nowrap tabular-nums">{i.invoice_number}</td>
+                  <td className="whitespace-nowrap">{formatDate(i.shipment_date, locale)}</td>
+                  <td className="whitespace-nowrap">{formatDate(i.due_date, locale)}</td>
+                  <td className="num text-right">
+                    {formatAmount(Number(i.claimable_amount), locale)} {i.currency_code}
+                  </td>
+                  <td className="num text-right">
                     {i.effective_covered_amount === null
                       ? EM_DASH
-                      : formatAmount(Number(i.effective_covered_amount), locale)}
+                      : `${formatAmount(Number(i.effective_covered_amount), locale)} ${i.currency_code}`}
                   </td>
                   <td>
                     {i.effective_verdict === null ? (
@@ -137,8 +138,8 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
       </Card>
 
       <Card className="p-5">
-        <SectionTitle>{t('portal.claims.documentsTitle')}</SectionTitle>
-        <ul className="mt-2 flex flex-wrap gap-2">
+        <SectionTitle className="mb-3">{t('portal.claims.documentsTitle')}</SectionTitle>
+        <ul className="flex flex-wrap gap-2">
           {(readiness?.required_documents ?? []).map((d) => (
             <li key={d}>
               <Badge tone={(readiness?.missing_documents ?? []).includes(d) ? 'warn' : 'pos'}>
@@ -174,10 +175,10 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
 
       {((payments ?? []).length > 0 || (recoveries ?? []).length > 0) && (
         <Card className="p-5">
-          <SectionTitle>{t('portal.claims.moneyTitle')}</SectionTitle>
+          <SectionTitle className="mb-1">{t('portal.claims.moneyTitle')}</SectionTitle>
           {(payments ?? []).map((p) => (
             <p key={p.id} className="mt-2 text-[13px]">
-              {t('portal.claims.paidOn', { date: p.paid_at })}{' '}
+              {t('portal.claims.paidOn', { date: formatDate(p.paid_at, locale) })}{' '}
               <span className="num font-semibold">
                 {formatAmount(Number(p.amount), locale)} {p.currency_code}
               </span>
@@ -188,7 +189,7 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
               <p className="mt-3 text-[13px] text-slate-600">{t('portal.claims.recoveryHint')}</p>
               {(recoveries ?? []).map((r) => (
                 <p key={r.id} className="mt-1 text-[13px]">
-                  {t('portal.claims.recoveredOn', { date: r.received_at })}{' '}
+                  {t('portal.claims.recoveredOn', { date: formatDate(r.received_at, locale) })}{' '}
                   <span className="num font-semibold">
                     {formatAmount(Number(r.policyholder_share), locale)} {r.currency_code}
                   </span>
@@ -220,6 +221,8 @@ function AddInvoice({ claim, onError }: { claim: ClientClaim; onError: (e: unkno
   })
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) =>
     setForm((f) => ({ ...f, [k]: e.target.value }))
+  const setDate = (k: 'invoice_date' | 'shipment_date' | 'due_date') => (iso: string) =>
+    setForm((f) => ({ ...f, [k]: iso }))
 
   const ready =
     form.invoice_number.trim() !== '' &&
@@ -280,13 +283,13 @@ function AddInvoice({ claim, onError }: { claim: ClientClaim; onError: (e: unkno
             />
           </Field>
           <Field label={t('claims.fields.invoiceDate')}>
-            <Input type="date" value={form.invoice_date} onChange={set('invoice_date')} />
+            <DateInput value={form.invoice_date} onChange={setDate('invoice_date')} />
           </Field>
           <Field label={t('portal.claims.fields.shipmentDate')}>
-            <Input type="date" value={form.shipment_date} onChange={set('shipment_date')} />
+            <DateInput value={form.shipment_date} onChange={setDate('shipment_date')} />
           </Field>
           <Field label={t('portal.claims.fields.dueDate')}>
-            <Input type="date" value={form.due_date} onChange={set('due_date')} />
+            <DateInput value={form.due_date} onChange={setDate('due_date')} />
           </Field>
         </div>
       </Modal>
@@ -301,14 +304,16 @@ function UploadDocument({ claim, onError }: { claim: ClientClaim; onError: (e: u
   const [type, setType] = useState<string>('invoice')
 
   return (
-    <div className="mt-3 flex flex-wrap items-end gap-3">
-      <Select value={type} onChange={(e) => setType(e.target.value)}>
-        {CLAIM_DOCUMENT_TYPES.map((d) => (
-          <option key={d} value={d}>
-            {t(`claims.documentTypes.${d}`)}
-          </option>
-        ))}
-      </Select>
+    <div className="mt-4 flex flex-wrap items-end gap-3">
+      <Field label={t('claims.fields.documentType')}>
+        <Select value={type} onChange={(e) => setType(e.target.value)}>
+          {CLAIM_DOCUMENT_TYPES.map((d) => (
+            <option key={d} value={d}>
+              {t(`claims.documentTypes.${d}`)}
+            </option>
+          ))}
+        </Select>
+      </Field>
       <input
         ref={fileRef}
         type="file"

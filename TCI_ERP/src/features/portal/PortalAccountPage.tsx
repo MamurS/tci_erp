@@ -3,13 +3,12 @@
  * portal user can only ever edit their own row. */
 
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { useAuth } from '../../auth/AuthContext'
-import { Button, Card, Field, Input, PageHeader, Spinner, SectionTitle } from '../../components/ui'
+import { Button, Card, Field, Input, LinkButton, PageHeader, Spinner, SectionTitle } from '../../components/ui'
 import { tci } from '../../lib/supabase'
 import { useMyEntity } from './api'
 import { MfaSection, SessionsSection } from '../account'
@@ -124,16 +123,12 @@ export function PortalAccountPage() {
         </Card>
 
         <Card className="p-5">
-          <SectionTitle className="mb-2">
+          <SectionTitle className="mb-4" hint={t('portal.account.securityHint')}>
             {t('portal.account.security')}
           </SectionTitle>
-          <p className="mb-4 text-[13px] text-slate-500">{t('portal.account.securityHint')}</p>
-          <Link
-            to="/change-password"
-            className="inline-flex items-center rounded-md bg-accent-600 px-3.5 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-accent-700"
-          >
+          <LinkButton to="/change-password" variant="secondary">
             {t('account.changePassword')}
-          </Link>
+          </LinkButton>
         </Card>
 
         <MfaSection />

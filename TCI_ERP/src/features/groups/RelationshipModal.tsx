@@ -9,7 +9,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AmountInput, Button, Field, Input, Modal, Select } from '../../components/ui'
+import { AmountInput, Button, DateInput, Field, Input, Modal, Select } from '../../components/ui'
 import { parseAmount } from '../../components/ui/amount'
 import { EntityPicker } from '../entities/EntityPicker'
 import { useSaveRelationship } from './api'
@@ -74,21 +74,51 @@ export function RelationshipModal({ open, onClose, entityId, entityName }: Relat
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button onClick={() => void handleSave()} disabled={!valid || save.isPending}>
+          <Button
+            onClick={() => void handleSave()}
+            disabled={!valid || save.isPending}
+            title={otherId ? undefined : t('groups.errors.counterpartyRequired')}
+          >
             {save.isPending ? t('common.saving') : t('common.save')}
           </Button>
         </>
       }
     >
       <div className="flex flex-col gap-3">
+        {/* Two full sentences, both visible: a native select cut them off
+            («PAO Ozon Holding — матер…») exactly where the meaning is. */}
         <Field label={t('groups.fields.direction')}>
-          <Select
-            value={thisIsParent ? 'parent' : 'child'}
-            onChange={(e) => setThisIsParent(e.target.value === 'parent')}
-          >
-            <option value="parent">{t('groups.direction.thisIsParent', { name: entityName })}</option>
-            <option value="child">{t('groups.direction.thisIsChild', { name: entityName })}</option>
-          </Select>
+          <div role="radiogroup" aria-label={t('groups.fields.direction')} className="grid gap-2 sm:grid-cols-2">
+            {([true, false] as const).map((parent) => {
+              const selected = thisIsParent === parent
+              return (
+                <button
+                  key={String(parent)}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  onClick={() => setThisIsParent(parent)}
+                  className={`flex items-start gap-2 rounded-md border px-3 py-2 text-left text-[13px] transition-colors ${
+                    selected
+                      ? 'border-accent-600 bg-accent-50 text-accent-700'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className={`mt-0.5 size-3.5 shrink-0 rounded-full border ${
+                      selected ? 'border-[4px] border-accent-600 bg-white' : 'border-slate-300 bg-white'
+                    }`}
+                  />
+                  <span>
+                    {parent
+                      ? t('groups.direction.thisIsParent', { name: entityName })
+                      : t('groups.direction.thisIsChild', { name: entityName })}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
         </Field>
 
         <Field label={t('groups.fields.counterparty')}>
@@ -117,7 +147,7 @@ export function RelationshipModal({ open, onClose, entityId, entityName }: Relat
 
         <div className="grid grid-cols-2 gap-3">
           <Field label={t('groups.fields.validFrom')}>
-            <Input type="date" value={validFrom} onChange={(e) => setValidFrom(e.target.value)} />
+            <DateInput value={validFrom} onChange={setValidFrom} />
           </Field>
           <Field label={t('groups.fields.sourceNote')}>
             <Input value={note} onChange={(e) => setNote(e.target.value)} />

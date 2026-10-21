@@ -9,7 +9,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Field, Input, Modal } from '../../components/ui'
+import { Button, DateInput, Field, Input, Modal } from '../../components/ui'
 import { useBindInsuranceRequest } from './api'
 import { defaultBindDates, missingTerms, validateBind } from './bind'
 import type { BindFormValues } from './bind'
@@ -118,18 +118,14 @@ export function BindPolicyModal({ request, open, onClose }: Props) {
         </Field>
         <div className="grid grid-cols-2 gap-3">
           <Field label={t('policies.fields.inceptionDate')}>
-            <Input
-              type="date"
-              value={form.inception_date}
-              onChange={(e) => set({ inception_date: e.target.value })}
-            />
+            <DateInput value={form.inception_date} onChange={(iso) => set({ inception_date: iso })} />
             {message('inception_date')}
           </Field>
           <Field label={t('policies.fields.expiryDate')}>
-            <Input
-              type="date"
+            <DateInput
               value={form.expiry_date}
-              onChange={(e) => set({ expiry_date: e.target.value })}
+              min={form.inception_date || undefined}
+              onChange={(iso) => set({ expiry_date: iso })}
             />
             {message('expiry_date')}
           </Field>

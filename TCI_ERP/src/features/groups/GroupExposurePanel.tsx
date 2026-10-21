@@ -6,18 +6,23 @@
  * incomplete, not small.
  */
 
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, Card, Table, SectionTitle } from '../../components/ui'
-import { formatAmount } from '../../lib/format'
+import { EM_DASH, formatAmount, formatCompact, formatPercent } from '../../lib/format'
 import { exposureByMember, exposureByPolicyholder, utilisationTone } from './group'
-import type { GroupExposure, GroupExposureLine, GroupLimit } from './types'
+import { GroupCapAmount } from './GroupCapAmount'
+import type { GroupExposure, GroupExposureLine, GroupLimit, GroupLimitStatus } from './types'
 
 interface GroupExposurePanelProps {
   exposure: GroupExposure | null
   lines: GroupExposureLine[]
   groupLimit: GroupLimit | null
+  /** The group's row of tci.v_group_limit_status: utilisation and the
+   * over-limit verdict as the database computes them. */
+  status: GroupLimitStatus | null
   mayManageLimit: boolean
   onSetLimit: () => void
   onEndLimit: () => void
@@ -27,6 +32,7 @@ export function GroupExposurePanel({
   exposure,
   lines,
   groupLimit,
+  status,
   mayManageLimit,
   onSetLimit,
   onEndLimit,
@@ -35,15 +41,22 @@ export function GroupExposurePanel({
   const locale = i18n.resolvedLanguage ?? 'en'
 
   const exposureUzs = Number(exposure?.exposure_uzs ?? 0)
-  const limitUzs = groupLimit ? Number(groupLimit.max_amount) : null
-  // The headroom shown here is against the limit as recorded. The authoritative
-  // arithmetic — including the fx conversion of a non-UZS group limit — is
-  // tci.group_exposure_preflight, which the decision form calls.
-  const utilisation =
-    limitUzs && limitUzs > 0 && groupLimit?.currency_code === 'UZS'
-      ? Math.round((exposureUzs * 10000) / limitUzs) / 100
-      : null
-  const tone = utilisationTone(utilisation)
+  // Utilisation is the DATABASE's (tci.v_group_limit_status): it converts a
+  // cap in any currency at the latest rate and makes the over_limit
+  // comparison itself. Computing it here only for a UZS cap left an 800,000
+  // USD limit at «—» while the workbench showed the same group at 106%.
+  const limitUzs = toNumber(status?.limit_uzs)
+  const utilisation = groupLimit ? toNumber(status?.utilisation_pct) : null
+  const over = Boolean(groupLimit && status?.over_limit)
+  const tone = over ? 'neg' : utilisationTone(utilisation)
+  const utilisationMeta =
+    !groupLimit || !status
+      ? undefined
+      : limitUzs === null
+        ? t('groups.exposure.limitNoRate', { currency: groupLimit.currency_code })
+        : over
+          ? t('groups.exposure.overBy', { amount: `${formatCompact(exposureUzs - limitUzs, locale)} UZS` })
+          : t('groups.exposure.headroom', { amount: `${formatCompact(limitUzs - exposureUzs, locale)} UZS` })
 
   const byMember = exposureByMember(lines)
   const byPolicyholder = exposureByPolicyholder(lines)
@@ -75,14 +88,21 @@ export function GroupExposurePanel({
         <Figure
           label={t('groups.exposure.groupLimit')}
           value={
-            groupLimit
-              ? `${formatAmount(Number(groupLimit.max_amount), locale)} ${groupLimit.currency_code}`
-              : '—'
+            groupLimit ? (
+              <GroupCapAmount
+                amount={groupLimit.max_amount}
+                currency={groupLimit.currency_code}
+                amountUzs={status ? status.limit_uzs : undefined}
+              />
+            ) : (
+              EM_DASH
+            )
           }
         />
         <Figure
           label={t('groups.exposure.utilisation')}
-          value={utilisation === null ? '—' : `${formatAmount(utilisation, locale, 1)}%`}
+          value={utilisation === null ? EM_DASH : formatPercent(utilisation / 100, locale)}
+          meta={utilisationMeta}
           tone={tone}
         />
       </div>
@@ -174,13 +194,22 @@ export function GroupExposurePanel({
   )
 }
 
+function toNumber(value: number | string | null | undefined): number | null {
+  if (value === null || value === undefined || value === '') return null
+  const n = Number(value)
+  return Number.isFinite(n) ? n : null
+}
+
 function Figure({
   label,
   value,
+  meta,
   tone = 'neutral',
 }: {
   label: string
-  value: string
+  value: ReactNode
+  /** One short line under the value: the breach, the headroom, a missing rate. */
+  meta?: string
   tone?: 'neutral' | 'pos' | 'warn' | 'neg'
 }) {
   const colour =
@@ -195,6 +224,9 @@ function Figure({
     <div className="rounded-md border border-slate-200 bg-white px-3 py-2">
       <p className="text-[12px] text-slate-500">{label}</p>
       <p className={`mt-0.5 text-sm font-semibold tabular-nums ${colour}`}>{value}</p>
+      {meta && (
+        <p className={`mt-0.5 text-[12px] ${tone === 'neg' ? 'text-neg-500' : 'text-slate-500'}`}>{meta}</p>
+      )}
     </div>
   )
 }

@@ -209,7 +209,7 @@ export function PolicyPortfolioPage() {
                   const paidShare = c.premiumBase > 0 ? Math.min(c.premiumPaid / c.premiumBase, 1) : null
                   return (
                     <tr key={c.currency} className="[&>td]:py-2.5 [&>td]:align-top">
-                      <td>
+                      <td className="whitespace-nowrap">
                         <span className="font-display text-[15px] font-bold tracking-wide text-accent-600">{c.currency}</span>
                         <Sub>{t('portfolio.policies.inCurrency', { count: c.policies })}</Sub>
                       </td>
@@ -217,7 +217,7 @@ export function PolicyPortfolioPage() {
                         {formatCompact(c.premiumBase, locale)}
                         <Sub>{t('portfolio.policies.earned', { amount: formatCompact(c.earnedPremium, locale) })}</Sub>
                       </td>
-                      <td className="min-w-44">
+                      <td className="min-w-40">
                         <div className="flex items-baseline justify-between gap-3 tabular-nums">
                           <span>{formatCompact(c.premiumPaid, locale)}</span>
                           <span className="text-[12px] text-slate-500">{formatPercent(paidShare, locale, 0)}</span>
@@ -234,8 +234,10 @@ export function PolicyPortfolioPage() {
                         {formatAmount(c.claims, locale)}
                         <Sub>{t('portfolio.policies.openClaims', { count: c.openClaims })}</Sub>
                       </td>
-                      <td className="num">{c.incurred > 0 ? formatCompact(c.incurred, locale) : '—'}</td>
-                      <td className="min-w-36">
+                      {/* Nothing incurred is a real 0, as its 0.0% loss ratio says —
+                          not «—», which means "not known". */}
+                      <td className="num">{formatCompact(c.incurred, locale)}</td>
+                      <td className="min-w-28">
                         <LossRatio pct={c.lossRatioPct} locale={locale} />
                       </td>
                     </tr>

@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Plus } from 'lucide-react'
 
 import { Badge, Button, EmptyState, Modal, Spinner, Table } from '../../components/ui'
 import { EM_DASH, formatMoment } from '../../lib/format'
@@ -68,7 +69,13 @@ export function UsersRolesTab({
         <span className="text-[13px] text-slate-500">
           {t('admin.usersCount', { count: users?.length ?? 0 })}
         </span>
-        <Button onClick={() => setCreateOpen(true)} disabled={provisioningUp === false}>
+        {/* Disabled says why: the notice below, and on the button itself. */}
+        <Button
+          onClick={() => setCreateOpen(true)}
+          disabled={provisioningUp === false}
+          title={provisioningUp === false ? t('provisioning.serviceUnavailable') : undefined}
+        >
+          <Plus />
           {t('provisioning.createUser')}
         </Button>
       </div>

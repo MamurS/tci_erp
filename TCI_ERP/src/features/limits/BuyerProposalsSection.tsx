@@ -227,7 +227,7 @@ function ResolveModal({
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button variant="ghost" disabled={busy} onClick={() => reject.mutate()}>
+          <Button variant="dangerOutline" disabled={busy} onClick={() => reject.mutate()}>
             {t('limits.proposals.reject')}
           </Button>
           <Button disabled={busy || !name.trim()} onClick={() => resolve.mutate(null)}>

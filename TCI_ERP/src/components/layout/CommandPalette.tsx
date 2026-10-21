@@ -8,20 +8,24 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowRight, Building2, CornerDownLeft, FilePlus2, Search } from 'lucide-react'
+import { ArrowRight, Building2, CornerDownLeft, FilePlus2, History, Search } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
 import { tci } from '../../lib/supabase'
 import { matchesQuery, sanitizeSearchTerm } from './commandPalette'
 import { navItemsForRoles } from './navigation'
 import { RequestEntityModal } from '../../features/data/RequestEntityModal'
+import { readRecentEntities, rememberEntity } from './recentEntities'
+import type { RecentEntity } from './recentEntities'
 
 interface Hit {
   id: string
-  kind: 'nav' | 'entity' | 'request'
+  kind: 'nav' | 'entity' | 'recent' | 'search' | 'request'
   label: string
   sub?: string
   to: string
+  /** The heading this hit sits under (shown above the first of a run). */
+  group: 'recent' | 'companies' | 'sections'
 }
 
 function useEntitySearch(term: string | null) {
@@ -63,9 +67,11 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   // form outlives the palette, which closes as it opens.
   const [requestName, setRequestName] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const [recent, setRecent] = useState<RecentEntity[]>([])
 
   useEffect(() => {
     if (!open) return
+    setRecent(readRecentEntities())
     setQuery('')
     setDebounced('')
     setCursor(0)
@@ -88,15 +94,42 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
         kind: 'nav' as const,
         label: t(`nav.${item.key}`),
         to: item.path,
+        group: 'sections' as const,
       }))
       .filter((h) => matchesQuery(h.label, query))
+    // Before anything is typed: the companies opened last, then the sections.
+    if (!query.trim()) {
+      const recents = recent.map((e) => ({
+        id: `recent-${e.id}`,
+        kind: 'recent' as const,
+        label: e.name,
+        sub: e.sub,
+        to: `/entities/${e.id}`,
+        group: 'recent' as const,
+      }))
+      return [...recents, ...nav]
+    }
     const found = (entities.data ?? []).map((e) => ({
       id: `entity-${e.id}`,
       kind: 'entity' as const,
       label: e.name,
-      sub: `${e.registration_number} · ${e.country_code}`,
+      sub: [e.registration_number, e.country_code].filter(Boolean).join(' · '),
       to: `/entities/${e.id}`,
+      group: 'companies' as const,
     }))
+    // Always a way to the whole registry, filtered by what was typed — it
+    // matches more loosely than this quick search and shows every hit.
+    const searchAll = term
+      ? [
+          {
+            id: 'search-registry',
+            kind: 'search' as const,
+            label: t('palette.searchRegistry', { query: term }),
+            to: `/entities?q=${encodeURIComponent(term)}`,
+            group: 'companies' as const,
+          },
+        ]
+      : []
     // Nothing found for a company-like search: offer to have it registered.
     const missing =
       term && term.length >= 3 && entities.isSuccess && !entities.isFetching && found.length === 0
@@ -107,11 +140,12 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
               label: t('data.notFound.paletteItem', { query: term }),
               sub: t('data.notFound.paletteSub'),
               to: '',
+              group: 'companies' as const,
             },
           ]
         : []
-    return [...found, ...missing, ...nav]
-  }, [roles, query, term, entities.data, entities.isSuccess, entities.isFetching, t])
+    return [...found, ...searchAll, ...missing, ...nav]
+  }, [roles, query, term, recent, entities.data, entities.isSuccess, entities.isFetching, t])
 
   useEffect(() => {
     setCursor(0)
@@ -129,8 +163,13 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const go = (hit: Hit | undefined) => {
     if (!hit) return
     onClose()
-    if (hit.kind === 'request') setRequestName(term ?? '')
-    else navigate(hit.to)
+    if (hit.kind === 'request') {
+      setRequestName(term ?? '')
+      return
+    }
+    if (hit.kind === 'entity' || hit.kind === 'recent')
+      rememberEntity({ id: hit.to.replace('/entities/', ''), name: hit.label, sub: hit.sub })
+    void navigate(hit.to)
   }
 
   return (
@@ -179,6 +218,11 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
           )}
           {hits.map((hit, i) => (
             <li key={hit.id}>
+              {hit.group !== hits[i - 1]?.group && (
+                <div className="px-3 pt-2 pb-1 text-[11px] font-semibold tracking-wide text-slate-400 uppercase">
+                  {t(`palette.groups.${hit.group}`)}
+                </div>
+              )}
               <button
                 type="button"
                 onMouseEnter={() => setCursor(i)}
@@ -189,7 +233,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
               >
                 <span
                   className={`flex size-8 shrink-0 items-center justify-center rounded-md ${
-                    hit.kind === 'entity'
+                    hit.kind === 'entity' || hit.kind === 'recent' || hit.kind === 'search'
                       ? 'bg-accent-100 text-accent-600'
                       : hit.kind === 'request'
                         ? 'bg-brand-orange/10 text-brand-orange'
@@ -198,6 +242,10 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                 >
                   {hit.kind === 'entity' ? (
                     <Building2 className="size-4" />
+                  ) : hit.kind === 'recent' ? (
+                    <History className="size-4" />
+                  ) : hit.kind === 'search' ? (
+                    <Search className="size-4" />
                   ) : hit.kind === 'request' ? (
                     <FilePlus2 className="size-4" />
                   ) : (

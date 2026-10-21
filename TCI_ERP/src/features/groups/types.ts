@@ -101,6 +101,29 @@ export interface GroupLimit {
   created_at: string
 }
 
+/** tci.v_group_limit_status (0053) — a group against its live cap, as the
+ * database compares them: limit_uzs at the latest rate, utilisation_pct and
+ * over_limit computed there, never here. Numerics may arrive as strings. */
+export interface GroupLimitStatus {
+  ultimate_parent_id: string
+  ultimate_parent_name: string
+  ultimate_parent_country: string | null
+  members_count: number
+  members_with_limits: number
+  limits_count: number
+  policyholders_count: number
+  exposure_uzs: number | string
+  missing_rates: number
+  group_limit_id: string | null
+  limit_amount: number | string | null
+  limit_currency: string | null
+  limit_valid_from: string | null
+  limit_valid_to: string | null
+  limit_uzs: number | string | null
+  utilisation_pct: number | string | null
+  over_limit: boolean
+}
+
 /** What tci.group_exposure_preflight returns — the SAME function the SQL
  * enforcement calls, so the screen cannot disagree with the rule. */
 export interface GroupPreflight {

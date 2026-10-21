@@ -160,7 +160,7 @@ export function MfaSection() {
               className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2 text-[13px]"
             >
               <span className="text-slate-700">{f.friendly_name || t('account.mfa.factorName')}</span>
-              <Button variant="secondary" size="sm" disabled={busy} onClick={() => setRemoving(f)}>
+              <Button variant="dangerOutline" size="sm" disabled={busy} onClick={() => setRemoving(f)}>
                 {t('account.mfa.disable')}
               </Button>
             </div>

@@ -7,23 +7,11 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, EmptyState, PageHeader, Segmented, Spinner, Table, Truncate } from '../../components/ui'
-import { EM_DASH, formatAmount, formatDays } from '../../lib/format'
+import { EM_DASH, formatAmount } from '../../lib/format'
 import { useClaims } from './api'
 import { isOpen } from './machine'
+import { CLAIM_STATUS_TONE as STATUS_TONE } from './status'
 import type { Claim, ClaimStatus } from './types'
-
-const STATUS_TONE: Record<ClaimStatus, 'neutral' | 'accent' | 'pos' | 'neg' | 'warn'> = {
-  draft: 'neutral',
-  submitted: 'accent',
-  under_assessment: 'accent',
-  info_requested: 'warn',
-  approved: 'pos',
-  partially_approved: 'warn',
-  declined: 'neg',
-  paid: 'pos',
-  closed: 'neutral',
-  withdrawn: 'neutral',
-}
 
 /** Assessment order: a file waiting on us outranks one waiting on them. */
 const QUEUE_RANK: Record<ClaimStatus, number> = {
@@ -84,13 +72,21 @@ export function ClaimsPage() {
         <Table>
           <thead>
             <tr>
-              <th>{t('claims.fields.number')}</th>
-              <th>{t('claims.fields.buyer')}</th>
-              <th>{t('claims.fields.policyholder')}</th>
-              <th className="num">{t('claims.fields.claimed')}</th>
-              <th className="num">{t('claims.fields.indemnity')}</th>
-              <th className="num">{t('claims.fields.age')}</th>
-              <th>{t('claims.fields.status')}</th>
+              {/* w-px: the other columns take their content's width, and the
+                  names column everything left over. */}
+              <th className="w-px">{t('claims.fields.number')}</th>
+              {/* Buyer over policyholder in one column: seven columns side by
+                  side cut both names to a few letters on a laptop. */}
+              <th className="cell-fill w-[45%]">
+                {t('claims.fields.buyer')} / {t('claims.fields.policyholder')}
+              </th>
+              <th className="num w-px">{t('claims.fields.claimed')}</th>
+              <th className="num w-px">{t('claims.fields.indemnity')}</th>
+              {/* The unit is in each cell; the rule behind the count on hover. */}
+              <th className="num w-px" title={t('claims.ageHint')}>
+                {t('claims.fields.ageColumn')}
+              </th>
+              <th className="w-px">{t('claims.fields.status')}</th>
             </tr>
           </thead>
           <tbody>
@@ -120,15 +116,13 @@ function ClaimRow({ claim, locale }: { claim: Claim; locale: string }) {
           </span>
         )}
       </td>
-      <td>
-        <Truncate text={claim.buyer_name}>
+      <td className="cell-fill">
+        <Truncate text={claim.buyer_name} className="max-w-none">
           <Link to={`/entities/${claim.buyer_entity_id}`} className="hover:underline">
             {claim.buyer_name}
           </Link>
         </Truncate>
-      </td>
-      <td className="text-slate-600">
-        <Truncate text={claim.policyholder_name} />
+        <Truncate text={claim.policyholder_name} className="max-w-none text-[12px] text-slate-500" />
       </td>
       <td className="num">
         {formatAmount(Number(claim.claimed_amount), locale)} {claim.currency_code}
@@ -138,10 +132,10 @@ function ClaimRow({ claim, locale }: { claim: Claim; locale: string }) {
           ? EM_DASH
           : `${formatAmount(Number(claim.approved_indemnity), locale)} ${claim.currency_code}`}
       </td>
-      <td className="num">
+      <td className="num" title={t('claims.ageHint')}>
         {claim.assessment_age_days === null
           ? EM_DASH
-          : formatDays(Math.round(Number(claim.assessment_age_days)), locale)}
+          : t('policies.terms.days', { count: Math.round(Number(claim.assessment_age_days)) })}
       </td>
       <td className="whitespace-nowrap">
         <Badge tone={STATUS_TONE[claim.status]}>{t(`claims.statuses.${claim.status}`)}</Badge>
@@ -150,4 +144,3 @@ function ClaimRow({ claim, locale }: { claim: Claim; locale: string }) {
   )
 }
 
-export { STATUS_TONE as CLAIM_STATUS_TONE }

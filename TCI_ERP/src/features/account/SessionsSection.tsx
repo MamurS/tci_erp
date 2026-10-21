@@ -28,8 +28,9 @@ export function SessionsSection() {
 
   return (
     <Card className="p-5">
-      <SectionTitle className="mb-2">{t('account.sessions.title')}</SectionTitle>
-      <p className="mb-4 text-[13px] text-slate-500">{t('account.sessions.hint')}</p>
+      <SectionTitle className="mb-3" hint={t('account.sessions.hint')}>
+        {t('account.sessions.title')}
+      </SectionTitle>
       <div className="flex items-center gap-3">
         <Button variant="secondary" disabled={busy} onClick={() => void signOutOthers()}>
           {t('account.sessions.signOutOthers')}

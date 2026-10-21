@@ -8,8 +8,9 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, ViewBar, Spinner, Table } from '../../../components/ui'
-import { formatAmount, formatPercent } from '../../../lib/format'
+import { Badge, Card, EmptyState, Spinner, Table, Truncate, ViewBar } from '../../../components/ui'
+import { EM_DASH, formatAmount, formatPercent } from '../../../lib/format'
+import { GroupCapAmount } from '../../groups/GroupCapAmount'
 import { num } from '../../portfolio/aggregate'
 import { useCountryName } from '../../portfolio/useCountryName'
 import { useGroupLimitStatus } from './api'
@@ -45,14 +46,15 @@ export function GroupsView() {
         <Table dense>
           <thead>
             <tr>
-              <th>{t('portfolio.credit.group')}</th>
-              <th>{t('portfolio.credit.country')}</th>
-              <th className="text-right">{t('limits.workbench.groups.members')}</th>
-              <th className="text-right">{t('portfolio.credit.limits')}</th>
-              <th className="text-right">{t('portfolio.credit.exposure')}</th>
-              <th className="text-right">{t('limits.workbench.groups.cap')}</th>
-              <th className="text-right">{t('limits.workbench.groups.used')}</th>
-              <th>{t('limits.workbench.groups.state')}</th>
+              {/* No cell-fill on the header: «Группа (материнская компания)» is
+                  longer than most names and would spill into the next column. */}
+              <th className="w-full">{t('portfolio.credit.group')}</th>
+              <th className="w-px text-right">{t('limits.workbench.groups.members')}</th>
+              <th className="w-px text-right">{t('portfolio.credit.limits')}</th>
+              <th className="w-px text-right">{t('portfolio.credit.exposure')}</th>
+              <th className="w-px text-right">{t('limits.workbench.groups.cap')}</th>
+              <th className="w-px text-right">{t('limits.workbench.groups.used')}</th>
+              <th className="w-px">{t('limits.workbench.groups.state')}</th>
             </tr>
           </thead>
           <tbody>
@@ -60,10 +62,15 @@ export function GroupsView() {
               const state = groupState(g)
               return (
                 <tr key={g.ultimate_parent_id}>
-                  <td>
-                    <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} tab="group" />
+                  <td className="cell-fill">
+                    <Truncate text={g.ultimate_parent_name} className="max-w-none">
+                      <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} tab="group" />
+                    </Truncate>
+                    <Truncate
+                      text={countryName(g.ultimate_parent_country)}
+                      className="max-w-none text-[12px] text-slate-500"
+                    />
                   </td>
-                  <td className="text-slate-600">{countryName(g.ultimate_parent_country)}</td>
                   <td className="num text-right">
                     {formatAmount(g.members_with_limits, locale)} / {formatAmount(g.members_count, locale)}
                   </td>
@@ -76,17 +83,16 @@ export function GroupsView() {
                       </span>
                     )}
                   </td>
-                  <td className="num text-right whitespace-nowrap">
-                    {g.limit_amount === null ? (
-                      '—'
-                    ) : (
-                      <>
-                        {formatAmount(num(g.limit_amount), locale)} {g.limit_currency}
-                      </>
-                    )}
+                  <td className="num">
+                    <GroupCapAmount
+                      amount={g.limit_amount}
+                      currency={g.limit_currency}
+                      amountUzs={g.limit_uzs}
+                      stacked
+                    />
                   </td>
-                  <td className="num text-right">
-                    {num(g.utilisation_pct) === null ? '—' : formatPercent((num(g.utilisation_pct) ?? 0) / 100, locale)}
+                  <td className={`num ${state === 'over' ? 'font-semibold text-neg-500' : ''}`}>
+                    {num(g.utilisation_pct) === null ? EM_DASH : formatPercent((num(g.utilisation_pct) ?? 0) / 100, locale)}
                   </td>
                   <td>
                     <Badge tone={STATE_TONE[state]}>{t(`limits.workbench.groups.states.${state}`)}</Badge>

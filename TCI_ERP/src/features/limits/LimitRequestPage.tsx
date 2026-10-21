@@ -7,10 +7,10 @@
 
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Plus } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { AmountInput, Badge, Button, Card, EmptyState, Field, GradeScale, Input, Modal, PageHeader, Select, Spinner, SectionTitle, Textarea } from '../../components/ui'
+import { AmountInput, Badge, Button, Card, DateInput, EmptyState, Field, GradeScale, Input, LinkButton, Modal, PageHeader, Select, Spinner, SectionTitle, Textarea } from '../../components/ui'
 import { amountToPlain, parseAmount } from '../../components/ui/amount'
 import { useAuth } from '../../auth/AuthContext'
 import { bandForGrade, hasRole } from '../../lib/roles'
@@ -28,7 +28,7 @@ import {
   useSubmitLimitRequest,
   useWithdrawLimitRequest,
 } from './api'
-import { preflight } from './authority'
+import { convertAtLatest, preflight } from './authority'
 import { GroupChip, GroupPreflightNotice, useGroupPreflight } from '../groups'
 import { CommercialStageSection } from './CommercialStageSection'
 import { ReleaseBadge } from './ReleaseBadge'
@@ -41,7 +41,7 @@ import {
   statusTone,
 } from './machine'
 import type { ConditionInput, LimitRequestWithRefs } from './types'
-import { CONDITION_TYPES } from './types'
+import { CONDITION_TYPES, requestScopeFilter } from './types'
 
 export function LimitRequestPage() {
   const { t, i18n } = useTranslation()
@@ -63,9 +63,9 @@ export function LimitRequestPage() {
       <EmptyState
         title={t('limits.notFound')}
         action={
-          <Link to="/limits" className="text-sm font-medium text-accent-700 hover:underline">
+          <LinkButton to="/limits" variant="secondary">
             {t('limits.backToQueue')}
-          </Link>
+          </LinkButton>
         }
       />
     )
@@ -103,10 +103,16 @@ export function LimitRequestPage() {
             <Link to="/limits" className="text-accent-700 hover:underline">
               {t('nav.limits')}
             </Link>
-            {' / '}
-            <Link to={`/policies/${request.policy_id}`} className="text-accent-700 hover:underline">
-              {request.policies?.policy_number ?? EM_DASH}
-            </Link>
+            {/* A pre-bind request has no policy yet: the submission is where
+                it lives, so the trail never links to /policies/null. */}
+            {request.policy_id && (
+              <>
+                {' / '}
+                <Link to={`/policies/${request.policy_id}`} className="text-accent-700 hover:underline">
+                  {request.policies?.policy_number ?? EM_DASH}
+                </Link>
+              </>
+            )}
             {request.insurance_request_id && (
               <>
                 {' / '}
@@ -114,7 +120,7 @@ export function LimitRequestPage() {
                   to={`/requests/${request.insurance_request_id}`}
                   className="text-accent-700 hover:underline"
                 >
-                  {t('limits.fromSubmission')}
+                  {request.insurance_requests?.request_number ?? t('limits.fromSubmission')}
                 </Link>
               </>
             )}
@@ -139,9 +145,11 @@ export function LimitRequestPage() {
                 {t('limits.actions.startReview')}
               </Button>
             )}
+            {/* Destructive, so it looks it — and it names its object: «Отозвать»
+                alone could be read as revoking the buyer's limit. */}
             {canWithdraw(request.status, roles, isRequester) && (
-              <Button variant="ghost" onClick={() => setWithdrawOpen(true)}>
-                {t('limits.actions.withdraw')}
+              <Button variant="dangerOutline" onClick={() => setWithdrawOpen(true)}>
+                {t('limits.actions.withdrawRequest')}
               </Button>
             )}
           </div>
@@ -174,7 +182,7 @@ export function LimitRequestPage() {
         <Modal
           open
           onClose={() => setWithdrawOpen(false)}
-          title={t('limits.actions.withdraw')}
+          title={t('limits.withdrawTitle')}
           footer={
             <>
               <Button variant="secondary" onClick={() => setWithdrawOpen(false)}>
@@ -191,7 +199,7 @@ export function LimitRequestPage() {
                   )
                 }
               >
-                {t('common.confirm')}
+                {t('limits.actions.withdrawRequest')}
               </Button>
             </>
           }
@@ -234,15 +242,37 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
             <GroupChip entityId={request.entity_id} />
           </div>
         </dd>
-        <dt className="text-slate-500">{t('policies.fields.policyNumber')}</dt>
-        <dd>
-          <Link to={`/policies/${request.policy_id}`} className="text-accent-700 hover:underline">
-            {request.policies?.policy_number ?? EM_DASH}
-          </Link>
-          <span className="ml-2 text-slate-500">
-            {request.policies?.legal_entities?.name ?? ''}
-          </span>
-        </dd>
+        {request.policy_id ? (
+          <>
+            <dt className="text-slate-500">{t('policies.fields.policyNumber')}</dt>
+            <dd>
+              <Link to={`/policies/${request.policy_id}`} className="text-accent-700 hover:underline">
+                {request.policies?.policy_number ?? EM_DASH}
+              </Link>
+              <span className="ml-2 text-slate-500">
+                {request.policies?.legal_entities?.name ?? ''}
+              </span>
+            </dd>
+          </>
+        ) : (
+          <>
+            {/* Before bind the limit lives in the submission (limit scope). */}
+            <dt className="text-slate-500">{t('limits.fromSubmission')}</dt>
+            <dd>
+              {request.insurance_request_id ? (
+                <Link to={`/requests/${request.insurance_request_id}`} className="text-accent-700 hover:underline">
+                  {request.insurance_requests?.request_number ?? EM_DASH}
+                </Link>
+              ) : (
+                EM_DASH
+              )}
+              <span className="ml-2 text-slate-500">
+                {request.insurance_requests?.legal_entities?.name ?? ''}
+              </span>
+              <span className="mt-0.5 block text-xs text-slate-400">{t('limits.preBindScope')}</span>
+            </dd>
+          </>
+        )}
         <dt className="text-slate-500">{t('limits.fields.requestedAmount')}</dt>
         <dd>
           <span className="num font-semibold">
@@ -289,10 +319,7 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
   const { t } = useTranslation()
   const assessments = useAssessments(request.entity_id)
   const { data: gradeBands } = useGradeScale()
-  const effective = useEffectiveLimits({
-    policyId: request.policy_id,
-    entityId: request.entity_id,
-  })
+  const effective = useEffectiveLimits(requestScopeFilter(request))
 
   const latest = assessments.data?.[0] ?? null
   const current = effective.data?.[0] ?? null
@@ -313,9 +340,12 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
           />
           <div className="text-[13px]">
             <span className="text-slate-500">{t('report.calculatedLimit')}: </span>
-            <span className="num font-semibold">
-              {formatAmount(Number(latest.suggested_limit), locale)} {latest.limit_currency}
-            </span>
+            <SuggestedLimit
+              amount={latest.suggested_limit}
+              from={latest.limit_currency}
+              to={request.currency_code}
+              className="font-semibold"
+            />
           </div>
         </>
       ) : (
@@ -341,9 +371,9 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
                 ? `${formatAmount(Number(current.approved_amount), locale)} ${current.currency_code}`
                 : EM_DASH}
             </span>
-            <span className="ml-2 text-slate-400">
+            <span className="ml-2 whitespace-nowrap text-slate-400">
               {current.valid_until
-                ? t('limits.validUntil', { date: current.valid_until })
+                ? t('limits.validUntil', { date: formatDate(current.valid_until, locale) })
                 : t('limits.untilReview')}
             </span>
           </p>
@@ -484,10 +514,8 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
             <AmountInput value={amount} onChange={setAmount} suffix={currency} />
             {latest && (
               <p className="mt-0.5 text-xs text-slate-400">
-                {t('limits.calculatedHint', {
-                  amount: formatAmount(Number(latest.suggested_limit), locale),
-                  currency: latest.limit_currency,
-                })}
+                {t('report.calculatedLimit')}:{' '}
+                <SuggestedLimit amount={latest.suggested_limit} from={latest.limit_currency} to={currency} />
               </p>
             )}
           </Field>
@@ -503,16 +531,10 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
             </Select>
           </Field>
           <Field label={t('limits.fields.validFrom')}>
-            <Input type="date" value={validFrom} onChange={(e) => setValidFrom(e.target.value)} />
+            <DateInput value={validFrom} onChange={setValidFrom} />
           </Field>
-          <Field label={t('limits.fields.validUntil')}>
-            <Input
-              type="date"
-              value={validUntil}
-              onChange={(e) => setValidUntil(e.target.value)}
-              placeholder={t('limits.untilReview')}
-            />
-            <p className="mt-0.5 text-xs text-slate-400">{t('limits.validUntilHint')}</p>
+          <Field label={t('limits.fields.validUntil')} hint={t('limits.validUntilHint')}>
+            <DateInput value={validUntil} onChange={setValidUntil} min={validFrom || undefined} />
           </Field>
         </div>
       )}
@@ -561,7 +583,7 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
         </p>
       )}
 
-      <div>
+      <div className="flex flex-wrap items-center gap-3">
         <Button
           onClick={() => void handleDecide()}
           disabled={decide.isPending || (needsAmount && !amountValid)}
@@ -569,6 +591,9 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
         >
           {decide.isPending ? t('common.saving') : t('limits.actions.decide')}
         </Button>
+        {needsAmount && !amountValid && (
+          <span className="text-[13px] text-slate-500">{t('limits.amountRequired')}</span>
+        )}
       </div>
     </Card>
   )
@@ -635,13 +660,71 @@ function ConditionsRepeater({
                 size="sm"
                 onClick={() => onChange(conditions.filter((_, i) => i !== index))}
                 aria-label={t('common.delete')}
+                title={t('common.delete')}
               >
-                ✕
+                <X />
               </Button>
             </div>
           ))}
         </div>
       )}
     </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// The engine's suggested limit, in the request's currency
+// ---------------------------------------------------------------------------
+
+/** The engine computes its limit in the currency of the statements it rated
+ * (KZT for a Kazakh buyer), while the request is in its own currency.
+ * «3,333,248,000 KZT» next to a 300,000 USD request reads as nonsense, so it
+ * is shown in the request currency first with the original in brackets — or,
+ * when there is no rate, in the original with that said out loud. Converted
+ * at the latest rates through UZS (convertAtLatest), for reading only. */
+function SuggestedLimit({
+  amount,
+  from,
+  to,
+  className = '',
+}: {
+  amount: number | string | null
+  from: string
+  to: string
+  className?: string
+}) {
+  const { t, i18n } = useTranslation()
+  const locale = i18n.resolvedLanguage ?? 'en'
+  const fromRates = useLatestRatesFor(from === to ? '' : from)
+  const toRates = useLatestRatesFor(from === to ? '' : to)
+
+  if (amount === null || amount === '') return <span className={`num ${className}`}>{EM_DASH}</span>
+  const value = Number(amount)
+  const original = `${formatAmount(value, locale)} ${from}`
+  if (from === to) return <span className={`num ${className}`}>{original}</span>
+  if (fromRates.isLoading || toRates.isLoading) return <span className={`num ${className}`}>{original}</span>
+
+  const converted = convertAtLatest(
+    value,
+    from,
+    to,
+    [...(fromRates.data ?? []), ...(toRates.data ?? [])],
+    new Date().toISOString().slice(0, 10),
+  )
+  if (converted === null) {
+    return (
+      <span className={className}>
+        <span className="num">{original}</span>{' '}
+        <span className="font-normal text-warn-500">{t('limits.suggestedNoRate', { currency: to })}</span>
+      </span>
+    )
+  }
+  return (
+    <span className={`num ${className}`}>
+      {t('limits.suggestedConverted', {
+        converted: `${formatAmount(converted, locale)} ${to}`,
+        original,
+      })}
+    </span>
   )
 }

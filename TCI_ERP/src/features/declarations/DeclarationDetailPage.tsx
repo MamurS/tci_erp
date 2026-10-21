@@ -18,11 +18,12 @@ import {
   DetailHeader,
   EmptyState,
   Field,
-  Input,
   KeyFigures,
+  Modal,
   Panel,
   Spinner,
   Table,
+  Textarea,
   Truncate,
 } from '../../components/ui'
 import { EM_DASH, formatAmount, formatMoment, formatPeriod } from '../../lib/format'
@@ -61,6 +62,7 @@ export function DeclarationDetailPage() {
   const correct = useCorrectDeclaration()
 
   const [disputeNote, setDisputeNote] = useState('')
+  const [disputing, setDisputing] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   if (isLoading) return <Spinner label={t('common.loading')} />
@@ -101,6 +103,13 @@ export function DeclarationDetailPage() {
             )}
             {canTransition(declaration.status, 'accepted') && (
               <Button onClick={() => run(accept.mutateAsync(declaration.id))}>{t('declarations.actions.accept')}</Button>
+            )}
+            {/* Sending it back is the alternative to accepting, not a peer of
+                it: a secondary button, and the note is asked for in a dialog. */}
+            {canTransition(declaration.status, 'disputed') && (
+              <Button variant="secondary" onClick={() => setDisputing(true)}>
+                {t('declarations.actions.dispute')}
+              </Button>
             )}
             {canCorrect(declaration.status) && (
               <Button variant="secondary" onClick={() => run(correct.mutateAsync({ id: declaration.id }))}>
@@ -179,7 +188,10 @@ export function DeclarationDetailPage() {
                       {excess > 0 ? formatAmount(excess, locale) : EM_DASH}
                     </td>
                     <td className="num">
-                      {l.overdue_amount === null ? EM_DASH : formatAmount(Number(l.overdue_amount), locale)}
+                      {/* Nothing reported reads «—», not a 0 that looks like a figure. */}
+                      {l.overdue_amount === null || Number(l.overdue_amount) === 0
+                        ? EM_DASH
+                        : formatAmount(Number(l.overdue_amount), locale)}
                     </td>
                   </tr>
                 )
@@ -189,26 +201,48 @@ export function DeclarationDetailPage() {
         )}
       </Panel>
 
-      {canTransition(declaration.status, 'disputed') && (
-        <Panel title={t('declarations.actions.dispute')} className="mt-5">
-          <div className="flex flex-wrap items-end gap-3">
-            <Field label={t('declarations.fields.disputeNote')} className="min-w-72 flex-1">
-              <Input
-                value={disputeNote}
-                onChange={(e) => setDisputeNote(e.target.value)}
-                placeholder={t('declarations.disputeNotePlaceholder')}
-              />
-            </Field>
+      <Modal
+        open={disputing}
+        title={t('declarations.actions.dispute')}
+        onClose={() => setDisputing(false)}
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setDisputing(false)}>
+              {t('common.cancel')}
+            </Button>
             <Button
-              variant="dangerOutline"
-              disabled={!disputeNote.trim()}
-              onClick={() => run(dispute.mutateAsync({ id: declaration.id, note: disputeNote }))}
+              disabled={!disputeNote.trim() || dispute.isPending}
+              title={disputeNote.trim() ? undefined : t('declarations.disputeNoteRequired')}
+              onClick={() => {
+                setError(null)
+                dispute
+                  .mutateAsync({ id: declaration.id, note: disputeNote.trim() })
+                  .then(() => {
+                    setDisputing(false)
+                    setDisputeNote('')
+                  })
+                  .catch((e: unknown) => {
+                    setDisputing(false)
+                    setError(t(refusalKey(e)))
+                  })
+              }}
             >
               {t('declarations.actions.dispute')}
             </Button>
-          </div>
-        </Panel>
-      )}
+          </>
+        }
+      >
+        <p className="text-[13px] leading-relaxed text-slate-600">{t('declarations.disputeHint')}</p>
+        <Field label={t('declarations.fields.disputeNote')}>
+          <Textarea
+            rows={4}
+            autoFocus
+            value={disputeNote}
+            onChange={(e) => setDisputeNote(e.target.value)}
+            placeholder={t('declarations.disputeNotePlaceholder')}
+          />
+        </Field>
+      </Modal>
     </div>
   )
 }

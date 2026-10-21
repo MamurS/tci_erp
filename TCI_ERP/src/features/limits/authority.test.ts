@@ -10,6 +10,7 @@ import MIGRATION_0020 from '../../../supabase/migrations/0020_two_stage_decision
 import {
   authorityUzs,
   commercialPreflight,
+  convertAtLatest,
   latestUzsRate,
   preflight,
   scopedAuthorityUzs,
@@ -299,5 +300,31 @@ describe('commercial authority (mirror of tci.adjust_limit_commercial, 0020)', (
     expect(MIGRATION_0020).toContain("if not tci.has_role('admin', 'commercial_underwriter') then")
     expect(MIGRATION_0020).toContain('only a credit-stage decision can be adjusted commercially')
     expect(MIGRATION_0020).toContain('only an approved or partial limit can be adjusted')
+  })
+})
+
+describe('convertAtLatest (display: the engine limit in the request currency)', () => {
+  const rates: FxRateRow[] = [
+    { currency_code: 'USD', rate_to_uzs: 12000, rate_date: '2026-10-01', source: 'cbu' },
+    { currency_code: 'KZT', rate_to_uzs: 24, rate_date: '2026-10-01', source: 'cbu' },
+    { currency_code: 'KZT', rate_to_uzs: 25, rate_date: '2026-10-20', source: 'cbu' },
+  ]
+
+  it('converts through UZS at the latest rate on or before today', () => {
+    // 3,333,248,000 KZT x 25 / 12,000 = 6,944,266.67 USD
+    expect(convertAtLatest(3_333_248_000, 'KZT', 'USD', rates, '2026-10-21')).toBeCloseTo(6_944_266.67, 2)
+    // before the 20 October rate the 1 October one applies
+    expect(convertAtLatest(1_200_000, 'KZT', 'USD', rates, '2026-10-10')).toBe(2_400)
+  })
+
+  it('handles UZS on either side and the same currency', () => {
+    expect(convertAtLatest(100, 'USD', 'UZS', rates, '2026-10-21')).toBe(1_200_000)
+    expect(convertAtLatest(1_200_000, 'UZS', 'USD', rates, '2026-10-21')).toBe(100)
+    expect(convertAtLatest(500, 'EUR', 'EUR', rates, '2026-10-21')).toBe(500)
+  })
+
+  it('returns null when a rate is missing, never a guess', () => {
+    expect(convertAtLatest(100, 'EUR', 'USD', rates, '2026-10-21')).toBeNull()
+    expect(convertAtLatest(100, 'USD', 'EUR', rates, '2026-10-21')).toBeNull()
   })
 })

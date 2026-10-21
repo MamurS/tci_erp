@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { AmountInput, Button, Card, Field, Input, PageHeader, Segmented, Select, Spinner, LinkButton } from '../../../components/ui'
+import { AmountInput, Button, Card, DateInput, Field, Input, PageHeader, Segmented, Select, Spinner, LinkButton } from '../../../components/ui'
 import { amountToPlain, parseAmount } from '../../../components/ui/amount'
 import { formatAmount } from '../../../lib/format'
 import {
@@ -285,7 +285,7 @@ export function StatementFormPage() {
           </Field>
         )}
         <Field label={t('fin.fields.periodEnd')}>
-          <Input type="date" value={periodEnd} onChange={(e) => setPeriodEnd(e.target.value)} required />
+          <DateInput value={periodEnd} onChange={setPeriodEnd} required />
         </Field>
         <Field label={t('fin.fields.currency')}>
           <Select

@@ -7,7 +7,7 @@ import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
-import { Button, Callout, EmptyState, Panel, PanelGrid, Select, Spinner, Table } from '../../components/ui'
+import { Button, Callout, ConfirmDialog, EmptyState, Panel, PanelGrid, Select, Spinner, Table } from '../../components/ui'
 import { formatMoment } from '../../lib/format'
 import {
   signedDocumentUrl,
@@ -18,7 +18,7 @@ import {
 } from './api'
 import { ACCEPTED_MIME_TYPES, documentRejection, requiredDocuments } from './documents'
 import { claimErrorKey } from './errors'
-import type { Claim, ClaimDocumentType } from './types'
+import type { Claim, ClaimDocument, ClaimDocumentType } from './types'
 import { CLAIM_DOCUMENT_TYPES } from './types'
 
 export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
@@ -32,6 +32,7 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
   const fileRef = useRef<HTMLInputElement>(null)
   const [type, setType] = useState<ClaimDocumentType>('invoice')
   const [error, setError] = useState<string | null>(null)
+  const [removing, setRemoving] = useState<ClaimDocument | null>(null)
 
   const canUpload =
     (roles.includes('claims') || roles.includes('sales') || roles.includes('admin')) &&
@@ -99,14 +100,19 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
 
         <Panel
           title={t('claims.documents.filesTitle')}
-          hint={canUpload ? t('claims.documents.uploadHint') : undefined}
-          actions={
-            canUpload && (
-              <>
+          // Always a hint, like the checklist beside it: two panels whose
+          // heads differ in shape do not line their titles up.
+          hint={canUpload ? t('claims.documents.uploadHint') : t('claims.documents.filesHint')}
+        >
+          {/* The upload sits in the body, not beside the title: a select and a
+              button in the head made it taller than the checklist's, and the
+              two titles no longer lined up. */}
+          {canUpload && (
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+              <div className="w-64 max-w-full">
                 <Select
                   value={type}
                   aria-label={t('claims.fields.documentType')}
-                  className="h-8 w-auto py-0 text-[13px]"
                   onChange={(e) => setType(e.target.value as ClaimDocumentType)}
                 >
                   {CLAIM_DOCUMENT_TYPES.map((d) => (
@@ -115,21 +121,20 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
                     </option>
                   ))}
                 </Select>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  hidden
-                  accept={ACCEPTED_MIME_TYPES.join(',')}
-                  onChange={(e) => onPick(e.target.files?.[0])}
-                />
-                <Button size="sm" variant="secondary" disabled={upload.isPending} onClick={() => fileRef.current?.click()}>
-                  <Upload aria-hidden />
-                  {t('claims.documents.upload')}
-                </Button>
-              </>
-            )
-          }
-        >
+              </div>
+              <input
+                ref={fileRef}
+                type="file"
+                hidden
+                accept={ACCEPTED_MIME_TYPES.join(',')}
+                onChange={(e) => onPick(e.target.files?.[0])}
+              />
+              <Button variant="secondary" disabled={upload.isPending} onClick={() => fileRef.current?.click()}>
+                <Upload aria-hidden />
+                {t('claims.documents.upload')}
+              </Button>
+            </div>
+          )}
           {(docs ?? []).length === 0 ? (
             <EmptyState title={t('claims.documents.emptyTitle')} hint={t('claims.documents.emptyHint')} />
           ) : (
@@ -168,12 +173,7 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
                           aria-label={t('claims.documents.remove', { name: d.original_filename })}
                           title={t('claims.documents.remove', { name: d.original_filename })}
                           className="rounded-md p-1.5 text-slate-400 hover:bg-neg-50 hover:text-neg-500"
-                          onClick={() =>
-                            remove.mutateAsync({ claim_id: claim.id, document_id: d.id }).catch((e: unknown) => {
-                              const k = claimErrorKey(e)
-                              setError(k ? t(k) : t('common.somethingWentWrong'))
-                            })
-                          }
+                          onClick={() => setRemoving(d)}
                         >
                           <Trash2 className="size-4" aria-hidden />
                         </button>
@@ -186,6 +186,26 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
           )}
         </Panel>
       </PanelGrid>
+
+      <ConfirmDialog
+        open={removing !== null}
+        title={t('claims.documents.removeTitle')}
+        message={removing ? t('claims.documents.removeConfirm', { name: removing.original_filename }) : ''}
+        confirmLabel={t('claims.documents.removeAction')}
+        pending={remove.isPending}
+        onCancel={() => setRemoving(null)}
+        onConfirm={() => {
+          if (!removing) return
+          setError(null)
+          remove
+            .mutateAsync({ claim_id: claim.id, document_id: removing.id })
+            .catch((e: unknown) => {
+              const k = claimErrorKey(e)
+              setError(k ? t(k) : t('common.somethingWentWrong'))
+            })
+            .finally(() => setRemoving(null))
+        }}
+      />
     </div>
   )
 }

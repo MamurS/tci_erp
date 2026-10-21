@@ -131,7 +131,8 @@
     "recordNotFound": "Yozuv topilmadi — ehtimol, u o‘chirilgan. Sahifani yangilang.",
     "noMatches": "Hech narsa topilmadi",
     "noMatchesHint": "Qidiruv shartlarini o‘zgartiring yoki filtrlarni tozalang.",
-    "resetFilters": "Filtrlarni tozalash"
+    "resetFilters": "Filtrlarni tozalash",
+    "actions": "Amallar"
   },
   "dashboard": {
     "welcome": "Xush kelibsiz, {{email}}",
@@ -511,25 +512,31 @@
         "cfo_interest_coverage": "Foizlarni qoplash koeffitsienti (oqim)"
       }
     },
-    "exportExcel": "Excel"
+    "exportExcel": "Excel",
+    "deleteStatement": {
+      "title": "Hisobot o‘chirilsinmi?",
+      "message": "{{period}} davri hisoboti (davr oxiri {{end}}) barcha ko‘rsatkichlari bilan o‘chiriladi. Bu amal qaytarilmas.",
+      "confirm": "Hisobotni o‘chirish",
+      "failed": "Hisobotni o‘chirib bo‘lmadi. Qayta urinib ko‘ring."
+    }
   },
   "rating": {
-    "needStatements": "Reytingni hisoblash uchun kamida bitta moliyaviy hisobot kiriting.",
+    "needStatements": "Reyting va tavsiya etilgan limit moliyaviy hisobot asosida hisoblanadi. Tashkilotning kamida bitta hisobotini kiriting.",
     "statement": "Hisobot",
     "calculate": "Hisoblash",
     "calculating": "Hisoblanmoqda…",
     "serviceUnavailable": "Analitik xizmat mavjud emas. Keyinroq urinib ko‘ring.",
     "gradeTitle": "Kredit reytingi",
     "scaleHint": "1–100 shkala, kam — yaxshi",
-    "coverage": "Ma’lumotlar qamrovi: omillar vaznining {{pct}}i",
+    "coverage": "Ma’lumot umumiy vaznning {{pct}}ini tashkil etuvchi omillar bo‘yicha bor, qolganlari bo‘yicha yo‘q",
     "limitTitle": "Tavsiya etilgan kredit limiti",
-    "model": "Model",
+    "model": "Hisoblash usuli",
     "models": {
-      "benchmark": "Bazel (benchmark)",
-      "equity_based": "Kapitalga asoslangan",
-      "none": "Yo‘q"
+      "benchmark": "kapital va savdo aylanmasi bo‘yicha",
+      "equity_based": "o‘z kapitalining ulushi",
+      "none": "limit tavsiya etilmaydi"
     },
-    "trace": "Hisob-kitob izi",
+    "trace": "Limit qanday hisoblangan",
     "componentsTitle": "Reyting komponenti",
     "value": "Qiymat",
     "score": "Ball",
@@ -559,7 +566,8 @@
       "negative_equity_with_loss": "Manfiy kapital va zarar",
       "new_company": "Qisqa faoliyat tarixi",
       "litigation_pressure": "Sud yuklamasi",
-      "insufficient_data": "Ma’lumotlar yetarli emas"
+      "insufficient_data": "Ma’lumotlar yetarli emas",
+      "other": "Reyting tuzatmasi"
     },
     "bands": {
       "deep_loss": "chuqur zarar",
@@ -623,7 +631,8 @@
       "young": "yosh",
       "established": "shakllangan",
       "mature": "yetuk",
-      "veteran": "veteran"
+      "veteran": "veteran",
+      "unchanged": "o‘zgarishsiz"
     },
     "scale": {
       "gradeSteps": "{{count}} daraja",
@@ -654,6 +663,48 @@
       "distressed": "Muammoli",
       "uninsurable": "Sug‘urtalanmaydi",
       "insolvent": "To‘lovga qobiliyatsiz"
+    },
+    "needStatementsTitle": "Reyting hisoblash uchun hisobot yo‘q",
+    "notAssessedHint": "Yuqorida hisobotni tanlang va «Hisoblash» tugmasini bosing.",
+    "noStrengths": "Kuchli tomonlar aniqlanmadi",
+    "noWeaknesses": "Zaif tomonlar aniqlanmadi",
+    "coverageFull": "Barcha omillar bo‘yicha ma’lumot bor",
+    "engineFootnote": "Baholash modeli versiyasi: {{versions}}",
+    "historyChartEmpty": "Grafik ikkinchi baholashdan keyin paydo bo‘ladi.",
+    "notRated": "Reyting hisoblanmagan",
+    "traceComponents": {
+      "risk_coefficient": "Reyting sinfining qaltislik koeffitsienti",
+      "material_capital": "Moddiy kapital (kapital − nomoddiy aktivlar)",
+      "working_capital_component": "Kapital tarkibiy qismi",
+      "trade_component": "Savdo aylanmasi tarkibiy qismi",
+      "dso_days": "Debitorlik qarzi aylanish muddati, kun",
+      "equity_usd": "O‘z kapitali",
+      "limit_usd": "Yaxlitlashdan oldingi limit"
+    },
+    "scoreChange": {
+      "better": "Oldingi baholashdan {{delta}} ball yaxshiroq",
+      "worse": "Oldingi baholashdan {{delta}} ball yomonroq",
+      "same": "Oldingi baholash bilan bir xil"
+    },
+    "limitReasons": {
+      "noRating": "Reyting hisoblanmadi — limit tavsiya etib bo‘lmaydi",
+      "ratingTooWeak": "{{rating}} ball {{threshold}} chegarasidan yomon — limit tavsiya etilmaydi",
+      "ratingOutside": "Ball limit beriladigan oraliqdan tashqarida",
+      "equityNegative": "O‘z kapitali nol yoki manfiy",
+      "equityMissing": "O‘z kapitali nol, manfiy yoki noma’lum",
+      "equityRatioLow": "O‘z kapitali ulushi balansning 1% idan past",
+      "netLoss": "Sof moliyaviy natija — zarar yoki noma’lum",
+      "intangiblesUnknown": "Nomoddiy aktivlar ko‘rsatilmagan — nolga teng deb olindi",
+      "dsoDefault": "Debitorlik qarzi aylanish muddati noma’lum — {{days}} kun deb olindi",
+      "belowMinimum": "Hisoblangan limit minimaldan past ({{amount}} USD ekvivalentida)",
+      "other": "Hisob-kitobda izoh bor — «Limit qanday hisoblangan» bo‘limiga qarang"
+    },
+    "units": {
+      "days": "kun",
+      "years_one": "{{value}} yil",
+      "years_few": "{{value}} yil",
+      "years_many": "{{value}} yil",
+      "years_other": "{{value}} yil"
     }
   },
   "report": {
@@ -661,7 +712,7 @@
     "generatedBy": "TCI ERP tizimida yaratilgan",
     "reportDate": "Hisobot sanasi",
     "generalInfo": "Umumiy ma’lumotlar",
-    "calculatedLimit": "Hisoblangan limit (dvijok)",
+    "calculatedLimit": "Tavsiya etilgan limit",
     "limitDisclaimer": "Faqat dvijok hisobi; so‘ralgan yoki tasdiqlangan limit emas.",
     "print": "Chop etish / PDF saqlash",
     "backToBuyer": "Bayerga qaytish",
@@ -1133,7 +1184,12 @@
       "maxPaymentTerms": "Maksimal to‘lov muddati",
       "declarationFrequency": "Deklaratsiyalar davriyligi",
       "days": "{{count}} kun",
-      "daysSuffix": "kun"
+      "daysSuffix": "kun",
+      "liabilityBasis": {
+        "label": "Maksimal javobgarlik asosi",
+        "amount": "Summa",
+        "multiple": "× mukofot"
+      }
     },
     "frequencies": {
       "monthly": "Oylik",
@@ -1164,7 +1220,18 @@
       "overview": "Umumiy ko‘rinish"
     },
     "sectionSubtitle": "Tijorat anderrayterining vositalari: portfel, polislar reyestri, shartnoma loyihalari va ular tuziladigan shablonlar.",
-    "eyebrow": "Savdo krediti sug‘urtasi polisi"
+    "eyebrow": "Savdo krediti sug‘urtasi polisi",
+    "actionsMenu": "Amallar",
+    "commentRequired": "Sababi yozilgan izoh talab qilinadi.",
+    "form": {
+      "backToPolicy": "Polisga qaytish",
+      "fixErrors": "Saqlash uchun qizil bilan belgilangan maydonlarni tuzating."
+    },
+    "limitsTable": {
+      "revokedOn": "bekor qilingan: {{date}}",
+      "declinedOn": "rad etilgan: {{date}}",
+      "decidedOn": "Qaror sanasi: {{date}}"
+    }
   },
   "limits": {
     "subtitle": "Kredit limiti so‘rovlari va qarorlar",
@@ -1213,7 +1280,8 @@
       "startReview": "Ko‘rib chiqishga olish",
       "withdraw": "Qaytarib olish",
       "decide": "Qarorni qayd etish",
-      "revoke": "Limitni bekor qilish"
+      "revoke": "Limitni bekor qilish",
+      "withdrawRequest": "So‘rovni qaytarib olish"
     },
     "fields": {
       "buyer": "Bayer",
@@ -1230,12 +1298,14 @@
       "basedOnAssessment": "Baholash asosida",
       "justification": "Asoslash",
       "paymentTerms": "To‘lov shartlari",
-      "withdrawComment": "Qaytarib olish izohi"
+      "withdrawComment": "Qaytarib olish izohi",
+      "policyAndPolicyholder": "Polis / sug‘urtalanuvchi",
+      "ageDaysUnit": "Yoshi, kun"
     },
     "preflight": {
-      "within": "{{band}} reytingi uchun vakolatingiz doirasida ({{authority}} UZS ekv.)",
-      "exceeds": "{{band}} reytingi uchun vakolatingizdan oshadi ({{authority}} UZS ekv.) — qaror eskalatsiya qilinadi",
-      "missingRate": "{{currency}} uchun UZS kursi yo‘q — avval fx_rates jadvaliga kurs qo‘shing, aks holda qaror eskalatsiya qilinadi"
+      "within": "«{{band}}» reyting klassi uchun vakolatingiz doirasida ({{authority}} UZS ekv.)",
+      "exceeds": "«{{band}}» reyting klassi uchun vakolatingizdan oshadi ({{authority}} UZS ekv.) — qaror eskalatsiya qilinadi",
+      "missingRate": "{{currency}} uchun UZS kursi yo‘q: usiz vakolatni solishtirib bo‘lmaydi, shuning uchun qaror eskalatsiya qilinadi"
     },
     "searchPlaceholder": "Bayer, polis № yoki sug‘urtalanuvchi…",
     "queueEmpty": "So‘rovlar yo‘q",
@@ -1258,7 +1328,7 @@
     "conditionPlaceholder": "Shart tavsifi…",
     "conditionsTooltip": "Shartlar: {{count}}",
     "awaitingSenior": "Eskalatsiya — katta anderrayter qarori kutilmoqda",
-    "escalatedResult": "Summa {{band}} reytingi uchun vakolatingizdan oshadi — so‘rov eskalatsiya qilindi",
+    "escalatedResult": "Summa «{{band}}» reyting klassi uchun vakolatingizdan oshadi — so‘rov eskalatsiya qilindi",
     "decideFailed": "Qarorni qayd etib bo‘lmadi",
     "withdrawConfirm": "Limit so‘rovi qaytarib olinsinmi? Bayerning amaldagi limiti o‘zgarmaydi.",
     "requestLimit": "Limit so‘rash",
@@ -1309,12 +1379,17 @@
       "readOnly": "Limitni faqat tijorat anderraytingi tuzatishi mumkin.",
       "newAmount": "Tuzatilgan summa",
       "action": "Tuzatishni yozish",
-      "within": "{{band}} grade bo‘yicha tijorat vakolatingiz doirasida ({{authority}} UZS ekv.)",
-      "exceeds": "{{band}} grade bo‘yicha tijorat vakolatingizdan oshadi ({{authority}} UZS ekv.)",
+      "within": "«{{band}}» reyting klassi uchun tijorat vakolatingiz doirasida ({{authority}} UZS ekv.)",
+      "exceeds": "«{{band}}» reyting klassi uchun tijorat vakolatingizdan oshadi ({{authority}} UZS ekv.)",
       "reductionWarning": "Kamaytirish — favqulodda qaltislik amali: u sotuv oynasini chetlab o‘tib, mijozga darhol yetadi.",
       "adjusted": "Tuzatish yozildi — sotuv oynasi davom etmoqda.",
       "adjustedImmediate": "Tuzatish yozildi va darhol mijozga uzatildi (kamaytirish).",
-      "adjustFailed": "Tuzatish rad etildi"
+      "adjustFailed": "Tuzatish rad etildi",
+      "currentAmount": "Hozir amalda: {{amount}}",
+      "currentTerms": "Hozir {{terms}}; o‘zgartirmaslik uchun bo‘sh qoldiring",
+      "termsUnchanged": "To‘lov shartlarini o‘zgartirmaslik uchun bo‘sh qoldiring",
+      "enterAmount": "Tuzatilgan summani kiriting",
+      "overAuthority": "Summa tijorat vakolatingizdan yuqori (yuqoriga qarang)"
     },
     "proposals": {
       "empty": "Aniqlanishi kerak bo‘lgan bayerlar yo‘q",
@@ -1358,7 +1433,10 @@
         "decision": "Qaror",
         "alone": "O‘zim hal qilaman",
         "beyond": "Vakolatimdan ortiq",
-        "noRate": "UZS kursi yo‘q"
+        "noRate": "UZS kursi yo‘q",
+        "authority": "Vakolat",
+        "beyondHint": "Summa «{{band}}» reyting klassi uchun vakolatingizdan yuqori: qaror eskalatsiya qilinadi yoki uni kattaroq vakolatli hamkasb qabul qiladi.",
+        "noRateHint": "{{currency}} uchun UZS kursi yo‘q: vakolatni solishtirib bo‘lmaydi, shuning uchun qaror eskalatsiya qilinadi."
       },
       "inforce": {
         "title": "Amaldagi limitlar",
@@ -1368,7 +1446,8 @@
         "allCurrencies": "Barcha valyutalar",
         "noMatch": "Filtrlarga mos limit yo‘q",
         "noMatchHint": "Ko‘proq ko‘rish uchun filtr yoki qidiruvni tozalang.",
-        "review": "Qayta ko‘rib chiqishgacha kunlar"
+        "review": "Qayta ko‘rib chiqishgacha kunlar",
+        "terms": "to‘lov: {{terms}}"
       },
       "monitoring": {
         "title": "Monitoring",
@@ -1436,7 +1515,7 @@
         "none": "Vakolat yo‘q",
         "byBand": "Klasslar bo‘yicha kredit vakolatlari",
         "byBandHint": "Klass uchun amaldagi kredit tayinlovlaringizning eng kattasi, so‘nggi kurs bo‘yicha UZSda — qaror aynan shu summa bilan solishtiriladi.",
-        "creditUzs": "UZSda",
+        "creditUzs": "Ekvivalent, UZS",
         "grants": "Mening tayinlovlarim",
         "grantsHint": "Bugun amalda bo‘lgan barcha tayinlovlar — kredit va tijorat — berilgan valyutada. Ularni administrator belgilaydi.",
         "noGrants": "Sizga vakolat tayinlanmagan",
@@ -1446,7 +1525,12 @@
     },
     "sectionSubtitle": "Kredit anderrayterining ish joyi: portfel, qarorlar, amaldagi limitlar, monitoring, reytinglar, guruhlar va sizning vakolatlaringiz.",
     "preBindScope": "Polis chiqarilgunga qadar (ariza)",
-    "noReviewDate": "Qayta ko‘rib chiqish sanasi belgilanmagan"
+    "noReviewDate": "Qayta ko‘rib chiqish sanasi belgilanmagan",
+    "ageHint": "So‘rov yuborilganidan beri o‘tgan kunlar. {{days}} kundan oshsa, ajratib ko‘rsatiladi: so‘rov qaror odatda talab qiladigan muddatdan uzoq kutmoqda.",
+    "withdrawTitle": "Limit so‘rovini qaytarib olish",
+    "suggestedConverted": "≈ {{converted}} ({{original}})",
+    "suggestedNoRate": "— {{currency}} ga o‘tkazish uchun kurs yo‘q",
+    "amountRequired": "Tasdiqlangan summani kiriting"
   },
   "entities": {
     "subtitle": "Yagona reyestr — sug‘urtalanuvchilar, bayerlar va tahlildagi tashkilotlar",
@@ -1484,10 +1568,11 @@
       "claims": "Da’volar",
       "group": "Guruh"
     },
-    "portfolioLimitsTitle": "Ularning polislari bo‘yicha bayer limitlari",
+    "portfolioLimitsTitle": "Sug‘urtalanuvchi polislari bo‘yicha kredit limitlari",
     "portfolioSummary": "Sug‘urtalanuvchi portfeli:",
     "portfolioLimits": "amaldagi limitlar",
-    "portfolioLimitsEmpty": "Ushbu tashkilot polislari bo‘yicha hozircha limitlar yo‘q"
+    "portfolioLimitsEmpty": "Bu sug‘urtalanuvchining polislari bo‘yicha hozircha limitlar yo‘q",
+    "filterCount": "Tashkilotlar: {{count}}"
   },
   "access": {
     "denied": "Ruxsat yo‘q",
@@ -1762,7 +1847,17 @@
         "unknown": "Polisni chiqarib bo‘lmadi."
       }
     },
-    "buyerPackageHint": "Ushbu arizadagi bayerlar va har biri bo‘yicha limit holati."
+    "buyerPackageHint": "Ushbu arizadagi bayerlar va har biri bo‘yicha limit holati.",
+    "resolve": {
+      "notAllowed": "Bayerlarni faqat sotuv, kredit anderrayteri, axborot menejeri yoki administrator bog‘lay oladi.",
+      "pickFirst": "Tashkilotni qidiruv maydonidan toping yoki yangisini yarating, so‘ng bog‘lang.",
+      "pickerLabel": "«{{name}}» uchun tashkilot"
+    },
+    "package": {
+      "hint": "Har bir bayer — alohida qator. Limit — amaldagisi: tijorat tuzatishi bo‘lsa, u, aks holda kredit qarori; ular farq qilsa, ikkalasi ham ostida ko‘rsatiladi.",
+      "state": "Holat",
+      "limit": "Limit"
+    }
   },
   "account": {
     "changePassword": "Parolni o‘zgartirish",
@@ -2310,7 +2405,9 @@
       "periodTaken": "Bu davr uchun deklaratsiya allaqachon mavjud.",
       "negativeTurnover": "Aylanma manfiy bo‘lishi mumkin emas."
     },
-    "eyebrow": "Aylanma deklaratsiyasi"
+    "eyebrow": "Aylanma deklaratsiyasi",
+    "disputeHint": "Deklaratsiya ushbu izoh bilan sug‘urtalanuvchiga qaytariladi; u uni tuzatib, qayta topshiradi. Qabul qilinmaguncha u bo‘yicha mukofot hisoblanmaydi.",
+    "disputeNoteRequired": "Nimani tuzatish kerakligini yozing."
   },
   "premium": {
     "none": "Bu shartnoma bo‘yicha sug‘urta mukofoti ma‘lumotlari yo‘q",
@@ -2392,7 +2489,8 @@
       "notifyBy": "Shu sanagacha xabar bering",
       "reportedAt": "Bildirilgan",
       "resolution": "Natija",
-      "resolutionNote": "Izoh"
+      "resolutionNote": "Izoh",
+      "pastDueColumn": "Kechikish"
     },
     "errors": {
       "amountPositive": "Muddati o‘tgan summa noldan katta bo‘lishi kerak.",
@@ -2402,7 +2500,8 @@
       "alreadyResolved": "Bu xabarnoma allaqachon yopilgan."
     },
     "eyebrow": "Muddati o‘tganlik haqida bildirishnoma",
-    "resolveTitle": "Bildirishnomani yopish"
+    "resolveTitle": "Bildirishnomani yopish",
+    "pastDueHint": "Eng eski to‘lanmagan hisob-faktura bo‘yicha to‘lov sanasidan beri o‘tgan kunlar."
   },
   "claims": {
     "title": "Sug‘urta da’volari",
@@ -2475,7 +2574,8 @@
       "override": "Xulosani o‘zgartirish",
       "clearOverride": "Tizim xulosasini tiklash",
       "recordPayment": "To‘lovni kiritish",
-      "recordRecovery": "Undirilgan mablag‘ni kiritish"
+      "recordRecovery": "Undirilgan mablag‘ni kiritish",
+      "more": "Amallar"
     },
     "causes": {
       "protracted_default": "Uzoq muddatli to‘lamaslik",
@@ -2567,7 +2667,8 @@
       "policyholderShare": "Sug‘urtalanuvchi ulushi",
       "note": "Eslatma",
       "maxPaymentTermsShort": "Maksimal kredit muddati",
-      "waitingPeriodShort": "Kutish muddati"
+      "waitingPeriodShort": "Kutish muddati",
+      "ageColumn": "Ko‘rib chiqishda"
     },
     "detail": {
       "basis": "Qoplash asosi",
@@ -2583,7 +2684,8 @@
     "invoices": {
       "emptyTitle": "Da’vo bo‘yicha hisob-fakturalar yo‘q",
       "emptyHint": "Da’vo tarkibiga kiruvchi to‘lanmagan hisob-fakturalarni qo‘shing — qoplash har biri bo‘yicha tekshiriladi.",
-      "hint": "Xulosa qaysi raqamlarga asoslanganini ko‘rish uchun hisob-fakturani bosing."
+      "hint": "Xulosa qaysi raqamlarga asoslanganini ko‘rish uchun hisob-fakturani bosing.",
+      "requiredHint": "Hisob-faktura raqami, uchala sana va summani kiriting."
     },
     "override": {
       "title": "{{invoice}} bo‘yicha xulosani o‘zgartirish",
@@ -2605,7 +2707,11 @@
       "missing": "yo‘q",
       "filesCount_one": "{{count}} ta fayl",
       "filesCount_other": "{{count}} ta fayl",
-      "remove": "{{name}} faylini o‘chirish"
+      "remove": "{{name}} faylini o‘chirish",
+      "filesHint": "Da’voga ilova qilingan hamma narsa; faylni ochish uchun ustiga bosing.",
+      "removeTitle": "Hujjatni o‘chirish",
+      "removeConfirm": "«{{name}}» fayli da’vodan o‘chiriladi. Bu amal qaytarilmas.",
+      "removeAction": "O‘chirish"
     },
     "indemnity": {
       "title": "Tovon qanday hisoblangan",
@@ -2658,7 +2764,9 @@
       "emptyHint": "To‘lovlar da’vo tan olingandan keyin shu yerda paydo bo‘ladi.",
       "insurerNetHint": "To‘langan tovon, undirilgan mablag‘lardagi sug‘urtalovchi ulushi chegirilgan holda.",
       "paymentsHint": "Sug‘urtalanuvchiga to‘langan tovon — tan olingan summadan oshmaydi.",
-      "grossLessCosts": "{{gross}} olindi, xarajatlar {{costs}}"
+      "grossLessCosts": "{{gross}} olindi, xarajatlar {{costs}}",
+      "paymentRequiredHint": "To‘lov summasi va sanasini kiriting.",
+      "recoveryRequiredHint": "Undirilgan brutto summa va tushgan sanani kiriting."
     },
     "history": {
       "emptyTitle": "Tarix bo‘sh",
@@ -2838,7 +2946,9 @@
       "accept": "Qabul qilish",
       "reject": "Rad etish",
       "confirmHint": "Yo‘nalish va bog‘lanish turini ko‘rsating. Bog‘lanish taklifdan qabul qilingan deb qayd etiladi.",
-      "createEdge": "Bog‘lanishni qayd etish"
+      "createEdge": "Bog‘lanishni qayd etish",
+      "rejectTitle": "Taklif rad etilsinmi?",
+      "rejectMessage": "{{name}} bu tashkilot uchun boshqa taklif qilinmaydi. Bog‘lanish yaratilmaydi."
     },
     "signals": {
       "email_domain": "umumiy pochta domeni",
@@ -2903,7 +3013,13 @@
     "placeholder": "Tashkilot nomi, ro‘yxatdan o‘tish raqami yoki bo‘lim",
     "empty": "Hech narsa topilmadi",
     "hintNavigate": "harakatlanish",
-    "hintOpen": "ochish"
+    "hintOpen": "ochish",
+    "searchRegistry": "Reyestrdan «{{query}}» ni qidirish",
+    "groups": {
+      "recent": "Yaqinda ochilganlar",
+      "companies": "Tashkilotlar",
+      "sections": "Bo‘limlar"
+    }
   },
   "security": {
     "notice": {
@@ -2942,7 +3058,9 @@
       "emptyHint": "Shartnomangizni {{braces}} maydonlari bilan .docx shaklida yuklang yoki standart shablonlarni o‘rnatib, moslashtiring.",
       "download": "Yuklab olish",
       "activate": "Amalga kiritish",
-      "retire": "Arxivga o‘tkazish"
+      "retire": "Arxivga o‘tkazish",
+      "retireTitle": "Shablonni arxivga o‘tkazish",
+      "retireConfirm": "«{{name}}» v{{version}} yangi shartnomalar uchun boshqa taklif qilinmaydi. U bo‘yicha tuzilgan shartnomalar o‘zgarmaydi. Arxivga o‘tkazilgan shablonni qayta amalga kiritib bo‘lmaydi — faqat yangi versiya sifatida yuklash mumkin."
     },
     "upload": {
       "open": "Shablon yuklash",
@@ -2951,7 +3069,11 @@
       "fileHint": "Hujjatga {{example}} kabi maydonlarni yozing — quyidagi ma’lumotnomaga qarang.",
       "found": "Topilgan maydonlar: {{count}}.",
       "unknown": "Ma’lumotnomada yo‘q (tuzatilmaguncha shablonni amalga kiritib bo‘lmaydi):",
-      "submit": "Yuklash"
+      "submit": "Yuklash",
+      "choose": ".docx faylni tanlash",
+      "chooseOther": "Boshqa faylni tanlash",
+      "noFile": "Fayl tanlanmagan",
+      "nameRequired": "Shablon nomini kiriting."
     },
     "standard": {
       "install": "Standart shablonlarni o‘rnatish",
@@ -2980,7 +3102,9 @@
         "signatory_name": "Imzolovchi",
         "signatory_title": "Imzolovchining lavozimi",
         "signatory_basis": "Asosida harakat qiladi"
-      }
+      },
+      "emptyTitle": "Sug‘urtalovchi rekvizitlari hali to‘ldirilmagan",
+      "emptyHint": "Shartnomalarda bu maydonlar bo‘sh qoladi. Ularni administrator shu sahifada to‘ldiradi."
     },
     "reference": {
       "title": "Maydonlar ma’lumotnomasi",
@@ -2994,7 +3118,9 @@
         "policy": "Polis shartlari",
         "limits": "Kredit limitlari ({{loopOpen}} ichida)",
         "document": "Hujjat"
-      }
+      },
+      "show": "Maydonlar ma’lumotnomasini ko‘rsatish ({{count}})",
+      "hide": "Ma’lumotnomani yashirish"
     },
     "generate": {
       "title": "Shartnoma loyihasi",
@@ -3007,7 +3133,12 @@
       "draftNote": "Hujjat joriy ma’lumotlar bo‘yicha tuziladi va tahrirlash uchun .docx shaklida yuklab olinadi; uning mazmuni saqlanadi.",
       "submit": "Tuzish",
       "working": "Tuzilmoqda…",
-      "noTemplates": "Amaldagi shartnoma shabloni yo‘q. «Polislar» → «Shartnoma shablonlari» bo‘limida shablonni amalga kiritishni tijorat anderrayteri yoki administratordan so‘rang."
+      "noTemplates": "Amaldagi shartnoma shabloni yo‘q. «Polislar» → «Shartnoma shablonlari» bo‘limida shablonni amalga kiritishni tijorat anderrayteri yoki administratordan so‘rang.",
+      "anyCountry": "har qanday mamlakat",
+      "anyProduct": "har qanday tuzilma",
+      "pickSubject": "Avval polis yoki arizani tanlang.",
+      "subject": "Polis yoki ariza",
+      "subjectPlaceholder": "Polis yoki ariza raqami, sug‘urtalanuvchi"
     },
     "errors": {
       "invalidTemplate": "Fayl to‘g‘ri shablon emas:",
@@ -3170,7 +3301,7 @@
     },
     "credit": {
       "title": "Limitlar portfeli",
-      "subtitle": "Rasmiylashtirilgan polislar bo‘yicha amaldagi kredit limitlari UZSda: bayerning joriy reyting diapazoni, mamlakatlar va valyutalar bo‘yicha, eng yirik bayerlar va guruhlar, qayta ko‘rib chiqishlar va eskirgan reytinglar.",
+      "subtitle": "Rasmiylashtirilgan polislar bo‘yicha amaldagi kredit limitlari UZSda: e’tibor talab qiladiganlari, so‘ng bayerning joriy reyting diapazoni, mamlakatlar va valyutalar bo‘yicha, eng yirik bayerlar va guruhlar.",
       "empty": "Amaldagi kredit limitlari yo‘q",
       "emptyHint": "Limit rasmiylashtirilgan polis bo‘yicha (to‘liq yoki qisman) tasdiqlangandan so‘ng shu yerda paydo bo‘ladi.",
       "exposure": "Ekspozitsiya",
@@ -3202,7 +3333,10 @@
       "group": "Guruh (bosh kompaniya)",
       "members": "Limitli a’zolar",
       "exposureMissing_one": "+ UZS kursisiz {{count}} ta limit qo‘shilmagan",
-      "exposureMissing_other": "+ UZS kursisiz {{count}} ta limit qo‘shilmagan"
+      "exposureMissing_other": "+ UZS kursisiz {{count}} ta limit qo‘shilmagan",
+      "attention": "E’tibor talab qiladi",
+      "attentionHint": "Bu yerda faqat soni; satr «Monitoring» yoki «Reytinglar» bo‘limidagi ro‘yxatni ochadi.",
+      "membersWithLimits": "limitli a’zolar: {{count}}"
     }
   },
   "data": {
@@ -3226,7 +3360,13 @@
       "emptyHint": "So‘rovlar kimdir reyestrda yo‘q tashkilotni qidirganda yoki tashkilot kartochkasida yangi hisobot so‘raganda paydo bo‘ladi.",
       "buyersTitle": "Arizalardagi tashkilotsiz bayerlar",
       "buyersHint": "Sug‘urta arizasida ko‘rsatilgan, ammo reyestrdagi tashkilot bilan hali bog‘lanmagan.",
-      "openSubmission": "Arizani ochish"
+      "openSubmission": "Arizani ochish",
+      "emptyHints": {
+        "mine": "Sizga biriktirilgan yangi so‘rovlar shu yerda paydo bo‘ladi.",
+        "open": "So‘rovlar kimdir reyestrda yo‘q tashkilotni qidirganda yoki tashkilot kartochkasida yangi hisobot so‘raganda paydo bo‘ladi.",
+        "closed": "Bajarilgan va rad etilgan so‘rovlar shu yerda saqlanadi."
+      },
+      "submissionLink": "Ariza {{number}}"
     },
     "fields": {
       "kind": "So‘rov",
@@ -3387,7 +3527,8 @@
     "requestHint": "Reyestrda yo‘q — axborot menejeri uni kiritadi",
     "notInRegistry": "Reyestrda yo‘q",
     "buyerPlaceholder": "Reyestrdagi tashkilot yoki yangi nom",
-    "countryPlaceholder": "Mamlakat yoki uning kodini yozing"
+    "countryPlaceholder": "Mamlakat yoki uning kodini yozing",
+    "industryPlaceholder": "Tarmoqni yozing"
   },
   "date": {
     "openCalendar": "Kalendardan tanlash",

@@ -28,7 +28,7 @@ const KEYS = {
 }
 
 const REQUEST_SELECT =
-  '*, legal_entities(name), policies(policy_number, currency_code, entity_id, legal_entities(name))'
+  '*, legal_entities(name), policies(policy_number, currency_code, entity_id, legal_entities(name)), insurance_requests(request_number, legal_entities(name))'
 
 function invalidateWorkflow(queryClient: ReturnType<typeof useQueryClient>) {
   void queryClient.invalidateQueries({ queryKey: KEYS.requests })

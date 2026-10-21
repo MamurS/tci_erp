@@ -41,8 +41,8 @@ const CONTROL_CLASSES =
 
 interface FieldProps {
   label?: string
-  /** Helper text under the control. */
-  hint?: string
+  /** Helper text under the control (text, or text with a link). */
+  hint?: ReactNode
   children: ReactNode
   className?: string
 }
@@ -463,13 +463,16 @@ interface TabsProps {
 }
 
 export function Tabs({ tabs, active, onChange, size = 'md' }: TabsProps) {
-  const pad = size === 'sm' ? 'px-3 py-2 text-[13px]' : 'px-3.5 py-2.5 text-sm'
+  // A section with many views (credit limits: seven) tightens its tabs so the
+  // strip still fits a laptop in every language instead of scrolling.
+  const dense = tabs.length > 5
+  const pad = size === 'sm' ? 'px-3 py-2 text-[13px]' : dense ? 'px-2.5 py-2.5 text-sm' : 'px-3.5 py-2.5 text-sm'
   // The rule under the tabs is an inset shadow, not a border: the selected
   // tab's underline then sits ON it without a negative margin, so the strip
   // never overflows vertically (which showed a stray scrollbar on Windows).
   return (
     <div
-      className="scrollbar-thin flex gap-1 overflow-x-auto overflow-y-hidden shadow-[inset_0_-1px_0_var(--color-slate-200)]"
+      className={`scrollbar-thin flex ${dense ? 'gap-0.5' : 'gap-1'} overflow-x-auto overflow-y-hidden shadow-[inset_0_-1px_0_var(--color-slate-200)]`}
       role="tablist"
     >
       {tabs.map((tab) => {

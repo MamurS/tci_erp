@@ -34,6 +34,13 @@ interface EntityPickerProps {
   allowRequest?: boolean
   /** Searched for on focus while nothing is picked. */
   seedQuery?: string
+  /**
+   * The full name to request when the company is missing — e.g. the buyer
+   * name a client proposed. The search may be seeded with a shorter core of
+   * it (seedQuery), but the information manager must receive the whole name
+   * as proposed, not whatever happens to be typed in the field.
+   */
+  requestName?: string
   /** Free-text mode: a name kept when no company is picked. */
   text?: string
   onTextChange?: (text: string) => void
@@ -51,6 +58,7 @@ export function EntityPicker({
   where,
   allowRequest = false,
   seedQuery,
+  requestName,
   text,
   onTextChange,
   disabled,
@@ -102,25 +110,27 @@ export function EntityPicker({
         aria-label={ariaLabel}
         renderFooter={
           canRequest
-            ? (query, close) =>
-                query.length >= 3 && !options.some((o) => normalize(o.label) === normalize(query)) ? (
+            ? (query, close) => {
+                const name = requestName?.trim() || query
+                return name.length >= 3 && !options.some((o) => normalize(o.label) === normalize(name)) ? (
                   <button
                     type="button"
                     onClick={() => {
                       close()
-                      setRequesting(query)
+                      setRequesting(name)
                     }}
                     className="flex w-full items-start gap-2.5 px-3 py-2.5 text-left hover:bg-accent-50"
                   >
                     <FilePlus2 className="mt-0.5 size-4 shrink-0 text-brand-orange" />
                     <span className="min-w-0">
                       <span className="block truncate text-[13px] font-medium text-accent-700">
-                        {t('picker.request', { query })}
+                        {t('picker.request', { query: name })}
                       </span>
                       <span className="block text-[12px] text-slate-500">{t('picker.requestHint')}</span>
                     </span>
                   </button>
                 ) : null
+              }
             : undefined
         }
       />

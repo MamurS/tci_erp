@@ -12,11 +12,12 @@ import {
   DetailHeader,
   EmptyState,
   Field,
-  Input,
   KeyFigures,
+  Modal,
   Panel,
   Select,
   Spinner,
+  Textarea,
 } from '../../components/ui'
 import { formatAmount, formatDate, formatMoment } from '../../lib/format'
 import { useOverdueNotification, useResolveNoa } from './api'
@@ -32,6 +33,7 @@ export function OverdueDetailPage() {
   const resolve = useResolveNoa()
   const [status, setStatus] = useState<NoaStatus>('resolved_paid')
   const [note, setNote] = useState('')
+  const [resolving, setResolving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   if (isLoading) return <Spinner label={t('common.loading')} />
@@ -52,10 +54,14 @@ export function OverdueDetailPage() {
           noa.policyholder_name,
           `${t('overdues.fields.reportedAt')} ${formatMoment(noa.reported_at, locale)}`,
         ]}
+        actions={
+          canResolve(noa.status) && (
+            <Button onClick={() => setResolving(true)}>{t('overdues.actions.resolve')}</Button>
+          )
+        }
       />
 
       <div className="space-y-3 empty:hidden [&:not(:empty)]:mb-6">
-        {error && <Callout tone="neg" title={error} />}
         {noa.reported_late && (
           <Callout tone="neg" title={t('overdues.lateTitle', { days: noa.days_late })}>
             {t('overdues.lateExplain', { date: formatDate(noa.notify_by_date, locale) })}
@@ -84,9 +90,11 @@ export function OverdueDetailPage() {
           },
           { label: t('overdues.fields.firstDueDate'), value: formatDate(noa.first_due_date, locale) },
           {
-            label: t('overdues.fields.daysPastDue'),
+            // No amber here: nothing about the count crosses a threshold, and
+            // the status badge already says the notification is open.
+            label: t('overdues.fields.pastDueColumn'),
             value: t('policies.terms.days', { count: Number(noa.days_past_due) }),
-            tone: open ? 'warn' : 'default',
+            meta: t('overdues.pastDueHint'),
           },
           {
             label: t('overdues.fields.notifyBy'),
@@ -96,42 +104,62 @@ export function OverdueDetailPage() {
         ]}
       />
 
-      {(noa.resolution_note || canResolve(noa.status)) && (
-        <Panel
-          title={canResolve(noa.status) ? t('overdues.resolveTitle') : t('overdues.fields.resolutionNote')}
-          hint={canResolve(noa.status) ? t('overdues.resolveHint') : undefined}
-        >
-          {noa.resolution_note && (
-            <p className="border-l-2 border-slate-200 pl-3 text-[13px] leading-relaxed text-slate-700">
-              {noa.resolution_note}
-            </p>
-          )}
-          {canResolve(noa.status) && (
-            <div className="flex flex-wrap items-end gap-3">
-              <Field label={t('overdues.fields.resolution')}>
-                <Select value={status} onChange={(e) => setStatus(e.target.value as NoaStatus)}>
-                  {RESOLUTION_STATUSES.map((s) => (
-                    <option key={s} value={s}>
-                      {t(`overdues.statuses.${s}`)}
-                    </option>
-                  ))}
-                </Select>
-              </Field>
-              <Field label={t('overdues.fields.resolutionNote')} className="min-w-72 flex-1">
-                <Input value={note} onChange={(e) => setNote(e.target.value)} />
-              </Field>
-              <Button
-                onClick={() => {
-                  setError(null)
-                  resolve.mutateAsync({ id: noa.id, status, note }).catch((e: unknown) => setError(t(refusalKey(e))))
-                }}
-              >
-                {t('overdues.actions.resolve')}
-              </Button>
-            </div>
-          )}
+      {noa.resolution_note && (
+        <Panel title={t('overdues.fields.resolutionNote')}>
+          <p className="border-l-2 border-slate-200 pl-3 text-[13px] leading-relaxed text-slate-700">
+            {noa.resolution_note}
+          </p>
         </Panel>
       )}
+
+      <Modal
+        open={resolving}
+        title={t('overdues.resolveTitle')}
+        onClose={() => {
+          setResolving(false)
+          setError(null)
+        }}
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setResolving(false)
+                setError(null)
+              }}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              disabled={resolve.isPending}
+              onClick={() => {
+                setError(null)
+                resolve
+                  .mutateAsync({ id: noa.id, status, note })
+                  .then(() => setResolving(false))
+                  .catch((e: unknown) => setError(t(refusalKey(e))))
+              }}
+            >
+              {t('overdues.actions.resolve')}
+            </Button>
+          </>
+        }
+      >
+        {error && <Callout tone="neg" title={error} />}
+        <p className="text-[13px] leading-relaxed text-slate-600">{t('overdues.resolveHint')}</p>
+        <Field label={t('overdues.fields.resolution')}>
+          <Select value={status} onChange={(e) => setStatus(e.target.value as NoaStatus)}>
+            {RESOLUTION_STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {t(`overdues.statuses.${s}`)}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        <Field label={t('overdues.fields.resolutionNote')}>
+          <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} />
+        </Field>
+      </Modal>
     </div>
   )
 }

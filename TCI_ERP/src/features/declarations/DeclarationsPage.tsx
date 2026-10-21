@@ -8,10 +8,10 @@
  */
 
 import { useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, EmptyState, Field, PageHeader, Select, Spinner, Table } from '../../components/ui'
+import { Badge, EmptyState, Field, PageHeader, Select, Spinner, Table, Truncate } from '../../components/ui'
 import { EM_DASH, formatAmount, formatPeriod } from '../../lib/format'
 import { useDeclarations } from './api'
 import { DECLARATION_STATUSES } from './types'
@@ -44,10 +44,13 @@ export function DeclarationsPage() {
               value={status}
               onChange={(e) => setStatus(e.target.value as '' | DeclarationStatus)}
             >
-              <option value="">{t('common.all')}</option>
-              {DECLARATION_STATUSES.map((s) => (
+              <option value="">
+                {t('common.all')} ({(data ?? []).length})
+              </option>
+              {/* Only the statuses the list holds, with their counts. */}
+              {DECLARATION_STATUSES.filter((s) => s === status || (data ?? []).some((row) => row.status === s)).map((s) => (
                 <option key={s} value={s}>
-                  {t(`declarations.statuses.${s}`)}
+                  {t(`declarations.statuses.${s}`)} ({(data ?? []).filter((row) => row.status === s).length})
                 </option>
               ))}
             </Select>
@@ -67,7 +70,7 @@ export function DeclarationsPage() {
             <tr>
               <th>{t('declarations.fields.period')}</th>
               <th>{t('policies.fields.policyNumber')}</th>
-              <th>{t('policies.fields.policyholder')}</th>
+              <th className="cell-fill w-[34%]">{t('policies.fields.policyholder')}</th>
               <th className="text-right">{t('declarations.fields.totalTurnover')}</th>
               <th>{t('declarations.fields.status')}</th>
             </tr>
@@ -79,12 +82,15 @@ export function DeclarationsPage() {
                 onClick={() => void navigate(`/declarations/${d.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="font-medium text-slate-800">
-                  {formatPeriod(d.period_start, d.period_end, i18n.language)}
+                <td className="font-medium whitespace-nowrap">
+                  {/* The row opens on click; the link is what a keyboard reaches. */}
+                  <Link to={`/declarations/${d.id}`} className="text-accent-700 hover:underline">
+                    {formatPeriod(d.period_start, d.period_end, i18n.language)}
+                  </Link>
                 </td>
-                <td className="text-slate-600">{d.policies?.policy_number ?? EM_DASH}</td>
-                <td className="text-slate-500">
-                  {d.policies?.legal_entities?.name ?? EM_DASH}
+                <td className="whitespace-nowrap text-slate-600">{d.policies?.policy_number ?? EM_DASH}</td>
+                <td className="cell-fill text-slate-500">
+                  <Truncate text={d.policies?.legal_entities?.name ?? EM_DASH} className="max-w-none" />
                 </td>
                 <td>
                   <span className="num block">

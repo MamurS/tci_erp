@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Badge, Card, EmptyState, Spinner } from '../../components/ui'
 import { formatMoment } from '../../lib/format'
-import { CLAIM_STATUS_TONE } from './ClaimsPage'
+import { CLAIM_STATUS_TONE } from './status'
 import { useClaimHistory } from './api'
 
 export function ClaimHistoryTab({ claimId }: { claimId: string }) {

@@ -142,7 +142,11 @@ export function DescriptionList({ items, columns = 1 }: { items: Fact[]; columns
       {items.map((item, i) => (
         <div
           key={i}
-          className="flex items-baseline justify-between gap-6 border-b border-slate-100 py-2.5 first:pt-0 last:border-b-0"
+          className={`flex items-baseline justify-between gap-6 border-b border-slate-100 py-2.5 first:pt-0 last:border-b-0 ${
+            // In two columns the first row is two items: both start flush, so
+            // the columns begin on one line.
+            columns === 2 ? 'md:[&:nth-child(2)]:pt-0 md:[&:nth-last-child(2):nth-child(odd)]:border-b-0' : ''
+          }`}
         >
           <dt className="min-w-0 text-slate-500">
             {item.label}

@@ -4,10 +4,24 @@
 
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Download } from 'lucide-react'
 
-import { Badge, Button, Card, EmptyState, ViewBar, SectionTitle, Spinner, Table } from '../../components/ui'
+import {
+  Badge,
+  Button,
+  Card,
+  ConfirmDialog,
+  CountryFlag,
+  EmptyState,
+  SectionTitle,
+  Spinner,
+  Table,
+  Truncate,
+  ViewBar,
+} from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
-import { formatMoment } from '../../lib/format'
+import { formatDate, formatMoment } from '../../lib/format'
+import { useCountryName } from '../portfolio/useCountryName'
 import type { WordingTemplate } from './api'
 import { useSetTemplateStatus, useWordingTemplates, wordingDownloadUrl } from './api'
 import { WORDING_SYNTAX } from './catalogue'
@@ -15,7 +29,7 @@ import { wordingErrorKey } from './errors'
 import { InsurerProfileCard } from './InsurerProfileCard'
 import { languageName } from './labels'
 import { PlaceholderReference } from './PlaceholderReference'
-import { useInstallStandardTemplates } from './standardTemplates'
+import { useInstallStandardTemplates, useTemplateText } from './standardTemplates'
 import { UploadTemplateModal } from './UploadTemplateModal'
 
 const STATUS_TONE = { active: 'pos', draft: 'warn', retired: 'neutral' } as const
@@ -29,11 +43,14 @@ export function WordingPage() {
   const setStatus = useSetTemplateStatus()
   const [uploadOpen, setUploadOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [retiring, setRetiring] = useState<WordingTemplate | null>(null)
   const { install, installing } = useInstallStandardTemplates()
+  const text = useTemplateText()
+  const countryName = useCountryName()
 
   const act = (id: string, status: 'active' | 'retired') => {
     setError(null)
-    setStatus.mutateAsync({ id, status }).catch((e: unknown) => setError(t(wordingErrorKey(e))))
+    return setStatus.mutateAsync({ id, status }).catch((e: unknown) => setError(t(wordingErrorKey(e))))
   }
 
   const installStandard = () => {
@@ -81,54 +98,88 @@ export function WordingPage() {
           <Table dense>
             <thead>
               <tr>
-                <th>{t('wording.fields.name')}</th>
-                <th>{t('wording.fields.language')}</th>
+                <th className="cell-fill w-[40%]">{t('wording.fields.name')}</th>
                 <th>{t('wording.fields.country')}</th>
                 <th>{t('wording.fields.product')}</th>
-                <th>{t('wording.fields.version')}</th>
                 <th>{t('wording.fields.status')}</th>
                 <th>{t('wording.fields.uploaded')}</th>
-                <th />
+                <th className="w-px" />
               </tr>
             </thead>
             <tbody>
-              {templates.map((tpl) => (
-                <tr key={tpl.id}>
-                  <td className="min-w-56">
-                    <span className="font-medium">{tpl.name}</span>
-                    {tpl.description && <span className="block text-xs text-slate-500">{tpl.description}</span>}
-                  </td>
-                  <td>{languageName(tpl.language, locale)}</td>
-                  <td>{tpl.country_code ?? t('wording.fields.anyCountry')}</td>
-                  <td>
-                    {tpl.product_structure
-                      ? t(`policies.structures.${tpl.product_structure}`)
-                      : t('wording.fields.anyProduct')}
-                  </td>
-                  <td className="num">v{tpl.version}</td>
-                  <td>
-                    <Badge tone={STATUS_TONE[tpl.status]}>{t(`wording.statuses.${tpl.status}`)}</Badge>
-                  </td>
-                  <td className="text-xs">{formatMoment(tpl.uploaded_at, locale)}</td>
-                  <td>
-                    <div className="flex flex-wrap justify-end gap-1">
-                    <Button size="sm" variant="ghost" onClick={() => download(tpl)}>
-                      {t('wording.templates.download')}
-                    </Button>
-                    {canManage && tpl.status === 'draft' && (
-                      <Button size="sm" variant="secondary" onClick={() => act(tpl.id, 'active')}>
-                        {t('wording.templates.activate')}
-                      </Button>
-                    )}
-                    {canManage && tpl.status !== 'retired' && (
-                      <Button size="sm" variant="ghost" onClick={() => act(tpl.id, 'retired')}>
-                        {t('wording.templates.retire')}
-                      </Button>
-                    )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {templates.map((tpl) => {
+                const name = text.name(tpl)
+                const description = text.description(tpl)
+                return (
+                  <tr key={tpl.id}>
+                    {/* Name, version and language on one line, the description
+                        under it; the whole text on hover. */}
+                    <td className="cell-fill">
+                      <Truncate
+                        text={`${name} v${tpl.version} · ${languageName(tpl.language, locale)}`}
+                        className="max-w-none"
+                      >
+                        <span className="font-medium text-slate-800">{name}</span>{' '}
+                        <span className="text-xs text-slate-400">
+                          <span className="tabular-nums">v{tpl.version}</span> · {languageName(tpl.language, locale)}
+                        </span>
+                      </Truncate>
+                      {description && (
+                        <Truncate text={description} className="max-w-none text-xs text-slate-500">
+                          {description}
+                        </Truncate>
+                      )}
+                    </td>
+                    <td className="whitespace-nowrap">
+                      {tpl.country_code ? (
+                        <span className="inline-flex items-center gap-1.5">
+                          <CountryFlag code={tpl.country_code} />
+                          {countryName(tpl.country_code)}
+                        </span>
+                      ) : (
+                        <span className="text-slate-500">{t('wording.fields.anyCountry')}</span>
+                      )}
+                    </td>
+                    <td className="whitespace-nowrap">
+                      {tpl.product_structure ? (
+                        t(`policies.structures.${tpl.product_structure}`)
+                      ) : (
+                        <span className="text-slate-500">{t('wording.fields.anyProduct')}</span>
+                      )}
+                    </td>
+                    <td>
+                      <Badge tone={STATUS_TONE[tpl.status]}>{t(`wording.statuses.${tpl.status}`)}</Badge>
+                    </td>
+                    <td className="whitespace-nowrap" title={formatMoment(tpl.uploaded_at, locale)}>
+                      {formatDate(tpl.uploaded_at, locale)}
+                    </td>
+                    <td>
+                      {/* Download, then the next step, the retirement last and in red. */}
+                      <div className="flex justify-end gap-1.5 whitespace-nowrap">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => download(tpl)}
+                          title={t('wording.templates.download')}
+                          aria-label={`${t('wording.templates.download')}: ${name}`}
+                        >
+                          <Download aria-hidden />
+                        </Button>
+                        {canManage && tpl.status === 'draft' && (
+                          <Button size="sm" variant="secondary" onClick={() => void act(tpl.id, 'active')}>
+                            {t('wording.templates.activate')}
+                          </Button>
+                        )}
+                        {canManage && tpl.status !== 'retired' && (
+                          <Button size="sm" variant="dangerOutline" onClick={() => setRetiring(tpl)}>
+                            {t('wording.templates.retire')}
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </Table>
         )}
@@ -140,6 +191,22 @@ export function WordingPage() {
       <PlaceholderReference />
 
       <UploadTemplateModal open={uploadOpen} onClose={() => setUploadOpen(false)} />
+
+      <ConfirmDialog
+        open={retiring !== null}
+        title={t('wording.templates.retireTitle')}
+        message={t('wording.templates.retireConfirm', {
+          name: retiring ? text.name(retiring) : '',
+          version: retiring?.version ?? '',
+        })}
+        confirmLabel={t('wording.templates.retire')}
+        pending={setStatus.isPending}
+        onCancel={() => setRetiring(null)}
+        onConfirm={() => {
+          if (!retiring) return
+          void act(retiring.id, 'retired').then(() => setRetiring(null))
+        }}
+      />
     </div>
   )
 }

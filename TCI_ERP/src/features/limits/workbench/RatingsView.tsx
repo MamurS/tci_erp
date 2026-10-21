@@ -8,8 +8,8 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, ViewBar, Segmented, Spinner, Table } from '../../../components/ui'
-import { formatAmount, formatMoment } from '../../../lib/format'
+import { Badge, Card, EmptyState, Segmented, Spinner, Table, Truncate, ViewBar } from '../../../components/ui'
+import { EM_DASH, formatAmount, formatDate } from '../../../lib/format'
 import { useCountryName } from '../../portfolio/useCountryName'
 import { useRatingWorklist } from './api'
 import { countByReason, sortRatingWork } from './model'
@@ -75,35 +75,35 @@ export function RatingsView() {
         <Table dense>
           <thead>
             <tr>
-              <th>{t('limits.fields.buyer')}</th>
-              <th>{t('portfolio.credit.country')}</th>
-              <th>{t('limits.workbench.ratings.reason')}</th>
-              <th>{t('portfolio.credit.rating')}</th>
-              <th>{t('portfolio.credit.ratedAt')}</th>
-              <th>{t('limits.workbench.ratings.latestStatement')}</th>
-              <th className="text-right">{t('limits.workbench.ratings.openRequests')}</th>
-              <th className="text-right">{t('limits.workbench.ratings.limitsInForce')}</th>
+              <th className="cell-fill w-full">{t('limits.fields.buyer')}</th>
+              <th className="w-px">{t('limits.workbench.ratings.reason')}</th>
+              <th className="w-px">{t('portfolio.credit.rating')}</th>
+              <th className="w-px">{t('portfolio.credit.ratedAt')}</th>
+              <th className="w-px text-right">{t('limits.workbench.ratings.latestStatement')}</th>
+              <th className="w-px text-right">{t('limits.workbench.ratings.openRequests')}</th>
+              <th className="w-px text-right">{t('limits.workbench.ratings.limitsInForce')}</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.entity_id}>
-                <td>
-                  <EntityLink id={r.entity_id} name={r.buyer_name} tab={REASON_TAB[r.reason]} />
+                {/* The country is a second line under the name, so the name
+                    keeps the width the counts would otherwise take. */}
+                <td className="cell-fill">
+                  <Truncate text={r.buyer_name} className="max-w-none">
+                    <EntityLink id={r.entity_id} name={r.buyer_name} tab={REASON_TAB[r.reason]} />
+                  </Truncate>
+                  <Truncate text={countryName(r.buyer_country)} className="max-w-none text-[12px] text-slate-500" />
                 </td>
-                <td className="text-slate-600">{countryName(r.buyer_country)}</td>
                 <td>
                   <Badge tone={REASON_TONE[r.reason]}>{t(`limits.workbench.ratings.reasons.${r.reason}`)}</Badge>
                 </td>
                 <td>
-                  {r.grade ? (
-                    <BandBadge band={r.band} grade={r.grade} />
-                  ) : (
-                    <span className="text-slate-400">{t('portfolio.credit.notRated')}</span>
-                  )}
+                  {/* Unrated is already the row's reason; the column stays a dash. */}
+                  {r.grade ? <BandBadge band={r.band} grade={r.grade} /> : <span className="text-slate-400">{EM_DASH}</span>}
                 </td>
-                <td className="text-slate-500">{r.rated_at ? formatMoment(r.rated_at, locale) : '—'}</td>
-                <td className="text-slate-600">{r.latest_fiscal_year ?? '—'}</td>
+                <td className="whitespace-nowrap text-slate-500">{formatDate(r.rated_at, locale)}</td>
+                <td className="num">{r.latest_fiscal_year ?? EM_DASH}</td>
                 <td className="num text-right">{formatAmount(r.open_requests, locale)}</td>
                 <td className="num text-right">{formatAmount(r.limits_in_force, locale)}</td>
               </tr>

@@ -6,9 +6,9 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, KeyFigures, Spinner, Table, ViewBar } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, KeyFigures, Spinner, Table, Truncate, ViewBar } from '../../components/ui'
 import { EM_DASH, formatAmount } from '../../lib/format'
-import { CLAIM_STATUS_TONE } from './ClaimsPage'
+import { CLAIM_STATUS_TONE } from './status'
 import { useClaims, usePolicyLiability } from './api'
 
 export function ClaimsSection({
@@ -82,7 +82,7 @@ export function ClaimsSection({
           <thead>
             <tr>
               <th>{t('claims.fields.number')}</th>
-              <th>{policyId ? t('claims.fields.buyer') : t('claims.fields.policy')}</th>
+              <th className="cell-fill w-[40%]">{policyId ? t('claims.fields.buyer') : t('claims.fields.policy')}</th>
               <th className="num">{t('claims.fields.claimed')}</th>
               <th className="num">{t('claims.fields.indemnity')}</th>
               <th>{t('claims.fields.status')}</th>
@@ -96,7 +96,9 @@ export function ClaimsSection({
                     {c.claim_number}
                   </Link>
                 </td>
-                <td>{policyId ? c.buyer_name : c.policy_number}</td>
+                <td className="cell-fill">
+                  <Truncate text={policyId ? c.buyer_name : c.policy_number} className="max-w-none" />
+                </td>
                 <td className="num">
                   {formatAmount(Number(c.claimed_amount), locale)} {c.currency_code}
                 </td>

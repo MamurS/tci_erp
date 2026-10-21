@@ -12,7 +12,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { AmountInput, Badge, Button, Card, Field, Select, SectionTitle } from '../../components/ui'
+import { AmountInput, Badge, Button, Card, ConfirmDialog, Field, Select, SectionTitle, Skeleton } from '../../components/ui'
 import { parseAmount } from '../../components/ui/amount'
 import { useAcceptSuggestion, useRejectSuggestion } from './api'
 import { groupErrorKey } from './errors'
@@ -36,13 +36,10 @@ export function SuggestionsPanel({
 
   return (
     <Card className="flex flex-col gap-3 p-5">
-      <div>
-        <SectionTitle>{t('groups.suggestions.title')}</SectionTitle>
-        <p className="mt-1 text-[13px] text-slate-500">{t('groups.suggestions.hint')}</p>
-      </div>
+      <SectionTitle hint={t('groups.suggestions.hint')}>{t('groups.suggestions.title')}</SectionTitle>
 
       {isLoading ? (
-        <p className="text-[13px] text-slate-500">{t('common.loading')}</p>
+        <Skeleton className="h-16 w-full" />
       ) : suggestions.length === 0 ? (
         <p className="text-[13px] text-slate-500">{t('groups.suggestions.empty')}</p>
       ) : (
@@ -70,6 +67,9 @@ function SuggestionRow({
   const reject = useRejectSuggestion()
 
   const [open, setOpen] = useState(false)
+  // Dismissing is remembered: the pair is never proposed again, so it is
+  // confirmed first.
+  const [confirmReject, setConfirmReject] = useState(false)
   const [thisIsParent, setThisIsParent] = useState(true)
   const [relationshipType, setRelationshipType] = useState<RelationshipType>('ownership')
   const [ownershipPct, setOwnershipPct] = useState('')
@@ -104,6 +104,8 @@ function SuggestionRow({
       await reject.mutateAsync({ suggestionId: suggestion.id })
     } catch (e) {
       setError(t(groupErrorKey(e) ?? 'groups.errors.saveFailed'))
+    } finally {
+      setConfirmReject(false)
     }
   }
 
@@ -139,8 +141,8 @@ function SuggestionRow({
               </Button>
               <Button
                 size="sm"
-                variant="ghost"
-                onClick={() => void handleReject()}
+                variant="dangerOutline"
+                onClick={() => setConfirmReject(true)}
                 disabled={reject.isPending}
               >
                 {t('groups.suggestions.reject')}
@@ -195,6 +197,16 @@ function SuggestionRow({
           {error}
         </p>
       )}
+
+      <ConfirmDialog
+        open={confirmReject}
+        title={t('groups.suggestions.rejectTitle')}
+        message={t('groups.suggestions.rejectMessage', { name: otherName })}
+        confirmLabel={t('groups.suggestions.reject')}
+        pending={reject.isPending}
+        onConfirm={() => void handleReject()}
+        onCancel={() => setConfirmReject(false)}
+      />
     </li>
   )
 }

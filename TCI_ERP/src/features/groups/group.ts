@@ -16,6 +16,7 @@ import type {
   SuggestionSignal,
 } from './types'
 import { SUGGESTION_SIGNALS } from './types'
+import { EM_DASH, formatAmount } from '../../lib/format'
 
 /** tci.suggestion_threshold(). Below this a pair is not worth a human's time. */
 export const SUGGESTION_THRESHOLD = 0.45
@@ -48,6 +49,17 @@ export function utilisationTone(
   if (utilisationPct > 100) return 'neg'
   if (utilisationPct >= warnPct) return 'warn'
   return 'pos'
+}
+
+/** An ownership share as tci.entity_relationships stores it: in PERCENT
+ * (75 means 75%), not a fraction — so never formatPercent, which multiplies
+ * by 100 and printed «7,500.0%». A whole share prints without decimals, any
+ * other with up to two (33.33%). Null renders «—», never 0%. */
+export function formatOwnershipPct(pct: number | string | null | undefined, locale: string): string {
+  const value = pct === null || pct === undefined || pct === '' ? null : Number(pct)
+  if (value === null || !Number.isFinite(value)) return EM_DASH
+  const decimals = Number.isInteger(value) ? 0 : Number.isInteger(value * 10) ? 1 : 2
+  return `${formatAmount(value, locale, decimals)}%`
 }
 
 /** A node of the ownership tree the Группа tab draws.

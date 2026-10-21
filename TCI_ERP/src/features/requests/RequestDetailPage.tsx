@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Field, Modal, PageHeader, Spinner } from '../../components/ui'
+import { Badge, Button, Callout, EmptyState, Field, LinkButton, Modal, PageHeader, Spinner, Textarea } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH } from '../../lib/format'
 import {
@@ -61,9 +61,9 @@ export function RequestDetailPage() {
       <EmptyState
         title={t('requests.notFound')}
         action={
-          <Link to="/requests" className="text-sm font-medium text-accent-700 hover:underline">
+          <LinkButton to="/requests" variant="secondary">
             {t('requests.backToQueue')}
-          </Link>
+          </LinkButton>
         }
       />
     )
@@ -72,6 +72,14 @@ export function RequestDetailPage() {
   const isCreator = request.created_by === session?.user.id
   const offers = transitionOffers(request.status, roles, isCreator, facts)
   const visibleOffers = offers.filter((o) => o.allowedByRole)
+  // Moves first, the destructive ones (decline, withdraw) last and in red.
+  const isDestructive = (to: InsuranceRequestStatus) => to === 'withdrawn' || to === 'declined'
+  const orderedOffers = [
+    ...visibleOffers.filter((o) => !isDestructive(o.to)),
+    ...visibleOffers.filter((o) => isDestructive(o.to)),
+  ]
+  // Why a move cannot be made yet — said right under its button.
+  const guardReasons = [...new Set(visibleOffers.flatMap((o) => (o.guard ? [o.guard] : [])))]
   // A decline always needs its reason, so it opens the comment modal too.
   const needsComment = (to: InsuranceRequestStatus) => to === 'declined' || to === 'withdrawn'
 
@@ -128,77 +136,74 @@ export function RequestDetailPage() {
           </span>
         }
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            {canBindAs(roles) && bindBlocker(request) === null && (
-              <Button onClick={() => setBinding(true)}>{t('requests.bind.action')}</Button>
-            )}
-            {visibleOffers.map((offer) => (
-              <Button
-                key={offer.to}
-                variant={
-                  offer.to === 'withdrawn' || offer.to === 'declined' ? 'ghost' : 'primary'
-                }
-                disabled={advance.isPending || offer.guard !== null}
-                title={offer.guard ? t(`requests.guards.${offer.guard}`) : undefined}
-                onClick={() => {
-                  if (needsComment(offer.to)) {
-                    setPending(offer.to)
-                    setComment('')
-                  } else {
-                    void runTransition(offer.to, null)
-                  }
-                }}
-              >
-                {t(`requests.transitions.${offer.to}`)}
-              </Button>
+          <div className="flex max-w-md flex-col items-end gap-1.5">
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {canBindAs(roles) && bindBlocker(request) === null && (
+                <Button onClick={() => setBinding(true)}>{t('requests.bind.action')}</Button>
+              )}
+              {orderedOffers.map((offer) => (
+                // A disabled button shows no tooltip of its own; the wrapper does.
+                <span
+                  key={offer.to}
+                  className="inline-flex"
+                  title={offer.guard ? t(`requests.guards.${offer.guard}`) : undefined}
+                >
+                  <Button
+                    variant={isDestructive(offer.to) ? 'dangerOutline' : 'primary'}
+                    disabled={advance.isPending || offer.guard !== null}
+                    onClick={() => {
+                      if (needsComment(offer.to)) {
+                        setPending(offer.to)
+                        setComment('')
+                      } else {
+                        void runTransition(offer.to, null)
+                      }
+                    }}
+                  >
+                    {t(`requests.transitions.${offer.to}`)}
+                  </Button>
+                </span>
+              ))}
+            </div>
+            {guardReasons.map((guard) => (
+              <p key={guard} className="text-right text-[12px] leading-snug text-warn-500">
+                {t(`requests.guards.${guard}`)}
+              </p>
             ))}
           </div>
         }
       />
 
-      {/* Why an otherwise-allowed transition is disabled. */}
-      {visibleOffers
-        .filter((o) => o.guard)
-        .map((o) => (
-          <div
-            key={o.to}
-            className="mb-3 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500"
-          >
-            {t(`requests.guards.${o.guard}`)}
-          </div>
-        ))}
-
-      {actionError && (
-        <div
-          className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[13px] text-neg-500"
-          role="alert"
-        >
-          {actionError}
+      {(actionError || request.decline_reason) && (
+        <div className="mb-5 flex flex-col gap-3">
+          {actionError && <Callout tone="neg" title={actionError} />}
+          {request.decline_reason && (
+            <Callout tone="neg" title={t('requests.fields.declineReason')}>
+              {request.decline_reason}
+            </Callout>
+          )}
         </div>
       )}
 
-      {request.decline_reason && (
-        <Card className="mb-4 border-neg-500/30 bg-neg-50 p-4 text-[13px] text-neg-500">
-          <span className="font-medium">{t('requests.fields.declineReason')}: </span>
-          {request.decline_reason}
-        </Card>
-      )}
-
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <div className="flex flex-col gap-5">
-          <EntityResolutionSection request={request} buyers={buyers ?? []} />
-          <BuyerPackageTable request={request} buyers={buyers ?? []} />
-          {request.status === 'sales_confirmation' && <SalesWindowPanel request={request} />}
-        </div>
-        <div className="flex flex-col gap-5">
+      {/* The buyers and their limits are what a submission is about: they
+          take the page's full width (five columns never fit in a side
+          column). The terms, the contract and the history follow, side by
+          side. */}
+      <div className="flex flex-col gap-5">
+        <EntityResolutionSection request={request} buyers={buyers ?? []} />
+        <BuyerPackageTable request={request} buyers={buyers ?? []} />
+        {request.status === 'sales_confirmation' && <SalesWindowPanel request={request} />}
+        <div className="grid items-start gap-5 xl:grid-cols-2">
           <ProposedTermsSection request={request} />
-          <DraftContractSection
-            target={{ requestId: request.id }}
-            reference={request.request_number}
-            countryCode={request.legal_entities?.country_code ?? null}
-            product={request.product_structure}
-          />
-          <RequestHistoryTimeline requestId={request.id} notes={request.notes} />
+          <div className="flex flex-col gap-5">
+            <DraftContractSection
+              target={{ requestId: request.id }}
+              reference={request.request_number}
+              countryCode={request.legal_entities?.country_code ?? null}
+              product={request.product_structure}
+            />
+            <RequestHistoryTimeline requestId={request.id} notes={request.notes} />
+          </div>
         </div>
       </div>
 
@@ -219,29 +224,23 @@ export function RequestDetailPage() {
               <Button
                 variant="danger"
                 disabled={advance.isPending || (pending === 'declined' && !comment.trim())}
+                title={pending === 'declined' && !comment.trim() ? t('requests.guards.declineNeedsReason') : undefined}
                 onClick={() => void runTransition(pending, comment.trim() || null)}
               >
-                {t('common.confirm')}
+                {t(`requests.transitions.${pending}`)}
               </Button>
             </>
           }
         >
-          <p className="mb-3 text-sm text-slate-600">
-            {t(`requests.confirm.${pending}`)}
-          </p>
+          <p className="text-sm text-slate-600">{t(`requests.confirm.${pending}`)}</p>
           <Field
             label={
               pending === 'declined'
-                ? t('requests.fields.declineReason')
+                ? `${t('requests.fields.declineReason')} *`
                 : t('policies.transitionComment')
             }
           >
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              rows={3}
-              className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-900 focus:outline-2 focus:outline-accent-600"
-            />
+            <Textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} />
           </Field>
         </Modal>
       )}

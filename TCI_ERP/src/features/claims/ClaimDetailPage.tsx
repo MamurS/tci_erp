@@ -15,17 +15,19 @@ import {
   DetailHeader,
   EmptyState,
   Field,
-  Input,
   KeyFigures,
   Modal,
   Panel,
   PanelGrid,
   Spinner,
   Tabs,
+  Textarea,
+  ActionsMenu,
 } from '../../components/ui'
+import type { MenuAction } from '../../components/ui'
 import type { TabDef } from '../../components/ui'
-import { EM_DASH, formatAmount, formatDate, formatDays, formatMoment } from '../../lib/format'
-import { CLAIM_STATUS_TONE } from './ClaimsPage'
+import { EM_DASH, formatAmount, formatDate, formatMoment } from '../../lib/format'
+import { CLAIM_STATUS_TONE } from './status'
 import { ClaimDocumentsTab } from './ClaimDocumentsTab'
 import { ClaimHistoryTab } from './ClaimHistoryTab'
 import { GroupChip } from '../groups'
@@ -35,7 +37,7 @@ import { ClaimMoneyTab } from './ClaimMoneyTab'
 import { useApproveClaim, useChangeClaimStatus, useClaim, useClaimReadiness } from './api'
 import { noaWarning } from './coverage'
 import { claimErrorKey } from './errors'
-import { offeredTransitions, requiresReason } from './machine'
+import { isDestructive, nextStep, offeredTransitions, requiresReason } from './machine'
 import type { ClaimStatus } from './types'
 
 const TAB_KEYS = ['overview', 'invoices', 'documents', 'indemnity', 'money', 'history'] as const
@@ -82,7 +84,26 @@ export function ClaimDetailPage() {
       })
   }
 
-  const destructive = (to: ClaimStatus) => to === 'declined' || to === 'withdrawn'
+  // ONE primary — the step the file is waiting for — and everything else in
+  // the «Действия» menu, the moves that end the file in its danger section.
+  const step = nextStep(claim.status)
+  const primary = step === 'approve' ? (canApprove ? step : null) : step && moves.includes(step) ? step : null
+  const menu: MenuAction[] = [
+    ...(canApprove && primary !== 'approve'
+      ? [{ key: 'approve', label: t('claims.actions.approve'), onSelect: () => setPending('approve') }]
+      : []),
+    ...moves
+      .filter((to) => to !== primary)
+      .sort((a, b) => Number(isDestructive(a)) - Number(isDestructive(b)))
+      .map((to) => ({
+        key: to,
+        label: t(`claims.actions.${to}`),
+        danger: isDestructive(to),
+        onSelect: () => setPending(to),
+      })),
+  ]
+  const pendingDestructive = pending !== null && pending !== 'approve' && isDestructive(pending)
+  const reasonMissing = pending !== null && pending !== 'approve' && requiresReason(pending) && comment.trim() === ''
   const money = (value: number | null) =>
     value === null ? EM_DASH : `${formatAmount(Number(value), locale)} ${claim.currency_code}`
 
@@ -112,23 +133,22 @@ export function ClaimDetailPage() {
           <GroupChip key="g" compact entityId={claim.buyer_entity_id} />,
         ]}
         actions={
-          <>
-            {canApprove && <Button onClick={() => setPending('approve')}>{t('claims.actions.approve')}</Button>}
-            {[...moves.filter((to) => !destructive(to)), ...moves.filter(destructive)].map((to) => (
-              <Button
-                key={to}
-                variant={destructive(to) ? 'dangerOutline' : 'secondary'}
-                onClick={() => setPending(to)}
-              >
-                {t(`claims.actions.${to}`)}
-              </Button>
-            ))}
-          </>
+          primary || menu.length > 0 ? (
+            <>
+              {primary && (
+                <Button onClick={() => setPending(primary)}>
+                  {t(`claims.actions.${primary}`)}
+                </Button>
+              )}
+              <ActionsMenu actions={menu} />
+            </>
+          ) : undefined
         }
       />
 
       <div className="space-y-3 empty:hidden [&:not(:empty)]:mb-6">
-        {error && <Callout tone="neg" title={error} />}
+        {/* While a dialog is open its failure is shown inside it. */}
+        {error && pending === null && <Callout tone="neg" title={error} />}
 
         {warning && (
           <Callout
@@ -173,17 +193,11 @@ export function ClaimDetailPage() {
             tone: claim.approved_indemnity === null ? 'muted' : 'default',
           },
           {
-            label: t('claims.fields.cause'),
-            value: t(`claims.causes.${claim.cause_of_loss}`),
-            text: true,
-            meta: claim.insolvency_reference ?? undefined,
-          },
-          {
-            label: t('claims.fields.age'),
+            label: t('claims.fields.ageColumn'),
             value:
               claim.assessment_age_days === null
                 ? EM_DASH
-                : formatDays(Math.round(Number(claim.assessment_age_days)), locale),
+                : t('policies.terms.days', { count: Math.round(Number(claim.assessment_age_days)) }),
             meta: t('claims.ageHint'),
           },
         ]}
@@ -209,19 +223,25 @@ export function ClaimDetailPage() {
               ? t(`claims.actions.${pending}`)
               : ''
         }
-        onClose={() => setPending(null)}
+        onClose={() => {
+          setPending(null)
+          setError(null)
+        }}
         footer={
           <>
-            <Button variant="secondary" onClick={() => setPending(null)}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setPending(null)
+                setError(null)
+              }}
+            >
               {t('common.cancel')}
             </Button>
             <Button
-              disabled={
-                pending !== null &&
-                pending !== 'approve' &&
-                requiresReason(pending) &&
-                comment.trim() === ''
-              }
+              variant={pendingDestructive ? 'danger' : 'primary'}
+              disabled={reasonMissing || approve.isPending || changeStatus.isPending}
+              title={reasonMissing ? t('claims.reasonRequiredHint') : undefined}
               onClick={() => {
                 if (pending === 'approve') {
                   run(approve.mutateAsync({ id: claim.id, comment: comment || null }))
@@ -230,20 +250,21 @@ export function ClaimDetailPage() {
                 }
               }}
             >
-              {t('common.confirm')}
+              {pending ? t(`claims.actions.${pending}`) : t('common.confirm')}
             </Button>
           </>
         }
       >
-        <p className="text-[13px] text-slate-600">
+        {error && <Callout tone="neg" title={error} />}
+        <p className="text-[13px] leading-relaxed text-slate-600">
           {pending === 'approve' ? t('claims.approveHint') : t('claims.transitionHint')}
         </p>
-        <Field label={t('claims.fields.comment')}>
-          <Input value={comment} onChange={(e) => setComment(e.target.value)} />
+        <Field
+          label={t('claims.fields.comment')}
+          hint={pending !== null && pending !== 'approve' && requiresReason(pending) ? t('claims.reasonRequiredHint') : undefined}
+        >
+          <Textarea rows={3} value={comment} onChange={(e) => setComment(e.target.value)} />
         </Field>
-        {pending !== null && pending !== 'approve' && requiresReason(pending) && (
-          <p className="mt-1 text-xs text-slate-500">{t('claims.reasonRequiredHint')}</p>
-        )}
       </Modal>
     </div>
   )
@@ -262,6 +283,19 @@ function OverviewTab({ claimId }: { claimId: string }) {
       <Panel title={t('claims.overview.file')}>
         <DescriptionList
           items={[
+            // A word, not a figure: it belongs with the file's facts, not in
+            // the key-figure strip where it read as a headline link.
+            {
+              label: t('claims.fields.cause'),
+              value: (
+                <>
+                  {t(`claims.causes.${claim.cause_of_loss}`)}
+                  {claim.insolvency_reference && (
+                    <span className="block text-[12px] font-normal text-slate-500">{claim.insolvency_reference}</span>
+                  )}
+                </>
+              ),
+            },
             { label: t('claims.fields.filedAt'), value: claim.filed_at ? formatMoment(claim.filed_at, locale) : EM_DASH },
             {
               label: t('claims.fields.eligibleFrom'),

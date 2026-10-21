@@ -11,7 +11,7 @@ import { AmountInput, Badge, Button, Card, Field, Input, SectionTitle } from '..
 import { parseAmount } from '../../components/ui/amount'
 import { useAuth } from '../../auth/AuthContext'
 import { bandForGrade, hasRole } from '../../lib/roles'
-import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
+import { formatAmount, formatDate } from '../../lib/format'
 import { useAssessments } from '../entities/rating/assessmentsApi'
 import {
   useAdjustLimitCommercial,
@@ -26,16 +26,14 @@ import { outcomeTone } from './machine'
 import { GroupPreflightNotice, groupErrorKey, useGroupPreflight } from '../groups'
 import { ReleaseBadge } from './ReleaseBadge'
 import type { LimitRequestWithRefs } from './types'
+import { requestScopeFilter } from './types'
 
 export function CommercialStageSection({ request }: { request: LimitRequestWithRefs }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const { session, roles } = useAuth()
 
-  const { data: limits } = useEffectiveLimits({
-    policyId: request.policy_id,
-    entityId: request.entity_id,
-  })
+  const { data: limits } = useEffectiveLimits(requestScopeFilter(request))
   const { data: windowHours } = useSalesWindowHours()
   const assessments = useAssessments(request.entity_id)
   const adjust = useAdjustLimitCommercial()
@@ -172,23 +170,35 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
         <>
           <p className="text-[13px] text-slate-500">{t('limits.commercial.scopeHint')}</p>
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label={t('limits.commercial.newAmount')}>
-              <AmountInput
-                value={amount}
-                onChange={setAmount}
-                suffix={limit.currency_code}
-                placeholder={formatAmount(Number(limit.approved_amount), locale)}
-              />
+            {/* No placeholders: a grey «250,000» in the box read as a value
+                already entered. What stands today is said under the box. */}
+            <Field
+              label={t('limits.commercial.newAmount')}
+              hint={
+                limit.approved_amount !== null
+                  ? t('limits.commercial.currentAmount', {
+                      amount: `${formatAmount(Number(limit.approved_amount), locale)} ${limit.currency_code}`,
+                    })
+                  : undefined
+              }
+            >
+              <AmountInput value={amount} onChange={setAmount} suffix={limit.currency_code} />
             </Field>
-            <Field label={t('limits.fields.paymentTerms')}>
+            <Field
+              label={t('limits.fields.paymentTerms')}
+              hint={
+                limit.payment_terms_days != null
+                  ? t('limits.commercial.currentTerms', {
+                      terms: t('policies.terms.days', { count: limit.payment_terms_days }),
+                    })
+                  : t('limits.commercial.termsUnchanged')
+              }
+            >
               <AmountInput
                 decimals={0}
                 value={terms}
                 onChange={setTerms}
                 suffix={t('policies.terms.daysSuffix')}
-                placeholder={
-                  limit.payment_terms_days != null ? String(limit.payment_terms_days) : undefined
-                }
               />
             </Field>
           </div>
@@ -242,7 +252,7 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
             </p>
           )}
 
-          <div>
+          <div className="flex flex-wrap items-center gap-3">
             <Button
               onClick={() => void handleAdjust()}
               disabled={!amountValid || adjust.isPending || check?.withinAuthority === false}
@@ -250,8 +260,13 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
             >
               {adjust.isPending ? t('common.saving') : t('limits.commercial.action')}
             </Button>
-            {limit.approved_amount === null && (
-              <span className="ml-2 text-xs text-slate-400">{EM_DASH}</span>
+            {/* A disabled button says why. Over authority the banner above
+                already explains; this line only points at it. */}
+            {!adjust.isPending && !amountValid && (
+              <span className="text-[13px] text-slate-500">{t('limits.commercial.enterAmount')}</span>
+            )}
+            {!adjust.isPending && amountValid && check?.withinAuthority === false && (
+              <span className="text-[13px] text-slate-500">{t('limits.commercial.overAuthority')}</span>
             )}
           </div>
         </>

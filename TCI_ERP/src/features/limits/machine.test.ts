@@ -19,6 +19,7 @@ import {
   requestAgeDays,
   statusTone,
 } from './machine'
+import { requestScopeFilter } from './types'
 import { DECISION_OUTCOMES, LIMIT_REQUEST_STATUSES } from './types'
 
 describe('open statuses (partial unique index predicate)', () => {
@@ -118,5 +119,20 @@ describe('migration 0013 decision immutability (contract lock)', () => {
 
   it('amount-by-outcome check is present', () => {
     expect(MIGRATION).toContain('decisions_amount_by_outcome')
+  })
+})
+
+describe('requestScopeFilter (the scope a decision supersedes)', () => {
+  it('a policy request looks up the limit on that policy', () => {
+    expect(requestScopeFilter({ entity_id: 'b', policy_id: 'p', insurance_request_id: 'ir' })).toEqual({
+      entityId: 'b',
+      policyId: 'p',
+    })
+  })
+
+  it('a pre-bind request looks up the limit in its submission, never the buyer at large', () => {
+    expect(
+      requestScopeFilter({ entity_id: 'b', policy_id: null as unknown as string, insurance_request_id: 'ir' }),
+    ).toEqual({ entityId: 'b', insuranceRequestId: 'ir' })
   })
 })

@@ -2,8 +2,9 @@
  *  first: a syntax error refuses it, unknown placeholders are listed (amber)
  *  and keep it from being activated until fixed. */
 
-import { useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { FileText, Upload } from 'lucide-react'
 
 import { Button, Field, Input, Modal, Select, Textarea } from '../../components/ui'
 import { CountryPicker } from '../entities/CountryPicker'
@@ -29,6 +30,8 @@ export function UploadTemplateModal({ open, onClose }: { open: boolean; onClose:
   const [language, setLanguage] = useState(locale)
   const [product, setProduct] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const fileRef = useRef<HTMLInputElement>(null)
+  const fileLabelId = useId()
 
   const reset = () => {
     setFile(null)
@@ -84,6 +87,7 @@ export function UploadTemplateModal({ open, onClose }: { open: boolean; onClose:
           <Button
             onClick={submit}
             disabled={!file || !name.trim() || Boolean(inspection?.error) || upload.isPending}
+            title={!file ? t('wording.upload.noFile') : !name.trim() ? t('wording.upload.nameRequired') : undefined}
           >
             {upload.isPending ? t('common.saving') : t('wording.upload.submit')}
           </Button>
@@ -91,13 +95,42 @@ export function UploadTemplateModal({ open, onClose }: { open: boolean; onClose:
       }
     >
       <div className="grid gap-3">
-        <Field label={t('wording.upload.file')} hint={t('wording.upload.fileHint', WORDING_SYNTAX)}>
-          <Input
+        {/* The browser's own file input speaks the browser's language
+            («Choose File · No file chosen» in a Russian interface): it stays
+            hidden, and a button in ours opens it. */}
+        <div role="group" aria-labelledby={fileLabelId} className="flex flex-col gap-1.5">
+          <span id={fileLabelId} className="text-[12px] font-semibold tracking-wide text-slate-600 uppercase">
+            {t('wording.upload.file')}
+          </span>
+          <input
+            ref={fileRef}
             type="file"
+            hidden
             accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            onChange={(e) => void pick(e.target.files?.[0] ?? null)}
+            onChange={(e) => {
+              void pick(e.target.files?.[0] ?? null)
+              // Picking the same file again after a fix must fire again.
+              e.target.value = ''
+            }}
           />
-        </Field>
+          <div className="flex min-w-0 items-center gap-3">
+            <Button variant="secondary" onClick={() => fileRef.current?.click()}>
+              <Upload aria-hidden />
+              {file ? t('wording.upload.chooseOther') : t('wording.upload.choose')}
+            </Button>
+            {file ? (
+              <span className="flex min-w-0 items-center gap-1.5 text-[13px] text-slate-700">
+                <FileText aria-hidden className="size-4 shrink-0 text-accent-500" />
+                <span className="truncate" title={file.name}>
+                  {file.name}
+                </span>
+              </span>
+            ) : (
+              <span className="text-[13px] text-slate-400">{t('wording.upload.noFile')}</span>
+            )}
+          </div>
+          <span className="text-xs text-slate-500">{t('wording.upload.fileHint', WORDING_SYNTAX)}</span>
+        </div>
         {inspection?.error && (
           <div className="rounded-md border border-neg-500/30 bg-neg-50 px-3 py-2 text-[13px] text-neg-500" role="alert">
             {t('wording.errors.invalidTemplate')} <span className="font-mono">{inspection.error}</span>

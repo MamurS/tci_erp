@@ -3,15 +3,17 @@
  * registry) or creates one inline through the ordinary registry form, which
  * carries the Phase 3a dedup-on-entry checks. */
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, Card, SectionTitle } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
+import { useEntities } from '../entities/api'
 import { EntityPicker } from '../entities/EntityPicker'
 import { EntityFormModal } from '../entities/EntityFormModal'
 import { useResolveRequestBuyer } from './api'
 import { canResolveBuyers } from './machine'
+import { resolutionSeed } from './resolutionSeed'
 import type { InsuranceRequestWithRefs, RequestBuyerWithRefs } from './types'
 
 export function EntityResolutionSection({
@@ -65,6 +67,13 @@ function ResolveRow({
 }) {
   const { t } = useTranslation()
   const resolve = useResolveRequestBuyer(requestId)
+  const { data: entities } = useEntities()
+  // Focusing the picker searches for the given name, trimmed of its legal
+  // form until the registry finds something (resolutionSeed.ts).
+  const seed = useMemo(
+    () => resolutionSeed(buyer.proposed_name, (entities ?? []).map((e) => e.name)),
+    [buyer.proposed_name, entities],
+  )
 
   const [entityId, setEntityId] = useState<string | null>(buyer.entity_id)
   const [createOpen, setCreateOpen] = useState(false)
@@ -80,6 +89,13 @@ function ResolveRow({
     }
   }
 
+  // Why «Связать» cannot be pressed yet, said under the row and on hover.
+  const blockedReason = disabled
+    ? t('requests.resolve.notAllowed')
+    : !entityId
+      ? t('requests.resolve.pickFirst')
+      : null
+
   return (
     <div className="rounded-md border border-slate-200 p-3">
       <p className="mb-2 text-[13px]">
@@ -87,22 +103,26 @@ function ResolveRow({
           {buyer.proposed_name ?? t('requests.unnamedBuyer')}
         </span>
       </p>
-      <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
-        {/* Focusing searches for the name the buyer was given. */}
+      <div className="grid items-center gap-2 sm:grid-cols-[minmax(0,32rem)_auto]">
         <EntityPicker
           value={entityId}
           onChange={setEntityId}
-          seedQuery={buyer.proposed_name ?? undefined}
+          seedQuery={seed}
+          requestName={buyer.proposed_name ?? undefined}
+          allowRequest
           disabled={disabled}
+          aria-label={t('requests.resolve.pickerLabel', { name: buyer.proposed_name ?? '' })}
         />
         <div className="flex gap-2">
-          <Button
-            size="sm"
-            onClick={() => void handleResolve()}
-            disabled={disabled || !entityId || resolve.isPending}
-          >
-            {t('requests.actions.resolve')}
-          </Button>
+          <span title={blockedReason ?? undefined} className="inline-flex">
+            <Button
+              size="sm"
+              onClick={() => void handleResolve()}
+              disabled={disabled || !entityId || resolve.isPending}
+            >
+              {t('requests.actions.resolve')}
+            </Button>
+          </span>
           <Button
             size="sm"
             variant="secondary"
@@ -113,6 +133,7 @@ function ResolveRow({
           </Button>
         </div>
       </div>
+      {blockedReason && <p className="mt-1.5 text-[12px] text-slate-500">{blockedReason}</p>}
       {error && (
         <p className="mt-1.5 text-[13px] text-neg-500" role="alert">
           {error}
@@ -123,7 +144,7 @@ function ResolveRow({
       <EntityFormModal
         open={createOpen}
         onClose={() => setCreateOpen(false)}
-        initialName={buyer.proposed_name ?? ''}
+        prefill={{ name: buyer.proposed_name ?? '' }}
         onCreated={(entity) => {
           setEntityId(entity.id)
           void resolve

@@ -29,6 +29,7 @@ import type { StatementBundle } from '../types'
 import { hasPersistentNegativeCfo } from '../financials/cashflow'
 import { RISK_ROWS, buildRiskPeriods } from '../financials/risk'
 import { buildFactorBullets } from '../rating/chips'
+import { ScoreChangeNote } from '../rating/ScoreChangeNote'
 import type { FactorBullet } from '../rating/chips'
 import type { CommentaryParagraph, CommentarySentence, ValueFormat } from './commentary'
 import { DynamicCharts } from './DynamicCharts'
@@ -195,12 +196,15 @@ export function RiskReportBody({ report, t, locale, variant, onNarrative, onFact
 
                       <div className="rpt-gauge-card">
                         <div className="rpt-gauge">
-                          <RatingGauge
+                          {/* The change in words, not an arrow on a lower-is-better scale. */}
+                          <RatingGauge score={score} t={t} />
+                          <ScoreChangeNote
                             score={score}
                             previousScore={
                               previousAssessment ? Number(previousAssessment.rating_score) : null
                             }
                             t={t}
+                            locale={locale}
                           />
                         </div>
                         {bullets.length > 0 && <FactorBullets bullets={bullets} onClick={onFactor} />}

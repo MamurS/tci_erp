@@ -13,6 +13,7 @@ import {
   AmountInput,
   Badge,
   Button,
+  Callout,
   Field,
   Input,
   Modal,
@@ -135,14 +136,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
         </>
       }
     >
-      {error && (
-        <div
-          className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[13px] text-neg-500"
-          role="alert"
-        >
-          {error}
-        </div>
-      )}
+      {error && <Callout tone="neg" title={error} />}
 
       <div className="flex flex-col gap-4">
         <Field label={t('portal.limits.policy')}>
@@ -174,9 +168,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
           </Field>
         ) : proposing ? (
           <>
-            <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
-              {t('portal.limits.proposalNote')}
-            </div>
+            <Callout tone="info" title={t('portal.limits.proposalNote')} />
             <Field label={t('portal.limits.buyerName')}>
               <Input
                 value={proposedName}

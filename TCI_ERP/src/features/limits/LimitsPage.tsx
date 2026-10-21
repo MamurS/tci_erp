@@ -1,16 +1,16 @@
 /** «Очередь решений» — the queues over credit limit requests. On the credit
- * desk each open request also shows the band it would be decided in and
- * whether the caller can decide it alone (tci.v_limit_request_queue). */
+ * desk an open request the caller cannot decide alone is flagged
+ * (tci.v_limit_request_queue decides that, not the screen). */
 
 import { useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
   Badge,
   EmptyState,
   Input,
-  ViewBar, Segmented,
+  Segmented,
   Select,
   Spinner,
   Table,
@@ -22,11 +22,11 @@ import { EM_DASH, formatAmount } from '../../lib/format'
 import { gradeTone } from '../../lib/grade'
 import { useLatestGrades } from '../entities/api'
 import { useLimitRequests } from './api'
-import { requestAgeDays, statusTone } from './machine'
+import { REQUEST_AGE_WARN_DAYS, requestAgeDays, statusTone } from './machine'
 import { BuyerProposalsSection } from './BuyerProposalsSection'
 import { useLimitQueue } from './workbench/api'
 import { queueIndex } from './workbench/model'
-import { BandBadge } from './workbench/parts'
+import type { LimitRequestWithRefs } from './types'
 import type { QueueRow } from './workbench/types'
 
 type QueueTab = 'drafts' | 'review' | 'escalated' | 'decided' | 'proposals'
@@ -79,7 +79,9 @@ export function LimitsPage() {
       return (
         (r.legal_entities?.name ?? '').toLowerCase().includes(query) ||
         (r.policies?.policy_number ?? '').toLowerCase().includes(query) ||
-        (r.policies?.legal_entities?.name ?? '').toLowerCase().includes(query)
+        (r.policies?.legal_entities?.name ?? '').toLowerCase().includes(query) ||
+        (r.insurance_requests?.request_number ?? '').toLowerCase().includes(query) ||
+        (r.insurance_requests?.legal_entities?.name ?? '').toLowerCase().includes(query)
       )
     })
   }, [requests, tab, search, statusFilter, mineOnly, annotated, session?.user.id])
@@ -108,8 +110,8 @@ export function LimitsPage() {
 
   return (
     <div>
-      <ViewBar hint={t('limits.subtitle')} />
-
+      {/* No view hint: the section subtitle above already says what this is,
+          and repeating it word for word read as a mistake. */}
       <div className="overflow-x-auto">
         <Segmented
           value={tab}
@@ -124,6 +126,7 @@ export function LimitsPage() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t('limits.searchPlaceholder')}
+          aria-label={t('limits.searchPlaceholder')}
           className="max-w-xs"
         />
         {tab === 'decided' && (
@@ -131,6 +134,7 @@ export function LimitsPage() {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="max-w-44"
+            aria-label={t('limits.fields.status')}
           >
             <option value="">{t('policies.allStatuses')}</option>
             <option value="decided">{t('limits.statuses.decided')}</option>
@@ -157,17 +161,24 @@ export function LimitsPage() {
       ) : filtered.length === 0 ? (
         <EmptyState title={t('limits.queueEmpty')} hint={t('limits.queueEmptyHint')} />
       ) : (
-        <Table>
+        // Two text columns share what the figures leave (cell-fill) and cut
+        // with an ellipsis, so the queue fits a 1280px screen with the
+        // sidebar docked instead of scrolling sideways. Dense, like every
+        // other table of the credit hub.
+        <Table dense>
           <thead>
             <tr>
-              <th>{t('limits.fields.buyer')}</th>
-              <th>{t('policies.fields.policyNumber')}</th>
-              <th>{t('policies.fields.policyholder')}</th>
-              <th className="text-right">{t('limits.fields.requestedAmount')}</th>
-              <th>{t('limits.fields.status')}</th>
-              <th className="text-right">{t('limits.fields.ageDays')}</th>
-              <th>{t('limits.fields.grade')}</th>
-              {showDecision && <th>{t('limits.workbench.queue.decision')}</th>}
+              <th className="cell-fill w-[55%]">{t('limits.fields.buyer')}</th>
+              <th className="cell-fill w-[45%]">{t('limits.fields.policyAndPolicyholder')}</th>
+              {/* w-px: the figure columns keep their content width and leave
+                  the rest to the two name columns. */}
+              <th className="w-px text-right">{t('portfolio.credit.amount')}</th>
+              <th className="w-px">{t('limits.fields.status')}</th>
+              <th className="w-px text-right" title={t('limits.ageHint', { days: REQUEST_AGE_WARN_DAYS })}>
+                {t('limits.fields.ageDaysUnit')}
+              </th>
+              <th className="w-px">{t('limits.fields.grade')}</th>
+              {showDecision && <th className="w-px">{t('limits.workbench.queue.authority')}</th>}
             </tr>
           </thead>
           <tbody>
@@ -177,22 +188,21 @@ export function LimitsPage() {
                 onClick={() => void navigate(`/limits/${r.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="font-medium text-slate-800">
-                  <Truncate text={r.legal_entities?.name}>{r.legal_entities?.name ?? EM_DASH}</Truncate>
+                <td className="cell-fill font-medium text-slate-800">
+                  <Truncate text={r.legal_entities?.name} className="max-w-none">
+                    {r.legal_entities?.name ?? EM_DASH}
+                  </Truncate>
                 </td>
-                <td className="whitespace-nowrap text-slate-600">{r.policies?.policy_number ?? EM_DASH}</td>
-                <td className="text-slate-500">
-                  <Truncate text={r.policies?.legal_entities?.name}>{r.policies?.legal_entities?.name ?? EM_DASH}</Truncate>
+                <td className="cell-fill">
+                  <ScopeCell request={r} />
                 </td>
-                <td>
-                  <span className="num block">
-                    {formatAmount(Number(r.requested_amount), locale)} {r.currency_code}
-                  </span>
+                <td className="num">
+                  {formatAmount(Number(r.requested_amount), locale)} {r.currency_code}
                 </td>
                 <td>
                   <Badge tone={statusTone(r.status)}>{t(`limits.statuses.${r.status}`)}</Badge>
                 </td>
-                <td>
+                <td className="num">
                   <AgeCell days={requestAgeDays(r.submitted_at, nowIso)} />
                 </td>
                 <td>
@@ -200,7 +210,7 @@ export function LimitsPage() {
                 </td>
                 {showDecision && (
                   <td>
-                    <DecisionCell row={annotated.get(r.id)} />
+                    <AuthorityCell row={annotated.get(r.id)} />
                   </td>
                 )}
               </tr>
@@ -212,26 +222,75 @@ export function LimitsPage() {
   )
 }
 
-function AgeCell({ days }: { days: number | null }) {
-  if (days === null) return <span className="num block text-slate-400">{EM_DASH}</span>
-  return <span className={`num block ${days > 5 ? 'text-warn-500' : ''}`}>{days}</span>
+/** Where the limit would sit: the policy and its policyholder, or — before a
+ * policy exists — the submission and its applicant, linking to the
+ * submission. One column, two lines, instead of two half-empty columns. */
+function ScopeCell({ request }: { request: LimitRequestWithRefs }) {
+  const { t } = useTranslation()
+  const policy = request.policies
+  const submission = request.insurance_requests
+  if (policy) {
+    return (
+      <>
+        <span className="block whitespace-nowrap text-slate-700">{policy.policy_number}</span>
+        <Truncate text={policy.legal_entities?.name} className="max-w-none text-[12px] text-slate-500">
+          {policy.legal_entities?.name ?? EM_DASH}
+        </Truncate>
+      </>
+    )
+  }
+  if (submission && request.insurance_request_id) {
+    return (
+      <>
+        <Link
+          to={`/requests/${request.insurance_request_id}`}
+          onClick={(e) => e.stopPropagation()}
+          title={t('limits.preBindScope')}
+          className="block whitespace-nowrap text-accent-600 hover:text-accent-500"
+        >
+          {submission.request_number}
+        </Link>
+        <Truncate text={submission.legal_entities?.name} className="max-w-none text-[12px] text-slate-500">
+          {submission.legal_entities?.name ?? EM_DASH}
+        </Truncate>
+      </>
+    )
+  }
+  return <span className="text-slate-400">{EM_DASH}</span>
 }
 
-/** Who can decide this request: the caller alone, or someone with more
- * authority in its band (escalation). */
-function DecisionCell({ row }: { row: QueueRow | undefined }) {
+function AgeCell({ days }: { days: number | null }) {
   const { t } = useTranslation()
-  if (!row) return <span className="text-slate-400">{EM_DASH}</span>
+  if (days === null) return <span className="text-slate-400">{EM_DASH}</span>
+  const late = days > REQUEST_AGE_WARN_DAYS
   return (
-    <span className="flex items-center gap-1.5">
-      <BandBadge band={row.band} />
-      {row.rate_missing ? (
+    <span
+      className={late ? 'font-medium text-warn-500' : ''}
+      title={late ? t('limits.ageHint', { days: REQUEST_AGE_WARN_DAYS }) : undefined}
+    >
+      {days}
+    </span>
+  )
+}
+
+/** Only the exception is shown: a request the caller cannot decide alone
+ * (it would escalate, or wait for a colleague with more authority in its
+ * band), or one whose currency has no rate to compare. Nothing at all when
+ * the caller may decide it — printing «Решаю сам» on every row said nothing. */
+function AuthorityCell({ row }: { row: QueueRow | undefined }) {
+  const { t } = useTranslation()
+  if (!row) return null
+  if (row.rate_missing) {
+    return (
+      <span title={t('limits.workbench.queue.noRateHint', { currency: row.currency_code })}>
         <Badge tone="warn">{t('limits.workbench.queue.noRate')}</Badge>
-      ) : row.decide_alone ? (
-        <Badge tone="pos">{t('limits.workbench.queue.alone')}</Badge>
-      ) : (
-        <Badge tone="neutral">{t('limits.workbench.queue.beyond')}</Badge>
-      )}
+      </span>
+    )
+  }
+  if (row.decide_alone) return null
+  return (
+    <span title={t('limits.workbench.queue.beyondHint', { band: t(`limits.bands.${row.band}`) })}>
+      <Badge tone="warn">{t('limits.workbench.queue.beyond')}</Badge>
     </span>
   )
 }

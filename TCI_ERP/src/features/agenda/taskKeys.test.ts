@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest'
 import en from '../../i18n/locales/en.json'
 import ru from '../../i18n/locales/ru.json'
 import uz from '../../i18n/locales/uz.json'
+import { OBJECT_FILTERS } from './catalogue'
 import { TASK_TYPES } from './types'
 
 const MIGRATIONS = import.meta.glob('../../../supabase/migrations/*.sql', {
@@ -29,7 +30,19 @@ describe.each([
   ['ru', ru],
   ['uz', uz],
 ] as const)('%s agenda keys', (_lang, locale) => {
-  const agenda = (locale as { agenda: { taskTypes: Record<string, string>; tasks: Record<string, string> } }).agenda
+  const agenda = (
+    locale as {
+      agenda: {
+        taskTypes: Record<string, string>
+        tasks: Record<string, string>
+        objectTypes: Record<string, string>
+      }
+    }
+  ).agenda
+
+  it('names every object kind the filter can offer', () => {
+    expect(OBJECT_FILTERS.filter((kind) => !agenda.objectTypes[kind])).toEqual([])
+  })
 
   it('names every task type the app knows and every type a migration opens', () => {
     const types = new Set<string>([...TASK_TYPES, ...openedTypes])

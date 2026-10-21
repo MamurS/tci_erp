@@ -7,7 +7,7 @@
 
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, Panel, PanelGrid, ViewBar, Spinner, Table } from '../../../components/ui'
+import { Badge, Card, EmptyState, Panel, PanelGrid, Skeleton, Table, ViewBar } from '../../../components/ui'
 import { useAuth } from '../../../auth/AuthContext'
 import { formatAmount, formatCompact, formatDate } from '../../../lib/format'
 import { AUTHORITY_SCOPES, GRADE_BANDS, hasRole } from '../../../lib/roles'
@@ -25,7 +25,7 @@ function BandAuthority({ band }: { band: GradeBand }) {
       </td>
       <td className="num text-right">
         {isLoading ? (
-          '…'
+          <Skeleton className="ml-auto h-4 w-24" />
         ) : isError ? (
           <span className="text-warn-500">{t('limits.workbench.authority.rateMissing')}</span>
         ) : data ? (
@@ -76,7 +76,13 @@ export function AuthorityView() {
 
         <Panel title={t('limits.workbench.authority.grants')} hint={t('limits.workbench.authority.grantsHint')}>
           {isLoading ? (
-            <Spinner />
+            // The same placeholder as the band column beside it: rows, not a
+            // lone spinner in an empty card.
+            <div className="flex flex-col gap-2 py-1">
+              {[0, 1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-6 w-full" />
+              ))}
+            </div>
           ) : !live.length ? (
             <EmptyState title={t('limits.workbench.authority.noGrants')} hint={t('limits.workbench.authority.noGrantsHint')} />
           ) : (

@@ -1,7 +1,7 @@
 /** Invoices and their coverage verdicts. Every line shows what the engine
  * decided, the numbers behind it, and — where a human disagreed — both. */
 
-import { ChevronRight, PenLine, RefreshCw } from 'lucide-react'
+import { ChevronRight, PenLine, Plus, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -12,6 +12,7 @@ import {
   Button,
   Callout,
   Card,
+  DateInput,
   EmptyState,
   KeyFigures,
   Field,
@@ -98,7 +99,13 @@ export function ClaimInvoicesTab({ claim }: { claim: Claim }) {
                 {t('claims.actions.verify')}
               </Button>
             )}
-            {canEdit && <Button onClick={() => setAdding(true)}>{t('claims.actions.addInvoice')}</Button>}
+            {canEdit && (
+              // Secondary: the claim's next step in the header is the page's one primary.
+              <Button variant="secondary" onClick={() => setAdding(true)}>
+                <Plus aria-hidden />
+                {t('claims.actions.addInvoice')}
+              </Button>
+            )}
           </>
         }
       />
@@ -116,8 +123,9 @@ export function ClaimInvoicesTab({ claim }: { claim: Claim }) {
               <th>{t('claims.fields.dueDate')}</th>
               <th className="text-right">{t('claims.fields.claimable')}</th>
               <th className="text-right">{t('claims.fields.covered')}</th>
+              {/* The verdict and the reasons behind it share a column: side by
+                  side they pushed the table past a laptop's width. */}
               <th>{t('claims.fields.verdict')}</th>
-              <th>{t('claims.fields.reasons')}</th>
               <th className="w-px" />
             </tr>
           </thead>
@@ -185,29 +193,25 @@ function InvoiceRow({
             : `${formatAmount(Number(line.effective_covered_amount), locale)} ${currency}`}
         </td>
         <td>
-          {line.effective_verdict === null ? (
-            <span className="text-slate-400">{EM_DASH}</span>
-          ) : (
-            <Badge tone={verdictTone(line.effective_verdict)}>
-              {t(`claims.verdicts.${line.effective_verdict}`)}
-            </Badge>
-          )}
-          {line.is_overridden && (
-            <span className="ml-1">
-              <Badge tone="accent">
-                {t('claims.overridden')}
-              </Badge>
-            </span>
-          )}
-        </td>
-        <td className="min-w-52">
           <div className="flex flex-wrap gap-1">
-            {reasons.map((r) => (
-              <Badge key={r} tone={reasonTone(r)}>
-                {t(`claims.reasons.${r}`)}
+            {line.effective_verdict === null ? (
+              <span className="text-slate-400">{EM_DASH}</span>
+            ) : (
+              <Badge tone={verdictTone(line.effective_verdict)}>
+                {t(`claims.verdicts.${line.effective_verdict}`)}
               </Badge>
-            ))}
+            )}
+            {line.is_overridden && <Badge tone="accent">{t('claims.overridden')}</Badge>}
           </div>
+          {reasons.length > 0 && (
+            <div className="mt-1 flex flex-wrap gap-1" aria-label={t('claims.fields.reasons')}>
+              {reasons.map((r) => (
+                <Badge key={r} tone={reasonTone(r)}>
+                  {t(`claims.reasons.${r}`)}
+                </Badge>
+              ))}
+            </div>
+          )}
         </td>
         <td className="text-right">
           {canOverride && line.verdict_id && (
@@ -225,7 +229,7 @@ function InvoiceRow({
       </tr>
       {open && (
         <tr>
-          <td colSpan={8} className="bg-slate-50">
+          <td colSpan={7} className="bg-slate-50">
             <VerdictDetail line={line} locale={locale} />
           </td>
         </tr>
@@ -286,7 +290,7 @@ function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <p className="text-xs text-slate-500">{label}</p>
-      <p className="num font-medium text-slate-800">{value}</p>
+      <p className="font-medium text-slate-800 tabular-nums">{value}</p>
     </div>
   )
 }
@@ -340,6 +344,7 @@ function OverrideModal({
           </Button>
           <Button
             disabled={justification.trim() === ''}
+            title={justification.trim() === '' ? t('claims.override.justificationHint') : undefined}
             onClick={() =>
               override
                 .mutateAsync({
@@ -358,8 +363,8 @@ function OverrideModal({
         </>
       }
     >
-      {error && <Callout tone="neg" title={error} className="mb-3" />}
-      <p className="text-[13px] text-slate-600">{t('claims.override.hint')}</p>
+      {error && <Callout tone="neg" title={error} />}
+      <p className="text-[13px] leading-relaxed text-slate-600">{t('claims.override.hint')}</p>
       <Field label={t('claims.fields.verdict')}>
         <Select value={verdict} onChange={(e) => setVerdict(e.target.value as CoverageVerdict)}>
           {COVERAGE_VERDICTS.map((v) => (
@@ -374,10 +379,9 @@ function OverrideModal({
           <AmountInput value={amount} onChange={setAmount} suffix={claim.currency_code} />
         </Field>
       )}
-      <Field label={t('claims.fields.justification')}>
+      <Field label={t('claims.fields.justification')} hint={t('claims.override.justificationHint')}>
         <Input value={justification} onChange={(e) => setJustification(e.target.value)} />
       </Field>
-      <p className="mt-1 text-xs text-slate-500">{t('claims.override.justificationHint')}</p>
     </Modal>
   )
 }
@@ -395,14 +399,19 @@ function InvoiceModal({ claim, onClose }: { claim: Claim; onClose: () => void })
     disputed_amount: '0',
   })
   const [error, setError] = useState<string | null>(null)
-  const set = (k: keyof typeof form) => (e: { target: { value: string } }) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }))
-  const setAmount = (k: 'amount' | 'paid_amount' | 'disputed_amount') => (plain: string) =>
-    setForm((f) => ({ ...f, [k]: plain }))
+  const setField = (k: keyof typeof form) => (value: string) => setForm((f) => ({ ...f, [k]: value }))
+  // The database refuses an invoice without these; say so before the click.
+  const ready =
+    form.invoice_number.trim() !== '' &&
+    form.invoice_date !== '' &&
+    form.shipment_date !== '' &&
+    form.due_date !== '' &&
+    Number(form.amount) > 0
 
   return (
     <Modal
       open
+      wide
       title={t('claims.actions.addInvoice')}
       onClose={onClose}
       footer={
@@ -411,11 +420,13 @@ function InvoiceModal({ claim, onClose }: { claim: Claim; onClose: () => void })
             {t('common.cancel')}
           </Button>
           <Button
+            disabled={!ready || save.isPending}
+            title={ready ? undefined : t('claims.invoices.requiredHint')}
             onClick={() =>
               save
                 .mutateAsync({
                   claim_id: claim.id,
-                  invoice_number: form.invoice_number,
+                  invoice_number: form.invoice_number.trim(),
                   invoice_date: form.invoice_date,
                   shipment_date: form.shipment_date,
                   due_date: form.due_date,
@@ -435,34 +446,38 @@ function InvoiceModal({ claim, onClose }: { claim: Claim; onClose: () => void })
         </>
       }
     >
-      {error && <Callout tone="neg" title={error} className="mb-3" />}
-      <Field label={t('claims.fields.invoiceNumber')}>
-        <Input value={form.invoice_number} onChange={set('invoice_number')} />
-      </Field>
-      <Field label={t('claims.fields.invoiceDate')}>
-        <Input type="date" value={form.invoice_date} onChange={set('invoice_date')} />
-      </Field>
-      <Field label={t('claims.fields.shipmentDate')}>
-        <Input type="date" value={form.shipment_date} onChange={set('shipment_date')} />
-      </Field>
-      <p className="-mt-2 mb-2 text-xs text-slate-500">{t('claims.shipmentDateHint')}</p>
-      <Field label={t('claims.fields.dueDate')}>
-        <Input type="date" value={form.due_date} onChange={set('due_date')} />
-      </Field>
-      <Field label={t('claims.fields.amount')}>
-        <AmountInput value={form.amount} onChange={setAmount('amount')} suffix={claim.currency_code} />
-      </Field>
-      <Field label={t('claims.fields.paidAmount')}>
-        <AmountInput value={form.paid_amount} onChange={setAmount('paid_amount')} suffix={claim.currency_code} />
-      </Field>
-      <Field label={t('claims.fields.disputedAmount')}>
-        <AmountInput
-          value={form.disputed_amount}
-          onChange={setAmount('disputed_amount')}
-          suffix={claim.currency_code}
-        />
-      </Field>
-      <p className="mt-1 text-xs text-slate-500">{t('claims.disputedHint')}</p>
+      {error && <Callout tone="neg" title={error} />}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label={t('claims.fields.invoiceNumber')}>
+          <Input
+            autoFocus
+            value={form.invoice_number}
+            onChange={(e) => setField('invoice_number')(e.target.value)}
+          />
+        </Field>
+        <Field label={t('claims.fields.invoiceDate')}>
+          <DateInput value={form.invoice_date} onChange={setField('invoice_date')} />
+        </Field>
+        <Field label={t('claims.fields.shipmentDate')} hint={t('claims.shipmentDateHint')}>
+          <DateInput value={form.shipment_date} onChange={setField('shipment_date')} />
+        </Field>
+        <Field label={t('claims.fields.dueDate')}>
+          <DateInput value={form.due_date} min={form.invoice_date || undefined} onChange={setField('due_date')} />
+        </Field>
+        <Field label={t('claims.fields.amount')} className="sm:col-span-2">
+          <AmountInput value={form.amount} onChange={setField('amount')} suffix={claim.currency_code} />
+        </Field>
+        <Field label={t('claims.fields.paidAmount')}>
+          <AmountInput value={form.paid_amount} onChange={setField('paid_amount')} suffix={claim.currency_code} />
+        </Field>
+        <Field label={t('claims.fields.disputedAmount')} hint={t('claims.disputedHint')}>
+          <AmountInput
+            value={form.disputed_amount}
+            onChange={setField('disputed_amount')}
+            suffix={claim.currency_code}
+          />
+        </Field>
+      </div>
     </Modal>
   )
 }

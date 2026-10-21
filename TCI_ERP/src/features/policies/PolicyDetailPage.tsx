@@ -9,7 +9,23 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Modal, Spinner, Tabs, SectionTitle, Callout, DetailHeader } from '../../components/ui'
+import {
+  Badge,
+  Button,
+  Callout,
+  Card,
+  DetailHeader,
+  EmptyState,
+  Field,
+  LinkButton,
+  Modal,
+  SectionTitle,
+  Spinner,
+  Tabs,
+  Textarea,
+  ActionsMenu,
+} from '../../components/ui'
+import type { MenuAction } from '../../components/ui'
 import type { TabDef } from '../../components/ui'
 import { ClaimsSection } from '../claims'
 import { EM_DASH, formatAmount, formatMoment, formatPercent, formatRate, formatDate } from '../../lib/format'
@@ -40,9 +56,9 @@ export function PolicyDetailPage() {
       <EmptyState
         title={t('policies.notFound')}
         action={
-          <Link to="/policies?view=registry" className="text-sm font-medium text-accent-700 hover:underline">
+          <LinkButton to="/policies?view=registry" variant="secondary">
             {t('policies.backToList')}
-          </Link>
+          </LinkButton>
         }
       />
     )
@@ -128,14 +144,15 @@ function PolicyBody({ policy, policyId }: { policy: PolicyWithRefs; policyId: st
       ) : active === 'premium' ? (
         <PolicyPremiumTab policyId={policyId} />
       ) : (
-        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-          <div className="flex flex-col gap-5">
+        // The terms with their history beside them; the buyers and limits
+        // below at the full width — a table of seven columns squeezed into
+        // two thirds broke every name over four lines.
+        <div className="flex flex-col gap-6">
+          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <TermsCard policy={policy} />
-
-            <PolicyLimitsSection policy={policy} />
+            <HistoryTimeline policyId={policyId} />
           </div>
-
-          <HistoryTimeline policyId={policyId} />
+          <PolicyLimitsSection policy={policy} />
         </div>
       )}
     </>
@@ -174,12 +191,6 @@ function StatusActions({ policy, onEdit }: { policy: PolicyWithRefs; onEdit: () 
   const [error, setError] = useState<string | null>(null)
 
   const targets = allowedTargets(policy.status)
-  if (!targets.length)
-    return (
-      <Button variant="secondary" onClick={onEdit}>
-        {t('common.edit')}
-      </Button>
-    )
 
   const run = async (to: PolicyStatus, withComment: string) => {
     setError(null)
@@ -192,37 +203,45 @@ function StatusActions({ policy, onEdit }: { policy: PolicyWithRefs; onEdit: () 
     }
   }
 
-  // The next step first (activate), the ordinary moves, then the edit, and
-  // the destructive ones (cancel, annul) last and outlined in red: they are
-  // confirmed in a modal, so they need not shout from the header.
+  const start = (to: PolicyStatus) => {
+    setComment('')
+    setError(null)
+    if (requiresComment(to)) setPending(to)
+    else void run(to, '')
+  }
+
+  // In the header: the edit and the NEXT STEP only — activating a draft or
+  // resuming a suspended policy, or marking it expired once its date has
+  // passed. Every other move is in «Действия ▾», the destructive ones
+  // (cancel, annul) in its red section, each confirmed in a modal.
   const destructive = (to: PolicyStatus) => to === 'cancelled' || to === 'annulled'
-  const ordered = [
-    ...targets.filter((to) => to === 'active'),
-    ...targets.filter((to) => to !== 'active' && !destructive(to)),
-  ]
+  const today = new Date().toISOString().slice(0, 10)
+  const next: PolicyStatus | null = targets.includes('active')
+    ? 'active'
+    : targets.includes('expired') && isExpiryDue(policy, today)
+      ? 'expired'
+      : null
+  const menu: MenuAction[] = targets
+    .filter((to) => to !== next)
+    .sort((a, b) => Number(destructive(a)) - Number(destructive(b)))
+    .map((to) => ({
+      key: to,
+      label: t(`policies.transitions.${to}`),
+      danger: destructive(to),
+      onSelect: () => start(to),
+    }))
+
   return (
     <>
-      {[...ordered, 'edit' as const, ...targets.filter(destructive)].map((to) =>
-        to === 'edit' ? (
-          <Button key="edit" variant="secondary" onClick={onEdit}>
-            {t('common.edit')}
-          </Button>
-        ) : (
-        <Button
-          key={to}
-          variant={destructive(to) ? 'dangerOutline' : to === 'active' ? 'primary' : 'secondary'}
-          onClick={() => {
-            setComment('')
-            setError(null)
-            if (requiresComment(to)) setPending(to)
-            else void run(to, '')
-          }}
-          disabled={changeStatus.isPending}
-        >
-          {t(`policies.transitions.${to}`)}
+      {next && (
+        <Button onClick={() => start(next)} disabled={changeStatus.isPending}>
+          {t(`policies.transitions.${next}`)}
         </Button>
-        ),
       )}
+      <Button variant="secondary" onClick={onEdit}>
+        {t('common.edit')}
+      </Button>
+      <ActionsMenu actions={menu} disabled={changeStatus.isPending} />
       {error && !pending && (
         <span className="text-[13px] text-neg-500" role="alert">
           {error}
@@ -240,32 +259,29 @@ function StatusActions({ policy, onEdit }: { policy: PolicyWithRefs; onEdit: () 
                 {t('common.cancel')}
               </Button>
               <Button
-                variant={pending === 'cancelled' || pending === 'annulled' ? 'danger' : 'primary'}
+                variant={destructive(pending) ? 'danger' : 'primary'}
                 onClick={() => void run(pending, comment)}
                 disabled={changeStatus.isPending || (commentMandatory(pending) && !comment.trim())}
+                title={
+                  commentMandatory(pending) && !comment.trim() ? t('policies.commentRequired') : undefined
+                }
               >
-                {changeStatus.isPending ? t('common.saving') : t('common.confirm')}
+                {changeStatus.isPending ? t('common.saving') : t(`policies.transitions.${pending}`)}
               </Button>
             </>
           }
         >
-          <p className="mb-3 text-sm text-slate-600">
+          <p className="text-sm text-slate-600">
             {t(`policies.transitionConfirm.${pending}`, { number: policy.policy_number })}
           </p>
-          <label className="flex flex-col gap-1">
-            <span className="text-[13px] font-medium text-slate-600">
-              {t('policies.transitionComment')}
-              {commentMandatory(pending) && <span className="text-neg-500"> *</span>}
-            </span>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              rows={3}
-              className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-900 focus:outline-2 focus:outline-accent-600"
-            />
-          </label>
+          <Field
+            label={`${t('policies.transitionComment')}${commentMandatory(pending) ? ' *' : ''}`}
+            hint={commentMandatory(pending) ? t('policies.commentRequired') : undefined}
+          >
+            <Textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} />
+          </Field>
           {error && (
-            <p className="mt-2 text-[13px] text-neg-500" role="alert">
+            <p className="text-[13px] text-neg-500" role="alert">
               {error}
             </p>
           )}
@@ -291,6 +307,8 @@ function TermsCard({ policy }: { policy: PolicyWithRefs }) {
       <span className="num">{formatAmount(Number(v), locale)} {ccy}</span>
     )
 
+  // One basis is stated (the form saves the other as NULL); a policy that
+  // still carries both from before shows both, rather than hide a term.
   const maxLiability = [
     policy.max_liability_amount !== null
       ? `${formatAmount(Number(policy.max_liability_amount), locale)} ${ccy}`

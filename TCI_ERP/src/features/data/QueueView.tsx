@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
-import { Badge, Card, EmptyState, Panel, Segmented, Spinner, Table, ViewBar } from '../../components/ui'
+import { Badge, Card, Panel, Segmented, Spinner, Table, Truncate, ViewBar } from '../../components/ui'
 import { formatMoment } from '../../lib/format'
 import { useAgendaTasks } from '../agenda/api'
 import { taskLink } from '../agenda/catalogue'
@@ -36,7 +36,12 @@ export function QueueView() {
   const open = all.filter((r) => isOpen(r.status))
   const closed = all.filter((r) => !isOpen(r.status))
   const rows = scope === 'mine' ? mine : scope === 'open' ? open : closed
-  const unresolvedBuyers = (tasks.data ?? []).filter((task) => task.task_type === 'buyer_needs_entity')
+  // Only the buyers named in SUBMISSIONS: a client's proposed buyer opens the
+  // same task type but hangs off the proposal, and has a view of its own
+  // («Предложенные байеры»).
+  const unresolvedBuyers = (tasks.data ?? []).filter(
+    (task) => task.task_type === 'buyer_needs_entity' && task.object_type === 'insurance_request',
+  )
 
   return (
     <div>
@@ -59,11 +64,11 @@ export function QueueView() {
       {isLoading ? (
         <Spinner />
       ) : !rows.length ? (
-        <Card className="p-6">
-          <EmptyState
-            title={t(`data.queue.empty.${scope}`)}
-            hint={t('data.queue.emptyHint')}
-          />
+        // Compact: an empty scope is a fact, not a page — it must not push the
+        // list of unresolved buyers below the fold. Each scope says its own.
+        <Card className="px-5 py-4">
+          <p className="text-sm font-semibold text-slate-800">{t(`data.queue.empty.${scope}`)}</p>
+          <p className="mt-0.5 text-[13px] text-slate-500">{t(`data.queue.emptyHints.${scope}`)}</p>
         </Card>
       ) : (
         <Table dense>
@@ -71,7 +76,7 @@ export function QueueView() {
             <tr>
               <th>№</th>
               <th>{t('data.fields.kind')}</th>
-              <th>{t('data.fields.company')}</th>
+              <th className="cell-fill w-[30%]">{t('data.fields.company')}</th>
               <th>{t('data.fields.requestedBy')}</th>
               <th>{t('data.fields.assignedTo')}</th>
               <th>{t('data.fields.createdAt')}</th>
@@ -87,8 +92,8 @@ export function QueueView() {
                   </Link>
                 </td>
                 <td className="whitespace-nowrap text-slate-600">{t(`data.kinds.${r.kind}`)}</td>
-                <td>
-                  <span className="font-medium text-slate-800">{r.requested_name}</span>
+                <td className="cell-fill">
+                  <Truncate text={r.requested_name} className="max-w-none font-medium text-slate-800" />
                   {r.country_code && (
                     <span className="block text-[11.5px] text-slate-500">{countryName(r.country_code)}</span>
                   )}
@@ -121,13 +126,20 @@ export function QueueView() {
                   key={task.id}
                   className="flex items-baseline justify-between gap-4 border-b border-slate-100 py-2.5 text-[13px] first:pt-0 last:border-b-0"
                 >
-                  <span className="font-medium text-slate-800">{name}</span>
+                  <span className="min-w-0 truncate font-medium text-slate-800" title={name}>
+                    {name}
+                  </span>
+                  {/* One label everywhere: the submission it came from. */}
                   {href ? (
-                    <Link to={href} className="text-accent-600 hover:underline">
-                      {number ?? t('data.queue.openSubmission')}
+                    <Link to={href} className="shrink-0 whitespace-nowrap text-accent-600 hover:underline">
+                      {number ? t('data.queue.submissionLink', { number }) : t('data.queue.openSubmission')}
                     </Link>
                   ) : (
-                    <span className="text-slate-400">{number}</span>
+                    number && (
+                      <span className="shrink-0 whitespace-nowrap text-slate-400">
+                        {t('data.queue.submissionLink', { number })}
+                      </span>
+                    )
                   )}
                 </li>
               )

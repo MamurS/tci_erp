@@ -13,7 +13,7 @@
  */
 
 import { formatAmount, formatDate } from '../../lib/format'
-import type { Task, TaskPriority, TaskType } from './types'
+import type { Task, TaskObjectType, TaskPriority, TaskType } from './types'
 
 /** How a task type stops being open. `auto` = the event mapping closes it. */
 export type CompletionRule = 'auto' | 'manual'
@@ -232,22 +232,42 @@ export function groupTasks(tasks: readonly Task[], now: Date): AgendaSection[] {
 // Filters
 // ---------------------------------------------------------------------------
 
-/** The object kinds a row can be filtered down to, in display order. */
+/** The object kinds a row can be filtered down to, in display order. The
+ * filter offers only the kinds the board actually holds, with counts. */
 export const OBJECT_FILTERS = [
   'insurance_request',
   'credit_limit_request',
   'credit_limit_decision',
   'legal_entity',
-] as const
+  'policy',
+  'declaration',
+  'premium_instalment',
+  'overdue_notification',
+  'claim',
+  'entity_request',
+  'client_buyer_proposal',
+] as const satisfies readonly TaskObjectType[]
 
 export interface AgendaFilters {
   /** Empty = every type. */
   taskType: TaskType | ''
   /** Empty = every object kind. */
-  objectType: (typeof OBJECT_FILTERS)[number] | ''
+  objectType: TaskObjectType | ''
 }
 
 export const NO_FILTERS: AgendaFilters = { taskType: '', objectType: '' }
+
+/** The values a filter can offer: only those present, with their counts, in
+ * the given order. */
+export function presentValues<K extends string>(
+  order: readonly K[],
+  tasks: readonly Task[],
+  pick: (task: Task) => string,
+): { value: K; count: number }[] {
+  const counts = new Map<string, number>()
+  for (const task of tasks) counts.set(pick(task), (counts.get(pick(task)) ?? 0) + 1)
+  return order.filter((value) => counts.has(value)).map((value) => ({ value, count: counts.get(value) ?? 0 }))
+}
 
 export function applyFilters(tasks: readonly Task[], filters: AgendaFilters): Task[] {
   return tasks.filter(

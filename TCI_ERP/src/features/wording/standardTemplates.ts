@@ -5,6 +5,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { EM_DASH } from '../../lib/format'
 import { useSetTemplateStatus, useUploadWordingTemplate, useWordingTemplates } from './api'
 import EN_URL from './defaults/policy-wording-en.docx?url'
 import RU_URL from './defaults/policy-wording-ru.docx?url'
@@ -15,6 +16,28 @@ export const STANDARD_TEMPLATES = [
   { language: 'en', url: EN_URL },
   { language: 'uz', url: UZ_URL },
 ] as const
+
+/** The file name the standard templates are uploaded under — how a shipped
+ *  template is told from the insurer's own. */
+const STANDARD_FILE = /^policy-wording-(ru|en|uz)\.docx$/
+
+export function isStandardTemplate(template: { file_name: string } | null | undefined): boolean {
+  return Boolean(template && STANDARD_FILE.test(template.file_name))
+}
+
+/** A template's name and description as the screen shows them. A shipped
+ *  template's were stored in whatever language the installer's interface was
+ *  in («Shipped with TCI ERP…» in a Russian interface); they are shown in the
+ *  reader's language instead. The insurer's own templates read as entered. */
+export function useTemplateText() {
+  const { t } = useTranslation()
+  return {
+    name: (template: { name: string; file_name: string } | null | undefined): string =>
+      !template ? EM_DASH : isStandardTemplate(template) ? t('wording.standard.name') : template.name,
+    description: (template: { description: string | null; file_name: string }): string | null =>
+      isStandardTemplate(template) ? t('wording.standard.description') : template.description,
+  }
+}
 
 /** Uploads each standard template and activates it only where no active
  *  template exists for its key (any country, any product, that language). */

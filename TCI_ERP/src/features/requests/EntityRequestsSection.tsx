@@ -42,7 +42,7 @@ export function EntityRequestsSection({ entityId }: { entityId: string }) {
               onClick={() => void navigate(`/requests/${request.id}`)}
               className="cursor-pointer transition-colors hover:bg-slate-50"
             >
-              <td className="num font-medium text-slate-800">{request.request_number}</td>
+              <td className="font-medium whitespace-nowrap text-slate-800 tabular-nums">{request.request_number}</td>
               <td>
                 <span className="flex flex-wrap gap-1">
                   {asApplicant && (

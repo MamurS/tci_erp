@@ -54,3 +54,64 @@ export function premiumAccrual(
     { earned: 0, minimum: 0, adjustment: 0, instalmentsOverdue: 0 },
   )
 }
+
+// ---------------------------------------------------------------------------
+// Premium across currencies
+// ---------------------------------------------------------------------------
+
+export interface PremiumInCurrency {
+  currency: string
+  earned: number
+  minimum: number
+}
+
+export interface PremiumAccrualUzs {
+  /** Earned premium in UZS over the currencies that have a rate. */
+  earnedUzs: number
+  /** Minimum premium in UZS over the same currencies — the ratio's base. */
+  minimumUzs: number
+  /** What each currency holds, as booked: UZS first, then alphabetical. */
+  byCurrency: PremiumInCurrency[]
+  /** Currencies with no UZS rate: LEFT OUT of the UZS totals and named, never
+   * counted as zero — a total with a currency missing is incomplete, not small
+   * (the same rule as the portfolio views, 0052). */
+  missingRates: string[]
+}
+
+/**
+ * The book's premium as ONE figure. Policies are written in UZS, USD and EUR,
+ * and adding those raw (62.8M UZS + 11.7K USD) is a number that means nothing.
+ * Each currency is summed on its own and converted by `rateFor` — the app's fx
+ * rule, tci.latest_uzs_rate (limits/authority.ts `latestUzsRate`): the latest
+ * rate on or before today, CBU over manual, UZS = 1, null when there is none.
+ */
+export function premiumAccrualUzs(
+  policies: readonly { currency_code: string; earned_premium: number; minimum_premium: number }[],
+  rateFor: (currency: string) => number | null,
+): PremiumAccrualUzs {
+  const sums = new Map<string, PremiumInCurrency>()
+  for (const p of policies) {
+    const row = sums.get(p.currency_code) ?? { currency: p.currency_code, earned: 0, minimum: 0 }
+    row.earned += Number(p.earned_premium)
+    row.minimum += Number(p.minimum_premium)
+    sums.set(p.currency_code, row)
+  }
+  const byCurrency = [...sums.values()].sort((a, b) =>
+    a.currency === 'UZS' ? -1 : b.currency === 'UZS' ? 1 : a.currency.localeCompare(b.currency),
+  )
+
+  let earnedUzs = 0
+  let minimumUzs = 0
+  const missingRates: string[] = []
+  for (const row of byCurrency) {
+    const rate = row.currency === 'UZS' ? 1 : rateFor(row.currency)
+    if (rate === null) {
+      // A currency with nothing booked in it needs no rate to be complete.
+      if (row.earned !== 0 || row.minimum !== 0) missingRates.push(row.currency)
+      continue
+    }
+    earnedUzs += row.earned * rate
+    minimumUzs += row.minimum * rate
+  }
+  return { earnedUzs, minimumUzs, byCurrency, missingRates }
+}

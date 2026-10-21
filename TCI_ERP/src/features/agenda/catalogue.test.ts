@@ -10,6 +10,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { formatAmount } from '../../lib/format'
+import en from '../../i18n/locales/en.json'
 import MIGRATION from '../../../supabase/migrations/0024_agenda_tasks.sql?raw'
 import PHASE4 from '../../../supabase/migrations/0029_phase4_agenda_portal.sql?raw'
 import PHASE5 from '../../../supabase/migrations/0036_claims_agenda_portal.sql?raw'
@@ -25,7 +26,13 @@ import {
   groupOf,
   groupTasks,
   isOverdue,
+  displayTaskType,
+  deadlinePassesAt,
   NO_FILTERS,
+  OBJECT_FILTERS,
+  presentValues,
+  SUBJECT_IN_TITLE,
+  taskTitleKey,
   taskLink,
   formatTaskParams,
 } from './catalogue'
@@ -282,6 +289,67 @@ describe('grouping', () => {
   })
 })
 
+describe('a deadline that is a calendar date (Tashkent, UTC+5)', () => {
+  // `due_date::timestamptz` stores 21 October as 2026-10-21T00:00:00+00:00.
+  const dueToday = task({ task_type: 'instalment_due', due_at: '2026-10-21T00:00:00+00:00' })
+
+  it('is on time for the whole of its day', () => {
+    // 21 Oct, 05:00 and 23:59 in Tashkent.
+    expect(isOverdue(dueToday, new Date('2026-10-21T00:00:00Z'))).toBe(false)
+    expect(isOverdue(dueToday, new Date('2026-10-21T18:59:59Z'))).toBe(false)
+  })
+
+  it('is overdue once the day has ended in Tashkent', () => {
+    expect(isOverdue(dueToday, new Date('2026-10-21T19:00:00Z'))).toBe(true)
+    expect(isOverdue(dueToday, new Date('2026-10-22T09:00:00Z'))).toBe(true)
+  })
+
+  it('reads a plain ISO date and the Z spelling the same way', () => {
+    const end = new Date('2026-10-21T19:00:00Z').getTime()
+    expect(deadlinePassesAt('2026-10-21')).toBe(end)
+    expect(deadlinePassesAt('2026-10-21T00:00:00Z')).toBe(end)
+    expect(deadlinePassesAt('2026-10-21T00:00:00.000+00:00')).toBe(end)
+  })
+
+  it('keeps a real timestamp to the minute', () => {
+    expect(deadlinePassesAt('2026-10-21T09:30:00Z')).toBe(new Date('2026-10-21T09:30:00Z').getTime())
+  })
+
+  it('shows the due title on the due day and the overdue one after it, whatever the row says', () => {
+    const onTheDay = new Date('2026-10-21T10:00:00Z')
+    const nextDay = new Date('2026-10-22T10:00:00Z')
+    // The database may have opened it as overdue already…
+    const openedLate = { ...dueToday, task_type: 'instalment_overdue' as const, title_key: 'agenda.tasks.instalment_overdue' }
+    expect(displayTaskType(openedLate, onTheDay)).toBe('instalment_due')
+    expect(taskTitleKey(openedLate, onTheDay)).toBe('agenda.tasks.instalment_due')
+    // …or as due the day before it lapsed.
+    expect(taskTitleKey({ ...dueToday, title_key: 'agenda.tasks.instalment_due' }, nextDay)).toBe(
+      'agenda.tasks.instalment_overdue',
+    )
+    const declaration = task({
+      task_type: 'declaration_due',
+      title_key: 'agenda.tasks.declaration_due',
+      due_at: '2026-10-21T00:00:00+00:00',
+    })
+    expect(taskTitleKey(declaration, nextDay)).toBe('agenda.tasks.declaration_overdue')
+  })
+
+  it('leaves every other title as the database wrote it', () => {
+    const other = task({ due_at: '2026-01-01T00:00:00Z', title_key: 'agenda.tasks.limit_needs_decision' })
+    expect(taskTitleKey(other, NOW)).toBe('agenda.tasks.limit_needs_decision')
+  })
+})
+
+describe('subject placement', () => {
+  it('SUBJECT_IN_TITLE is exactly the titles that interpolate {{subject}}', () => {
+    const fromLocale = Object.entries(en.agenda.tasks)
+      .filter(([, text]) => text.includes('{{subject}}'))
+      .map(([key]) => key)
+      .sort()
+    expect([...SUBJECT_IN_TITLE].sort()).toEqual(fromLocale)
+  })
+})
+
 describe('ordering inside a group', () => {
   it('puts the soonest due first and undated last', () => {
     const later = task({ id: 'later', due_at: '2026-09-02T00:00:00Z' })
@@ -324,6 +392,20 @@ describe('filters', () => {
     expect(
       applyFilters(rows, { taskType: '', objectType: 'insurance_request' }).map((t) => t.id),
     ).toEqual(['b'])
+  })
+})
+
+describe('filter options', () => {
+  it('offers only the values present, with counts, in display order', () => {
+    const rows = [
+      task({ id: 'a', object_type: 'claim' }),
+      task({ id: 'b', object_type: 'insurance_request' }),
+      task({ id: 'c', object_type: 'claim' }),
+    ]
+    expect(presentValues(OBJECT_FILTERS, rows, (t) => t.object_type)).toEqual([
+      { value: 'insurance_request', count: 1 },
+      { value: 'claim', count: 2 },
+    ])
   })
 })
 

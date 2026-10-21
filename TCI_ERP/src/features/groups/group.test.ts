@@ -12,6 +12,7 @@ import {
   buildOwnershipTree,
   exposureByMember,
   exposureByPolicyholder,
+  formatOwnershipPct,
   membersOutsideTree,
   preflightState,
   rankMembers,
@@ -380,5 +381,26 @@ describe('group refusals — contract with the migrations', () => {
     // there is no escalated state for an adjustment. Both texts must stay.
     expect(M40).toContain("'result', 'group_limit_exceeded'")
     expect(M40).toContain('this adjustment would take the group to')
+  })
+})
+
+describe('formatOwnershipPct', () => {
+  it('reads the share as stored: numeric(5,2) in percent, 0..100 (0038)', () => {
+    expect(M38).toContain('ownership_pct     numeric(5,2)')
+    expect(M38).toContain('ownership_pct >= 0 and ownership_pct <= 100')
+  })
+
+  it('prints a percent value as a percent, never multiplied by 100', () => {
+    expect(formatOwnershipPct(100, 'ru')).toBe('100%')
+    expect(formatOwnershipPct(75, 'en')).toBe('75%')
+    expect(formatOwnershipPct('51.00', 'uz')).toBe('51%')
+    expect(formatOwnershipPct(12.5, 'ru')).toBe('12.5%')
+    expect(formatOwnershipPct(33.33, 'en')).toBe('33.33%')
+  })
+
+  it('renders an absent share as a dash, not 0%', () => {
+    expect(formatOwnershipPct(null, 'ru')).toBe('—')
+    expect(formatOwnershipPct(undefined, 'ru')).toBe('—')
+    expect(formatOwnershipPct('', 'ru')).toBe('—')
   })
 })
