@@ -49,7 +49,7 @@ export function PolicyDetailPage() {
       <EmptyState
         title={t('policies.notFound')}
         action={
-          <Link to="/policies" className="text-sm font-medium text-accent-700 hover:underline">
+          <Link to="/policies?view=registry" className="text-sm font-medium text-accent-700 hover:underline">
             {t('policies.backToList')}
           </Link>
         }
@@ -70,7 +70,7 @@ export function PolicyDetailPage() {
         }
         subtitle={
           <span>
-            <Link to="/policies" className="text-accent-700 hover:underline">
+            <Link to="/policies?view=registry" className="text-accent-700 hover:underline">
               {t('nav.policies')}
             </Link>
             {' / '}

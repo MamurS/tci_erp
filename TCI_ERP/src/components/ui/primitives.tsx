@@ -7,7 +7,7 @@
  * marker, condensed PT Sans Narrow for titles / labels / key figures, Inter
  * for running UI text. Crisp 6–10px radii, hairline borders, soft shadows.
  */
-import { useEffect, useId } from 'react'
+import { Suspense, useEffect, useId } from 'react'
 import type {
   ButtonHTMLAttributes,
   InputHTMLAttributes,
@@ -305,6 +305,65 @@ export function PageHeader({ title, subtitle, actions, eyebrow }: PageHeaderProp
 }
 
 // ---------------------------------------------------------------------------
+// SectionPage / ViewBar
+// ---------------------------------------------------------------------------
+
+interface SectionPageProps {
+  title: ReactNode
+  subtitle?: ReactNode
+  tabs: { key: string; label: string; count?: number }[]
+  active: string
+  onChange: (key: string) => void
+  children: ReactNode
+}
+
+/**
+ * A section with views (?view=): ONE header and ONE strip of tabs that never
+ * move when the view changes — same width, same title, same subtitle. What a
+ * view needs to say or offer goes in its ViewBar below the tabs.
+ */
+export function SectionPage({ title, subtitle, tabs, active, onChange, children }: SectionPageProps) {
+  return (
+    <div className="mx-auto max-w-7xl">
+      <PageHeader title={title} subtitle={subtitle} />
+      <div className="mb-5">
+        <Tabs tabs={tabs} active={active} onChange={onChange} />
+      </div>
+      {/* Views load lazily; the header and the tabs must not blink while one does. */}
+      <Suspense
+        fallback={
+          <div className="flex min-h-64 items-center justify-center">
+            <Spinner />
+          </div>
+        }
+      >
+        {children}
+      </Suspense>
+    </div>
+  )
+}
+
+interface ViewBarProps {
+  /** One line on what this view is for. */
+  hint?: ReactNode
+  /** The view's own controls: filters, switches, its primary action. */
+  actions?: ReactNode
+}
+
+/** The row under a section's tabs: the view's hint on the left, its actions
+ * on the right, one fixed minimum height so the content below starts at the
+ * same place in every view that has one. */
+export function ViewBar({ hint, actions }: ViewBarProps) {
+  if (!hint && !actions) return null
+  return (
+    <div className="mb-5 flex min-h-9 flex-wrap items-center justify-between gap-x-6 gap-y-3">
+      {hint ? <p className="max-w-3xl min-w-0 flex-1 text-[13px] leading-relaxed text-slate-500">{hint}</p> : <span />}
+      {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // EmptyState
 // ---------------------------------------------------------------------------
 
@@ -353,8 +412,14 @@ interface TabsProps {
 
 export function Tabs({ tabs, active, onChange, size = 'md' }: TabsProps) {
   const pad = size === 'sm' ? 'px-3 py-2 text-[13px]' : 'px-3.5 py-2.5 text-sm'
+  // The rule under the tabs is an inset shadow, not a border: the selected
+  // tab's underline then sits ON it without a negative margin, so the strip
+  // never overflows vertically (which showed a stray scrollbar on Windows).
   return (
-    <div className="scrollbar-thin flex gap-1 overflow-x-auto border-b border-slate-200" role="tablist">
+    <div
+      className="scrollbar-thin flex gap-1 overflow-x-auto overflow-y-hidden shadow-[inset_0_-1px_0_var(--color-slate-200)]"
+      role="tablist"
+    >
       {tabs.map((tab) => {
         const selected = tab.key === active
         return (
@@ -364,7 +429,7 @@ export function Tabs({ tabs, active, onChange, size = 'md' }: TabsProps) {
             role="tab"
             aria-selected={selected}
             onClick={() => onChange(tab.key)}
-            className={`-mb-px flex shrink-0 items-center gap-1.5 border-b-2 font-medium whitespace-nowrap transition-colors ${pad} ${
+            className={`flex shrink-0 items-center gap-1.5 border-b-2 font-medium whitespace-nowrap transition-colors ${pad} ${
               selected
                 ? 'border-accent-500 text-accent-600'
                 : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-800'

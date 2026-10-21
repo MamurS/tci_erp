@@ -9,7 +9,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, PageHeader, Segmented, Spinner, StatCard } from '../../components/ui'
+import { Badge, Card, EmptyState, ViewBar, Segmented, Spinner, StatCard } from '../../components/ui'
 import { formatAmount, formatCompact, formatDays } from '../../lib/format'
 import { statusTone } from '../policies/statusMachine'
 import type { PolicyPortfolioRow } from './aggregate'
@@ -79,10 +79,9 @@ export function PolicyPortfolioPage() {
   )
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <PageHeader
-        title={t('portfolio.policies.title')}
-        subtitle={t('portfolio.policies.subtitle')}
+    <div>
+      <ViewBar
+        hint={t('portfolio.policies.subtitle')}
         actions={
           <Segmented
             value={scope}

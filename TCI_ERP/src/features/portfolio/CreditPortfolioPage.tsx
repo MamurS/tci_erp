@@ -11,7 +11,7 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, PageHeader, Spinner, StatCard } from '../../components/ui'
+import { Badge, Card, EmptyState, ViewBar, Spinner, StatCard } from '../../components/ui'
 import { formatAmount, formatCompact, formatDays, formatMoment } from '../../lib/format'
 import {
   creditTotals,
@@ -59,8 +59,8 @@ export function CreditPortfolioPage() {
   )
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <PageHeader title={t('portfolio.credit.title')} subtitle={t('portfolio.credit.subtitle')} />
+    <div>
+      <ViewBar hint={t('portfolio.credit.subtitle')} />
 
       {isLoading ? (
         <Spinner />

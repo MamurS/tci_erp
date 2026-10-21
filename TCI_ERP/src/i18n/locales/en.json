@@ -26,16 +26,14 @@
     "show": "Show the menu",
     "shortcutHint": "Ctrl/⌘ B — show or hide the menu · Ctrl/⌘ K — search",
     "workspace": "Workspace",
-    "policyPortfolio": "Policy portfolio",
-    "creditPortfolio": "Limit portfolio",
     "workspaces": {
       "commercial": {
         "name": "Commercial underwriting",
-        "hint": "Policy portfolio, submissions, policies and contracts"
+        "hint": "Policies and their portfolio, submissions and contracts"
       },
       "credit": {
         "name": "Credit underwriting",
-        "hint": "Limit portfolio, credit limits and decisions"
+        "hint": "Decision queue, limits in force, monitoring, ratings and groups"
       },
       "sales": {
         "name": "Sales",
@@ -1149,8 +1147,10 @@
     "views": {
       "registry": "Policy register",
       "contracts": "Contracts",
-      "templates": "Contract templates"
-    }
+      "templates": "Contract templates",
+      "overview": "Overview"
+    },
+    "sectionSubtitle": "The commercial underwriter's tools: the portfolio, the policy register, draft contracts and the templates they are made from."
   },
   "limits": {
     "subtitle": "Credit limit requests and decisions",
@@ -1327,7 +1327,109 @@
     "systemReason": {
       "noaSuspension": "Suspended on an overdue notification",
       "claimApproved": "Suspended: a claim was approved on this buyer"
-    }
+    },
+    "views": {
+      "overview": "Overview",
+      "queue": "Decision queue",
+      "inforce": "Limits in force",
+      "monitoring": "Monitoring",
+      "ratings": "Ratings",
+      "groups": "Groups",
+      "authority": "My authority"
+    },
+    "workbench": {
+      "queue": {
+        "title": "Decision queue",
+        "mineOnly": "Only what I can decide alone",
+        "decision": "Decision",
+        "alone": "Mine to decide",
+        "beyond": "Beyond me",
+        "noRate": "No UZS rate"
+      },
+      "inforce": {
+        "title": "Limits in force",
+        "subtitle": "Every approved or partially approved limit on a bound policy, with the buyer's current rating and the review date. Amounts in UZS at the latest rate.",
+        "allBands": "All bands",
+        "allCountries": "All countries",
+        "allCurrencies": "All currencies",
+        "noMatch": "No limit matches the filters",
+        "noMatchHint": "Clear a filter or the search to see more.",
+        "review": "Days to review"
+      },
+      "monitoring": {
+        "title": "Monitoring",
+        "subtitle": "What in the book needs attention now: reviews coming up, ratings that worsened since the decision, overdue accounts and groups near their cap.",
+        "clear": "Nothing needs attention",
+        "clearHint": "No review within {{days}} days, no worsened rating, no open overdue notification and no group near its cap.",
+        "reviews": "Reviews within {{days}} days and overdue",
+        "reviewsHint": "Limits whose review date is near or has passed, soonest first.",
+        "worse": "Rating worse than at the decision",
+        "worseHint": "The buyer's latest rating is in a worse band than the one the limit was decided in.",
+        "noWorse": "No buyer's rating has worsened since its limit was decided.",
+        "decidedIn": "Decided in",
+        "ratedNow": "Rated now",
+        "noas": "Open overdue notifications",
+        "noasHint": "Buyers reported overdue by a policyholder. Filing suspends the buyer's limit on that policy automatically.",
+        "noNoas": "No open overdue notifications.",
+        "overdueAmount": "Overdue",
+        "daysPastDue": "Days past due",
+        "limit": "Limit",
+        "suspended": "Suspended",
+        "notSuspended": "Not suspended",
+        "groups": "Groups over or near their cap",
+        "groupsHint": "Total in-force exposure of the group against its group limit; flagged from 90%.",
+        "noGroups": "No group is over or near its cap.",
+        "overdueHint": "A negative number is the days since the review date passed"
+      },
+      "ratings": {
+        "title": "Rating worklist",
+        "subtitle": "Buyers with an open request, a limit in force or a place in a live submission whose rating needs work.",
+        "filter": "Reason",
+        "all": "All",
+        "reasons": {
+          "no_statements": "No financials",
+          "no_rating": "Not rated",
+          "new_statement": "Newer statements",
+          "stale": "Older than a year"
+        },
+        "empty": "Every buyer is rated on its latest financials",
+        "emptyHint": "A buyer appears here when it has live credit business and no rating, a newer period than the one rated, or a rating older than a year.",
+        "reason": "Reason",
+        "latestStatement": "Latest year",
+        "openRequests": "Open requests",
+        "limitsInForce": "Limits in force"
+      },
+      "groups": {
+        "title": "Groups and concentration",
+        "subtitle": "Corporate groups with their in-force exposure in UZS against the group limit, breaches first. Set or end a group limit on the parent company's group tab.",
+        "empty": "No corporate groups yet",
+        "emptyHint": "A group appears once two companies are linked on a company's group tab, or a group limit is set.",
+        "members": "With limits / members",
+        "cap": "Group limit",
+        "used": "Used",
+        "state": "State",
+        "states": {
+          "over": "Over the limit",
+          "near": "Near the limit",
+          "within": "Within the limit",
+          "uncapped": "No group limit"
+        }
+      },
+      "authority": {
+        "title": "My authority",
+        "subtitle": "How much you may approve on your own in each rating band, and the grants behind it. Above it a decision is escalated.",
+        "rateMissing": "A grant's currency has no UZS rate",
+        "none": "No authority",
+        "byBand": "Credit authority by band",
+        "byBandHint": "The highest of your valid credit grants for the band, in UZS at the latest rate — the figure a decision is checked against.",
+        "creditUzs": "In UZS",
+        "grants": "My grants",
+        "noGrants": "You hold no authority grant",
+        "noGrantsHint": "An administrator grants authority on the administration screen. Without one every decision you take is escalated.",
+        "stream": "Stream"
+      }
+    },
+    "sectionSubtitle": "The credit underwriter's workbench: portfolio, decisions, limits in force, monitoring, ratings, groups and your own authority."
   },
   "entities": {
     "subtitle": "Unified registry — policyholders, buyers and analysis prospects",

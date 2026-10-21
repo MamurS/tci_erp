@@ -468,6 +468,20 @@ is fine for internal test accounts and not fine for customers.
   `tci.v_policy_portfolio` / `tci.v_credit_portfolio`. See **Workspace and
   portfolio rules** below. **Canonical: 0052 applied 2026-10-20**, live
   smoke with role impersonation rolled back
+- [x] Credit underwriting workbench (migration 0053): «Кредитные лимиты» is
+  the credit desk's hub — «Обзор» (the limit portfolio), «Очередь решений»
+  (with the band each open request would be decided in and «в пределах моих
+  полномочий» per request), «Действующие лимиты» (register with filters),
+  «Мониторинг» (reviews ≤ 30 days and overdue, rating worse than at the
+  decision, open NOAs, groups over / near their cap), «Рейтинги» (the rating
+  worklist), «Группы» (groups against their caps) and «Мои полномочия»; sales
+  and commercial underwriting see the queue and the register only. «Портфель
+  полисов» is likewise the «Обзор» view of «Полисы»; `/portfolio/credit` and
+  `/portfolio/policies` redirect. Views `tci.v_limit_request_queue`,
+  `tci.v_rating_worklist`, `tci.v_group_limit_status`. See **Credit workbench
+  rules** below. **Canonical: 0053 applied 2026-10-20**, live smoke with role
+  impersonation (two credit underwriters, admin, client) rolled back, counts
+  unchanged, no new advisor finding
 - [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1106,6 +1120,36 @@ a bookmark or a link inside a locale string still lands. Route access is
 submission except draft / declined / withdrawn (`wording/contracts.ts`).
 Generation needs an ACTIVE template; with none, the page says so and offers
 the standard templates to whoever may manage them.
+
+### Credit workbench rules (migration 0053)
+
+**A section is a set of views, and the roles choose which.** «Полисы» and
+«Кредитные лимиты» are one sidebar item each, with tabs synced to `?view=`
+(`policies/views.ts`, `limits/workbench/views.ts`). The overview (and, for
+limits, monitoring, ratings, groups and authority) belongs to the owning desk
+— commercial resp. credit underwriting, and admin; everyone else who may open
+the route gets the rest, and an unknown or forbidden view falls back to the
+first allowed one. The old `/limits?tab=…` deep link still opens the queue.
+
+**"Can I decide this?" is the database's answer.** `v_limit_request_queue`
+computes the band from the buyer's latest assessment (`unrated` without one)
+and `decide_alone = admin or amount_uzs <= the caller's credit authority for
+that band` — the rule of `decide_limit_request`, with one difference stated in
+the view comment: a grant in a currency with no rate is SKIPPED there instead
+of raising, so one bad grant cannot empty the list. The screen only shows it.
+
+**The rating worklist reasons are ordered and exclusive**: `no_statements`
+(nothing to rate on — the information manager's work), `no_rating`,
+`new_statement` (a LATER period than the rated statement, compared by
+`period_end_date`, not by when it was typed in), `stale` (older than twelve
+months — the same threshold as `refresh_agenda`'s `rating_stale`, asserted in
+0053). `RATING_REASONS` mirrors the order and a contract test reads it from
+the migration.
+
+**A standalone buyer is not a group.** Every buyer with a limit is its own
+ultimate parent in `v_group_exposure`; `v_group_limit_status` keeps only
+`tci.entity_group` sizes above one, or a live group limit. `over_limit` is the
+database's comparison; "near" (≥ 90%) is presentation only.
 
 ### Phase 6 rules that are easy to get wrong
 

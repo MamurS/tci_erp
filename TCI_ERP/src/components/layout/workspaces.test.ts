@@ -53,15 +53,14 @@ describe('workspaces', () => {
     const nav = workspaceNav(['commercial_underwriter'], commercial)
     expect(nav.common.map((i) => i.key)).toEqual(['dashboard', 'agenda', 'entities'])
     expect(nav.own.map((i) => i.key)).toContain('policies')
-    expect(nav.own.map((i) => i.key)).not.toContain('creditPortfolio')
-    // sales opening the commercial workspace would still not see its portfolio
-    expect(workspaceNav(['sales'], commercial).own.map((i) => i.key)).not.toContain('policyPortfolio')
+    // a credit underwriter opening the commercial workspace still sees only what they may open
+    expect(workspaceNav(['credit_underwriter'], commercial).own.map((i) => i.key)).not.toContain('policies')
   })
 
   it('lands each workspace on its own first tool', () => {
     const byKey = Object.fromEntries(WORKSPACES.map((w) => [w.key, w]))
-    expect(workspaceHome(['admin'], byKey.commercial)).toBe('/portfolio/policies')
-    expect(workspaceHome(['admin'], byKey.credit)).toBe('/portfolio/credit')
+    expect(workspaceHome(['admin'], byKey.commercial)).toBe('/policies')
+    expect(workspaceHome(['admin'], byKey.credit)).toBe('/limits')
     expect(workspaceHome(['sales'], byKey.sales)).toBe('/requests')
     expect(workspaceHome(['admin'], byKey.admin)).toBe('/admin')
   })
@@ -76,8 +75,8 @@ describe('workspaces', () => {
   })
 
   it('moves to a workspace that contains a page opened from elsewhere', () => {
-    expect(resolveWorkspace(['admin'], 'claims', '/portfolio/policies')).toBe('commercial')
-    expect(resolveWorkspace(['admin'], 'sales', '/portfolio/credit')).toBe('credit')
+    expect(resolveWorkspace(['admin'], 'claims', '/policies/p1')).toBe('commercial')
+    expect(resolveWorkspace(['admin'], 'admin', '/limits/r1')).toBe('commercial')
     expect(resolveWorkspace(['credit_underwriter', 'sales'], 'credit', '/policies/p1')).toBe('sales')
   })
 

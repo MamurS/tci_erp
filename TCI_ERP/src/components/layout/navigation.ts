@@ -58,19 +58,9 @@ export const NAV_ITEMS: readonly NavItem[] = [
     roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'client'],
   },
   {
-    key: 'creditPortfolio',
-    path: '/portfolio/credit',
-    roles: ['admin', 'credit_underwriter'],
-  },
-  {
     key: 'policies',
     path: '/policies',
     roles: ['admin', 'sales', 'commercial_underwriter', 'client'],
-  },
-  {
-    key: 'policyPortfolio',
-    path: '/portfolio/policies',
-    roles: ['admin', 'commercial_underwriter'],
   },
   {
     key: 'declarations',

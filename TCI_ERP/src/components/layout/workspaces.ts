@@ -32,12 +32,12 @@ export const WORKSPACES: readonly Workspace[] = [
   {
     key: 'commercial',
     roles: ['commercial_underwriter'],
-    items: ['policyPortfolio', 'requests', 'policies', 'declarations', 'limits', 'overdues', 'claims'],
+    items: ['policies', 'requests', 'limits', 'declarations', 'overdues', 'claims'],
   },
   {
     key: 'credit',
     roles: ['credit_underwriter'],
-    items: ['creditPortfolio', 'limits', 'requests', 'overdues', 'declarations', 'claims'],
+    items: ['limits', 'requests', 'overdues', 'declarations', 'claims'],
   },
   {
     key: 'sales',

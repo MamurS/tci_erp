@@ -216,7 +216,7 @@ export function PolicyFormPage() {
       <PageHeader
         title={isEdit ? t('policies.editTitle', { number: form.policy_number }) : t('policies.newPolicy')}
         subtitle={
-          <Link to={isEdit && id ? `/policies/${id}` : '/policies'} className="text-accent-700 hover:underline">
+          <Link to={isEdit && id ? `/policies/${id}` : '/policies?view=registry'} className="text-accent-700 hover:underline">
             {t('policies.backToList')}
           </Link>
         }
@@ -224,7 +224,7 @@ export function PolicyFormPage() {
           <div className="flex items-center gap-2">
             <Button
               variant="secondary"
-              onClick={() => void navigate(isEdit && id ? `/policies/${id}` : '/policies')}
+              onClick={() => void navigate(isEdit && id ? `/policies/${id}` : '/policies?view=registry')}
             >
               {t('common.cancel')}
             </Button>

@@ -55,6 +55,7 @@ export interface CreditPortfolioRow {
   approved_amount: number | string | null
   currency_code: string
   amount_uzs: number | string | null
+  payment_terms_days?: number | null
   valid_until: string | null
   days_to_review: number | null
   decision_band: string

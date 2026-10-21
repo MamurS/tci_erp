@@ -1,7 +1,6 @@
 /** Policy registry with status/policyholder/structure filters. */
 
 import { useMemo, useState } from 'react'
-import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -10,8 +9,7 @@ import {
   Button,
   EmptyState,
   Input,
-  PageHeader,
-  Select,
+  ViewBar, Select,
   Spinner,
   Table,
 } from '../../components/ui'
@@ -21,7 +19,7 @@ import { usePolicies } from './api'
 import { statusTone } from './statusMachine'
 import { POLICY_STATUSES, PRODUCT_STRUCTURES } from './types'
 
-export function PoliciesPage({ sectionTabs }: { sectionTabs?: ReactNode } = {}) {
+export function PoliciesPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const navigate = useNavigate()
@@ -47,14 +45,12 @@ export function PoliciesPage({ sectionTabs }: { sectionTabs?: ReactNode } = {}) 
 
   return (
     <div>
-      <PageHeader
-        title={t('nav.policies')}
-        subtitle={t('policies.subtitle')}
+      <ViewBar
+        hint={t('policies.subtitle')}
         actions={
           <Button onClick={() => void navigate('/policies/new')}>{t('policies.newPolicy')}</Button>
         }
       />
-      {sectionTabs}
 
       <div className="mb-4 flex flex-wrap gap-2">
         <Input
