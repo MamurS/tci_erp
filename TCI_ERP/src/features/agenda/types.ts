@@ -34,6 +34,10 @@ export const TASK_TYPES = [
   // Phase 6 (migration 0041)
   'group_exposure_near_limit',
   'group_limit_missing',
+  // Data management (migration 0054)
+  'entity_requested',
+  'statements_requested',
+  'entity_request_resolved',
 ] as const
 
 export type TaskType = (typeof TASK_TYPES)[number]
@@ -54,6 +58,10 @@ export type TaskObjectType =
   | 'premium_instalment'
   | 'overdue_notification'
   | 'claim'
+  // a buyer a client proposed from the portal (0025)
+  | 'client_buyer_proposal'
+  // a request for a company or for statements (0054)
+  | 'entity_request'
 
 export interface Task {
   id: string

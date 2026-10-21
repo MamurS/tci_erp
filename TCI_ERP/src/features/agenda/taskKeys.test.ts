@@ -38,6 +38,11 @@ describe.each([
 
   it('has a title for every title key a migration writes', () => {
     expect(titleKeys.size).toBeGreaterThan(20)
-    expect([...titleKeys].filter((key) => !agenda.tasks[key])).toEqual([])
+    // A key written as a prefix plus a status ('…_resolved_' || status, 0054)
+    // needs a title per outcome.
+    const expanded = [...titleKeys].flatMap((key) =>
+      key.endsWith('_') ? ['created', 'linked', 'updated', 'rejected'].map((s) => key + s) : [key],
+    )
+    expect(expanded.filter((key) => !agenda.tasks[key])).toEqual([])
   })
 })

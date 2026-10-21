@@ -3,6 +3,7 @@ import {
   BriefcaseBusiness,
   Building2,
   ClipboardList,
+  DatabaseZap,
   FileText,
   FileWarning,
   Gauge,
@@ -26,6 +27,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   declarations: ClipboardList,
   overdues: AlarmClock,
   claims: FileWarning,
+  data: DatabaseZap,
   admin: Settings,
 }
 
@@ -39,6 +41,7 @@ export const WORKSPACE_ICONS: Record<string, LucideIcon> = {
   credit: Gauge,
   sales: Handshake,
   claims: FileWarning,
+  data: DatabaseZap,
   admin: Settings,
 }
 

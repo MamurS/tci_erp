@@ -32,6 +32,11 @@ interface EntityFormModalProps {
    * navigated to - the caller stays where it is (submission buyer
    * resolution). Without it the form keeps its registry behaviour. */
   onCreated?: (entity: LegalEntity) => void
+  /** Pre-fills a NEW company from a data request or an official registry
+   * record. Ignored when editing. The duplicate checks run on it as usual. */
+  prefill?: Partial<
+    Pick<LegalEntity, 'name' | 'country_code' | 'registration_number' | 'address' | 'founded_date' | 'legal_form'>
+  >
 }
 
 export function EntityFormModal({
@@ -40,6 +45,7 @@ export function EntityFormModal({
   initial,
   initialName,
   onCreated,
+  prefill,
 }: EntityFormModalProps) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
@@ -64,15 +70,20 @@ export function EntityFormModal({
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Compared by value: a caller may build the prefill object on every render,
+  // and a refetch in the page behind must not wipe what is being typed.
+  const prefillKey = JSON.stringify(initial ? null : (prefill ?? null))
+
   useEffect(() => {
     if (open) {
-      setName(initial?.name ?? initialName ?? '')
-      setLegalForm(initial?.legal_form ?? '')
-      setCountryCode(initial?.country_code ?? 'UZ')
+      const seed = JSON.parse(prefillKey) as EntityFormModalProps['prefill'] | null
+      setName(initial?.name ?? seed?.name ?? initialName ?? '')
+      setLegalForm(initial?.legal_form ?? seed?.legal_form ?? '')
+      setCountryCode(initial?.country_code ?? seed?.country_code ?? 'UZ')
       setIndustryId(initial?.industry_id ?? '')
-      setRegistrationNumber(initial?.registration_number ?? '')
-      setFoundedDate(initial?.founded_date ?? '')
-      setAddress(initial?.address ?? '')
+      setRegistrationNumber(initial?.registration_number ?? seed?.registration_number ?? '')
+      setFoundedDate(initial?.founded_date ?? seed?.founded_date ?? '')
+      setAddress(initial?.address ?? seed?.address ?? '')
       setWebsite(initial?.website ?? '')
       setContactPerson(initial?.contact_person ?? '')
       setContactEmail(initial?.contact_email ?? '')
@@ -80,7 +91,7 @@ export function EntityFormModal({
       setNotes(initial?.notes ?? '')
       setError(null)
     }
-  }, [open, initial, initialName])
+  }, [open, initial, initialName, prefillKey])
 
   // Dedup-on-entry (both checks exclude the entity being edited).
   const regMatch = useRegNumberMatch(countryCode, registrationNumber, initial?.id)

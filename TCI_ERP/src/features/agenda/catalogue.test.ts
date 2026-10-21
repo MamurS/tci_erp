@@ -14,6 +14,7 @@ import MIGRATION from '../../../supabase/migrations/0024_agenda_tasks.sql?raw'
 import PHASE4 from '../../../supabase/migrations/0029_phase4_agenda_portal.sql?raw'
 import PHASE5 from '../../../supabase/migrations/0036_claims_agenda_portal.sql?raw'
 import PHASE6 from '../../../supabase/migrations/0041_group_agenda_financials.sql?raw'
+import DATA from '../../../supabase/migrations/0054_data_management.sql?raw'
 import {
   AGENDA_GROUPS,
   agendaCounts,
@@ -70,6 +71,7 @@ describe('task type enum', () => {
       ...PHASE4.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
       ...PHASE5.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
       ...PHASE6.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
+      ...DATA.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
     ].map((m) => m[1])
     expect([...created, ...appended]).toEqual([...TASK_TYPES])
   })
@@ -92,7 +94,10 @@ describe('task type enum', () => {
       l.startsWith('alter type tci.task_type add value '),
     )
     expect(addedP6).toHaveLength(2)
-    expect(TASK_TYPES).toHaveLength(27)
+    // 0054 adds the three data-request types.
+    const addedData = DATA.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
+    expect(addedData).toHaveLength(3)
+    expect(TASK_TYPES).toHaveLength(30)
   })
 
   it('lists exactly the values of tci.task_priority', () => {
@@ -108,23 +113,25 @@ describe('completion rules', () => {
     expect(Object.keys(COMPLETION_RULES).sort()).toEqual([...TASK_TYPES].sort())
   })
 
-  it('marks exactly the three types the migrations call manual', () => {
+  it('marks exactly the four types the migrations call manual', () => {
     const manual = TASK_TYPES.filter((type) => COMPLETION_RULES[type] === 'manual')
     expect([...manual].sort()).toEqual([
       'claim_declined_review',
+      'entity_request_resolved',
       'submission_declined',
       'uncovered_excess_review',
     ])
+    expect(DATA).toContain('entity_request_resolved  the requester (user)                         normal  MANUAL')
     expect(MIGRATION).toContain('submission_declined is manual because nothing downstream happens')
     expect(PHASE4).toContain('uncovered_excess_review is MANUAL because nothing downstream resolves it')
     expect(PHASE5).toContain('claim_declined_review is MANUAL for the same reason as submission_declined')
   })
 
-  it('mirrors the guard in tci.complete_task as 0036 restated it', () => {
-    expect(PHASE5).toContain(
-      "     ('submission_declined', 'uncovered_excess_review', 'claim_declined_review') then",
+  it('mirrors the guard in tci.complete_task as 0054 restated it', () => {
+    expect(DATA).toContain(
+      "     ('submission_declined', 'uncovered_excess_review', 'claim_declined_review',\n      'entity_request_resolved') then",
     )
-    const MANUAL = ['submission_declined', 'uncovered_excess_review', 'claim_declined_review']
+    const MANUAL = ['submission_declined', 'uncovered_excess_review', 'claim_declined_review', 'entity_request_resolved']
     for (const type of TASK_TYPES) {
       expect(canCompleteByHand(type)).toBe(MANUAL.includes(type))
     }
@@ -132,7 +139,7 @@ describe('completion rules', () => {
 
   it('agrees with the catalogue table in the migration headers', () => {
     // Each header row is "<type>  <target>  AUTO ..." or "... MANUAL - ...".
-    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}`.split('\n')
+    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}`.split('\n')
     for (const type of TASK_TYPES) {
       const row = headers.find(
         (line) => line.startsWith(`--   ${type}`) && /\b(AUTO|MANUAL)\b/.test(line),
@@ -140,6 +147,19 @@ describe('completion rules', () => {
       expect(row, `header row for ${type}`).toBeDefined()
       expect(COMPLETION_RULES[type]).toBe(row?.includes('MANUAL') ? 'manual' : 'auto')
     }
+  })
+
+  it('deep-links data requests: the worker to the request, the requester to the company', () => {
+    expect(taskLink({ object_type: 'entity_request', object_id: 'r1', params: {}, task_type: 'entity_requested' })).toBe(
+      '/data/requests/r1',
+    )
+    expect(
+      taskLink({ object_type: 'entity_request', object_id: 'r1', params: { entity_id: 'e1' }, task_type: 'entity_request_resolved' }),
+    ).toBe('/entities/e1')
+    expect(
+      taskLink({ object_type: 'entity_request', object_id: 'r1', params: { entity_id: null }, task_type: 'entity_request_resolved' }),
+    ).toBeNull()
+    expect(taskLink({ object_type: 'client_buyer_proposal', object_id: 'p1', params: {} })).toBe('/data?view=proposals')
   })
 
   it('deep-links the Phase 4 object kinds', () => {

@@ -4,9 +4,10 @@ import M26 from '../../supabase/migrations/0026_declarations.sql?raw'
 import M27 from '../../supabase/migrations/0027_premium.sql?raw'
 import M28 from '../../supabase/migrations/0028_overdue_notifications.sql?raw'
 import M29 from '../../supabase/migrations/0029_phase4_agenda_portal.sql?raw'
+import M54 from '../../supabase/migrations/0054_data_management.sql?raw'
 import { OPERATIONS_REFUSALS, refusalKey } from './refusals'
 
-const ALL = [M26, M27, M28, M29].join('\n')
+const ALL = [M26, M27, M28, M29, M54].join('\n')
 
 describe('operations refusal mapping — contract with 0026-0029', () => {
   it('maps only refusals the database actually raises', () => {

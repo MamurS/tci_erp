@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import {
   Badge,
   Button,
+  Card,
   CountryFlag,
   EmptyState,
   Input,
@@ -26,6 +27,9 @@ import {
   useIndustries,
   useLatestGrades,
 } from './api'
+import { useAuth } from '../../auth/AuthContext'
+import { RequestEntityModal } from '../data/RequestEntityModal'
+import { canWorkRequests } from '../data/requests'
 import { EntityFormModal } from './EntityFormModal'
 import { gradeTone } from '../../lib/grade'
 import { EM_DASH } from '../../lib/format'
@@ -45,6 +49,9 @@ export function EntitiesPage() {
   const { data: industries } = useIndustries()
 
   const [search, setSearch] = useState('')
+  const [requesting, setRequesting] = useState(false)
+  const { roles: myRoles } = useAuth()
+  const dataDesk = canWorkRequests(myRoles)
   const [countryFilter, setCountryFilter] = useState('')
   const [industryFilter, setIndustryFilter] = useState('')
   const [roleChip, setRoleChip] = useState<RoleChip>('all')
@@ -125,6 +132,29 @@ export function EntitiesPage() {
 
       {isLoading ? (
         <Spinner label={t('common.loading')} />
+      ) : filtered.length === 0 && search.trim().length >= 3 ? (
+        // A search that finds nothing is where a missing company is noticed:
+        // offer to have it registered by an information manager (0054), or
+        // to add it now for those whose work that is.
+        <Card className="p-6">
+          <EmptyState
+            title={t('data.notFound.title', { query: search.trim() })}
+            hint={t('data.notFound.hint')}
+            action={
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button
+                  variant={dataDesk ? 'secondary' : 'primary'}
+                  onClick={() => setRequesting(true)}
+                >
+                  {t('data.notFound.request')}
+                </Button>
+                <Button variant={dataDesk ? 'primary' : 'secondary'} onClick={() => setModalOpen(true)}>
+                  {t('entities.add')}
+                </Button>
+              </div>
+            }
+          />
+        </Card>
       ) : filtered.length === 0 ? (
         <EmptyState
           title={t('entities.empty')}
@@ -184,7 +214,12 @@ export function EntitiesPage() {
         </Table>
       )}
 
-      <EntityFormModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <EntityFormModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        prefill={search.trim() ? { name: search.trim() } : undefined}
+      />
+      <RequestEntityModal open={requesting} initialName={search.trim()} onClose={() => setRequesting(false)} />
     </div>
   )
 }

@@ -12,6 +12,7 @@ import { tci } from '../../lib/supabase'
 import { Badge, Button, CountryFlag, EmptyState, PageHeader, Spinner, Tabs } from '../../components/ui'
 import { useEntity, useEntityRoles } from './api'
 import { BuyerLimitsTab } from '../limits/BuyerLimitsTab'
+import { RequestStatementsButton } from '../data/RequestStatementsButton'
 import { EntityFormModal } from './EntityFormModal'
 import { RoleBadges } from './EntitiesPage'
 import { FinancialsTab } from './financials/FinancialsTab'
@@ -119,9 +120,12 @@ export function EntityDetailPage() {
           </span>
         }
         actions={
-          <Button variant="secondary" onClick={() => setEditOpen(true)}>
-            {t('common.edit')}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <RequestStatementsButton entityId={entity.id} />
+            <Button variant="secondary" onClick={() => setEditOpen(true)}>
+              {t('common.edit')}
+            </Button>
+          </div>
         }
       />
 

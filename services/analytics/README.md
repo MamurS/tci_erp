@@ -177,7 +177,8 @@ instance; if this is ever scaled out, that is the piece to move to Redis.
 | `REQUEST_TIMEOUT_SECONDS` | no | `30` | per-request deadline |
 | `PROVISIONING_PER_IP_PER_HOUR` | no | `20` | rate limit |
 | `PROVISIONING_PER_CALLER_PER_HOUR` | no | `30` | rate limit |
-| `COMPUTE_PER_IP_PER_HOUR` | no | `600` | rate limit on rating / limit / fx |
+| `COMPUTE_PER_IP_PER_HOUR` | no | `600` | rate limit on rating / limit / fx / registry |
+| `COMPANIES_HOUSE_API_KEY` | no | unset | **secret**; turns on the UK Companies House registry source |
 | `TRUST_PROXY_HEADERS` | on a host | unset | believe `CF-Connecting-IP` / `X-Forwarded-For` |
 | `LOG_LEVEL` | no | `INFO` | |
 
@@ -206,6 +207,16 @@ Supabase is mocked throughout — the suite never touches a real project.
 - `POST /credit-limit` — rating result + financials → suggested limit with calculation trace
 - `GET /grade-scale` — grade zone boundaries (single source of truth for the UI)
 - `GET /fx?ccy=&date=` — CBU rate proxy (their API sends no CORS headers)
+
+### Company registries
+
+- `GET /registry/sources` — which sources are on (`gleif` always;
+  `companies_house` when `COMPANIES_HOUSE_API_KEY` is set)
+- `GET /registry/search?source=&q=&country=` — up to 10 records in one
+  shape (name, country, registration number, address, legal form, status,
+  founding date, a link to the source). A record is a suggestion: the
+  information manager confirms it in the company form. Upstream errors are
+  502 with no upstream text; the key is never logged.
 
 ### Provisioning
 

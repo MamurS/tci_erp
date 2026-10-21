@@ -55,10 +55,16 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   // refresh_agenda, so neither needs a button.
   group_exposure_near_limit: 'auto', // refresh_agenda: exposure falls back, or the limit changes
   group_limit_missing: 'auto', // refresh_agenda: a group limit exists
+  // Data management (migration 0054). The information manager's two close
+  // when the request is resolved; the requester's notice is the fourth
+  // manual type — nothing downstream happens once they have been told.
+  entity_requested: 'auto', // data.entity_request_resolved (or moves on reassignment)
+  statements_requested: 'auto', // same
+  entity_request_resolved: 'manual',
 }
 
-/** Mirrors tci.complete_task's guard: it refuses every other type. Two are
- * manual — `submission_declined` and `uncovered_excess_review`. */
+/** Mirrors tci.complete_task's guard (as 0054 restates it): it refuses
+ * every type the COMPLETION_RULES do not call manual. */
 export function canCompleteByHand(taskType: TaskType): boolean {
   return COMPLETION_RULES[taskType] === 'manual'
 }
@@ -103,6 +109,17 @@ export function taskLink(
       return `/overdues/${task.object_id}`
     case 'claim':
       return `/claims/${task.object_id}`
+    case 'entity_request':
+      // The information manager works the request; the requester is told the
+      // outcome and is sent to the company it produced (a rejection has none).
+      if (task.task_type === 'entity_request_resolved') {
+        const entityId = task.params?.entity_id
+        return typeof entityId === 'string' ? `/entities/${entityId}` : null
+      }
+      return `/data/requests/${task.object_id}`
+    case 'client_buyer_proposal':
+      // A buyer a client proposed from the portal: resolved on the data desk.
+      return '/data?view=proposals'
     default:
       return null
   }

@@ -46,8 +46,13 @@
       "admin": {
         "name": "Administratsiya",
         "hint": "Foydalanuvchilar, rollar, vakolatlar va shartnoma shablonlari"
+      },
+      "data": {
+        "name": "Ma’lumotlarni boshqarish",
+        "hint": "Tashkilot va hisobot so‘rovlari, ma’lumotlar dolzarbligi, taklif qilingan bayerlar"
       }
-    }
+    },
+    "data": "Ma’lumotlarni boshqarish"
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -1924,7 +1929,10 @@
       "instalment_overdue": "Mukofot to‘lovi muddati o‘tgan",
       "noa_credit_review": "Muddati o‘tgan: kredit tekshiruvi",
       "noa_matured_to_claim": "Muddati o‘tganlik da’voga aylandi",
-      "uncovered_excess_review": "Qoplamadan tashqari aylanma"
+      "uncovered_excess_review": "Qoplamadan tashqari aylanma",
+      "entity_requested": "Tashkilot so‘ralgan",
+      "statements_requested": "Hisobot so‘ralgan",
+      "entity_request_resolved": "So‘rovingiz bajarildi"
     },
     "tasks": {
       "buyer_needs_entity": "{{subject}} arizasidagi «{{name}}» ortidagi tashkilotni aniqlang",
@@ -1954,7 +1962,13 @@
       "claim_declined_review": "Da’vo rad etildi — sug‘urtalanuvchiga xabar bering: {{claim_number}}",
       "group_exposure_near_limit": "{{group_name}} guruhi guruh limitining {{utilisation_pct}}% dan foydalangan",
       "group_limit_missing": "{{group_name}} guruhida limitlar bor, lekin guruh limiti belgilanmagan",
-      "buyer_proposed": "Mijoz «{{name}}» bayerini taklif qildi — tashkilotni toping yoki ro‘yxatga oling"
+      "buyer_proposed": "Mijoz «{{name}}» bayerini taklif qildi — tashkilotni toping yoki ro‘yxatga oling",
+      "entity_requested": "«{{name}}» ({{country}}) tashkilotini kiritish — {{request_number}} so‘rovi",
+      "statements_requested": "«{{name}}» hisobotini yangilash — {{request_number}} so‘rovi",
+      "entity_request_resolved_created": "«{{name}}» reyestrga kiritildi ({{request_number}})",
+      "entity_request_resolved_linked": "«{{name}}» reyestrda allaqachon bor edi — tashkilotni ko‘ring ({{request_number}})",
+      "entity_request_resolved_updated": "«{{name}}» hisoboti yangilandi ({{request_number}})",
+      "entity_request_resolved_rejected": "«{{name}}» bo‘yicha {{request_number}} so‘rovi rad etildi: {{note}}"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
@@ -3129,6 +3143,177 @@
       "members": "Limitli a’zolar",
       "exposureMissing_one": "+ UZS kursisiz {{count}} ta limit qo‘shilmagan",
       "exposureMissing_other": "+ UZS kursisiz {{count}} ta limit qo‘shilmagan"
+    }
+  },
+  "data": {
+    "sectionSubtitle": "Axborot menejerining ish joyi: tashkilot va hisobot so‘rovlari, eskirgan ma’lumotlar hamda mijozlar taklif qilgan bayerlar.",
+    "views": {
+      "queue": "So‘rovlar",
+      "freshness": "Ma’lumotlar dolzarbligi",
+      "proposals": "Taklif qilingan bayerlar"
+    },
+    "queue": {
+      "hint": "So‘rov eng kam ochiq so‘rovi bo‘lgan axborot menejeriga tushadi. So‘rovni ishga oling yoki hamkasbga topshiring.",
+      "scope": "Qaysi so‘rovlar",
+      "mine": "Meniki",
+      "open": "Barcha ochiqlar",
+      "closed": "Yopilganlar",
+      "empty": {
+        "mine": "Sizga so‘rov biriktirilmagan",
+        "open": "Ochiq so‘rovlar yo‘q",
+        "closed": "Yopilgan so‘rovlar hali yo‘q"
+      },
+      "emptyHint": "So‘rovlar kimdir reyestrda yo‘q tashkilotni qidirganda yoki tashkilot kartochkasida yangi hisobot so‘raganda paydo bo‘ladi.",
+      "buyersTitle": "Arizalardagi tashkilotsiz bayerlar",
+      "buyersHint": "Sug‘urta arizasida ko‘rsatilgan, ammo reyestrdagi tashkilot bilan hali bog‘lanmagan.",
+      "openSubmission": "Arizani ochish"
+    },
+    "fields": {
+      "kind": "So‘rov",
+      "company": "Tashkilot",
+      "requestedBy": "So‘ragan",
+      "assignedTo": "Ijrochi",
+      "createdAt": "Yaratilgan",
+      "status": "Holat",
+      "role": "Roli",
+      "country": "Mamlakat",
+      "registrationNumber": "Ro‘yxatdan o‘tish raqami",
+      "assignedAt": "Biriktirilgan",
+      "note": "Izoh",
+      "reason": "Sabab"
+    },
+    "kinds": {
+      "new_company": "Yangi tashkilot",
+      "statements_update": "Yangi hisobot"
+    },
+    "statuses": {
+      "new": "Yangi",
+      "in_progress": "Ishda",
+      "created": "Tashkilot yaratildi",
+      "linked": "Mavjud tashkilot bilan bog‘landi",
+      "updated": "Hisobot yangilandi",
+      "rejected": "Rad etildi"
+    },
+    "unassigned": "Biriktirilmagan",
+    "roles": {
+      "buyer": "Bayer",
+      "policyholder": "Sug‘urtalanuvchi"
+    },
+    "freshness": {
+      "hint": "Faol munosabatlari bor — limit, polis, ochiq so‘rov yoki ishdagi ariza — ma’lumotlari e’tibor talab qiladigan tashkilotlar.",
+      "filter": "Sabab",
+      "all": "Barchasi",
+      "reasons": {
+        "no_statements": "Hisobot yo‘q",
+        "stale_statements": "Hisobot 15 oydan eski",
+        "missing_registry": "Rekvizitlar yetishmaydi"
+      },
+      "empty": "Barcha ma’lumotlar dolzarb",
+      "emptyHint": "Faol munosabatdagi barcha tashkilotlarning so‘nggi 15 oylik hisoboti va to‘liq rekvizitlari bor.",
+      "reason": "Sabab",
+      "latestPeriod": "So‘nggi hisobot",
+      "gaps": "To‘ldirilmagan",
+      "gap": {
+        "registration": "ro‘yxat raqami",
+        "address": "manzil",
+        "industry": "soha"
+      },
+      "openRequest": "So‘rovni ochish"
+    },
+    "registry": {
+      "title": "Rasmiy reyestrdan topish",
+      "hint": "Reyestr yozuvidan boshlang: nomi, ro‘yxat raqami va manzili tekshirish uchun shaklga qo‘yiladi.",
+      "source": "Reyestr",
+      "sources": {
+        "gleif": "GLEIF (butun dunyo)",
+        "companies_house": "Companies House (Buyuk Britaniya)"
+      },
+      "unavailable": "Reyestr bo‘yicha qidiruv hozircha mavjud emas",
+      "unavailableHint": "U hali joylashtirilmagan tahlil xizmatida ishlaydi. Hozircha tashkilotni qo‘lda kiriting.",
+      "query": "Tashkilot nomi",
+      "search": "Qidirish",
+      "failed": "Reyestr javob bermadi. Bir daqiqadan so‘ng qayta urinib ko‘ring yoki tashkilotni qo‘lda kiriting.",
+      "none": "Ushbu reyestrda hech narsa topilmadi.",
+      "openSource": "Reyestrda ochish",
+      "use": "Ushbu yozuvni olish"
+    },
+    "link": {
+      "title": "Reyestrimizda bormi?",
+      "hint": "Tashkilot reyestrda boshqa yozilishda bo‘lishi mumkin. Uni tanlang — so‘rov dublikatsiz yopiladi.",
+      "query": "Reyestrdan qidirish",
+      "none": "Reyestrda o‘xshash tashkilot yo‘q.",
+      "use": "Aynan shu"
+    },
+    "request": {
+      "eyebrow": "Ma’lumot so‘rovi",
+      "notFound": "So‘rov topilmadi",
+      "outcome": {
+        "created": "Tashkilot {{when}} yaratildi, {{who}}",
+        "linked": "Mavjud tashkilot bilan {{when}} bog‘landi, {{who}}",
+        "updated": "Hisobot {{when}} yangilandi, {{who}}",
+        "rejected": "{{when}} rad etildi, {{who}}"
+      },
+      "openCompany": "Tashkilotni ochish",
+      "heldBy": "Bu so‘rov bilan {{name}} shug‘ullanmoqda.",
+      "unassigned": "So‘rov hali hech kimga biriktirilmagan — uni ishga oling.",
+      "what": "Nima so‘ralgan",
+      "statementsTitle": "Hisobotni yangilash",
+      "statementsHint": "Tashkilotning «Moliya» bo‘limiga so‘nggi hisobotni kiriting, so‘ng so‘rovni bajarilgan deb belgilang.",
+      "openFinancials": "Moliyani ochish",
+      "enterStatement": "Hisobot kiritish",
+      "takeFirst": "So‘rov ustida ishlash uchun uni oling.",
+      "resolveTitle": "Tashkilotni ro‘yxatga olish",
+      "resolveHint": "Quyidagi reyestr yozuvidan yoki qo‘lda. Tashkilot saqlanganda so‘rov yopiladi va so‘ragan xodim xabardor qilinadi.",
+      "closed": "So‘rov yopilgan.",
+      "rejectHint": "Sababni so‘rovni yaratgan xodim ko‘radi.",
+      "pickPerson": "Axborot menejerini tanlang",
+      "noOtherManagers": "Boshqa axborot menejeri yo‘q.",
+      "whatHint": "So‘rovni yaratgan xodim ko‘rsatganidek — rasmiy manba bilan solishtiring."
+    },
+    "actions": {
+      "take": "Ishga olish",
+      "start": "Boshlash",
+      "reassign": "Topshirish",
+      "reject": "So‘rovni rad etish",
+      "markUpdated": "Hisobot yangilandi",
+      "createManually": "Tashkilotni qo‘lda kiritish"
+    },
+    "requestModal": {
+      "title": "Tashkilotni so‘rash",
+      "submit": "So‘rovni yuborish",
+      "hint": "Axborot menejeri tashkilotni rasmiy manbadan topib, reyestrga kiritadi. Bajarilganda kun tartibingizda xabar paydo bo‘ladi.",
+      "similarTitle": "Ehtimol, bulardan biridir?",
+      "registrationHint": "Agar ma’lum bo‘lsa — dublikatni istisno qiladi.",
+      "noteHint": "Nima uchun kerak: limit so‘rovi, ariza, mijozning bayeri.",
+      "exists": "Bu tashkilot reyestrda allaqachon bor.",
+      "requested": "{{number}} so‘rovi yuborildi",
+      "alreadyRequested": "Allaqachon so‘ralgan: {{number}}",
+      "assignedTo": "Ijrochi — {{name}}.",
+      "toTeam": "So‘rov axborot menejerlariga topshirildi.",
+      "youWillBeTold": "Tayyor bo‘lganda kun tartibingizda xabar paydo bo‘ladi."
+    },
+    "notFound": {
+      "title": "«{{query}}» reyestrda yo‘q",
+      "hint": "Axborot menejeridan uni rasmiy manba asosida kiritishni so‘rang yoki rekvizitlar bo‘lsa, o‘zingiz qo‘shing.",
+      "request": "Tashkilotni so‘rash",
+      "paletteItem": "«{{query}}»ni so‘rash",
+      "paletteSub": "Reyestrda yo‘q — axborot menejeridan kiritishni so‘rash"
+    },
+    "statementsRequest": {
+      "button": "Hisobotni so‘rash",
+      "title": "Yangi hisobotni so‘rash",
+      "submit": "So‘rovni yuborish",
+      "open": "So‘rovni ochish",
+      "hint": "Axborot menejeri tashkilotning so‘nggi hisobotini olib, kiritadi.",
+      "noteHint": "Qaysi davr uchun va qayerdan olish mumkin — mijozdan, bayerdan, reyestrdan."
+    },
+    "errors": {
+      "nameRequired": "Tashkilot nomini kiriting.",
+      "unknownCountry": "Tashkilot mamlakatini tanlang.",
+      "alreadyClosed": "Bu so‘rov allaqachon yopilgan.",
+      "notInformationManager": "So‘rovni faqat axborot menejeriga topshirish mumkin.",
+      "reasonRequired": "Sababni ko‘rsating — uni so‘rovni yaratgan xodim o‘qiydi.",
+      "companyRequired": "So‘rov qaysi tashkilot bilan yopilishini tanlang."
     }
   }
 }

@@ -46,8 +46,13 @@
       "admin": {
         "name": "Administration",
         "hint": "Users, roles, authorities and contract templates"
+      },
+      "data": {
+        "name": "Data management",
+        "hint": "Company and statement requests, data freshness, proposed buyers"
       }
-    }
+    },
+    "data": "Data management"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -1924,7 +1929,10 @@
       "instalment_overdue": "Premium overdue",
       "noa_credit_review": "Overdue: credit review",
       "noa_matured_to_claim": "Overdue became a claim",
-      "uncovered_excess_review": "Turnover outside cover"
+      "uncovered_excess_review": "Turnover outside cover",
+      "entity_requested": "Company requested",
+      "statements_requested": "Statements requested",
+      "entity_request_resolved": "Your request is done"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -1954,7 +1962,13 @@
       "claim_declined_review": "Claim declined — tell the policyholder: {{claim_number}}",
       "group_exposure_near_limit": "Group {{group_name}} is at {{utilisation_pct}}% of its group limit",
       "group_limit_missing": "Group {{group_name}} holds limits with no group limit set",
-      "buyer_proposed": "A client proposed the buyer «{{name}}» — find or register the company"
+      "buyer_proposed": "A client proposed the buyer «{{name}}» — find or register the company",
+      "entity_requested": "Register «{{name}}» ({{country}}) — request {{request_number}}",
+      "statements_requested": "Bring the statements of «{{name}}» up to date — request {{request_number}}",
+      "entity_request_resolved_created": "«{{name}}» is now in the registry ({{request_number}})",
+      "entity_request_resolved_linked": "«{{name}}» was already in the registry — see the company ({{request_number}})",
+      "entity_request_resolved_updated": "The statements of «{{name}}» are up to date ({{request_number}})",
+      "entity_request_resolved_rejected": "Request {{request_number}} for «{{name}}» was declined: {{note}}"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -3129,6 +3143,177 @@
       "members": "Members with limits",
       "exposureMissing_one": "+ {{count}} limit with no UZS rate, not added",
       "exposureMissing_other": "+ {{count}} limits with no UZS rate, not added"
+    }
+  },
+  "data": {
+    "sectionSubtitle": "The information manager’s desk: requests for companies and statements, data that has gone stale, and buyers clients proposed.",
+    "views": {
+      "queue": "Requests",
+      "freshness": "Data freshness",
+      "proposals": "Proposed buyers"
+    },
+    "queue": {
+      "hint": "A request goes to the information manager with the fewest open ones. Take one to start on it; hand it over if someone else should.",
+      "scope": "Which requests",
+      "mine": "Mine",
+      "open": "All open",
+      "closed": "Closed",
+      "empty": {
+        "mine": "Nothing assigned to you",
+        "open": "No open requests",
+        "closed": "No closed requests yet"
+      },
+      "emptyHint": "Requests arrive when someone searches for a company that is not in the registry, or asks for fresh statements on a company card.",
+      "buyersTitle": "Buyers in submissions without a company",
+      "buyersHint": "Named in an insurance submission and not yet matched to a company in the registry.",
+      "openSubmission": "Open the submission"
+    },
+    "fields": {
+      "kind": "Request",
+      "company": "Company",
+      "requestedBy": "Requested by",
+      "assignedTo": "Assigned to",
+      "createdAt": "Filed",
+      "status": "Status",
+      "role": "Role",
+      "country": "Country",
+      "registrationNumber": "Registration number",
+      "assignedAt": "Assigned on",
+      "note": "Note",
+      "reason": "Reason"
+    },
+    "kinds": {
+      "new_company": "New company",
+      "statements_update": "Fresh statements"
+    },
+    "statuses": {
+      "new": "New",
+      "in_progress": "In progress",
+      "created": "Company created",
+      "linked": "Matched to an existing company",
+      "updated": "Statements updated",
+      "rejected": "Declined"
+    },
+    "unassigned": "Not assigned",
+    "roles": {
+      "buyer": "Buyer",
+      "policyholder": "Policyholder"
+    },
+    "freshness": {
+      "hint": "Companies with live business — a limit, a policy, an open request or a live submission — whose data needs work.",
+      "filter": "Reason",
+      "all": "All",
+      "reasons": {
+        "no_statements": "No statements",
+        "stale_statements": "Statements older than 15 months",
+        "missing_registry": "Registry details missing"
+      },
+      "empty": "All data is current",
+      "emptyHint": "Every company with live business has statements from the last 15 months and complete registry details.",
+      "reason": "Why it is listed",
+      "latestPeriod": "Latest statement",
+      "gaps": "Missing",
+      "gap": {
+        "registration": "registration number",
+        "address": "address",
+        "industry": "industry"
+      },
+      "openRequest": "Open request"
+    },
+    "registry": {
+      "title": "Find in an official registry",
+      "hint": "Start from the registry’s record: name, registration number and address are filled in for you to check.",
+      "source": "Registry",
+      "sources": {
+        "gleif": "GLEIF (worldwide)",
+        "companies_house": "Companies House (UK)"
+      },
+      "unavailable": "The registry search is not available yet",
+      "unavailableHint": "It runs in the analytics service, which is not hosted yet. Enter the company by hand for now.",
+      "query": "Company name",
+      "search": "Search",
+      "failed": "The registry did not answer. Try again in a minute, or enter the company by hand.",
+      "none": "Nothing found in this registry.",
+      "openSource": "Open in the registry",
+      "use": "Use this record"
+    },
+    "link": {
+      "title": "Already in our registry?",
+      "hint": "The company may already be here under another spelling. Pick it to close the request without a duplicate.",
+      "query": "Search the registry",
+      "none": "No similar company in the registry.",
+      "use": "This is it"
+    },
+    "request": {
+      "eyebrow": "Data request",
+      "notFound": "Request not found",
+      "outcome": {
+        "created": "Company created {{when}} by {{who}}",
+        "linked": "Matched to an existing company {{when}} by {{who}}",
+        "updated": "Statements brought up to date {{when}} by {{who}}",
+        "rejected": "Declined {{when}} by {{who}}"
+      },
+      "openCompany": "Open the company",
+      "heldBy": "{{name}} is working on this request.",
+      "unassigned": "Nobody holds this request yet — take it to start.",
+      "what": "What was asked",
+      "statementsTitle": "Bring the statements up to date",
+      "statementsHint": "Enter the latest statements on the company’s financials tab, then mark the request done.",
+      "openFinancials": "Open financials",
+      "enterStatement": "Enter a statement",
+      "takeFirst": "Take the request to work on it.",
+      "resolveTitle": "Register the company",
+      "resolveHint": "From a registry record below, or by hand. Saving the company closes the request and tells the person who asked.",
+      "closed": "This request is closed.",
+      "rejectHint": "The person who asked will read this reason.",
+      "pickPerson": "Choose an information manager",
+      "noOtherManagers": "There is no other information manager to hand it to.",
+      "whatHint": "As filed by the person who asked — check it against the official source."
+    },
+    "actions": {
+      "take": "Take it",
+      "start": "Start",
+      "reassign": "Hand over",
+      "reject": "Decline the request",
+      "markUpdated": "Statements are up to date",
+      "createManually": "Enter the company by hand"
+    },
+    "requestModal": {
+      "title": "Request a company",
+      "submit": "Send the request",
+      "hint": "An information manager will find the company in an official source and register it. You will be told in your Agenda when it is done.",
+      "similarTitle": "Is it one of these?",
+      "registrationHint": "If you know it — it rules out a duplicate.",
+      "noteHint": "Why it is needed: a limit request, a submission, a client’s buyer.",
+      "exists": "This company is already in the registry.",
+      "requested": "Request {{number}} sent",
+      "alreadyRequested": "Already requested as {{number}}",
+      "assignedTo": "{{name}} has it.",
+      "toTeam": "It is with the information managers.",
+      "youWillBeTold": "You will be told in your Agenda when it is done."
+    },
+    "notFound": {
+      "title": "«{{query}}» is not in the registry",
+      "hint": "Ask an information manager to register it from an official source, or add it yourself if you have the details.",
+      "request": "Request it",
+      "paletteItem": "Request «{{query}}»",
+      "paletteSub": "Not in the registry — ask an information manager to register it"
+    },
+    "statementsRequest": {
+      "button": "Request fresh statements",
+      "title": "Request fresh statements",
+      "submit": "Send the request",
+      "open": "Open the request",
+      "hint": "An information manager will obtain this company’s latest statements and enter them.",
+      "noteHint": "Which period, and where it may come from — the client, the buyer, a registry."
+    },
+    "errors": {
+      "nameRequired": "Enter the company’s name.",
+      "unknownCountry": "Choose the company’s country.",
+      "alreadyClosed": "This request has already been closed.",
+      "notInformationManager": "A request can only be handed to an information manager.",
+      "reasonRequired": "Give a reason the person who asked can act on.",
+      "companyRequired": "Choose the company the request was resolved with."
     }
   }
 }

@@ -8,16 +8,17 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowRight, Building2, CornerDownLeft, Search } from 'lucide-react'
+import { ArrowRight, Building2, CornerDownLeft, FilePlus2, Search } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
 import { tci } from '../../lib/supabase'
 import { matchesQuery, sanitizeSearchTerm } from './commandPalette'
 import { navItemsForRoles } from './navigation'
+import { RequestEntityModal } from '../../features/data/RequestEntityModal'
 
 interface Hit {
   id: string
-  kind: 'nav' | 'entity'
+  kind: 'nav' | 'entity' | 'request'
   label: string
   sub?: string
   to: string
@@ -58,6 +59,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const [query, setQuery] = useState('')
   const [debounced, setDebounced] = useState('')
   const [cursor, setCursor] = useState(0)
+  // A company the search did not find can be requested from here (0054); the
+  // form outlives the palette, which closes as it opens.
+  const [requestName, setRequestName] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -93,22 +97,44 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
       sub: `${e.registration_number} · ${e.country_code}`,
       to: `/entities/${e.id}`,
     }))
-    return [...found, ...nav]
-  }, [roles, query, entities.data, t])
+    // Nothing found for a company-like search: offer to have it registered.
+    const missing =
+      term && term.length >= 3 && entities.isSuccess && !entities.isFetching && found.length === 0
+        ? [
+            {
+              id: 'request-company',
+              kind: 'request' as const,
+              label: t('data.notFound.paletteItem', { query: term }),
+              sub: t('data.notFound.paletteSub'),
+              to: '',
+            },
+          ]
+        : []
+    return [...found, ...missing, ...nav]
+  }, [roles, query, term, entities.data, entities.isSuccess, entities.isFetching, t])
 
   useEffect(() => {
     setCursor(0)
   }, [hits.length])
 
-  if (!open) return null
+  const requestModal = (
+    <RequestEntityModal
+      open={requestName !== null}
+      initialName={requestName ?? ''}
+      onClose={() => setRequestName(null)}
+    />
+  )
+  if (!open) return requestModal
 
   const go = (hit: Hit | undefined) => {
     if (!hit) return
     onClose()
-    navigate(hit.to)
+    if (hit.kind === 'request') setRequestName(term ?? '')
+    else navigate(hit.to)
   }
 
   return (
+    <>
     <div
       className="fixed inset-0 z-[60] flex items-start justify-center bg-accent-900/40 p-4 pt-[12vh] backdrop-blur-[2px]"
       onMouseDown={(e) => {
@@ -163,10 +189,20 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
               >
                 <span
                   className={`flex size-8 shrink-0 items-center justify-center rounded-md ${
-                    hit.kind === 'entity' ? 'bg-accent-100 text-accent-600' : 'bg-slate-100 text-slate-500'
+                    hit.kind === 'entity'
+                      ? 'bg-accent-100 text-accent-600'
+                      : hit.kind === 'request'
+                        ? 'bg-brand-orange/10 text-brand-orange'
+                        : 'bg-slate-100 text-slate-500'
                   }`}
                 >
-                  {hit.kind === 'entity' ? <Building2 className="size-4" /> : <ArrowRight className="size-4" />}
+                  {hit.kind === 'entity' ? (
+                    <Building2 className="size-4" />
+                  ) : hit.kind === 'request' ? (
+                    <FilePlus2 className="size-4" />
+                  ) : (
+                    <ArrowRight className="size-4" />
+                  )}
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-medium text-slate-900">{hit.label}</span>
@@ -183,5 +219,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
         </div>
       </div>
     </div>
+    {requestModal}
+    </>
   )
 }

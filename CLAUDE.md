@@ -495,6 +495,25 @@ is fine for internal test accounts and not fine for customers.
   migrations; `layoutContract.test.ts` refuses a padding-less Card, a Table
   inside a Card and a sliced ISO date. No migration. Backlog in the audit
   document. See DESIGN.md
+- [x] Data management workspace (migration 0054): the information
+  manager's desk «Управление данными» (`/data`: «Запросы», «Свежесть
+  данных», «Предложенные байеры»). A company search that finds nothing —
+  the registry list or the Ctrl/⌘ K palette — offers «Запросить
+  организацию»; any staff member files `tci.request_entity` (fuzzy duplicate
+  warning first; a registration number we hold answers `exists`, an open
+  request for the same name answers `already_requested`). The request
+  (`tci.entity_requests`, DR-YYYY-NNNN) is routed to the LEAST-LOADED active
+  information manager and opens `entity_requested` in their Agenda; the
+  company card offers «Запросить отчётность» (`statements_requested`). The
+  information manager takes, hands over, resolves (created / linked /
+  updated) or rejects with a reason, and the requester gets
+  `entity_request_resolved`. Registry lookup — GLEIF and UK Companies House
+  through `services/analytics` (`/registry/search`) — prefills the company
+  form; it waits for the service to be hosted, and manual entry is the path
+  today. See **Data management rules** below. **Canonical: 0054 applied
+  2026-10-21**, live smoke with role impersonation (two information
+  managers + a banned one, credit, commercial, admin, client) rolled back,
+  counts unchanged, no new advisor finding
 - [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1110,8 +1129,8 @@ the shared set or to a workspace, and that every screen a role may open is
 reachable from that role's own workspaces. Opening a screen from elsewhere
 (a link, the palette) switches to a workspace that contains it
 (`resolveWorkspace`); the choice is remembered per browser
-(`tci-erp-workspace`). An information manager has no workspace of their own
-and sees the shared tools only.
+(`tci-erp-workspace`). Since 0054 the information manager has a workspace
+of their own, «Управление данными» (`/data`); a client has none.
 
 **The definitions live in the views.** premium base = greatest(earned,
 minimum premium); incurred = indemnity paid + approved-but-unpaid − the
@@ -1133,6 +1152,54 @@ a bookmark or a link inside a locale string still lands. Route access is
 submission except draft / declined / withdrawn (`wording/contracts.ts`).
 Generation needs an ACTIVE template; with none, the page says so and offers
 the standard templates to whoever may manage them.
+
+### Data management rules (migration 0054)
+
+**A search that finds nothing becomes work in a named person's Agenda.**
+`tci.request_entity` is open to every staff role and refuses clients
+(`42501`); a client's own path stays `client_request_limit` → proposal.
+Before anything is filed the modal shows `similar_entities` for what was
+typed, and the function itself answers `exists` for a registration number we
+hold and `already_requested` for an open request with the same (country,
+name) — one open request per company, enforced by a partial unique index.
+
+**Distribution is least-loaded, decided in SQL.** `tci.pick_information_manager`
+(closed to every API role; it reads other people's `user_roles` and
+`auth.users`) orders active information managers — role held, not banned,
+not deleted — by open requests, then by the oldest last assignment, then by
+id, so the choice is stable. Nobody active ⇒ the task goes to the ROLE and
+whoever takes it becomes its holder; it is never lost.
+
+**The request row is current state; history is the event stream.**
+`data.entity_requested`, `data.entity_request_assigned` and
+`data.entity_request_resolved` drive a FOURTH trigger on
+`tci.workflow_events` (`tci.handle_data_event`): a reassignment CANCELS the
+previous holder's task and opens one for the new holder; a resolution closes
+it as done and tells the requester (`entity_request_resolved`, the fourth
+manual type — skipped when the requester resolved it themselves). Its title
+key carries the outcome (`agenda.tasks.entity_request_resolved_<status>`);
+`taskKeys.test.ts` expands it to the four outcomes.
+
+**Outcomes are typed.** A company request ends `created` or `linked` (both
+NAME the company) or `rejected` (a reason the requester will read); a
+statements request ends `updated` or `rejected`. The screen saves the company
+through the ordinary `EntityFormModal` and only then resolves — the request
+never writes `legal_entities` itself, so dedup-on-entry still applies.
+
+**Registry connectors are prefill, never truth.** `/registry/search`
+normalises GLEIF and Companies House records into one shape; «Взять эту
+запись» opens the company form pre-filled for a human to check and save.
+Companies House needs `COMPANIES_HOUSE_API_KEY` (service env only, 503
+without it); upstream failures are opaque 502s. While the service is
+unhosted the panel says so and manual entry is the path.
+
+**Freshness is a view, not a job.** `tci.v_data_freshness`
+(security_invoker) lists companies with LIVE business — an open limit
+request, an in-force limit, a buyer in a live submission, an active or
+suspended policy — whose first problem is `no_statements`,
+`stale_statements` (latest period ends more than 15 months ago) or
+`missing_registry` (registration number, address or industry). No cron, no
+tasks generated from it: it is the information manager's worklist.
 
 ### Credit workbench rules (migration 0053)
 

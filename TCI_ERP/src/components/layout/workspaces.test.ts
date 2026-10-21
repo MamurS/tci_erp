@@ -44,7 +44,7 @@ describe('workspaces', () => {
     expect(availableWorkspaces(['commercial_underwriter']).map((w) => w.key)).toEqual(['commercial'])
     expect(availableWorkspaces(['credit_underwriter', 'sales']).map((w) => w.key)).toEqual(['credit', 'sales'])
     expect(availableWorkspaces(['admin']).map((w) => w.key)).toEqual(WORKSPACES.map((w) => w.key))
-    expect(availableWorkspaces(['information_manager'])).toEqual([])
+    expect(availableWorkspaces(['information_manager']).map((w) => w.key)).toEqual(['data'])
     expect(availableWorkspaces(['client'])).toEqual([])
   })
 
@@ -63,6 +63,7 @@ describe('workspaces', () => {
     expect(workspaceHome(['admin'], byKey.credit)).toBe('/limits')
     expect(workspaceHome(['sales'], byKey.sales)).toBe('/requests')
     expect(workspaceHome(['admin'], byKey.admin)).toBe('/admin')
+    expect(workspaceHome(['information_manager'], byKey.data)).toBe('/data')
   })
 
   it('keeps the remembered workspace while it contains the page', () => {
@@ -83,6 +84,7 @@ describe('workspaces', () => {
   it('falls back to the first available workspace and to none without one', () => {
     expect(resolveWorkspace(['sales', 'credit_underwriter'], null, '/')).toBe('credit')
     expect(resolveWorkspace(['sales'], 'admin', '/')).toBe('sales')
-    expect(resolveWorkspace(['information_manager'], null, '/entities')).toBeNull()
+    expect(resolveWorkspace(['information_manager'], null, '/entities')).toBe('data')
+    expect(resolveWorkspace(['client'], null, '/')).toBeNull()
   })
 })
