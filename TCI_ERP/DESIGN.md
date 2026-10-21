@@ -192,6 +192,20 @@ mechanical ones.
   icon, never a typed «+».
 * **Escape closes the top dialog only**; in a picker it closes the list,
   not the dialog.
+* **Dates are typed day first in `DateInput`** — a mask (ДД.ММ.ГГГГ /
+  KK.OO.YYYY / DD/MM/YYYY) or a calendar in the interface language, Monday
+  first, today from the Tashkent calendar — never the browser's
+  `<input type="date">`, which showed «mm/dd/yyyy» in a Russian interface.
+  The value is ISO. A contract test refuses `type="date"` anywhere else.
+* **Lists fit a laptop.** At 1280px with the sidebar docked (≈960px of
+  content) a list does not scroll sideways: names sit on one line in
+  `Truncate` (full text on hover), the main text column is `cell-fill`
+  (takes the width left and cuts there), numeric cells are `num` and never
+  wrap.
+* **Dialogs space their fields evenly** — the Modal body is a `gap-4` column;
+  never `-mt-*` hacks; hints go in `Field`'s `hint`.
+* **Every literal translation key exists** (`i18n/keysExist.test.ts`) — a
+  missing one is printed raw on screen.
 
 ### The rating scale
 
