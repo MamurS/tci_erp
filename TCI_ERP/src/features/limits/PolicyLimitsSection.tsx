@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, EmptyState, Table } from '../../components/ui'
+import { Badge, Button, EmptyState, Table, SectionTitle } from '../../components/ui'
 import { EM_DASH, formatAmount } from '../../lib/format'
 import { useEntities } from '../entities/api'
 import type { PolicyWithRefs } from '../policies/types'
@@ -44,9 +44,9 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
   return (
     <div>
       <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-900">
+        <SectionTitle>
           {t('policies.buyersLimitsTitle')}
-        </h2>
+        </SectionTitle>
         <Button size="sm" onClick={() => setModalOpen(true)}>
           {t('limits.requestLimit')}
         </Button>

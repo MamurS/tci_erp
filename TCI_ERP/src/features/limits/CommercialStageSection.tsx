@@ -7,7 +7,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Field, Input } from '../../components/ui'
+import { Badge, Button, Card, Field, Input, SectionTitle } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { bandForGrade, hasRole } from '../../lib/roles'
 import { EM_DASH, formatAmount } from '../../lib/format'
@@ -126,7 +126,7 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
   return (
     <Card className="flex flex-col gap-4 p-5">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-900">{t('limits.commercial.title')}</h2>
+        <SectionTitle>{t('limits.commercial.title')}</SectionTitle>
         <ReleaseBadge facts={limit} salesWindowHours={windowHours ?? 24} nowIso={nowIso} />
       </div>
 

@@ -9,19 +9,7 @@ import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  Field,
-  GradeScale,
-  Input,
-  Modal,
-  PageHeader,
-  Select,
-  Spinner,
-} from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Field, GradeScale, Input, Modal, PageHeader, Select, Spinner, SectionTitle } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { bandForGrade, hasRole } from '../../lib/roles'
 import { EM_DASH, formatAmount } from '../../lib/format'
@@ -232,7 +220,7 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
 
   return (
     <Card className="p-5">
-      <h2 className="mb-3 text-sm font-semibold text-slate-900">{t('limits.requestCard')}</h2>
+      <SectionTitle className="mb-3">{t('limits.requestCard')}</SectionTitle>
       <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
         <dt className="text-slate-500">{t('limits.fields.buyer')}</dt>
         <dd>
@@ -311,7 +299,7 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
 
   return (
     <Card className="flex flex-col gap-4 p-5">
-      <h2 className="text-sm font-semibold text-slate-900">{t('limits.buyerSnapshot')}</h2>
+      <SectionTitle>{t('limits.buyerSnapshot')}</SectionTitle>
 
       {latest ? (
         <>
@@ -469,7 +457,7 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
 
   return (
     <Card className="flex flex-col gap-4 p-5">
-      <h2 className="text-sm font-semibold text-slate-900">{t('limits.decisionTitle')}</h2>
+      <SectionTitle>{t('limits.decisionTitle')}</SectionTitle>
 
       <div className="flex gap-2">
         {(['approved', 'partial', 'declined'] as const).map((o) => (

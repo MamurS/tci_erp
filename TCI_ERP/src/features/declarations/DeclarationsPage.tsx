@@ -40,7 +40,7 @@ export function DeclarationsPage() {
   )
 
   return (
-    <div className="p-6">
+    <div>
       <PageHeader
         title={t('declarations.title')}
         subtitle={t('declarations.subtitle')}

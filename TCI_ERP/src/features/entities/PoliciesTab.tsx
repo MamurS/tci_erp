@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 
-import { Badge, Button, Card, EmptyState, Table } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Table, SectionTitle } from '../../components/ui'
 import { tci } from '../../lib/supabase'
 import { EM_DASH, formatAmount } from '../../lib/format'
 import { usePolicies } from '../policies/api'
@@ -49,9 +49,9 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
     <div className="flex flex-col gap-5">
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-900">
+          <SectionTitle>
             {t('policyholders.policiesTitle')}
-          </h2>
+          </SectionTitle>
           <Button onClick={() => void navigate(`/policies/new?entity=${entityId}`)}>
             {t('policies.newPolicy')}
           </Button>
@@ -93,9 +93,9 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
       </div>
 
       <Card className="p-5">
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
+        <SectionTitle className="mb-3">
           {t('entities.portfolioLimitsTitle')}
-        </h2>
+        </SectionTitle>
         {!limits.data?.length ? (
           <p className="text-[13px] text-slate-500">{t('limits.noneForPolicy')}</p>
         ) : (

@@ -10,18 +10,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  Field,
-  Input,
-  PageHeader,
-  Select,
-  Spinner,
-  Table,
-} from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Field, Input, PageHeader, Select, Spinner, Table, SectionTitle } from '../../components/ui'
 import { EM_DASH, formatAmount } from '../../lib/format'
 import { classifyLine } from '../declarations/coverage'
 import { lastClosedPeriodStart } from '../declarations/period'
@@ -216,7 +205,7 @@ function DeclarationEditor({
 
   return (
     <Card>
-      <h2 className="mb-3 text-sm font-semibold">{t('portal.declarations.lines')}</h2>
+      <SectionTitle className="mb-3">{t('portal.declarations.lines')}</SectionTitle>
 
       {declaration?.status === 'disputed' && declaration.dispute_note && (
         <div className="mb-3 rounded-md border border-warn-500/40 bg-warn-50 px-3 py-2">

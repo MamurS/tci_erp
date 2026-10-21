@@ -11,17 +11,7 @@ import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  Field,
-  Input,
-  PageHeader,
-  Spinner,
-  Table,
-} from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Field, Input, PageHeader, Spinner, Table, SectionTitle } from '../../components/ui'
 import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
 import {
   useAcceptDeclaration,
@@ -70,7 +60,7 @@ export function DeclarationDetailPage() {
   const uncovered = Number(totals?.uncovered_excess ?? 0)
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <PageHeader
         title={`${declaration.period_start} ${EM_DASH} ${declaration.period_end}`}
         subtitle={declaration.policies?.policy_number ?? undefined}
@@ -143,7 +133,7 @@ export function DeclarationDetailPage() {
       </div>
 
       <Card>
-        <h2 className="mb-3 text-sm font-semibold">{t('declarations.lines')}</h2>
+        <SectionTitle className="mb-3">{t('declarations.lines')}</SectionTitle>
         {!lines?.length ? (
           <EmptyState title={t('declarations.noLines')} hint={t('declarations.noLinesHint')} />
         ) : (
@@ -201,7 +191,7 @@ export function DeclarationDetailPage() {
 
       {canTransition(declaration.status, 'disputed') && (
         <Card>
-          <h2 className="mb-3 text-sm font-semibold">{t('declarations.actions.dispute')}</h2>
+          <SectionTitle className="mb-3">{t('declarations.actions.dispute')}</SectionTitle>
           <Field label={t('declarations.fields.disputeNote')}>
             <Input
               value={disputeNote}

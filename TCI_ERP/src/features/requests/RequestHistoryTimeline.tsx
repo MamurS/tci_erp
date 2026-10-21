@@ -3,7 +3,7 @@
 
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, Spinner } from '../../components/ui'
+import { Badge, Card, Spinner, SectionTitle } from '../../components/ui'
 import { useRequestHistory } from './api'
 import { statusTone } from './machine'
 
@@ -19,7 +19,7 @@ export function RequestHistoryTimeline({
 
   return (
     <Card className="p-5">
-      <h2 className="mb-3 text-sm font-semibold text-slate-900">{t('requests.history')}</h2>
+      <SectionTitle className="mb-3">{t('requests.history')}</SectionTitle>
 
       {notes && (
         <p className="mb-3 rounded-md bg-slate-50 px-3 py-2 text-[13px] text-slate-600">

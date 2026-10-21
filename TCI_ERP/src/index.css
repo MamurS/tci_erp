@@ -64,6 +64,10 @@
   html {
     @apply antialiased;
     font-feature-settings: 'cv11', 'ss01';
+    /* Reserve the scrollbar's width whether or not the page overflows, so a
+       short view (a 7-row register) and a long one (the overview) centre the
+       content on the same axis: switching between them must not move it. */
+    scrollbar-gutter: stable;
   }
   body {
     @apply text-[14px] leading-normal text-slate-900;

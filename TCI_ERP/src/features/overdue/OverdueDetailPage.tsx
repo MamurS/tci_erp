@@ -5,17 +5,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  Field,
-  Input,
-  PageHeader,
-  Select,
-  Spinner,
-} from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Field, Input, PageHeader, Select, Spinner, SectionTitle } from '../../components/ui'
 import { formatAmount, formatMoment } from '../../lib/format'
 import { useOverdueNotification, useResolveNoa } from './api'
 import { canResolve, RESOLUTION_STATUSES } from './noa'
@@ -36,7 +26,7 @@ export function OverdueDetailPage() {
   if (!noa) return <EmptyState title={t('overdues.notFound')} />
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <PageHeader
         title={noa.buyer_name}
         subtitle={`${noa.policy_number} · ${noa.policyholder_name}`}
@@ -101,7 +91,7 @@ export function OverdueDetailPage() {
 
       <Card>
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold">{t('overdues.fields.status')}</h2>
+          <SectionTitle>{t('overdues.fields.status')}</SectionTitle>
           <Badge tone={noa.status === 'open' ? 'warn' : 'neutral'}>
             {t(`overdues.statuses.${noa.status}`)}
           </Badge>

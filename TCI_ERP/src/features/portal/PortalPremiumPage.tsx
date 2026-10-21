@@ -4,7 +4,7 @@
 
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, PageHeader, Spinner, Table } from '../../components/ui'
+import { Badge, Card, EmptyState, PageHeader, Spinner, Table, SectionTitle } from '../../components/ui'
 import { formatAmount, formatPercent } from '../../lib/format'
 import { isBelowMinimum } from '../policies/premium'
 import { useClientInstalments, useClientPremium } from './api'
@@ -27,7 +27,7 @@ export function PortalPremiumPage() {
         const rows = (instalments ?? []).filter((i) => i.policy_id === p.policy_id)
         return (
           <Card key={p.policy_id}>
-            <h2 className="text-sm font-semibold">{p.policy_number}</h2>
+            <SectionTitle>{p.policy_number}</SectionTitle>
 
             <div className="mt-3 grid gap-4 sm:grid-cols-4">
               <div>

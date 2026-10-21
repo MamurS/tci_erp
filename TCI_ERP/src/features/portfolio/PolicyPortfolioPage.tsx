@@ -9,7 +9,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, ViewBar, Segmented, Spinner, StatCard } from '../../components/ui'
+import { Badge, Card, EmptyState, PanelGrid, ViewBar, Segmented, Spinner, StatCard } from '../../components/ui'
 import { formatAmount, formatCompact, formatDays } from '../../lib/format'
 import { statusTone } from '../policies/statusMachine'
 import type { PolicyPortfolioRow } from './aggregate'
@@ -158,7 +158,7 @@ export function PolicyPortfolioPage() {
             )}
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-3">
+          <PanelGrid cols="lg:grid-cols-3">
             {breakdown(
               t('portfolio.policies.byProduct'),
               countBy(rows, (r) => r.product_structure),
@@ -170,7 +170,7 @@ export function PolicyPortfolioPage() {
               (k) => t(`policies.statuses.${k}`),
             )}
             {breakdown(t('portfolio.policies.byCountry'), countBy(rows, (r) => r.policyholder_country), countryName)}
-          </div>
+          </PanelGrid>
 
           <TableCard
             title={t('portfolio.policies.renewals', { days: RENEWAL_WINDOW_DAYS })}

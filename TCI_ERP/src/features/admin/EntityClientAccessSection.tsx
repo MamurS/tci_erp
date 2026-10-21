@@ -10,7 +10,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Spinner, Table } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Spinner, Table, SectionTitle } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH } from '../../lib/format'
 import { canProvision } from './provisioningAccess'
@@ -53,7 +53,7 @@ export function EntityClientAccessSection({ entityId }: { entityId: string }) {
     <Card className="p-5">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-slate-900">{t('provisioning.clientAccess')}</h2>
+          <SectionTitle>{t('provisioning.clientAccess')}</SectionTitle>
           <p className="mt-0.5 text-[13px] text-slate-500">{t('provisioning.clientAccessHint')}</p>
         </div>
         <Button

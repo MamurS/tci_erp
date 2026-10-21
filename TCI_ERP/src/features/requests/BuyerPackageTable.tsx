@@ -8,7 +8,7 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, Table } from '../../components/ui'
+import { Badge, Card, EmptyState, Table, SectionTitle } from '../../components/ui'
 import { EM_DASH, formatAmount } from '../../lib/format'
 import { ReleaseBadge } from '../limits/ReleaseBadge'
 import { useEffectiveLimits, useLimitRequests, useSalesWindowHours } from '../limits/api'
@@ -48,7 +48,7 @@ export function BuyerPackageTable({
 
   return (
     <Card className="p-5">
-      <h2 className="mb-3 text-sm font-semibold text-slate-900">{t('requests.buyerPackage')}</h2>
+      <SectionTitle className="mb-3">{t('requests.buyerPackage')}</SectionTitle>
 
       {buyers.length === 0 ? (
         <EmptyState title={t('requests.noBuyersYet')} hint={t('requests.noBuyersHint')} />

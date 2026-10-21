@@ -90,6 +90,15 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
   sub-choice inside a view (the request queues) is a `Segmented` control, so
   two rows of tabs never stack. The tab rule is an inset shadow, so the strip
   never overflows vertically (no stray scrollbar).
+* **Nothing moves between views or sections.** `html` reserves the
+  scrollbar's gutter (`scrollbar-gutter: stable`): a short view (a 7-row
+  register) and a long one (an overview) would otherwise differ by the
+  scrollbar's width and every centred or right-aligned element would jump.
+  Every page, sections included, uses the shell's full content width — no
+  page narrows itself with its own `max-w-*` except a form (password,
+  statement entry). Verify headlessly with scrollbars SHOWN: Playwright passes
+  `--hide-scrollbars` by default, which is exactly what hides this shift
+  (`ignoreDefaultArgs: ['--hide-scrollbars']`).
 * **Top bar:** sidebar button (when hidden), the current section (icon +
   name), the command palette (Ctrl/⌘ K — companies by name or registration
   number, plus every destination the caller's roles allow; icon-only below

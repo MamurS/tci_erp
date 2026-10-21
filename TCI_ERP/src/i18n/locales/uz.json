@@ -1424,6 +1424,7 @@
         "byBandHint": "Klass uchun amaldagi kredit tayinlovlaringizning eng kattasi, so‘nggi kurs bo‘yicha UZSda — qaror aynan shu summa bilan solishtiriladi.",
         "creditUzs": "UZSda",
         "grants": "Mening tayinlovlarim",
+        "grantsHint": "Bugun amalda bo‘lgan barcha tayinlovlar — kredit va tijorat — berilgan valyutada. Ularni administrator belgilaydi.",
         "noGrants": "Sizga vakolat tayinlanmagan",
         "noGrantsHint": "Vakolatlarni administrator «Administratsiya» bo‘limida tayinlaydi. Ularsiz har bir qaroringiz eskalatsiya qilinadi.",
         "stream": "Yo‘nalish"

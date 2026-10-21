@@ -5,16 +5,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
-import {
-  Button,
-  Card,
-  EmptyState,
-  Field,
-  Input,
-  Modal,
-  Spinner,
-  Table,
-} from '../../components/ui'
+import { Button, Card, EmptyState, Field, Input, Modal, Spinner, Table, SectionTitle } from '../../components/ui'
 import { EM_DASH, formatAmount } from '../../lib/format'
 import {
   useClaimPayments,
@@ -54,7 +45,7 @@ export function ClaimMoneyTab({ claim }: { claim: Claim }) {
 
       <Card>
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold">{t('claims.money.payments')}</h2>
+          <SectionTitle>{t('claims.money.payments')}</SectionTitle>
           {canPay && <Button variant="secondary" onClick={() => setPaying(true)}>{t('claims.actions.recordPayment')}</Button>}
         </div>
         {(payments ?? []).length === 0 ? (
@@ -85,7 +76,7 @@ export function ClaimMoneyTab({ claim }: { claim: Claim }) {
 
       <Card>
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold">{t('claims.money.recoveries')}</h2>
+          <SectionTitle>{t('claims.money.recoveries')}</SectionTitle>
           {canRecover && (
             <Button variant="secondary" onClick={() => setRecovering(true)}>
               {t('claims.actions.recordRecovery')}

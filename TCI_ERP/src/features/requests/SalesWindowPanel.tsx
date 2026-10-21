@@ -7,7 +7,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Field, Input } from '../../components/ui'
+import { Badge, Button, Card, Field, Input, SectionTitle } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { hasRole } from '../../lib/roles'
 import { EM_DASH, formatAmount } from '../../lib/format'
@@ -34,7 +34,7 @@ export function SalesWindowPanel({ request }: { request: InsuranceRequestWithRef
   return (
     <Card className="border-accent-600/30 p-5">
       <div className="mb-1 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-900">{t('requests.salesPanel')}</h2>
+        <SectionTitle>{t('requests.salesPanel')}</SectionTitle>
         <Badge tone="accent">{t('requests.windowHours', { hours: windowHours ?? 24 })}</Badge>
       </div>
       <p className="mb-3 text-[13px] text-slate-500">{t('requests.salesPanelHint')}</p>

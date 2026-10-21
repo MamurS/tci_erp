@@ -5,19 +5,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  Field,
-  Input,
-  Modal,
-  PageHeader,
-  Select,
-  Spinner,
-  Table,
-} from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Field, Input, Modal, PageHeader, Select, Spinner, Table, SectionTitle } from '../../components/ui'
 import { claimErrorKey } from '../claims/errors'
 import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
 import {
@@ -77,7 +65,7 @@ export function PortalClaimsPage() {
 
       {ready.length > 0 && (
         <Card>
-          <h2 className="text-sm font-semibold">{t('portal.claims.claimableTitle')}</h2>
+          <SectionTitle>{t('portal.claims.claimableTitle')}</SectionTitle>
           <p className="mt-1 text-[13px] text-slate-600">{t('portal.claims.claimableHint')}</p>
           <Table dense>
             <thead>

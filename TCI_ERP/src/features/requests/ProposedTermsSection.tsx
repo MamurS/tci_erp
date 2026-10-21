@@ -5,7 +5,7 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Card, Field, Input, Select } from '../../components/ui'
+import { Button, Card, Field, Input, Select, SectionTitle } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH, formatAmount, formatPercent } from '../../lib/format'
 import { useCurrencies } from '../entities/api'
@@ -104,7 +104,7 @@ export function ProposedTermsSection({ request }: { request: InsuranceRequestWit
   return (
     <Card className="p-5">
       <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-900">{t('requests.proposedTerms')}</h2>
+        <SectionTitle>{t('requests.proposedTerms')}</SectionTitle>
         {editable &&
           (editing ? (
             <div className="flex gap-2">

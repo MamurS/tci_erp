@@ -6,7 +6,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Input, Segmented, Select, Table } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Input, Segmented, Select, Table, SectionTitle } from '../../components/ui'
 import { EM_DASH, formatAmount } from '../../lib/format'
 import { GRADE_BANDS } from '../../lib/roles'
 import type { AuthorityScope, GradeBand } from '../../lib/roles'
@@ -33,9 +33,9 @@ export function AuthoritiesTab({ user }: { user: AdminUser | null }) {
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-slate-900">
+          <SectionTitle>
             {t('admin.authoritiesFor', { email: user.email })}
-          </h2>
+          </SectionTitle>
           <p className="text-[13px] text-slate-500">{t('admin.authoritiesHint')}</p>
         </div>
         <Segmented

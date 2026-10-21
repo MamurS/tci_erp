@@ -4,7 +4,7 @@
 
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, Spinner, Table } from '../../components/ui'
+import { Badge, Card, EmptyState, Spinner, Table, SectionTitle } from '../../components/ui'
 import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
 import { useIndemnity } from './api'
 import type { Claim, IndemnityStep, IndemnityTrace } from './types'
@@ -64,7 +64,7 @@ function TraceCard({
   return (
     <Card>
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold">{t('claims.indemnity.title')}</h2>
+        <SectionTitle>{t('claims.indemnity.title')}</SectionTitle>
         <Badge tone={live ? 'neutral' : 'accent'}>
           {live ? t('claims.indemnity.live') : t('claims.indemnity.frozen')}
         </Badge>

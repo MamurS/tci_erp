@@ -6,7 +6,7 @@ import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
-import { Badge, Button, Card, EmptyState, Select, Spinner, Table } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Select, Spinner, Table, SectionTitle } from '../../components/ui'
 import { formatMoment } from '../../lib/format'
 import {
   signedDocumentUrl,
@@ -68,7 +68,7 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
       )}
 
       <Card>
-        <h2 className="text-sm font-semibold">{t('claims.documents.checklistTitle')}</h2>
+        <SectionTitle>{t('claims.documents.checklistTitle')}</SectionTitle>
         <p className="mt-1 text-[13px] text-slate-600">
           {t(`claims.documents.checklistHint.${claim.cause_of_loss}`)}
         </p>

@@ -7,7 +7,7 @@
 
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, ViewBar, SectionTitle, Spinner, Table } from '../../../components/ui'
+import { Badge, Card, EmptyState, Panel, PanelGrid, ViewBar, Spinner, Table } from '../../../components/ui'
 import { useAuth } from '../../../auth/AuthContext'
 import { formatAmount, formatCompact } from '../../../lib/format'
 import { AUTHORITY_SCOPES, GRADE_BANDS, hasRole } from '../../../lib/roles'
@@ -57,10 +57,8 @@ export function AuthorityView() {
         </Card>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-        <Card className="p-5">
-          <SectionTitle>{t('limits.workbench.authority.byBand')}</SectionTitle>
-          <p className="-mt-1 mb-3 text-[12px] leading-relaxed text-slate-500">{t('limits.workbench.authority.byBandHint')}</p>
+      <PanelGrid cols="lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+        <Panel title={t('limits.workbench.authority.byBand')} hint={t('limits.workbench.authority.byBandHint')}>
           <Table dense>
             <thead>
               <tr>
@@ -74,10 +72,9 @@ export function AuthorityView() {
               ))}
             </tbody>
           </Table>
-        </Card>
+        </Panel>
 
-        <Card className="p-5">
-          <SectionTitle>{t('limits.workbench.authority.grants')}</SectionTitle>
+        <Panel title={t('limits.workbench.authority.grants')} hint={t('limits.workbench.authority.grantsHint')}>
           {isLoading ? (
             <Spinner />
           ) : !live.length ? (
@@ -117,8 +114,8 @@ export function AuthorityView() {
               </tbody>
             </Table>
           )}
-        </Card>
-      </div>
+        </Panel>
+      </PanelGrid>
     </div>
   )
 }

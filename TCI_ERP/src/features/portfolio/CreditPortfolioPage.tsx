@@ -11,7 +11,7 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, ViewBar, Spinner, StatCard } from '../../components/ui'
+import { Badge, Card, EmptyState, PanelGrid, ViewBar, Spinner, StatCard } from '../../components/ui'
 import { formatAmount, formatCompact, formatDays, formatMoment } from '../../lib/format'
 import {
   creditTotals,
@@ -83,7 +83,7 @@ export function CreditPortfolioPage() {
             />
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-2">
+          <PanelGrid>
             <TableCard
               title={t('portfolio.credit.byBand')}
               hint={t('portfolio.credit.byBandHint')}
@@ -132,7 +132,7 @@ export function CreditPortfolioPage() {
                 </tr>
               ))}
             </TableCard>
-          </div>
+          </PanelGrid>
 
           <TableCard
             title={t('portfolio.credit.topBuyers')}
@@ -172,7 +172,7 @@ export function CreditPortfolioPage() {
             ))}
           </TableCard>
 
-          <div className="grid gap-5 lg:grid-cols-2">
+          <PanelGrid>
             <TableCard
               title={t('portfolio.credit.reviews', { days: REVIEW_WINDOW_DAYS })}
               empty={due.length ? null : t('portfolio.credit.noReviews')}
@@ -221,9 +221,9 @@ export function CreditPortfolioPage() {
                 </tr>
               ))}
             </TableCard>
-          </div>
+          </PanelGrid>
 
-          <div className="grid gap-5 lg:grid-cols-2">
+          <PanelGrid>
             <TableCard
               title={t('portfolio.credit.byCurrency')}
               hint={t('portfolio.credit.byCurrencyHint')}
@@ -265,7 +265,7 @@ export function CreditPortfolioPage() {
                 </tr>
               ))}
             </TableCard>
-          </div>
+          </PanelGrid>
         </div>
       )}
     </div>

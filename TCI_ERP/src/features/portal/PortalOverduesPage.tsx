@@ -13,18 +13,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  Field,
-  Input,
-  PageHeader,
-  Select,
-  Spinner,
-  Table,
-} from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Field, Input, PageHeader, Select, Spinner, Table, SectionTitle } from '../../components/ui'
 import { formatAmount, formatMoment } from '../../lib/format'
 import { isReportedLate, noaDeadline } from '../overdue/noa'
 import {
@@ -88,7 +77,7 @@ export function PortalOverduesPage() {
 
       {activePolicy && (
         <Card>
-          <h2 className="text-sm font-semibold">{t('portal.overdues.fileTitle')}</h2>
+          <SectionTitle>{t('portal.overdues.fileTitle')}</SectionTitle>
           <p className="mt-1 text-xs text-slate-500">{t('portal.overdues.fileHint')}</p>
 
           <div className="mt-3 flex flex-wrap items-end gap-3">

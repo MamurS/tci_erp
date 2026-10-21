@@ -7,18 +7,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  Field,
-  Input,
-  Modal,
-  PageHeader,
-  Spinner,
-  Tabs,
-} from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Field, Input, Modal, PageHeader, Spinner, Tabs, SectionTitle } from '../../components/ui'
 import type { TabDef } from '../../components/ui'
 import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
 import { CLAIM_STATUS_TONE } from './ClaimsPage'
@@ -79,7 +68,7 @@ export function ClaimDetailPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <PageHeader
         title={`${claim.claim_number} · ${claim.buyer_name}`}
         subtitle={`${claim.policy_number} · ${claim.policyholder_name}`}
@@ -243,7 +232,7 @@ function OverviewTab({ claimId }: { claimId: string }) {
   return (
     <div className="grid gap-4 md:grid-cols-2">
       <Card>
-        <h2 className="text-sm font-semibold">{t('claims.overview.file')}</h2>
+        <SectionTitle>{t('claims.overview.file')}</SectionTitle>
         <dl className="mt-3 space-y-2 text-[13px]">
           <Row label={t('claims.fields.filedAt')} value={claim.filed_at ? formatMoment(claim.filed_at, locale) : EM_DASH} />
           <Row label={t('claims.fields.assessedAt')} value={claim.assessed_at ? formatMoment(claim.assessed_at, locale) : EM_DASH} />
@@ -256,7 +245,7 @@ function OverviewTab({ claimId }: { claimId: string }) {
         </dl>
       </Card>
       <Card>
-        <h2 className="text-sm font-semibold">{t('claims.overview.terms')}</h2>
+        <SectionTitle>{t('claims.overview.terms')}</SectionTitle>
         <dl className="mt-3 space-y-2 text-[13px]">
           <Row label={t('claims.fields.insuredPercentage')} value={`${claim.insured_percentage}%`} />
           <Row

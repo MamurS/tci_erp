@@ -8,6 +8,8 @@ export {
   Input,
   Modal,
   PageHeader,
+  Panel,
+  PanelGrid,
   SectionPage,
   SectionTitle,
   Select,

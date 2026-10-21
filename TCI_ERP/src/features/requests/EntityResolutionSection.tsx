@@ -6,7 +6,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Input, Select } from '../../components/ui'
+import { Badge, Button, Card, Input, Select, SectionTitle } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { useEntities } from '../entities/api'
 import { EntityFormModal } from '../entities/EntityFormModal'
@@ -33,9 +33,9 @@ export function EntityResolutionSection({
   return (
     <Card className="border-warn-500/30 p-5">
       <div className="mb-1 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-900">
+        <SectionTitle>
           {t('requests.entityResolution')}
-        </h2>
+        </SectionTitle>
         <Badge tone="warn">{unresolved.length}</Badge>
       </div>
       <p className="mb-3 text-[13px] text-slate-500">{t('requests.entityResolutionHint')}</p>

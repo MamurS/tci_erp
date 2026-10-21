@@ -5,7 +5,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Card } from '../../components/ui'
+import { Button, Card, SectionTitle } from '../../components/ui'
 import { supabase } from '../../lib/supabase'
 
 export function SessionsSection() {
@@ -28,7 +28,7 @@ export function SessionsSection() {
 
   return (
     <Card className="p-5">
-      <h2 className="mb-2 text-sm font-semibold text-slate-700">{t('account.sessions.title')}</h2>
+      <SectionTitle className="mb-2">{t('account.sessions.title')}</SectionTitle>
       <p className="mb-4 text-[13px] text-slate-500">{t('account.sessions.hint')}</p>
       <div className="flex items-center gap-3">
         <Button variant="secondary" disabled={busy} onClick={() => void signOutOthers()}>

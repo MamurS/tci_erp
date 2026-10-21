@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
-import { Card, PageHeader } from '../../components/ui'
+import { Card, PageHeader, SectionTitle } from '../../components/ui'
 import { MfaSection } from './MfaSection'
 import { SessionsSection } from './SessionsSection'
 
@@ -21,7 +21,7 @@ export function AccountPage() {
 
       <div className="grid items-start gap-5 lg:grid-cols-2">
         <Card className="p-5">
-          <h2 className="mb-2 text-sm font-semibold text-slate-700">{t('portal.account.security')}</h2>
+          <SectionTitle className="mb-2">{t('portal.account.security')}</SectionTitle>
           <p className="mb-1 text-[13px] text-slate-500">
             {roles.length ? roles.map((r) => t(`roles.${r}`)).join(' · ') : t('roles.unassigned')}
           </p>

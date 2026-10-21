@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Card, Field, Input, PageHeader, Select, Spinner } from '../../components/ui'
+import { Button, Card, Field, Input, PageHeader, Select, Spinner, SectionTitle } from '../../components/ui'
 import { useCurrencies, useEntities } from '../entities/api'
 import { useCreatePolicy, usePolicy, useUpdatePolicy } from './api'
 import type { PolicyInput } from './api'
@@ -244,9 +244,9 @@ export function PolicyFormPage() {
       <div className="flex max-w-4xl flex-col gap-5">
         {/* Contract */}
         <Card className="p-5">
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          <SectionTitle className="mb-3">
             {t('policies.termGroups.contract')}
-          </h2>
+          </SectionTitle>
           <div className="grid gap-3 md:grid-cols-2">
             <Field label={t('policies.fields.policyholder')}>
               <Select
@@ -315,9 +315,9 @@ export function PolicyFormPage() {
 
         {/* Cover */}
         <Card className="p-5">
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          <SectionTitle className="mb-3">
             {t('policies.termGroups.cover')}
-          </h2>
+          </SectionTitle>
           <div className="grid gap-3 md:grid-cols-2">
             <NumField
               label={t('policies.terms.insuredPercentage')}
@@ -366,9 +366,9 @@ export function PolicyFormPage() {
 
         {/* Premium */}
         <Card className="p-5">
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          <SectionTitle className="mb-3">
             {t('policies.termGroups.premium')}
-          </h2>
+          </SectionTitle>
           <div className="grid gap-3 md:grid-cols-2">
             <NumField
               label={t('policies.terms.premiumRate')}
@@ -396,9 +396,9 @@ export function PolicyFormPage() {
 
         {/* Operation */}
         <Card className="p-5">
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          <SectionTitle className="mb-3">
             {t('policies.termGroups.operation')}
-          </h2>
+          </SectionTitle>
           <div className="grid gap-3 md:grid-cols-2">
             <NumField
               label={t('policies.terms.discretionaryLimit')}

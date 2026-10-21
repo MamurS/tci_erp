@@ -8,16 +8,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  Modal,
-  PageHeader,
-  Spinner,
-  Table,
-} from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Modal, PageHeader, Spinner, Table, SectionTitle } from '../../components/ui'
 import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
 import {
   useMyLimitConditions,
@@ -76,9 +67,9 @@ export function PortalLimitsPage() {
 
       {pending.length > 0 && (
         <Card className="mb-5 p-4">
-          <h2 className="mb-2 text-sm font-semibold text-slate-700">
+          <SectionTitle className="mb-2">
             {t('portal.limits.pendingTitle')}
-          </h2>
+          </SectionTitle>
           <Table dense>
             <thead>
               <tr>

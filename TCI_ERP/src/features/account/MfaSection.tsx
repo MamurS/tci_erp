@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
-import { Badge, Button, Card, Field, Input } from '../../components/ui'
+import { Badge, Button, Card, Field, Input, SectionTitle } from '../../components/ui'
 import { supabase } from '../../lib/supabase'
 import { formatMoment } from '../../lib/format'
 
@@ -128,7 +128,7 @@ export function MfaSection() {
   return (
     <Card className="p-5">
       <div className="mb-2 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold text-slate-700">{t('account.mfa.title')}</h2>
+        <SectionTitle>{t('account.mfa.title')}</SectionTitle>
         {!loading && (
           <Badge tone={verified.length ? 'pos' : authStatus?.mfaRequired ? 'neg' : 'neutral'}>
             {verified.length ? t('account.mfa.on') : t('account.mfa.off')}

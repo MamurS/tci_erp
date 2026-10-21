@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { useAuth } from '../../auth/AuthContext'
-import { Button, Card, Field, Input, PageHeader, Spinner } from '../../components/ui'
+import { Button, Card, Field, Input, PageHeader, Spinner, SectionTitle } from '../../components/ui'
 import { tci } from '../../lib/supabase'
 import { useMyEntity } from './api'
 import { MfaSection, SessionsSection } from '../account'
@@ -77,9 +77,9 @@ export function PortalAccountPage() {
 
       <div className="grid items-start gap-5 lg:grid-cols-2">
         <Card className="p-5">
-          <h2 className="mb-4 text-sm font-semibold text-slate-700">
+          <SectionTitle className="mb-4">
             {t('portal.account.contact')}
-          </h2>
+          </SectionTitle>
           <div className="flex flex-col gap-3">
             <Field label={t('portal.account.company')}>
               <Input value={entity?.name ?? ''} disabled readOnly />
@@ -124,9 +124,9 @@ export function PortalAccountPage() {
         </Card>
 
         <Card className="p-5">
-          <h2 className="mb-2 text-sm font-semibold text-slate-700">
+          <SectionTitle className="mb-2">
             {t('portal.account.security')}
-          </h2>
+          </SectionTitle>
           <p className="mb-4 text-[13px] text-slate-500">{t('portal.account.securityHint')}</p>
           <Link
             to="/change-password"

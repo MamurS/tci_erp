@@ -8,7 +8,7 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, ViewBar, Spinner } from '../../../components/ui'
+import { Badge, Card, EmptyState, PanelGrid, ViewBar, Spinner } from '../../../components/ui'
 import { formatAmount, formatDays, formatPercent } from '../../../lib/format'
 import { num } from '../../portfolio/aggregate'
 import { useCreditPortfolio } from '../../portfolio/api'
@@ -48,7 +48,7 @@ export function MonitoringView() {
         </Card>
       ) : (
         <div className="grid gap-5">
-          <div className="grid gap-5 lg:grid-cols-2">
+          <PanelGrid>
             <TableCard
               title={t('limits.workbench.monitoring.reviews', { days: REVIEW_WINDOW_DAYS })}
               hint={t('limits.workbench.monitoring.reviewsHint')}
@@ -116,7 +116,7 @@ export function MonitoringView() {
                 </tr>
               ))}
             </TableCard>
-          </div>
+          </PanelGrid>
 
           <TableCard
             title={t('limits.workbench.monitoring.noas')}

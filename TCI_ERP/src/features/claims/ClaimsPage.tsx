@@ -58,7 +58,7 @@ export function ClaimsPage() {
   if (isLoading) return <Spinner label={t('common.loading')} />
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
       <PageHeader
         title={t('claims.title')}
         subtitle={t('claims.subtitle')}

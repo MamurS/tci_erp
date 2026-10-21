@@ -141,6 +141,48 @@ export function SectionTitle({ children, actions, rule = false, className = '' }
 }
 
 // ---------------------------------------------------------------------------
+// PanelGrid / Panel — cards side by side whose contents start on one line
+// ---------------------------------------------------------------------------
+
+interface PanelGridProps {
+  /** Column template; one column below the breakpoint. */
+  cols?: string
+  className?: string
+  children: ReactNode
+}
+
+/**
+ * A row of Panels. Each Panel is a two-row SUBGRID of this grid (head, body),
+ * so the head row is as tall as the tallest head in the row: a panel with a
+ * two-line hint and one with a bare title still start their tables on the
+ * same line, and the cards are the same height whatever their bodies hold.
+ */
+export function PanelGrid({ cols = 'lg:grid-cols-2', className = '', children }: PanelGridProps) {
+  return <div className={`grid gap-5 ${cols} ${className}`}>{children}</div>
+}
+
+interface PanelProps {
+  title: ReactNode
+  hint?: ReactNode
+  actions?: ReactNode
+  className?: string
+  children: ReactNode
+}
+
+/** A titled card. Inside a PanelGrid its body lines up with its neighbours'. */
+export function Panel({ title, hint, actions, className = '', children }: PanelProps) {
+  return (
+    <Card className={`row-span-2 grid min-w-0 grid-rows-subgrid gap-y-0 p-5 ${className}`}>
+      <div className="mb-3 min-w-0">
+        <SectionTitle actions={actions}>{title}</SectionTitle>
+        {hint && <p className="mt-1 text-[12px] leading-relaxed text-slate-500">{hint}</p>}
+      </div>
+      <div className="min-w-0">{children}</div>
+    </Card>
+  )
+}
+
+// ---------------------------------------------------------------------------
 // StatCard — a key figure with its comparison (report «Key figures» style)
 // ---------------------------------------------------------------------------
 
@@ -320,11 +362,13 @@ interface SectionPageProps {
 /**
  * A section with views (?view=): ONE header and ONE strip of tabs that never
  * move when the view changes — same width, same title, same subtitle. What a
- * view needs to say or offer goes in its ViewBar below the tabs.
+ * view needs to say or offer goes in its ViewBar below the tabs. It takes the
+ * shell's full content width like every other page, so the title does not
+ * jump sideways when the person moves between sections.
  */
 export function SectionPage({ title, subtitle, tabs, active, onChange, children }: SectionPageProps) {
   return (
-    <div className="mx-auto max-w-7xl">
+    <div>
       <PageHeader title={title} subtitle={subtitle} />
       <div className="mb-5">
         <Tabs tabs={tabs} active={active} onChange={onChange} />

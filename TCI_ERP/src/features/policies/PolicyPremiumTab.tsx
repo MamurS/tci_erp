@@ -12,7 +12,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Spinner, Table } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Spinner, Table, SectionTitle } from '../../components/ui'
 import { EM_DASH, formatAmount, formatPercent } from '../../lib/format'
 import { isBelowMinimum, isInstalmentEditable } from './premium'
 import type { InstalmentStatus } from './premium'
@@ -105,7 +105,7 @@ export function PolicyPremiumTab({ policyId }: { policyId: string }) {
 
       <Card>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold">{t('premium.instalments')}</h2>
+          <SectionTitle>{t('premium.instalments')}</SectionTitle>
           {!instalments?.length && (
             <Button size="sm" variant="secondary" onClick={() => run(generate.mutateAsync(false))}>
               {t('premium.actions.generate')}
@@ -187,7 +187,7 @@ export function PolicyPremiumTab({ policyId }: { policyId: string }) {
       </Card>
 
       <Card>
-        <h2 className="mb-3 text-sm font-semibold">{t('premium.accrual')}</h2>
+        <SectionTitle className="mb-3">{t('premium.accrual')}</SectionTitle>
         {!entries?.length ? (
           <EmptyState title={t('premium.noAccrual')} hint={t('premium.noAccrualHint')} />
         ) : (

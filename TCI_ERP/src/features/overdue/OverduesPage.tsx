@@ -37,7 +37,7 @@ export function OverduesPage() {
   )
 
   return (
-    <div className="p-6">
+    <div>
       <PageHeader
         title={t('overdues.title')}
         subtitle={t('overdues.subtitle')}

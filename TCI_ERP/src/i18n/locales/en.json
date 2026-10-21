@@ -1424,6 +1424,7 @@
         "byBandHint": "The highest of your valid credit grants for the band, in UZS at the latest rate — the figure a decision is checked against.",
         "creditUzs": "In UZS",
         "grants": "My grants",
+        "grantsHint": "Every grant valid today, credit and commercial, in the currency it was given in. An administrator sets them.",
         "noGrants": "You hold no authority grant",
         "noGrantsHint": "An administrator grants authority on the administration screen. Without one every decision you take is escalated.",
         "stream": "Stream"

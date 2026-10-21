@@ -9,16 +9,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  Modal,
-  PageHeader,
-  Spinner,
-  Tabs,
-} from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Modal, PageHeader, Spinner, Tabs, SectionTitle } from '../../components/ui'
 import type { TabDef } from '../../components/ui'
 import { ClaimsSection } from '../claims'
 import { EM_DASH, formatAmount, formatPercent } from '../../lib/format'
@@ -390,7 +381,7 @@ function TermsCard({ policy }: { policy: PolicyWithRefs }) {
   return (
     <Card className="p-5">
       <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-sm font-semibold text-slate-900">{t('policies.termsTitle')}</h2>
+        <SectionTitle>{t('policies.termsTitle')}</SectionTitle>
         <span className="text-[13px] text-slate-500">
           {t(`policies.structures.${policy.product_structure}`)} · {policy.inception_date} —{' '}
           {policy.expiry_date}
@@ -435,7 +426,7 @@ function HistoryTimeline({ policyId }: { policyId: string }) {
 
   return (
     <Card className="p-5">
-      <h2 className="mb-3 text-sm font-semibold text-slate-900">{t('policies.historyTitle')}</h2>
+      <SectionTitle className="mb-3">{t('policies.historyTitle')}</SectionTitle>
       {!history?.length ? (
         <p className="text-[13px] text-slate-500">{t('policies.historyEmpty')}</p>
       ) : (
