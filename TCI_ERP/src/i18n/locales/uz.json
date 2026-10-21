@@ -2484,7 +2484,7 @@
       "covered": "Qoplangan",
       "uncovered": "Qoplanmagan",
       "indemnity": "Sug‘urta tovoni",
-      "age": "Ko‘rib chiqish kunlari",
+      "age": "Kunlar soni",
       "status": "Holat",
       "cause": "Zarar sababi",
       "comment": "Izoh",
@@ -3332,5 +3332,11 @@
     "notInRegistry": "Reyestrda yo‘q",
     "buyerPlaceholder": "Reyestrdagi tashkilot yoki yangi nom",
     "countryPlaceholder": "Mamlakat yoki uning kodini yozing"
+  },
+  "date": {
+    "openCalendar": "Kalendardan tanlash",
+    "previousMonth": "Oldingi oy",
+    "nextMonth": "Keyingi oy",
+    "today": "Bugun"
   }
 }

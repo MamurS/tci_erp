@@ -98,6 +98,14 @@
 }
 
 /* Thin scrollbars inside the app (Chromium / Firefox). */
+/* A table column that takes the width left over and cuts its text with an
+   ellipsis (put a <Truncate> inside): `max-width: 0` stops the cell's content
+   from forcing the table wider than its card. Give it a share, e.g.
+   className="cell-fill w-[30%]". */
+@utility cell-fill {
+  max-width: 0;
+}
+
 @utility scrollbar-thin {
   scrollbar-width: thin;
   scrollbar-color: rgb(148 163 184 / 0.6) transparent;

@@ -2484,7 +2484,7 @@
       "covered": "Covered",
       "uncovered": "Not covered",
       "indemnity": "Indemnity",
-      "age": "Days in assessment",
+      "age": "Days open",
       "status": "Status",
       "cause": "Cause of loss",
       "comment": "Comment",
@@ -3332,5 +3332,11 @@
     "notInRegistry": "Not in the registry",
     "buyerPlaceholder": "A company from the registry, or a new name",
     "countryPlaceholder": "Type a country or its code"
+  },
+  "date": {
+    "openCalendar": "Choose on the calendar",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "today": "Today"
   }
 }

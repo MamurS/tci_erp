@@ -573,7 +573,8 @@ export function Modal({ open, title, onClose, children, footer, wide = false }: 
             </svg>
           </button>
         </div>
-        <div className="px-5 py-4">{children}</div>
+        {/* Fields placed directly in a dialog are spaced evenly, never touching. */}
+        <div className="flex flex-col gap-4 px-5 py-4">{children}</div>
         {footer && (
           <div className="flex justify-end gap-2 border-t border-slate-200 bg-slate-50/70 px-5 py-3">
             {footer}

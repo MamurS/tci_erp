@@ -80,7 +80,7 @@ export function formatDays(value: number | null | undefined, locale: string): st
   return formatAmount(value, locale, 0)
 }
 
-const UZ_MONTHS_SHORT = ['yan', 'fev', 'mar', 'apr', 'may', 'iyn', 'iyl', 'avg', 'sen', 'okt', 'noy', 'dek']
+export const UZ_MONTHS_SHORT = ['yan', 'fev', 'mar', 'apr', 'may', 'iyn', 'iyl', 'avg', 'sen', 'okt', 'noy', 'dek']
 
 function tashkentParts(date: Date) {
   const parts = new Intl.DateTimeFormat('en-CA', {
@@ -119,7 +119,7 @@ export function formatDate(value: string | Date | null | undefined, locale: stri
     .replace(/\s?г\.$/, '')
 }
 
-const UZ_MONTHS_LONG = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr']
+export const UZ_MONTHS_LONG = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr']
 
 /**
  * A reporting period as a person names it: a calendar month is "September
