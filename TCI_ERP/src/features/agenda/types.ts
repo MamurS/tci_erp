@@ -38,6 +38,8 @@ export const TASK_TYPES = [
   'entity_requested',
   'statements_requested',
   'entity_request_resolved',
+  // Agenda redesign (migration 0055)
+  'rating_new_statements',
 ] as const
 
 export type TaskType = (typeof TASK_TYPES)[number]
@@ -79,5 +81,18 @@ export interface Task {
   completed_by: string | null
   completed_at: string | null
   source_event_id: string | null
+  created_at: string
+  /** Out of sight until this moment (0055); null when not snoozed. Per task:
+   * a department task snoozed by one person is snoozed for the department. */
+  snoozed_until: string | null
+  snoozed_by: string | null
+}
+
+/** A comment on a task (tci.task_comments, 0055). Append-only. */
+export interface TaskComment {
+  id: string
+  task_id: string
+  author_id: string
+  body: string
   created_at: string
 }

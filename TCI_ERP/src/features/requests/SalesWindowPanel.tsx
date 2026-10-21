@@ -100,7 +100,8 @@ function DecisionRow({
   }
 
   return (
-    <div className="rounded-md border border-slate-200 p-3">
+    // The id is what `?focus=sales-window&decision=<id>` rings.
+    <div id={`decision-${limit.decision_id}`} className="rounded-md border border-slate-200 p-3">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
         {/* Whose limit it is — an amount alone says nothing to sales. */}
         <Truncate text={buyerName} className="max-w-[16rem] text-[13px] font-medium text-slate-800">

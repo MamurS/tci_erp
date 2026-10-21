@@ -11,11 +11,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { tci } from '../../lib/supabase'
+import { tashkentDay } from './board'
 import { SUBJECT_IN_TITLE } from './catalogue'
-import type { Task } from './types'
+import type { Task, TaskComment } from './types'
 
 const KEYS = {
   tasks: ['agenda', 'tasks'] as const,
+  comments: (ids: readonly string[]) => ['agenda', 'comments', ids] as const,
+  cleared: ['agenda', 'cleared'] as const,
+  justifications: (ids: readonly string[]) => ['agenda', 'justifications', ids] as const,
 }
 
 async function refreshAgenda(): Promise<void> {
@@ -68,6 +72,117 @@ export function useCompleteTask() {
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: KEYS.tasks })
+    },
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Snooze and comments (migration 0055)
+// ---------------------------------------------------------------------------
+
+function useInvalidateAgenda() {
+  const queryClient = useQueryClient()
+  // One prefix: the board, the badge, the comments and the cleared count.
+  return () => void queryClient.invalidateQueries({ queryKey: ['agenda'] })
+}
+
+/** tci.snooze_task: out of sight until `until`. Per task — a department
+ * task is put aside for the department. */
+export function useSnoozeTask() {
+  const invalidate = useInvalidateAgenda()
+  return useMutation({
+    mutationFn: async ({ taskId, until }: { taskId: string; until: Date }): Promise<void> => {
+      const { error } = await tci().rpc('snooze_task', { p_task_id: taskId, p_until: until.toISOString() })
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+}
+
+export function useUnsnoozeTask() {
+  const invalidate = useInvalidateAgenda()
+  return useMutation({
+    mutationFn: async (taskId: string): Promise<void> => {
+      const { error } = await tci().rpc('unsnooze_task', { p_task_id: taskId })
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+}
+
+export function useAddTaskComment() {
+  const invalidate = useInvalidateAgenda()
+  return useMutation({
+    mutationFn: async ({ taskId, body }: { taskId: string; body: string }): Promise<void> => {
+      const { error } = await tci().rpc('add_task_comment', { p_task_id: taskId, p_body: body })
+      if (error) throw error
+    },
+    onSuccess: invalidate,
+  })
+}
+
+/** Comments on the given tasks, oldest first. RLS returns only those on
+ * tasks the caller can see. */
+export function useTaskComments(taskIds: readonly string[]) {
+  const ids = [...new Set(taskIds)].sort()
+  return useQuery({
+    queryKey: KEYS.comments(ids),
+    enabled: ids.length > 0,
+    staleTime: 60_000,
+    queryFn: async (): Promise<TaskComment[]> => {
+      const { data, error } = await tci()
+        .from('task_comments')
+        .select('id, task_id, author_id, body, created_at')
+        .in('task_id', ids)
+        .order('created_at', { ascending: true })
+      if (error) throw error
+      return (data ?? []) as TaskComment[]
+    },
+    placeholderData: [],
+  })
+}
+
+/** Tasks closed today (Tashkent) that the caller can see — the «cleared
+ * today» figure. A count, not rows. */
+export function useClearedToday() {
+  return useQuery({
+    queryKey: KEYS.cleared,
+    staleTime: 60_000,
+    queryFn: async (): Promise<number> => {
+      const startOfDay = new Date(`${tashkentDay(Date.now())}T00:00:00+05:00`).toISOString()
+      const { count, error } = await tci()
+        .from('tasks')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'done')
+        .gte('completed_at', startOfDay)
+      if (error) throw error
+      return count ?? 0
+    },
+  })
+}
+
+/** The justification of each limit request — the origin comment of a
+ * decision task (the requester's, or the policyholder's from the portal). */
+export interface LimitJustification {
+  id: string
+  justification: string | null
+  requested_by: string | null
+  created_at: string
+}
+
+export function useLimitJustifications(requestIds: readonly string[]) {
+  const ids = [...new Set(requestIds)].sort()
+  return useQuery({
+    queryKey: KEYS.justifications(ids),
+    enabled: ids.length > 0,
+    staleTime: 60_000,
+    queryFn: async (): Promise<Map<string, LimitJustification>> => {
+      const { data, error } = await tci()
+        .from('credit_limit_requests')
+        .select('id, justification, requested_by, created_at')
+        .in('id', ids)
+      if (error) throw error
+      return new Map(((data ?? []) as LimitJustification[]).map((r) => [r.id, r]))
     },
   })
 }
@@ -130,6 +245,9 @@ export function useTaskSubjects(tasks: readonly Task[] | undefined) {
     if (task.object_type === 'insurance_request') requestIds.add(task.object_id)
     if (task.object_type === 'credit_limit_request') limitRequestIds.add(task.object_id)
     if (task.object_type === 'claim') claimIds.add(task.object_id)
+    // The buyer of an overdue notification, a group parent, a limit's buyer.
+    const entityFromParams = task.params?.entity_id
+    if (typeof entityFromParams === 'string') entityIds.add(entityFromParams)
     const fromParams = task.params?.request_id
     if (typeof fromParams === 'string') limitRequestIds.add(fromParams)
     const policyId = policyIdOf(task)
@@ -265,4 +383,39 @@ export function contextFor(task: Task, subjects: TaskSubjects | undefined): stri
     default:
       return null
   }
+}
+
+// ---------------------------------------------------------------------------
+// Provenance and history (the event stream; staff read it, 0019)
+// ---------------------------------------------------------------------------
+
+export interface WorkflowEvent {
+  id: string
+  event_type: string
+  object_type: string
+  object_id: string
+  actor: string | null
+  payload: Record<string, unknown>
+  created_at: string
+}
+
+/** Every event on the given objects, oldest first: the status history the
+ * triage panel shows, and the event that opened a task (its provenance). */
+export function useObjectEvents(objectIds: readonly string[]) {
+  const ids = [...new Set(objectIds)].sort()
+  return useQuery({
+    queryKey: ['agenda', 'events', ids] as const,
+    enabled: ids.length > 0,
+    staleTime: 60_000,
+    queryFn: async (): Promise<WorkflowEvent[]> => {
+      const { data, error } = await tci()
+        .from('workflow_events')
+        .select('id, event_type, object_type, object_id, actor, payload, created_at')
+        .in('object_id', ids)
+        .order('created_at', { ascending: true })
+        .limit(200)
+      if (error) throw error
+      return (data ?? []) as WorkflowEvent[]
+    },
+  })
 }

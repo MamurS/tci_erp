@@ -61,6 +61,9 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   entity_requested: 'auto', // data.entity_request_resolved (or moves on reassignment)
   statements_requested: 'auto', // same
   entity_request_resolved: 'manual',
+  // Agenda redesign (migration 0055): refresh_agenda retires it once the new
+  // period is rated, and so does rating.created at once.
+  rating_new_statements: 'auto',
 }
 
 /** Mirrors tci.complete_task's guard (as 0054 restates it): it refuses
@@ -79,10 +82,16 @@ export function taskLink(
     case 'legal_entity':
       // The two group tasks hang off the ULTIMATE PARENT company, and the work
       // they ask for is on its Группа tab, not on the card's default tab.
-      return task.task_type === 'group_exposure_near_limit' ||
-        task.task_type === 'group_limit_missing'
-        ? `/entities/${task.object_id}?tab=group`
-        : `/entities/${task.object_id}`
+      // The rating tasks belong on Рейтинг и лимит.
+      if (task.task_type === 'group_exposure_near_limit' || task.task_type === 'group_limit_missing')
+        return `/entities/${task.object_id}?tab=group`
+      if (
+        task.task_type === 'buyer_needs_rating' ||
+        task.task_type === 'rating_stale' ||
+        task.task_type === 'rating_new_statements'
+      )
+        return `/entities/${task.object_id}?tab=rating`
+      return `/entities/${task.object_id}`
     case 'credit_limit_request':
       return `/limits/${task.object_id}`
     case 'credit_limit_decision': {
@@ -194,6 +203,7 @@ export const SUBJECT_IN_TITLE: ReadonlySet<TaskType> = new Set<TaskType>([
   'limit_escalated',
   'limit_review_due',
   'rating_stale',
+  'rating_new_statements',
 ])
 
 export function groupOf(task: Pick<Task, 'due_at' | 'priority'>, now: Date): AgendaGroup {
@@ -277,14 +287,28 @@ export function applyFilters(tasks: readonly Task[], filters: AgendaFilters): Ta
   )
 }
 
-/** Badge counts for the sidebar: everything open, and the overdue subset. */
+/** A snoozed task is out of sight until its moment passes (0055); it then
+ * comes back by itself, because this is decided on read. */
+export function isSnoozed(task: Pick<Task, 'snoozed_until'>, now: Date): boolean {
+  return task.snoozed_until !== null && new Date(task.snoozed_until).getTime() > now.getTime()
+}
+
+/** The tasks that count: open and not snoozed. Every list, count and badge
+ * reads through this, so a snoozed task disappears everywhere at once. */
+export function activeTasks<T extends Pick<Task, 'snoozed_until'>>(tasks: readonly T[], now: Date): T[] {
+  return tasks.filter((task) => !isSnoozed(task, now))
+}
+
+/** Badge counts for the sidebar: everything open and not snoozed, and the
+ * overdue subset. */
 export function agendaCounts(
   tasks: readonly Task[],
   now: Date,
 ): { open: number; overdue: number } {
+  const active = activeTasks(tasks, now)
   return {
-    open: tasks.length,
-    overdue: tasks.filter((task) => isOverdue(task, now)).length,
+    open: active.length,
+    overdue: active.filter((task) => isOverdue(task, now)).length,
   }
 }
 

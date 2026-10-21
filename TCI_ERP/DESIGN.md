@@ -217,6 +217,34 @@ decade, otherwise "between" that band and the next (72 → Weak; 78 →
 between Weak and Distressed). Gauge, legend and report text all use that
 one rule.
 
+## The Agenda (`src/features/agenda`)
+
+A queue to work, not a report. The page title keeps the house heading; under
+it ONE live summary line (overdue in red, money at stake in UZS, today's
+desk, cleared today). Right: List | Triage (`Segmented tone="solid"`,
+remembered per person) and «Группировать: …».
+
+* **Chips**, not dropdowns: All, Assigned to me, then one per task family
+  present, with live counts; the dashed «Отложенные» chip at the far right.
+  State lives in the URL (`?family=&mine=1&snoozed=1`).
+* **Groups**: one white card each, rows separated by hairlines; the header
+  is the name (red for Overdue, an amber dot for Today), item and task
+  counts, and the UZS sum (amounts without a rate are left out and said so).
+  «Позже» starts collapsed.
+* **Row** (~56px): a 3px left stripe (red overdue / amber today / neutral) —
+  with the tag and the due label the only colour on the row — then the
+  type tag (⚡ when automatic), the title «what · company», the context line
+  (latest comment in italics with a count, or the system note, then the facts
+  in tabular numerals), the relative due label (date in the tooltip) and the
+  owner avatar. The whole row is a stretched link to the OBJECT; hover or
+  keyboard focus reveals the actions. A keyboard-focused row has an inset
+  navy ring.
+* **Triage**: queue (≤ 22rem) left, the task right — tag + due, title,
+  provenance, the «Перейти к …» button with the destination spelled out
+  under it, the comment thread (system note muted), the family panel, the
+  history card. Handled rows stay struck through until reload.
+* **Contrast**: every text ≥ 4.5:1. The amber token is not used for text.
+
 ## The risk report (`src/features/entities/report`)
 
 Two faces, one document: `useRiskReport` assembles the data,

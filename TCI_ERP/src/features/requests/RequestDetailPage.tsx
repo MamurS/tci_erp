@@ -3,12 +3,14 @@
  * columns, the sales window panel, and the transition history. */
 
 import { useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, Callout, EmptyState, Field, LinkButton, Modal, PageHeader, Spinner, Textarea } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH } from '../../lib/format'
+import { pickParam } from '../../lib/deepLink'
+import { DEEP_LINK_SCROLL_MARGIN, useDeepLinkFocus } from '../../lib/useDeepLinkFocus'
 import {
   useAdvanceInsuranceRequest,
   useInsuranceRequest,
@@ -32,6 +34,9 @@ import {
 } from './machine'
 import type { InsuranceRequestStatus } from './types'
 
+/** The sections `?focus=` may name; each is the `id` of its wrapper. */
+const REQUEST_FOCUS_TARGETS = ['sales-window', 'buyers'] as const
+
 export function RequestDetailPage() {
   const { t } = useTranslation()
   const { id = '' } = useParams()
@@ -46,6 +51,22 @@ export function RequestDetailPage() {
   const [binding, setBinding] = useState(false)
   const [comment, setComment] = useState('')
   const [actionError, setActionError] = useState<string | null>(null)
+
+  // ?focus=sales-window|buyers (the Agenda's links) lands on that section once
+  // the buyers are in — the resolution section above them depends on them and
+  // would otherwise push the target down after the scroll. With
+  // &decision=<id> the sales window is scrolled to and that decision's row is
+  // the one ringed; nothing is opened (holding stays a deliberate click).
+  const [searchParams] = useSearchParams()
+  const named = pickParam(searchParams.get('focus'), REQUEST_FOCUS_TARGETS)
+  const decisionId = named !== 'buyers' ? searchParams.get('decision') : null
+  // A decision lives in the sales window, so naming one implies it.
+  const focus = named ?? (decisionId ? 'sales-window' : null)
+  useDeepLinkFocus(focus, { ready: buyers !== undefined, highlight: !decisionId })
+  useDeepLinkFocus(decisionId ? `decision-${decisionId}` : null, {
+    ready: buyers !== undefined,
+    scroll: false,
+  })
 
   const facts = useMemo(
     () => ({
@@ -191,8 +212,15 @@ export function RequestDetailPage() {
           side. */}
       <div className="flex flex-col gap-5">
         <EntityResolutionSection request={request} buyers={buyers ?? []} />
-        <BuyerPackageTable request={request} buyers={buyers ?? []} />
-        {request.status === 'sales_confirmation' && <SalesWindowPanel request={request} />}
+        {/* The wrappers carry the ?focus= targets and have no look of their own. */}
+        <div id="buyers" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
+          <BuyerPackageTable request={request} buyers={buyers ?? []} />
+        </div>
+        {request.status === 'sales_confirmation' && (
+          <div id="sales-window" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
+            <SalesWindowPanel request={request} />
+          </div>
+        )}
         <div className="grid items-start gap-5 xl:grid-cols-2">
           <ProposedTermsSection request={request} />
           <div className="flex flex-col gap-5">

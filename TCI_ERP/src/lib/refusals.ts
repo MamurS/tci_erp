@@ -36,6 +36,13 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'the assignee must hold the information_manager role', key: 'data.errors.notInformationManager' },
   { fragment: 'a rejected request needs a reason', key: 'data.errors.reasonRequired' },
   { fragment: 'name the company the request was resolved with', key: 'data.errors.companyRequired' },
+  // the Agenda (0055)
+  { fragment: 'snooze_in_past', key: 'agenda.errors.snoozeInPast' },
+  { fragment: 'snooze_too_far', key: 'agenda.errors.snoozeTooFar' },
+  { fragment: 'comment_empty', key: 'agenda.errors.commentEmpty' },
+  { fragment: 'comment_too_long', key: 'agenda.errors.commentTooLong' },
+  { fragment: 'closes itself when its object moves on', key: 'agenda.completeFailed' },
+  { fragment: 'not found or not yours', key: 'agenda.errors.notYours' },
 ]
 
 /** The i18n key for a refused operation. Never returns raw server text. */

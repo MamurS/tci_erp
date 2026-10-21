@@ -7,13 +7,15 @@
  * to discuss, not an error in the data (DESIGN.md).
  */
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, EmptyState, Field, PageHeader, Select, Spinner, Table, Truncate } from '../../components/ui'
-import { EM_DASH, formatAmount, formatPeriod } from '../../lib/format'
-import { useDeclarations } from './api'
+import { Badge, Callout, EmptyState, Field, PageHeader, Select, Spinner, Table, Truncate } from '../../components/ui'
+import { EM_DASH, formatAmount, formatDate, formatPeriod } from '../../lib/format'
+import { useDeclarations, usePolicyDeclarationFrequency } from './api'
+import { periodEnd } from './period'
+import { resolvePeriodLink } from './periodLink'
 import { DECLARATION_STATUSES } from './types'
 import type { DeclarationStatus } from './types'
 import { STATUS_TONE } from './status'
@@ -32,6 +34,21 @@ export function DeclarationsPage() {
     () => (data ?? []).filter((d) => !status || d.status === status),
     [data, status],
   )
+
+  // ?period=<first day> with ?policy= (the Agenda's «declaration due» link):
+  // a declared period opens its declaration; one not declared yet is said
+  // above the policy's list, which stays as it is.
+  // Judged only once the list is in, so nothing flashes while it loads.
+  const periodLink = data
+    ? resolvePeriodLink(data, policyFilter, params.get('period'))
+    : ({ kind: 'none' } as const)
+  const { data: frequency, isLoading: frequencyLoading } = usePolicyDeclarationFrequency(
+    periodLink.kind === 'missing' ? policyFilter : undefined,
+  )
+  const openId = periodLink.kind === 'open' ? periodLink.id : null
+  useEffect(() => {
+    if (openId) void navigate(`/declarations/${openId}`, { replace: true })
+  }, [openId, navigate])
 
   return (
     <div>
@@ -58,9 +75,23 @@ export function DeclarationsPage() {
         }
       />
 
+      {/* Held until the policy's frequency is known, so the period is named
+          once («July 2026», «Q3 2026») instead of changing under the reader. */}
+      {periodLink.kind === 'missing' && !frequencyLoading && (
+        <Callout
+          tone="warn"
+          className="mb-5"
+          title={t('declarations.periodNotDeclared', {
+            period: frequency
+              ? formatPeriod(periodLink.period, periodEnd(periodLink.period, frequency), locale)
+              : formatDate(periodLink.period, locale),
+          })}
+        />
+      )}
+
       {isError ? (
         <EmptyState title={t('common.loadFailed')} hint={t('common.tryAgain')} />
-      ) : isLoading ? (
+      ) : isLoading || openId ? (
         <Spinner label={t('common.loading')} />
       ) : rows.length === 0 ? (
         <EmptyState title={t('declarations.empty')} hint={t('declarations.emptyHint')} />

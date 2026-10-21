@@ -6,7 +6,7 @@
  * when the analytics service is down.
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -53,6 +53,7 @@ import { gradeTone } from '../../../lib/grade'
 import { gradeChange, useGradeScale } from '../../../lib/gradeScale'
 import type { GradeBand } from '../../../lib/gradeScale'
 import { tci } from '../../../lib/supabase'
+import { DEEP_LINK_SCROLL_MARGIN, useDeepLinkFocus } from '../../../lib/useDeepLinkFocus'
 import { useEntity, useStatements } from '../api'
 import type { StatementBundle } from '../types'
 import { statementPeriodLabel } from '../types'
@@ -71,6 +72,9 @@ import { ReportModal } from './ReportModal'
 
 /** id of the factor breakdown table — dashboard chips deep-link here. */
 export const FACTOR_TABLE_ANCHOR_ID = 'rating-factor-table'
+
+/** id of the statement selector + Calculate row — `?statement=` lands here. */
+const STATEMENT_ROW_ANCHOR_ID = 'rating-statement'
 
 /** Company age in years at the statement date (activates the age factor). */
 function ageAt(foundedDate: string | null | undefined, periodEnd: string): number | null {
@@ -94,9 +98,15 @@ export function RatingTab({ entityId }: { entityId: string }) {
     [statements],
   )
 
-  const [statementId, setStatementId] = useState<string | null>(null)
+  // ?statement=<id> (the Agenda's «rate this statement») pre-selects the
+  // statement and brings the Calculate row into view. An id this company does
+  // not hold falls back to the latest, as with no parameter at all.
+  const [searchParams] = useSearchParams()
+  const linkedStatement = searchParams.get('statement')
+  const [statementId, setStatementId] = useState<string | null>(linkedStatement)
   const selected: StatementBundle | null =
-    ordered.find((s) => s.id === (statementId ?? ordered[0]?.id)) ?? null
+    ordered.find((s) => s.id === statementId) ?? ordered[0] ?? null
+  useDeepLinkFocus(linkedStatement ? STATEMENT_ROW_ANCHOR_ID : null)
 
   const [result, setResult] = useState<{
     rating: RatingResponse
@@ -118,15 +128,12 @@ export function RatingTab({ entityId }: { entityId: string }) {
   const assessments = useAssessments(entityId)
 
   // ?anchor=factors (dashboard chip click) → scroll to the factor table.
-  const [searchParams] = useSearchParams()
   const anchor = searchParams.get('anchor')
   const hasResult = Boolean(result ?? assessments.data?.[0]?.calculation_trace)
-  useEffect(() => {
-    if (anchor !== 'factors' || !hasResult) return
-    document
-      .getElementById(FACTOR_TABLE_ANCHOR_ID)
-      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }, [anchor, hasResult])
+  useDeepLinkFocus(anchor === 'factors' ? FACTOR_TABLE_ANCHOR_ID : null, {
+    ready: hasResult,
+    highlight: false,
+  })
 
   const calculate = useMutation({
     mutationFn: async (statement: StatementBundle) => {
@@ -227,41 +234,43 @@ export function RatingTab({ entityId }: { entityId: string }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <Card className="flex flex-wrap items-end gap-3 p-5">
-        <label className="flex flex-col gap-1">
-          <span className="text-[13px] font-medium text-slate-600">{t('rating.statement')}</span>
-          <Select
-            value={selected?.id ?? ''}
-            onChange={(e) => setStatementId(e.target.value)}
-            className="min-w-48"
+      <div id={STATEMENT_ROW_ANCHOR_ID} className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
+        <Card className="flex flex-wrap items-end gap-3 p-5">
+          <label className="flex flex-col gap-1">
+            <span className="text-[13px] font-medium text-slate-600">{t('rating.statement')}</span>
+            <Select
+              value={selected?.id ?? ''}
+              onChange={(e) => setStatementId(e.target.value)}
+              className="min-w-48"
+            >
+              {ordered.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {statementPeriodLabel(s)} · {s.currency_code}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <Button
+            onClick={() => selected && calculate.mutate(selected)}
+            disabled={calculate.isPending || !selected}
           >
-            {ordered.map((s) => (
-              <option key={s.id} value={s.id}>
-                {statementPeriodLabel(s)} · {s.currency_code}
-              </option>
-            ))}
-          </Select>
-        </label>
-        <Button
-          onClick={() => selected && calculate.mutate(selected)}
-          disabled={calculate.isPending || !selected}
-        >
-          {calculate.isPending ? t('rating.calculating') : t('rating.calculate')}
-        </Button>
-        <Button variant="secondary" onClick={() => setReportModalOpen(true)}>
-          {t('rating.generateReport')}
-        </Button>
-        {serviceDown && (
-          <span className="text-[13px] text-neg-500" role="alert">
-            {t('rating.serviceUnavailable')}
-          </span>
-        )}
-        {calculate.isError && !serviceDown && (
-          <span className="text-[13px] text-neg-500" role="alert">
-            {t('common.saveFailed')}
-          </span>
-        )}
-      </Card>
+            {calculate.isPending ? t('rating.calculating') : t('rating.calculate')}
+          </Button>
+          <Button variant="secondary" onClick={() => setReportModalOpen(true)}>
+            {t('rating.generateReport')}
+          </Button>
+          {serviceDown && (
+            <span className="text-[13px] text-neg-500" role="alert">
+              {t('rating.serviceUnavailable')}
+            </span>
+          )}
+          {calculate.isError && !serviceDown && (
+            <span className="text-[13px] text-neg-500" role="alert">
+              {t('common.saveFailed')}
+            </span>
+          )}
+        </Card>
+      </div>
 
       {shown ? (
         <ResultView

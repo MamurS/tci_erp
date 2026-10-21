@@ -286,10 +286,33 @@ interface SegmentedProps {
   options: SegmentedOption[]
   onChange: (key: string) => void
   ariaLabel?: string
+  /** "solid": the selected option is filled navy at button height — a view
+   * switch in a page header (List | Triage). */
+  tone?: 'default' | 'solid'
 }
 
 /** Small mutually-exclusive switch (report type, display currency, language). */
-export function Segmented({ value, options, onChange, ariaLabel }: SegmentedProps) {
+export function Segmented({ value, options, onChange, ariaLabel, tone = 'default' }: SegmentedProps) {
+  if (tone === 'solid') {
+    return (
+      <div className="inline-flex h-9 rounded-md border border-slate-200 bg-white p-0.5" role="group" aria-label={ariaLabel}>
+        {options.map((option) => (
+          <button
+            key={option.key}
+            type="button"
+            disabled={option.disabled}
+            aria-pressed={option.key === value}
+            onClick={() => onChange(option.key)}
+            className={`rounded-[5px] px-3.5 text-[13px] font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none ${
+              option.key === value ? 'bg-accent-600 text-white' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+            } ${option.disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    )
+  }
   return (
     <div
       className="inline-flex rounded-md border border-slate-200 bg-slate-100/70 p-0.5"

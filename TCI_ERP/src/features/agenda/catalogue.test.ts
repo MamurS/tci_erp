@@ -16,6 +16,7 @@ import PHASE4 from '../../../supabase/migrations/0029_phase4_agenda_portal.sql?r
 import PHASE5 from '../../../supabase/migrations/0036_claims_agenda_portal.sql?raw'
 import PHASE6 from '../../../supabase/migrations/0041_group_agenda_financials.sql?raw'
 import DATA from '../../../supabase/migrations/0054_data_management.sql?raw'
+import AGENDA from '../../../supabase/migrations/0055_agenda_redesign.sql?raw'
 import {
   AGENDA_GROUPS,
   agendaCounts,
@@ -58,6 +59,8 @@ function task(patch: Partial<Task> = {}): Task {
     completed_at: null,
     source_event_id: null,
     created_at: '2026-08-01T00:00:00Z',
+    snoozed_until: null,
+    snoozed_by: null,
     ...patch,
   }
 }
@@ -79,6 +82,7 @@ describe('task type enum', () => {
       ...PHASE5.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
       ...PHASE6.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
       ...DATA.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
+      ...AGENDA.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
     ].map((m) => m[1])
     expect([...created, ...appended]).toEqual([...TASK_TYPES])
   })
@@ -104,7 +108,10 @@ describe('task type enum', () => {
     // 0054 adds the three data-request types.
     const addedData = DATA.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
     expect(addedData).toHaveLength(3)
-    expect(TASK_TYPES).toHaveLength(30)
+    // 0055 adds rating_new_statements.
+    const addedAgenda = AGENDA.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
+    expect(addedAgenda).toHaveLength(1)
+    expect(TASK_TYPES).toHaveLength(31)
   })
 
   it('lists exactly the values of tci.task_priority', () => {
@@ -146,7 +153,7 @@ describe('completion rules', () => {
 
   it('agrees with the catalogue table in the migration headers', () => {
     // Each header row is "<type>  <target>  AUTO ..." or "... MANUAL - ...".
-    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}`.split('\n')
+    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}`.split('\n')
     for (const type of TASK_TYPES) {
       const row = headers.find(
         (line) => line.startsWith(`--   ${type}`) && /\b(AUTO|MANUAL)\b/.test(line),
@@ -445,10 +452,19 @@ describe('the Phase 6 group tasks (0041)', () => {
         params: {},
       }),
     ).toBe('/entities/e1?tab=group')
-    // Every other legal_entity task keeps the plain card link.
+    // The rating tasks open Рейтинг и лимит (0055); every other
+    // legal_entity task keeps the plain card link.
     expect(
       taskLink({
         task_type: 'buyer_needs_rating',
+        object_type: 'legal_entity',
+        object_id: 'e1',
+        params: {},
+      }),
+    ).toBe('/entities/e1?tab=rating')
+    expect(
+      taskLink({
+        task_type: 'limit_review_due',
         object_type: 'legal_entity',
         object_id: 'e1',
         params: {},

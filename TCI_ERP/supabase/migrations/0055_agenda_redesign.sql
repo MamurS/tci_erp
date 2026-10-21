@@ -44,11 +44,11 @@
 -- ---------------------------------------------------------------------------
 -- 1. The new task type
 -- ---------------------------------------------------------------------------
---   rating_new_statements  credit_underwriter  normal (high with limits in
---                          force)  due: 7 days after the Agenda first sees
---                          it (never before the statements were added)
---                          AUTO: lazily, and at once on rating.created once
---                          the latest period is rated
+--   rating_new_statements  credit_underwriter  normal/high  AUTO lazily, and at once on rating.created
+--
+-- High when limits are in force on the rating. Due seven days after the
+-- Agenda first sees it (never before the statements were added). Retired
+-- once the latest period is rated.
 
 alter type tci.task_type add value 'rating_new_statements';
 

@@ -514,6 +514,26 @@ is fine for internal test accounts and not fine for customers.
   2026-10-21**, live smoke with role impersonation (two information
   managers + a banned one, credit, commercial, admin, client) rolled back,
   counts unchanged, no new advisor finding
+- [x] Agenda redesign (Prompt 22, migration 0055): «Моя повестка» is a
+  queue you WORK, in two views — List (one row per piece of work: tasks on
+  one object merge, premium instalments collapse into one row with a
+  sub-table; grouped by due date / company / type; family chips with live
+  counts kept in the URL; hover or keyboard reveals «Решить / Отложить / ⋯»)
+  and Triage (queue left, the selected task right with its comments, a
+  three-figure strip, facts and history — a PREVIEW whose primary button
+  deep-links to the screen where the task is done, e.g.
+  `/limits/:id?focus=decision`, `/entities/:id?tab=rating&statement=…`,
+  `/policies/:id?tab=premium&instalments=…`, `/overdues/:id?action=open-claim`).
+  Snooze (`snooze_task` / `unsnooze_task`, per task), append-only
+  `tci.task_comments`, a new lazily generated `rating_new_statements`, a
+  fifth event trigger that records who escalated and their band authority and
+  opens a task for a group-limit breach (it opened none), and the security
+  fix: `tci.tasks` lost the column UPDATE grant that let a REST PATCH close
+  any automatic task. J/K/Enter/O/C/E/S/T keyboard. See **Agenda rules**
+  below. **Canonical: 0055 applied 2026-10-21** in chunks (the owner runs
+  `docs/deploy/canonical-apply-0055.sql` for the one held DROP POLICY),
+  function bodies md5-identical to a local replay, live smoke with role
+  impersonation rolled back, counts unchanged
 - [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1200,6 +1220,46 @@ suspended policy — whose first problem is `no_statements`,
 `stale_statements` (latest period ends more than 15 months ago) or
 `missing_registry` (registration number, address or industry). No cron, no
 tasks generated from it: it is the information manager's worklist.
+
+### Agenda rules (migration 0055)
+
+**The Agenda never performs a task.** Its primary button goes to the screen
+where the task is done (`destinations.ts`, a Record over every task type,
+contract-tested), with the context in the URL; the destination screens
+honour it and render exactly as before without it (`src/lib/useDeepLinkFocus.ts`
+scrolls and rings the target). Triage shows, never edits.
+
+**One row per piece of work** (`board.ts`, tested): merge first — the same
+type on one object (per-person copies), and MERGE_SETS (an overdue notice
+seen by claims and by the policyholder; a request and its escalation; the
+three rating tasks), first type leads — then group, then collapse inside the
+group (premium instalments, across policies; the sub-table names the
+policy). Undated urgent/high work sits in «Сегодня», undated normal in «На
+этой неделе»; nothing undated hides in «Позже».
+
+**Snooze is per task and decided on read.** `snoozed_until` is never cleared
+by a job: `activeTasks()` (catalogue.ts) drops a task while the moment is in
+the future, and every list, chip, count, the sidebar badge and the dashboard
+read through it. A department task snoozed by one person is snoozed for the
+department (`snoozed_by` says who).
+
+**Comments are shown where they live.** `ORIGIN_SOURCES` (notes.ts) maps each
+task type to the human text on its source object (a limit request's
+justification — the policyholder's when it came from the portal — a hold
+comment, a decline reason, a data request's note); `tci.task_comments` holds
+only what people add on the task, append-only. The system note of an
+automatic task (no source event, ⚡) is an i18n key over params, rendered by
+`renderNote` — never stored text.
+
+**Every write on a task is a function.** `complete_task`, `snooze_task`,
+`unsnooze_task`, `add_task_comment` are SECURITY DEFINER with
+`require_staff()` and the `task_is_mine` predicate (the tasks read policies);
+`authenticated` holds no write grant on `tci.tasks` or `tci.task_comments`.
+`direct_writes.sql` and `agenda.sql` prove it.
+
+**Amber is not a text colour.** `--color-warn-500` is about 3.4:1 on white;
+the «Сегодня» label, the due label and the «Эскалация» tag carry amber as a
+stripe, a dot, a fill or a ring, with dark text.
 
 ### Credit workbench rules (migration 0053)
 

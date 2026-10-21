@@ -1,8 +1,8 @@
 /** One overdue notification: the ageing, the lateness verdict, what the
  * filing did to the buyer's cover, and how a human closes it. */
 
-import { useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -20,8 +20,12 @@ import {
   Textarea,
 } from '../../components/ui'
 import { formatAmount, formatDate, formatMoment } from '../../lib/format'
-import { useOverdueNotification, useResolveNoa } from './api'
+import { useAuth } from '../../auth/AuthContext'
+import { hasRole } from '../../lib/roles'
+import { useClaimSlots, useOverdueNotification, useResolveNoa } from './api'
 import { canResolve, RESOLUTION_STATUSES } from './noa'
+import { mayOpenClaimFromNoa, OPEN_CLAIM_ROLES } from './openClaim'
+import { OpenClaimModal } from './OpenClaimModal'
 import type { NoaStatus } from './types'
 import { refusalKey } from '../../lib/refusals'
 
@@ -35,6 +39,27 @@ export function OverdueDetailPage() {
   const [note, setNote] = useState('')
   const [resolving, setResolving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Opening a claim from here is staff's path; the policyholder's is the
+  // portal. The claims under the policy say whether one already holds the slot.
+  const { roles } = useAuth()
+  const mayOpenClaims = hasRole(roles, ...OPEN_CLAIM_ROLES)
+  const { data: policyClaims } = useClaimSlots(noa?.policy_id, mayOpenClaims)
+  const offerClaim = Boolean(noa && policyClaims && mayOpenClaimFromNoa(roles, noa, policyClaims))
+  const [openingClaim, setOpeningClaim] = useState(false)
+
+  // ?action=open-claim (the Agenda's «claim can be filed» link) opens the
+  // dialog once it is known to be on offer, and only then; the parameter is
+  // dropped so closing the dialog is final and a reload does not reopen it.
+  const [params, setParams] = useSearchParams()
+  const autoOpen = params.get('action') === 'open-claim'
+  useEffect(() => {
+    if (!autoOpen || !offerClaim) return
+    setOpeningClaim(true)
+    const next = new URLSearchParams(params)
+    next.delete('action')
+    setParams(next, { replace: true })
+  }, [autoOpen, offerClaim, params, setParams])
 
   if (isLoading) return <Spinner label={t('common.loading')} />
   if (!noa) return <EmptyState title={t('overdues.notFound')} />
@@ -55,8 +80,19 @@ export function OverdueDetailPage() {
           `${t('overdues.fields.reportedAt')} ${formatMoment(noa.reported_at, locale)}`,
         ]}
         actions={
-          canResolve(noa.status) && (
-            <Button onClick={() => setResolving(true)}>{t('overdues.actions.resolve')}</Button>
+          (offerClaim || canResolve(noa.status)) && (
+            <>
+              {/* Secondary: closing the notification stays the page's
+                  primary, as it was before claims could be opened here. */}
+              {offerClaim && (
+                <Button variant="secondary" onClick={() => setOpeningClaim(true)}>
+                  {t('claims.actions.open')}
+                </Button>
+              )}
+              {canResolve(noa.status) && (
+                <Button onClick={() => setResolving(true)}>{t('overdues.actions.resolve')}</Button>
+              )}
+            </>
           )
         }
       />
@@ -111,6 +147,8 @@ export function OverdueDetailPage() {
           </p>
         </Panel>
       )}
+
+      {openingClaim && <OpenClaimModal noa={noa} onClose={() => setOpeningClaim(false)} />}
 
       <Modal
         open={resolving}

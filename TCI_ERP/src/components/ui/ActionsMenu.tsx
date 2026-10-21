@@ -8,7 +8,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, MoreHorizontal } from 'lucide-react'
 
 import { Button } from './primitives'
 
@@ -25,11 +25,17 @@ export function ActionsMenu({
   actions,
   label,
   disabled = false,
+  trigger = 'button',
+  size = 'md',
 }: {
   actions: readonly MenuAction[]
-  /** The button text; «Действия» by default. */
+  /** The button text; «Действия» by default. With trigger="icon" it is the
+   * accessible name of the ⋯ button. */
   label?: string
   disabled?: boolean
+  /** "icon": a square ⋯ button, for a row of compact actions. */
+  trigger?: 'button' | 'icon'
+  size?: 'md' | 'sm'
 }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -75,7 +81,9 @@ export function ActionsMenu({
       type="button"
       role="menuitem"
       disabled={action.disabled}
-      onClick={() => {
+      onClick={(e) => {
+        e.stopPropagation()
+        e.preventDefault()
         setOpen(false)
         action.onSelect()
       }}
@@ -91,14 +99,29 @@ export function ActionsMenu({
     <div className="relative" ref={wrapRef}>
       <Button
         variant="secondary"
+        size={size}
         disabled={disabled}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
-        onClick={() => setOpen((v) => !v)}
+        aria-label={trigger === 'icon' ? (label ?? t('common.actions')) : undefined}
+        title={trigger === 'icon' ? (label ?? t('common.actions')) : undefined}
+        className={trigger === 'icon' ? '!px-2' : ''}
+        onClick={(e) => {
+          // A menu inside a clickable row must not open the row too.
+          e.stopPropagation()
+          e.preventDefault()
+          setOpen((v) => !v)
+        }}
       >
-        {label ?? t('common.actions')}
-        <ChevronDown aria-hidden className="text-slate-400" />
+        {trigger === 'icon' ? (
+          <MoreHorizontal aria-hidden />
+        ) : (
+          <>
+            {label ?? t('common.actions')}
+            <ChevronDown aria-hidden className="text-slate-400" />
+          </>
+        )}
       </Button>
       {open && (
         <div

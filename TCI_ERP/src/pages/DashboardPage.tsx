@@ -26,7 +26,7 @@ import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { Card, Skeleton } from '../components/ui'
 import { contextFor, useAgendaTasks, useTaskSubjects, subjectFor } from '../features/agenda/api'
-import { compareTasks, displayTaskType, formatTaskParams, isOverdue, taskLink, taskTitleKey } from '../features/agenda/catalogue'
+import { activeTasks, compareTasks, displayTaskType, formatTaskParams, isOverdue, taskLink, taskTitleKey } from '../features/agenda/catalogue'
 import type { Task } from '../features/agenda/types'
 import { useDeclarations, useUzsRates } from '../features/declarations/api'
 import { declarationCompliance, premiumAccrualUzs } from '../features/declarations/summary'
@@ -80,7 +80,8 @@ export function DashboardPage() {
   const { data: escalated } = useEscalatedCount(canDecide)
   const agenda = useAgendaTasks({ enabled: isStaff(roles) })
 
-  const tasks = [...(agenda.data ?? [])].sort(compareTasks)
+  // A snoozed task is out of sight everywhere until its moment passes (0055).
+  const tasks = activeTasks(agenda.data ?? [], new Date()).sort(compareTasks)
   const shownTasks = tasks.slice(0, TASKS_SHOWN)
   const subjects = useTaskSubjects(shownTasks)
 

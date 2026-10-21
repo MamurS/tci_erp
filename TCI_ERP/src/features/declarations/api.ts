@@ -10,7 +10,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { tci } from '../../lib/supabase'
 import type { FxRateRow } from '../limits/authority'
-import type { Declaration, DeclarationLine, DeclarationTotals } from './types'
+import type { Declaration, DeclarationFrequency, DeclarationLine, DeclarationTotals } from './types'
 
 const KEYS = {
   list: (policyId?: string) => ['declarations', 'list', policyId ?? 'all'] as const,
@@ -65,6 +65,24 @@ export function useDeclarations(policyId?: string) {
       const { data, error } = await q
       if (error) throw error
       return (data ?? []) as unknown as DeclarationRow[]
+    },
+  })
+}
+
+/** How often a policy declares — what turns a period's first day into the
+ * period itself (period.ts). Only fetched when a link names a period. */
+export function usePolicyDeclarationFrequency(policyId: string | undefined) {
+  return useQuery({
+    queryKey: ['declarations', 'frequency', policyId ?? ''] as const,
+    enabled: Boolean(policyId),
+    queryFn: async (): Promise<DeclarationFrequency | null> => {
+      const { data, error } = await tci()
+        .from('policies')
+        .select('declaration_frequency')
+        .eq('id', policyId!)
+        .maybeSingle()
+      if (error) throw error
+      return ((data as { declaration_frequency: DeclarationFrequency } | null) ?? null)?.declaration_frequency ?? null
     },
   })
 }

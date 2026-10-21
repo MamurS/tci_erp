@@ -6,7 +6,7 @@
  */
 
 import { useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { Plus, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -16,6 +16,8 @@ import { useAuth } from '../../auth/AuthContext'
 import { bandForGrade, hasRole } from '../../lib/roles'
 import { EM_DASH, formatAmount, formatDate, formatMoment } from '../../lib/format'
 import { useGradeScale } from '../../lib/gradeScale'
+import { pickParam } from '../../lib/deepLink'
+import { DEEP_LINK_SCROLL_MARGIN, useDeepLinkFocus } from '../../lib/useDeepLinkFocus'
 import { useAssessments } from '../entities/rating/assessmentsApi'
 import {
   useDecideLimitRequest,
@@ -43,6 +45,9 @@ import {
 import type { ConditionInput, LimitRequestWithRefs } from './types'
 import { CONDITION_TYPES, requestScopeFilter } from './types'
 
+/** The sections `?focus=` may name; each is the `id` of its card. */
+const LIMIT_FOCUS_TARGETS = ['decision', 'commercial'] as const
+
 export function LimitRequestPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
@@ -56,6 +61,13 @@ export function LimitRequestPage() {
   const [withdrawOpen, setWithdrawOpen] = useState(false)
   const [withdrawComment, setWithdrawComment] = useState('')
   const [actionError, setActionError] = useState<string | null>(null)
+
+  // ?focus=decision|commercial — the Agenda's «decide» / «adjust» link lands
+  // on the section where that is done. A section this person does not get
+  // (no rights, wrong status) is simply never found, and the page is as usual.
+  const [searchParams] = useSearchParams()
+  const focus = pickParam(searchParams.get('focus'), LIMIT_FOCUS_TARGETS)
+  useDeepLinkFocus(focus, { focusField: focus === 'decision' })
 
   if (isLoading) return <Spinner label={t('common.loading')} />
   if (!request) {
@@ -170,10 +182,19 @@ export function LimitRequestPage() {
               {t('limits.awaitingSenior')}
             </Card>
           )}
-          {showDecisionForm && <DecisionForm request={request} />}
+          {/* The wrappers carry the ?focus= targets. Neither has a look of its
+              own; `empty:hidden` keeps the commercial one out of the column's
+              gap while the section renders itself away. */}
+          {showDecisionForm && (
+            <div id="decision" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
+              <DecisionForm request={request} />
+            </div>
+          )}
           {/* Stage 2: commercial adjustment + the release state of the
               effective decision. Renders itself away when there is none. */}
-          <CommercialStageSection request={request} />
+          <div id="commercial" className={`rounded-lg empty:hidden ${DEEP_LINK_SCROLL_MARGIN}`}>
+            <CommercialStageSection request={request} />
+          </div>
         </div>
         <BuyerSnapshot request={request} locale={locale} />
       </div>

@@ -11,6 +11,7 @@
 
 import { useState } from 'react'
 import type { ReactNode } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -35,6 +36,11 @@ import {
   useUpdateInstalment,
 } from './premiumApi'
 import { refusalKey } from '../../lib/refusals'
+import { narrowToIds, parseIdList } from '../../lib/deepLink'
+import { useDeepLinkFocus } from '../../lib/useDeepLinkFocus'
+
+/** id of the instalment schedule — `?instalments=` lands here. */
+const INSTALMENTS_ANCHOR_ID = 'premium-instalments'
 
 const STATUS_TONE: Record<InstalmentStatus, 'neutral' | 'accent' | 'pos' | 'warn'> = {
   pending: 'neutral',
@@ -52,6 +58,16 @@ export function PolicyPremiumTab({ policyId }: { policyId: string }) {
   const update = useUpdateInstalment(policyId)
   const generate = useGenerateInstalments(policyId)
   const [error, setError] = useState<string | null>(null)
+
+  // ?instalments=<id>,<id> — the Agenda's «invoice» / «chase payment» link
+  // names the instalments the task is about, and the schedule shows only
+  // those until «Show all». Ids that are not on this schedule narrow nothing.
+  const [params] = useSearchParams()
+  const linkedIds = parseIdList(params.get('instalments'))
+  const shown = narrowToIds(instalments ?? [], linkedIds)
+  useDeepLinkFocus(shown.filtered ? INSTALMENTS_ANCHOR_ID : null, { highlight: false })
+  const showAll = new URLSearchParams(params)
+  showAll.delete('instalments')
 
   if (isLoading) return <Spinner label={t('common.loading')} />
   if (!premium) return <EmptyState title={t('premium.none')} />
@@ -121,58 +137,84 @@ export function PolicyPremiumTab({ policyId }: { policyId: string }) {
           {!instalments?.length ? (
             <EmptyState title={t('premium.noInstalments')} hint={t('premium.noInstalmentsHint')} />
           ) : (
-            <Table dense>
-              <thead>
-                <tr>
-                  <th className="w-px">№</th>
-                  <th>{t('premium.fields.dueDate')}</th>
-                  <th className="text-right">{t('premium.fields.amount')}</th>
-                  <th>{t('premium.fields.status')}</th>
-                  <th className="w-px" />
-                </tr>
-              </thead>
-              <tbody>
-                {instalments.map((i) => {
-                  const overdue = (i.status === 'pending' || i.status === 'invoiced') && i.due_date < today
-                  return (
-                    <tr key={i.id}>
-                      <td className="text-slate-400 tabular-nums">{i.sequence}</td>
-                      <td className={`whitespace-nowrap ${overdue ? 'font-medium text-neg-500' : ''}`}>
-                        {formatDate(i.due_date, locale)}
-                      </td>
-                      <td className="num">{money(i.amount)}</td>
-                      <td>
-                        {overdue ? (
-                          <Badge tone="neg">{t('premium.overdue')}</Badge>
-                        ) : (
-                          <Badge tone={STATUS_TONE[i.status]}>{t(`premium.instalmentStatuses.${i.status}`)}</Badge>
-                        )}
-                      </td>
-                      <td className="text-right whitespace-nowrap">
-                        {i.status === 'pending' && (
-                          <RowAction onClick={() => run(update.mutateAsync({ id: i.id, status: 'invoiced' }))}>
-                            {t('premium.actions.invoice')}
-                          </RowAction>
-                        )}
-                        {i.status === 'invoiced' && (
-                          <RowAction onClick={() => run(update.mutateAsync({ id: i.id, status: 'paid' }))}>
-                            {t('premium.actions.markPaid')}
-                          </RowAction>
-                        )}
-                        {!isInstalmentEditable(i.status) && i.status !== 'invoiced' && (
-                          <span className="text-slate-300">{EM_DASH}</span>
-                        )}
-                      </td>
+            // The target is the panel's body, so its margin also clears the
+            // panel's own title and hint: the reader still sees what this is.
+            <div id={INSTALMENTS_ANCHOR_ID} className="scroll-mt-40">
+              {shown.filtered && (
+                // One line: the way back sits next to what was narrowed.
+                <Callout
+                  className="mb-3"
+                  title={
+                    <>
+                      {t('premium.linkedInstalments', { count: shown.rows.length })}
+                      <Link
+                        to={{ search: `?${showAll.toString()}` }}
+                        replace
+                        className="ml-3 font-medium whitespace-nowrap text-accent-600 hover:underline"
+                      >
+                        {t('premium.showAllInstalments')}
+                      </Link>
+                    </>
+                  }
+                />
+              )}
+              <Table dense>
+                <thead>
+                  <tr>
+                    <th className="w-px">№</th>
+                    <th>{t('premium.fields.dueDate')}</th>
+                    <th className="text-right">{t('premium.fields.amount')}</th>
+                    <th>{t('premium.fields.status')}</th>
+                    <th className="w-px" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {shown.rows.map((i) => {
+                    const overdue = (i.status === 'pending' || i.status === 'invoiced') && i.due_date < today
+                    return (
+                      <tr key={i.id}>
+                        <td className="text-slate-400 tabular-nums">{i.sequence}</td>
+                        <td className={`whitespace-nowrap ${overdue ? 'font-medium text-neg-500' : ''}`}>
+                          {formatDate(i.due_date, locale)}
+                        </td>
+                        <td className="num">{money(i.amount)}</td>
+                        <td>
+                          {overdue ? (
+                            <Badge tone="neg">{t('premium.overdue')}</Badge>
+                          ) : (
+                            <Badge tone={STATUS_TONE[i.status]}>{t(`premium.instalmentStatuses.${i.status}`)}</Badge>
+                          )}
+                        </td>
+                        <td className="text-right whitespace-nowrap">
+                          {i.status === 'pending' && (
+                            <RowAction onClick={() => run(update.mutateAsync({ id: i.id, status: 'invoiced' }))}>
+                              {t('premium.actions.invoice')}
+                            </RowAction>
+                          )}
+                          {i.status === 'invoiced' && (
+                            <RowAction onClick={() => run(update.mutateAsync({ id: i.id, status: 'paid' }))}>
+                              {t('premium.actions.markPaid')}
+                            </RowAction>
+                          )}
+                          {!isInstalmentEditable(i.status) && i.status !== 'invoiced' && (
+                            <span className="text-slate-300">{EM_DASH}</span>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {/* The schedule's total under a narrowed list would read as
+                      the sum of the rows shown; it returns with «Show all». */}
+                  {!shown.filtered && (
+                    <tr className="!bg-accent-50 font-semibold [&>td]:border-t [&>td]:border-accent-200">
+                      <td colSpan={2}>{t('premium.fields.scheduleTotal')}</td>
+                      <td className="num">{money(premium.instalments_total)}</td>
+                      <td colSpan={2} />
                     </tr>
-                  )
-                })}
-                <tr className="!bg-accent-50 font-semibold [&>td]:border-t [&>td]:border-accent-200">
-                  <td colSpan={2}>{t('premium.fields.scheduleTotal')}</td>
-                  <td className="num">{money(premium.instalments_total)}</td>
-                  <td colSpan={2} />
-                </tr>
-              </tbody>
-            </Table>
+                  )}
+                </tbody>
+              </Table>
+            </div>
           )}
         </Panel>
 
