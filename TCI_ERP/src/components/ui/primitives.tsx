@@ -20,7 +20,7 @@ import type {
 // Button
 // ---------------------------------------------------------------------------
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'accent'
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'dangerOutline' | 'accent'
 
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
   primary:
@@ -29,6 +29,10 @@ const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
     'border border-slate-300 bg-white text-slate-700 shadow-sm hover:border-slate-400 hover:bg-slate-50 disabled:opacity-50',
   ghost: 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 disabled:opacity-50',
   danger: 'bg-neg-500 text-white shadow-sm hover:bg-neg-600 disabled:opacity-50',
+  // A destructive action offered beside ordinary ones (decline, withdraw,
+  // cancel a policy): marked as dangerous without shouting over the primary.
+  dangerOutline:
+    'border border-neg-500/35 bg-white text-neg-500 shadow-sm hover:border-neg-500/60 hover:bg-neg-50 disabled:opacity-50',
   // The orange brand accent: one prominent call to action per screen, at most.
   accent: 'bg-brand-orange text-white shadow-sm hover:brightness-95 disabled:opacity-50',
 }
@@ -127,7 +131,7 @@ interface SectionTitleProps {
 export function SectionTitle({ children, actions, rule = false, className = '' }: SectionTitleProps) {
   return (
     <div
-      className={`flex items-center justify-between gap-3 ${
+      className={`flex flex-wrap items-center justify-between gap-x-3 gap-y-2 ${
         rule ? 'border-b border-accent-500 pb-1.5' : ''
       } ${className}`}
     >
@@ -135,7 +139,9 @@ export function SectionTitle({ children, actions, rule = false, className = '' }
         <span aria-hidden="true" className="inline-block size-2.5 shrink-0 bg-accent-500" />
         {children}
       </h2>
-      {actions && <div className="flex items-center gap-2">{actions}</div>}
+      {/* Pulled into the title's line height, so a title with a button beside
+          it sits exactly where a bare title does (neighbouring panels). */}
+      {actions && <div className="-my-[5px] flex items-center gap-2">{actions}</div>}
     </div>
   )
 }
@@ -585,7 +591,7 @@ export function Table({ children, dense = false, className = '' }: TableProps) {
       className={`scrollbar-thin overflow-x-auto rounded-lg border border-slate-200/90 bg-white shadow-card ${className}`}
     >
       <table
-        className={`w-full border-collapse ${dense ? 'text-[13px]' : 'text-sm'} [&_th]:border-b [&_th]:text-left [&_td]:border-b [&_td]:border-slate-100 [:where(&_tbody_tr)]:transition-colors [:where(&_tbody_tr:hover)]:bg-accent-50 [&_tbody_tr:last-child_td]:border-b-0 ${head} ${
+        className={`w-full border-collapse ${dense ? 'text-[13px]' : 'text-sm'} [&_th]:border-b [&_th]:whitespace-nowrap [:where(&_th)]:text-left [&_td]:border-b [&_td]:border-slate-100 [:where(&_tbody_tr)]:transition-colors [:where(&_tbody_tr:hover)]:bg-accent-50 [&_tbody_tr:last-child_td]:border-b-0 ${head} ${
           dense
             ? '[&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-1.5'
             : '[&_th]:px-4 [&_th]:py-2.5 [&_td]:px-4 [&_td]:py-2.5'

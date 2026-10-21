@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, EmptyState, Table, SectionTitle } from '../../components/ui'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { useEntities } from '../entities/api'
 import type { PolicyWithRefs } from '../policies/types'
 import { useEffectiveLimits, useLimitRequests, useSalesWindowHours } from './api'
@@ -123,7 +123,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                     </Badge>
                   </td>
                   <td className="text-slate-500">
-                    {limit.valid_until ?? t('limits.untilReview')}
+                    {limit.valid_until ? formatDate(limit.valid_until, locale) : t('limits.untilReview')}
                   </td>
                   <td>
                     {limit.conditions_count > 0 ? (
@@ -144,7 +144,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                       nowIso={nowIso}
                     />
                   </td>
-                  <td className="text-slate-500">{limit.decided_at.slice(0, 10)}</td>
+                  <td className="text-slate-500">{formatDate(limit.decided_at, locale)}</td>
                 </tr>
               )
             })}

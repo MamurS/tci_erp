@@ -3,7 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, EmptyState, Input, Modal, Segmented, Spinner, Table, Tabs } from '../../../components/ui'
-import { formatAmount } from '../../../lib/format'
+import { formatAmount, formatDate } from '../../../lib/format'
 import { exportFileName, exportTableToExcel } from '../../../lib/exportTable'
 import { useEntity, useDeleteStatement, useStatements } from '../api'
 import type { StatementBundle } from '../types'
@@ -464,7 +464,7 @@ function ManageStatementsModal({
                   )}
                 </span>
               </td>
-              <td>{s.period_end_date}</td>
+              <td>{formatDate(s.period_end_date, locale)}</td>
               <td>{t(`fin.kinds.${s.statement_kind}`)}</td>
               <td>{s.currency_code}</td>
               <td>{t(`fin.units.${s.unit}`)}</td>

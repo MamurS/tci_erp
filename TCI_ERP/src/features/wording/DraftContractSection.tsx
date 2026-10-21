@@ -37,7 +37,7 @@ export function DraftContractSection({ target, reference, countryCode, product }
       <SectionTitle
         actions={
           canGenerate && (
-            <Button size="sm" variant="accent" onClick={() => setOpen(true)}>
+            <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>
               {t('wording.generate.open')}
             </Button>
           )

@@ -1,6 +1,7 @@
 /** Invoices and their coverage verdicts. Every line shows what the engine
  * decided, the numbers behind it, and — where a human disagreed — both. */
 
+import { ChevronRight, PenLine, RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -8,16 +9,19 @@ import { useAuth } from '../../auth/AuthContext'
 import {
   Badge,
   Button,
+  Callout,
   Card,
   EmptyState,
+  KeyFigures,
   Field,
   Input,
   Modal,
   Select,
   Spinner,
   Table,
+  ViewBar,
 } from '../../components/ui'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import {
   useClaimCoverage,
   useClearOverride,
@@ -25,7 +29,7 @@ import {
   useSaveClaimInvoice,
   useVerifyCoverage,
 } from './api'
-import { coverageTotals, sortReasons, verdictTone } from './coverage'
+import { coverageTotals, decidingReasons, reasonTone, verdictTone } from './coverage'
 import { claimErrorKey } from './errors'
 import type { Claim, ClaimInvoiceCoverage, CoverageVerdict } from './types'
 import { COVERAGE_VERDICTS } from './types'
@@ -49,69 +53,85 @@ export function ClaimInvoicesTab({ claim }: { claim: Claim }) {
   const rows = lines ?? []
   const totals = coverageTotals(rows)
 
-  return (
-    <div className="space-y-4">
-      {error && (
-        <p role="alert" className="rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">
-          {error}
-        </p>
-      )}
+  const cur = claim.currency_code
+  const money = (v: number) => `${formatAmount(v, locale)} ${cur}`
+  // Coverage is re-checked while the claim is being assessed; once decided
+  // the verdicts are what the indemnity was frozen on.
+  const canVerify =
+    isClaims && ['draft', 'submitted', 'under_assessment', 'info_requested'].includes(claim.status)
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-6 text-[13px]">
-          <Total label={t('claims.fields.claimable')} value={totals.claimable} currency={claim.currency_code} locale={locale} />
-          <Total label={t('claims.fields.covered')} value={totals.covered} currency={claim.currency_code} locale={locale} />
-          <Total label={t('claims.fields.uncovered')} value={totals.uncovered} currency={claim.currency_code} locale={locale} />
-        </div>
-        <div className="flex gap-2">
-          {canEdit && <Button variant="secondary" onClick={() => setAdding(true)}>{t('claims.actions.addInvoice')}</Button>}
-          {isClaims && (
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setError(null)
-                verify.mutateAsync(claim.id).catch((e: unknown) => {
-                  const k = claimErrorKey(e)
-                  setError(k ? t(k) : t('common.somethingWentWrong'))
-                })
-              }}
-            >
-              {t('claims.actions.verify')}
-            </Button>
-          )}
-        </div>
-      </div>
+  return (
+    <div>
+      {error && <Callout tone="neg" title={error} className="mb-5" />}
+
+      <KeyFigures
+        items={[
+          { label: t('claims.fields.claimable'), value: money(totals.claimable) },
+          { label: t('claims.fields.covered'), value: money(totals.covered), tone: 'pos' },
+          {
+            label: t('claims.fields.uncovered'),
+            value: money(totals.uncovered),
+            tone: totals.uncovered > 0 ? 'neg' : 'muted',
+          },
+        ]}
+      />
+
+      <ViewBar
+        hint={t('claims.invoices.hint')}
+        actions={
+          <>
+            {canVerify && (
+              <Button
+                variant="secondary"
+                disabled={verify.isPending}
+                onClick={() => {
+                  setError(null)
+                  verify.mutateAsync(claim.id).catch((e: unknown) => {
+                    const k = claimErrorKey(e)
+                    setError(k ? t(k) : t('common.somethingWentWrong'))
+                  })
+                }}
+              >
+                <RefreshCw aria-hidden />
+                {t('claims.actions.verify')}
+              </Button>
+            )}
+            {canEdit && <Button onClick={() => setAdding(true)}>{t('claims.actions.addInvoice')}</Button>}
+          </>
+        }
+      />
 
       {rows.length === 0 ? (
-        <EmptyState title={t('claims.invoices.emptyTitle')} hint={t('claims.invoices.emptyHint')} />
-      ) : (
-        <Card>
-          <Table>
-            <thead>
-              <tr>
-                <th>{t('claims.fields.invoiceNumber')}</th>
-                <th>{t('claims.fields.shipmentDate')}</th>
-                <th>{t('claims.fields.dueDate')}</th>
-                <th className="num">{t('claims.fields.claimable')}</th>
-                <th className="num">{t('claims.fields.covered')}</th>
-                <th>{t('claims.fields.verdict')}</th>
-                <th>{t('claims.fields.reasons')}</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((line) => (
-                <InvoiceRow
-                  key={line.claim_invoice_id}
-                  line={line}
-                  locale={locale}
-                  canOverride={isClaims && !['paid', 'closed', 'withdrawn'].includes(claim.status)}
-                  onOverride={() => setEditing(line)}
-                />
-              ))}
-            </tbody>
-          </Table>
+        <Card className="p-6">
+          <EmptyState title={t('claims.invoices.emptyTitle')} hint={t('claims.invoices.emptyHint')} />
         </Card>
+      ) : (
+        <Table dense>
+          <thead>
+            <tr>
+              <th>{t('claims.fields.invoiceNumber')}</th>
+              <th>{t('claims.fields.shipmentDate')}</th>
+              <th>{t('claims.fields.dueDate')}</th>
+              <th className="text-right">{t('claims.fields.claimable')}</th>
+              <th className="text-right">{t('claims.fields.covered')}</th>
+              <th>{t('claims.fields.verdict')}</th>
+              <th>{t('claims.fields.reasons')}</th>
+              <th className="w-px" />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((line) => (
+              <InvoiceRow
+                key={line.claim_invoice_id}
+                line={line}
+                locale={locale}
+                currency={cur}
+                canOverride={isClaims && !['paid', 'closed', 'withdrawn'].includes(claim.status)}
+                onOverride={() => setEditing(line)}
+              />
+            ))}
+          </tbody>
+        </Table>
       )}
 
       {editing && (
@@ -122,56 +142,45 @@ export function ClaimInvoicesTab({ claim }: { claim: Claim }) {
   )
 }
 
-function Total({
-  label,
-  value,
-  currency,
-  locale,
-}: {
-  label: string
-  value: number
-  currency: string
-  locale: string
-}) {
-  return (
-    <div>
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="num font-semibold">
-        {formatAmount(value, locale)} {currency}
-      </p>
-    </div>
-  )
-}
-
 function InvoiceRow({
   line,
   locale,
+  currency,
   canOverride,
   onOverride,
 }: {
   line: ClaimInvoiceCoverage
   locale: string
+  currency: string
   canOverride: boolean
   onOverride: () => void
 }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
-  const reasons = sortReasons(line.system_reasons ?? [])
+  const reasons = decidingReasons(line.system_reasons ?? [])
   return (
     <>
       <tr>
         <td>
-          <button type="button" className="text-accent-600 hover:underline" onClick={() => setOpen((v) => !v)}>
+          <button
+            type="button"
+            aria-expanded={open}
+            className="flex items-center gap-1 font-medium whitespace-nowrap text-accent-600 hover:underline"
+            onClick={() => setOpen((v) => !v)}
+          >
+            <ChevronRight className={`size-3.5 transition-transform ${open ? 'rotate-90' : ''}`} aria-hidden />
             {line.invoice_number}
           </button>
         </td>
-        <td>{line.shipment_date}</td>
-        <td>{line.due_date}</td>
-        <td className="num">{formatAmount(Number(line.claimable_amount), locale)}</td>
+        <td className="whitespace-nowrap">{formatDate(line.shipment_date, locale)}</td>
+        <td className="whitespace-nowrap">{formatDate(line.due_date, locale)}</td>
+        <td className="num">
+          {formatAmount(Number(line.claimable_amount), locale)} {currency}
+        </td>
         <td className="num">
           {line.effective_covered_amount === null
             ? EM_DASH
-            : formatAmount(Number(line.effective_covered_amount), locale)}
+            : `${formatAmount(Number(line.effective_covered_amount), locale)} ${currency}`}
         </td>
         <td>
           {line.effective_verdict === null ? (
@@ -189,18 +198,26 @@ function InvoiceRow({
             </span>
           )}
         </td>
-        <td className="space-x-1">
-          {reasons.map((r) => (
-            <Badge key={r} tone="neutral">
-              {t(`claims.reasons.${r}`)}
-            </Badge>
-          ))}
+        <td className="min-w-52">
+          <div className="flex flex-wrap gap-1">
+            {reasons.map((r) => (
+              <Badge key={r} tone={reasonTone(r)}>
+                {t(`claims.reasons.${r}`)}
+              </Badge>
+            ))}
+          </div>
         </td>
         <td className="text-right">
           {canOverride && line.verdict_id && (
-            <Button size="sm" variant="secondary" onClick={onOverride}>
-              {t('claims.actions.override')}
-            </Button>
+            <button
+              type="button"
+              title={t('claims.actions.override')}
+              aria-label={t('claims.actions.override')}
+              className="rounded-md p-1.5 text-slate-400 hover:bg-accent-50 hover:text-accent-600"
+              onClick={onOverride}
+            >
+              <PenLine className="size-4" aria-hidden />
+            </button>
           )}
         </td>
       </tr>
@@ -244,7 +261,7 @@ function VerdictDetail({ line, locale }: { line: ClaimInvoiceCoverage; locale: s
         label={t('claims.detail.decisionValidity')}
         value={
           d.decision_id
-            ? `${d.decision_valid_from ?? EM_DASH} — ${d.decision_valid_until ?? '∞'}`
+            ? `${formatDate(d.decision_valid_from, locale)} — ${d.decision_valid_until ? formatDate(d.decision_valid_until, locale) : '∞'}`
             : t('claims.detail.noDecision')
         }
       />
@@ -339,11 +356,7 @@ function OverrideModal({
         </>
       }
     >
-      {error && (
-        <p role="alert" className="mb-3 rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">
-          {error}
-        </p>
-      )}
+      {error && <Callout tone="neg" title={error} className="mb-3" />}
       <p className="text-[13px] text-slate-600">{t('claims.override.hint')}</p>
       <Field label={t('claims.fields.verdict')}>
         <Select value={verdict} onChange={(e) => setVerdict(e.target.value as CoverageVerdict)}>
@@ -418,11 +431,7 @@ function InvoiceModal({ claim, onClose }: { claim: Claim; onClose: () => void })
         </>
       }
     >
-      {error && (
-        <p role="alert" className="mb-3 rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">
-          {error}
-        </p>
-      )}
+      {error && <Callout tone="neg" title={error} className="mb-3" />}
       <Field label={t('claims.fields.invoiceNumber')}>
         <Input value={form.invoice_number} onChange={set('invoice_number')} />
       </Field>

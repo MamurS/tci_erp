@@ -9,7 +9,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, Card, EmptyState, Modal, PageHeader, Spinner, Table, SectionTitle } from '../../components/ui'
-import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
+import { EM_DASH, formatAmount, formatMoment, formatDate } from '../../lib/format'
 import {
   useMyLimitConditions,
   useMyLimitHistory,
@@ -139,8 +139,8 @@ export function PortalLimitsPage() {
                     )}
                   </td>
                   <td className="text-slate-500">
-                    {limit.valid_from}
-                    {limit.valid_until ? ` — ${limit.valid_until}` : ''}
+                    {formatDate(limit.valid_from, locale)}
+                    {limit.valid_until ? ` — ${formatDate(limit.valid_until, locale)}` : ''}
                   </td>
                   <td className="num text-slate-500">
                     {limit.payment_terms_days === null
@@ -218,8 +218,8 @@ function HistoryModal({ limit, onClose }: { limit: ClientLimit; onClose: () => v
                     : `${formatAmount(row.approved_amount, locale)} ${row.currency_code}`}
                 </td>
                 <td className="text-slate-500">
-                  {row.valid_from}
-                  {row.valid_until ? ` — ${row.valid_until}` : ''}
+                  {formatDate(row.valid_from, locale)}
+                  {row.valid_until ? ` — ${formatDate(row.valid_until, locale)}` : ''}
                 </td>
                 <td>
                   <Badge tone={row.superseded ? 'neutral' : 'pos'}>

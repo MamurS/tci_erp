@@ -482,6 +482,19 @@ is fine for internal test accounts and not fine for customers.
   rules** below. **Canonical: 0053 applied 2026-10-20**, live smoke with role
   impersonation (two credit underwriters, admin, client) rolled back, counts
   unchanged, no new advisor finding
+- [x] UX/UI audit 2026-10 (`docs/UX-AUDIT-2026-10.md`): 82 screens across
+  six roles captured with scrollbars shown and reviewed; nothing moves
+  between views or sections (`scrollbar-gutter: stable`, one content width);
+  side-by-side panels line up (`PanelGrid`/`Panel`, CSS subgrid); object
+  pages composed from `DetailHeader` / `KeyFigures` / `DescriptionList` /
+  `Callout` (claim with all six tabs, declaration, overdue notification,
+  policy header and «Премия»); one date format (`formatDate` / `formatMoment`
+  / `formatDue` / `formatPeriod`) and `formatRate` (the premium rate was shown
+  100× too high); the policy overview's 19 cards became a per-currency table;
+  raw `agenda.taskTypes.*` keys fixed with a contract test against the
+  migrations; `layoutContract.test.ts` refuses a padding-less Card, a Table
+  inside a Card and a sliced ISO date. No migration. Backlog in the audit
+  document. See DESIGN.md
 - [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 

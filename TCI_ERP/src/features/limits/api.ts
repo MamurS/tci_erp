@@ -319,21 +319,32 @@ export function useDecisionChain(creditDecisionId: string) {
 }
 
 /** Full decision history for a buyer (chains built client-side). */
+/** Where a buyer's decision lives: a policy, or — before bind — a submission.
+ * The labels travel with the row so a card is never headed by an id. */
+export interface BuyerDecisionScope {
+  policy_id: string | null
+  entity_id: string
+  policies: { policy_number: string; legal_entities: { name: string } | null } | null
+  insurance_requests: { request_number: string } | null
+}
+
 export function useBuyerDecisions(entityId: string) {
   return useQuery({
     queryKey: KEYS.decisions(entityId),
     enabled: Boolean(entityId),
     queryFn: async (): Promise<
-      (DecisionWithConditions & { credit_limit_requests: { policy_id: string; entity_id: string } })[]
+      (DecisionWithConditions & { credit_limit_requests: BuyerDecisionScope })[]
     > => {
       const { data, error } = await tci()
         .from('credit_limit_decisions')
-        .select('*, decision_conditions(*), credit_limit_requests!inner(policy_id, entity_id)')
+        .select(
+          '*, decision_conditions(*), credit_limit_requests!inner(policy_id, entity_id, policies(policy_number, legal_entities(name)), insurance_requests(request_number))',
+        )
         .eq('credit_limit_requests.entity_id', entityId)
         .order('decided_at', { ascending: false })
       if (error) throw error
       return (data ?? []) as unknown as (DecisionWithConditions & {
-        credit_limit_requests: { policy_id: string; entity_id: string }
+        credit_limit_requests: BuyerDecisionScope
       })[]
     },
   })

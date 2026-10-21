@@ -1,6 +1,7 @@
 /** Immutable transition history of a submission (tci.insurance_request_history),
  * newest first. */
 
+import { formatMoment } from '../../lib/format'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Card, Spinner, SectionTitle } from '../../components/ui'
@@ -14,7 +15,7 @@ export function RequestHistoryTimeline({
   requestId: string
   notes: string | null
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { data: history, isLoading } = useRequestHistory(requestId)
 
   return (
@@ -47,7 +48,7 @@ export function RequestHistoryTimeline({
                 })}
               </span>
               <span className="ml-auto text-xs text-slate-400">
-                {row.changed_at.slice(0, 16).replace('T', ' ')}
+                {formatMoment(row.changed_at, i18n.language)}
               </span>
               {row.comment && <p className="w-full text-slate-600">{row.comment}</p>}
             </li>

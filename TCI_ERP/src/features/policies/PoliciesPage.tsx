@@ -13,7 +13,7 @@ import {
   Spinner,
   Table,
 } from '../../components/ui'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { useEntities } from '../entities/api'
 import { usePolicies } from './api'
 import { statusTone } from './statusMachine'
@@ -129,11 +129,11 @@ export function PoliciesPage() {
                 onClick={() => void navigate(`/policies/${p.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="font-medium text-slate-800">{p.policy_number}</td>
+                <td className="font-medium whitespace-nowrap text-slate-800">{p.policy_number}</td>
                 <td className="text-slate-600">{p.legal_entities?.name ?? EM_DASH}</td>
                 <td className="text-slate-500">{t(`policies.structures.${p.product_structure}`)}</td>
-                <td className="text-slate-500">
-                  {p.inception_date} — {p.expiry_date}
+                <td className="whitespace-nowrap text-slate-500">
+                  {formatDate(p.inception_date, locale)} — {formatDate(p.expiry_date, locale)}
                 </td>
                 <td>{p.currency_code}</td>
                 <td>

@@ -1038,7 +1038,7 @@
     }
   },
   "policies": {
-    "subtitle": "TCI polislari (amaldagi shartnomalar; kotirovkalar keyinroq)",
+    "subtitle": "Barcha savdo krediti sug‘urtasi polislari: kim, qanday shartlarda va qaysi muddatga sug‘urtalangan.",
     "newPolicy": "Yangi polis",
     "editTitle": "{{number}} polisini tahrirlash",
     "searchPlaceholder": "Polis raqami bo‘yicha qidirish…",
@@ -1150,7 +1150,8 @@
       "templates": "Shartnoma shablonlari",
       "overview": "Umumiy ko‘rinish"
     },
-    "sectionSubtitle": "Tijorat anderrayterining vositalari: portfel, polislar reyestri, shartnoma loyihalari va ular tuziladigan shablonlar."
+    "sectionSubtitle": "Tijorat anderrayterining vositalari: portfel, polislar reyestri, shartnoma loyihalari va ular tuziladigan shablonlar.",
+    "eyebrow": "Savdo krediti sug‘urtasi polisi"
   },
   "limits": {
     "subtitle": "Kredit limiti so‘rovlari va qarorlar",
@@ -1430,7 +1431,9 @@
         "stream": "Yo‘nalish"
       }
     },
-    "sectionSubtitle": "Kredit anderrayterining ish joyi: portfel, qarorlar, amaldagi limitlar, monitoring, reytinglar, guruhlar va sizning vakolatlaringiz."
+    "sectionSubtitle": "Kredit anderrayterining ish joyi: portfel, qarorlar, amaldagi limitlar, monitoring, reytinglar, guruhlar va sizning vakolatlaringiz.",
+    "preBindScope": "Polis chiqarilgunga qadar (ariza)",
+    "noReviewDate": "Qayta ko‘rib chiqish sanasi belgilanmagan"
   },
   "entities": {
     "subtitle": "Yagona reyestr — sug‘urtalanuvchilar, bayerlar va tahlildagi tashkilotlar",
@@ -1744,7 +1747,8 @@
         "refused": "Arizani polisga aylantirib bo‘lmaydi: u allaqachon polisga bog‘langan, qabul qilinmagan yoki biror sharti yetishmayapti.",
         "unknown": "Polisni chiqarib bo‘lmadi."
       }
-    }
+    },
+    "buyerPackageHint": "Ushbu arizadagi bayerlar va har biri bo‘yicha limit holati."
   },
   "account": {
     "changePassword": "Parolni o‘zgartirish",
@@ -1836,7 +1840,7 @@
       "state": "Holati"
     },
     "serviceUnavailable": "Foydalanuvchilarni tayyorlash xizmati mavjud emas",
-    "serviceUnavailableHint": "Hozircha u faqat lokal ishlaydi. Foydalanuvchi yaratish yoki parolni tiklash uchun uni ishga tushiring (services/analytics); qolgan bo‘limlar odatdagidek ishlaydi.",
+    "serviceUnavailableHint": "U ishga tushguncha hisob qaydnomalarini administrator yaratadi va parollarni tiklaydi; qolgan bo‘limlar odatdagidek ishlaydi.",
     "errors": {
       "unavailable": "Foydalanuvchilarni tayyorlash xizmati mavjud emas.",
       "clientOnly": "Sotuv va tijorat anderraytingi faqat mijoz foydalanuvchilarini yarata oladi.",
@@ -1904,7 +1908,23 @@
       "submission_accepted": "Qabul qilingan — polis chiqarish",
       "submission_declined": "Mijoz rad etgan",
       "limit_review_due": "Limitni qayta ko‘rish",
-      "rating_stale": "Reyting eskirgan"
+      "rating_stale": "Reyting eskirgan",
+      "claim_awaiting_payment": "Da’vo to‘lovni kutmoqda",
+      "claim_declined_review": "Da’vo rad etildi",
+      "claim_info_requested": "Ma’lumot so‘raldi",
+      "claim_limit_reinstatement": "Da’vodan keyingi limit",
+      "claim_ready_to_file": "Da’vo taqdim etish mumkin",
+      "claim_submitted": "Yangi da’vo",
+      "declaration_awaiting_acceptance": "Qabul qilinadigan deklaratsiya",
+      "declaration_due": "Deklaratsiya muddati",
+      "declaration_overdue": "Deklaratsiya muddati o‘tgan",
+      "group_exposure_near_limit": "Guruh limit chegarasida",
+      "group_limit_missing": "Guruh limiti yo‘q",
+      "instalment_due": "Mukofot to‘lovi",
+      "instalment_overdue": "Mukofot to‘lovi muddati o‘tgan",
+      "noa_credit_review": "Muddati o‘tgan: kredit tekshiruvi",
+      "noa_matured_to_claim": "Muddati o‘tganlik da’voga aylandi",
+      "uncovered_excess_review": "Qoplamadan tashqari aylanma"
     },
     "tasks": {
       "buyer_needs_entity": "{{subject}} arizasidagi «{{name}}» ortidagi tashkilotni aniqlang",
@@ -1933,7 +1953,8 @@
       "claim_limit_reinstatement": "{{claim_number}} da’vosidan keyin limit to‘xtatilgan holicha",
       "claim_declined_review": "Da’vo rad etildi — sug‘urtalanuvchiga xabar bering: {{claim_number}}",
       "group_exposure_near_limit": "{{group_name}} guruhi guruh limitining {{utilisation_pct}}% dan foydalangan",
-      "group_limit_missing": "{{group_name}} guruhida limitlar bor, lekin guruh limiti belgilanmagan"
+      "group_limit_missing": "{{group_name}} guruhida limitlar bor, lekin guruh limiti belgilanmagan",
+      "buyer_proposed": "Mijoz «{{name}}» bayerini taklif qildi — tashkilotni toping yoki ro‘yxatga oling"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
@@ -1980,7 +2001,7 @@
       "buyerNamePlaceholder": "To‘liq yuridik nomi",
       "policy": "Polis",
       "approved": "Tasdiqlangan",
-      "requested": "So‘ralgan",
+      "requested": "So‘ralgan summa",
       "validity": "Amal qilish muddati",
       "paymentTerms": "To‘lov muddati",
       "paymentTermsDays": "To‘lov muddati, kun",
@@ -2226,7 +2247,8 @@
       "policyNotActive": "Deklaratsiyalar faqat amaldagi polis bo‘yicha topshiriladi.",
       "periodTaken": "Bu davr uchun deklaratsiya allaqachon mavjud.",
       "negativeTurnover": "Aylanma manfiy bo‘lishi mumkin emas."
-    }
+    },
+    "eyebrow": "Aylanma deklaratsiyasi"
   },
   "premium": {
     "none": "Bu shartnoma bo‘yicha sug‘urta mukofoti ma‘lumotlari yo‘q",
@@ -2271,7 +2293,9 @@
     },
     "errors": {
       "scheduleLocked": "Jadvalni qayta yaratib bo‘lmaydi: ayrim to‘lovlar uchun hisob-faktura berilgan yoki ular to‘langan."
-    }
+    },
+    "overdue": "Muddati o‘tgan",
+    "paidSoFar": "{{amount}} to‘langan"
   },
   "overdues": {
     "title": "Muddati o‘tgan qarz to‘g‘risida xabarnomalar",
@@ -2295,7 +2319,7 @@
       "withdrawn": "Qaytarib olingan"
     },
     "actions": {
-      "resolve": "Yopish"
+      "resolve": "Bildirishnomani yopish"
     },
     "fields": {
       "status": "Holat",
@@ -2314,7 +2338,9 @@
       "dueInFuture": "Eng eski hisob muddati o‘tgan sana bo‘lishi kerak.",
       "alreadyOpen": "Bu polis bo‘yicha ushbu bayer uchun ochiq xabarnoma allaqachon mavjud.",
       "alreadyResolved": "Bu xabarnoma allaqachon yopilgan."
-    }
+    },
+    "eyebrow": "Muddati o‘tganlik haqida bildirishnoma",
+    "resolveTitle": "Bildirishnomani yopish"
   },
   "claims": {
     "title": "Sug‘urta da’volari",
@@ -2477,7 +2503,9 @@
       "net": "Netto",
       "insurerShare": "Sug‘urtalovchi ulushi",
       "policyholderShare": "Sug‘urtalanuvchi ulushi",
-      "note": "Eslatma"
+      "note": "Eslatma",
+      "maxPaymentTermsShort": "Maksimal kredit muddati",
+      "waitingPeriodShort": "Kutish muddati"
     },
     "detail": {
       "basis": "Qoplash asosi",
@@ -2492,7 +2520,8 @@
     },
     "invoices": {
       "emptyTitle": "Da’vo bo‘yicha hisob-fakturalar yo‘q",
-      "emptyHint": "Da’vo tarkibiga kiruvchi to‘lanmagan hisob-fakturalarni qo‘shing — qoplash har biri bo‘yicha tekshiriladi."
+      "emptyHint": "Da’vo tarkibiga kiruvchi to‘lanmagan hisob-fakturalarni qo‘shing — qoplash har biri bo‘yicha tekshiriladi.",
+      "hint": "Xulosa qaysi raqamlarga asoslanganini ko‘rish uchun hisob-fakturani bosing."
     },
     "override": {
       "title": "{{invoice}} bo‘yicha xulosani o‘zgartirish",
@@ -2508,7 +2537,13 @@
       },
       "uploadHint": "PDF, rasm, Office fayllari yoki matn, har biri 20 MB gacha.",
       "emptyTitle": "Hozircha hujjatlar yo‘q",
-      "emptyHint": "Barcha majburiy hujjatlar ilova qilinmaguncha da’voni taqdim etib bo‘lmaydi."
+      "emptyHint": "Barcha majburiy hujjatlar ilova qilinmaguncha da’voni taqdim etib bo‘lmaydi.",
+      "filesTitle": "Fayllar",
+      "upload": "Yuklash",
+      "missing": "yo‘q",
+      "filesCount_one": "{{count}} ta fayl",
+      "filesCount_other": "{{count}} ta fayl",
+      "remove": "{{name}} faylini o‘chirish"
     },
     "indemnity": {
       "title": "Tovon qanday hisoblangan",
@@ -2542,7 +2577,8 @@
       "nqlMet": "{{threshold}} dan kam emas — summa to‘liq o‘tadi",
       "nqlNotMet": "{{threshold}} dan kam — tovon to‘lanmaydi",
       "nqlShortfall": "{{amount}} yetishmaydi",
-      "belowNql": "Tasdiqlangan qoplangan zarar {{covered}} qoplanmaydigan zarar chegarasi {{threshold}} dan kam, shuning uchun da’vo bo‘yicha tovon to‘lanmaydi. NQL — bu chegirma emas, zararning eng kam hajmi: hech narsa to‘lanmaydi."
+      "belowNql": "Tasdiqlangan qoplangan zarar {{covered}} qoplanmaydigan zarar chegarasi {{threshold}} dan kam, shuning uchun da’vo bo‘yicha tovon to‘lanmaydi. NQL — bu chegirma emas, zararning eng kam hajmi: hech narsa to‘lanmaydi.",
+      "payableEstimate": "Hisoblangan tovon (hali tan olinmagan)"
     },
     "money": {
       "approved": "Tan olingan",
@@ -2557,7 +2593,10 @@
       "paymentHint": "Jami to‘lovlar tan olingan tovondan oshmasligi kerak; unga yetganda da’vo «To‘langan» holatiga o‘tadi.",
       "recoveryHint": "Taqsimot mablag‘ tushgan paytdagi haqiqiy zarar ulushlari bo‘yicha hisoblanadi va o‘zgarmas saqlanadi.",
       "emptyTitle": "Mablag‘ harakati bo‘lmagan",
-      "emptyHint": "To‘lovlar da’vo tan olingandan keyin shu yerda paydo bo‘ladi."
+      "emptyHint": "To‘lovlar da’vo tan olingandan keyin shu yerda paydo bo‘ladi.",
+      "insurerNetHint": "To‘langan tovon, undirilgan mablag‘lardagi sug‘urtalovchi ulushi chegirilgan holda.",
+      "paymentsHint": "Sug‘urtalanuvchiga to‘langan tovon — tan olingan summadan oshmaydi.",
+      "grossLessCosts": "{{gross}} olindi, xarajatlar {{costs}}"
     },
     "history": {
       "emptyTitle": "Tarix bo‘sh",
@@ -2628,7 +2667,9 @@
       "invoiceSplit": "To‘langan va bahsli summalar hisob-faktura summasidan oshmasligi kerak.",
       "notFound": "Da’vo topilmadi.",
       "belowNql": "Qoplangan zarar NQL chegarasidan kam — da’vo bo‘yicha tovon to‘lanmaydi. Shu asos bilan rad eting."
-    }
+    },
+    "eyebrow": "Da’vo",
+    "indemnityPending": "Hali aniqlanmagan"
   },
   "groups": {
     "ultimateParent": "Yakuniy bosh tashkilot",
@@ -2751,7 +2792,8 @@
     },
     "chip": {
       "label": "Guruh",
-      "body": "{{parent}} — tashkilotlar: {{count}}, amaldagi limitlar {{exposure}} UZS"
+      "body": "{{parent}} — tashkilotlar: {{count}}, amaldagi limitlar {{exposure}} UZS",
+      "short": "Guruh: {{parent}}"
     },
     "errors": {
       "notPermitted": "Sizning rolingiz tashkilotlar o‘rtasidagi bog‘lanishlarni qayd eta olmaydi.",
@@ -3035,7 +3077,22 @@
       "noRenewals": "Bu oraliqda birorta amaldagi polis tugamaydi.",
       "daysLeft": "Qolgan kunlar",
       "worst": "Eng yuqori zararlilik",
-      "noLosses": "Hech bir polis bo‘yicha zarar ko‘rilmagan."
+      "noLosses": "Hech bir polis bo‘yicha zarar ko‘rilmagan.",
+      "policiesInForce": "Amaldagi polislar",
+      "policiesAll": "Polislar",
+      "currencies_one": "{{count}} ta valyutada",
+      "currencies_other": "{{count}} ta valyutada",
+      "openClaimsTotal": "Ko‘rib chiqilayotgan da’volar",
+      "claimsTotal_one": "jami {{count}} ta da’vo",
+      "claimsTotal_other": "jami {{count}} ta da’vo",
+      "limitsUzsMissing": "{{amount}} UZS; UZS kursisiz: {{count}}",
+      "overduePolicies": "Mukofoti muddati o‘tgan polislar",
+      "overduePoliciesHint": "to‘lov muddati o‘tgan to‘lov bor",
+      "byCurrency": "Valyutalar bo‘yicha portfel",
+      "byCurrencyHint": "Har bir valyuta alohida qatorda — turli valyutadagi summalar hech qachon qo‘shilmaydi.",
+      "composition": "Portfel tarkibi",
+      "compositionHint": "Mahsulot, holat va sug‘urtalanuvchi mamlakati bo‘yicha polislar soni.",
+      "claimsShort": "Da’volar"
     },
     "credit": {
       "title": "Limitlar portfeli",
@@ -3069,7 +3126,9 @@
       "groupsHint": "Bir nechta a’zosiga limit berilgan guruhlar, jami ekspozitsiya bo‘yicha.",
       "noGroups": "Bir nechta a’zosiga limit berilgan guruh yo‘q.",
       "group": "Guruh (bosh kompaniya)",
-      "members": "Limitli a’zolar"
+      "members": "Limitli a’zolar",
+      "exposureMissing_one": "+ UZS kursisiz {{count}} ta limit qo‘shilmagan",
+      "exposureMissing_other": "+ UZS kursisiz {{count}} ta limit qo‘shilmagan"
     }
   }
 }

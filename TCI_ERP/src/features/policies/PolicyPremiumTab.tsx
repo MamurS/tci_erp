@@ -10,10 +10,21 @@
  */
 
 import { useState } from 'react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Spinner, Table, SectionTitle } from '../../components/ui'
-import { EM_DASH, formatAmount, formatPercent } from '../../lib/format'
+import {
+  Badge,
+  Button,
+  Callout,
+  EmptyState,
+  KeyFigures,
+  Panel,
+  PanelGrid,
+  Spinner,
+  Table,
+} from '../../components/ui'
+import { EM_DASH, formatAmount, formatDate, formatRate } from '../../lib/format'
 import { isBelowMinimum, isInstalmentEditable } from './premium'
 import type { InstalmentStatus } from './premium'
 import {
@@ -56,172 +67,152 @@ export function PolicyPremiumTab({ policyId }: { policyId: string }) {
   )
   const today = new Date().toISOString().slice(0, 10)
 
-  return (
-    <div className="space-y-6">
-      {error && (
-        <p role="alert" className="rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">
-          {error}
-        </p>
-      )}
+  const cur = premium.currency_code
+  const money = (v: number | string) => `${formatAmount(Number(v), locale)} ${cur}`
+  const paid = (instalments ?? [])
+    .filter((i) => i.status === 'paid')
+    .reduce((sum, i) => sum + Number(i.amount), 0)
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <p className="text-xs text-slate-500">{t('premium.fields.minimumPremium')}</p>
-          <p className="num mt-1 text-xl font-semibold">
-            {formatAmount(Number(premium.minimum_premium), locale)} {premium.currency_code}
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            {t(`premium.basis.${premium.premium_basis}`)}
-          </p>
-        </Card>
-        <Card>
-          <p className="text-xs text-slate-500">{t('premium.fields.earnedPremium')}</p>
-          <p className="num mt-1 text-xl font-semibold">
-            {formatAmount(Number(premium.earned_premium), locale)} {premium.currency_code}
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            {t('premium.fields.rate')}: {formatPercent(Number(premium.premium_rate_pct), locale)}
-          </p>
-        </Card>
-        <Card className={belowMinimum ? 'border-warn-500/40 bg-warn-50' : ''}>
-          <p className="text-xs text-slate-500">{t('premium.fields.adjustment')}</p>
-          <p className="num mt-1 text-xl font-semibold">
-            {formatAmount(Number(premium.adjustment_amount), locale)} {premium.currency_code}
-          </p>
-          <p className="mt-1 text-xs text-slate-700">
-            {belowMinimum ? t('premium.noRefundBelowMinimum') : t('premium.adjustmentHint')}
-          </p>
-        </Card>
-        <Card>
-          <p className="text-xs text-slate-500">{t('premium.fields.dueTotal')}</p>
-          <p className="num mt-1 text-xl font-semibold">
-            {formatAmount(Number(premium.premium_due_total), locale)} {premium.currency_code}
-          </p>
-          <p className="mt-1 text-xs text-slate-500">
-            {premium.period_closed ? t('premium.periodClosed') : t('premium.periodOpen')}
-          </p>
-        </Card>
+  return (
+    <div>
+      <div className="space-y-3 empty:hidden [&:not(:empty)]:mb-6">
+        {error && <Callout tone="neg" title={error} />}
+        {belowMinimum && <Callout tone="warn" title={t('premium.noRefundBelowMinimum')} />}
       </div>
 
-      <Card>
-        <div className="mb-3 flex items-center justify-between">
-          <SectionTitle>{t('premium.instalments')}</SectionTitle>
-          {!instalments?.length && (
-            <Button size="sm" variant="secondary" onClick={() => run(generate.mutateAsync(false))}>
-              {t('premium.actions.generate')}
-            </Button>
-          )}
-        </div>
-        {!instalments?.length ? (
-          <EmptyState
-            title={t('premium.noInstalments')}
-            hint={t('premium.noInstalmentsHint')}
-          />
-        ) : (
-          <Table dense>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>{t('premium.fields.dueDate')}</th>
-                <th className="text-right">{t('premium.fields.amount')}</th>
-                <th>{t('premium.fields.status')}</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {instalments.map((i) => {
-                const overdue =
-                  (i.status === 'pending' || i.status === 'invoiced') && i.due_date < today
-                return (
-                  <tr key={i.id} className={overdue ? 'bg-warn-50' : undefined}>
-                    <td className="num">{i.sequence}</td>
-                    <td className={overdue ? 'font-medium text-warn-500' : undefined}>
-                      {i.due_date}
-                    </td>
-                    <td>
-                      <span className="num block">{formatAmount(Number(i.amount), locale)}</span>
-                    </td>
-                    <td>
-                      <Badge tone={STATUS_TONE[i.status]}>
-                        {t(`premium.instalmentStatuses.${i.status}`)}
-                      </Badge>
-                    </td>
-                    <td className="text-right">
-                      {i.status === 'pending' && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => run(update.mutateAsync({ id: i.id, status: 'invoiced' }))}
-                        >
-                          {t('premium.actions.invoice')}
-                        </Button>
-                      )}
-                      {i.status === 'invoiced' && (
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => run(update.mutateAsync({ id: i.id, status: 'paid' }))}
-                        >
-                          {t('premium.actions.markPaid')}
-                        </Button>
-                      )}
-                      {!isInstalmentEditable(i.status) && i.status !== 'invoiced' && (
-                        <span className="text-xs text-slate-400">{EM_DASH}</span>
-                      )}
-                    </td>
-                  </tr>
-                )
-              })}
-              <tr className="bg-slate-50 font-medium">
-                <td colSpan={2}>{t('premium.fields.scheduleTotal')}</td>
-                <td>
-                  <span className="num block">
-                    {formatAmount(Number(premium.instalments_total), locale)}
-                  </span>
-                </td>
-                <td colSpan={2} />
-              </tr>
-            </tbody>
-          </Table>
-        )}
-      </Card>
+      <KeyFigures
+        items={[
+          {
+            label: t('premium.fields.minimumPremium'),
+            value: money(premium.minimum_premium),
+            meta: t(`premium.basis.${premium.premium_basis}`),
+          },
+          {
+            label: t('premium.fields.earnedPremium'),
+            value: money(premium.earned_premium),
+            meta: `${t('premium.fields.rate')} ${formatRate(premium.premium_rate_pct, locale)}`,
+          },
+          {
+            label: t('premium.fields.adjustment'),
+            value: money(premium.adjustment_amount),
+            meta: t('premium.adjustmentHint'),
+            tone: Number(premium.adjustment_amount) > 0 ? 'default' : 'muted',
+          },
+          {
+            label: t('premium.fields.dueTotal'),
+            value: money(premium.premium_due_total),
+            meta: t('premium.paidSoFar', { amount: money(paid) }),
+          },
+        ]}
+      />
 
-      <Card>
-        <SectionTitle className="mb-3">{t('premium.accrual')}</SectionTitle>
-        {!entries?.length ? (
-          <EmptyState title={t('premium.noAccrual')} hint={t('premium.noAccrualHint')} />
-        ) : (
-          <Table dense>
-            <thead>
-              <tr>
-                <th>{t('premium.fields.computedAt')}</th>
-                <th className="text-right">{t('declarations.fields.coveredTurnover')}</th>
-                <th className="text-right">{t('premium.fields.rateUsed')}</th>
-                <th className="text-right">{t('premium.fields.amount')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entries.map((e) => (
-                <tr key={e.id}>
-                  <td>{e.computed_at.slice(0, 10)}</td>
-                  <td>
-                    <span className="num block">
-                      {formatAmount(Number(e.covered_turnover), locale)}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="num block">{formatPercent(Number(e.rate_used), locale)}</span>
-                  </td>
-                  <td>
-                    <span className="num block">{formatAmount(Number(e.amount), locale)}</span>
-                  </td>
+      <PanelGrid cols="xl:grid-cols-2">
+        <Panel
+          title={t('premium.instalments')}
+          hint={premium.period_closed ? t('premium.periodClosed') : t('premium.periodOpen')}
+          actions={
+            !instalments?.length && (
+              <Button size="sm" variant="secondary" onClick={() => run(generate.mutateAsync(false))}>
+                {t('premium.actions.generate')}
+              </Button>
+            )
+          }
+        >
+          {!instalments?.length ? (
+            <EmptyState title={t('premium.noInstalments')} hint={t('premium.noInstalmentsHint')} />
+          ) : (
+            <Table dense>
+              <thead>
+                <tr>
+                  <th className="w-px">№</th>
+                  <th>{t('premium.fields.dueDate')}</th>
+                  <th className="text-right">{t('premium.fields.amount')}</th>
+                  <th>{t('premium.fields.status')}</th>
+                  <th className="w-px" />
                 </tr>
-              ))}
-            </tbody>
-          </Table>
-        )}
-        <p className="mt-2 text-xs text-slate-500">{t('premium.rateRecordedHint')}</p>
-      </Card>
+              </thead>
+              <tbody>
+                {instalments.map((i) => {
+                  const overdue = (i.status === 'pending' || i.status === 'invoiced') && i.due_date < today
+                  return (
+                    <tr key={i.id}>
+                      <td className="text-slate-400 tabular-nums">{i.sequence}</td>
+                      <td className={`whitespace-nowrap ${overdue ? 'font-medium text-neg-500' : ''}`}>
+                        {formatDate(i.due_date, locale)}
+                      </td>
+                      <td className="num">{money(i.amount)}</td>
+                      <td>
+                        {overdue ? (
+                          <Badge tone="neg">{t('premium.overdue')}</Badge>
+                        ) : (
+                          <Badge tone={STATUS_TONE[i.status]}>{t(`premium.instalmentStatuses.${i.status}`)}</Badge>
+                        )}
+                      </td>
+                      <td className="text-right whitespace-nowrap">
+                        {i.status === 'pending' && (
+                          <RowAction onClick={() => run(update.mutateAsync({ id: i.id, status: 'invoiced' }))}>
+                            {t('premium.actions.invoice')}
+                          </RowAction>
+                        )}
+                        {i.status === 'invoiced' && (
+                          <RowAction onClick={() => run(update.mutateAsync({ id: i.id, status: 'paid' }))}>
+                            {t('premium.actions.markPaid')}
+                          </RowAction>
+                        )}
+                        {!isInstalmentEditable(i.status) && i.status !== 'invoiced' && (
+                          <span className="text-slate-300">{EM_DASH}</span>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+                <tr className="!bg-accent-50 font-semibold [&>td]:border-t [&>td]:border-accent-200">
+                  <td colSpan={2}>{t('premium.fields.scheduleTotal')}</td>
+                  <td className="num">{money(premium.instalments_total)}</td>
+                  <td colSpan={2} />
+                </tr>
+              </tbody>
+            </Table>
+          )}
+        </Panel>
+
+        <Panel title={t('premium.accrual')} hint={t('premium.rateRecordedHint')}>
+          {!entries?.length ? (
+            <EmptyState title={t('premium.noAccrual')} hint={t('premium.noAccrualHint')} />
+          ) : (
+            <Table dense>
+              <thead>
+                <tr>
+                  <th>{t('premium.fields.computedAt')}</th>
+                  <th className="text-right">{t('declarations.fields.coveredTurnover')}</th>
+                  <th className="text-right">{t('premium.fields.rateUsed')}</th>
+                  <th className="text-right">{t('premium.fields.amount')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {entries.map((e) => (
+                  <tr key={e.id}>
+                    <td className="whitespace-nowrap">{formatDate(e.computed_at, locale)}</td>
+                    <td className="num">{formatAmount(Number(e.covered_turnover), locale)}</td>
+                    <td className="num">{formatRate(e.rate_used, locale)}</td>
+                    <td className="num">{money(e.amount)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
+        </Panel>
+      </PanelGrid>
     </div>
+  )
+}
+
+/** An action inside a table row: a text button, so the rows that carry one
+ * are exactly as tall as the rows that do not. */
+function RowAction({ onClick, children }: { onClick: () => void; children: ReactNode }) {
+  return (
+    <button type="button" onClick={onClick} className="text-[13px] font-medium text-accent-600 hover:text-accent-500 hover:underline">
+      {children}
+    </button>
   )
 }

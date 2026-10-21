@@ -22,17 +22,9 @@ import {
   Select,
   Spinner,
 } from '../../components/ui'
-import { EM_DASH, formatMoment } from '../../lib/format'
+import { EM_DASH, formatDue } from '../../lib/format'
 import { subjectFor, useAgendaTasks, useCompleteTask, useTaskSubjects } from './api'
-import {
-  applyFilters,
-  canCompleteByHand,
-  groupTasks,
-  isOverdue,
-  NO_FILTERS,
-  OBJECT_FILTERS,
-  taskLink,
-} from './catalogue'
+import { applyFilters, canCompleteByHand, groupTasks, isOverdue, NO_FILTERS, OBJECT_FILTERS, taskLink, formatTaskParams } from './catalogue'
 import type { AgendaFilters, AgendaGroup } from './catalogue'
 import { TASK_TYPES } from './types'
 import type { Task, TaskType } from './types'
@@ -236,7 +228,7 @@ function TaskRow({
   onComplete,
   completing,
 }: TaskRowProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const href = taskLink(task)
   const overdue = isOverdue(task, now)
 
@@ -252,7 +244,7 @@ function TaskRow({
       />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium text-slate-900">
-          {t(task.title_key, { ...task.params, subject: subject ?? EM_DASH })}
+          {t(task.title_key, { ...formatTaskParams(task.params, i18n.language), subject: subject ?? EM_DASH })}
         </p>
         <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-slate-500">
           <Badge tone="neutral">{t(`agenda.taskTypes.${task.task_type}`)}</Badge>
@@ -270,7 +262,7 @@ function TaskRow({
           {task.due_at && (
             <span className={overdue ? 'font-medium text-neg-500' : undefined}>
               {t(overdue ? 'agenda.overdueSince' : 'agenda.dueBy', {
-                moment: formatMoment(task.due_at, locale),
+                moment: formatDue(task.due_at, locale),
               })}
             </span>
           )}

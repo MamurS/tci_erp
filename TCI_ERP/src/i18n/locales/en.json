@@ -1038,7 +1038,7 @@
     }
   },
   "policies": {
-    "subtitle": "TCI policies (existing contracts; quotations come later)",
+    "subtitle": "Every trade credit policy: who is insured, on what terms and for which period.",
     "newPolicy": "New policy",
     "editTitle": "Edit policy {{number}}",
     "searchPlaceholder": "Search by policy number…",
@@ -1150,7 +1150,8 @@
       "templates": "Contract templates",
       "overview": "Overview"
     },
-    "sectionSubtitle": "The commercial underwriter's tools: the portfolio, the policy register, draft contracts and the templates they are made from."
+    "sectionSubtitle": "The commercial underwriter's tools: the portfolio, the policy register, draft contracts and the templates they are made from.",
+    "eyebrow": "Trade credit policy"
   },
   "limits": {
     "subtitle": "Credit limit requests and decisions",
@@ -1159,7 +1160,7 @@
       "review": "In review",
       "escalated": "Escalated",
       "decided": "Decided",
-      "proposals": "Bayer proposals"
+      "proposals": "Buyer proposals"
     },
     "statuses": {
       "draft": "Draft",
@@ -1303,7 +1304,7 @@
       "adjustFailed": "The adjustment was refused"
     },
     "proposals": {
-      "empty": "No Bayers waiting to be identified",
+      "empty": "No buyers waiting to be identified",
       "emptyHint": "When a client asks for a limit on a company we do not have, it appears here.",
       "proposedName": "Named by the client",
       "registrationNumber": "Registration number",
@@ -1312,7 +1313,7 @@
       "asked": "Asked",
       "fromClient": "from the portal",
       "resolve": "Identify",
-      "resolveTitle": "Identify the Bayer",
+      "resolveTitle": "Identify the buyer",
       "intro": "{{policyholder}} asked for a limit under policy {{policy}} on a company we do not have in the registry.",
       "searchExisting": "Search the registry",
       "maybeExisting": "Possibly the same company:",
@@ -1320,8 +1321,8 @@
       "createAndRaise": "Add and raise the limit request",
       "reject": "Reject",
       "rejectedDefault": "Rejected during identification",
-      "refused": "Could not resolve: it may already be resolved, or an open limit request already exists for this Bayer.",
-      "notAllowed": "You are not allowed to identify Bayer proposals.",
+      "refused": "Could not resolve: it may already be resolved, or an open limit request already exists for this buyer.",
+      "notAllowed": "You are not allowed to identify buyer proposals.",
       "failed": "Something went wrong. Please try again."
     },
     "systemReason": {
@@ -1430,7 +1431,9 @@
         "stream": "Stream"
       }
     },
-    "sectionSubtitle": "The credit underwriter's workbench: portfolio, decisions, limits in force, monitoring, ratings, groups and your own authority."
+    "sectionSubtitle": "The credit underwriter's workbench: portfolio, decisions, limits in force, monitoring, ratings, groups and your own authority.",
+    "preBindScope": "Before a policy (submission)",
+    "noReviewDate": "No review date set"
   },
   "entities": {
     "subtitle": "Unified registry — policyholders, buyers and analysis prospects",
@@ -1744,7 +1747,8 @@
         "refused": "The submission cannot be bound: it is already bound, is not accepted, or a term is missing.",
         "unknown": "The policy could not be issued."
       }
-    }
+    },
+    "buyerPackageHint": "The buyers this submission covers and where each limit stands."
   },
   "account": {
     "changePassword": "Change password",
@@ -1836,7 +1840,7 @@
       "state": "State"
     },
     "serviceUnavailable": "The user provisioning service is unavailable",
-    "serviceUnavailableHint": "It runs locally for now. Start it (services/analytics) to create users or reset passwords; everything else in the application works as usual.",
+    "serviceUnavailableHint": "Until it is available, an administrator creates accounts and resets passwords; everything else in the application works as usual.",
     "errors": {
       "unavailable": "The user provisioning service is unavailable.",
       "clientOnly": "Sales and commercial underwriting may only create client users.",
@@ -1904,7 +1908,23 @@
       "submission_accepted": "Accepted — issue policy",
       "submission_declined": "Declined by client",
       "limit_review_due": "Limit review due",
-      "rating_stale": "Rating out of date"
+      "rating_stale": "Rating out of date",
+      "claim_awaiting_payment": "Claim awaiting payment",
+      "claim_declined_review": "Claim declined",
+      "claim_info_requested": "Information requested",
+      "claim_limit_reinstatement": "Limit after a claim",
+      "claim_ready_to_file": "Claim can be filed",
+      "claim_submitted": "New claim",
+      "declaration_awaiting_acceptance": "Declaration to accept",
+      "declaration_due": "Declaration due",
+      "declaration_overdue": "Declaration overdue",
+      "group_exposure_near_limit": "Group near its limit",
+      "group_limit_missing": "No group limit",
+      "instalment_due": "Premium due",
+      "instalment_overdue": "Premium overdue",
+      "noa_credit_review": "Overdue: credit review",
+      "noa_matured_to_claim": "Overdue became a claim",
+      "uncovered_excess_review": "Turnover outside cover"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -1933,7 +1953,8 @@
       "claim_limit_reinstatement": "Limit still suspended after claim {{claim_number}}",
       "claim_declined_review": "Claim declined — tell the policyholder: {{claim_number}}",
       "group_exposure_near_limit": "Group {{group_name}} is at {{utilisation_pct}}% of its group limit",
-      "group_limit_missing": "Group {{group_name}} holds limits with no group limit set"
+      "group_limit_missing": "Group {{group_name}} holds limits with no group limit set",
+      "buyer_proposed": "A client proposed the buyer «{{name}}» — find or register the company"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -1975,22 +1996,22 @@
       "request": "Request a limit",
       "requestTitle": "Request a credit limit",
       "needsActivePolicy": "A credit limit can only be requested under an active policy.",
-      "buyer": "Bayer",
+      "buyer": "Buyer",
       "buyerName": "Company name",
       "buyerNamePlaceholder": "Full legal name",
       "policy": "Policy",
       "approved": "Approved",
-      "requested": "Requested",
+      "requested": "Amount requested",
       "validity": "Valid",
       "paymentTerms": "Payment terms",
       "paymentTermsDays": "Payment terms, days",
       "conditions": "Conditions",
       "status": "Status",
-      "asked": "Asked",
+      "asked": "Requested on",
       "history": "History",
       "historyFor": "Limit history — {{buyer}}",
       "historyNote": "Only decisions that reached you are listed.",
-      "noHistory": "No earlier decisions for this Bayer.",
+      "noHistory": "No earlier decisions for this buyer.",
       "current": "Current",
       "superseded": "Superseded",
       "partialOf": "of {{requested}} requested",
@@ -2019,7 +2040,7 @@
       "send": "Send request",
       "sentRequest": "Sent. Underwriting will come back to you with a decision.",
       "sentProposal": "Sent. We will identify the company first, then underwrite the limit.",
-      "requestRefused": "We cannot accept this request: check the policy is active and that you have no open request for this Bayer.",
+      "requestRefused": "We cannot accept this request: check the policy is active and that you have no open request for this buyer.",
       "requestNotAllowed": "This account cannot raise limit requests.",
       "requestFailed": "The request could not be sent. Please try again."
     },
@@ -2030,8 +2051,8 @@
       "emptyHint": "When we prepare an offer for you, it appears here.",
       "terms": "Proposed terms",
       "termsNotYet": "The terms are still being prepared. They appear here as soon as the offer is ready for you.",
-      "buyers": "Bayers in the package",
-      "noBuyers": "No Bayers listed yet.",
+      "buyers": "Buyers in the package",
+      "noBuyers": "No buyers listed yet.",
       "progress": "Progress",
       "noHistory": "Nothing has happened yet.",
       "awaitingYou": "This offer is with you.",
@@ -2050,7 +2071,7 @@
       "statuses": {
         "draft": "Being prepared",
         "submitted": "Received",
-        "entity_resolution": "Checking your Bayers",
+        "entity_resolution": "Checking your buyers",
         "underwriting": "Underwriting",
         "commercial_review": "Pricing",
         "sales_confirmation": "Final check",
@@ -2078,9 +2099,9 @@
       "subtitle": "Declare your insurable turnover for each period.",
       "empty": "No declarations yet",
       "emptyHint": "Declare the period that has just closed.",
-      "lines": "Turnover by Bayer",
+      "lines": "Turnover by buyer",
       "noLines": "Nothing declared yet",
-      "pickBuyer": "Choose a Bayer",
+      "pickBuyer": "Choose a buyer",
       "premium": "Premium",
       "disputed": "We have a question about this declaration:",
       "uncoveredWarning": "{{amount}} of this turnover is above your discretionary limit of {{limit}} and is NOT insured.",
@@ -2091,7 +2112,7 @@
     },
     "overdues": {
       "title": "Overdue accounts",
-      "subtitle": "Tell us when a Bayer stops paying.",
+      "subtitle": "Tell us when a buyer stops paying.",
       "fileTitle": "Report an overdue account",
       "fileHint": "Report from the due date of the oldest unpaid invoice.",
       "empty": "Nothing reported",
@@ -2101,7 +2122,7 @@
       "noLimitAffected": "No approved limit",
       "lateWarning": "This is later than the deadline of {{date}}. A late notification can prejudice your cover.",
       "deadlineHint": "You have until {{date}} to notify this account.",
-      "suspensionWarning": "Reporting an overdue account suspends that Bayer’s credit limit at once. New shipments to them will not be covered until a credit underwriter reinstates it.",
+      "suspensionWarning": "Reporting an overdue account suspends that buyer’s credit limit at once. New shipments to them will not be covered until a credit underwriter reinstates it.",
       "actions": {
         "file": "Report"
       }
@@ -2174,14 +2195,14 @@
     "empty": "No declarations yet",
     "emptyHint": "They appear here once a policyholder declares a period.",
     "notFound": "Declaration not found",
-    "lines": "Declared turnover by Bayer",
+    "lines": "Declared turnover by buyer",
     "noLines": "No lines",
     "noLinesHint": "A declaration cannot be submitted until it has at least one line.",
     "correctionOf": "This declaration corrects an earlier one for the same period.",
     "disputed": "Disputed",
     "disputeNotePlaceholder": "What the policyholder needs to fix",
     "premiumBaseHint": "Premium is earned on this figure.",
-    "uncoveredHint": "Turnover above the discretionary limit for Bayers without an approved limit. This part is not insured.",
+    "uncoveredHint": "Turnover above the discretionary limit for buyers without an approved limit. This part is not insured.",
     "splitFrozen": "The coverage split was frozen when this declaration was accepted; a later change to a limit does not move it.",
     "statuses": {
       "draft": "Draft",
@@ -2226,7 +2247,8 @@
       "policyNotActive": "Declarations are made only under an active policy.",
       "periodTaken": "A declaration for this period already exists.",
       "negativeTurnover": "Turnover cannot be negative."
-    }
+    },
+    "eyebrow": "Turnover declaration"
   },
   "premium": {
     "none": "No premium information for this policy",
@@ -2271,11 +2293,13 @@
     },
     "errors": {
       "scheduleLocked": "The schedule cannot be regenerated: some instalments are already invoiced or paid."
-    }
+    },
+    "overdue": "Overdue",
+    "paidSoFar": "{{amount}} paid so far"
   },
   "overdues": {
     "title": "Overdue accounts",
-    "subtitle": "Bayers reported overdue by policyholders. Not claims.",
+    "subtitle": "Buyers reported overdue by policyholders. Not claims.",
     "empty": "No overdue accounts",
     "emptyHint": "Notifications appear here as policyholders report them.",
     "notFound": "Notification not found",
@@ -2283,9 +2307,9 @@
     "lateBy": "Late by {{days}} d",
     "lateTitle": "Reported {{days}} days late",
     "lateExplain": "This account should have been notified by {{date}}. A late notification can prejudice cover.",
-    "suspendedTitle": "Cover suspended for this Bayer",
+    "suspendedTitle": "Cover suspended for this buyer",
     "suspendedExplain": "Filing this notification revoked the approved limit immediately, so new shipments are not covered. A credit underwriter can reinstate it with a new decision.",
-    "openBuyer": "Open the Bayer",
+    "openBuyer": "Open the buyer",
     "windowHint": "Maximum extension {{extension}} d + notification window {{window}} d",
     "resolveHint": "Resolving does not reinstate the limit — that is a fresh credit decision.",
     "statuses": {
@@ -2295,7 +2319,7 @@
       "withdrawn": "Withdrawn"
     },
     "actions": {
-      "resolve": "Resolve"
+      "resolve": "Close the notification"
     },
     "fields": {
       "status": "Status",
@@ -2314,7 +2338,9 @@
       "dueInFuture": "The due date of the oldest invoice must be in the past.",
       "alreadyOpen": "This buyer already has an open overdue notification on this policy.",
       "alreadyResolved": "This notification has already been closed."
-    }
+    },
+    "eyebrow": "Overdue notification",
+    "resolveTitle": "Close the notification"
   },
   "claims": {
     "title": "Claims",
@@ -2477,7 +2503,9 @@
       "net": "Net",
       "insurerShare": "Insurer's share",
       "policyholderShare": "Policyholder's share",
-      "note": "Note"
+      "note": "Note",
+      "maxPaymentTermsShort": "Maximum credit period",
+      "waitingPeriodShort": "Waiting period"
     },
     "detail": {
       "basis": "Cover basis",
@@ -2492,7 +2520,8 @@
     },
     "invoices": {
       "emptyTitle": "No invoices on this claim",
-      "emptyHint": "Add the unpaid invoices the claim is made of; coverage is judged on each one."
+      "emptyHint": "Add the unpaid invoices the claim is made of; coverage is judged on each one.",
+      "hint": "Click an invoice to see the numbers its verdict stands on."
     },
     "override": {
       "title": "Change the verdict on {{invoice}}",
@@ -2508,7 +2537,13 @@
       },
       "uploadHint": "PDF, images, Office files or plain text, up to 20 MB each.",
       "emptyTitle": "No documents yet",
-      "emptyHint": "The claim cannot be filed until every required type is attached."
+      "emptyHint": "The claim cannot be filed until every required type is attached.",
+      "filesTitle": "Files",
+      "upload": "Upload",
+      "missing": "missing",
+      "filesCount_one": "{{count}} file",
+      "filesCount_other": "{{count}} files",
+      "remove": "Remove {{name}}"
     },
     "indemnity": {
       "title": "How the indemnity is derived",
@@ -2542,7 +2577,8 @@
       "nqlMet": "At or above {{threshold}} — the full amount proceeds",
       "nqlNotMet": "Below {{threshold}} — nothing is payable",
       "nqlShortfall": "short by {{amount}}",
-      "belowNql": "The confirmed covered loss of {{covered}} is below the non-qualifying loss threshold of {{threshold}}, so this claim is not indemnifiable. The non-qualifying loss is a minimum size, not a deduction: nothing is payable at all."
+      "belowNql": "The confirmed covered loss of {{covered}} is below the non-qualifying loss threshold of {{threshold}}, so this claim is not indemnifiable. The non-qualifying loss is a minimum size, not a deduction: nothing is payable at all.",
+      "payableEstimate": "Estimated indemnity (not yet approved)"
     },
     "money": {
       "approved": "Approved",
@@ -2557,7 +2593,10 @@
       "paymentHint": "Cumulative payments may not exceed the approved indemnity; reaching it closes the claim as paid.",
       "recoveryHint": "The split is computed from what each side had borne when the money arrived, and stored as it was.",
       "emptyTitle": "Nothing has moved yet",
-      "emptyHint": "Payments appear here once the claim is approved."
+      "emptyHint": "Payments appear here once the claim is approved.",
+      "insurerNetHint": "Indemnity paid less the insurer’s share of recoveries.",
+      "paymentsHint": "Indemnity paid to the policyholder, capped by the approved amount.",
+      "grossLessCosts": "{{gross}} received less {{costs}} costs"
     },
     "history": {
       "emptyTitle": "No history yet",
@@ -2628,7 +2667,9 @@
       "invoiceSplit": "Paid and disputed amounts cannot exceed the invoice.",
       "notFound": "Claim not found.",
       "belowNql": "The covered loss is below the non-qualifying loss threshold — this claim is not indemnifiable. Decline it with that reason."
-    }
+    },
+    "eyebrow": "Claim",
+    "indemnityPending": "Not decided yet"
   },
   "groups": {
     "ultimateParent": "Ultimate parent",
@@ -2751,7 +2792,8 @@
     },
     "chip": {
       "label": "Group",
-      "body": "{{parent}} — {{count}} companies, {{exposure}} UZS in force"
+      "body": "{{parent}} — {{count}} companies, {{exposure}} UZS in force",
+      "short": "Group: {{parent}}"
     },
     "errors": {
       "notPermitted": "Your role may not record corporate relationships.",
@@ -3035,7 +3077,22 @@
       "noRenewals": "No in-force policy ends in this window.",
       "daysLeft": "Days left",
       "worst": "Highest loss ratios",
-      "noLosses": "No policy has incurred a loss."
+      "noLosses": "No policy has incurred a loss.",
+      "policiesInForce": "Policies in force",
+      "policiesAll": "Policies",
+      "currencies_one": "in {{count}} currency",
+      "currencies_other": "in {{count}} currencies",
+      "openClaimsTotal": "Open claims",
+      "claimsTotal_one": "{{count}} claim in all",
+      "claimsTotal_other": "{{count}} claims in all",
+      "limitsUzsMissing": "{{amount}} UZS; {{count}} without a UZS rate",
+      "overduePolicies": "Policies with premium overdue",
+      "overduePoliciesHint": "an instalment past its due date",
+      "byCurrency": "The book by currency",
+      "byCurrencyHint": "Each currency on its own row — amounts in different currencies are never added together.",
+      "composition": "Make-up of the book",
+      "compositionHint": "Number of policies by product, status and the policyholder’s country.",
+      "claimsShort": "Claims"
     },
     "credit": {
       "title": "Limit portfolio",
@@ -3069,7 +3126,9 @@
       "groupsHint": "Groups with limits on more than one member, by combined exposure.",
       "noGroups": "No group has limits on more than one member.",
       "group": "Group (ultimate parent)",
-      "members": "Members with limits"
+      "members": "Members with limits",
+      "exposureMissing_one": "+ {{count}} limit with no UZS rate, not added",
+      "exposureMissing_other": "+ {{count}} limits with no UZS rate, not added"
     }
   }
 }

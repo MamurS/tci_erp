@@ -9,7 +9,7 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Table } from '../../components/ui'
+import { Badge, Button, Card, Table, SectionTitle } from '../../components/ui'
 import { formatAmount } from '../../lib/format'
 import { exposureByMember, exposureByPolicyholder, utilisationTone } from './group'
 import type { GroupExposure, GroupExposureLine, GroupLimit } from './types'
@@ -52,7 +52,7 @@ export function GroupExposurePanel({
     <Card className="flex flex-col gap-4 p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h3 className="text-sm font-semibold text-slate-900">{t('groups.exposure.title')}</h3>
+          <SectionTitle>{t('groups.exposure.title')}</SectionTitle>
           <p className="mt-1 text-[13px] text-slate-500">{t('groups.exposure.hint')}</p>
         </div>
         {mayManageLimit && (
@@ -81,7 +81,7 @@ export function GroupExposurePanel({
         />
         <Figure
           label={t('groups.exposure.utilisation')}
-          value={utilisation === null ? '—' : `${utilisation.toFixed(1)}%`}
+          value={utilisation === null ? '—' : `${formatAmount(utilisation, locale, 1)}%`}
           tone={tone}
         />
       </div>
@@ -193,7 +193,7 @@ function Figure({
   return (
     <div className="rounded-md border border-slate-200 bg-white px-3 py-2">
       <p className="text-[12px] text-slate-500">{label}</p>
-      <p className={`num mt-0.5 text-sm font-semibold ${colour}`}>{value}</p>
+      <p className={`mt-0.5 text-sm font-semibold tabular-nums ${colour}`}>{value}</p>
     </div>
   )
 }

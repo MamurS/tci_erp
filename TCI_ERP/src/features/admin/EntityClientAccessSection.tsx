@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, Card, EmptyState, Spinner, Table, SectionTitle } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
-import { EM_DASH } from '../../lib/format'
+import { EM_DASH, formatMoment } from '../../lib/format'
 import { canProvision } from './provisioningAccess'
 import { CreateUserModal } from './CreateUserModal'
 import { ServiceUnavailableNotice } from './ServiceUnavailableNotice'
@@ -26,7 +26,7 @@ import {
 import type { ProvisionedUser } from '../../lib/provisioning'
 
 export function EntityClientAccessSection({ entityId }: { entityId: string }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { roles } = useAuth()
   const { data: users, isLoading } = useEntityClientUsers(entityId)
   const { data: provisioningUp } = useProvisioningAvailable()
@@ -108,7 +108,7 @@ export function EntityClientAccessSection({ entityId }: { entityId: string }) {
                 <td className="text-slate-600">{u.full_name ?? EM_DASH}</td>
                 <td className="text-slate-500">
                   {u.last_sign_in_at
-                    ? u.last_sign_in_at.slice(0, 16).replace('T', ' ')
+                    ? formatMoment(u.last_sign_in_at, i18n.language)
                     : t('provisioning.neverSignedIn')}
                 </td>
                 <td>

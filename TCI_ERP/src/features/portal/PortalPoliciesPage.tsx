@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Card, EmptyState, PageHeader, Spinner, Table } from '../../components/ui'
-import { EM_DASH, formatAmount, formatDays, formatPercent } from '../../lib/format'
+import { EM_DASH, formatAmount, formatDays, formatPercent, formatDate } from '../../lib/format'
 import { useMyPolicies } from './api'
 import type { ClientPolicy } from './types'
 
@@ -53,7 +53,7 @@ export function PortalPoliciesPage() {
                     {t(`policies.statuses.${policy.status}`)}
                   </Badge>
                   <span className="text-[13px] text-slate-500">
-                    {policy.inception_date} — {policy.expiry_date}
+                    {formatDate(policy.inception_date, i18n.language)} — {formatDate(policy.expiry_date, i18n.language)}
                   </span>
                 </span>
                 <span className="text-[13px] font-medium text-accent-700">

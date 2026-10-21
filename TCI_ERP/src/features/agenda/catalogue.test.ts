@@ -9,6 +9,7 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { formatAmount } from '../../lib/format'
 import MIGRATION from '../../../supabase/migrations/0024_agenda_tasks.sql?raw'
 import PHASE4 from '../../../supabase/migrations/0029_phase4_agenda_portal.sql?raw'
 import PHASE5 from '../../../supabase/migrations/0036_claims_agenda_portal.sql?raw'
@@ -25,6 +26,7 @@ import {
   isOverdue,
   NO_FILTERS,
   taskLink,
+  formatTaskParams,
 } from './catalogue'
 import { TASK_PRIORITIES, TASK_TYPES } from './types'
 import type { Task, TaskPriority, TaskType } from './types'
@@ -350,5 +352,17 @@ describe('the Phase 6 group tasks (0041)', () => {
         params: {},
       }),
     ).toBe('/entities/e1')
+  })
+})
+
+describe('formatTaskParams', () => {
+  it('renders dates, percentages and amounts in the viewer’s notation', () => {
+    expect(formatTaskParams({ period_start: '2026-09-01', utilisation_pct: 106.25, amount: '65000', name: 'X' }, 'ru')).toEqual({
+      period_start: '01 сент. 2026',
+      utilisation_pct: '106,3',
+      amount: formatAmount(65000, 'ru'),
+      name: 'X',
+    })
+    expect(formatTaskParams(null, 'en')).toEqual({})
   })
 })

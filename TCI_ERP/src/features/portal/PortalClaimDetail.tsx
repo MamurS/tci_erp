@@ -5,13 +5,13 @@
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Select, Spinner, Table } from '../../components/ui'
+import { Badge, Button, Card, Select, Spinner, Table, SectionTitle } from '../../components/ui'
 import { signedDocumentUrl } from '../claims/api'
 import { verdictTone } from '../claims/coverage'
 import { ACCEPTED_MIME_TYPES, documentRejection } from '../claims/documents'
 import { claimErrorKey } from '../claims/errors'
 import { CLAIM_DOCUMENT_TYPES } from '../claims/types'
-import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
+import { EM_DASH, formatAmount, formatMoment, formatDate } from '../../lib/format'
 import {
   useClientSaveClaimInvoice,
   useClientUploadClaimDocument,
@@ -45,7 +45,7 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
       )}
 
       {claim.decision_reason && (
-        <Card className={claim.status === 'declined' ? 'border-neg-500/40 bg-neg-50' : ''}>
+        <Card className={`p-5 ${claim.status === 'declined' ? 'border-neg-500/40 bg-neg-50' : ''}`}>
           <p className="text-sm font-semibold">{t('portal.claims.decisionTitle')}</p>
           <p className="mt-1 text-[13px] text-slate-700">{claim.decision_reason}</p>
           {claim.assessed_at && (
@@ -55,7 +55,7 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
       )}
 
       {(readiness?.blockers.length ?? 0) > 0 && claim.status === 'draft' && (
-        <Card className="border-warn-500/40 bg-warn-50">
+        <Card className="border-warn-500/40 bg-warn-50 p-5">
           <p className="text-sm font-semibold text-slate-800">{t('portal.claims.blockersTitle')}</p>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-[13px] text-slate-700">
             {(readiness?.blockers ?? []).map((b) => (
@@ -65,9 +65,9 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
         </Card>
       )}
 
-      <Card>
+      <Card className="p-5">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold">{t('portal.claims.invoicesTitle')}</h3>
+          <SectionTitle>{t('portal.claims.invoicesTitle')}</SectionTitle>
           {editable && <AddInvoice claim={claim} onError={(e) => setError(mapError(e, t))} />}
         </div>
         {(invoices ?? []).length === 0 ? (
@@ -88,8 +88,8 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
               {(invoices ?? []).map((i) => (
                 <tr key={i.id}>
                   <td>{i.invoice_number}</td>
-                  <td>{i.shipment_date}</td>
-                  <td>{i.due_date}</td>
+                  <td>{formatDate(i.shipment_date, locale)}</td>
+                  <td>{formatDate(i.due_date, locale)}</td>
                   <td className="num">{formatAmount(Number(i.claimable_amount), locale)}</td>
                   <td className="num">
                     {i.effective_covered_amount === null
@@ -121,8 +121,8 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
         )}
       </Card>
 
-      <Card>
-        <h3 className="text-sm font-semibold">{t('portal.claims.documentsTitle')}</h3>
+      <Card className="p-5">
+        <SectionTitle>{t('portal.claims.documentsTitle')}</SectionTitle>
         <ul className="mt-2 flex flex-wrap gap-2">
           {(readiness?.required_documents ?? []).map((d) => (
             <li key={d}>
@@ -158,8 +158,8 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
       </Card>
 
       {((payments ?? []).length > 0 || (recoveries ?? []).length > 0) && (
-        <Card>
-          <h3 className="text-sm font-semibold">{t('portal.claims.moneyTitle')}</h3>
+        <Card className="p-5">
+          <SectionTitle>{t('portal.claims.moneyTitle')}</SectionTitle>
           {(payments ?? []).map((p) => (
             <p key={p.id} className="mt-2 text-[13px]">
               {t('portal.claims.paidOn', { date: p.paid_at })}{' '}

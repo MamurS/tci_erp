@@ -19,7 +19,7 @@ export function AccountPage() {
     <div className="mx-auto max-w-4xl">
       <PageHeader title={t('account.title')} subtitle={session?.user.email ?? ''} />
 
-      <div className="grid items-start gap-5 lg:grid-cols-2">
+      <div className="grid gap-5 lg:grid-cols-2">
         <Card className="p-5">
           <SectionTitle className="mb-2">{t('portal.account.security')}</SectionTitle>
           <p className="mb-1 text-[13px] text-slate-500">

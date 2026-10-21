@@ -9,10 +9,10 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Modal, PageHeader, Spinner, Tabs, SectionTitle } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Modal, Spinner, Tabs, SectionTitle, Callout, DetailHeader } from '../../components/ui'
 import type { TabDef } from '../../components/ui'
 import { ClaimsSection } from '../claims'
-import { EM_DASH, formatAmount, formatPercent } from '../../lib/format'
+import { EM_DASH, formatAmount, formatMoment, formatPercent, formatRate, formatDate } from '../../lib/format'
 import { PolicyLimitsSection } from '../limits/PolicyLimitsSection'
 import { usePolicyOriginRequest } from '../requests/api'
 import { DraftContractSection } from '../wording'
@@ -28,7 +28,7 @@ import {
 import type { PolicyStatus, PolicyWithRefs } from './types'
 
 export function PolicyDetailPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { id = '' } = useParams()
   const navigate = useNavigate()
 
@@ -50,45 +50,30 @@ export function PolicyDetailPage() {
 
   return (
     <div>
-      <PageHeader
-        title={
-          <span className="inline-flex items-center gap-3">
-            <span>{policy.policy_number}</span>
-            <Badge tone={statusTone(policy.status)} size="lg">
-              {t(`policies.statuses.${policy.status}`)}
-            </Badge>
-          </span>
+      <DetailHeader
+        eyebrow={t('policies.eyebrow')}
+        title={policy.policy_number}
+        status={
+          <Badge tone={statusTone(policy.status)}>{t(`policies.statuses.${policy.status}`)}</Badge>
         }
-        subtitle={
-          <span>
-            <Link to="/policies?view=registry" className="text-accent-700 hover:underline">
-              {t('nav.policies')}
-            </Link>
-            {' / '}
-            <Link
-              to={`/entities/${policy.entity_id}`}
-              className="text-accent-700 hover:underline"
-            >
-              {policy.legal_entities?.name ?? EM_DASH}
-            </Link>
-          </span>
-        }
-        actions={
-          <div className="flex items-center gap-2">
-            <Button variant="secondary" onClick={() => void navigate(`/policies/${id}/edit`)}>
-              {t('common.edit')}
-            </Button>
-            <StatusActions policy={policy} />
-          </div>
-        }
+        meta={[
+          <Link key="h" to={`/entities/${policy.entity_id}`} className="text-accent-600 hover:underline">
+            {policy.legal_entities?.name ?? EM_DASH}
+          </Link>,
+          t(`policies.structures.${policy.product_structure}`),
+          `${formatDate(policy.inception_date, i18n.language)} — ${formatDate(policy.expiry_date, i18n.language)}`,
+        ]}
+        actions={<StatusActions policy={policy} onEdit={() => void navigate(`/policies/${id}/edit`)} />}
       />
 
       <PolicyOrigin policyId={id} />
 
       {isExpiryDue(policy, new Date().toISOString().slice(0, 10)) && (
-        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
-          {t('policies.expiryDueHint', { date: policy.expiry_date })}
-        </div>
+        <Callout
+          tone="warn"
+          className="mb-5"
+          title={t('policies.expiryDueHint', { date: formatDate(policy.expiry_date, i18n.language) })}
+        />
       )}
 
       <PolicyBody policy={policy} policyId={id} />
@@ -143,7 +128,7 @@ function PolicyBody({ policy, policyId }: { policy: PolicyWithRefs; policyId: st
       ) : active === 'premium' ? (
         <PolicyPremiumTab policyId={policyId} />
       ) : (
-        <div className="grid items-start gap-5 xl:grid-cols-[2fr_1fr]">
+        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div className="flex flex-col gap-5">
             <TermsCard policy={policy} />
 
@@ -181,7 +166,7 @@ function PolicyOrigin({ policyId }: { policyId: string }) {
 // Status transition actions + confirmation modal
 // ---------------------------------------------------------------------------
 
-function StatusActions({ policy }: { policy: PolicyWithRefs }) {
+function StatusActions({ policy, onEdit }: { policy: PolicyWithRefs; onEdit: () => void }) {
   const { t } = useTranslation()
   const changeStatus = useChangePolicyStatus(policy.id)
   const [pending, setPending] = useState<PolicyStatus | null>(null)
@@ -189,7 +174,12 @@ function StatusActions({ policy }: { policy: PolicyWithRefs }) {
   const [error, setError] = useState<string | null>(null)
 
   const targets = allowedTargets(policy.status)
-  if (!targets.length) return null
+  if (!targets.length)
+    return (
+      <Button variant="secondary" onClick={onEdit}>
+        {t('common.edit')}
+      </Button>
+    )
 
   const run = async (to: PolicyStatus, withComment: string) => {
     setError(null)
@@ -202,18 +192,25 @@ function StatusActions({ policy }: { policy: PolicyWithRefs }) {
     }
   }
 
+  // The next step first (activate), the ordinary moves, then the edit, and
+  // the destructive ones (cancel, annul) last and outlined in red: they are
+  // confirmed in a modal, so they need not shout from the header.
+  const destructive = (to: PolicyStatus) => to === 'cancelled' || to === 'annulled'
+  const ordered = [
+    ...targets.filter((to) => to === 'active'),
+    ...targets.filter((to) => to !== 'active' && !destructive(to)),
+  ]
   return (
     <>
-      {targets.map((to) => (
+      {[...ordered, 'edit' as const, ...targets.filter(destructive)].map((to) =>
+        to === 'edit' ? (
+          <Button key="edit" variant="secondary" onClick={onEdit}>
+            {t('common.edit')}
+          </Button>
+        ) : (
         <Button
           key={to}
-          variant={
-            to === 'cancelled' || to === 'annulled'
-              ? 'danger'
-              : to === 'active'
-                ? 'primary'
-                : 'secondary'
-          }
+          variant={destructive(to) ? 'dangerOutline' : to === 'active' ? 'primary' : 'secondary'}
           onClick={() => {
             setComment('')
             setError(null)
@@ -224,7 +221,8 @@ function StatusActions({ policy }: { policy: PolicyWithRefs }) {
         >
           {t(`policies.transitions.${to}`)}
         </Button>
-      ))}
+        ),
+      )}
       {error && !pending && (
         <span className="text-[13px] text-neg-500" role="alert">
           {error}
@@ -340,7 +338,7 @@ function TermsCard({ policy }: { policy: PolicyWithRefs }) {
           labelKey: 'policies.terms.premiumRate',
           value: (
             <span className="num">
-              {formatPercent(Number(policy.premium_rate_pct) / 100, locale, 3)}
+              {formatRate(policy.premium_rate_pct, locale)}
             </span>
           ),
         },
@@ -380,13 +378,7 @@ function TermsCard({ policy }: { policy: PolicyWithRefs }) {
 
   return (
     <Card className="p-5">
-      <div className="mb-3 flex items-baseline justify-between">
-        <SectionTitle>{t('policies.termsTitle')}</SectionTitle>
-        <span className="text-[13px] text-slate-500">
-          {t(`policies.structures.${policy.product_structure}`)} · {policy.inception_date} —{' '}
-          {policy.expiry_date}
-        </span>
-      </div>
+      <SectionTitle className="mb-4">{t('policies.termsTitle')}</SectionTitle>
       <div className="grid gap-x-10 gap-y-5 md:grid-cols-2">
         {groups.map((group) => (
           <div key={group.titleKey}>
@@ -421,7 +413,7 @@ function TermsCard({ policy }: { policy: PolicyWithRefs }) {
 // ---------------------------------------------------------------------------
 
 function HistoryTimeline({ policyId }: { policyId: string }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { data: history } = usePolicyStatusHistory(policyId)
 
   return (
@@ -443,7 +435,7 @@ function HistoryTimeline({ policyId }: { policyId: string }) {
                   </Badge>
                 </p>
                 <p className="text-xs text-slate-400">
-                  {row.changed_at.slice(0, 16).replace('T', ' ')}
+                  {formatMoment(row.changed_at, i18n.language)}
                 </p>
                 {row.comment && <p className="mt-0.5 text-[13px] text-slate-500">{row.comment}</p>}
               </div>

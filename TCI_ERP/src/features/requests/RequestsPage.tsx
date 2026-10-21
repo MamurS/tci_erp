@@ -114,7 +114,7 @@ export function RequestsPage() {
                 onClick={() => void navigate(`/requests/${r.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="num font-medium text-slate-800">{r.request_number}</td>
+                <td className="font-medium whitespace-nowrap text-slate-800 tabular-nums">{r.request_number}</td>
                 <td className="text-slate-700">{r.legal_entities?.name ?? EM_DASH}</td>
                 <td className="num">{r.insurance_request_buyers?.length ?? 0}</td>
                 <td>

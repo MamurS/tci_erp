@@ -90,6 +90,35 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
   sub-choice inside a view (the request queues) is a `Segmented` control, so
   two rows of tabs never stack. The tab rule is an inset shadow, so the strip
   never overflows vertically (no stray scrollbar).
+* **An object page** (a claim, a declaration, an overdue notification, a
+  policy) is composed from `components/ui/detail.tsx`, never hand-built:
+  `DetailHeader` (eyebrow naming the kind of object, the title, the status
+  badge beside it, a meta line of links joined by dots, the actions);
+  `KeyFigures` (the few numbers that matter, in ONE card divided by
+  hairlines, every cell left-aligned the same way; `text` for a word such as
+  a cause of loss; `muted` for "not yet"); `DescriptionList` (label → value
+  rows, tabular figures, `columns={2}` instead of stretching a label away
+  from its value); `Callout` (what needs attention, amber when it can wait,
+  red when it blocks, with the action as a link).
+* **Actions have a hierarchy.** One primary button (the next step), then
+  secondary ones, the edit, and destructive actions LAST as `dangerOutline`
+  (red outline; the filled `danger` is for the confirm button of their
+  modal). The orange `accent` is one call to action per screen at most —
+  never one per table row. An action inside a table row is a text button or
+  an icon, so rows with an action are as tall as rows without.
+* **Cards and tables.** A `Card` has no padding of its own: every Card states
+  one, or is a flush `overflow-hidden` frame whose rows pad themselves. A
+  `Table` draws its own frame and is never wrapped in a Card. Table heads do
+  not wrap; identifiers, dates and amounts do not wrap; numeric heads are
+  right-aligned over right-aligned numbers. `layoutContract.test.ts` checks
+  the first two on the source.
+* **One date format.** `formatDate` (05 Oct 2026 / 05 окт. 2026 /
+  05-okt 2026) and `formatMoment` (the same + time) everywhere; `formatDue`
+  shows a midnight-UTC deadline as a date (never "05:00"); `formatPeriod`
+  names a month or quarter («сентябрь 2026»); `formatRate` reads a premium
+  rate stored as a percentage (0.18 → 0.18%, never 18%). No ISO string is
+  sliced for display (`layoutContract.test.ts`). A change that rounds to zero
+  has no sign, arrow or colour.
 * **Nothing moves between views or sections.** `html` reserves the
   scrollbar's gutter (`scrollbar-gutter: stable`): a short view (a 7-row
   register) and a long one (an overview) would otherwise differ by the

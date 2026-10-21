@@ -177,7 +177,7 @@ export function LimitsPage() {
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
                 <td className="font-medium text-slate-800">{r.legal_entities?.name ?? EM_DASH}</td>
-                <td className="text-slate-600">{r.policies?.policy_number ?? EM_DASH}</td>
+                <td className="whitespace-nowrap text-slate-600">{r.policies?.policy_number ?? EM_DASH}</td>
                 <td className="text-slate-500">{r.policies?.legal_entities?.name ?? EM_DASH}</td>
                 <td>
                   <span className="num block">

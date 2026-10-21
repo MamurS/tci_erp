@@ -4,8 +4,8 @@
 
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, PageHeader, Spinner, Table, SectionTitle } from '../../components/ui'
-import { formatAmount, formatPercent } from '../../lib/format'
+import { Badge, Callout, Card, EmptyState, KeyFigures, PageHeader, SectionTitle, Spinner, Table } from '../../components/ui'
+import { formatAmount, formatDate, formatRate } from '../../lib/format'
 import { isBelowMinimum } from '../policies/premium'
 import { useClientInstalments, useClientPremium } from './api'
 
@@ -16,60 +16,57 @@ export function PortalPremiumPage() {
   const { data: instalments } = useClientInstalments()
 
   if (isLoading) return <Spinner label={t('common.loading')} />
-  if (!premiums?.length) return <EmptyState title={t('portal.premium.empty')} />
+  const header = <PageHeader title={t('portal.premium.title')} subtitle={t('portal.premium.subtitle')} />
+  if (!premiums?.length)
+    return (
+      <div>
+        {header}
+        <Card className="p-6">
+          <EmptyState title={t('portal.premium.empty')} />
+        </Card>
+      </div>
+    )
 
   return (
-    <div className="space-y-6">
-      <PageHeader title={t('portal.premium.title')} subtitle={t('portal.premium.subtitle')} />
+    <div className="space-y-8">
+      {header}
 
       {premiums.map((p) => {
         const below = isBelowMinimum(Number(p.earned_premium), Number(p.minimum_premium))
         const rows = (instalments ?? []).filter((i) => i.policy_id === p.policy_id)
+        const money = (v: number | string) => `${formatAmount(Number(v), locale)} ${p.currency_code}`
+        const paid = rows.filter((i) => i.status === 'paid').reduce((sum, i) => sum + Number(i.amount), 0)
         return (
-          <Card key={p.policy_id}>
-            <SectionTitle>{p.policy_number}</SectionTitle>
+          <section key={p.policy_id}>
+            <SectionTitle className="mb-3">{p.policy_number}</SectionTitle>
+            <KeyFigures
+              items={[
+                { label: t('premium.fields.minimumPremium'), value: money(p.minimum_premium) },
+                {
+                  label: t('premium.fields.earnedPremium'),
+                  value: money(p.earned_premium),
+                  meta: `${t('premium.fields.rate')} ${formatRate(p.premium_rate_pct, locale)}`,
+                },
+                {
+                  label: t('premium.fields.adjustment'),
+                  value: money(p.adjustment_amount),
+                  tone: Number(p.adjustment_amount) > 0 ? 'default' : 'muted',
+                },
+                {
+                  label: t('premium.fields.dueTotal'),
+                  value: money(p.premium_due_total),
+                  meta: t('premium.paidSoFar', { amount: money(paid) }),
+                },
+              ]}
+            />
 
-            <div className="mt-3 grid gap-4 sm:grid-cols-4">
-              <div>
-                <p className="text-xs text-slate-500">{t('premium.fields.minimumPremium')}</p>
-                <p className="num mt-1 font-semibold">
-                  {formatAmount(Number(p.minimum_premium), locale)} {p.currency_code}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">{t('premium.fields.earnedPremium')}</p>
-                <p className="num mt-1 font-semibold">
-                  {formatAmount(Number(p.earned_premium), locale)} {p.currency_code}
-                </p>
-                <p className="mt-1 text-xs text-slate-500">
-                  {formatPercent(Number(p.premium_rate_pct), locale)}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">{t('premium.fields.adjustment')}</p>
-                <p className="num mt-1 font-semibold">
-                  {formatAmount(Number(p.adjustment_amount), locale)} {p.currency_code}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-slate-500">{t('premium.fields.dueTotal')}</p>
-                <p className="num mt-1 font-semibold">
-                  {formatAmount(Number(p.premium_due_total), locale)} {p.currency_code}
-                </p>
-              </div>
-            </div>
-
-            {below && (
-              <p className="mt-3 rounded-md bg-slate-50 px-3 py-2 text-[13px] text-slate-600">
-                {t('premium.noRefundBelowMinimum')}
-              </p>
-            )}
+            {below && <Callout tone="info" title={t('premium.noRefundBelowMinimum')} className="mb-4" />}
 
             {rows.length > 0 && (
-              <Table dense className="mt-4">
+              <Table dense>
                 <thead>
                   <tr>
-                    <th>#</th>
+                    <th className="w-px">№</th>
                     <th>{t('premium.fields.dueDate')}</th>
                     <th className="text-right">{t('premium.fields.amount')}</th>
                     <th>{t('premium.fields.status')}</th>
@@ -77,25 +74,27 @@ export function PortalPremiumPage() {
                 </thead>
                 <tbody>
                   {rows.map((i) => (
-                    <tr key={i.id} className={i.overdue ? 'bg-warn-50' : undefined}>
-                      <td className="num">{i.sequence}</td>
-                      <td className={i.overdue ? 'font-medium text-warn-500' : undefined}>
-                        {i.due_date}
+                    <tr key={i.id}>
+                      <td className="text-slate-400 tabular-nums">{i.sequence}</td>
+                      <td className={`whitespace-nowrap ${i.overdue ? 'font-medium text-neg-500' : ''}`}>
+                        {formatDate(i.due_date, locale)}
                       </td>
+                      <td className="num">{money(i.amount)}</td>
                       <td>
-                        <span className="num block">{formatAmount(Number(i.amount), locale)}</span>
-                      </td>
-                      <td>
-                        <Badge tone={i.status === 'paid' ? 'pos' : 'neutral'}>
-                          {t(`premium.instalmentStatuses.${i.status}`)}
-                        </Badge>
+                        {i.overdue ? (
+                          <Badge tone="neg">{t('premium.overdue')}</Badge>
+                        ) : (
+                          <Badge tone={i.status === 'paid' ? 'pos' : 'neutral'}>
+                            {t(`premium.instalmentStatuses.${i.status}`)}
+                          </Badge>
+                        )}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
             )}
-          </Card>
+          </section>
         )
       })}
     </div>

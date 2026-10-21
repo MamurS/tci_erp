@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Badge, Card, EmptyState, Panel, PanelGrid, ViewBar, Spinner, Table } from '../../../components/ui'
 import { useAuth } from '../../../auth/AuthContext'
-import { formatAmount, formatCompact } from '../../../lib/format'
+import { formatAmount, formatCompact, formatDate } from '../../../lib/format'
 import { AUTHORITY_SCOPES, GRADE_BANDS, hasRole } from '../../../lib/roles'
 import type { GradeBand } from '../../../lib/roles'
 import { useMyAuthorityGrants, useMyAuthorityUzs } from '../api'
@@ -106,8 +106,8 @@ export function AuthorityView() {
                         <td className="num text-right whitespace-nowrap">
                           {formatAmount(Number(g.max_amount), locale)} {g.currency_code}
                         </td>
-                        <td className="whitespace-nowrap text-slate-600">{g.valid_from}</td>
-                        <td className="whitespace-nowrap text-slate-600">{g.valid_to ?? t('admin.openEnded')}</td>
+                        <td className="whitespace-nowrap text-slate-600">{formatDate(g.valid_from, locale)}</td>
+                        <td className="whitespace-nowrap text-slate-600">{g.valid_to ? formatDate(g.valid_to, locale) : t('admin.openEnded')}</td>
                       </tr>
                     )),
                 )}

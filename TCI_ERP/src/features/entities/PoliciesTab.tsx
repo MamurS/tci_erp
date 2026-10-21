@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 
-import { Badge, Button, Card, EmptyState, Table, SectionTitle } from '../../components/ui'
+import { Badge, Button, Card, EmptyState, Table, SectionTitle, Spinner } from '../../components/ui'
 import { tci } from '../../lib/supabase'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { usePolicies } from '../policies/api'
 import { statusTone } from '../policies/statusMachine'
 import type { EffectiveLimit } from '../limits/types'
@@ -18,7 +18,7 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
   const locale = i18n.resolvedLanguage ?? 'en'
   const navigate = useNavigate()
 
-  const { data: allPolicies } = usePolicies()
+  const { data: allPolicies, isLoading } = usePolicies()
   const policies = (allPolicies ?? []).filter((p) => p.entity_id === entityId)
   const policyIds = policies.map((p) => p.id)
 
@@ -44,6 +44,10 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
       return rows.map((r) => ({ ...r, legal_entities: { name: nameMap.get(r.entity_id) ?? '' } }))
     },
   })
+
+  // Loading is not "no policies": the tab must not claim an empty book
+  // while the list is still on its way.
+  if (isLoading) return <Spinner label={t('common.loading')} />
 
   return (
     <div className="flex flex-col gap-5">
@@ -78,8 +82,8 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
                 >
                   <td className="font-medium text-slate-800">{p.policy_number}</td>
                   <td className="text-slate-500">{t(`policies.structures.${p.product_structure}`)}</td>
-                  <td className="text-slate-500">
-                    {p.inception_date} — {p.expiry_date}
+                  <td className="whitespace-nowrap text-slate-500">
+                    {formatDate(p.inception_date, locale)} — {formatDate(p.expiry_date, locale)}
                   </td>
                   <td>{p.currency_code}</td>
                   <td>
@@ -128,7 +132,7 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
                   <td>
                     <Badge tone={outcomeTone(l.outcome)}>{t(`limits.outcomes.${l.outcome}`)}</Badge>
                   </td>
-                  <td className="text-slate-500">{l.valid_until ?? t('limits.untilReview')}</td>
+                  <td className="text-slate-500">{l.valid_until ? formatDate(l.valid_until, locale) : t('limits.untilReview')}</td>
                 </tr>
               ))}
             </tbody>

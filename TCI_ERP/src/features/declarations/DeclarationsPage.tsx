@@ -12,18 +12,12 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, EmptyState, Field, PageHeader, Select, Spinner, Table } from '../../components/ui'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import { EM_DASH, formatAmount, formatPeriod } from '../../lib/format'
 import { useDeclarations } from './api'
 import { DECLARATION_STATUSES } from './types'
 import type { DeclarationStatus } from './types'
+import { STATUS_TONE } from './status'
 
-const STATUS_TONE: Record<DeclarationStatus, 'neutral' | 'accent' | 'pos' | 'warn'> = {
-  draft: 'neutral',
-  submitted: 'accent',
-  accepted: 'pos',
-  disputed: 'warn',
-  corrected: 'neutral',
-}
 
 export function DeclarationsPage() {
   const { t, i18n } = useTranslation()
@@ -86,7 +80,7 @@ export function DeclarationsPage() {
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
                 <td className="font-medium text-slate-800">
-                  {d.period_start} {EM_DASH} {d.period_end}
+                  {formatPeriod(d.period_start, d.period_end, i18n.language)}
                 </td>
                 <td className="text-slate-600">{d.policies?.policy_number ?? EM_DASH}</td>
                 <td className="text-slate-500">

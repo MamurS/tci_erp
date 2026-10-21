@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, Card, EmptyState, Input, ViewBar, Spinner, Table, Tabs } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
-import { EM_DASH, formatMoment } from '../../lib/format'
+import { EM_DASH, formatMoment, formatDate } from '../../lib/format'
 import { usePolicies } from '../policies/api'
 import { statusTone } from '../policies/statusMachine'
 import { useInsuranceRequests } from '../requests/api'
@@ -83,7 +83,7 @@ export function ContractsPage() {
       .catch((e: unknown) => setError(t(wordingErrorKey(e))))
 
   const generateButton = (next: Pick) => (
-    <Button size="sm" variant="accent" disabled={activeCount === 0} onClick={() => setPick(next)}>
+    <Button size="sm" variant="secondary" disabled={activeCount === 0} onClick={() => setPick(next)}>
       {t('contracts.generate')}
     </Button>
   )
@@ -176,7 +176,7 @@ export function ContractsPage() {
                       <td className="text-slate-600">{p.legal_entities?.name ?? EM_DASH}</td>
                       <td className="text-slate-500">{t(`policies.structures.${p.product_structure}`)}</td>
                       <td className="whitespace-nowrap text-slate-500">
-                        {p.inception_date} — {p.expiry_date}
+                        {formatDate(p.inception_date, locale)} — {formatDate(p.expiry_date, locale)}
                       </td>
                       <td>{p.currency_code}</td>
                       <td>

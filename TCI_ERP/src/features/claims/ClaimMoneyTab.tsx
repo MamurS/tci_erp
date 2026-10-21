@@ -5,8 +5,21 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
-import { Button, Card, EmptyState, Field, Input, Modal, Spinner, Table, SectionTitle } from '../../components/ui'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import {
+  Button,
+  Callout,
+  Card,
+  EmptyState,
+  Field,
+  Input,
+  KeyFigures,
+  Modal,
+  Panel,
+  PanelGrid,
+  Spinner,
+  Table,
+} from '../../components/ui'
+import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import {
   useClaimPayments,
   useClaimPosition,
@@ -33,115 +46,126 @@ export function ClaimMoneyTab({ claim }: { claim: Claim }) {
 
   if (isLoading) return <Spinner label={t('common.loading')} />
   const cur = claim.currency_code
+  const decided = position?.approved_indemnity !== null && position?.approved_indemnity !== undefined
+  // Until the claim is decided nothing is owed, paid or recovered: every
+  // figure is "—", not a 0 that reads like a settled account.
+  const figure = (value: number | null | undefined) =>
+    !decided || value === null || value === undefined ? EM_DASH : `${formatAmount(Number(value), locale)} ${cur}`
+  const noMovement = (payments ?? []).length === 0 && (recoveries ?? []).length === 0
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-4">
-        <Figure label={t('claims.money.approved')} value={position?.approved_indemnity ?? null} cur={cur} locale={locale} />
-        <Figure label={t('claims.money.paid')} value={position?.paid_total ?? 0} cur={cur} locale={locale} />
-        <Figure label={t('claims.money.outstanding')} value={position?.outstanding_indemnity ?? 0} cur={cur} locale={locale} />
-        <Figure label={t('claims.money.insurerNet')} value={position?.insurer_net_position ?? 0} cur={cur} locale={locale} />
-      </div>
+    <div>
+      <KeyFigures
+        items={[
+          { label: t('claims.money.approved'), value: figure(position?.approved_indemnity), tone: decided ? 'default' : 'muted' },
+          { label: t('claims.money.paid'), value: figure(position?.paid_total), tone: decided ? 'default' : 'muted' },
+          {
+            label: t('claims.money.outstanding'),
+            value: figure(position?.outstanding_indemnity),
+            tone: !decided ? 'muted' : Number(position?.outstanding_indemnity ?? 0) > 0 ? 'warn' : 'default',
+          },
+          {
+            label: t('claims.money.insurerNet'),
+            value: figure(position?.insurer_net_position),
+            meta: t('claims.money.insurerNetHint'),
+            tone: decided ? 'default' : 'muted',
+          },
+        ]}
+      />
 
-      <Card>
-        <div className="flex items-center justify-between">
-          <SectionTitle>{t('claims.money.payments')}</SectionTitle>
-          {canPay && <Button variant="secondary" onClick={() => setPaying(true)}>{t('claims.actions.recordPayment')}</Button>}
-        </div>
-        {(payments ?? []).length === 0 ? (
-          <p className="mt-3 text-[13px] text-slate-500">{t('claims.money.noPayments')}</p>
-        ) : (
-          <Table dense>
-            <thead>
-              <tr>
-                <th>{t('claims.fields.paidAt')}</th>
-                <th>{t('claims.fields.reference')}</th>
-                <th className="num">{t('claims.fields.amount')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(payments ?? []).map((p) => (
-                <tr key={p.id}>
-                  <td>{p.paid_at}</td>
-                  <td className="text-slate-600">{p.reference ?? EM_DASH}</td>
-                  <td className="num">
-                    {formatAmount(Number(p.amount), locale)} {p.currency_code}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        )}
-      </Card>
+      {noMovement && !canPay ? (
+        <Card className="p-6">
+          <EmptyState title={t('claims.money.emptyTitle')} hint={t('claims.money.emptyHint')} />
+        </Card>
+      ) : (
+        <PanelGrid>
+          <Panel
+            title={t('claims.money.payments')}
+            hint={t('claims.money.paymentsHint')}
+            actions={
+              canPay && (
+                <Button size="sm" variant="secondary" onClick={() => setPaying(true)}>
+                  {t('claims.actions.recordPayment')}
+                </Button>
+              )
+            }
+          >
+            {(payments ?? []).length === 0 ? (
+              <p className="py-2 text-[13px] text-slate-500">{t('claims.money.noPayments')}</p>
+            ) : (
+              <Table dense>
+                <thead>
+                  <tr>
+                    <th>{t('claims.fields.paidAt')}</th>
+                    <th>{t('claims.fields.reference')}</th>
+                    <th className="text-right">{t('claims.fields.amount')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(payments ?? []).map((p) => (
+                    <tr key={p.id}>
+                      <td className="whitespace-nowrap">{formatDate(p.paid_at, locale)}</td>
+                      <td className="text-slate-600">{p.reference ?? EM_DASH}</td>
+                      <td className="num">
+                        {formatAmount(Number(p.amount), locale)} {p.currency_code}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            )}
+          </Panel>
 
-      <Card>
-        <div className="flex items-center justify-between">
-          <SectionTitle>{t('claims.money.recoveries')}</SectionTitle>
-          {canRecover && (
-            <Button variant="secondary" onClick={() => setRecovering(true)}>
-              {t('claims.actions.recordRecovery')}
-            </Button>
-          )}
-        </div>
-        <p className="mt-1 text-[13px] text-slate-600">{t('claims.money.splitRule')}</p>
-        {(recoveries ?? []).length === 0 ? (
-          <p className="mt-3 text-[13px] text-slate-500">{t('claims.money.noRecoveries')}</p>
-        ) : (
-          <Table dense>
-            <thead>
-              <tr>
-                <th>{t('claims.fields.receivedAt')}</th>
-                <th className="num">{t('claims.fields.gross')}</th>
-                <th className="num">{t('claims.fields.recoveryCosts')}</th>
-                <th className="num">{t('claims.fields.net')}</th>
-                <th className="num">{t('claims.fields.insurerShare')}</th>
-                <th className="num">{t('claims.fields.policyholderShare')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(recoveries ?? []).map((r) => (
-                <tr key={r.id}>
-                  <td>{r.received_at}</td>
-                  <td className="num">{formatAmount(Number(r.gross_amount), locale)}</td>
-                  <td className="num">{formatAmount(Number(r.recovery_costs), locale)}</td>
-                  <td className="num">{formatAmount(Number(r.net_amount), locale)}</td>
-                  <td className="num">{formatAmount(Number(r.insurer_share), locale)}</td>
-                  <td className="num">{formatAmount(Number(r.policyholder_share), locale)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        )}
-      </Card>
-
-      {!canPay && !canRecover && (payments ?? []).length === 0 && (
-        <EmptyState title={t('claims.money.emptyTitle')} hint={t('claims.money.emptyHint')} />
+          <Panel
+            title={t('claims.money.recoveries')}
+            hint={t('claims.money.splitRule')}
+            actions={
+              canRecover && (
+                <Button size="sm" variant="secondary" onClick={() => setRecovering(true)}>
+                  {t('claims.actions.recordRecovery')}
+                </Button>
+              )
+            }
+          >
+            {(recoveries ?? []).length === 0 ? (
+              <p className="py-2 text-[13px] text-slate-500">{t('claims.money.noRecoveries')}</p>
+            ) : (
+              <Table dense>
+                <thead>
+                  <tr>
+                    <th>{t('claims.fields.receivedAt')}</th>
+                    <th className="text-right">{t('claims.fields.net')}</th>
+                    <th className="text-right">{t('claims.fields.insurerShare')}</th>
+                    <th className="text-right">{t('claims.fields.policyholderShare')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(recoveries ?? []).map((r) => (
+                    <tr key={r.id}>
+                      <td className="whitespace-nowrap">
+                        {formatDate(r.received_at, locale)}
+                        <span className="block text-[11.5px] text-slate-400">
+                          {t('claims.money.grossLessCosts', {
+                            gross: formatAmount(Number(r.gross_amount), locale),
+                            costs: formatAmount(Number(r.recovery_costs), locale),
+                          })}
+                        </span>
+                      </td>
+                      <td className="num">{formatAmount(Number(r.net_amount), locale)}</td>
+                      <td className="num">{formatAmount(Number(r.insurer_share), locale)}</td>
+                      <td className="num">{formatAmount(Number(r.policyholder_share), locale)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            )}
+          </Panel>
+        </PanelGrid>
       )}
 
       {paying && <PaymentModal claim={claim} onClose={() => setPaying(false)} />}
       {recovering && <RecoveryModal claim={claim} onClose={() => setRecovering(false)} />}
     </div>
-  )
-}
-
-function Figure({
-  label,
-  value,
-  cur,
-  locale,
-}: {
-  label: string
-  value: number | null
-  cur: string
-  locale: string
-}) {
-  return (
-    <Card>
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="num mt-1 text-xl font-semibold">
-        {value === null ? EM_DASH : `${formatAmount(Number(value), locale)} ${cur}`}
-      </p>
-    </Card>
   )
 }
 
@@ -183,11 +207,7 @@ function PaymentModal({ claim, onClose }: { claim: Claim; onClose: () => void })
         </>
       }
     >
-      {error && (
-        <p role="alert" className="mb-3 rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">
-          {error}
-        </p>
-      )}
+      {error && <Callout tone="neg" title={error} className="mb-3" />}
       <p className="text-[13px] text-slate-600">{t('claims.money.paymentHint')}</p>
       <Field label={`${t('claims.fields.amount')} (${claim.currency_code})`}>
         <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
@@ -242,11 +262,7 @@ function RecoveryModal({ claim, onClose }: { claim: Claim; onClose: () => void }
         </>
       }
     >
-      {error && (
-        <p role="alert" className="mb-3 rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">
-          {error}
-        </p>
-      )}
+      {error && <Callout tone="neg" title={error} className="mb-3" />}
       <p className="text-[13px] text-slate-600">{t('claims.money.recoveryHint')}</p>
       <Field label={`${t('claims.fields.gross')} (${claim.currency_code})`}>
         <Input type="number" value={gross} onChange={(e) => setGross(e.target.value)} />

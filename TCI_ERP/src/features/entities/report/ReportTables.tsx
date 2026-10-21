@@ -7,7 +7,7 @@
 
 import type { TFunction } from 'i18next'
 
-import { EM_DASH, formatAmount, formatSignedPercent } from '../../../lib/format'
+import { EM_DASH, formatAmount, formatSignedPercent, isZeroChange } from '../../../lib/format'
 import type { StatementBundle } from '../types'
 import type { MemberFigures, MemberMetric, RatioTable, StatementRow, Tone, Trend } from './model'
 import { shareOf, topMembers } from './model'
@@ -201,7 +201,7 @@ function RatioCells({
     <>
       <td className={`rpt-num ${negative ? 'is-neg' : ''}`}>{value}</td>
       {!first && (
-        <td className={`rpt-num ${change === null ? 'rpt-muted' : toneClass(tone)}`}>
+        <td className={`rpt-num ${change === null ? 'rpt-muted' : isZeroChange(change) ? '' : toneClass(tone)}`}>
           {change === null ? t('report.nm') : formatSignedPercent(change, locale)}
         </td>
       )}

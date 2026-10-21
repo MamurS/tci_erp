@@ -184,7 +184,7 @@ export function RequestDetailPage() {
         </Card>
       )}
 
-      <div className="grid items-start gap-5 xl:grid-cols-[3fr_2fr]">
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="flex flex-col gap-5">
           <EntityResolutionSection request={request} buyers={buyers ?? []} />
           <BuyerPackageTable request={request} buyers={buyers ?? []} />

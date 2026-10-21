@@ -20,17 +20,7 @@ import {
   YAxis,
 } from 'recharts'
 
-import {
-  Badge,
-  Button,
-  Card,
-  GradeScale,
-  RatingGauge,
-  RatingLegend,
-  Select,
-  Spinner,
-  Table,
-} from '../../../components/ui'
+import { Badge, Button, Card, GradeScale, RatingGauge, RatingLegend, Select, Spinner, Table, SectionTitle } from '../../../components/ui'
 import {
   AnalyticsUnavailableError,
   postCreditLimit,
@@ -41,7 +31,7 @@ import type {
   RatingResponse,
   StatementPayload,
 } from '../../../lib/analytics'
-import { EM_DASH, formatAmount, formatPercent } from '../../../lib/format'
+import { EM_DASH, formatAmount, formatDate, formatMoment, formatPercent } from '../../../lib/format'
 import { gradeTone } from '../../../lib/grade'
 import { gradeChange, useGradeScale } from '../../../lib/gradeScale'
 import type { GradeBand } from '../../../lib/gradeScale'
@@ -340,7 +330,7 @@ function ResultView({
 
       {/* Limit card */}
       <Card className="flex flex-col items-start gap-2 p-5">
-        <h3 className="text-sm font-semibold text-slate-900">{t('rating.limitTitle')}</h3>
+        <SectionTitle>{t('rating.limitTitle')}</SectionTitle>
         <span className="num text-3xl font-bold text-slate-900">
           {formatAmount(limit.suggested_limit, locale)}{' '}
           <span className="text-lg font-medium text-slate-500">{limit.currency}</span>
@@ -444,13 +434,13 @@ function ScoreHistoryChart({
   statements: StatementBundle[]
   locale: string
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   if (assessments.length < 2) return null
 
   const data = [...assessments]
     .reverse()
     .map((a) => ({
-      date: a.created_at.slice(0, 10),
+      date: formatDate(a.created_at, i18n.language),
       score: Number(a.rating_score),
       grade: a.rating_grade,
       statement: statements.find((s) => s.id === a.statement_id),
@@ -459,7 +449,7 @@ function ScoreHistoryChart({
 
   return (
     <Card className="p-5">
-      <h3 className="mb-3 text-sm font-semibold text-slate-900">{t('rating.historyChart')}</h3>
+      <SectionTitle className="mb-3">{t('rating.historyChart')}</SectionTitle>
       <div className="h-52">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 12, right: 16, bottom: 0, left: 0 }}>
@@ -513,7 +503,7 @@ function HistoryCard({
   statements: StatementBundle[]
   locale: string
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   if (!assessments.length) return null
 
   const periodOf = (statementId: string): string => {
@@ -523,7 +513,7 @@ function HistoryCard({
 
   return (
     <div>
-      <h3 className="mb-2 text-sm font-semibold text-slate-900">{t('rating.historyTitle')}</h3>
+      <SectionTitle className="mb-2">{t('rating.historyTitle')}</SectionTitle>
       <Table dense>
         <thead>
           <tr>
@@ -538,7 +528,7 @@ function HistoryCard({
         <tbody>
           {assessments.map((a) => (
             <tr key={a.id}>
-              <td className="text-slate-500">{a.created_at.slice(0, 16).replace('T', ' ')}</td>
+              <td className="text-slate-500">{formatMoment(a.created_at, i18n.language)}</td>
               <td>{periodOf(a.statement_id)}</td>
               <td>
                 <span className="num block">{formatAmount(Number(a.rating_score), locale, 1)}</span>

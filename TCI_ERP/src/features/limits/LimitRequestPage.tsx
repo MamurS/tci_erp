@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next'
 import { Badge, Button, Card, EmptyState, Field, GradeScale, Input, Modal, PageHeader, Select, Spinner, SectionTitle } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { bandForGrade, hasRole } from '../../lib/roles'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import { EM_DASH, formatAmount, formatDate, formatMoment } from '../../lib/format'
 import { useGradeScale } from '../../lib/gradeScale'
 import { useAssessments } from '../entities/rating/assessmentsApi'
 import {
@@ -152,7 +152,7 @@ export function LimitRequestPage() {
         </div>
       )}
 
-      <div className="grid items-start gap-5 xl:grid-cols-[3fr_2fr]">
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="flex flex-col gap-5">
           <RequestCard request={request} locale={locale} />
           {awaitingSenior && (
@@ -209,7 +209,7 @@ export function LimitRequestPage() {
 // ---------------------------------------------------------------------------
 
 function RequestCard({ request, locale }: { request: LimitRequestWithRefs; locale: string }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   const timeline: { key: string; at: string | null }[] = [
     { key: 'created', at: request.created_at },
@@ -271,7 +271,7 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
               <span className="font-medium text-slate-700">
                 {t(`limits.timeline.${step.key}`)}
               </span>{' '}
-              {step.at?.slice(0, 16).replace('T', ' ')}
+              {step.at ? formatMoment(step.at, i18n.language) : EM_DASH}
             </li>
           ))}
       </ol>
@@ -499,7 +499,7 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
               <option value="">{t('common.notSelected')}</option>
               {(assessments.data ?? []).map((a) => (
                 <option key={a.id} value={a.id}>
-                  {a.created_at.slice(0, 10)} · {a.rating_grade} ·{' '}
+                  {formatDate(a.created_at, locale)} · {a.rating_grade} ·{' '}
                   {formatAmount(Number(a.suggested_limit), locale)} {a.limit_currency}
                 </option>
               ))}

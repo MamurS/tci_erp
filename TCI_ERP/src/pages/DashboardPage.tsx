@@ -26,7 +26,7 @@ import type { LucideIcon } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { Card, Skeleton } from '../components/ui'
 import { useAgendaTasks, useTaskSubjects, subjectFor } from '../features/agenda/api'
-import { compareTasks, isOverdue, taskLink } from '../features/agenda/catalogue'
+import { compareTasks, formatTaskParams, isOverdue, taskLink } from '../features/agenda/catalogue'
 import type { Task } from '../features/agenda/types'
 import { useDeclarations } from '../features/declarations/api'
 import { declarationCompliance, premiumAccrual } from '../features/declarations/summary'
@@ -38,7 +38,7 @@ import { useOverdueNotifications } from '../features/overdue/api'
 import { usePolicies } from '../features/policies/api'
 import { useAllPolicyPremium } from '../features/policies/premiumApi'
 import { hasRole, isStaff } from '../lib/roles'
-import { EM_DASH, formatAmount, formatCompact, formatLongDate, formatMoment, formatPercent } from '../lib/format'
+import { EM_DASH, formatAmount, formatCompact, formatLongDate, formatPercent, formatDue } from '../lib/format'
 import { buildSignals, dayPart } from './dashboard'
 import type { Signal } from './dashboard'
 
@@ -353,7 +353,7 @@ function TaskLine({
   now: Date
   locale: string
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const href = taskLink(task)
   const overdue = isOverdue(task, now)
   const body = (
@@ -361,13 +361,13 @@ function TaskLine({
       <span className={`mt-1.5 size-2 shrink-0 rounded-full ${overdue ? 'bg-neg-500' : PRIORITY_DOT[task.priority]}`} />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13.5px] font-medium text-slate-800">
-          {t(task.title_key, { ...task.params, subject: subject ?? EM_DASH })}
+          {t(task.title_key, { ...formatTaskParams(task.params, i18n.language), subject: subject ?? EM_DASH })}
         </span>
         <span className="mt-0.5 flex flex-wrap gap-x-2 text-[12px] text-slate-500">
           <span>{t(`agenda.taskTypes.${task.task_type}`)}</span>
           {task.due_at && (
             <span className={overdue ? 'font-medium text-neg-500' : undefined}>
-              · {t(overdue ? 'agenda.overdueSince' : 'agenda.dueBy', { moment: formatMoment(task.due_at, locale) })}
+              · {t(overdue ? 'agenda.overdueSince' : 'agenda.dueBy', { moment: formatDue(task.due_at, locale) })}
             </span>
           )}
         </span>

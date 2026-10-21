@@ -6,16 +6,17 @@
  */
 
 import { useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, PanelGrid, ViewBar, Segmented, Spinner, StatCard } from '../../components/ui'
-import { formatAmount, formatCompact, formatDays } from '../../lib/format'
+import { Badge, Card, EmptyState, KeyFigures, Panel, Segmented, Spinner, Table, ViewBar } from '../../components/ui'
+import { formatAmount, formatCompact, formatDate, formatDays, formatPercent } from '../../lib/format'
 import { statusTone } from '../policies/statusMachine'
 import type { PolicyPortfolioRow } from './aggregate'
 import { countBy, expiringWithin, inForce, num, policyTotalsByCurrency, worstLossRatios } from './aggregate'
 import { usePolicyPortfolio } from './api'
-import { ShareBar, TableCard } from './parts'
+import { TableCard } from './parts'
 import { useCountryName } from './useCountryName'
 
 type Scope = 'inForce' | 'all'
@@ -27,6 +28,77 @@ function lossTone(pct: number | null): 'default' | 'warn' | 'neg' {
   if (pct >= 100) return 'neg'
   if (pct >= 70) return 'warn'
   return 'default'
+}
+
+/** One colour rule for a loss ratio wherever it is printed. */
+const LOSS_TEXT = { default: '', warn: 'font-semibold text-warn-500', neg: 'font-semibold text-neg-500' } as const
+const LOSS_BAR = { default: 'bg-accent-500', warn: 'bg-warn-500', neg: 'bg-neg-500' } as const
+
+/** A quiet second line under a figure. */
+function Sub({ children, tone }: { children: ReactNode; tone?: 'warn' }) {
+  return (
+    <span className={`mt-0.5 block text-[11.5px] font-normal ${tone === 'warn' ? 'text-warn-500' : 'text-slate-500'}`}>
+      {children}
+    </span>
+  )
+}
+
+/** A thin share bar under a figure; nothing when the share is unknown. */
+function Meter({ share, tone }: { share: number | null; tone: 'pos' | 'accent' }) {
+  if (share === null) return null
+  return (
+    <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-slate-100" aria-hidden>
+      <div
+        className={`h-full rounded-full ${tone === 'pos' ? 'bg-pos-500' : 'bg-accent-500'}`}
+        style={{ width: `${Math.round(share * 100)}%` }}
+      />
+    </div>
+  )
+}
+
+/** The loss ratio with a bar on a 0–150 % scale and a tick at 100 %. */
+function LossRatio({ pct, locale }: { pct: number | null; locale: string }) {
+  if (pct === null) return <span className="text-slate-400">—</span>
+  const tone = lossTone(pct)
+  return (
+    <div>
+      <span className={`tabular-nums ${LOSS_TEXT[tone]}`}>{formatAmount(pct, locale, 1)}%</span>
+      <div className="relative mt-1 h-1.5 w-full rounded-full bg-slate-100" aria-hidden>
+        <div className={`h-full rounded-full ${LOSS_BAR[tone]}`} style={{ width: `${Math.min(pct / 150, 1) * 100}%` }} />
+        <div className="absolute inset-y-[-2px] w-px bg-slate-400" style={{ left: `${(100 / 150) * 100}%` }} />
+      </div>
+    </div>
+  )
+}
+
+/** Counts by one attribute, as a short list with share bars. */
+function Breakdown({
+  title,
+  items,
+  total,
+  label,
+}: {
+  title: string
+  items: { key: string; count: number }[]
+  total: number
+  label: (key: string) => string
+}) {
+  return (
+    <div>
+      <h3 className="mb-2 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">{title}</h3>
+      <ul className="space-y-2.5 text-[13px]">
+        {items.map((item) => (
+          <li key={item.key}>
+            <div className="flex items-baseline justify-between gap-3">
+              <span className="truncate text-slate-700">{label(item.key)}</span>
+              <span className="font-medium text-slate-900 tabular-nums">{item.count}</span>
+            </div>
+            <Meter share={total ? item.count / total : null} tone="accent" />
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
 }
 
 export function PolicyPortfolioPage() {
@@ -42,35 +114,14 @@ export function PolicyPortfolioPage() {
   const limitsCount = rows.reduce((a, r) => a + r.limits_count, 0)
   const limitsMissing = rows.reduce((a, r) => a + r.limits_missing_rates, 0)
   const renewals = expiringWithin(data ?? [], RENEWAL_WINDOW_DAYS)
+  const openClaims = totals.reduce((a, c) => a + c.openClaims, 0)
+  const claimsTotal = totals.reduce((a, c) => a + c.claims, 0)
+  const overduePolicies = rows.filter((r) => (num(r.premium_overdue) ?? 0) > 0).length
   const worst = worstLossRatios(rows, 10)
 
   const pct = (value: number | null) => (value === null ? '—' : `${formatAmount(value, locale, 1)}%`)
   const money = (value: number | string | null, ccy: string) =>
     num(value) === null ? '—' : `${formatAmount(num(value), locale)} ${ccy}`
-
-  const breakdown = (title: string, items: { key: string; count: number }[], label: (key: string) => string) => (
-    <TableCard
-      title={title}
-      empty={items.length ? null : t('portfolio.none')}
-      head={
-        <tr>
-          <th />
-          <th className="text-right">{t('portfolio.policies.count')}</th>
-          <th className="text-right">{t('portfolio.share')}</th>
-        </tr>
-      }
-    >
-      {items.map((item) => (
-        <tr key={item.key}>
-          <td>{label(item.key)}</td>
-          <td className="num text-right">{item.count}</td>
-          <td>
-            <ShareBar compact share={rows.length ? item.count / rows.length : null} />
-          </td>
-        </tr>
-      ))}
-    </TableCard>
-  )
 
   const policyLink = (r: PolicyPortfolioRow) => (
     <Link to={`/policies/${r.policy_id}`} className="font-medium whitespace-nowrap text-accent-600 hover:text-accent-500">
@@ -103,74 +154,119 @@ export function PolicyPortfolioPage() {
         </Card>
       ) : (
         <div className="grid gap-5">
-          {totals.map((c) => (
-            <section key={c.currency} aria-label={c.currency}>
-              <div className="mb-2 flex items-baseline gap-2">
-                <h2 className="font-display text-[15px] font-bold tracking-wide text-accent-600 uppercase">{c.currency}</h2>
-                <span className="text-[12px] text-slate-500">{t('portfolio.policies.inCurrency', { count: c.policies })}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-                <StatCard
-                  label={t('portfolio.policies.premiumBase')}
-                  value={formatCompact(c.premiumBase, locale)}
-                  meta={t('portfolio.policies.earned', { amount: formatCompact(c.earnedPremium, locale) })}
-                />
-                <StatCard
-                  label={t('portfolio.policies.premiumPaid')}
-                  value={formatCompact(c.premiumPaid, locale)}
-                  meta={
-                    c.premiumOverdue > 0
-                      ? t('portfolio.policies.overdue', { amount: formatCompact(c.premiumOverdue, locale) })
-                      : undefined
-                  }
-                  tone={c.premiumOverdue > 0 ? 'warn' : 'default'}
-                />
-                <StatCard label={t('portfolio.policies.maxLiability')} value={formatCompact(c.maxLiability, locale)} />
-                <StatCard
-                  label={t('portfolio.policies.claims')}
-                  value={formatAmount(c.claims, locale)}
-                  meta={t('portfolio.policies.openClaims', { count: c.openClaims })}
-                />
-                <StatCard label={t('portfolio.policies.incurred')} value={formatCompact(c.incurred, locale)} />
-                <StatCard
-                  label={t('portfolio.policies.lossRatio')}
-                  value={pct(c.lossRatioPct)}
-                  meta={t('portfolio.policies.lossRatioHint')}
-                  tone={lossTone(c.lossRatioPct)}
-                />
-              </div>
-            </section>
-          ))}
+          <KeyFigures
+            className=""
+            items={[
+              {
+                label: t(scope === 'inForce' ? 'portfolio.policies.policiesInForce' : 'portfolio.policies.policiesAll'),
+                value: formatAmount(rows.length, locale),
+                meta: t('portfolio.policies.currencies', { count: totals.length }),
+              },
+              {
+                label: t('portfolio.policies.openClaimsTotal'),
+                value: formatAmount(openClaims, locale),
+                meta: t('portfolio.policies.claimsTotal', { count: claimsTotal }),
+                tone: openClaims > 0 ? 'warn' : 'muted',
+              },
+              {
+                label: t('portfolio.policies.limitsInForce'),
+                value: formatAmount(limitsCount, locale),
+                meta:
+                  limitsMissing > 0
+                    ? t('portfolio.policies.limitsUzsMissing', {
+                        amount: formatCompact(limitsUzs, locale),
+                        count: limitsMissing,
+                      })
+                    : t('portfolio.policies.limitsUzs', { amount: formatCompact(limitsUzs, locale) }),
+              },
+              {
+                label: t('portfolio.policies.overduePolicies'),
+                value: formatAmount(overduePolicies, locale),
+                meta: t('portfolio.policies.overduePoliciesHint'),
+                tone: overduePolicies > 0 ? 'warn' : 'muted',
+              },
+            ]}
+          />
 
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <StatCard
-              label={t('portfolio.policies.limitsInForce')}
-              value={formatAmount(limitsCount, locale)}
-              meta={t('portfolio.policies.limitsUzs', { amount: formatCompact(limitsUzs, locale) })}
-            />
-            {limitsMissing > 0 && (
-              <StatCard
-                label={t('portfolio.missingRates')}
-                value={formatAmount(limitsMissing, locale)}
-                meta={t('portfolio.missingRatesHint')}
-                tone="warn"
+          {/* The book per currency: one row each, the metrics as columns, so two
+              currencies are compared by eye. Amounts are never added ACROSS
+              currencies (DESIGN.md). */}
+          <Panel title={t('portfolio.policies.byCurrency')} hint={t('portfolio.policies.byCurrencyHint')}>
+            <Table dense>
+              <thead>
+                <tr>
+                  <th>{t('policies.fields.currency')}</th>
+                  <th className="text-right">{t('portfolio.policies.premiumBase')}</th>
+                  <th>{t('portfolio.policies.premiumPaid')}</th>
+                  <th className="text-right">{t('portfolio.policies.maxLiability')}</th>
+                  <th className="text-right">{t('portfolio.policies.claimsShort')}</th>
+                  <th className="text-right">{t('portfolio.policies.incurred')}</th>
+                  <th>{t('portfolio.policies.lossRatio')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {totals.map((c) => {
+                  const paidShare = c.premiumBase > 0 ? Math.min(c.premiumPaid / c.premiumBase, 1) : null
+                  return (
+                    <tr key={c.currency} className="[&>td]:py-2.5 [&>td]:align-top">
+                      <td>
+                        <span className="font-display text-[15px] font-bold tracking-wide text-accent-600">{c.currency}</span>
+                        <Sub>{t('portfolio.policies.inCurrency', { count: c.policies })}</Sub>
+                      </td>
+                      <td className="num">
+                        {formatCompact(c.premiumBase, locale)}
+                        <Sub>{t('portfolio.policies.earned', { amount: formatCompact(c.earnedPremium, locale) })}</Sub>
+                      </td>
+                      <td className="min-w-44">
+                        <div className="flex items-baseline justify-between gap-3 tabular-nums">
+                          <span>{formatCompact(c.premiumPaid, locale)}</span>
+                          <span className="text-[12px] text-slate-500">{formatPercent(paidShare, locale, 0)}</span>
+                        </div>
+                        <Meter share={paidShare} tone="pos" />
+                        {c.premiumOverdue > 0 && (
+                          <Sub tone="warn">
+                            {t('portfolio.policies.overdue', { amount: formatCompact(c.premiumOverdue, locale) })}
+                          </Sub>
+                        )}
+                      </td>
+                      <td className="num">{formatCompact(c.maxLiability, locale)}</td>
+                      <td className="num">
+                        {formatAmount(c.claims, locale)}
+                        <Sub>{t('portfolio.policies.openClaims', { count: c.openClaims })}</Sub>
+                      </td>
+                      <td className="num">{c.incurred > 0 ? formatCompact(c.incurred, locale) : '—'}</td>
+                      <td className="min-w-36">
+                        <LossRatio pct={c.lossRatioPct} locale={locale} />
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </Table>
+          </Panel>
+
+          <Panel title={t('portfolio.policies.composition')} hint={t('portfolio.policies.compositionHint')}>
+            <div className="grid gap-x-10 gap-y-6 md:grid-cols-3">
+              <Breakdown
+                title={t('portfolio.policies.byProduct')}
+                items={countBy(rows, (r) => r.product_structure)}
+                total={rows.length}
+                label={(k) => t(`policies.structures.${k}`)}
               />
-            )}
-          </div>
-
-          <PanelGrid cols="lg:grid-cols-3">
-            {breakdown(
-              t('portfolio.policies.byProduct'),
-              countBy(rows, (r) => r.product_structure),
-              (k) => t(`policies.structures.${k}`),
-            )}
-            {breakdown(
-              t('portfolio.policies.byStatus'),
-              countBy(rows, (r) => r.status),
-              (k) => t(`policies.statuses.${k}`),
-            )}
-            {breakdown(t('portfolio.policies.byCountry'), countBy(rows, (r) => r.policyholder_country), countryName)}
-          </PanelGrid>
+              <Breakdown
+                title={t('portfolio.policies.byStatus')}
+                items={countBy(rows, (r) => r.status)}
+                total={rows.length}
+                label={(k) => t(`policies.statuses.${k}`)}
+              />
+              <Breakdown
+                title={t('portfolio.policies.byCountry')}
+                items={countBy(rows, (r) => r.policyholder_country)}
+                total={rows.length}
+                label={countryName}
+              />
+            </div>
+          </Panel>
 
           <TableCard
             title={t('portfolio.policies.renewals', { days: RENEWAL_WINDOW_DAYS })}
@@ -191,10 +287,10 @@ export function PolicyPortfolioPage() {
               <tr key={r.policy_id}>
                 <td>{policyLink(r)}</td>
                 <td className="text-slate-600">{r.policyholder_name}</td>
-                <td className="text-slate-500">{r.expiry_date}</td>
+                <td className="text-slate-500">{formatDate(r.expiry_date, locale)}</td>
                 <td className="num text-right">{formatDays(r.days_to_expiry, locale)}</td>
                 <td className="num text-right">{money(r.premium_base, r.currency_code)}</td>
-                <td className="num text-right">{pct(num(r.loss_ratio_pct))}</td>
+                <td className={`num ${LOSS_TEXT[lossTone(num(r.loss_ratio_pct))]}`}>{pct(num(r.loss_ratio_pct))}</td>
               </tr>
             ))}
           </TableCard>
@@ -224,9 +320,7 @@ export function PolicyPortfolioPage() {
                 </td>
                 <td className="num text-right">{money(r.premium_base, r.currency_code)}</td>
                 <td className="num text-right">{money(r.incurred, r.currency_code)}</td>
-                <td className={`num text-right font-semibold ${lossTone(num(r.loss_ratio_pct)) === 'neg' ? 'text-neg-500' : ''}`}>
-                  {pct(num(r.loss_ratio_pct))}
-                </td>
+                <td className={`num ${LOSS_TEXT[lossTone(num(r.loss_ratio_pct))]}`}>{pct(num(r.loss_ratio_pct))}</td>
               </tr>
             ))}
           </TableCard>

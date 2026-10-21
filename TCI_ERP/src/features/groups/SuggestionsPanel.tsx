@@ -12,7 +12,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Field, Input, Select } from '../../components/ui'
+import { Badge, Button, Card, Field, Input, Select, SectionTitle } from '../../components/ui'
 import { useAcceptSuggestion, useRejectSuggestion } from './api'
 import { groupErrorKey } from './errors'
 import { sortedSignals } from './group'
@@ -36,7 +36,7 @@ export function SuggestionsPanel({
   return (
     <Card className="flex flex-col gap-3 p-5">
       <div>
-        <h3 className="text-sm font-semibold text-slate-900">{t('groups.suggestions.title')}</h3>
+        <SectionTitle>{t('groups.suggestions.title')}</SectionTitle>
         <p className="mt-1 text-[13px] text-slate-500">{t('groups.suggestions.hint')}</p>
       </div>
 

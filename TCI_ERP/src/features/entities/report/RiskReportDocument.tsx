@@ -695,7 +695,9 @@ function KeyFigureCard({
           : `${formatRatio(v, locale)}x`
 
   const change = figure.change
-  const sign = (v: number) => (v >= 0 ? '+' : '−')
+  // No sign on a change that shows as zero (+0,00x / −0,00 pp is noise).
+  const sign = (v: number, places: number) =>
+    Math.round(Math.abs(v) * 10 ** places) === 0 ? '' : v > 0 ? '+' : '−'
   const changeText =
     change === null
       ? figure.previous !== null
@@ -704,8 +706,8 @@ function KeyFigureCard({
       : change.kind === 'pct'
         ? formatSignedPercent(change.value, locale)
         : change.kind === 'pp'
-          ? `${sign(change.value)}${formatAmount(Math.abs(change.value * 100), locale, 2)} ${t('report.pp')}`
-          : `${sign(change.value)}${formatRatio(Math.abs(change.value), locale)}x`
+          ? `${sign(change.value, 4)}${formatAmount(Math.abs(change.value * 100), locale, 2)} ${t('report.pp')}`
+          : `${sign(change.value, 2)}${formatRatio(Math.abs(change.value), locale)}x`
   const toneClass = figure.tone === 'pos' ? 'is-pos' : figure.tone === 'neg' ? 'is-neg' : ''
 
   return (

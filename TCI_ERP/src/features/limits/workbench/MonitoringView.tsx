@@ -105,10 +105,7 @@ export function MonitoringView() {
                     <BandBadge band={r.decision_band} />
                   </td>
                   <td>
-                    <span className="flex items-center gap-1.5">
-                      <BandBadge band={r.current_band} />
-                      {r.current_grade && <span className="text-[12px] text-slate-500">{r.current_grade}</span>}
-                    </span>
+                    <BandBadge band={r.current_band} grade={r.current_grade} />
                   </td>
                   <td className="num text-right">
                     <Uzs value={r.amount_uzs} />

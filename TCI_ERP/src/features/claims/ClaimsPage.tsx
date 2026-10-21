@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, PageHeader, Segmented, Spinner, Table } from '../../components/ui'
+import { Badge, EmptyState, PageHeader, Segmented, Spinner, Table } from '../../components/ui'
 import { EM_DASH, formatAmount, formatDays } from '../../lib/format'
 import { useClaims } from './api'
 import { isOpen } from './machine'
@@ -81,26 +81,24 @@ export function ClaimsPage() {
           hint={t('claims.empty.hint')}
         />
       ) : (
-        <Card>
-          <Table>
-            <thead>
-              <tr>
-                <th>{t('claims.fields.number')}</th>
-                <th>{t('claims.fields.buyer')}</th>
-                <th>{t('claims.fields.policyholder')}</th>
-                <th className="num">{t('claims.fields.claimed')}</th>
-                <th className="num">{t('claims.fields.indemnity')}</th>
-                <th className="num">{t('claims.fields.age')}</th>
-                <th>{t('claims.fields.status')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((c) => (
-                <ClaimRow key={c.id} claim={c} locale={locale} />
-              ))}
-            </tbody>
-          </Table>
-        </Card>
+        <Table>
+          <thead>
+            <tr>
+              <th>{t('claims.fields.number')}</th>
+              <th>{t('claims.fields.buyer')}</th>
+              <th>{t('claims.fields.policyholder')}</th>
+              <th className="num">{t('claims.fields.claimed')}</th>
+              <th className="num">{t('claims.fields.indemnity')}</th>
+              <th className="num">{t('claims.fields.age')}</th>
+              <th>{t('claims.fields.status')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((c) => (
+              <ClaimRow key={c.id} claim={c} locale={locale} />
+            ))}
+          </tbody>
+        </Table>
       )}
     </div>
   )
@@ -111,7 +109,7 @@ function ClaimRow({ claim, locale }: { claim: Claim; locale: string }) {
   return (
     <tr>
       <td>
-        <Link to={`/claims/${claim.id}`} className="text-accent-600 hover:underline">
+        <Link to={`/claims/${claim.id}`} className="font-medium whitespace-nowrap text-accent-600 hover:underline">
           {claim.claim_number}
         </Link>
         {claim.noa_reported_late && (

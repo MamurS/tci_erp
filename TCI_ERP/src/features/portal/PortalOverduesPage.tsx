@@ -76,7 +76,7 @@ export function PortalOverduesPage() {
       )}
 
       {activePolicy && (
-        <Card>
+        <Card className="p-5">
           <SectionTitle>{t('portal.overdues.fileTitle')}</SectionTitle>
           <p className="mt-1 text-xs text-slate-500">{t('portal.overdues.fileHint')}</p>
 
@@ -147,58 +147,56 @@ export function PortalOverduesPage() {
       ) : !overdues?.length ? (
         <EmptyState title={t('portal.overdues.empty')} hint={t('portal.overdues.emptyHint')} />
       ) : (
-        <Card>
-          <Table dense>
-            <thead>
-              <tr>
-                <th>{t('limits.fields.buyer')}</th>
-                <th className="text-right">{t('overdues.fields.overdueAmount')}</th>
-                <th className="text-right">{t('overdues.fields.daysPastDue')}</th>
-                <th>{t('overdues.fields.reported')}</th>
-                <th>{t('portal.overdues.cover')}</th>
-                <th>{t('overdues.fields.status')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {overdues.map((n) => (
-                <tr key={n.id}>
-                  <td className="font-medium">{n.buyer_name}</td>
-                  <td>
-                    <span className="num block">
-                      {formatAmount(Number(n.overdue_amount), locale)} {n.currency_code}
+        <Table dense>
+          <thead>
+            <tr>
+              <th>{t('limits.fields.buyer')}</th>
+              <th className="text-right">{t('overdues.fields.overdueAmount')}</th>
+              <th className="text-right">{t('overdues.fields.daysPastDue')}</th>
+              <th>{t('overdues.fields.reported')}</th>
+              <th>{t('portal.overdues.cover')}</th>
+              <th>{t('overdues.fields.status')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {overdues.map((n) => (
+              <tr key={n.id}>
+                <td className="font-medium">{n.buyer_name}</td>
+                <td>
+                  <span className="num block">
+                    {formatAmount(Number(n.overdue_amount), locale)} {n.currency_code}
+                  </span>
+                </td>
+                <td>
+                  <span className="num block">{n.days_past_due}</span>
+                </td>
+                <td className="text-[13px]">
+                  {n.reported_late ? (
+                    <Badge tone="negStrong">{t('overdues.lateBy', { days: n.days_late })}</Badge>
+                  ) : (
+                    <span className="text-slate-500">
+                      {formatMoment(n.reported_at, locale)}
                     </span>
-                  </td>
-                  <td>
-                    <span className="num block">{n.days_past_due}</span>
-                  </td>
-                  <td className="text-[13px]">
-                    {n.reported_late ? (
-                      <Badge tone="negStrong">{t('overdues.lateBy', { days: n.days_late })}</Badge>
-                    ) : (
-                      <span className="text-slate-500">
-                        {formatMoment(n.reported_at, locale)}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    {n.limit_suspended ? (
-                      <Badge tone="warn">{t('portal.overdues.suspended')}</Badge>
-                    ) : (
-                      <span className="text-[13px] text-slate-500">
-                        {t('portal.overdues.noLimitAffected')}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    <Badge tone={n.status === 'open' ? 'warn' : 'neutral'}>
-                      {t(`overdues.statuses.${n.status}`)}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </Card>
+                  )}
+                </td>
+                <td>
+                  {n.limit_suspended ? (
+                    <Badge tone="warn">{t('portal.overdues.suspended')}</Badge>
+                  ) : (
+                    <span className="text-[13px] text-slate-500">
+                      {t('portal.overdues.noLimitAffected')}
+                    </span>
+                  )}
+                </td>
+                <td>
+                  <Badge tone={n.status === 'open' ? 'warn' : 'neutral'}>
+                    {t(`overdues.statuses.${n.status}`)}
+                  </Badge>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       )}
     </div>
   )

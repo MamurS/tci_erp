@@ -42,62 +42,60 @@ export function GroupsView() {
           <EmptyState title={t('limits.workbench.groups.empty')} hint={t('limits.workbench.groups.emptyHint')} />
         </Card>
       ) : (
-        <Card className="overflow-x-auto p-0">
-          <Table dense>
-            <thead>
-              <tr>
-                <th>{t('portfolio.credit.group')}</th>
-                <th>{t('portfolio.credit.country')}</th>
-                <th className="text-right">{t('limits.workbench.groups.members')}</th>
-                <th className="text-right">{t('portfolio.credit.limits')}</th>
-                <th className="text-right">{t('portfolio.credit.exposure')}</th>
-                <th className="text-right">{t('limits.workbench.groups.cap')}</th>
-                <th className="text-right">{t('limits.workbench.groups.used')}</th>
-                <th>{t('limits.workbench.groups.state')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((g) => {
-                const state = groupState(g)
-                return (
-                  <tr key={g.ultimate_parent_id}>
-                    <td>
-                      <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} tab="group" />
-                    </td>
-                    <td className="text-slate-600">{countryName(g.ultimate_parent_country)}</td>
-                    <td className="num text-right">
-                      {formatAmount(g.members_with_limits, locale)} / {formatAmount(g.members_count, locale)}
-                    </td>
-                    <td className="num text-right">{formatAmount(g.limits_count, locale)}</td>
-                    <td className="num text-right">
-                      <Uzs value={g.exposure_uzs} />
-                      {g.missing_rates > 0 && (
-                        <span className="ml-1 text-warn-500" title={t('portfolio.missingRatesHint')}>
-                          *
-                        </span>
-                      )}
-                    </td>
-                    <td className="num text-right whitespace-nowrap">
-                      {g.limit_amount === null ? (
-                        '—'
-                      ) : (
-                        <>
-                          {formatAmount(num(g.limit_amount), locale)} {g.limit_currency}
-                        </>
-                      )}
-                    </td>
-                    <td className="num text-right">
-                      {num(g.utilisation_pct) === null ? '—' : formatPercent((num(g.utilisation_pct) ?? 0) / 100, locale)}
-                    </td>
-                    <td>
-                      <Badge tone={STATE_TONE[state]}>{t(`limits.workbench.groups.states.${state}`)}</Badge>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </Table>
-        </Card>
+        <Table dense>
+          <thead>
+            <tr>
+              <th>{t('portfolio.credit.group')}</th>
+              <th>{t('portfolio.credit.country')}</th>
+              <th className="text-right">{t('limits.workbench.groups.members')}</th>
+              <th className="text-right">{t('portfolio.credit.limits')}</th>
+              <th className="text-right">{t('portfolio.credit.exposure')}</th>
+              <th className="text-right">{t('limits.workbench.groups.cap')}</th>
+              <th className="text-right">{t('limits.workbench.groups.used')}</th>
+              <th>{t('limits.workbench.groups.state')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((g) => {
+              const state = groupState(g)
+              return (
+                <tr key={g.ultimate_parent_id}>
+                  <td>
+                    <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} tab="group" />
+                  </td>
+                  <td className="text-slate-600">{countryName(g.ultimate_parent_country)}</td>
+                  <td className="num text-right">
+                    {formatAmount(g.members_with_limits, locale)} / {formatAmount(g.members_count, locale)}
+                  </td>
+                  <td className="num text-right">{formatAmount(g.limits_count, locale)}</td>
+                  <td className="num text-right">
+                    <Uzs value={g.exposure_uzs} />
+                    {g.missing_rates > 0 && (
+                      <span className="ml-1 text-warn-500" title={t('portfolio.missingRatesHint')}>
+                        *
+                      </span>
+                    )}
+                  </td>
+                  <td className="num text-right whitespace-nowrap">
+                    {g.limit_amount === null ? (
+                      '—'
+                    ) : (
+                      <>
+                        {formatAmount(num(g.limit_amount), locale)} {g.limit_currency}
+                      </>
+                    )}
+                  </td>
+                  <td className="num text-right">
+                    {num(g.utilisation_pct) === null ? '—' : formatPercent((num(g.utilisation_pct) ?? 0) / 100, locale)}
+                  </td>
+                  <td>
+                    <Badge tone={STATE_TONE[state]}>{t(`limits.workbench.groups.states.${state}`)}</Badge>
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </Table>
       )}
     </div>
   )

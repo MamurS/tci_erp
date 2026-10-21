@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, Card, EmptyState, Input, Segmented, Select, Table, SectionTitle } from '../../components/ui'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { GRADE_BANDS } from '../../lib/roles'
 import type { AuthorityScope, GradeBand } from '../../lib/roles'
 import { useCurrencies } from '../entities/api'
@@ -60,31 +60,29 @@ export function AuthoritiesTab({ user }: { user: AdminUser | null }) {
         </p>
       )}
 
-      <Card className="p-5">
-        <Table dense>
-          <thead>
-            <tr>
-              <th>{t('admin.fields.band')}</th>
-              <th className="text-right">{t('admin.fields.maxAmount')}</th>
-              <th>{t('admin.fields.currency')}</th>
-              <th>{t('admin.fields.validFrom')}</th>
-              <th>{t('admin.fields.validTo')}</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {GRADE_BANDS.map((band) => (
-              <BandRow
-                key={band}
-                band={band}
-                scope={scope}
-                userId={user.user_id}
-                grant={current.find((g) => g.grade_band === band) ?? null}
-              />
-            ))}
-          </tbody>
-        </Table>
-      </Card>
+      <Table dense>
+        <thead>
+          <tr>
+            <th>{t('admin.fields.band')}</th>
+            <th className="text-right">{t('admin.fields.maxAmount')}</th>
+            <th>{t('admin.fields.currency')}</th>
+            <th>{t('admin.fields.validFrom')}</th>
+            <th>{t('admin.fields.validTo')}</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {GRADE_BANDS.map((band) => (
+            <BandRow
+              key={band}
+              band={band}
+              scope={scope}
+              userId={user.user_id}
+              grant={current.find((g) => g.grade_band === band) ?? null}
+            />
+          ))}
+        </tbody>
+      </Table>
 
       {history.length > 0 && <HistoryList grants={history} />}
     </div>
@@ -253,7 +251,7 @@ function HistoryList({ grants }: { grants: AuthorityGrant[] }) {
                 {formatAmount(Number(g.max_amount), locale)} {g.currency_code}
               </span>
               <span className="text-slate-400">
-                {g.valid_from} — {g.valid_to ?? t('admin.openEnded')}
+                {formatDate(g.valid_from, locale)} — {g.valid_to ? formatDate(g.valid_to, locale) : t('admin.openEnded')}
               </span>
             </li>
           ))}

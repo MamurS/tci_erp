@@ -243,6 +243,11 @@ function sentenceFor(
   const from = prior ? def.value(prior) : null
   const shownTo = def.value(display[n - 1] ?? series[n - 1])
   const shownFrom = prior ? def.value(display[n - 2] ?? prior) : null
+  // A percentage or a ratio that reads the same at its display precision
+  // (56.0% → 56.0%, 1.25x → 1.25x) did not move, whatever the raw digits say.
+  const step = def.format === 'percent' ? 0.0005 : def.format === 'ratio' ? 0.005 : 0
+  if (from !== null && step > 0 && Math.abs(to - from) < step)
+    return { metric: def.metric, subject, format: def.format, from: shownFrom, to: shownTo ?? to, commentary: { kind: 'flat' }, tone: null }
   return {
     metric: def.metric,
     subject,

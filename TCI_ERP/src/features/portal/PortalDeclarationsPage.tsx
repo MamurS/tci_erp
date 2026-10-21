@@ -11,7 +11,7 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, Card, EmptyState, Field, Input, PageHeader, Select, Spinner, Table, SectionTitle } from '../../components/ui'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import { EM_DASH, formatAmount, formatPeriod } from '../../lib/format'
 import { classifyLine } from '../declarations/coverage'
 import { lastClosedPeriodStart } from '../declarations/period'
 import type { DeclarationFrequency } from '../declarations/types'
@@ -97,60 +97,58 @@ export function PortalDeclarationsPage() {
           hint={t('portal.declarations.emptyHint')}
         />
       ) : (
-        <Card>
-          <Table dense>
-            <thead>
-              <tr>
-                <th>{t('declarations.fields.period')}</th>
-                <th className="text-right">{t('declarations.fields.totalTurnover')}</th>
-                <th className="text-right">{t('declarations.fields.uncoveredExcess')}</th>
-                <th className="text-right">{t('portal.declarations.premium')}</th>
-                <th>{t('declarations.fields.status')}</th>
-                <th />
+        <Table dense>
+          <thead>
+            <tr>
+              <th>{t('declarations.fields.period')}</th>
+              <th className="text-right">{t('declarations.fields.totalTurnover')}</th>
+              <th className="text-right">{t('declarations.fields.uncoveredExcess')}</th>
+              <th className="text-right">{t('portal.declarations.premium')}</th>
+              <th>{t('declarations.fields.status')}</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {declarations.map((d) => (
+              <tr key={d.id} className={d.superseded ? 'text-slate-400' : undefined}>
+                <td className="font-medium">
+                  {formatPeriod(d.period_start, d.period_end, locale)}
+                </td>
+                <td>
+                  <span className="num block">
+                    {formatAmount(Number(d.total_insurable_turnover), locale)}
+                  </span>
+                </td>
+                <td>
+                  <span
+                    className={`num block ${Number(d.uncovered_excess ?? 0) > 0 ? 'font-medium text-warn-500' : ''}`}
+                  >
+                    {d.uncovered_excess === null
+                      ? EM_DASH
+                      : formatAmount(Number(d.uncovered_excess), locale)}
+                  </span>
+                </td>
+                <td>
+                  <span className="num block">
+                    {d.premium_amount === null
+                      ? EM_DASH
+                      : formatAmount(Number(d.premium_amount), locale)}
+                  </span>
+                </td>
+                <td>
+                  <Badge tone={STATUS_TONE[d.status]}>
+                    {t(`declarations.statuses.${d.status}`)}
+                  </Badge>
+                </td>
+                <td className="text-right">
+                  <Button size="sm" variant="ghost" onClick={() => setOpenId(d.id)}>
+                    {t('common.open')}
+                  </Button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {declarations.map((d) => (
-                <tr key={d.id} className={d.superseded ? 'text-slate-400' : undefined}>
-                  <td className="font-medium">
-                    {d.period_start} {EM_DASH} {d.period_end}
-                  </td>
-                  <td>
-                    <span className="num block">
-                      {formatAmount(Number(d.total_insurable_turnover), locale)}
-                    </span>
-                  </td>
-                  <td>
-                    <span
-                      className={`num block ${Number(d.uncovered_excess ?? 0) > 0 ? 'font-medium text-warn-500' : ''}`}
-                    >
-                      {d.uncovered_excess === null
-                        ? EM_DASH
-                        : formatAmount(Number(d.uncovered_excess), locale)}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="num block">
-                      {d.premium_amount === null
-                        ? EM_DASH
-                        : formatAmount(Number(d.premium_amount), locale)}
-                    </span>
-                  </td>
-                  <td>
-                    <Badge tone={STATUS_TONE[d.status]}>
-                      {t(`declarations.statuses.${d.status}`)}
-                    </Badge>
-                  </td>
-                  <td className="text-right">
-                    <Button size="sm" variant="ghost" onClick={() => setOpenId(d.id)}>
-                      {t('common.open')}
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </Card>
+            ))}
+          </tbody>
+        </Table>
       )}
 
       {openId && (
@@ -204,7 +202,7 @@ function DeclarationEditor({
   }, [buyerId, turnover, buyers, discretionaryLimit])
 
   return (
-    <Card>
+    <Card className="p-5">
       <SectionTitle className="mb-3">{t('portal.declarations.lines')}</SectionTitle>
 
       {declaration?.status === 'disputed' && declaration.dispute_note && (

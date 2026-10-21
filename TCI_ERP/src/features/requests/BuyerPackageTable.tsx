@@ -48,7 +48,8 @@ export function BuyerPackageTable({
 
   return (
     <Card className="p-5">
-      <SectionTitle className="mb-3">{t('requests.buyerPackage')}</SectionTitle>
+      <SectionTitle>{t('requests.buyerPackage')}</SectionTitle>
+      <p className="mt-1 mb-3 text-[12px] leading-relaxed text-slate-500">{t('requests.buyerPackageHint')}</p>
 
       {buyers.length === 0 ? (
         <EmptyState title={t('requests.noBuyersYet')} hint={t('requests.noBuyersHint')} />

@@ -64,7 +64,7 @@ export function PortalClaimsPage() {
       )}
 
       {ready.length > 0 && (
-        <Card>
+        <Card className="p-5">
           <SectionTitle>{t('portal.claims.claimableTitle')}</SectionTitle>
           <p className="mt-1 text-[13px] text-slate-600">{t('portal.claims.claimableHint')}</p>
           <Table dense>
@@ -108,73 +108,71 @@ export function PortalClaimsPage() {
       {(claims ?? []).length === 0 ? (
         <EmptyState title={t('portal.claims.emptyTitle')} hint={t('portal.claims.emptyHint')} />
       ) : (
-        <Card>
-          <Table>
-            <thead>
-              <tr>
-                <th>{t('portal.claims.fields.number')}</th>
-                <th>{t('portal.claims.fields.buyer')}</th>
-                <th className="num">{t('portal.claims.fields.claimed')}</th>
-                <th className="num">{t('portal.claims.fields.indemnity')}</th>
-                <th>{t('portal.claims.fields.status')}</th>
-                <th />
-              </tr>
-            </thead>
-            <tbody>
-              {(claims ?? []).map((c) => (
-                <tr key={c.id}>
-                  <td>
-                    <button
-                      type="button"
-                      className="text-accent-600 hover:underline"
-                      onClick={() => setOpen(open === c.id ? null : c.id)}
-                    >
-                      {c.claim_number}
-                    </button>
-                  </td>
-                  <td>{c.buyer_name}</td>
-                  <td className="num">
-                    {formatAmount(Number(c.claimed_amount), locale)} {c.currency_code}
-                  </td>
-                  <td className="num">
-                    {c.approved_indemnity === null
-                      ? EM_DASH
-                      : `${formatAmount(Number(c.approved_indemnity), locale)} ${c.currency_code}`}
-                  </td>
-                  <td>
-                    <Badge tone={TONE[c.status]}>{t(`claims.statuses.${c.status}`)}</Badge>
-                  </td>
-                  <td className="space-x-2 text-right">
-                    {c.status === 'draft' && (
-                      <>
-                        <Button
-                          size="sm"
-                          onClick={() => submit.mutateAsync(c.id).catch(fail)}
-                        >
-                          {t('portal.claims.actions.submit')}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() =>
-                            withdraw.mutateAsync({ claim_id: c.id }).catch(fail)
-                          }
-                        >
-                          {t('portal.claims.actions.withdraw')}
-                        </Button>
-                      </>
-                    )}
-                    {c.status === 'info_requested' && (
-                      <Button size="sm" onClick={() => setResponding(c)}>
-                        {t('portal.claims.actions.respond')}
+        <Table>
+          <thead>
+            <tr>
+              <th>{t('portal.claims.fields.number')}</th>
+              <th>{t('portal.claims.fields.buyer')}</th>
+              <th className="num">{t('portal.claims.fields.claimed')}</th>
+              <th className="num">{t('portal.claims.fields.indemnity')}</th>
+              <th>{t('portal.claims.fields.status')}</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {(claims ?? []).map((c) => (
+              <tr key={c.id}>
+                <td>
+                  <button
+                    type="button"
+                    className="text-accent-600 hover:underline"
+                    onClick={() => setOpen(open === c.id ? null : c.id)}
+                  >
+                    {c.claim_number}
+                  </button>
+                </td>
+                <td>{c.buyer_name}</td>
+                <td className="num">
+                  {formatAmount(Number(c.claimed_amount), locale)} {c.currency_code}
+                </td>
+                <td className="num">
+                  {c.approved_indemnity === null
+                    ? EM_DASH
+                    : `${formatAmount(Number(c.approved_indemnity), locale)} ${c.currency_code}`}
+                </td>
+                <td>
+                  <Badge tone={TONE[c.status]}>{t(`claims.statuses.${c.status}`)}</Badge>
+                </td>
+                <td className="space-x-2 text-right">
+                  {c.status === 'draft' && (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => submit.mutateAsync(c.id).catch(fail)}
+                      >
+                        {t('portal.claims.actions.submit')}
                       </Button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </Card>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() =>
+                          withdraw.mutateAsync({ claim_id: c.id }).catch(fail)
+                        }
+                      >
+                        {t('portal.claims.actions.withdraw')}
+                      </Button>
+                    </>
+                  )}
+                  {c.status === 'info_requested' && (
+                    <Button size="sm" onClick={() => setResponding(c)}>
+                      {t('portal.claims.actions.respond')}
+                    </Button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       )}
 
       {open && <PortalClaimDetail claim={(claims ?? []).find((c) => c.id === open)!} />}

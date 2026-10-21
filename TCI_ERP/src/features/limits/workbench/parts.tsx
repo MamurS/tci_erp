@@ -9,9 +9,16 @@ import { num } from '../../portfolio/aggregate'
 
 const BAND_TONE = { A: 'pos', B: 'accent', C: 'warn', D: 'neg', unrated: 'neutral' } as const
 
-export function BandBadge({ band }: { band: string }) {
+/** The rating as ONE badge: the grade ("C2") coloured by its band, or the
+ * band's name when there is no grade. Never the band and the grade side by
+ * side ("C C2"), which says the same thing twice. */
+export function BandBadge({ band, grade }: { band: string; grade?: string | null }) {
   const { t } = useTranslation()
-  return <Badge tone={BAND_TONE[band as keyof typeof BAND_TONE] ?? 'neutral'}>{t(`limits.bands.${band}`)}</Badge>
+  return (
+    <span title={grade ? t(`limits.bands.${band}`) : undefined}>
+      <Badge tone={BAND_TONE[band as keyof typeof BAND_TONE] ?? 'neutral'}>{grade || t(`limits.bands.${band}`)}</Badge>
+    </span>
+  )
 }
 
 /** An amount in UZS, compact; "—" when there is no rate (never 0). */

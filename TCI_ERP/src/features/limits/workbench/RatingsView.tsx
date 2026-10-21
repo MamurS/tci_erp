@@ -72,49 +72,44 @@ export function RatingsView() {
           <EmptyState title={t('limits.workbench.ratings.empty')} hint={t('limits.workbench.ratings.emptyHint')} />
         </Card>
       ) : (
-        <Card className="overflow-x-auto p-0">
-          <Table dense>
-            <thead>
-              <tr>
-                <th>{t('limits.fields.buyer')}</th>
-                <th>{t('portfolio.credit.country')}</th>
-                <th>{t('limits.workbench.ratings.reason')}</th>
-                <th>{t('portfolio.credit.rating')}</th>
-                <th>{t('portfolio.credit.ratedAt')}</th>
-                <th>{t('limits.workbench.ratings.latestStatement')}</th>
-                <th className="text-right">{t('limits.workbench.ratings.openRequests')}</th>
-                <th className="text-right">{t('limits.workbench.ratings.limitsInForce')}</th>
+        <Table dense>
+          <thead>
+            <tr>
+              <th>{t('limits.fields.buyer')}</th>
+              <th>{t('portfolio.credit.country')}</th>
+              <th>{t('limits.workbench.ratings.reason')}</th>
+              <th>{t('portfolio.credit.rating')}</th>
+              <th>{t('portfolio.credit.ratedAt')}</th>
+              <th>{t('limits.workbench.ratings.latestStatement')}</th>
+              <th className="text-right">{t('limits.workbench.ratings.openRequests')}</th>
+              <th className="text-right">{t('limits.workbench.ratings.limitsInForce')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.entity_id}>
+                <td>
+                  <EntityLink id={r.entity_id} name={r.buyer_name} tab={REASON_TAB[r.reason]} />
+                </td>
+                <td className="text-slate-600">{countryName(r.buyer_country)}</td>
+                <td>
+                  <Badge tone={REASON_TONE[r.reason]}>{t(`limits.workbench.ratings.reasons.${r.reason}`)}</Badge>
+                </td>
+                <td>
+                  {r.grade ? (
+                    <BandBadge band={r.band} grade={r.grade} />
+                  ) : (
+                    <span className="text-slate-400">{t('portfolio.credit.notRated')}</span>
+                  )}
+                </td>
+                <td className="text-slate-500">{r.rated_at ? formatMoment(r.rated_at, locale) : '—'}</td>
+                <td className="text-slate-600">{r.latest_fiscal_year ?? '—'}</td>
+                <td className="num text-right">{formatAmount(r.open_requests, locale)}</td>
+                <td className="num text-right">{formatAmount(r.limits_in_force, locale)}</td>
               </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={r.entity_id}>
-                  <td>
-                    <EntityLink id={r.entity_id} name={r.buyer_name} tab={REASON_TAB[r.reason]} />
-                  </td>
-                  <td className="text-slate-600">{countryName(r.buyer_country)}</td>
-                  <td>
-                    <Badge tone={REASON_TONE[r.reason]}>{t(`limits.workbench.ratings.reasons.${r.reason}`)}</Badge>
-                  </td>
-                  <td>
-                    {r.grade ? (
-                      <span className="flex items-center gap-1.5">
-                        <BandBadge band={r.band} />
-                        <span className="text-[12px] text-slate-500">{r.grade}</span>
-                      </span>
-                    ) : (
-                      <span className="text-slate-400">{t('portfolio.credit.notRated')}</span>
-                    )}
-                  </td>
-                  <td className="text-slate-500">{r.rated_at ? formatMoment(r.rated_at, locale) : '—'}</td>
-                  <td className="text-slate-600">{r.latest_fiscal_year ?? '—'}</td>
-                  <td className="num text-right">{formatAmount(r.open_requests, locale)}</td>
-                  <td className="num text-right">{formatAmount(r.limits_in_force, locale)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </Card>
+            ))}
+          </tbody>
+        </Table>
       )}
     </div>
   )

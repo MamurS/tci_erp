@@ -12,7 +12,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Card, Spinner } from '../../components/ui'
+import { Button, Card, Spinner, SectionTitle } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { hasRole } from '../../lib/roles'
 import { useEntities, useLatestGrades } from '../entities/api'
@@ -137,7 +137,7 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
       <Card className="flex flex-col gap-3 p-5">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h3 className="text-sm font-semibold text-slate-900">{t('groups.tree.title')}</h3>
+            <SectionTitle>{t('groups.tree.title')}</SectionTitle>
             <p className="mt-1 text-[13px] text-slate-500">
               {isAlone
                 ? t('groups.tree.alone')
@@ -180,7 +180,7 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
       />
 
       <Card className="flex flex-col gap-3 p-5">
-        <h3 className="text-sm font-semibold text-slate-900">{t('groups.members.title')}</h3>
+        <SectionTitle>{t('groups.members.title')}</SectionTitle>
         <GroupMembersTable
           members={members}
           focusId={entityId}

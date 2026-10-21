@@ -11,7 +11,7 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, PanelGrid, ViewBar, Spinner, StatCard } from '../../components/ui'
+import { Badge, Card, EmptyState, KeyFigures, PanelGrid, ViewBar, Spinner } from '../../components/ui'
 import { formatAmount, formatCompact, formatDays, formatMoment } from '../../lib/format'
 import {
   creditTotals,
@@ -26,6 +26,7 @@ import {
 import { useCreditPortfolio, useTopGroups } from './api'
 import { ShareBar, TableCard } from './parts'
 import { useCountryName } from './useCountryName'
+import { BandBadge } from '../limits/workbench/parts'
 
 const REVIEW_WINDOW_DAYS = 30
 const STALE_RATING_DAYS = 365
@@ -70,18 +71,22 @@ export function CreditPortfolioPage() {
         </Card>
       ) : (
         <div className="grid gap-5">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-            <StatCard label={t('portfolio.credit.exposure')} value={uzs(totals.exposureUzs)} />
-            <StatCard label={t('portfolio.credit.limits')} value={formatAmount(totals.limits, locale)} />
-            <StatCard label={t('portfolio.credit.buyers')} value={formatAmount(totals.buyers, locale)} />
-            <StatCard label={t('portfolio.credit.policies')} value={formatAmount(totals.policies, locale)} />
-            <StatCard
-              label={t('portfolio.missingRates')}
-              value={formatAmount(totals.missingRates, locale)}
-              meta={t('portfolio.missingRatesHint')}
-              tone={totals.missingRates > 0 ? 'warn' : 'default'}
-            />
-          </div>
+          <KeyFigures
+            className=""
+            items={[
+              {
+                label: t('portfolio.credit.exposure'),
+                value: uzs(totals.exposureUzs),
+                meta:
+                  totals.missingRates > 0
+                    ? t('portfolio.credit.exposureMissing', { count: totals.missingRates })
+                    : undefined,
+              },
+              { label: t('portfolio.credit.limits'), value: formatAmount(totals.limits, locale) },
+              { label: t('portfolio.credit.buyers'), value: formatAmount(totals.buyers, locale) },
+              { label: t('portfolio.credit.policies'), value: formatAmount(totals.policies, locale) },
+            ]}
+          />
 
           <PanelGrid>
             <TableCard
@@ -154,10 +159,7 @@ export function CreditPortfolioPage() {
                 <td>{buyerLink(b.buyerId, b.buyerName)}</td>
                 <td className="text-slate-600">{countryName(b.country)}</td>
                 <td>
-                  <span className="flex items-center gap-1.5">
-                    {band(b.band)}
-                    {b.grade && <span className="text-[12px] text-slate-500">{b.grade}</span>}
-                  </span>
+                  <BandBadge band={b.band} grade={b.grade} />
                 </td>
                 <td className="num text-right">{b.limits}</td>
                 <td className="num text-right">{b.policies}</td>

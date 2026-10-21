@@ -5,7 +5,7 @@
  * here hints at the internal workflow behind it.
  */
 
-import { Suspense } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { PageLoading } from '../../components/layout/PageLoading'
 import { SignInNotice } from '../../auth/SignInNotice'
@@ -22,10 +22,30 @@ export function PortalShell() {
   const { t } = useTranslation()
   const { session, signOut } = useAuth()
   const { data: entity } = useMyEntity()
+  const headerRef = useRef<HTMLElement>(null)
+
+  // The page reserves the scrollbar's gutter (index.css), and only the root
+  // background paints there: without this the navy header would stop a
+  // scrollbar's width short of the window edge. The root gets a navy band as
+  // tall as the header, measured so it follows the header when it wraps.
+  useEffect(() => {
+    const root = document.documentElement
+    const header = headerRef.current
+    root.classList.add('portal-root')
+    const observer = new ResizeObserver(() =>
+      root.style.setProperty('--portal-header-h', `${header?.offsetHeight ?? 0}px`),
+    )
+    if (header) observer.observe(header)
+    return () => {
+      observer.disconnect()
+      root.classList.remove('portal-root')
+      root.style.removeProperty('--portal-header-h')
+    }
+  }, [])
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="bg-gradient-to-r from-accent-700 to-accent-800 text-white">
+      <header ref={headerRef} className="bg-gradient-to-r from-accent-700 to-accent-800 text-white">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-4 px-6 py-3">
           <div className="flex flex-col">
             <BrandMark size="sm" inverse />

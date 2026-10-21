@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { Badge, Button, Card, Field, Input, SectionTitle } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { bandForGrade, hasRole } from '../../lib/roles'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { useAssessments } from '../entities/rating/assessmentsApi'
 import {
   useAdjustLimitCommercial,
@@ -138,7 +138,7 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
             {formatAmount(Number(limit.credit_amount), locale)} {limit.currency_code}
           </span>
           <span className="text-slate-500">
-            {limit.valid_from} — {limit.valid_until ?? t('limits.untilReview')}
+            {formatDate(limit.valid_from, locale)} — {limit.valid_until ? formatDate(limit.valid_until, locale) : t('limits.untilReview')}
           </span>
           {creditRow?.payment_terms_days != null && (
             <span className="text-slate-500">

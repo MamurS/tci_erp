@@ -73,6 +73,18 @@
     @apply text-[14px] leading-normal text-slate-900;
     background-color: #f3f6f9;
   }
+  /* The portal's navy header continues into the reserved scrollbar gutter
+     (PortalShell sets the class and the header's height). */
+  html.portal-root {
+    background: linear-gradient(
+        to bottom,
+        var(--color-accent-800) 0,
+        var(--color-accent-800) var(--portal-header-h, 0px),
+        #f3f6f9 var(--portal-header-h, 0px)
+      )
+      no-repeat;
+    background-color: #f3f6f9;
+  }
   ::selection {
     background-color: var(--color-accent-100);
   }

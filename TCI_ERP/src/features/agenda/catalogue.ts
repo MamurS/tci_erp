@@ -12,6 +12,7 @@
  *     on its own (a decision has no page), so the params carry what is.
  */
 
+import { formatAmount, formatDate } from '../../lib/format'
 import type { Task, TaskPriority, TaskType } from './types'
 
 /** How a task type stops being open. `auto` = the event mapping closes it. */
@@ -190,4 +191,26 @@ export function agendaCounts(
     open: tasks.length,
     overdue: tasks.filter((task) => isOverdue(task, now)).length,
   }
+}
+
+/**
+ * A task's params are raw data (ISO dates, numbers) written by the database;
+ * the title is rendered in the viewer's language, so the values must be too.
+ * Dates → formatDate, `*_pct` → one decimal in the locale's notation, amounts
+ * → grouped digits. Anything else passes through untouched.
+ */
+export function formatTaskParams(
+  params: Record<string, unknown> | null | undefined,
+  locale: string,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(params ?? {})) {
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}(T|$)/.test(value)) out[key] = formatDate(value, locale)
+    else if (key.endsWith('_pct') && value !== null && value !== '' && Number.isFinite(Number(value)))
+      out[key] = formatAmount(Number(value), locale, 1)
+    else if (key === 'amount' && value !== null && value !== '' && Number.isFinite(Number(value)))
+      out[key] = formatAmount(Number(value), locale)
+    else out[key] = value
+  }
+  return out
 }
