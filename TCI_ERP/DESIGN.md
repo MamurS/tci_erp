@@ -61,14 +61,17 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
 
 ## App shell
 
-* **Sidebar, Claude-style:** docked (w-64) or hidden — never an icon rail.
-  The toggle sits in the top-left corner in BOTH states (the docked panel's
-  header, the top bar when hidden — same coordinates). While hidden, resting
-  the pointer on that toggle slides the panel out from the left edge, full
-  height BELOW the top bar (as in the Claude desktop app), so the toggle
-  stays clickable and a click docks it; leaving the toggle and the panel
-  slides it away. Nothing else peeks it:
-  no left-edge strip, no pin button. Ctrl/⌘ B toggles. Below 1024px it is a
+* **Sidebar, exactly as in the Claude app:** docked (w-64) or hidden —
+  never an icon rail. Docked, its top row is the name on the left and the
+  hide toggle on the right. Hidden, only the toggle is left, in the top-left
+  corner of the top bar (20px in, centred 32px down). Resting the pointer on
+  it floats the WHOLE panel out — top row with the name included — as a
+  rounded card inset 8px from the window edges, over the top bar, with its
+  own toggle at exactly those coordinates, so the pointer never leaves a
+  toggle; a click on it docks the panel, leaving the card puts it away.
+  Both toggles are `SidebarToggle`: an icon with a dark tooltip naming the
+  action and the shortcut (no native title). Nothing else peeks it: no
+  left-edge strip, no pin button. Ctrl/⌘ B toggles. Below 1024px it is a
   drawer with a backdrop that closes on navigation and on Escape. The state
   is remembered per browser (`tci-erp-sidebar`). Logic: `layout/shell.ts`.
 * **Role workspaces:** the top of the sidebar is the workspace switcher

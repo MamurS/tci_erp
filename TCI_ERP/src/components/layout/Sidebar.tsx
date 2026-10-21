@@ -1,16 +1,16 @@
 /**
  * The navigation panel: the role-workspace switcher, the shared tools, then
- * the current workspace's own tools (workspaces.ts). As in the Claude desktop
- * app it is either there or gone: docked beside the content, or hidden
- * entirely. While hidden it slides out below the top-left toggle when the
- * pointer rests on that toggle (the peek), and clicking the toggle docks it
- * again — the toggle sits in the same corner in both states. On small
+ * the current workspace's own tools (workspaces.ts). As in the Claude app it
+ * is either there or gone. Docked, its top row carries the name on the left
+ * and the hide toggle on the right. Hidden, only the toggle is left, in the
+ * top-left corner of the top bar; resting the pointer on it floats the WHOLE
+ * panel out as a card (the peek) whose own toggle sits exactly where the
+ * pointer already is, and clicking it docks the panel again. On small
  * screens it is a drawer.
  */
 
 import { NavLink } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { PanelLeftClose } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
 import { hasRole, isStaff } from '../../lib/roles'
@@ -20,20 +20,23 @@ import { agendaCounts } from '../../features/agenda/catalogue'
 import { BrandMark } from '../ui/BrandMark'
 import type { NavItem } from './navigation'
 import { navIcon } from './navIcons'
+import { SidebarToggle } from './SidebarToggle'
 import { WorkspaceSwitcher } from './WorkspaceSwitcher'
 import { availableWorkspaces, workspaceNav } from './workspaces'
 import type { WorkspaceKey } from './workspaces'
 
 interface SidebarProps {
   /**
-   * docked: in the page flow; peek: the panel slid out below the top-bar
-   * toggle while the pointer rests on it (that toggle docks it, so the peek
-   * has no header row);
-   * drawer: the small-screen overlay.
+   * docked: in the page flow; peek: the floating card shown while the
+   * pointer rests on the top-left toggle of a hidden panel; drawer: the
+   * small-screen overlay.
    */
   variant: 'docked' | 'peek' | 'drawer'
-  /** Hide (docked) / dismiss (drawer). */
-  onClose: () => void
+  /** The top-row toggle: hide (docked), dismiss (drawer), dock (peek). */
+  onToggle: () => void
+  /** Pointer handlers of the peek's toggle, so the card stays while it is rested on. */
+  onToggleEnter?: () => void
+  onToggleLeave?: () => void
   /** Called after a destination is chosen (closes a drawer). */
   onNavigate?: () => void
   /** The role workspace shown (null: the person has none — shared tools only). */
@@ -41,7 +44,15 @@ interface SidebarProps {
   onSwitchWorkspace: (key: WorkspaceKey) => void
 }
 
-export function Sidebar({ variant, onClose, onNavigate, workspace, onSwitchWorkspace }: SidebarProps) {
+export function Sidebar({
+  variant,
+  onToggle,
+  onToggleEnter,
+  onToggleLeave,
+  onNavigate,
+  workspace,
+  onSwitchWorkspace,
+}: SidebarProps) {
   const { t } = useTranslation()
   const { roles } = useAuth()
   const workspaces = availableWorkspaces(roles)
@@ -112,23 +123,27 @@ export function Sidebar({ variant, onClose, onNavigate, workspace, onSwitchWorks
       className="flex h-full w-64 flex-col bg-gradient-to-b from-accent-700 via-accent-800 to-accent-900 text-white"
       aria-label={t('nav.title')}
     >
-      {/* The toggle lives in the top-left corner, exactly where the top bar
-          shows it while the panel is hidden. The peek slides out below that
-          toggle, so it has no header row of its own. */}
-      {variant !== 'peek' && (
-        <div className="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 pr-5 pl-3 sm:pl-5">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex size-9 shrink-0 items-center justify-center rounded-md text-white/60 transition-colors hover:bg-white/10 hover:text-white"
-            title={`${t('nav.hide')} (Ctrl B)`}
-            aria-label={t('nav.hide')}
-          >
-            <PanelLeftClose className="size-5" />
-          </button>
+      {variant === 'peek' ? (
+        // The toggle at the very spot of the top bar's (20px in, centred
+        // 32px down: the card is inset 8px), then the name.
+        <div className="flex h-12 shrink-0 items-center gap-2 border-b border-white/10 pr-5 pl-3">
+          <SidebarToggle
+            action="show"
+            tone="inverse"
+            onClick={onToggle}
+            onMouseEnter={onToggleEnter}
+            onMouseLeave={onToggleLeave}
+          />
           <div className="flex min-w-0 flex-1 flex-col">
             <BrandMark size="sm" inverse />
           </div>
+        </div>
+      ) : (
+        <div className="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 pr-3 pl-5">
+          <div className="flex min-w-0 flex-1 flex-col">
+            <BrandMark size="sm" inverse />
+          </div>
+          <SidebarToggle action="hide" tone="inverse" onClick={onToggle} />
         </div>
       )}
 

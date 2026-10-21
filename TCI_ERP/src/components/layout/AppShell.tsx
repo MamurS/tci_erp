@@ -85,12 +85,13 @@ function useIsDesktop(): boolean {
 }
 
 /**
- * The staff frame, with the sidebar of the Claude desktop app. On a desktop
- * the sidebar is docked or hidden (remembered per browser). Hidden, resting
- * the pointer on the toggle in the top-left corner slides the panel out from
- * the left edge, full height BELOW the top bar, so the toggle stays
- * reachable and a click docks the panel; leaving both the toggle and the
- * panel slides it away. Nothing else opens it — no edge strip, no pin.
+ * The staff frame, with the sidebar of the Claude app. On a desktop the
+ * sidebar is docked or hidden (remembered per browser). Hidden, only its
+ * toggle is left, in the top-left corner; resting the pointer on it floats
+ * the WHOLE panel out — its top row with the name included — as a rounded
+ * card inset from the window edges, over the top bar, with its own toggle
+ * exactly under the pointer. Clicking that toggle docks the panel; leaving
+ * the card puts it away. Nothing else opens it — no edge strip, no pin.
  * Below 1024px it is a drawer. Ctrl/⌘ B toggles it, Ctrl/⌘ K opens the
  * command palette.
  */
@@ -153,24 +154,26 @@ export function AppShell() {
   return (
     <div className="flex min-h-screen">
       {showDocked && (
-        <div className="sticky top-0 h-screen shrink-0 animate-[slide-in_160ms_ease-out]">
-          <Sidebar variant="docked" onClose={() => dock('closed')} {...workspaceProps} />
+        <div className="sticky top-0 z-40 h-screen shrink-0 animate-[slide-in_160ms_ease-out]">
+          <Sidebar variant="docked" onToggle={() => dock('closed')} {...workspaceProps} />
         </div>
       )}
 
       {!showDocked && isDesktop && (
-        // The peek, as in the Claude desktop app: the panel slides out from
-        // the left edge, full height below the top bar, so the toggle above
-        // it is never covered. It is inert while put away.
+        // The peek, as in the Claude app: the whole panel as a card inset 8px
+        // from the window edges, over the top bar, its toggle under the
+        // pointer. It is inert while put away.
         <div
-          className={`fixed top-16 bottom-0 left-0 z-50 border-r border-white/10 transition-transform duration-200 ease-out ${
-            overlayOpen ? 'translate-x-0 shadow-2xl shadow-accent-900/40' : 'pointer-events-none -translate-x-full'
+          className={`fixed top-2 bottom-2 left-2 z-50 overflow-hidden rounded-xl ring-1 ring-black/5 transition-[translate,opacity] duration-200 ease-out ${
+            overlayOpen
+              ? 'translate-x-0 opacity-100 shadow-2xl shadow-accent-900/40'
+              : 'pointer-events-none -translate-x-[calc(100%+1rem)] opacity-0'
           }`}
           onMouseEnter={peek}
           onMouseLeave={unpeek}
           inert={!overlayOpen}
         >
-          <Sidebar variant="peek" onClose={() => setOverlayOpen(false)} {...workspaceProps} />
+          <Sidebar variant="peek" onToggle={() => dock('open')} onToggleEnter={peek} {...workspaceProps} />
         </div>
       )}
 
@@ -191,7 +194,7 @@ export function AppShell() {
           >
             <Sidebar
               variant="drawer"
-              onClose={() => setOverlayOpen(false)}
+              onToggle={() => setOverlayOpen(false)}
               onNavigate={() => setOverlayOpen(false)}
               {...workspaceProps}
             />

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ChevronDown, LogOut, PanelLeftOpen, Search, UserRound } from 'lucide-react'
+import { ChevronDown, LogOut, Search, UserRound } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { SidebarToggle } from './SidebarToggle'
 import { navIcon } from './navIcons'
 import { sectionFor } from './shell'
 
@@ -13,7 +14,7 @@ interface HeaderProps {
   /** The sidebar is not on screen: offer the button that brings it back. */
   sidebarHidden: boolean
   onShowSidebar: () => void
-  /** Resting on the button floats the panel out; leaving puts it away (desktop). */
+  /** Resting on the toggle floats the panel out as a card; leaving both puts it away (desktop). */
   onPeekSidebar?: () => void
   onUnpeekSidebar?: () => void
 }
@@ -56,17 +57,16 @@ export function Header({ onOpenPalette, sidebarHidden, onShowSidebar, onPeekSide
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200/80 bg-white/85 px-4 backdrop-blur sm:gap-4 sm:px-6">
       {sidebarHidden && (
-        <button
-          type="button"
-          onClick={onShowSidebar}
-          onMouseEnter={onPeekSidebar}
-          onMouseLeave={onUnpeekSidebar}
-          className="-ml-1 flex size-9 shrink-0 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-accent-600"
-          title={`${t('nav.show')} (${isMac ? '⌘B' : 'Ctrl B'})`}
-          aria-label={t('nav.show')}
-        >
-          <PanelLeftOpen className="size-5" />
-        </button>
+        // 20px in and centred 32px down — where the peek card puts its own.
+        <div className="-ml-1">
+          <SidebarToggle
+            action="show"
+            tone="plain"
+            onClick={onShowSidebar}
+            onMouseEnter={onPeekSidebar}
+            onMouseLeave={onUnpeekSidebar}
+          />
+        </div>
       )}
       {section && SectionIcon && (
         <Link
