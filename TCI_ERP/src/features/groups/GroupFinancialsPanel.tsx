@@ -38,10 +38,7 @@ export function GroupFinancialsPanel({ totals, members }: GroupFinancialsPanelPr
 
   return (
     <Card className="flex flex-col gap-4 p-5">
-      <div>
-        <SectionTitle>{t('groups.financials.title')}</SectionTitle>
-        <p className="mt-1 text-[13px] text-slate-500">{t('groups.financials.simpleSum')}</p>
-      </div>
+      <SectionTitle hint={t('groups.financials.simpleSum')}>{t('groups.financials.title')}</SectionTitle>
 
       {!totals || totals.members_with_statements === 0 ? (
         <p className="text-[13px] text-slate-500">{t('groups.financials.empty')}</p>

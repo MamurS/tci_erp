@@ -51,20 +51,17 @@ export function EntityClientAccessSection({ entityId }: { entityId: string }) {
 
   return (
     <Card className="p-5">
-      <div className="mb-3 flex items-center justify-between gap-3">
-        <div>
-          <SectionTitle>{t('provisioning.clientAccess')}</SectionTitle>
-          <p className="mt-0.5 text-[13px] text-slate-500">{t('provisioning.clientAccessHint')}</p>
-        </div>
-        <Button
-          size="sm"
-          onClick={() => setInviteOpen(true)}
-          disabled={provisioningUp === false}
-        >
-          {t('provisioning.inviteClient')}
-        </Button>
-      </div>
-
+      <SectionTitle
+        className="mb-3"
+        hint={t('provisioning.clientAccessHint')}
+        actions={
+          <Button size="sm" onClick={() => setInviteOpen(true)} disabled={provisioningUp === false}>
+            {t('provisioning.inviteClient')}
+          </Button>
+        }
+      >
+        {t('provisioning.clientAccess')}
+      </SectionTitle>
       {provisioningUp === false && (
         <div className="mb-3">
           <ServiceUnavailableNotice />

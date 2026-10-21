@@ -65,8 +65,9 @@ export function PortalClaimsPage() {
 
       {ready.length > 0 && (
         <Card className="p-5">
-          <SectionTitle>{t('portal.claims.claimableTitle')}</SectionTitle>
-          <p className="mt-1 text-[13px] text-slate-600">{t('portal.claims.claimableHint')}</p>
+          <SectionTitle className="mb-3" hint={t('portal.claims.claimableHint')}>
+            {t('portal.claims.claimableTitle')}
+          </SectionTitle>
           <Table dense>
             <thead>
               <tr>

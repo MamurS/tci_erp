@@ -11,7 +11,8 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Card } from '../../../components/ui'
+import { AmountInput, Card } from '../../../components/ui'
+import { amountToPlain, parseAmount } from '../../../components/ui/amount'
 import { formatAmount } from '../../../lib/format'
 import type { StatementBundle } from '../types'
 import { localName, originalCaption, templateName } from './frameworkText'
@@ -23,13 +24,6 @@ import {
 } from './localApi'
 import type { LocalStatementSaveInput } from './localApi'
 import { mapLocalStatement, templateRules, validateLocalStatement } from './mapping'
-
-function parseAmount(raw: string): number | null {
-  const cleaned = raw.replace(/\s/g, '').replace(',', '.')
-  if (cleaned === '' || cleaned === '-') return null
-  const value = Number(cleaned)
-  return Number.isFinite(value) ? value : null
-}
 
 interface LocalStatementFormProps {
   /** The framework whose forms are typed in (the buyer's country's, or the
@@ -209,24 +203,23 @@ function LocalLineInput({
   hasWarning: boolean
   onChange: (value: number | null) => void
 }) {
-  const [raw, setRaw] = useState(value === null ? '' : String(value))
+  const [raw, setRaw] = useState(amountToPlain(value))
 
   useEffect(() => {
-    setRaw(value === null ? '' : String(value))
+    setRaw(amountToPlain(value))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value === null ? '' : String(value)])
 
   return (
-    <input
-      type="text"
-      inputMode="decimal"
+    <AmountInput
+      allowNegative
       value={raw}
-      onChange={(e) => {
-        setRaw(e.target.value)
-        onChange(parseAmount(e.target.value))
+      onChange={(plain) => {
+        setRaw(plain)
+        onChange(parseAmount(plain))
       }}
-      className={`num rounded border px-2 py-1 text-[13px] focus:outline-2 focus:outline-accent-600 focus:-outline-offset-1 ${
-        hasWarning ? 'border-warn-500/50 bg-warn-50' : 'border-slate-200 bg-white'
+      className={`h-7! rounded! px-2! py-1! text-[13px]! ${
+        hasWarning ? 'border-warn-500/50! bg-warn-50!' : 'border-slate-200!'
       }`}
     />
   )

@@ -6,7 +6,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Spinner, Table, SectionTitle } from '../../components/ui'
+import { Badge, Button, Card, ConfirmDialog, EmptyState, Spinner, Table, SectionTitle } from '../../components/ui'
 import { formatMoment } from '../../lib/format'
 import {
   useAdminSessions,
@@ -34,6 +34,7 @@ export function SecurityTab() {
   const unlock = useUnlockAccount()
   const revoke = useRevokeSessions()
   const [actionError, setActionError] = useState<string | null>(null)
+  const [revoking, setRevoking] = useState<{ userId: string; email: string } | null>(null)
 
   const when = (v: string | null | undefined) => (v ? formatMoment(v, locale) : '—')
 
@@ -241,14 +242,7 @@ export function SecurityTab() {
                         size="sm"
                         variant="secondary"
                         disabled={revoke.isPending}
-                        onClick={() => {
-                          if (!window.confirm(t('admin.security.sessions.confirmRevoke', { email: u.email }))) return
-                          setActionError(null)
-                          revoke.mutate(
-                            { userId: u.user_id, keepCurrent: true },
-                            { onError: () => setActionError(t('common.saveFailed')) },
-                          )
-                        }}
+                        onClick={() => setRevoking({ userId: u.user_id, email: u.email })}
                       >
                         {t('admin.security.sessions.revoke')}
                       </Button>
@@ -340,6 +334,22 @@ export function SecurityTab() {
           </Table>
         )}
       </section>
+      <ConfirmDialog
+        open={revoking !== null}
+        title={t('admin.security.sessions.revoke')}
+        message={revoking ? t('admin.security.sessions.confirmRevoke', { email: revoking.email }) : ''}
+        confirmLabel={t('admin.security.sessions.revoke')}
+        pending={revoke.isPending}
+        onCancel={() => setRevoking(null)}
+        onConfirm={() => {
+          if (!revoking) return
+          setActionError(null)
+          revoke.mutate(
+            { userId: revoking.userId, keepCurrent: true },
+            { onError: () => setActionError(t('common.saveFailed')), onSettled: () => setRevoking(null) },
+          )
+        }}
+      />
     </div>
   )
 }

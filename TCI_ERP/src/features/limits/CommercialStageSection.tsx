@@ -7,7 +7,8 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Field, Input, SectionTitle } from '../../components/ui'
+import { AmountInput, Badge, Button, Card, Field, Input, SectionTitle } from '../../components/ui'
+import { parseAmount } from '../../components/ui/amount'
 import { useAuth } from '../../auth/AuthContext'
 import { bandForGrade, hasRole } from '../../lib/roles'
 import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
@@ -58,7 +59,7 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
     assessments.data?.find((a) => a.id === limit?.based_on_assessment_id)?.rating_grade,
   )
 
-  const parsedAmount = Number(amount.replace(/\s/g, '').replace(',', '.'))
+  const parsedAmount = parseAmount(amount) ?? Number.NaN
   const amountValid = Number.isFinite(parsedAmount) && parsedAmount > 0
   const todayIso = new Date().toISOString().slice(0, 10)
   const nowIso = new Date().toISOString()
@@ -125,10 +126,9 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
 
   return (
     <Card className="flex flex-col gap-4 p-5">
-      <div className="flex items-center justify-between">
-        <SectionTitle>{t('limits.commercial.title')}</SectionTitle>
-        <ReleaseBadge facts={limit} salesWindowHours={windowHours ?? 24} nowIso={nowIso} />
-      </div>
+      <SectionTitle actions={<ReleaseBadge facts={limit} salesWindowHours={windowHours ?? 24} nowIso={nowIso} />}>
+        {t('limits.commercial.title')}
+      </SectionTitle>
 
       {/* The chain as decided: credit → commercial. Both rows stay visible. */}
       <div className="flex flex-col gap-1.5 text-[13px]">
@@ -172,24 +172,22 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
         <>
           <p className="text-[13px] text-slate-500">{t('limits.commercial.scopeHint')}</p>
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label={`${t('limits.commercial.newAmount')} (${limit.currency_code})`}>
-              <Input
-                inputMode="decimal"
-                className="num"
+            <Field label={t('limits.commercial.newAmount')}>
+              <AmountInput
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={setAmount}
+                suffix={limit.currency_code}
                 placeholder={formatAmount(Number(limit.approved_amount), locale)}
               />
             </Field>
             <Field label={t('limits.fields.paymentTerms')}>
-              <Input
-                inputMode="numeric"
+              <AmountInput
+                decimals={0}
                 value={terms}
-                onChange={(e) => setTerms(e.target.value)}
+                onChange={setTerms}
+                suffix={t('policies.terms.daysSuffix')}
                 placeholder={
-                  limit.payment_terms_days != null
-                    ? String(limit.payment_terms_days)
-                    : t('policies.terms.daysSuffix')
+                  limit.payment_terms_days != null ? String(limit.payment_terms_days) : undefined
                 }
               />
             </Field>

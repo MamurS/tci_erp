@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button, Field, Input, Modal, Select, Textarea } from '../../components/ui'
-import { useCountries } from '../entities/api'
+import { CountryPicker } from '../entities/CountryPicker'
 import type { ProductStructure } from './api'
 import { useUploadWordingTemplate } from './api'
 import { inspectTemplate } from './docx'
@@ -20,7 +20,6 @@ const PRODUCTS: readonly ProductStructure[] = ['whole_turnover', 'key_buyers', '
 export function UploadTemplateModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const { data: countries } = useCountries()
   const upload = useUploadWordingTemplate()
   const [file, setFile] = useState<File | null>(null)
   const [inspection, setInspection] = useState<TemplateInspection | null>(null)
@@ -128,14 +127,12 @@ export function UploadTemplateModal({ open, onClose }: { open: boolean; onClose:
             </Select>
           </Field>
           <Field label={t('wording.fields.country')} hint={t('wording.fields.countryHint')}>
-            <Select value={country} onChange={(e) => setCountry(e.target.value)}>
-              <option value="">{t('wording.fields.anyCountry')}</option>
-              {(countries ?? []).map((c) => (
-                <option key={c.code} value={c.code}>
-                  {locale === 'ru' ? c.name_ru : locale === 'uz' ? c.name_uz : c.name_en}
-                </option>
-              ))}
-            </Select>
+            {/* Left empty, the template serves every country. */}
+            <CountryPicker
+              value={country || null}
+              onChange={(code) => setCountry(code ?? '')}
+              placeholder={t('wording.fields.anyCountry')}
+            />
           </Field>
           <Field label={t('wording.fields.product')}>
             <Select value={product} onChange={(e) => setProduct(e.target.value)}>

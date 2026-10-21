@@ -12,7 +12,8 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Field, Input, Select, SectionTitle } from '../../components/ui'
+import { AmountInput, Badge, Button, Card, Field, Select, SectionTitle } from '../../components/ui'
+import { parseAmount } from '../../components/ui/amount'
 import { useAcceptSuggestion, useRejectSuggestion } from './api'
 import { groupErrorKey } from './errors'
 import { sortedSignals } from './group'
@@ -78,7 +79,7 @@ function SuggestionRow({
   const otherName =
     suggestion.entity_a === entityId ? suggestion.entity_b_name : suggestion.entity_a_name
   const signals = sortedSignals(suggestion)
-  const pct = Number(ownershipPct.replace(',', '.'))
+  const pct = parseAmount(ownershipPct) ?? Number.NaN
 
   const handleAccept = async () => {
     setError(null)
@@ -172,12 +173,7 @@ function SuggestionRow({
                 </Field>
                 {relationshipType === 'ownership' && (
                   <Field label={t('groups.fields.ownershipPct')}>
-                    <Input
-                      inputMode="decimal"
-                      value={ownershipPct}
-                      onChange={(e) => setOwnershipPct(e.target.value)}
-                      className="num"
-                    />
+                    <AmountInput value={ownershipPct} onChange={setOwnershipPct} suffix="%" />
                   </Field>
                 )}
               </div>

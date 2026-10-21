@@ -72,7 +72,7 @@ export function WordingPage() {
       )}
 
       <Card className="mb-5 p-5">
-        <SectionTitle>{t('wording.templates.title')}</SectionTitle>
+        <SectionTitle className="mb-3">{t('wording.templates.title')}</SectionTitle>
         {isLoading ? (
           <Spinner label={t('common.loading')} />
         ) : !templates?.length ? (

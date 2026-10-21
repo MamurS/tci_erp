@@ -52,14 +52,16 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <div className="mb-2 flex items-center justify-between">
-          <SectionTitle>
-            {t('policyholders.policiesTitle')}
-          </SectionTitle>
-          <Button onClick={() => void navigate(`/policies/new?entity=${entityId}`)}>
-            {t('policies.newPolicy')}
-          </Button>
-        </div>
+        <SectionTitle
+          className="mb-3"
+          actions={
+            <Button size="sm" onClick={() => void navigate(`/policies/new?entity=${entityId}`)}>
+              {t('policies.newPolicy')}
+            </Button>
+          }
+        >
+          {t('policyholders.policiesTitle')}
+        </SectionTitle>
         {policies.length === 0 ? (
           <EmptyState title={t('policies.emptyForPolicyholder')} />
         ) : (

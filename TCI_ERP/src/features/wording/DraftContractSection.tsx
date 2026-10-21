@@ -35,6 +35,7 @@ export function DraftContractSection({ target, reference, countryCode, product }
   return (
     <Card className="p-5">
       <SectionTitle
+        className="mb-3"
         actions={
           canGenerate && (
             <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>

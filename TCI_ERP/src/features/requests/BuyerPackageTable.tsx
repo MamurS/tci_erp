@@ -48,8 +48,9 @@ export function BuyerPackageTable({
 
   return (
     <Card className="p-5">
-      <SectionTitle>{t('requests.buyerPackage')}</SectionTitle>
-      <p className="mt-1 mb-3 text-[12px] leading-relaxed text-slate-500">{t('requests.buyerPackageHint')}</p>
+      <SectionTitle className="mb-3" hint={t('requests.buyerPackageHint')}>
+        {t('requests.buyerPackage')}
+      </SectionTitle>
 
       {buyers.length === 0 ? (
         <EmptyState title={t('requests.noBuyersYet')} hint={t('requests.noBuyersHint')} />
@@ -72,24 +73,28 @@ export function BuyerPackageTable({
               const openRequest = buyer.entity_id ? openByEntity.get(buyer.entity_id) : undefined
               return (
                 <tr key={buyer.id}>
-                  <td>
+                  {/* The name on one line (cut with a tooltip when long), its
+                      resolution status under it — never a name broken over
+                      three lines with a badge hanging below. */}
+                  <td className="min-w-[220px]">
                     {buyer.entity_id ? (
                       <Link
                         to={`/entities/${buyer.entity_id}`}
-                        className="font-medium text-accent-700 hover:underline"
+                        title={buyer.legal_entities?.name ?? buyer.proposed_name ?? undefined}
+                        className="block max-w-[300px] truncate font-medium text-accent-700 hover:underline"
                       >
                         {buyer.legal_entities?.name ?? buyer.proposed_name ?? EM_DASH}
                       </Link>
                     ) : (
-                      <span className="text-slate-800">
+                      <span title={buyer.proposed_name ?? undefined} className="block max-w-[300px] truncate text-slate-800">
                         {buyer.proposed_name ?? EM_DASH}
                       </span>
                     )}
-                    <span className="ml-2 inline-block whitespace-nowrap">
+                    <div className="mt-1">
                       <Badge tone={resolutionTone(buyer.resolution_status)}>
                         {t(`requests.resolutions.${buyer.resolution_status}`)}
                       </Badge>
-                    </span>
+                    </div>
                   </td>
                   <td className="num text-right">
                     {formatAmount(Number(buyer.requested_amount), locale)}

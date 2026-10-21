@@ -7,6 +7,14 @@
  *   border on ~50 screens before the October 2026 audit.
  * - A Table draws its own frame; wrapped in a padding-less Card it draws two.
  * - Dates reach the screen through format.ts, never as a sliced ISO string.
+ * - Interaction rules from the October 2026 owner review (each was found on a
+ *   real screen): one action is offered once per view (never in a header AND
+ *   in the empty state below it); a company or any long list is picked with
+ *   the typeahead (Combobox / EntityPicker), never a listbox <select size>;
+ *   confirmation is ConfirmDialog, never window.confirm; a link that looks
+ *   like a button is a LinkButton, never <a> wrapping <button>; a section
+ *   header is ONE SectionTitle with `hint` / `actions`, never a hand-made
+ *   flex row around it (they drifted to five different spacings).
  */
 import { describe, expect, it } from 'vitest'
 
@@ -53,6 +61,78 @@ describe('layout contract', () => {
           offenders.push(`${path}: ${line.trim()}`)
       }
     }
+    expect(offenders).toEqual([])
+  })
+
+  /** The `action={...}` expression of each <EmptyState …> opening tag, brace-matched. */
+  function emptyStateActions(text: string): string[] {
+    const out: string[] = []
+    for (const m of text.matchAll(/<EmptyState\b/g)) {
+      let i = m.index + m[0].length
+      let depth = 0
+      let tagEnd = -1
+      for (; i < text.length; i++) {
+        const c = text[i]
+        if (c === '{') depth++
+        else if (c === '}') depth--
+        else if (c === '>' && depth === 0) {
+          tagEnd = i
+          break
+        }
+      }
+      const tag = text.slice(m.index, tagEnd)
+      const at = tag.indexOf('action={')
+      if (at < 0) continue
+      let d = 0
+      let j = at + 'action='.length
+      const from = j
+      for (; j < tag.length; j++) {
+        if (tag[j] === '{') d++
+        else if (tag[j] === '}' && --d === 0) break
+      }
+      out.push(tag.slice(from, j + 1))
+    }
+    return out
+  }
+
+  // An empty state that REPLACES the view its sibling action lives in (the
+  // toolbar is not rendered while it shows) is not a duplicate.
+  const ONE_ACTION_ALLOWED: Record<string, string> = {
+    'FinancialsTab.tsx': 'the empty state is returned instead of the toolbar',
+    'PolicyLimitsSection.tsx': 'the header button renders only once there are rows',
+  }
+
+  it('offers an action once: an empty state never repeats an action shown elsewhere in the file', () => {
+    const offenders: string[] = []
+    for (const [path, text] of files) {
+      if (Object.keys(ONE_ACTION_ALLOWED).some((name) => path.endsWith(`/${name}`))) continue
+      for (const action of emptyStateActions(text)) {
+        for (const k of action.matchAll(/t\('([^']+)'/g)) {
+          const key = k[1]!
+          if (key.startsWith('common.')) continue
+          const uses = text.split(`t('${key}'`).length - 1
+          if (uses > 1) offenders.push(`${path}: ${key} (×${uses})`)
+        }
+      }
+    }
+    expect(offenders).toEqual([])
+  })
+
+  it('never uses a listbox <select size>, window.confirm / alert, or <Link> around <Button>', () => {
+    const offenders: string[] = []
+    for (const [path, text] of files) {
+      if (/<Select\b[^>]*\bsize=\{|<select\b[^>]*\bsize=/.test(text)) offenders.push(`${path}: listbox select`)
+      if (/window\.confirm\(|window\.alert\(|[^.\w]alert\(/.test(text)) offenders.push(`${path}: native dialog`)
+      if (/<Link\b[^>]*>\s*<Button\b/.test(text)) offenders.push(`${path}: <Link> around <Button>`)
+    }
+    expect(offenders).toEqual([])
+  })
+
+  it('builds a section header from SectionTitle props, not a hand-made row around it', () => {
+    const offenders = files
+      .filter(([path]) => !path.endsWith('/primitives.tsx'))
+      .filter(([, text]) => /justify-between[^>]*>\s*(<div>\s*)?<SectionTitle\b/.test(text))
+      .map(([path]) => path)
     expect(offenders).toEqual([])
   })
 })

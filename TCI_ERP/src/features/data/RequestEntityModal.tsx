@@ -10,9 +10,10 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Callout, Field, Input, Modal, Select, Textarea } from '../../components/ui'
+import { Button, Callout, Field, Input, Modal, Textarea } from '../../components/ui'
 import { refusalKey } from '../../lib/refusals'
-import { refName, useCountries, useSimilarEntities } from '../entities/api'
+import { useSimilarEntities } from '../entities/api'
+import { CountryPicker } from '../entities/CountryPicker'
 import { useRequestEntity, useStaffDirectory } from './api'
 import { staffName } from './staff'
 import type { RequestResult } from './types'
@@ -26,9 +27,7 @@ export function RequestEntityModal({
   initialName: string
   onClose: () => void
 }) {
-  const { t, i18n } = useTranslation()
-  const locale = i18n.resolvedLanguage ?? 'en'
-  const { data: countries } = useCountries()
+  const { t } = useTranslation()
   const staff = useStaffDirectory()
   const request = useRequestEntity()
   const [name, setName] = useState(initialName)
@@ -104,13 +103,7 @@ export function RequestEntityModal({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t('data.fields.country')}>
-              <Select value={country} onChange={(e) => setCountry(e.target.value)}>
-                {(countries ?? []).map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {refName(c, locale)}
-                  </option>
-                ))}
-              </Select>
+              <CountryPicker value={country || null} onChange={(code) => setCountry(code ?? '')} />
             </Field>
             <Field label={t('data.fields.registrationNumber')} hint={t('data.requestModal.registrationHint')}>
               <Input value={registration} onChange={(e) => setRegistration(e.target.value)} />

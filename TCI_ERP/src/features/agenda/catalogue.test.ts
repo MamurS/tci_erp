@@ -379,7 +379,7 @@ describe('formatTaskParams', () => {
   it('renders dates, percentages and amounts in the viewer’s notation', () => {
     expect(formatTaskParams({ period_start: '2026-09-01', utilisation_pct: 106.25, amount: '65000', name: 'X' }, 'ru')).toEqual({
       period_start: '01 сент. 2026',
-      utilisation_pct: '106,3',
+      utilisation_pct: '106.3',
       amount: formatAmount(65000, 'ru'),
       name: 'X',
     })

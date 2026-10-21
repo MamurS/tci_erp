@@ -3,12 +3,12 @@
  * registry) or creates one inline through the ordinary registry form, which
  * carries the Phase 3a dedup-on-entry checks. */
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Input, Select, SectionTitle } from '../../components/ui'
+import { Badge, Button, Card, SectionTitle } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
-import { useEntities } from '../entities/api'
+import { EntityPicker } from '../entities/EntityPicker'
 import { EntityFormModal } from '../entities/EntityFormModal'
 import { useResolveRequestBuyer } from './api'
 import { canResolveBuyers } from './machine'
@@ -32,13 +32,13 @@ export function EntityResolutionSection({
 
   return (
     <Card className="border-warn-500/30 p-5">
-      <div className="mb-1 flex items-center justify-between">
-        <SectionTitle>
-          {t('requests.entityResolution')}
-        </SectionTitle>
-        <Badge tone="warn">{unresolved.length}</Badge>
-      </div>
-      <p className="mb-3 text-[13px] text-slate-500">{t('requests.entityResolutionHint')}</p>
+      <SectionTitle
+        className="mb-3"
+        hint={t('requests.entityResolutionHint')}
+        actions={<Badge tone="warn">{unresolved.length}</Badge>}
+      >
+        {t('requests.entityResolution')}
+      </SectionTitle>
 
       <div className="flex flex-col gap-2">
         {unresolved.map((buyer) => (
@@ -64,18 +64,11 @@ function ResolveRow({
   disabled: boolean
 }) {
   const { t } = useTranslation()
-  const { data: entities } = useEntities()
   const resolve = useResolveRequestBuyer(requestId)
 
-  const [search, setSearch] = useState(buyer.proposed_name ?? '')
-  const [entityId, setEntityId] = useState(buyer.entity_id ?? '')
+  const [entityId, setEntityId] = useState<string | null>(buyer.entity_id)
   const [createOpen, setCreateOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const candidates = useMemo(() => {
-    const query = search.trim().toLowerCase()
-    return (entities ?? []).filter((e) => !query || e.name.toLowerCase().includes(query))
-  }, [entities, search])
 
   const handleResolve = async () => {
     if (!entityId) return
@@ -94,20 +87,14 @@ function ResolveRow({
           {buyer.proposed_name ?? t('requests.unnamedBuyer')}
         </span>
       </p>
-      <div className="grid gap-2 sm:grid-cols-[1fr_1fr_auto]">
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('entities.searchPlaceholder')}
+      <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+        {/* Focusing searches for the name the buyer was given. */}
+        <EntityPicker
+          value={entityId}
+          onChange={setEntityId}
+          seedQuery={buyer.proposed_name ?? undefined}
+          disabled={disabled}
         />
-        <Select value={entityId} onChange={(e) => setEntityId(e.target.value)}>
-          <option value="">{t('common.notSelected')}</option>
-          {candidates.slice(0, 50).map((e) => (
-            <option key={e.id} value={e.id}>
-              {e.name}
-            </option>
-          ))}
-        </Select>
         <div className="flex gap-2">
           <Button
             size="sm"

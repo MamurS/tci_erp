@@ -135,21 +135,18 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
       )}
 
       <Card className="flex flex-col gap-3 p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <SectionTitle>{t('groups.tree.title')}</SectionTitle>
-            <p className="mt-1 text-[13px] text-slate-500">
-              {isAlone
-                ? t('groups.tree.alone')
-                : t('groups.tree.summary', { count: members.length, parent: parentName })}
-            </p>
-          </div>
-          {mayEdit && (
-            <Button size="sm" variant="secondary" onClick={() => setRelationshipOpen(true)}>
-              {t('groups.actions.addRelationship')}
-            </Button>
-          )}
-        </div>
+        <SectionTitle
+          hint={isAlone ? t('groups.tree.alone') : t('groups.tree.summary', { count: members.length, parent: parentName })}
+          actions={
+            mayEdit && (
+              <Button size="sm" variant="secondary" onClick={() => setRelationshipOpen(true)}>
+                {t('groups.actions.addRelationship')}
+              </Button>
+            )
+          }
+        >
+          {t('groups.tree.title')}
+        </SectionTitle>
 
         {tree && !isAlone && <GroupTree tree={tree} focusId={entityId} onEndEdge={mayEdit ? (id) => void handleEndEdge(id) : undefined} />}
 

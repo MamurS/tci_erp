@@ -4,8 +4,8 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Card, Field, Input, SectionTitle, Select, Spinner } from '../../components/ui'
-import { useCountries } from '../entities/api'
+import { Button, Card, Field, Input, SectionTitle, Spinner } from '../../components/ui'
+import { CountryPicker } from '../entities/CountryPicker'
 import type { InsurerProfile } from './api'
 import { useInsurerProfile, useSaveInsurerProfile } from './api'
 import { WORDING_SYNTAX } from './catalogue'
@@ -22,10 +22,8 @@ const FIELDS: readonly (keyof Editable)[] = [
 const empty = (): Editable => Object.fromEntries(FIELDS.map((f) => [f, null])) as unknown as Editable
 
 export function InsurerProfileCard({ canEdit }: { canEdit: boolean }) {
-  const { t, i18n } = useTranslation()
-  const locale = i18n.resolvedLanguage ?? 'en'
+  const { t } = useTranslation()
   const { data: profile, isLoading } = useInsurerProfile()
-  const { data: countries } = useCountries()
   const save = useSaveInsurerProfile()
   const [form, setForm] = useState<Editable>(empty)
   const [message, setMessage] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null)
@@ -45,24 +43,18 @@ export function InsurerProfileCard({ canEdit }: { canEdit: boolean }) {
 
   return (
     <Card className="p-5">
-      <SectionTitle>{t('wording.insurer.title')}</SectionTitle>
-      <p className="mb-4 text-[13px] text-slate-500">{t('wording.insurer.hint', WORDING_SYNTAX)}</p>
+      <SectionTitle className="mb-4" hint={t('wording.insurer.hint', WORDING_SYNTAX)}>
+        {t('wording.insurer.title')}
+      </SectionTitle>
       <div className="grid gap-3 md:grid-cols-3">
         {FIELDS.map((field) => (
           <Field key={field} label={t(`wording.insurer.fields.${field}`)}>
             {field === 'country_code' ? (
-              <Select
-                value={form.country_code ?? ''}
+              <CountryPicker
+                value={form.country_code ?? null}
                 disabled={!canEdit}
-                onChange={(e) => set('country_code', e.target.value)}
-              >
-                <option value="">{t('common.notSelected')}</option>
-                {(countries ?? []).map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {locale === 'ru' ? c.name_ru : locale === 'uz' ? c.name_uz : c.name_en}
-                  </option>
-                ))}
-              </Select>
+                onChange={(code) => set('country_code', code ?? '')}
+              />
             ) : (
               <Input
                 type={field === 'license_date' ? 'date' : 'text'}

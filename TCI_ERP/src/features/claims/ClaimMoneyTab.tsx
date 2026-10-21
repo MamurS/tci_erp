@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
 import {
+  AmountInput,
   Button,
   Callout,
   Card,
@@ -209,8 +210,8 @@ function PaymentModal({ claim, onClose }: { claim: Claim; onClose: () => void })
     >
       {error && <Callout tone="neg" title={error} className="mb-3" />}
       <p className="text-[13px] text-slate-600">{t('claims.money.paymentHint')}</p>
-      <Field label={`${t('claims.fields.amount')} (${claim.currency_code})`}>
-        <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
+      <Field label={t('claims.fields.amount')}>
+        <AmountInput value={amount} onChange={setAmount} suffix={claim.currency_code} />
       </Field>
       <Field label={t('claims.fields.paidAt')}>
         <Input type="date" value={paidAt} onChange={(e) => setPaidAt(e.target.value)} />
@@ -264,11 +265,11 @@ function RecoveryModal({ claim, onClose }: { claim: Claim; onClose: () => void }
     >
       {error && <Callout tone="neg" title={error} className="mb-3" />}
       <p className="text-[13px] text-slate-600">{t('claims.money.recoveryHint')}</p>
-      <Field label={`${t('claims.fields.gross')} (${claim.currency_code})`}>
-        <Input type="number" value={gross} onChange={(e) => setGross(e.target.value)} />
+      <Field label={t('claims.fields.gross')}>
+        <AmountInput value={gross} onChange={setGross} suffix={claim.currency_code} />
       </Field>
       <Field label={t('claims.fields.recoveryCosts')}>
-        <Input type="number" value={costs} onChange={(e) => setCosts(e.target.value)} />
+        <AmountInput value={costs} onChange={setCosts} suffix={claim.currency_code} />
       </Field>
       <Field label={t('claims.fields.receivedAt')}>
         <Input type="date" value={receivedAt} onChange={(e) => setReceivedAt(e.target.value)} />

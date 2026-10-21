@@ -387,12 +387,14 @@ function TermsCard({ policy }: { policy: PolicyWithRefs }) {
             </h3>
             <dl className="flex flex-col text-[13px]">
               {group.rows.map((row) => (
+                // A long label wraps in its own column; the value stays on one
+                // line at the right, never pushed under the label.
                 <div
                   key={row.labelKey}
-                  className="flex flex-wrap items-baseline justify-between gap-x-3 border-b border-slate-100 py-1 last:border-b-0"
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 border-b border-slate-100 py-1.5 last:border-b-0"
                 >
                   <dt className="text-slate-500">{t(row.labelKey)}</dt>
-                  <dd className="ml-auto text-right font-medium text-slate-800">{row.value}</dd>
+                  <dd className="text-right font-medium whitespace-nowrap text-slate-800">{row.value}</dd>
                 </div>
               ))}
             </dl>

@@ -5,7 +5,8 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Card, Field, Input, Select, SectionTitle } from '../../components/ui'
+import { AmountInput, Button, Card, Field, Select, SectionTitle } from '../../components/ui'
+import { amountToPlain, parseAmount } from '../../components/ui/amount'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH, formatAmount, formatPercent } from '../../lib/format'
 import { useCurrencies } from '../entities/api'
@@ -55,7 +56,7 @@ export function ProposedTermsSection({ request }: { request: InsuranceRequestWit
     const next: Draft = {}
     for (const key of PROPOSED_TERM_FIELDS) {
       const value = request[key]
-      next[key] = value === null || value === undefined ? '' : String(value)
+      next[key] = FIELD_KIND[key] === 'enum' ? (value ?? '').toString() : amountToPlain(value)
     }
     setDraft(next)
   }, [editing, request])
@@ -68,8 +69,7 @@ export function ProposedTermsSection({ request }: { request: InsuranceRequestWit
       if (FIELD_KIND[key] === 'enum') {
         patch[key] = raw || null
       } else {
-        const parsed = Number(raw.replace(/\s/g, '').replace(',', '.'))
-        patch[key] = raw === '' || !Number.isFinite(parsed) ? null : parsed
+        patch[key] = parseAmount(raw)
       }
     }
     try {
@@ -81,6 +81,23 @@ export function ProposedTermsSection({ request }: { request: InsuranceRequestWit
   }
 
   const currency = request.currency_code ?? ''
+
+  /** Places and unit of a numeric term while it is being edited. */
+  const entry = (key: keyof ProposedTerms): { decimals: number; suffix?: string } => {
+    switch (FIELD_KIND[key]) {
+      case 'money':
+        return { decimals: 2, suffix: draft.currency_code || currency || undefined }
+      case 'percent':
+        return { decimals: 2, suffix: '%' }
+      case 'rate':
+        // numeric(8,5) for the premium rate, numeric(6,2) for the multiple.
+        return key === 'premium_rate_pct' ? { decimals: 5, suffix: '%' } : { decimals: 2 }
+      case 'days':
+        return { decimals: 0, suffix: t('policies.terms.daysSuffix') }
+      case 'enum':
+        return { decimals: 0 }
+    }
+  }
 
   const display = (key: keyof ProposedTerms): string => {
     const value = request[key]
@@ -103,24 +120,28 @@ export function ProposedTermsSection({ request }: { request: InsuranceRequestWit
 
   return (
     <Card className="p-5">
-      <div className="mb-3 flex items-center justify-between">
-        <SectionTitle>{t('requests.proposedTerms')}</SectionTitle>
-        {editable &&
+      <SectionTitle
+        className="mb-3"
+        actions={
+          editable &&
           (editing ? (
-            <div className="flex gap-2">
-              <Button variant="ghost" size="sm" onClick={() => setEditing(false)}>
+            <>
+              <Button variant="secondary" size="sm" onClick={() => setEditing(false)}>
                 {t('common.cancel')}
               </Button>
               <Button size="sm" onClick={() => void save()} disabled={update.isPending}>
                 {update.isPending ? t('common.saving') : t('common.save')}
               </Button>
-            </div>
+            </>
           ) : (
             <Button variant="secondary" size="sm" onClick={() => setEditing(true)}>
               {t('common.edit')}
             </Button>
-          ))}
-      </div>
+          ))
+        }
+      >
+        {t('requests.proposedTerms')}
+      </SectionTitle>
 
       {!editable && !editing && (
         <p className="mb-3 text-xs text-slate-400">{t('requests.termsReadOnly')}</p>
@@ -167,11 +188,10 @@ export function ProposedTermsSection({ request }: { request: InsuranceRequestWit
                   ))}
                 </Select>
               ) : (
-                <Input
-                  inputMode="decimal"
-                  className="num"
+                <AmountInput
+                  {...entry(key)}
                   value={draft[key] ?? ''}
-                  onChange={(e) => setDraft((d) => ({ ...d, [key]: e.target.value }))}
+                  onChange={(plain) => setDraft((d) => ({ ...d, [key]: plain }))}
                 />
               )}
             </Field>

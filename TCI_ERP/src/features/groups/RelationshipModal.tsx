@@ -6,11 +6,12 @@
  * tci.save_entity_relationship makes.
  */
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Field, Input, Modal, Select } from '../../components/ui'
-import { useEntities } from '../entities/api'
+import { AmountInput, Button, Field, Input, Modal, Select } from '../../components/ui'
+import { parseAmount } from '../../components/ui/amount'
+import { EntityPicker } from '../entities/EntityPicker'
 import { useSaveRelationship } from './api'
 import { groupErrorKey } from './errors'
 import { RELATIONSHIP_TYPES, type RelationshipType } from './types'
@@ -27,10 +28,8 @@ interface RelationshipModalProps {
 export function RelationshipModal({ open, onClose, entityId, entityName }: RelationshipModalProps) {
   const { t } = useTranslation()
   const save = useSaveRelationship()
-  const { data: entities } = useEntities()
 
-  const [search, setSearch] = useState('')
-  const [otherId, setOtherId] = useState('')
+  const [otherId, setOtherId] = useState<string | null>(null)
   const [thisIsParent, setThisIsParent] = useState(true)
   const [relationshipType, setRelationshipType] = useState<RelationshipType>('ownership')
   const [ownershipPct, setOwnershipPct] = useState('')
@@ -38,21 +37,14 @@ export function RelationshipModal({ open, onClose, entityId, entityName }: Relat
   const [note, setNote] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  const candidates = useMemo(() => {
-    const q = search.trim().toLowerCase()
-    return (entities ?? [])
-      .filter((e) => e.id !== entityId)
-      .filter((e) => !q || e.name.toLowerCase().includes(q))
-      .slice(0, 50)
-  }, [entities, entityId, search])
-
-  const pctNumber = Number(ownershipPct.replace(',', '.'))
+  const pctNumber = parseAmount(ownershipPct) ?? Number.NaN
   const pctValid =
     ownershipPct.trim() === '' ||
     (Number.isFinite(pctNumber) && pctNumber > 0 && pctNumber <= 100)
   const valid = Boolean(otherId) && pctValid
 
   const handleSave = async () => {
+    if (!otherId) return
     setError(null)
     try {
       await save.mutateAsync({
@@ -100,24 +92,7 @@ export function RelationshipModal({ open, onClose, entityId, entityName }: Relat
         </Field>
 
         <Field label={t('groups.fields.counterparty')}>
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('buyers.searchPlaceholder')}
-          />
-          <Select
-            value={otherId}
-            onChange={(e) => setOtherId(e.target.value)}
-            className="mt-1.5"
-            size={Math.min(6, Math.max(3, candidates.length))}
-          >
-            {candidates.map((e) => (
-              <option key={e.id} value={e.id}>
-                {e.name}
-                {e.registration_number ? ` · ${e.registration_number}` : ''}
-              </option>
-            ))}
-          </Select>
+          <EntityPicker value={otherId} onChange={setOtherId} exclude={[entityId]} allowRequest />
         </Field>
 
         <div className="grid grid-cols-2 gap-3">
@@ -135,12 +110,7 @@ export function RelationshipModal({ open, onClose, entityId, entityName }: Relat
           </Field>
           {relationshipType === 'ownership' && (
             <Field label={t('groups.fields.ownershipPct')}>
-              <Input
-                inputMode="decimal"
-                value={ownershipPct}
-                onChange={(e) => setOwnershipPct(e.target.value)}
-                className="num"
-              />
+              <AmountInput value={ownershipPct} onChange={setOwnershipPct} suffix="%" />
             </Field>
           )}
         </div>

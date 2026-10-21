@@ -7,9 +7,11 @@
 
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Field, GradeScale, Input, Modal, PageHeader, Select, Spinner, SectionTitle } from '../../components/ui'
+import { AmountInput, Badge, Button, Card, EmptyState, Field, GradeScale, Input, Modal, PageHeader, Select, Spinner, SectionTitle, Textarea } from '../../components/ui'
+import { amountToPlain, parseAmount } from '../../components/ui/amount'
 import { useAuth } from '../../auth/AuthContext'
 import { bandForGrade, hasRole } from '../../lib/roles'
 import { EM_DASH, formatAmount, formatDate, formatMoment } from '../../lib/format'
@@ -379,7 +381,7 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
   const assessments = useAssessments(request.entity_id)
 
   const [outcome, setOutcome] = useState<'approved' | 'partial' | 'declined'>('approved')
-  const [amount, setAmount] = useState(String(request.requested_amount))
+  const [amount, setAmount] = useState(amountToPlain(request.requested_amount))
   const [validFrom, setValidFrom] = useState(new Date().toISOString().slice(0, 10))
   const [validUntil, setValidUntil] = useState('')
   const [conditions, setConditions] = useState<ConditionInput[]>([])
@@ -398,7 +400,7 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
   const band = bandForGrade(chosenAssessment?.rating_grade)
   const { data: myAuthority } = useMyAuthorityUzs(band)
   const { data: rates } = useLatestRatesFor(currency)
-  const parsedAmount = Number(amount.replace(/\s/g, '').replace(',', '.'))
+  const parsedAmount = parseAmount(amount) ?? Number.NaN
   const amountValid = Number.isFinite(parsedAmount) && parsedAmount > 0
   const needsAmount = outcome !== 'declined'
 
@@ -478,13 +480,8 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
 
       {needsAmount && (
         <div className="grid gap-3 md:grid-cols-2">
-          <Field label={`${t('limits.fields.approvedAmount')} (${currency})`}>
-            <Input
-              inputMode="decimal"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="num"
-            />
+          <Field label={t('limits.fields.approvedAmount')}>
+            <AmountInput value={amount} onChange={setAmount} suffix={currency} />
             {latest && (
               <p className="mt-0.5 text-xs text-slate-400">
                 {t('limits.calculatedHint', {
@@ -525,12 +522,7 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
       )}
 
       <Field label={t('policies.transitionComment')}>
-        <textarea
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          rows={2}
-          className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-900 focus:outline-2 focus:outline-accent-600"
-        />
+        <Textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} />
       </Field>
 
       {/* Authority preflight — same conversion rule as the SQL function. */}
@@ -605,13 +597,14 @@ function ConditionsRepeater({
           {t('limits.fields.conditions')}
         </span>
         <Button
-          variant="ghost"
+          variant="secondary"
           size="sm"
           onClick={() =>
             onChange([...conditions, { condition_type: 'other', description: '' }])
           }
         >
-          + {t('limits.addCondition')}
+          <Plus />
+          {t('limits.addCondition')}
         </Button>
       </div>
       {conditions.length === 0 ? (

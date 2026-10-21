@@ -40,19 +40,26 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
   const effectiveBuyers = new Set(effectiveList.map((l) => l.entity_id))
   /** Open requests for buyers with no effective limit yet get their own rows. */
   const openOnly = openRequests.filter((r) => !effectiveBuyers.has(r.entity_id))
+  const empty = effectiveList.length === 0 && openOnly.length === 0
 
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between">
-        <SectionTitle>
-          {t('policies.buyersLimitsTitle')}
-        </SectionTitle>
-        <Button size="sm" onClick={() => setModalOpen(true)}>
-          {t('limits.requestLimit')}
-        </Button>
-      </div>
+      {/* One place for the action: here once there are rows, in the empty
+          state while there are none. */}
+      <SectionTitle
+        className="mb-3"
+        actions={
+          !empty && (
+            <Button size="sm" onClick={() => setModalOpen(true)}>
+              {t('limits.requestLimit')}
+            </Button>
+          )
+        }
+      >
+        {t('policies.buyersLimitsTitle')}
+      </SectionTitle>
 
-      {effectiveList.length === 0 && openOnly.length === 0 ? (
+      {empty ? (
         <EmptyState
           title={t('limits.noneForPolicy')}
           action={

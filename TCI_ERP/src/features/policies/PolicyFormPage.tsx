@@ -8,22 +8,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Card, Field, Input, PageHeader, Select, Spinner, SectionTitle } from '../../components/ui'
-import { useCurrencies, useEntities } from '../entities/api'
+import { AmountInput, Button, Card, Field, Input, PageHeader, Select, Spinner, SectionTitle } from '../../components/ui'
+import { amountToPlain, parseAmount } from '../../components/ui/amount'
+import { useCurrencies } from '../entities/api'
+import { EntityPicker } from '../entities/EntityPicker'
 import { useCreatePolicy, usePolicy, useUpdatePolicy } from './api'
 import type { PolicyInput } from './api'
 import { validatePolicy } from './validation'
 import type { PolicyFormValues } from './validation'
 import { DECLARATION_FREQUENCIES, PRODUCT_STRUCTURES } from './types'
 import type { DeclarationFrequency, ProductStructure } from './types'
-
-/** Tolerant numeric parsing: spaces as group separators, comma or dot decimals. */
-function parseNum(raw: string): number | null {
-  const cleaned = raw.replace(/\s/g, '').replace(',', '.')
-  if (!cleaned) return null
-  const value = Number(cleaned)
-  return Number.isFinite(value) ? value : null
-}
 
 interface FormState {
   entity_id: string
@@ -81,7 +75,6 @@ export function PolicyFormPage() {
   const isEdit = Boolean(id)
 
   const { data: existing, isLoading } = usePolicy(id ?? '')
-  const { data: policyholders } = useEntities()
   const { data: currencies } = useCurrencies()
   const createPolicy = useCreatePolicy()
   const updatePolicy = useUpdatePolicy(id ?? '')
@@ -95,7 +88,7 @@ export function PolicyFormPage() {
 
   useEffect(() => {
     if (isEdit && existing) {
-      const s = (v: number | null): string => (v === null ? '' : String(v))
+      const s = (v: number | null): string => amountToPlain(v)
       setForm({
         entity_id: existing.entity_id,
         policy_number: existing.policy_number,
@@ -129,19 +122,19 @@ export function PolicyFormPage() {
       status: isEdit ? (existing?.status ?? 'draft') : 'draft',
       inception_date: form.inception_date,
       expiry_date: form.expiry_date,
-      insured_percentage: parseNum(form.insured_percentage),
-      max_liability_amount: parseNum(form.max_liability_amount),
-      max_liability_premium_multiple: parseNum(form.max_liability_premium_multiple),
-      nql_amount: parseNum(form.nql_amount),
-      deductible_each_loss: parseNum(form.deductible_each_loss),
-      aggregate_first_loss: parseNum(form.aggregate_first_loss),
-      premium_rate_pct: parseNum(form.premium_rate_pct),
-      minimum_premium: parseNum(form.minimum_premium),
-      estimated_annual_turnover: parseNum(form.estimated_annual_turnover),
-      discretionary_limit: parseNum(form.discretionary_limit),
-      waiting_period_days: parseNum(form.waiting_period_days),
-      max_extension_period_days: parseNum(form.max_extension_period_days),
-      max_payment_terms_days: parseNum(form.max_payment_terms_days),
+      insured_percentage: parseAmount(form.insured_percentage),
+      max_liability_amount: parseAmount(form.max_liability_amount),
+      max_liability_premium_multiple: parseAmount(form.max_liability_premium_multiple),
+      nql_amount: parseAmount(form.nql_amount),
+      deductible_each_loss: parseAmount(form.deductible_each_loss),
+      aggregate_first_loss: parseAmount(form.aggregate_first_loss),
+      premium_rate_pct: parseAmount(form.premium_rate_pct),
+      minimum_premium: parseAmount(form.minimum_premium),
+      estimated_annual_turnover: parseAmount(form.estimated_annual_turnover),
+      discretionary_limit: parseAmount(form.discretionary_limit),
+      waiting_period_days: parseAmount(form.waiting_period_days),
+      max_extension_period_days: parseAmount(form.max_extension_period_days),
+      max_payment_terms_days: parseAmount(form.max_payment_terms_days),
     }),
     [form, isEdit, existing],
   )
@@ -249,18 +242,13 @@ export function PolicyFormPage() {
           </SectionTitle>
           <div className="grid gap-3 md:grid-cols-2">
             <Field label={t('policies.fields.policyholder')}>
-              <Select
-                value={form.entity_id}
-                onChange={(e) => set({ entity_id: e.target.value })}
+              <EntityPicker
+                value={form.entity_id || null}
+                onChange={(id) => set({ entity_id: id ?? '' })}
                 disabled={isEdit}
-              >
-                <option value="">{t('common.notSelected')}</option>
-                {(policyholders ?? []).map((ph) => (
-                  <option key={ph.id} value={ph.id}>
-                    {ph.name}
-                  </option>
-                ))}
-              </Select>
+                invalid={Boolean(submitted && validation.errors.entity_id)}
+                allowRequest
+              />
               {message('entity_id')}
             </Field>
             <Field label={t('policies.fields.policyNumber')}>
@@ -322,6 +310,7 @@ export function PolicyFormPage() {
             <NumField
               label={t('policies.terms.insuredPercentage')}
               suffix="%"
+              decimals={2}
               value={form.insured_percentage}
               onChange={(v) => set({ insured_percentage: v })}
               message={message('insured_percentage')}
@@ -343,6 +332,8 @@ export function PolicyFormPage() {
             <NumField
               label={t('policies.terms.maxLiabilityMultiple')}
               suffix={t('policies.terms.timesPremium')}
+              decimals={2}
+              className="pr-20!"
               value={form.max_liability_premium_multiple}
               onChange={(v) => set({ max_liability_premium_multiple: v })}
               message={message('max_liability_premium_multiple')}
@@ -373,6 +364,7 @@ export function PolicyFormPage() {
             <NumField
               label={t('policies.terms.premiumRate')}
               suffix="%"
+              decimals={5}
               value={form.premium_rate_pct}
               onChange={(v) => set({ premium_rate_pct: v })}
               message={message('premium_rate_pct')}
@@ -410,6 +402,7 @@ export function PolicyFormPage() {
             <NumField
               label={t('policies.terms.waitingPeriod')}
               suffix={t('policies.terms.daysSuffix')}
+              decimals={0}
               value={form.waiting_period_days}
               onChange={(v) => set({ waiting_period_days: v })}
               message={message('waiting_period_days')}
@@ -417,6 +410,7 @@ export function PolicyFormPage() {
             <NumField
               label={t('policies.terms.maxExtensionPeriod')}
               suffix={t('policies.terms.daysSuffix')}
+              decimals={0}
               value={form.max_extension_period_days}
               onChange={(v) => set({ max_extension_period_days: v })}
               message={message('max_extension_period_days')}
@@ -424,6 +418,7 @@ export function PolicyFormPage() {
             <NumField
               label={t('policies.terms.maxPaymentTerms')}
               suffix={t('policies.terms.daysSuffix')}
+              decimals={0}
               value={form.max_payment_terms_days}
               onChange={(v) => set({ max_payment_terms_days: v })}
               message={message('max_payment_terms_days')}
@@ -452,33 +447,34 @@ export function PolicyFormPage() {
   )
 }
 
-/** Amount input with a currency/unit suffix; right-aligned numerals. */
+/** Amount input with a currency/unit suffix; right-aligned, grouped numerals.
+ * `decimals` defaults to money (2); `className` widens the room for a long suffix. */
 function NumField({
   label,
   suffix,
+  decimals = 2,
+  className,
   value,
   onChange,
   message,
 }: {
   label: string
   suffix: string
+  decimals?: number
+  className?: string
   value: string
   onChange: (value: string) => void
   message: React.ReactNode
 }) {
   return (
     <Field label={label}>
-      <div className="relative">
-        <Input
-          inputMode="decimal"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="num pr-16"
-        />
-        <span className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-[12px] text-slate-400">
-          {suffix}
-        </span>
-      </div>
+      <AmountInput
+        value={value}
+        onChange={onChange}
+        decimals={decimals}
+        suffix={suffix}
+        className={className}
+      />
       {message}
     </Field>
   )

@@ -10,13 +10,13 @@ import { useTranslation } from 'react-i18next'
 import { Button, Field, Input, Modal, Select } from '../../components/ui'
 import {
   refName,
-  useCountries,
   useCreateEntity,
   useIndustries,
   useRegNumberMatch,
   useSimilarEntities,
   useUpdateEntity,
 } from './api'
+import { CountryPicker } from './CountryPicker'
 import type { EntityInput } from './api'
 import { dedupVerdict } from './dedup'
 import type { LegalEntity } from './types'
@@ -50,7 +50,6 @@ export function EntityFormModal({
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const navigate = useNavigate()
-  const { data: countries } = useCountries()
   const { data: industries } = useIndustries()
   const createEntity = useCreateEntity()
   const updateEntity = useUpdateEntity(initial?.id ?? '')
@@ -138,6 +137,7 @@ export function EntityFormModal({
   return (
     <Modal
       open={open}
+      wide
       onClose={onClose}
       title={initial ? t('entities.edit') : t('entities.add')}
       footer={
@@ -152,7 +152,7 @@ export function EntityFormModal({
       }
     >
       <div className="flex flex-col gap-3">
-        <div className="grid grid-cols-[1fr_120px] gap-3">
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <Field label={t('buyers.fields.name')}>
             <Input value={name} onChange={(e) => setName(e.target.value)} required />
           </Field>
@@ -184,13 +184,7 @@ export function EntityFormModal({
 
         <div className="grid grid-cols-2 gap-3">
           <Field label={t('buyers.fields.country')}>
-            <Select value={countryCode} onChange={(e) => setCountryCode(e.target.value)}>
-              {(countries ?? []).map((c) => (
-                <option key={c.code} value={c.code}>
-                  {refName(c, locale)}
-                </option>
-              ))}
-            </Select>
+            <CountryPicker value={countryCode || null} onChange={(code) => setCountryCode(code ?? '')} />
           </Field>
           <Field label={t('buyers.fields.industry')}>
             <Select value={industryId} onChange={(e) => setIndustryId(e.target.value)}>

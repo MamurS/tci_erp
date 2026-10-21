@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
 import {
+  AmountInput,
   Badge,
   Button,
   Callout,
@@ -21,6 +22,7 @@ import {
   Table,
   ViewBar,
 } from '../../components/ui'
+import { amountToPlain } from '../../components/ui/amount'
 import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import {
   useClaimCoverage,
@@ -303,7 +305,7 @@ function OverrideModal({
   const clear = useClearOverride()
   const [verdict, setVerdict] = useState<CoverageVerdict>(line.override_verdict ?? 'covered')
   const [amount, setAmount] = useState(
-    String(line.override_covered_amount ?? line.claimable_amount),
+    amountToPlain(line.override_covered_amount ?? line.claimable_amount),
   )
   const [justification, setJustification] = useState(line.override_justification ?? '')
   const [error, setError] = useState<string | null>(null)
@@ -369,7 +371,7 @@ function OverrideModal({
       </Field>
       {verdict !== 'not_covered' && (
         <Field label={t('claims.fields.covered')}>
-          <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          <AmountInput value={amount} onChange={setAmount} suffix={claim.currency_code} />
         </Field>
       )}
       <Field label={t('claims.fields.justification')}>
@@ -395,6 +397,8 @@ function InvoiceModal({ claim, onClose }: { claim: Claim; onClose: () => void })
   const [error, setError] = useState<string | null>(null)
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) =>
     setForm((f) => ({ ...f, [k]: e.target.value }))
+  const setAmount = (k: 'amount' | 'paid_amount' | 'disputed_amount') => (plain: string) =>
+    setForm((f) => ({ ...f, [k]: plain }))
 
   return (
     <Modal
@@ -445,14 +449,18 @@ function InvoiceModal({ claim, onClose }: { claim: Claim; onClose: () => void })
       <Field label={t('claims.fields.dueDate')}>
         <Input type="date" value={form.due_date} onChange={set('due_date')} />
       </Field>
-      <Field label={`${t('claims.fields.amount')} (${claim.currency_code})`}>
-        <Input type="number" value={form.amount} onChange={set('amount')} />
+      <Field label={t('claims.fields.amount')}>
+        <AmountInput value={form.amount} onChange={setAmount('amount')} suffix={claim.currency_code} />
       </Field>
       <Field label={t('claims.fields.paidAmount')}>
-        <Input type="number" value={form.paid_amount} onChange={set('paid_amount')} />
+        <AmountInput value={form.paid_amount} onChange={setAmount('paid_amount')} suffix={claim.currency_code} />
       </Field>
       <Field label={t('claims.fields.disputedAmount')}>
-        <Input type="number" value={form.disputed_amount} onChange={set('disputed_amount')} />
+        <AmountInput
+          value={form.disputed_amount}
+          onChange={setAmount('disputed_amount')}
+          suffix={claim.currency_code}
+        />
       </Field>
       <p className="mt-1 text-xs text-slate-500">{t('claims.disputedHint')}</p>
     </Modal>

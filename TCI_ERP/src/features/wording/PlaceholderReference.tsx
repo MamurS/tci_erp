@@ -9,8 +9,9 @@ export function PlaceholderReference() {
   const { t } = useTranslation()
   return (
     <Card className="p-5">
-      <SectionTitle>{t('wording.reference.title')}</SectionTitle>
-      <p className="mb-3 text-[13px] text-slate-500">{t('wording.reference.hint')}</p>
+      <SectionTitle className="mb-3" hint={t('wording.reference.hint')}>
+        {t('wording.reference.title')}
+      </SectionTitle>
       <ul className="mb-4 list-inside list-disc text-[13px] text-slate-600">
         <li>{t('wording.reference.syntaxValue', WORDING_SYNTAX)}</li>
         <li>{t('wording.reference.syntaxLoop', WORDING_SYNTAX)}</li>

@@ -128,7 +128,10 @@
     "tryAgain": "Try again in a moment.",
     "somethingWentWrong": "Something went wrong.",
     "notPermitted": "You are not permitted to do this.",
-    "recordNotFound": "The record was not found — it may have been removed. Refresh the page."
+    "recordNotFound": "The record was not found — it may have been removed. Refresh the page.",
+    "noMatches": "Nothing matches",
+    "noMatchesHint": "Change the search or reset the filters.",
+    "resetFilters": "Reset filters"
   },
   "dashboard": {
     "welcome": "Welcome, {{email}}",
@@ -1116,7 +1119,7 @@
       "nql": "Non-qualifying loss (NQL)",
       "deductibleEachLoss": "Deductible each loss",
       "aggregateFirstLoss": "Aggregate first loss",
-      "premiumRate": "Premium rate (% of turnover)",
+      "premiumRate": "Premium rate (on turnover)",
       "minimumPremium": "Minimum premium",
       "estimatedTurnover": "Estimated annual turnover",
       "discretionaryLimit": "Discretionary limit",
@@ -1578,7 +1581,7 @@
         "agent": "Browser",
         "current": "(this session)",
         "revoke": "Sign out everywhere",
-        "confirmRevoke": "Sign {{email}} out of every device? Their current access tokens expire within the JWT lifetime."
+        "confirmRevoke": "Sign {{email}} out of every device? Sessions already open end within an hour at most."
       },
       "events": {
         "title": "Recent events",
@@ -2046,6 +2049,7 @@
       "backToSearch": "Back to search",
       "proposalNote": "We do not have this company yet. Your request goes to our team to identify it first, then to underwriting.",
       "registrationNumber": "Registration number",
+      "amount": "Amount",
       "amountIn": "Amount, {{currency}}",
       "amountInvalid": "Enter an amount greater than zero",
       "maxTerms": "Your policy allows up to {{days}} days",
@@ -3294,10 +3298,12 @@
     },
     "notFound": {
       "title": "«{{query}}» is not in the registry",
-      "hint": "Ask an information manager to register it from an official source, or add it yourself if you have the details.",
+      "hint": "An information manager will register it from an official source; you will be told in your Agenda.",
       "request": "Request it",
       "paletteItem": "Request «{{query}}»",
-      "paletteSub": "Not in the registry — ask an information manager to register it"
+      "paletteSub": "Not in the registry — ask an information manager to register it",
+      "add": "Add «{{query}}»",
+      "hintDesk": "Look it up in an official registry or enter it from the documents you have."
     },
     "statementsRequest": {
       "button": "Request fresh statements",
@@ -3315,5 +3321,16 @@
       "reasonRequired": "Give a reason the person who asked can act on.",
       "companyRequired": "Choose the company the request was resolved with."
     }
+  },
+  "picker": {
+    "placeholder": "Type a company name or registration number",
+    "noMatches": "No matches",
+    "more": "{{n}} more — keep typing to narrow it down",
+    "clear": "Clear",
+    "request": "Request «{{query}}»",
+    "requestHint": "Not in the registry — an information manager will register it",
+    "notInRegistry": "Not in the registry",
+    "buyerPlaceholder": "A company from the registry, or a new name",
+    "countryPlaceholder": "Type a country or its code"
   }
 }

@@ -157,8 +157,39 @@ counts), Badge, Modal, EmptyState (with icon), PageHeader (eyebrow + display
 title), SectionTitle, StatCard (key figure with a coloured top rule and
 tone), Skeleton, Spinner, BrandMark, GradeScale (engine grade bands),
 RatingGauge (semicircle 0–100 with needle and change vs previous) and
-RatingLegend (the ten-band scale). Screens compose these — no ad-hoc
-one-off controls.
+RatingLegend (the ten-band scale), Combobox (typeahead), AmountInput,
+LinkButton, ConfirmDialog. Screens compose these — no ad-hoc one-off
+controls.
+
+### Interaction rules (owner review, October 2026)
+
+Each was found on a real screen; `layoutContract.test.ts` enforces the
+mechanical ones.
+
+* **One action, one place.** An action is offered once per view — never in a
+  section header AND in the empty state below it. A section with rows shows
+  it in its header; while empty, the empty state carries it. A page-level
+  action stays in the page header and the empty state only explains. A list
+  emptied by filters says so and offers «Сбросить фильтры», not «create».
+* **Pick from long lists by typing.** A company is chosen with `EntityPicker`
+  (suggestions appear as you type — name or registration number, matching
+  letters in bold, flag and country under each — and «Запросить
+  организацию» when it is not there); a country with `CountryPicker` (any
+  language or the ISO code). Never a listbox `<select size>`, never a native
+  dropdown of the whole registry or of 249 countries. A filter lists only
+  the values the data actually holds, with counts.
+* **No box in a box.** Inside a Card or Panel an EmptyState and a Table drop
+  their own frame (`FramedContext`).
+* **A section header is one `SectionTitle`** with `hint` and `actions` — one
+  height whether or not a button sits beside it, the button never hanging
+  over the content, the same spacing everywhere. Never a hand-made
+  `justify-between` row around it.
+* **Confirmations are `ConfirmDialog`** (styled, translated, the button names
+  the action) — never `window.confirm`. A button that navigates is a
+  `LinkButton` — never `<a>` around `<button>`. Add-buttons carry a `Plus`
+  icon, never a typed «+».
+* **Escape closes the top dialog only**; in a picker it closes the list,
+  not the dialog.
 
 ### The rating scale
 
@@ -214,10 +245,18 @@ Templates and the contract register are tabs of «Полисы» («Реестр
 ## Financial data display rules (apply everywhere)
 
 * Numbers **right-aligned** with `tabular-nums` — use the `num` utility class.
-* Thousands separator: space; decimal comma for ru/uz, standard `1,234.56`
-  for en (`src/lib/format.ts` is the only formatter — never `toLocaleString`
-  inline). Compact amounts (`formatCompact`: 261.37B / 261,37 млрд) for prose
-  and key figures; full amounts in statement tables. A value that rounds to
+* Separators (owner's decision, 2026-10-21): **comma between thousands,
+  point for decimals — `1,234,567.89` — in every UI language**, on screen,
+  in reports and while typing (`THOUSANDS_SEPARATOR` / `DECIMAL_SEPARATOR`
+  in `src/lib/format.ts`, the only formatter — never `toLocaleString`
+  inline). The one exception is a generated LEGAL document (policy
+  wording), written in its language's national notation
+  (`formatDocumentAmount`: `1 250 000,00` in ru/uz). Compact amounts
+  (`formatCompact`: 261.37B / 261.37 млрд) for prose and key figures; full
+  amounts in statement tables. A numeric table cell never wraps.
+* Amounts are TYPED in `AmountInput`: grouped as you type, caret kept,
+  right-aligned, the currency (or %, days) inside the field as a suffix —
+  never in the label as well. A value that rounds to
   zero never prints as "-0".
 * Negative values: red (`text-neg-500`) with a minus sign.
 * Percentages: 1 decimal place on screen, 2 in the report.

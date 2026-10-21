@@ -8,7 +8,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Card, Field, Input, PageHeader, Segmented, Select, Spinner } from '../../../components/ui'
+import { AmountInput, Button, Card, Field, Input, PageHeader, Segmented, Select, Spinner, LinkButton } from '../../../components/ui'
+import { amountToPlain, parseAmount } from '../../../components/ui/amount'
 import { formatAmount } from '../../../lib/format'
 import {
   useEntity,
@@ -46,13 +47,6 @@ import {
 } from './localApi'
 
 /** Permissive numeric parsing: "1 234,56" and "1234.56" both accepted. */
-function parseAmount(raw: string): number | null {
-  const cleaned = raw.replace(/\s/g, '').replace(',', '.')
-  if (cleaned === '' || cleaned === '-') return null
-  const value = Number(cleaned)
-  return Number.isFinite(value) ? value : null
-}
-
 export function StatementFormPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
@@ -199,9 +193,9 @@ export function StatementFormPage() {
         }
         actions={
           <>
-            <Link to={`/buyers/${entityId}?tab=financials`}>
-              <Button variant="secondary">{t('common.cancel')}</Button>
-            </Link>
+            <LinkButton variant="secondary" to={`/buyers/${entityId}?tab=financials`}>
+              {t('common.cancel')}
+            </LinkButton>
             <Button onClick={() => void handleSave()} disabled={saving}>
               {saving ? t('common.saving') : t('common.save')}
             </Button>
@@ -428,11 +422,11 @@ function LineInput<K extends string>({
 }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const [raw, setRaw] = useState(value === null ? '' : String(value))
+  const [raw, setRaw] = useState(amountToPlain(value))
 
   // Sync external resets (e.g. loading an existing statement).
   useEffect(() => {
-    setRaw(value === null ? '' : String(value))
+    setRaw(amountToPlain(value))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value === null ? '' : String(value)])
 
@@ -455,16 +449,15 @@ function LineInput<K extends string>({
           </span>
         )}
       </div>
-      <input
-        type="text"
-        inputMode="decimal"
+      <AmountInput
+        allowNegative
         value={raw}
-        onChange={(e) => {
-          setRaw(e.target.value)
-          onChange(parseAmount(e.target.value))
+        onChange={(plain) => {
+          setRaw(plain)
+          onChange(parseAmount(plain))
         }}
-        className={`num rounded border px-2 py-1 text-[13px] focus:outline-2 focus:outline-accent-600 focus:-outline-offset-1 ${
-          warning ? 'border-warn-500/50 bg-warn-50' : 'border-slate-200 bg-white'
+        className={`h-7! rounded! px-2! py-1! text-[13px]! ${
+          warning ? 'border-warn-500/50! bg-warn-50!' : 'border-slate-200!'
         }`}
       />
     </div>

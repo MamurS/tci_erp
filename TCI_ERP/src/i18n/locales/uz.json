@@ -128,7 +128,10 @@
     "tryAgain": "Bir lahzadan so‘ng urinib ko‘ring.",
     "somethingWentWrong": "Nimadir noto‘g‘ri ketdi.",
     "notPermitted": "Sizda bu amalni bajarish huquqi yo‘q.",
-    "recordNotFound": "Yozuv topilmadi — ehtimol, u o‘chirilgan. Sahifani yangilang."
+    "recordNotFound": "Yozuv topilmadi — ehtimol, u o‘chirilgan. Sahifani yangilang.",
+    "noMatches": "Hech narsa topilmadi",
+    "noMatchesHint": "Qidiruv shartlarini o‘zgartiring yoki filtrlarni tozalang.",
+    "resetFilters": "Filtrlarni tozalash"
   },
   "dashboard": {
     "welcome": "Xush kelibsiz, {{email}}",
@@ -1107,7 +1110,7 @@
       "operation": "Operatsion shartlar"
     },
     "terms": {
-      "insuredPercentage": "Sug‘urta qoplamasi, %",
+      "insuredPercentage": "Sug‘urta qoplamasi",
       "maxLiability": "Javobgarlikning maksimal limiti",
       "maxLiabilityAmount": "Javobgarlikning maksimal limiti (summa)",
       "maxLiabilityMultiple": "Javobgarlikning maksimal limiti (× mukofot)",
@@ -1116,7 +1119,7 @@
       "nql": "Qoplanmaydigan zarar (NQL)",
       "deductibleEachLoss": "Har bir zarar bo‘yicha franshiza",
       "aggregateFirstLoss": "Birinchi zarar bo‘yicha agregat franshiza",
-      "premiumRate": "Mukofot stavkasi, aylanmadan %",
+      "premiumRate": "Mukofot stavkasi (aylanmadan)",
       "minimumPremium": "Minimal mukofot",
       "estimatedTurnover": "Kutilayotgan yillik aylanma",
       "discretionaryLimit": "Diskretsion limit",
@@ -1578,7 +1581,7 @@
         "agent": "Brauzer",
         "current": "(bu seans)",
         "revoke": "Barcha seanslarni yakunlash",
-        "confirmRevoke": "{{email}} seanslari barcha qurilmalarda yakunlansinmi? Joriy kirish tokenlari JWT muddati ichida tugaydi."
+        "confirmRevoke": "{{email}} seanslarini barcha qurilmalarda tugatasizmi? Ochiq seanslar ko‘pi bilan bir soat ichida tugaydi."
       },
       "events": {
         "title": "So‘nggi hodisalar",
@@ -2046,6 +2049,7 @@
       "backToSearch": "Qidiruvga qaytish",
       "proposalNote": "Bu tashkilot bizda hali yo‘q. Avval xodimlarimiz uni aniqlaydi, so‘ng limitni anderrayting ko‘rib chiqadi.",
       "registrationNumber": "STIR",
+      "amount": "Summa",
       "amountIn": "Summa, {{currency}}",
       "amountInvalid": "Noldan katta summa kiriting",
       "maxTerms": "Polisingiz bo‘yicha — {{days}} kungacha",
@@ -3294,10 +3298,12 @@
     },
     "notFound": {
       "title": "«{{query}}» reyestrda yo‘q",
-      "hint": "Axborot menejeridan uni rasmiy manba asosida kiritishni so‘rang yoki rekvizitlar bo‘lsa, o‘zingiz qo‘shing.",
+      "hint": "Axborot menejeri uni rasmiy manba asosida kiritadi — kun tartibingizda xabar paydo bo‘ladi.",
       "request": "Tashkilotni so‘rash",
       "paletteItem": "«{{query}}»ni so‘rash",
-      "paletteSub": "Reyestrda yo‘q — axborot menejeridan kiritishni so‘rash"
+      "paletteSub": "Reyestrda yo‘q — axborot menejeridan kiritishni so‘rash",
+      "add": "«{{query}}»ni kiritish",
+      "hintDesk": "Uni rasmiy reyestrdan toping yoki mavjud hujjatlar asosida kiriting."
     },
     "statementsRequest": {
       "button": "Hisobotni so‘rash",
@@ -3315,5 +3321,16 @@
       "reasonRequired": "Sababni ko‘rsating — uni so‘rovni yaratgan xodim o‘qiydi.",
       "companyRequired": "So‘rov qaysi tashkilot bilan yopilishini tanlang."
     }
+  },
+  "picker": {
+    "placeholder": "Tashkilot nomi yoki ro‘yxat raqamini yozing",
+    "noMatches": "Mos keladigani yo‘q",
+    "more": "Yana {{n}} ta — so‘rovni aniqlashtiring",
+    "clear": "Tozalash",
+    "request": "«{{query}}»ni so‘rash",
+    "requestHint": "Reyestrda yo‘q — axborot menejeri uni kiritadi",
+    "notInRegistry": "Reyestrda yo‘q",
+    "buyerPlaceholder": "Reyestrdagi tashkilot yoki yangi nom",
+    "countryPlaceholder": "Mamlakat yoki uning kodini yozing"
   }
 }

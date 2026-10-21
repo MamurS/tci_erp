@@ -5,7 +5,20 @@
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Select, Spinner, Table, SectionTitle } from '../../components/ui'
+import {
+  AmountInput,
+  Badge,
+  Button,
+  Card,
+  Field,
+  Input,
+  Modal,
+  Select,
+  Spinner,
+  Table,
+  SectionTitle,
+} from '../../components/ui'
+import { parseAmount } from '../../components/ui/amount'
 import { signedDocumentUrl } from '../claims/api'
 import { verdictTone } from '../claims/coverage'
 import { ACCEPTED_MIME_TYPES, documentRejection } from '../claims/documents'
@@ -66,12 +79,14 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
       )}
 
       <Card className="p-5">
-        <div className="flex items-center justify-between">
-          <SectionTitle>{t('portal.claims.invoicesTitle')}</SectionTitle>
-          {editable && <AddInvoice claim={claim} onError={(e) => setError(mapError(e, t))} />}
-        </div>
+        <SectionTitle
+          className="mb-3"
+          actions={editable && <AddInvoice claim={claim} onError={(e) => setError(mapError(e, t))} />}
+        >
+          {t('portal.claims.invoicesTitle')}
+        </SectionTitle>
         {(invoices ?? []).length === 0 ? (
-          <p className="mt-3 text-[13px] text-slate-500">{t('portal.claims.noInvoices')}</p>
+          <p className="text-[13px] text-slate-500">{t('portal.claims.noInvoices')}</p>
         ) : (
           <Table dense>
             <thead>
@@ -206,45 +221,76 @@ function AddInvoice({ claim, onError }: { claim: ClientClaim; onError: (e: unkno
   const set = (k: keyof typeof form) => (e: { target: { value: string } }) =>
     setForm((f) => ({ ...f, [k]: e.target.value }))
 
-  if (!open) {
-    return (
+  const ready =
+    form.invoice_number.trim() !== '' &&
+    form.invoice_date !== '' &&
+    form.shipment_date !== '' &&
+    form.due_date !== '' &&
+    (parseAmount(form.amount) ?? 0) > 0
+  const close = () => {
+    setOpen(false)
+    setForm({ invoice_number: '', invoice_date: '', shipment_date: '', due_date: '', amount: '' })
+  }
+
+  return (
+    <>
       <Button size="sm" variant="secondary" onClick={() => setOpen(true)}>
         {t('portal.claims.actions.addInvoice')}
       </Button>
-    )
-  }
-  return (
-    <div className="flex flex-wrap items-end gap-2">
-      <input className="rounded border px-2 py-1 text-[13px]" placeholder={t('portal.claims.fields.invoiceNumber')} value={form.invoice_number} onChange={set('invoice_number')} />
-      <input className="rounded border px-2 py-1 text-[13px]" type="date" value={form.invoice_date} onChange={set('invoice_date')} />
-      <input className="rounded border px-2 py-1 text-[13px]" type="date" value={form.shipment_date} onChange={set('shipment_date')} />
-      <input className="rounded border px-2 py-1 text-[13px]" type="date" value={form.due_date} onChange={set('due_date')} />
-      <input className="rounded border px-2 py-1 text-[13px]" type="number" placeholder={t('portal.claims.fields.amount')} value={form.amount} onChange={set('amount')} />
-      <Button
-        size="sm"
-        onClick={() =>
-          save
-            .mutateAsync({
-              claim_id: claim.id,
-              invoice_number: form.invoice_number,
-              invoice_date: form.invoice_date,
-              shipment_date: form.shipment_date,
-              due_date: form.due_date,
-              amount: Number(form.amount),
-            })
-            .then(() => {
-              setOpen(false)
-              setForm({ invoice_number: '', invoice_date: '', shipment_date: '', due_date: '', amount: '' })
-            })
-            .catch(onError)
+      <Modal
+        open={open}
+        wide
+        title={t('portal.claims.actions.addInvoice')}
+        onClose={close}
+        footer={
+          <>
+            <Button variant="secondary" onClick={close}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              disabled={!ready || save.isPending}
+              onClick={() =>
+                save
+                  .mutateAsync({
+                    claim_id: claim.id,
+                    invoice_number: form.invoice_number.trim(),
+                    invoice_date: form.invoice_date,
+                    shipment_date: form.shipment_date,
+                    due_date: form.due_date,
+                    amount: parseAmount(form.amount) ?? 0,
+                  })
+                  .then(close)
+                  .catch(onError)
+              }
+            >
+              {save.isPending ? t('common.saving') : t('portal.claims.actions.addInvoice')}
+            </Button>
+          </>
         }
       >
-        {t('common.save')}
-      </Button>
-      <Button size="sm" variant="secondary" onClick={() => setOpen(false)}>
-        {t('common.cancel')}
-      </Button>
-    </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t('portal.claims.fields.invoiceNumber')}>
+            <Input value={form.invoice_number} onChange={set('invoice_number')} autoFocus />
+          </Field>
+          <Field label={t('portal.claims.fields.amount')}>
+            <AmountInput
+              value={form.amount}
+              onChange={(plain) => setForm((f) => ({ ...f, amount: plain }))}
+              suffix={claim.currency_code}
+            />
+          </Field>
+          <Field label={t('claims.fields.invoiceDate')}>
+            <Input type="date" value={form.invoice_date} onChange={set('invoice_date')} />
+          </Field>
+          <Field label={t('portal.claims.fields.shipmentDate')}>
+            <Input type="date" value={form.shipment_date} onChange={set('shipment_date')} />
+          </Field>
+          <Field label={t('portal.claims.fields.dueDate')}>
+            <Input type="date" value={form.due_date} onChange={set('due_date')} />
+          </Field>
+        </div>
+      </Modal>
+    </>
   )
 }
 

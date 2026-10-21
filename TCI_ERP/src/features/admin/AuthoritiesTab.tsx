@@ -6,7 +6,8 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Input, Segmented, Select, Table, SectionTitle } from '../../components/ui'
+import { AmountInput, Badge, Button, Card, EmptyState, Input, Segmented, Select, Table, SectionTitle } from '../../components/ui'
+import { amountToPlain, parseAmount } from '../../components/ui/amount'
 import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { GRADE_BANDS } from '../../lib/roles'
 import type { AuthorityScope, GradeBand } from '../../lib/roles'
@@ -31,22 +32,21 @@ export function AuthoritiesTab({ user }: { user: AdminUser | null }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <SectionTitle>
-            {t('admin.authoritiesFor', { email: user.email })}
-          </SectionTitle>
-          <p className="text-[13px] text-slate-500">{t('admin.authoritiesHint')}</p>
-        </div>
-        <Segmented
-          value={scope}
-          options={[
-            { key: 'credit', label: t('admin.scopes.credit') },
-            { key: 'commercial', label: t('admin.scopes.commercial') },
-          ]}
-          onChange={(key) => setScope(key as AuthorityScope)}
-        />
-      </div>
+      <SectionTitle
+        hint={t('admin.authoritiesHint')}
+        actions={
+          <Segmented
+            value={scope}
+            options={[
+              { key: 'credit', label: t('admin.scopes.credit') },
+              { key: 'commercial', label: t('admin.scopes.commercial') },
+            ]}
+            onChange={(key) => setScope(key as AuthorityScope)}
+          />
+        }
+      >
+        {t('admin.authoritiesFor', { email: user.email })}
+      </SectionTitle>
 
       {scope === 'commercial' && (
         <p className="rounded-md border border-slate-200 bg-slate-50 px-4 py-2.5 text-[13px] text-slate-600">
@@ -114,7 +114,7 @@ function BandRow({
   const [error, setError] = useState<string | null>(null)
 
   const start = () => {
-    setAmount(grant ? String(grant.max_amount) : '')
+    setAmount(grant ? amountToPlain(grant.max_amount) : '')
     setCurrency(grant?.currency_code ?? 'UZS')
     setValidFrom(grant?.valid_from ?? new Date().toISOString().slice(0, 10))
     setValidTo(grant?.valid_to ?? '')
@@ -122,7 +122,7 @@ function BandRow({
     setEditing(true)
   }
 
-  const parsed = Number(amount.replace(/\s/g, '').replace(',', '.'))
+  const parsed = parseAmount(amount) ?? Number.NaN
   const problem = useMemo(
     () => validateGrant({ maxAmount: parsed, validFrom, validTo: validTo || null }),
     [parsed, validFrom, validTo],
@@ -156,12 +156,7 @@ function BandRow({
       <tr>
         <td className="font-medium text-slate-800">{t(`limits.bands.${band}`)}</td>
         <td>
-          <Input
-            inputMode="decimal"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="num"
-          />
+          <AmountInput value={amount} onChange={setAmount} suffix={currency} />
         </td>
         <td>
           <Select value={currency} onChange={(e) => setCurrency(e.target.value)}>

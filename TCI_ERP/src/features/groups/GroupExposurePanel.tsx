@@ -50,24 +50,25 @@ export function GroupExposurePanel({
 
   return (
     <Card className="flex flex-col gap-4 p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <SectionTitle>{t('groups.exposure.title')}</SectionTitle>
-          <p className="mt-1 text-[13px] text-slate-500">{t('groups.exposure.hint')}</p>
-        </div>
-        {mayManageLimit && (
-          <div className="flex gap-2">
-            <Button size="sm" variant="secondary" onClick={onSetLimit}>
-              {groupLimit ? t('groups.actions.changeGroupLimit') : t('groups.actions.setGroupLimit')}
-            </Button>
-            {groupLimit && (
-              <Button size="sm" variant="ghost" onClick={onEndLimit}>
-                {t('groups.actions.endGroupLimit')}
+      <SectionTitle
+        hint={t('groups.exposure.hint')}
+        actions={
+          mayManageLimit && (
+            <>
+              <Button size="sm" variant="secondary" onClick={onSetLimit}>
+                {groupLimit ? t('groups.actions.changeGroupLimit') : t('groups.actions.setGroupLimit')}
               </Button>
-            )}
-          </div>
-        )}
-      </div>
+              {groupLimit && (
+                <Button size="sm" variant="dangerOutline" onClick={onEndLimit}>
+                  {t('groups.actions.endGroupLimit')}
+                </Button>
+              )}
+            </>
+          )
+        }
+      >
+        {t('groups.exposure.title')}
+      </SectionTitle>
 
       <div className="grid gap-3 sm:grid-cols-3">
         <Figure label={t('groups.exposure.total')} value={`${formatAmount(exposureUzs, locale)} UZS`} />

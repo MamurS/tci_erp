@@ -10,7 +10,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Field, Input, PageHeader, Select, Spinner, Table, SectionTitle } from '../../components/ui'
+import { AmountInput, Badge, Button, Card, EmptyState, Field, PageHeader, Select, Spinner, Table, SectionTitle } from '../../components/ui'
 import { EM_DASH, formatAmount, formatPeriod } from '../../lib/format'
 import { classifyLine } from '../declarations/coverage'
 import { lastClosedPeriodStart } from '../declarations/period'
@@ -287,11 +287,7 @@ function DeclarationEditor({
               </Select>
             </Field>
             <Field label={t('declarations.fields.insurableTurnover')}>
-              <Input
-                inputMode="decimal"
-                value={turnover}
-                onChange={(e) => setTurnover(e.target.value)}
-              />
+              <AmountInput value={turnover} onChange={setTurnover} suffix={declaration?.currency_code} />
             </Field>
             <Button
               disabled={!buyerId || !Number(turnover)}

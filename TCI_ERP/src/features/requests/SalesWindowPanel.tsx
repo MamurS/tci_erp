@@ -33,11 +33,13 @@ export function SalesWindowPanel({ request }: { request: InsuranceRequestWithRef
 
   return (
     <Card className="border-accent-600/30 p-5">
-      <div className="mb-1 flex items-center justify-between">
-        <SectionTitle>{t('requests.salesPanel')}</SectionTitle>
-        <Badge tone="accent">{t('requests.windowHours', { hours: windowHours ?? 24 })}</Badge>
-      </div>
-      <p className="mb-3 text-[13px] text-slate-500">{t('requests.salesPanelHint')}</p>
+      <SectionTitle
+        className="mb-3"
+        hint={t('requests.salesPanelHint')}
+        actions={<Badge tone="accent">{t('requests.windowHours', { hours: windowHours ?? 24 })}</Badge>}
+      >
+        {t('requests.salesPanel')}
+      </SectionTitle>
 
       {!limits?.length ? (
         <p className="text-[13px] text-slate-400">{t('requests.noDecisionsYet')}</p>

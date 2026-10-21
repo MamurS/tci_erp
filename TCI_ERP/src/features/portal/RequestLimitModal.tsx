@@ -9,7 +9,18 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Field, Input, Modal, Select, Spinner } from '../../components/ui'
+import {
+  AmountInput,
+  Badge,
+  Button,
+  Field,
+  Input,
+  Modal,
+  Select,
+  Spinner,
+  Textarea,
+} from '../../components/ui'
+import { parseAmount } from '../../components/ui/amount'
 import { useEntitySearch, useRequestLimit } from './api'
 import type { ClientPolicy, EntitySearchHit } from './types'
 
@@ -39,7 +50,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
   const policy = policies.find((p) => p.id === policyId)
 
   const buyerChosen = Boolean(picked) || (proposing && proposedName.trim().length > 0)
-  const amountValue = Number(amount.replace(/\s/g, '').replace(',', '.'))
+  const amountValue = parseAmount(amount) ?? Number.NaN
   const amountValid = Number.isFinite(amountValue) && amountValue > 0
   const canSubmit = Boolean(policyId) && buyerChosen && amountValid && !request.isPending
 
@@ -228,21 +239,23 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
 
         {/* --- what they want -------------------------------------------- */}
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field label={t('portal.limits.amountIn', { currency: policy?.currency_code ?? '' })}>
-            <Input
-              inputMode="decimal"
+          <Field label={t('portal.limits.amount')}>
+            <AmountInput
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={setAmount}
+              suffix={policy?.currency_code}
+              invalid={amount.trim() !== '' && !amountValid}
             />
             {amount.trim() !== '' && !amountValid && (
               <span className="text-[13px] text-neg-500">{t('portal.limits.amountInvalid')}</span>
             )}
           </Field>
-          <Field label={t('portal.limits.paymentTermsDays')}>
-            <Input
-              inputMode="numeric"
+          <Field label={t('portal.limits.paymentTerms')}>
+            <AmountInput
+              decimals={0}
               value={paymentTerms}
-              onChange={(e) => setPaymentTerms(e.target.value)}
+              onChange={setPaymentTerms}
+              suffix={t('policies.terms.daysSuffix')}
             />
             {policy?.max_payment_terms_days != null && (
               <span className="text-xs text-slate-400">
@@ -253,11 +266,10 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
         </div>
 
         <Field label={t('portal.limits.justification')}>
-          <textarea
+          <Textarea
             value={justification}
             onChange={(e) => setJustification(e.target.value)}
             rows={3}
-            className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-900 focus:outline-2 focus:outline-accent-600"
           />
         </Field>
 

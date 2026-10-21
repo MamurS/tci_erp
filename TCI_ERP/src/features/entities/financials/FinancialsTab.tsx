@@ -1,8 +1,9 @@
 import { useMemo, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, EmptyState, Input, Modal, Segmented, Spinner, Table, Tabs } from '../../../components/ui'
+import { AmountInput, Badge, Button, EmptyState, Modal, Segmented, Spinner, Table, Tabs, LinkButton } from '../../../components/ui'
+import { parseAmount } from '../../../components/ui/amount'
 import { formatAmount, formatDate } from '../../../lib/format'
 import { exportFileName, exportTableToExcel } from '../../../lib/exportTable'
 import { useEntity, useDeleteStatement, useStatements } from '../api'
@@ -109,9 +110,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
         title={t('fin.noStatements')}
         hint={t('fin.noStatementsHint')}
         action={
-          <Link to={`/buyers/${entityId}/statements/new`}>
-            <Button>{t('fin.addStatement')}</Button>
-          </Link>
+          <LinkButton to={`/buyers/${entityId}/statements/new`}>{t('fin.addStatement')}</LinkButton>
         }
       />
     )
@@ -136,9 +135,9 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
           <Button variant="secondary" size="sm" onClick={() => setManageOpen(true)}>
             {t('fin.manageStatements')} ({all.length})
           </Button>
-          <Link to={`/buyers/${entityId}/statements/new`}>
-            <Button size="sm">{t('fin.addStatement')}</Button>
-          </Link>
+          <LinkButton size="sm" to={`/buyers/${entityId}/statements/new`}>
+            {t('fin.addStatement')}
+          </LinkButton>
         </div>
       </div>
 
@@ -310,7 +309,7 @@ function ManualRateModal({ need, onClose }: { need: RateNeed; onClose: () => voi
   const { t } = useTranslation()
   const [raw, setRaw] = useState('')
   const save = useSaveManualRate()
-  const rate = Number(raw.replace(/\s/g, '').replace(',', '.'))
+  const rate = parseAmount(raw) ?? Number.NaN
   const valid = Number.isFinite(rate) && rate > 0
 
   return (
@@ -335,10 +334,11 @@ function ManualRateModal({ need, onClose }: { need: RateNeed; onClose: () => voi
       }
     >
       <p className="mb-3 text-[13px] text-slate-500">{t('fin.fx.manualHint')}</p>
-      <Input
-        inputMode="decimal"
+      <AmountInput
+        decimals={6}
         value={raw}
-        onChange={(e) => setRaw(e.target.value)}
+        onChange={setRaw}
+        suffix="UZS"
         placeholder={t('fin.fx.manualPlaceholder', { ccy: need.currency_code })}
         autoFocus
       />
@@ -473,11 +473,9 @@ function ManageStatementsModal({
               </td>
               <td>
                 <div className="flex justify-end gap-1.5">
-                  <Link to={`/buyers/${entityId}/statements/${s.id}/edit`}>
-                    <Button variant="ghost" size="sm">
-                      {t('common.edit')}
-                    </Button>
-                  </Link>
+                  <LinkButton variant="ghost" size="sm" to={`/buyers/${entityId}/statements/${s.id}/edit`}>
+                    {t('common.edit')}
+                  </LinkButton>
                   {confirmingId === s.id ? (
                     <Button
                       variant="danger"

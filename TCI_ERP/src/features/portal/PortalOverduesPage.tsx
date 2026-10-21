@@ -13,7 +13,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Field, Input, PageHeader, Select, Spinner, Table, SectionTitle } from '../../components/ui'
+import { AmountInput, Badge, Button, Card, EmptyState, Field, Input, PageHeader, Select, Spinner, Table, SectionTitle } from '../../components/ui'
 import { formatAmount, formatMoment } from '../../lib/format'
 import { isReportedLate, noaDeadline } from '../overdue/noa'
 import {
@@ -95,7 +95,7 @@ export function PortalOverduesPage() {
               <Input type="date" value={firstDue} max={today} onChange={(e) => setFirstDue(e.target.value)} />
             </Field>
             <Field label={t('overdues.fields.overdueAmount')}>
-              <Input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
+              <AmountInput value={amount} onChange={setAmount} suffix={activePolicy.currency_code} />
             </Field>
             <Button
               disabled={!buyerId || !firstDue || !Number(amount)}

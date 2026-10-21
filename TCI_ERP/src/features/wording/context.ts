@@ -7,7 +7,7 @@
  * a gap to fill, and a section tag like {{#policy.deductible}} disappears.
  */
 
-import { formatAmount, formatLongDate } from '../../lib/format'
+import { formatDocumentAmount, formatLongDate } from '../../lib/format'
 
 export interface MergeLimit {
   buyer_name: string | null
@@ -44,12 +44,12 @@ const text = (v: unknown): string => (v === null || v === undefined ? '' : Strin
 
 function money(v: unknown, locale: string): string {
   return typeof v === 'number' || (typeof v === 'string' && v !== '')
-    ? formatAmount(Number(v), locale, 2)
+    ? formatDocumentAmount(Number(v), locale, 2)
     : ''
 }
 
 function whole(v: unknown, locale: string): string {
-  return typeof v === 'number' || (typeof v === 'string' && v !== '') ? formatAmount(Number(v), locale, 0) : ''
+  return typeof v === 'number' || (typeof v === 'string' && v !== '') ? formatDocumentAmount(Number(v), locale, 0) : ''
 }
 
 /** A percentage stored as a percent number (90, 0.15): printed as entered. */
@@ -57,7 +57,7 @@ function percent(v: unknown, locale: string): string {
   if (v === null || v === undefined || v === '') return ''
   const n = Number(v)
   const decimals = Math.min(5, (String(n).split('.')[1] ?? '').length)
-  return `${formatAmount(n, locale, decimals)}%`
+  return `${formatDocumentAmount(n, locale, decimals)}%`
 }
 
 function date(v: unknown, locale: string): string {
@@ -119,7 +119,7 @@ export function buildWordingContext(
       max_liability_amount: money(p.max_liability_amount, locale),
       max_liability_multiple: p.max_liability_multiple === null || p.max_liability_multiple === undefined
         ? ''
-        : formatAmount(Number(p.max_liability_multiple), locale, 2),
+        : formatDocumentAmount(Number(p.max_liability_multiple), locale, 2),
       nql_amount: money(p.nql_amount, locale),
       deductible: money(p.deductible, locale),
       aggregate_first_loss: money(p.aggregate_first_loss, locale),

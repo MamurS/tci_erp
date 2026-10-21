@@ -19,6 +19,7 @@ import {
   Spinner,
   Table,
 } from '../../components/ui'
+import { normalize } from '../../components/ui/combobox'
 import {
   refName,
   useCountries,
@@ -57,13 +58,33 @@ export function EntitiesPage() {
   const [roleChip, setRoleChip] = useState<RoleChip>('all')
   const [modalOpen, setModalOpen] = useState(false)
 
+  // The filters offer what the registry actually holds, with how many —
+  // not every country of the world.
+  const countryOptions = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const e of entities ?? []) counts.set(e.country_code, (counts.get(e.country_code) ?? 0) + 1)
+    return (countries ?? [])
+      .filter((c) => counts.has(c.code))
+      .map((c) => ({ code: c.code, name: refName(c, locale), count: counts.get(c.code) ?? 0 }))
+      .sort((a, b) => a.name.localeCompare(b.name, locale))
+  }, [entities, countries, locale])
+  const industryOptions = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const e of entities ?? []) if (e.industry_id) counts.set(e.industry_id, (counts.get(e.industry_id) ?? 0) + 1)
+    return (industries ?? [])
+      .filter((i) => counts.has(i.code))
+      .map((i) => ({ code: i.code, name: refName(i, locale), count: counts.get(i.code) ?? 0 }))
+      .sort((a, b) => a.name.localeCompare(b.name, locale))
+  }, [entities, industries, locale])
+
   const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase()
+    // Case, diacritics and Uzbek apostrophes do not matter (as in every picker).
+    const query = normalize(search)
     return (entities ?? []).filter((e) => {
       if (
         query &&
-        !e.name.toLowerCase().includes(query) &&
-        !(e.registration_number ?? '').toLowerCase().includes(query)
+        !normalize(e.name).includes(query) &&
+        !normalize(e.registration_number ?? '').includes(query)
       )
         return false
       if (countryFilter && e.country_code !== countryFilter) return false
@@ -101,9 +122,9 @@ export function EntitiesPage() {
           className="max-w-48"
         >
           <option value="">{t('buyers.allCountries')}</option>
-          {(countries ?? []).map((c) => (
+          {countryOptions.map((c) => (
             <option key={c.code} value={c.code}>
-              {refName(c, locale)}
+              {c.name} · {c.count}
             </option>
           ))}
         </Select>
@@ -113,9 +134,9 @@ export function EntitiesPage() {
           className="max-w-56"
         >
           <option value="">{t('buyers.allIndustries')}</option>
-          {(industries ?? []).map((ind) => (
+          {industryOptions.map((ind) => (
             <option key={ind.code} value={ind.code}>
-              {refName(ind, locale)}
+              {ind.name} · {ind.count}
             </option>
           ))}
         </Select>
@@ -139,28 +160,24 @@ export function EntitiesPage() {
         <Card className="p-6">
           <EmptyState
             title={t('data.notFound.title', { query: search.trim() })}
-            hint={t('data.notFound.hint')}
+            hint={t(dataDesk ? 'data.notFound.hintDesk' : 'data.notFound.hint')}
             action={
-              <div className="flex flex-wrap justify-center gap-2">
-                <Button
-                  variant={dataDesk ? 'secondary' : 'primary'}
-                  onClick={() => setRequesting(true)}
-                >
-                  {t('data.notFound.request')}
+              // One action, the one that fits the person: the data desk
+              // registers the company itself (pre-filled with the name),
+              // everyone else asks the data desk to.
+              dataDesk ? (
+                <Button onClick={() => setModalOpen(true)}>
+                  {t('data.notFound.add', { query: search.trim() })}
                 </Button>
-                <Button variant={dataDesk ? 'primary' : 'secondary'} onClick={() => setModalOpen(true)}>
-                  {t('entities.add')}
-                </Button>
-              </div>
+              ) : (
+                <Button onClick={() => setRequesting(true)}>{t('data.notFound.request')}</Button>
+              )
             }
           />
         </Card>
       ) : filtered.length === 0 ? (
-        <EmptyState
-          title={t('entities.empty')}
-          hint={t('entities.emptyHint')}
-          action={<Button onClick={() => setModalOpen(true)}>{t('entities.add')}</Button>}
-        />
+        // «Add company» is in the page header; the empty state does not repeat it.
+        <EmptyState title={t('entities.empty')} hint={t('entities.emptyHint')} />
       ) : (
         <Table>
           <thead>

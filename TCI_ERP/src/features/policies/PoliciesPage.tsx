@@ -14,7 +14,6 @@ import {
   Table,
 } from '../../components/ui'
 import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
-import { useEntities } from '../entities/api'
 import { usePolicies } from './api'
 import { statusTone } from './statusMachine'
 import { POLICY_STATUSES, PRODUCT_STRUCTURES } from './types'
@@ -25,17 +24,36 @@ export function PoliciesPage() {
   const navigate = useNavigate()
 
   const { data: policies, isLoading } = usePolicies()
-  const { data: policyholders } = useEntities()
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [policyholderFilter, setPolicyholderFilter] = useState('')
   const [structureFilter, setStructureFilter] = useState('')
 
+  // The filter offers the companies that actually hold a policy, not the
+  // whole registry.
+  const policyholders = useMemo(() => {
+    const byId = new Map<string, string>()
+    for (const p of policies ?? []) if (p.legal_entities) byId.set(p.entity_id, p.legal_entities.name)
+    return [...byId].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name))
+  }, [policies])
+  const filtering = Boolean(search.trim() || statusFilter || policyholderFilter || structureFilter)
+  const resetFilters = () => {
+    setSearch('')
+    setStatusFilter('')
+    setPolicyholderFilter('')
+    setStructureFilter('')
+  }
+
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
     return (policies ?? []).filter((p) => {
-      if (query && !p.policy_number.toLowerCase().includes(query)) return false
+      if (
+        query &&
+        !p.policy_number.toLowerCase().includes(query) &&
+        !(p.legal_entities?.name ?? '').toLowerCase().includes(query)
+      )
+        return false
       if (statusFilter && p.status !== statusFilter) return false
       if (policyholderFilter && p.entity_id !== policyholderFilter) return false
       if (structureFilter && p.product_structure !== structureFilter) return false
@@ -77,7 +95,7 @@ export function PoliciesPage() {
           className="max-w-56"
         >
           <option value="">{t('policies.allPolicyholders')}</option>
-          {(policyholders ?? []).map((ph) => (
+          {policyholders.map((ph) => (
             <option key={ph.id} value={ph.id}>
               {ph.name}
             </option>
@@ -100,15 +118,20 @@ export function PoliciesPage() {
       {isLoading ? (
         <Spinner label={t('common.loading')} />
       ) : filtered.length === 0 ? (
-        <EmptyState
-          title={t('policies.empty')}
-          hint={t('policies.emptyHint')}
-          action={
-            <Button onClick={() => void navigate('/policies/new')}>
-              {t('policies.newPolicy')}
-            </Button>
-          }
-        />
+        // «New policy» lives in the bar above; the empty state never repeats it.
+        filtering ? (
+          <EmptyState
+            title={t('common.noMatches')}
+            hint={t('common.noMatchesHint')}
+            action={
+              <Button variant="secondary" onClick={resetFilters}>
+                {t('common.resetFilters')}
+              </Button>
+            }
+          />
+        ) : (
+          <EmptyState title={t('policies.empty')} hint={t('policies.emptyHint')} />
+        )
       ) : (
         <Table>
           <thead>

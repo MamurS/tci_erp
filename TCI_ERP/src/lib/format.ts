@@ -1,31 +1,51 @@
 /**
- * Number formatting per DESIGN.md: space thousands separator with decimal
- * comma for ru/uz, standard en formatting for en. Null renders as an em
- * dash, never as 0. This module is the ONLY number formatter in the app.
+ * Number formatting per DESIGN.md. Null renders as an em dash, never as 0.
+ * This module is the ONLY number formatter in the app.
+ *
+ * Separators (owner's decision, 2026-10-21): thousands are grouped with a
+ * comma and decimals take a point — 1,000,000.50 — in every UI language,
+ * on screen, in reports and while typing (components/ui/amount.ts reads the
+ * same two constants). Before that ru/uz used a space and a decimal comma.
  */
 
 const EM_DASH = '—'
 
-function groupThousands(intPart: string, separator: string): string {
-  return intPart.replace(/\B(?=(\d{3})+(?!\d))/g, separator)
+export const THOUSANDS_SEPARATOR = ','
+export const DECIMAL_SEPARATOR = '.'
+
+function groupThousands(intPart: string): string {
+  return intPart.replace(/\B(?=(\d{3})+(?!\d))/g, THOUSANDS_SEPARATOR)
 }
 
 /** Format a monetary/statement amount. Default 0 decimals. */
 export function formatAmount(
   value: number | null | undefined,
-  locale: string,
+  // Kept for the callers: separators no longer depend on the language.
+  _locale: string,
   decimals = 0,
 ): string {
   if (value === null || value === undefined || Number.isNaN(value)) return EM_DASH
-  const isRuUz = locale === 'ru' || locale === 'uz'
   const abs = Math.abs(value)
   const fixed = abs.toFixed(decimals)
   const [intPart, fracPart] = fixed.split('.')
-  const grouped = groupThousands(intPart, isRuUz ? ' ' : ',')
-  const decimalSep = isRuUz ? ',' : '.'
-  const body = fracPart ? `${grouped}${decimalSep}${fracPart}` : grouped
+  const grouped = groupThousands(intPart)
+  const body = fracPart ? `${grouped}${DECIMAL_SEPARATOR}${fracPart}` : grouped
   // A value that rounds to zero is zero: never print "-0.00".
   return value < 0 && /[1-9]/.test(fixed) ? `-${body}` : body
+}
+
+/**
+ * An amount in a generated LEGAL document (policy wording): the notation of
+ * the document's language, as contracts in Uzbekistan are written — a space
+ * between thousands and a decimal comma in ru/uz (1 000 000,00), the comma
+ * and point in en. The screens use formatAmount.
+ */
+export function formatDocumentAmount(value: number | null | undefined, locale: string, decimals = 0): string {
+  if (value === null || value === undefined || Number.isNaN(value)) return EM_DASH
+  const national = locale === 'ru' || locale === 'uz'
+  const body = formatAmount(value, locale, decimals)
+  if (!national) return body
+  return body.replace(/[,.]/g, (ch) => (ch === THOUSANDS_SEPARATOR ? '\u00a0' : ','))
 }
 
 /** Percentages: 1 decimal place. `value` is a fraction (0.153 -> "15.3%"). */

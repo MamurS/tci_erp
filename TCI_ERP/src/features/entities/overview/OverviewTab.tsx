@@ -7,13 +7,13 @@
  */
 
 import { useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { Calculator, FilePlus2, FileText, Pencil } from 'lucide-react'
 
 import { tci } from '../../../lib/supabase'
-import { Button } from '../../../components/ui'
+import { Button, LinkButton } from '../../../components/ui'
 import { formatAmount, formatLongDate } from '../../../lib/format'
 import { EntityFormModal } from '../EntityFormModal'
 import { ReportModal } from '../rating/ReportModal'
@@ -52,12 +52,10 @@ export function OverviewTab({
           {t('common.edit')}
         </Button>
         {!report.hasStatements ? (
-          <Link to={`/entities/${entityId}/statements/new`}>
-            <Button variant="secondary" size="sm">
-              <FilePlus2 className="size-3.5" />
-              {t('fin.addStatement')}
-            </Button>
-          </Link>
+          <LinkButton variant="secondary" size="sm" to={`/entities/${entityId}/statements/new`}>
+            <FilePlus2 className="size-3.5" />
+            {t('fin.addStatement')}
+          </LinkButton>
         ) : (
           !report.latestAssessment && (
             <Button variant="secondary" size="sm" onClick={() => goTo({ tab: 'rating' })}>
