@@ -105,6 +105,15 @@ begin
   perform pg_temp.refused($q$insert into tci.workflow_events (event_type, object_type, object_id)
     values ('x', 'y', gen_random_uuid())$q$, 'credit: forge a workflow event');
 
+  -- nobody closes, reopens or snoozes an Agenda task around its functions
+  -- (0055: the column grant of 0024 let a PATCH close any automatic task)
+  perform pg_temp.refused($q$update tci.tasks set status = 'done', completed_at = now()
+    where target_role = 'credit_underwriter'$q$, 'credit: close an automatic task directly');
+  perform pg_temp.refused($q$update tci.tasks set snoozed_until = now() + interval '1 day'
+    where target_role = 'credit_underwriter'$q$, 'credit: snooze a task directly');
+  perform pg_temp.refused($q$insert into tci.task_comments (task_id, body)
+    values (gen_random_uuid(), 'x')$q$, 'credit: comment around add_task_comment');
+
   -- what the application still edits directly keeps working: policy terms
   perform pg_temp.act('99999999-0000-4000-8000-0000000000c2');
   update tci.policies set notes = 'terms edited' where id = '99999999-0000-4000-8000-0000000000f1';
@@ -121,5 +130,5 @@ begin
   end if;
 end $$;
 
-do $$ begin raise notice 'direct_writes: OK — decisions, policy status, claims money, group limits, relationships and events are function-only'; end $$;
+do $$ begin raise notice 'direct_writes: OK — decisions, policy status, claims money, group limits, relationships, events, tasks and task comments are function-only'; end $$;
 rollback;
