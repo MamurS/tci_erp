@@ -87,11 +87,11 @@ function useIsDesktop(): boolean {
 /**
  * The staff frame, with the sidebar of the Claude app. On a desktop the
  * sidebar is docked or hidden (remembered per browser). Hidden, only its
- * toggle is left, in the top-left corner; resting the pointer on it floats
- * the WHOLE panel out — its top row with the name included — as a rounded
- * card inset from the window edges, over the top bar, with its own toggle
- * exactly under the pointer. Clicking that toggle docks the panel; leaving
- * the card puts it away. Nothing else opens it — no edge strip, no pin.
+ * toggle is left, in the top-left corner; resting the pointer on it slides
+ * the panel out — square and full height exactly as when docked, over the
+ * top bar — with the toggle not moving at all and no name beside it.
+ * Clicking the toggle docks the panel; leaving it puts the panel away.
+ * Nothing else opens it — no edge strip, no pin.
  * Below 1024px it is a drawer. Ctrl/⌘ B toggles it, Ctrl/⌘ K opens the
  * command palette.
  */
@@ -160,14 +160,12 @@ export function AppShell() {
       )}
 
       {!showDocked && isDesktop && (
-        // The peek, as in the Claude app: the whole panel as a card inset 8px
-        // from the window edges, over the top bar, its toggle under the
+        // The peek: the same square, full-height panel as docked, flush with
+        // the left edge and over the top bar, its toggle exactly under the
         // pointer. It is inert while put away.
         <div
-          className={`fixed top-2 bottom-2 left-2 z-50 overflow-hidden rounded-xl ring-1 ring-black/5 transition-[translate,opacity] duration-200 ease-out ${
-            overlayOpen
-              ? 'translate-x-0 opacity-100 shadow-2xl shadow-accent-900/40'
-              : 'pointer-events-none -translate-x-[calc(100%+1rem)] opacity-0'
+          className={`fixed inset-y-0 left-0 z-50 transition-transform duration-200 ease-out ${
+            overlayOpen ? 'translate-x-0 shadow-2xl shadow-accent-900/40' : 'pointer-events-none -translate-x-full'
           }`}
           onMouseEnter={peek}
           onMouseLeave={unpeek}

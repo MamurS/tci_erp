@@ -61,19 +61,21 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
 
 ## App shell
 
-* **Sidebar, exactly as in the Claude app:** docked (w-64) or hidden —
-  never an icon rail. Docked, its top row is the name on the left and the
-  hide toggle on the right. Hidden, only the toggle is left, in the top-left
-  corner of the top bar (20px in, centred 32px down). Resting the pointer on
-  it floats the WHOLE panel out — top row with the name included — as a
-  rounded card inset 8px from the window edges, over the top bar, with its
-  own toggle at exactly those coordinates, so the pointer never leaves a
-  toggle; a click on it docks the panel, leaving the card puts it away.
-  Both toggles are `SidebarToggle`: an icon with a dark tooltip naming the
-  action and the shortcut (no native title). Nothing else peeks it: no
-  left-edge strip, no pin button. Ctrl/⌘ B toggles. Below 1024px it is a
-  drawer with a backdrop that closes on navigation and on Escape. The state
-  is remembered per browser (`tci-erp-sidebar`). Logic: `layout/shell.ts`.
+* **Sidebar, as in the Claude app (owner-specified details):** docked
+  (w-64) or hidden — never an icon rail. Docked, its top row is the name on
+  the left and the hide toggle on the right. Hidden, only the toggle is
+  left, in the top-left corner of the top bar (20px in, centred 32px down).
+  Resting the pointer on it slides the panel out: the SAME square,
+  full-height panel as docked, flush with the left edge, over the top bar —
+  its rows exactly where the docked panel has them, the toggle NOT moving
+  (same coordinates, measured headlessly) and NO name beside it; the name
+  appears only once the panel is docked. A click on the toggle docks the
+  panel, leaving the panel puts it away. Both toggles are `SidebarToggle`:
+  an icon with a dark tooltip naming the action and the shortcut. Nothing
+  else peeks it: no left-edge strip, no pin button. Ctrl/⌘ B toggles. Below
+  1024px it is a drawer with a backdrop that closes on navigation and on
+  Escape. The state is remembered per browser (`tci-erp-sidebar`). Logic:
+  `layout/shell.ts`.
 * **Role workspaces:** the top of the sidebar is the workspace switcher
   (icon, «Рабочее пространство», the workspace name; a list when the person
   has several). Below it «Общее» (dashboard, agenda, companies), then the

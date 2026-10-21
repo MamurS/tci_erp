@@ -3,10 +3,11 @@
  * the current workspace's own tools (workspaces.ts). As in the Claude app it
  * is either there or gone. Docked, its top row carries the name on the left
  * and the hide toggle on the right. Hidden, only the toggle is left, in the
- * top-left corner of the top bar; resting the pointer on it floats the WHOLE
- * panel out as a card (the peek) whose own toggle sits exactly where the
- * pointer already is, and clicking it docks the panel again. On small
- * screens it is a drawer.
+ * top-left corner of the top bar; resting the pointer on it slides the panel
+ * out (the peek) — the same square, full-height panel as docked, flush with
+ * the left edge — with the toggle staying exactly where it is and no name
+ * beside it; clicking the toggle docks the panel. On small screens it is a
+ * drawer.
  */
 
 import { NavLink } from 'react-router-dom'
@@ -124,9 +125,10 @@ export function Sidebar({
       aria-label={t('nav.title')}
     >
       {variant === 'peek' ? (
-        // The toggle at the very spot of the top bar's (20px in, centred
-        // 32px down: the card is inset 8px), then the name.
-        <div className="flex h-12 shrink-0 items-center gap-2 border-b border-white/10 pr-5 pl-3">
+        // Only the toggle, at the very spot of the top bar's (20px in,
+        // centred 32px down), so it does not move when the panel slides out
+        // under the pointer. The name appears once the panel is docked.
+        <div className="flex h-16 shrink-0 items-center border-b border-white/10 pr-3 pl-5">
           <SidebarToggle
             action="show"
             tone="inverse"
@@ -134,9 +136,6 @@ export function Sidebar({
             onMouseEnter={onToggleEnter}
             onMouseLeave={onToggleLeave}
           />
-          <div className="flex min-w-0 flex-1 flex-col">
-            <BrandMark size="sm" inverse />
-          </div>
         </div>
       ) : (
         <div className="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 pr-3 pl-5">
