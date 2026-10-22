@@ -168,7 +168,7 @@ test('agenda triage: «Group by» regroups the queue', async ({ browser }) => {
   try {
     await page.locator('main [data-agenda-views] button').nth(1).click()
     await settle(page)
-    const headers = () => page.locator('main .lg\\:sticky [class*="uppercase"]').allInnerTexts()
+    const headers = () => page.locator('main [data-triage-pane="queue"] [class*="uppercase"]').allInnerTexts()
     const byDue = await headers()
     await page.locator('main [data-agenda-groupby] button[aria-haspopup]').click()
     await page.locator('[role="menu"] [role="menuitem"]').nth(2).click() // type
