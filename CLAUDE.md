@@ -217,7 +217,13 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 | company / organization (registry entity; en "Company") | **Организация** | **Tashkilot** |
 | insured person | Застрахованное лицо | **Sug‘urtalanuvchi shaxs** |
 | insurer | Страховщик | **Sug‘urtalovchi** |
-| non-qualifying loss | NQL | **Qoplanmaydigan zarar (NQL)** |
+| non-qualifying loss | **Невозмещаемые убытки (NQL)**; «невозмещаемые убытки» in running text (NOT «Некредитуемый / Некомпенсируемый / Неквалифицируемый убыток») — owner-decided 2026-10-22 | **Qoplanmaydigan zarar (NQL)** |
+| insured percentage (`insured_percentage`) | **Процент покрытия** (NOT «страховой процент», «доля покрытия», «Страховое покрытие») — owner-decided 2026-10-22 | — (not decided; uz unchanged) |
+| aggregate first loss (AFL) | **Агрегатная франшиза** (NOT «Совокупная франшиза») — owner-decided 2026-10-22 | — (not decided; uz unchanged) |
+| policy (the insurance policy object) | **Полис** (NOT «Договор» / «по договору TCI-…»); «договор» stays ONLY for the generated contract document and its templates («Договоры», «Шаблоны договоров», «Проект договора», `wording.*`) and for the buyer's supply contract («Договор поставки») — owner-decided 2026-10-22 | — (not decided; uz unchanged) |
+| grade band (A/B/C/D/unrated, authority) | **Диапазон рейтинга** — «в диапазоне рейтинга B», «по диапазонам рейтинга» (NOT «рейтинговый класс», «класс B», bare «Диапазон», «грейд-бэнд»); en "rating band" — owner-decided 2026-10-22 | **reyting diapazoni** (NOT «reyting klassi», «reyting sinfi», bare «Diapazon») |
+| engine-calculated credit limit | **Рекомендуемый лимит** (NOT «Расчётный лимит (модель)», «Расчётный лимит»); en "Recommended limit" — owner-decided 2026-10-22 | **Tavsiya etilgan limit** |
+| overdue notification (NOA) | Уведомление о просрочке | **xabarnoma** in every form and suffix (NOT «bildirishnoma») — owner-decided 2026-10-22 |
 | discretionary limit | Дискреционный лимит | **Diskretsion limit** |
 | deductible | Франшиза | **Franshiza** |
 | risk | Риск | **Qaltislik** |
@@ -225,8 +231,11 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 | policy annulment | Аннулирован | **Annulyatsiya** / **Annulyatsiya qilingan** |
 | limit revocation (risk action) | Отозван | **Limitni bekor qilish** / **Bekor qilingan** |
 | request withdrawal (by requester) | Отозвана | **Qaytarib olish** / **Qaytarib olingan** |
-| claims (department / section) | Убытки | **Sug‘urta da’volari** |
+| claims (department / section / role / workspace) | **Претензии** (NOT «Убытки») — owner-decided 2026-10-22; «убыток / убытки» stays ONLY for the accounting loss (P&L, NQL, deductibles, incurred losses) | **Sug‘urta da’volari** |
+| a claim (the object) | **Претензия** (NOT «Требование», «Требование о возмещении», «Убыток», «дело по убытку») — owner-decided 2026-10-22 | **da’vo** |
 | insured event | Страховой случай | **Sug‘urta hodisasi** (the event itself — never for the department) |
+
+The ru decisions of 2026-10-22 (and uz «xabarnoma») are enforced by `src/i18n/ruTerminology.test.ts`, which names every retired variant it finds and the key it sits on.
 
 **Homonymy rule (owner-dictated).** Policy cancellation and limit revocation deliberately share the short status label **«Bekor qilingan»** — they live on different screens, so the badge is unambiguous in context. Buttons and confirmations must ALWAYS name the object: «Shartnomani bekor qilish», «Limitni bekor qilish». Never ship a bare «Bekor qilish» as a domain action. `zarar` stays the accounting term for *loss* (P&L, NQL, deductibles) and must not be swapped for `da’vo`.
 
@@ -534,7 +543,7 @@ is fine for internal test accounts and not fine for customers.
   `docs/deploy/canonical-apply-0055.sql` for the one held DROP POLICY),
   function bodies md5-identical to a local replay, live smoke with role
   impersonation rolled back, counts unchanged
-- [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
+- [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
 ## Design notes (future phases — recorded, not built)
@@ -1429,16 +1438,34 @@ reference Internet Resheniya figures produce 6 pages in en and uz, 7 in ru.
 
 ### Replaying the migration chain locally
 
-Phase 5 was developed against a **local Postgres 16** with a small Supabase
-stub (roles, `auth.users` + `auth.uid()`, `storage.buckets`/`objects`,
-`pg_trgm` in schema `extensions`), replaying `0001` … `latest` with
-`psql --single-transaction` per file. It is worth rebuilding when a phase gets
-large: it caught two real defects that typecheck, lint and the unit tests all
-missed — four staff views shipped with **no `select` grant** (every claims
-screen would have rendered "permission denied"), and the `text[] || 'literal'`
-crash above. Two things to know: use `--single-transaction`, because
-`apply_migration` is transactional and 0015 relies on a temp table surviving
-between statements; and install `pg_trgm` into `extensions`, not `public`.
+The harness is committed in **`TCI_ERP/tools/db/`** (audit Phase B):
+`bootstrap.sql` is the Supabase stub (API roles, `auth.users` + `auth.uid()`,
+`storage.buckets`/`objects`, pgcrypto and `pg_trgm` in schema `extensions`,
+database `search_path = public, extensions`), and
+
+```sh
+createdb tci_replay                     # a FRESH, empty database
+TCI_ERP/tools/db/replay.sh tci_replay   # name or URL; stub + 0001…latest + tests/db/*.sql
+```
+
+applies every migration with `psql -v ON_ERROR_STOP=1 --single-transaction`,
+one transaction per file, then runs every `tests/db/*.sql`, stopping at the
+first failure (`--no-tests`, `--tests-only` for a restored backup). It needs
+a superuser connection and takes seconds. CI runs it on a **Postgres 17**
+service container (`.github/workflows/db.yml`, on changes to migrations,
+`tests/db` or `tools/db`); run it locally before applying a migration to
+canonical. A new `tests/db/*.sql` must roll back and print one
+`<name>: OK — …` notice, which is how `replay.sh` knows it passed.
+`tools/db/schema-fingerprint.sql` + `ledger-check.md` compare a replay with
+canonical; `docs/BACKUP-RESTORE.md` restores a nightly backup into it.
+
+It has paid for itself: it caught defects that typecheck, lint and the unit
+tests all missed — four staff views shipped with **no `select` grant** (every
+claims screen would have rendered "permission denied"), and the
+`text[] || 'literal'` crash above. Two things to know: use
+`--single-transaction`, because `apply_migration` is transactional and 0015
+relies on a temp table surviving between statements; and `pg_trgm` lives in
+`extensions`, not `public`.
 
 ### Client visibility (migration 0025)
 
@@ -1491,16 +1518,17 @@ Agenda task, now carrying the client's comment.
 
 ### The analytics service in production (Phase 3d)
 
-**Not hosted yet — hosting is deferred.** The Render blueprint
-(`Dockerfile` + `render.yaml` at the repository root — the build context
-must be the root, because the service imports `credit_engine` as an
-editable path dependency) is ready to use, and its free tier sleeps after
-~15 min idle (~1 min cold start) with $7/mo Starter removing that. The
-current preferred option is **Cloudflare Containers on the existing
-account** ($5/mo Workers Paid, 1–3s cold start) — see **The service-role
-key** above for the comparison. Until one is chosen and set up, users are
-created by hand: `docs/create-user.sql`. Full runbook, env vars and key
-rotation: `services/analytics/README.md`.
+**Not hosted yet — the deploy is prepared and waits for the owner's
+dashboard steps.** Host: **Cloudflare Containers** on the existing account
+($5/mo Workers Paid). `deploy/cloudflare-analytics/` holds the Worker that
+fronts one `lite` container built from the repo-root `Dockerfile` (build
+context = the root, because the service imports `credit_engine` as a path
+dependency); it overwrites the client-IP headers from the edge's
+`CF-Connecting-IP` and passes the service's env from Worker vars/secrets.
+Owner steps, secrets and the follow-up CSP change:
+[`services/analytics/README.md` → Cloudflare Containers](services/analytics/README.md#cloudflare-containers).
+`render.yaml` stays as a fallback. Until the steps are done, users are
+created by hand: `docs/create-user.sql`.
 
 Hardening that must not regress: CORS allowlist + an ANCHORED preview regex
 (never `*`), 1 MB body cap, 30s request deadline, opaque 500s with a request

@@ -1,5 +1,11 @@
 # Only credit_engine/ and services/analytics/ are needed to build the service.
 TCI_ERP/
+# The Cloudflare Worker that fronts the container is not part of the image.
+deploy/
+**/.wrangler/
+**/.dev.vars
+# Archived material (legacy/README.md), never part of the image.
+legacy/
 .git/
 .github/
 **/node_modules/
