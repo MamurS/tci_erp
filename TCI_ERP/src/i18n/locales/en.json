@@ -1983,6 +1983,27 @@
         "self": "A person cannot be their own manager.",
         "notStaff": "The manager must be a staff member, not a client."
       }
+    },
+    "autoDecisions": {
+      "title": "Auto decisions (ADT)",
+      "hint": "Credit limits decided automatically within each buyer's auto decision threshold. Off by default.",
+      "on": "Switched on",
+      "off": "Switched off",
+      "onBody": "Limit requests within a buyer's active ADT are approved automatically when they are submitted.",
+      "offBody": "Every limit request goes to a credit underwriter. ADTs set on buyers are recorded but not used.",
+      "enable": "Switch auto decisions on",
+      "disable": "Switch auto decisions off",
+      "confirmTitle": "Switch auto decisions on?",
+      "confirmBody": "From now on a submitted limit request within the buyer's ADT is approved at once, without an underwriter, the commercial stage or the sales window. Switch this on only after the rating engine is calibrated and the analytics service is hosted: the rule relies on the ratings and recommended limits they produce.",
+      "validity": "Validity of an auto-decided limit",
+      "validityHint": "Months, from {{min}} to {{max}}.",
+      "financialsAge": "Maximum age of financials",
+      "financialsAgeHint": "Months, from {{min}} to {{max}}. Older statements suspend the buyer's ADT.",
+      "months": "mo.",
+      "invalid": "Enter whole months within the limits shown.",
+      "saved": "Saved.",
+      "saveFailed": "The auto-decision settings could not be saved.",
+      "loadFailed": "Could not load the auto-decision settings."
     }
   },
   "requests": {

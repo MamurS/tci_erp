@@ -1983,6 +1983,27 @@
         "self": "Xodim o‘zining rahbari bo‘la olmaydi.",
         "notStaff": "Rahbar mijoz emas, xodim bo‘lishi kerak."
       }
+    },
+    "autoDecisions": {
+      "title": "Avtomatik qarorlar (ADT)",
+      "hint": "Har bir bayerning avtomatik qarorlar chegarasi doirasida avtomatik hal qilinadigan kredit limitlari. Odatda o‘chirilgan.",
+      "on": "Yoqilgan",
+      "off": "O‘chirilgan",
+      "onBody": "Bayerning amaldagi ADTsi doirasidagi limit so‘rovlari yuborilganda avtomatik tasdiqlanadi.",
+      "offBody": "Barcha limit so‘rovlari kredit anderrayteriga boradi. Bayerlarga belgilangan ADTlar saqlangan, lekin qo‘llanilmaydi.",
+      "enable": "Avtomatik qarorlarni yoqish",
+      "disable": "Avtomatik qarorlarni o‘chirish",
+      "confirmTitle": "Avtomatik qarorlar yoqilsinmi?",
+      "confirmBody": "Shu paytdan boshlab bayer ADTsi doirasida yuborilgan limit so‘rovi darhol tasdiqlanadi — anderrayter, tijorat bosqichi va sotuv tasdig‘isiz. Faqat reyting modeli kalibrlangan va tahlil xizmati joylashtirilgandan keyin yoqing: qoida ular beradigan reytinglar va tavsiya etilgan limitlarga tayanadi.",
+      "validity": "Avtomatik qaror bo‘yicha limitning amal qilish muddati",
+      "validityHint": "Oylar, {{min}} dan {{max}} gacha.",
+      "financialsAge": "Hisobotning eng katta yoshi",
+      "financialsAgeHint": "Oylar, {{min}} dan {{max}} gacha. Eskiroq hisobot bayer ADTsini to‘xtatadi.",
+      "months": "oy",
+      "invalid": "Ko‘rsatilgan chegaralarda butun oylar sonini kiriting.",
+      "saved": "Saqlandi.",
+      "saveFailed": "Avtomatik qarorlar sozlamalarini saqlab bo‘lmadi.",
+      "loadFailed": "Avtomatik qarorlar sozlamalarini yuklab bo‘lmadi."
     }
   },
   "requests": {
