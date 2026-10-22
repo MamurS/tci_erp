@@ -22,9 +22,11 @@ import { OFFER_ID, offerRows } from './fixtures'
 
 const frame = (page: Page) => page.frameLocator('iframe[data-offer-frame]').first()
 
-// The dev server compiles a route's chunk on its first visit: give the first
-// look at a screen more time than an assertion usually needs.
-test.setTimeout(60_000)
+// The dev server compiles a route's chunk on its first visit (and the
+// machine may be shared): the first look at a screen gets more time than an
+// assertion usually needs.
+test.setTimeout(90_000)
+const FIRST = { timeout: 30_000 }
 
 /** Inside the document: every page's content area fits its A4 box. */
 async function overflowingPages(page: Page): Promise<string[]> {
@@ -49,7 +51,7 @@ test('the offer screen: live preview of every page, the counter, the cover re-re
   await page.goto(`/requests/offers/${OFFER_ID}/edit`)
 
   const total = f.expected.pagesHtml.length
-  await expect(page.getByTestId('offer-page-counter')).toHaveText(`Страница 1 из ${total}`)
+  await expect(page.getByTestId('offer-page-counter')).toHaveText(`Страница 1 из ${total}`, FIRST)
   await expect(frame(page).locator('.page')).toHaveCount(total)
   await expect(frame(page).locator('[data-kp-cover="white"]')).toBeVisible()
   await expect(frame(page).getByText('Коммерческое предложение', { exact: true }).first()).toBeVisible()
@@ -104,7 +106,7 @@ test('an offer in Uzbek opens in Uzbek under a Russian interface; the language i
   await stubBackend(context, { lang: 'ru', roles: ['sales'], rows: f.rows })
   const page = await context.newPage()
   await page.goto(`/requests/offers/${OFFER_ID}/edit`)
-  await expect(frame(page).locator('[data-kp-cover="navy"]')).toBeAttached()
+  await expect(frame(page).locator('[data-kp-cover="navy"]')).toBeAttached(FIRST)
   await expect(frame(page).getByText('Tijorat taklifi', { exact: true }).first()).toBeAttached()
   await expect(frame(page).getByText('Qoplanmaydigan zarar (NQL)').first()).toBeAttached()
   await expect(page.getByRole('button', { name: 'Русский' })).toBeDisabled()
@@ -120,7 +122,7 @@ test('a published offer opens read-only until «Новая версия»', asyn
   await stubBackend(context, { lang: 'ru', roles: ['sales'], rows: f.rows })
   const page = await context.newPage()
   await page.goto(`/requests/offers/${OFFER_ID}/edit`)
-  await expect(frame(page).locator('.page')).toHaveCount(f.expected.pagesHtml.length)
+  await expect(frame(page).locator('.page')).toHaveCount(f.expected.pagesHtml.length, FIRST)
   await expect(page.getByRole('radio', { name: 'Синяя', exact: true })).toBeDisabled()
   await expect(page.getByLabel('Комментарий для клиента')).toBeDisabled()
   await page.getByRole('button', { name: 'Новая версия' }).click()
@@ -137,7 +139,7 @@ test('the portal shows the same pages, with Accept and Request changes', async (
   const page = await context.newPage()
   await page.goto(`/portal/offers/${OFFER_ID}`)
   const total = f.expected.pagesHtml.length
-  await expect(frame(page).locator('.page')).toHaveCount(total, { timeout: 15_000 })
+  await expect(frame(page).locator('.page')).toHaveCount(total, FIRST)
   await expect(page.getByTestId('offer-page-counter')).toHaveText(`Страница 1 из ${total}`)
   await expect(frame(page).locator('[data-kp-letter="1"]')).toContainText('Example Trading')
   await expect(page.getByRole('button', { name: 'Принять предложение' })).toBeEnabled()
@@ -159,7 +161,7 @@ test('an XSS probe as the client name and the note opens without any dialog and 
     void d.dismiss()
   })
   await page.goto(`/requests/offers/${OFFER_ID}/edit`)
-  await expect(frame(page).locator('[data-kp-letter="1"] [data-kp-client]')).toHaveText(`LLC ${probe}`)
+  await expect(frame(page).locator('[data-kp-letter="1"] [data-kp-client]')).toHaveText(`LLC ${probe}`, FIRST)
   await expect(frame(page).locator('[data-kp-note]')).toContainText('<script>alert(2)</script>')
   await expect(frame(page).locator('img')).toHaveCount(0)
   await expect(frame(page).locator('script')).toHaveCount(0)
@@ -177,7 +179,7 @@ for (const lang of ['ru', 'en', 'uz'] as const) {
     await stubBackend(context, { lang, roles: ['sales'], rows: f.rows })
     const page = await context.newPage()
     await page.goto(`/requests/offers/${OFFER_ID}/edit`)
-    await expect(frame(page).locator('.page')).toHaveCount(f.expected.pagesHtml.length)
+    await expect(frame(page).locator('.page')).toHaveCount(f.expected.pagesHtml.length, FIRST)
     expect(f.expected.letter.count).toBeGreaterThanOrEqual(3)
     expect(await overflowingPages(page)).toEqual([])
     expect(seal.violations()).toEqual([])

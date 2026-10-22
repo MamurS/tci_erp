@@ -20,6 +20,9 @@ import { sealNetwork } from '../support/network'
 import { stubBackend } from '../support/stub'
 import { OFFER_ID, offerRows } from './fixtures'
 
+// The dev server compiles the route on its first visit; the machine may be shared.
+test.setTimeout(90_000)
+
 for (const lang of ['ru', 'en', 'uz'] as const) {
   test(`the offer prints in ${lang} with the brochure: one PDF sheet per page`, async ({ browser }) => {
     const context = await browser.newContext()
@@ -30,7 +33,7 @@ for (const lang of ['ru', 'en', 'uz'] as const) {
 
     await page.goto(`/requests/offers/${OFFER_ID}/print?v=1`)
     const frameEl = page.locator('iframe[data-offer-frame]')
-    await expect(frameEl).toBeAttached()
+    await expect(frameEl).toBeAttached({ timeout: 30_000 })
     const doc = page.frameLocator('iframe[data-offer-frame]')
     const total = f.expected.pagesHtml.length
     await expect(doc.locator('.page')).toHaveCount(total)
