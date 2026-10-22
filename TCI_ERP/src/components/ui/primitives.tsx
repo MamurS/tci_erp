@@ -15,6 +15,7 @@ import { COL, tableMinWidth } from './columns'
 import type { ColumnWidth } from './columns'
 import type {
   ButtonHTMLAttributes,
+  HTMLAttributes,
   InputHTMLAttributes,
   MouseEvent,
   ReactNode,
@@ -107,7 +108,9 @@ export function Select({ className = '', children, ...rest }: SelectHTMLAttribut
 // Card
 // ---------------------------------------------------------------------------
 
-interface CardProps {
+/** A Card takes any div attribute besides its look — a `data-*` hook, an
+ * aria label — and passes it on. */
+interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'className'> {
   children: ReactNode
   className?: string
 }
@@ -115,10 +118,10 @@ interface CardProps {
 /** Inside a card: an empty state needs no frame of its own (no box in a box). */
 const FramedContext = createContext(false)
 
-export function Card({ children, className = '' }: CardProps) {
+export function Card({ children, className = '', ...rest }: CardProps) {
   return (
     <FramedContext.Provider value={true}>
-      <div className={`rounded-lg border border-slate-200/90 bg-white shadow-card ${className}`}>
+      <div {...rest} className={`rounded-lg border border-slate-200/90 bg-white shadow-card ${className}`}>
         {children}
       </div>
     </FramedContext.Provider>
@@ -175,36 +178,62 @@ export function SectionTitle({ children, actions, hint, rule = false, className 
 interface PanelGridProps {
   /** Column template; one column below the breakpoint. */
   cols?: string
+  /** The gap between the cards (gap-5 by default). */
+  gap?: string
   className?: string
   children: ReactNode
 }
 
 /**
- * A row of Panels. Each Panel is a two-row SUBGRID of this grid (head, body),
- * so the head row is as tall as the tallest head in the row: a panel with a
- * two-line hint and one with a bare title still start their tables on the
- * same line, and the cards are the same height whatever their bodies hold.
+ * A row of cards side by side (DESIGN.md «Side-by-side cards») — the ONE
+ * way to put cards next to each other:
+ *
+ * - every card in a line is as tall as the tallest (the grid stretches its
+ *   children): content stays top-aligned and the spare space stays at the
+ *   bottom of the shorter card;
+ * - a Panel is a two-row SUBGRID of this grid (head, body): the heads share
+ *   a height, so the bodies start on one line, and the bodies share the
+ *   rest; a Panel's `footer` is pinned to the bottom of its body, so the
+ *   action bars of a row sit on one line at the bottom of the cards;
+ * - any other child (a Card, or a component whose root is one) spans the
+ *   same two rows and simply stretches; a growable element inside a Panel
+ *   body (a list, a preview, a textarea) can take the spare height with
+ *   `h-full`;
+ * - `data-card-row` lets the layout guard check that the bottoms agree
+ *   (e2e/layout/cardRows.spec.ts).
  */
-export function PanelGrid({ cols = 'lg:grid-cols-2', className = '', children }: PanelGridProps) {
-  return <div className={`grid gap-5 ${cols} ${className}`}>{children}</div>
+export function PanelGrid({ cols = 'lg:grid-cols-2', gap = 'gap-5', className = '', children }: PanelGridProps) {
+  return (
+    <div data-card-row className={`grid *:row-span-2 ${gap} ${cols} ${className}`}>
+      {children}
+    </div>
+  )
 }
 
 interface PanelProps {
   title: ReactNode
   hint?: ReactNode
   actions?: ReactNode
+  /** An action bar pinned to the bottom of the card; inside a PanelGrid the
+   * footers of a row line up on one baseline. */
+  footer?: ReactNode
   className?: string
   children: ReactNode
 }
 
-/** A titled card. Inside a PanelGrid its body lines up with its neighbours'. */
-export function Panel({ title, hint, actions, className = '', children }: PanelProps) {
+/** A titled card. Inside a PanelGrid its body lines up with its neighbours'
+ * and its footer with theirs, at the bottom of a card as tall as the row. */
+export function Panel({ title, hint, actions, footer, className = '', children }: PanelProps) {
   return (
     <Card className={`row-span-2 grid min-w-0 grid-rows-subgrid gap-y-0 p-5 ${className}`}>
-      <SectionTitle actions={actions} hint={hint} className="mb-3 min-w-0">
+      <SectionTitle actions={actions} hint={hint} className="mb-3 min-w-0 self-start">
         {title}
       </SectionTitle>
-      <div className="min-w-0">{children}</div>
+      {/* The body takes the row's height; the footer sits at its bottom. */}
+      <div className="flex min-w-0 flex-col">
+        <div className="min-w-0 flex-1">{children}</div>
+        {footer && <div className="min-w-0 pt-4">{footer}</div>}
+      </div>
     </Card>
   )
 }

@@ -89,7 +89,7 @@ export function RelationshipModal({ open, onClose, entityId, entityName }: Relat
         {/* Two full sentences, both visible: a native select cut them off
             («PAO Ozon Holding — матер…») exactly where the meaning is. */}
         <Field label={t('groups.fields.direction')}>
-          <div role="radiogroup" aria-label={t('groups.fields.direction')} className="grid gap-2 sm:grid-cols-2">
+          <div role="radiogroup" aria-label={t('groups.fields.direction')} data-card-row className="grid gap-2 sm:grid-cols-2">
             {([true, false] as const).map((parent) => {
               const selected = thisIsParent === parent
               return (

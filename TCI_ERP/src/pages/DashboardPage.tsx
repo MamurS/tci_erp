@@ -24,7 +24,7 @@ import {
 import type { LucideIcon } from 'lucide-react'
 
 import { useAuth } from '../auth/AuthContext'
-import { Card, Skeleton } from '../components/ui'
+import { Card, PanelGrid, Skeleton } from '../components/ui'
 import { contextFor, useAgendaTasks, useTaskSubjects, subjectFor } from '../features/agenda/api'
 import { activeTasks, compareTasks, displayTaskType, formatTaskParams, isOverdue, taskLink, taskTitleKey } from '../features/agenda/catalogue'
 import type { Task } from '../features/agenda/types'
@@ -174,7 +174,9 @@ export function DashboardPage() {
         </div>
       </Card>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+      {/* Side by side, one height (PanelGrid): the shorter card keeps its
+          spare space at the bottom. */}
+      <PanelGrid cols="lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]" gap="gap-6">
         {/* The caller's own work, worst first */}
         {isStaff(roles) && (
           <Panel
@@ -261,7 +263,7 @@ export function DashboardPage() {
             </ul>
           )}
         </Panel>
-      </div>
+      </PanelGrid>
     </div>
   )
 }
