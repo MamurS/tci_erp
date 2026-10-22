@@ -2044,7 +2044,9 @@
       "entity_requested": "Company requested",
       "statements_requested": "Statements requested",
       "entity_request_resolved": "Your request is done",
-      "rating_new_statements": "New statements — rating review"
+      "rating_new_statements": "New statements — rating review",
+      "premium_payment_unmatched": "Payments to match",
+      "contract_review": "Contract review"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -2081,7 +2083,9 @@
       "entity_request_resolved_linked": "«{{name}}» was already in the registry — see the company ({{request_number}})",
       "entity_request_resolved_updated": "The statements of «{{name}}» are up to date ({{request_number}})",
       "entity_request_resolved_rejected": "Request {{request_number}} for «{{name}}» was declined: {{note}}",
-      "rating_new_statements": "Review the rating of {{subject}}: new financial statements since it was calculated"
+      "rating_new_statements": "Review the rating of {{subject}}: new financial statements since it was calculated",
+      "contract_review": "Review the draft contract {{draft_number}} ({{reference}}), v{{version_no}}",
+      "premium_payment_unmatched": "Bank payments need matching to policies"
     },
     "empty": {
       "title": "Nothing is waiting on you",

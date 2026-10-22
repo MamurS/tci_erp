@@ -2050,7 +2050,9 @@
       "entity_requested": "Запрошена организация",
       "statements_requested": "Запрошена отчётность",
       "entity_request_resolved": "Ваш запрос выполнен",
-      "rating_new_statements": "Новая отчётность — пересмотр рейтинга"
+      "rating_new_statements": "Новая отчётность — пересмотр рейтинга",
+      "premium_payment_unmatched": "Разнесение платежей",
+      "contract_review": "Согласование договора"
     },
     "tasks": {
       "buyer_needs_entity": "Определить организацию за «{{name}}» в заявке {{subject}}",
@@ -2087,7 +2089,9 @@
       "entity_request_resolved_linked": "«{{name}}» уже была в реестре — см. организацию ({{request_number}})",
       "entity_request_resolved_updated": "Отчётность «{{name}}» обновлена ({{request_number}})",
       "entity_request_resolved_rejected": "Запрос {{request_number}} по «{{name}}» отклонён: {{note}}",
-      "rating_new_statements": "Пересмотреть рейтинг {{subject}}: после расчёта поступила новая отчётность"
+      "rating_new_statements": "Пересмотреть рейтинг {{subject}}: после расчёта поступила новая отчётность",
+      "contract_review": "Согласовать проект договора {{draft_number}} ({{reference}}), v{{version_no}}",
+      "premium_payment_unmatched": "Платежи из выписки нужно разнести по полисам"
     },
     "empty": {
       "title": "Вас ничего не ждёт",

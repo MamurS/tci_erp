@@ -2044,7 +2044,9 @@
       "entity_requested": "Tashkilot so‘ralgan",
       "statements_requested": "Hisobot so‘ralgan",
       "entity_request_resolved": "So‘rovingiz bajarildi",
-      "rating_new_statements": "Yangi hisobot — reytingni qayta ko‘rish"
+      "rating_new_statements": "Yangi hisobot — reytingni qayta ko‘rish",
+      "premium_payment_unmatched": "To‘lovlarni taqsimlash",
+      "contract_review": "Shartnomani kelishish"
     },
     "tasks": {
       "buyer_needs_entity": "{{subject}} arizasidagi «{{name}}» ortidagi tashkilotni aniqlang",
@@ -2081,7 +2083,9 @@
       "entity_request_resolved_linked": "«{{name}}» reyestrda allaqachon bor edi — tashkilotni ko‘ring ({{request_number}})",
       "entity_request_resolved_updated": "«{{name}}» hisoboti yangilandi ({{request_number}})",
       "entity_request_resolved_rejected": "«{{name}}» bo‘yicha {{request_number}} so‘rovi rad etildi: {{note}}",
-      "rating_new_statements": "{{subject}} reytingini qayta ko‘ring: hisoblangandan keyin yangi moliyaviy hisobot kelgan"
+      "rating_new_statements": "{{subject}} reytingini qayta ko‘ring: hisoblangandan keyin yangi moliyaviy hisobot kelgan",
+      "contract_review": "{{draft_number}} shartnoma loyihasini kelishish ({{reference}}), v{{version_no}}",
+      "premium_payment_unmatched": "Ko‘chirmadagi to‘lovlarni polislarga taqsimlash kerak"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
