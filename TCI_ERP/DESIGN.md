@@ -480,6 +480,32 @@ A draft contract reads like paper and works like an object page
   plain sheet with «Ваши комментарии» beside it (a comment box only while
   under review).
 
+## Commercial offers and the brochure (`src/features/offers`, `src/features/brochure`)
+
+One document, three faces: `OfferDocument` renders the offer on the portal,
+in the staff print preview and on A4 (`/requests/offers/:id/print`,
+`/portal/offers/:id/print`); `BrochureBody` renders the brochure in the
+editor preview, the portal and the appended print pages. Never fork either.
+
+* **The document's language, not the UI's.** Every label comes from
+  `useFixedT(offer.language)`; country names from `tci.countries` in that
+  language; amounts through `formatDocumentAmount`.
+* **Print rules.** A4, 16/15/18/18 mm margins, «page x of y» in the `@page`
+  margin box from `pageCounterContent`, no footer on the cover. The cover
+  breaks after itself, the brochure starts on a new page. Terms and premium
+  tables are kept whole; the buyer table may run over pages, repeats its
+  header and never splits a row; an amount never wraps (`white-space:
+  nowrap`, widths from the `colgroup`). Brochure sections FLOW — a section
+  kept whole left half-empty pages — while a heading stays with its text and
+  the diagram, an image and each FAQ question with its answer stay whole.
+* **Auto-print waits** until every image has settled and the fonts are in
+  (10 s cap), so a PDF never captures an empty picture box.
+* **Basis badges** on buyer limits: approved = positive, indicative = neutral,
+  declined = negative, with the footnote that only approved limits are
+  decisions. A grade, an engine limit or an authority never appears.
+* `e2e/offers/print.spec.ts` prints the offer with the brochure in ru/en/uz
+  through the sealed stub (`OFFER_PDF_DIR` keeps the PDFs).
+
 ## Financial data display rules (apply everywhere)
 
 * Numbers **right-aligned** with `tabular-nums` — use the `num` utility class.

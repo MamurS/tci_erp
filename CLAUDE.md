@@ -584,6 +584,35 @@ is fine for internal test accounts and not fine for customers.
   `docs/deploy/canonical-apply-0057.sql`; acceptance smoke (generate → edit →
   compare → restore → review → share → agree → sign → locked) with role
   impersonation rolled back, nothing left behind
+- [x] Commercial offers (КП) and the TCI brochure (Prompt 26, migration
+  0058): a commercial offer is generated from a submission at commercial
+  review / sales confirmation / client review, in its own language (ru / en /
+  uz), as versions whose TEXTS staff write in the Prompt 25 editor and whose
+  DATA the database composes (`tci.offer_merge_data`: client, proposed terms,
+  premium estimate and instalments, buyer limits marked approved / indicative
+  / declined, insurer particulars, contact — never a grade, an engine limit,
+  an authority or a comment). Draft → published → viewed → accepted /
+  changes requested / declined, withdrawn; EXPIRED derived from
+  `valid_until`. Publishing hands the submission to the client
+  (sales_confirmation → client_review); accepting in the portal IS the 3c
+  acceptance (`client_accept_offer` → `client_respond_to_submission`), and an
+  expired offer refuses acceptance from every path. A seventh trigger keeps
+  the offer in step with its submission and tells sales when the client first
+  opens it; `offer_expiring` / `offer_expired` are lazy. Print route (A4,
+  page x of y, brochure from a new page) → the browser's PDF; portal
+  «Предложения»; offers on the company card. The versioned product brochure
+  (`tci.brochure_versions`, current = latest published) and a licensed media
+  library (`tci.media_assets`, private `media-assets` bucket, alt in three
+  languages, source and licence required) are managed by admin and sales.
+  FIX riding along: since 0043 a client's own answer to a submission was
+  refused with 42501 (`begin_internal_call` refused every non-staff caller);
+  the answer step now marks itself trusted. See **Commercial offer rules**
+  below. **Canonical: 0058 applied 2026-10-22** in sections (refresh_agenda
+  rebuilt server-side from its 0056 body + one call), every 0058 function,
+  view, column and grant fingerprint-identical to a local replay; live smoke
+  with role impersonation (prospect: generate ru → edit → brochure → publish →
+  view → changes → republish → expiry refused twice → accept) rolled back,
+  counts unchanged, offer sequence reset
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1371,6 +1400,59 @@ and were undone by hand. The rules since:
   output sanitised (`@demo.invalid` e-mails, no names or phones).
 * **A canonical smoke is one transaction ending in a forced rollback**, as
   before. Anything else that writes is a bug.
+
+### Commercial offer rules (migration 0058)
+
+**The browser writes words; the database writes facts.** A version's
+`texts` (one editor document per block: intro, why TCI, conditions, next
+steps) come from the screen; its `data` is composed by `tci.offer_merge_data`
+on EVERY save, so terms, premium and limits always print what the submission
+says now. A buyer limit is `approved` only for an effective approved/partial
+decision that is not held, `declined` for a declined/revoked one, and
+`indicative` (the requested amount) otherwise. `offer_merge_data` is granted
+to no API role, and 0058 plus `tests/db/commercial_offers.sql` assert that
+the client view carries no internal column and the data no internal field.
+
+**One source of truth for acceptance.** The offer FOLLOWS its submission:
+`client_accept_offer` and `client_request_offer_changes` call
+`client_respond_to_submission`, and the seventh trigger
+(`handle_offer_event`) settles the live offer from `request.status_changed`
+whichever screen answered. «Request changes» reuses the existing reopen of
+`submission_sales_confirmation` with the client's comment — no second sales
+task. Publishing is sales' step (sales_confirmation → client_review);
+withdrawing a published offer hands the submission back with the reason.
+
+**Expiry is derived and binding.** `tci.offer_effective_status` reads
+`expired` for a published/viewed offer past `valid_until` (the day in
+Tashkent, `tci.offer_today`); nothing is rewritten when the date passes.
+`client_respond_to_submission` itself refuses to accept a submission whose
+offer has expired, so the older «Мои заявки» page is not a way around it.
+Asking for changes stays possible after expiry ("renew it").
+
+**Versions and brochures are immutable.** An offer version is never updated
+(trigger, owner included); a brochure version's content never changes and
+only its status moves (draft → published → retired; the current brochure is
+the latest published, embedded in a version when that version is saved).
+`save_brochure_version` stamps each image's storage path and alt text from
+the library onto the section — a portal client cannot read the library, and
+a later alt edit must not rewrite a published brochure.
+
+**The client answer path is trusted code.** `advance_insurance_request`
+opens with `begin_internal_call()`, which refuses non-staff. A client
+reaches it only through `client_respond_to_submission`, which now calls
+`begin_trusted_call()` first, and `begin_internal_call()` accepts a
+transaction that already carries the token. A client calling it directly is
+still refused (asserted). This was broken from 0043 to 0058: no DB test had
+exercised the client's own answer.
+
+**The brochure's claims are reviewed before anything reaches a client.** The
+default brochure text is a DRAFT offered in the editor; it is never published
+automatically, and nothing without a recorded source and licence enters the
+media library. Statistics, partner names, ratings and awards are never
+invented. Every statement the draft makes is listed for sign-off in
+`docs/BROCHURE-CLAIMS.md` (generated from `BROCHURE_CLAIMS` in
+`defaultContent.ts`; the two marked ⚠ — collection support and disputed
+debts — are not modelled by the system and need the owner's confirmation).
 
 ### Contract drafts rules (migration 0057)
 
