@@ -42,6 +42,7 @@ const M44 = migration('0044_auth_hardening.sql')
 const M46 = migration('0046_login_gate.sql')
 const M48 = migration('0048_rotation_and_claim_documents.sql')
 const M60 = migration('0060_limit_validation.sql')
+const M62 = migration('0062_sign_in_notice.sql')
 
 /** The LATEST migration that (re)defines tci.definer_gate_allowlist(). */
 const ALLOWLIST_SOURCE = Object.entries(MIGRATIONS)
@@ -80,6 +81,10 @@ export const DEFINER_GATE_ALLOWLIST: readonly { name: string; why: string }[] = 
     name: 'is_validation_participant',
     why: 'an RLS predicate of tci.limit_validations: answers only whether the CALLER is in a validation chain',
   },
+  // 0062: the failed-sign-in notice's self-service functions
+  { name: 'record_sign_in', why: "marks only the caller's own fresh sign-in ticket succeeded, keyed by auth.uid(), same network" },
+  { name: 'acknowledge_sign_in_failures', why: "writes only the caller's own acknowledgement watermark, keyed by auth.uid()" },
+  { name: 'my_failed_sign_ins', why: "lists only the caller's own counted sign-in failures, keyed by auth.uid()" },
 ]
 
 describe('no migration after 0042 raises P0004', () => {
@@ -112,10 +117,12 @@ describe('the allow-list in tci.definer_gate_allowlist()', () => {
     why: m[2].replace(/''/g, "'"),
   }))
 
-  it('is defined last by 0060 (0048 plus the validation RLS predicate)', () => {
-    expect(ALLOWLIST_SOURCE).toBe(M60)
-    // 0060 restates 0048's list unchanged and appends one entry.
+  it('is defined last by 0062 (0060 plus the sign-in notice functions)', () => {
+    expect(ALLOWLIST_SOURCE).toBe(M62)
+    // 0060 restated 0048's list and appended one entry; 0062 restates 0060's
+    // and appends three.
     expect(M48).toContain("('may_remove_claim_object',  'a storage-policy predicate")
+    expect(M60).toContain("('is_validation_participant','an RLS predicate of tci.limit_validations")
   })
 
   it('matches this mirror exactly, name for name, reason for reason', () => {

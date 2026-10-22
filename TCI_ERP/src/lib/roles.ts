@@ -30,6 +30,15 @@ export function isStaff(roles: readonly UserRole[]): boolean {
   return roles.some((r) => r !== 'client')
 }
 
+/** A portal client holds no other role — tci.user_roles refuses it
+ * (`client_role_exclusive`, migration 0062). True when ticking `role` next to
+ * `selected` would break that rule, so the role editor greys it out. */
+export function clientRoleBlocked(selected: readonly UserRole[], role: UserRole): boolean {
+  if (selected.includes(role)) return false
+  if (role === 'client') return selected.some((r) => r !== 'client')
+  return selected.includes('client')
+}
+
 /** Grade bands of the authority matrix (tci.grade_band). The band NAMES are
  * fixed; which engine grade maps to which family comes from the analytics
  * service (/grade-scale returns each band's `family`). */
@@ -39,9 +48,7 @@ export type GradeBand = (typeof GRADE_BANDS)[number]
 /** Mirrors tci.grade_band_for_assessment: the family of a grade code. */
 export function bandForGrade(grade: string | null | undefined): GradeBand {
   const family = (grade ?? '').trim().charAt(0).toUpperCase()
-  return family === 'A' || family === 'B' || family === 'C' || family === 'D'
-    ? family
-    : 'unrated'
+  return family === 'A' || family === 'B' || family === 'C' || family === 'D' ? family : 'unrated'
 }
 
 export const AUTHORITY_SCOPES = ['credit', 'commercial'] as const
