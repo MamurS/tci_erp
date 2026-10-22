@@ -1,19 +1,15 @@
 /**
- * The TCI product brochure as stored in tci.brochure_versions.content (0058).
- *
- * A brochure is a list of sections, each with a title and a body in every
- * language the offer can be printed in. Bodies are plain text with three
- * conventions, so they can be written in a textarea and rendered the same way
- * on screen, in the portal and in print:
+ * The APPROVED source of the TCI brochure's texts (defaultContent.ts): a list
+ * of sections, each with a title and a body in every language the offer can
+ * be printed in. Since the offer became a fixed template («как в ДМС») the
+ * brochure is no longer edited in the app — src/features/offers/kp lays these
+ * texts out (tciTexts.ts quotes them, proven by a test) — and
+ * tci.brochure_versions / tci.media_assets (0058) stay in the database unused
+ * by the screens. Bodies are plain text with three conventions:
  *
  *   a blank line          starts a new paragraph
  *   a line "- …"          is a bullet
  *   a line "? …"          is a FAQ question; the paragraph after it answers it
- *
- * An image is chosen from the media library by id; the DATABASE stamps its
- * storage path and alt text onto the section when the version is saved
- * (save_brochure_version), so a published brochure keeps what it printed and
- * a portal client — who cannot read the library — can still show it.
  */
 
 export const BROCHURE_LANGS = ['ru', 'en', 'uz'] as const
@@ -47,42 +43,6 @@ export interface BrochureSection {
 export interface BrochureContent {
   sections: BrochureSection[]
 }
-
-export type BrochureStatus = 'draft' | 'published' | 'retired'
-
-/** A row of tci.brochure_versions. */
-export interface BrochureVersion {
-  id: string
-  version_no: number
-  status: BrochureStatus
-  content: BrochureContent
-  note: string | null
-  author_id: string
-  created_at: string
-  published_at: string | null
-  published_by: string | null
-}
-
-/** A row of tci.media_assets. */
-export interface MediaAsset {
-  id: string
-  storage_path: string
-  mime_type: 'image/png' | 'image/jpeg' | 'image/webp'
-  byte_size: number | null
-  width: number | null
-  height: number | null
-  alt: Localized
-  source: string
-  licence: string
-  author: string | null
-  source_url: string | null
-  uploaded_by: string
-  created_at: string
-  updated_at: string
-  retired_at: string | null
-}
-
-export const MEDIA_BUCKET = 'media-assets'
 
 /** One block of a section body after parsing the plain-text conventions. */
 export type BodyBlock =

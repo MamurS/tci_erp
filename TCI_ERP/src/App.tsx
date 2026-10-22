@@ -60,7 +60,6 @@ const OfferPrintPage = lazyPage(offers, 'OfferPrintPage')
 const PortalOfferPrintPage = lazyPage(offers, 'PortalOfferPrintPage')
 const PortalOffersPage = lazyPage(offers, 'PortalOffersPage')
 const PortalOfferPage = lazyPage(offers, 'PortalOfferPage')
-const BrochurePage = lazyPage(() => import('./features/brochure'), 'BrochurePage')
 const AdminPage = lazyPage(() => import('./features/admin'), 'AdminPage')
 const AgendaPage = lazyPage(() => import('./features/agenda'), 'AgendaPage')
 const account = () => import('./features/account')
@@ -179,8 +178,10 @@ export default function App() {
                 <Route path="portfolio/credit" element={<Navigate to={LEGACY_LIMIT_VIEW_PATHS['/portfolio/credit']} replace />} />
                 <Route path="data" element={<DataSection />} />
                 <Route path="data/requests/:id" element={<DataRequestPage />} />
-                {/* «Брошюра TCI» and its media library (0058): admin and sales. */}
-                <Route path="brochure" element={<BrochurePage />} />
+                {/* The brochure is the fixed offer template now (no editor, no
+                    media library): an old link lands on the submissions, where
+                    offers are prepared. */}
+                <Route path="brochure" element={<Navigate to="/requests" replace />} />
                 <Route path="admin" element={<AdminPage />} />
               </Route>
             </Route>

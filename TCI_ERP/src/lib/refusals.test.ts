@@ -34,11 +34,8 @@ describe('operations refusal mapping — contract with 0026-0029', () => {
     expect(refusalKey({ message: 'this notification is already resolved_paid', code: 'P0001' })).toBe(
       'overdues.errors.alreadyResolved',
     )
-    expect(refusalKey({ message: 'brochure_not_draft: version 3 is published', code: 'P0001' })).toBe(
-      'brochure.errors.notDraft',
-    )
-    expect(refusalKey({ message: 'media_not_uploaded: the file is not in the media library bucket', code: 'P0002' })).toBe(
-      'media.errors.notUploaded',
+    expect(refusalKey({ message: 'offer_version_conflict: version 3 was saved since you opened version 2', code: 'P0001' })).toBe(
+      'offers.errors.versionConflict',
     )
     // 0060: every refusal of the validation chain is named
     expect(

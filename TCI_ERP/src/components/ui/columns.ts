@@ -180,9 +180,6 @@ export const LABEL_SETS = {
   limitHistory: { keys: ['portal.limits.history'], chars: 7, kind: 'button' },
   /** Why a bank-statement line matched, or did not (premium payments). */
   bankMatchReason: { keys: ['premium.bank.reasons.*'], chars: 20, kind: 'text' },
-  /** A version of the TCI brochure (0058) and its one labelled row action. */
-  brochureStatus: { keys: ['brochure.statuses.*'], chars: 14, kind: 'badge' },
-  brochurePublish: { keys: ['brochure.actions.publish'], chars: 12, kind: 'button' },
   /** A bank-statement line: confirm a match, or assign an unmatched one. */
   bankLineAction: { keys: ['premium.bank.actions.confirm', 'premium.bank.actions.assign'], chars: 11, kind: 'button' },
 } as const satisfies Record<string, LabelSet>
