@@ -105,6 +105,8 @@ export function rowTitle(
     pct: num(p.utilisation_pct) === null ? '' : formatAmount(num(p.utilisation_pct), locale, 1),
     date: str(p.valid_until) ? formatDate(p.valid_until as string, locale) : '',
     name: str(p.name) ?? '',
+    // a count only where the task carries one, so other titles never pluralise
+    ...(num(p.count) === null ? {} : { count: num(p.count) }),
   })
   const company = companyOf(lead, subjects)
   return company && !what.includes(company) ? `${what} · ${company}` : what
@@ -178,6 +180,9 @@ export function rowFacts(
     case 'statements_requested':
       facts.push(ref, str(p.country))
       break
+    case 'premium_payment_unmatched':
+      facts.push(str(p.file_name), str(p.source) ? t(`premium.sources.${p.source as string}`) : null)
+      break
     default:
       facts.push(ref)
   }
@@ -216,7 +221,8 @@ export function renderNote(
     grade: str(v.grade) ?? '—',
     score: num(v.score) === null ? '—' : formatAmount(num(v.score), locale, 1),
     ratedPeriod: str(v.ratedPeriodEnd) ? formatDate(v.ratedPeriodEnd as string, locale) : '—',
-    count: num(v.limits) ?? num(v.members) ?? 0,
+    count: num(v.limits) ?? num(v.members) ?? num(v.lines) ?? 0,
+    file: str(v.file) ?? '—',
     amount: money(v.amount, v.currency, locale) ?? amount(v.amountUzs),
     amountUzs: amount(v.amountUzs),
     authority: amount(v.authority),

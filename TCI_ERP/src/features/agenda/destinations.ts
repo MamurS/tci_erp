@@ -206,6 +206,15 @@ export const DESTINATIONS: Readonly<Record<TaskType, Builder>> = {
   uncovered_excess_review: declaration,
   instalment_due: premium,
   instalment_overdue: premium,
+  premium_payment_unmatched: (_row, lead) => ({
+    path: `/policies?view=payments&import=${lead.object_id}`,
+    action: 'resolve',
+    crumbs: [
+      { key: 'nav.policies' },
+      { key: 'agenda.dest.place.payments' },
+      str(lead.params?.file_name) ? { text: String(lead.params?.file_name) } : { key: 'agenda.dest.statement' },
+    ],
+  }),
   noa_matured_to_claim: noaClaim,
   claim_ready_to_file: noaClaim,
   claim_submitted: claim('assess'),
@@ -217,6 +226,14 @@ export const DESTINATIONS: Readonly<Record<TaskType, Builder>> = {
   group_limit_missing: entityTab('group', 'review'),
   entity_requested: dataRequest,
   statements_requested: dataRequest,
+  contract_review: (_row, lead) => ({
+    path: `/policies/contracts/${lead.object_id}`,
+    action: 'review',
+    crumbs: [
+      { key: 'nav.policies' },
+      str(lead.params?.draft_number) ? { text: String(lead.params?.draft_number) } : { key: 'agenda.dest.contract' },
+    ],
+  }),
   entity_request_resolved: (row, lead, names) => {
     const entityId = str(lead.params?.entity_id)
     return entityId

@@ -40,6 +40,10 @@ export const TASK_TYPES = [
   'entity_request_resolved',
   // Agenda redesign (migration 0055)
   'rating_new_statements',
+  // Premium payments (migration 0056)
+  'premium_payment_unmatched',
+  // Contract drafts (migration 0057)
+  'contract_review',
 ] as const
 
 export type TaskType = (typeof TASK_TYPES)[number]
@@ -64,6 +68,10 @@ export type TaskObjectType =
   | 'client_buyer_proposal'
   // a request for a company or for statements (0054)
   | 'entity_request'
+  // a bank statement (or accounting feed) with payments to resolve (0056)
+  | 'bank_statement_import'
+  // a contract draft under review (0057)
+  | 'contract_draft'
 
 export interface Task {
   id: string

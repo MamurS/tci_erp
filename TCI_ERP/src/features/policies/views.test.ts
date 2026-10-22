@@ -15,8 +15,10 @@ describe('the policies section views', () => {
     expect(parsePolicyView('templates', ['commercial_underwriter'])).toBe('templates')
     expect(parsePolicyView(null, ['commercial_underwriter'])).toBe('overview')
     expect(parsePolicyView(null, ['sales'])).toBe('registry')
+    expect(parsePolicyView('payments', ['commercial_underwriter'])).toBe('payments')
     // a view the roles may not see falls back rather than leaking
     expect(parsePolicyView('overview', ['sales'])).toBe('registry')
+    expect(parsePolicyView('payments', ['sales'])).toBe('registry')
     expect(parsePolicyView('admin', ['admin'])).toBe('overview')
   })
 

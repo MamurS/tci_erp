@@ -1217,7 +1217,8 @@
       "registry": "Policy register",
       "contracts": "Contracts",
       "templates": "Contract templates",
-      "overview": "Overview"
+      "overview": "Overview",
+      "payments": "Payments"
     },
     "sectionSubtitle": "The commercial underwriter's tools: the portfolio, the policy register, draft contracts and the templates they are made from.",
     "eyebrow": "Trade credit policy",
@@ -1371,7 +1372,8 @@
       "holdAndDiscuss": "Hold & discuss",
       "holdComment": "What must be discussed",
       "holdCommentPlaceholder": "Reason for the hold…",
-      "actionFailed": "The action failed"
+      "actionFailed": "The action failed",
+      "windowShort": "sales window"
     },
     "commercial": {
       "title": "Commercial stage",
@@ -2011,7 +2013,9 @@
       "overdue_notification": "Overdue notification",
       "claim": "Claim",
       "entity_request": "Data request",
-      "client_buyer_proposal": "Proposed buyer"
+      "client_buyer_proposal": "Proposed buyer",
+      "contract_draft": "Draft contract",
+      "bank_statement_import": "Bank statement"
     },
     "taskTypes": {
       "buyer_needs_entity": "Identify buyer",
@@ -2045,8 +2049,8 @@
       "statements_requested": "Statements requested",
       "entity_request_resolved": "Your request is done",
       "rating_new_statements": "New statements — rating review",
-      "premium_payment_unmatched": "Payments to match",
-      "contract_review": "Contract review"
+      "contract_review": "Contract review",
+      "premium_payment_unmatched": "Payments to match"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -2149,7 +2153,8 @@
       "declarations": "Declarations",
       "groups": "Groups",
       "submissions": "Submissions",
-      "data": "Data"
+      "data": "Data",
+      "contracts": "Contracts"
     },
     "buckets": {
       "overdue": "Overdue",
@@ -2181,7 +2186,8 @@
       "declaration": "Declaration",
       "group": "Group",
       "submission": "Submission",
-      "data": "Data"
+      "data": "Data",
+      "contract": "Contract"
     },
     "due": {
       "days_one": "{{count}} day",
@@ -2269,7 +2275,12 @@
         "instalment_due_many": "{{count}} premium instalments due",
         "instalment_overdue_few": "{{count}} premium instalments overdue",
         "instalment_overdue_many": "{{count}} premium instalments overdue"
-      }
+      },
+      "contract_review": "Draft contract under review",
+      "premium_payment_unmatched_one": "{{count}} bank payment to match",
+      "premium_payment_unmatched_few": "{{count}} bank payments to match",
+      "premium_payment_unmatched_many": "{{count}} bank payments to match",
+      "premium_payment_unmatched_other": "{{count}} bank payments to match"
     },
     "facts": {
       "policies_one": "{{count}} policy",
@@ -2353,7 +2364,8 @@
       "group_limit_missing_few": "{{count}} members carry limits ({{exposure}} UZS in all) and no group limit is set.",
       "group_limit_missing_many": "{{count}} members carry limits ({{exposure}} UZS in all) and no group limit is set.",
       "instalment_due": "Instalment {{sequence}} of {{amount}} is due on {{date}}.",
-      "rating_new_statements_zero": "{{period}} statements were added by {{user}} on {{date}}. The current assessment {{grade}} · {{score}} rests on statements to {{ratedPeriod}} and is now a period behind; no effective limit depends on it yet."
+      "rating_new_statements_zero": "{{period}} statements were added by {{user}} on {{date}}. The current assessment {{grade}} · {{score}} rests on statements to {{ratedPeriod}} and is now a period behind; no effective limit depends on it yet.",
+      "premium_payment_unmatched": "Statement {{file}}: lines to resolve — {{count}}. Assign each to a policy, or set it aside with a reason."
     },
     "dest": {
       "opens": "Opens",
@@ -2375,7 +2387,8 @@
         "salesWindow": "Sales confirmation",
         "buyers": "Buyers",
         "openClaim": "Open a claim",
-        "proposals": "Proposed buyers"
+        "proposals": "Proposed buyers",
+        "payments": "Payments"
       },
       "with": {
         "task": "with this task’s context",
@@ -2385,7 +2398,9 @@
         "notice": "with the claim form prefilled from the notice",
         "instalments_few": "showing {{count}} instalments",
         "instalments_many": "showing {{count}} instalments"
-      }
+      },
+      "contract": "Draft contract",
+      "statement": "Statement"
     },
     "triage": {
       "position": "Item {{index}} of {{total}}",
@@ -2633,7 +2648,8 @@
       "declarations": "Declarations",
       "premium": "Premium",
       "overdues": "Overdue accounts",
-      "claims": "Claims"
+      "claims": "Claims",
+      "contracts": "Contracts"
     },
     "policies": {
       "title": "My policies",
@@ -2958,12 +2974,18 @@
       "pending": "Pending",
       "invoiced": "Invoiced",
       "paid": "Paid",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "partially_paid": "Partially paid",
+      "overdue": "Overdue"
     },
     "actions": {
       "generate": "Generate schedule",
       "invoice": "Invoice",
-      "markPaid": "Mark paid"
+      "markPaid": "Mark paid",
+      "recordPayment": "Record payment",
+      "reverse": "Reverse",
+      "more": "More actions for instalment {{sequence}}",
+      "paymentMore": "More actions for this payment"
     },
     "fields": {
       "minimumPremium": "Minimum premium",
@@ -2976,10 +2998,39 @@
       "amount": "Amount",
       "status": "Status",
       "scheduleTotal": "Schedule total",
-      "computedAt": "Earned"
+      "computedAt": "Earned",
+      "sequence": "No.",
+      "paid": "Paid",
+      "outstanding": "Outstanding",
+      "actions": "Actions",
+      "invoiceNumber": "Invoice number",
+      "invoiceDate": "Invoice date",
+      "note": "Note",
+      "paymentDate": "Payment date",
+      "currency": "Currency",
+      "reference": "Payment reference",
+      "source": "Source",
+      "reason": "Reason",
+      "received": "Received",
+      "date": "Date"
     },
     "errors": {
-      "scheduleLocked": "The schedule cannot be regenerated: some instalments are already invoiced or paid."
+      "scheduleLocked": "The schedule cannot be regenerated: some instalments are already invoiced or paid.",
+      "alreadyInvoiced": "This instalment has already been invoiced.",
+      "alreadyPaid": "Nothing is owed on this instalment, so there is nothing to invoice.",
+      "instalmentCancelled": "A cancelled instalment is not invoiced.",
+      "invoiceNumberRequired": "An invoice needs its number.",
+      "invoiceNumberTaken": "This number is already used by another invoice.",
+      "invoiceNumberTooLong": "An invoice number is at most 64 characters.",
+      "invoiceDateInFuture": "An invoice is dated today or earlier.",
+      "amountPositive": "A payment must be a positive amount.",
+      "currencyMismatch": "The payment is not in the policy currency.",
+      "paymentDateInvalid": "A payment is dated today or earlier.",
+      "exceedsOutstanding": "The payment is more than what is still owed on this policy. An overpayment is not accepted.",
+      "policyNotBillable": "A draft or annulled policy takes no premium payments.",
+      "isReversal": "A reversal cannot itself be reversed.",
+      "alreadyReversed": "This payment has already been reversed.",
+      "reasonRequired": "Say why the payment is reversed."
     },
     "overdue": "Overdue",
     "paidSoFar": "{{amount}} paid so far",
@@ -2987,7 +3038,271 @@
     "linkedInstalments_few": "Showing {{count}} instalments from the agenda",
     "linkedInstalments_many": "Showing {{count}} instalments from the agenda",
     "linkedInstalments_other": "Showing {{count}} instalments from the agenda",
-    "showAllInstalments": "Show all"
+    "showAllInstalments": "Show all",
+    "tooltips": {
+      "invoice": "Issue the invoice for instalment {{sequence}} ({{amount}}); its amount and due date are then fixed",
+      "recordPayment": "Record money received on this policy; it settles the oldest unpaid instalments first",
+      "invoiced": "Invoice {{number}} of {{date}}",
+      "settled": "Paid in full on {{date}}",
+      "reverse": "Correct a mistaken payment with a reversal; the payment stays in the history"
+    },
+    "sources": {
+      "manual": "Entered by hand",
+      "bank_import": "Bank statement",
+      "accounting_import": "Accounting system"
+    },
+    "figures": {
+      "receivedMeta_one": "{{count}} payment",
+      "receivedMeta_few": "{{count}} payments",
+      "receivedMeta_many": "{{count}} payments",
+      "receivedMeta_other": "{{count}} payments",
+      "noPayments": "No payments yet",
+      "overdueMeta": "{{amount}} overdue",
+      "nothingOverdue": "Nothing overdue"
+    },
+    "invoice": {
+      "title": "Invoice instalment {{sequence}}",
+      "hint": "Once invoiced, the instalment's amount and due date are fixed: they are on a document the policyholder holds.",
+      "submit": "Issue invoice",
+      "numberHint": "Quoted by the policyholder in the payment purpose, so a bank payment can be matched to this instalment."
+    },
+    "payment": {
+      "title": "Record a payment",
+      "hint": "The money is allocated to the oldest unpaid instalments first. {{amount}} is still owed on this policy.",
+      "submit": "Record payment",
+      "currencyHint": "Payments are recorded in the policy currency.",
+      "amountRequired": "Enter an amount above zero.",
+      "amountTooHigh": "That is more than the {{amount}} still owed on this policy. An overpayment is not accepted.",
+      "dateInFuture": "A payment is dated today or earlier."
+    },
+    "payments": {
+      "title": "Payments",
+      "hint": "Append-only: a mistake is corrected by a reversal, never edited.",
+      "empty": "No payments recorded",
+      "emptyHint": "Record money received with «Record payment», or import a bank statement in Policies › Payments.",
+      "reversal": "Reversal",
+      "reversalOf": "Reversal of the payment of {{date}}",
+      "reversed": "Reversed",
+      "migrated": "Carried over from the paid status"
+    },
+    "reverse": {
+      "title": "Reverse the payment of {{amount}}",
+      "hint": "A reversal row is added and the payment stays in the history. The instalments it paid become owed again, and their chasing tasks return.",
+      "submit": "Reverse payment",
+      "reasonRequired": "Say why the payment is reversed."
+    },
+    "bank": {
+      "viewHint": "Import a bank statement: each incoming payment is matched to a policy by the invoice or policy number in its purpose, its amount and its date. Confident matches are confirmed in one click; the rest wait under «Unmatched» and in the Agenda. A payment can still be entered by hand on the policy's Premium tab.",
+      "empty": {
+        "title": "No bank statements imported yet",
+        "hint": "Choose the bank's statement file above (CSV or Excel). The first time, map its columns and save the layout under the bank's name: the next statement from that bank is read without asking."
+      },
+      "import": {
+        "title": "Import a statement",
+        "hint": "The file is read in your browser; only the incoming payments it holds are sent.",
+        "file": "Statement file",
+        "fileHint": "CSV, XLSX or XLS, up to 5,000 payments.",
+        "choose": "Choose file",
+        "noFile": "No file chosen",
+        "reading": "Reading the file…",
+        "layout": "Bank layout",
+        "layoutHint": "The column mapping saved for this bank.",
+        "newLayout": "New layout…",
+        "readFailed": "The file could not be read",
+        "readFailedHint": "Save it from the bank's system as CSV or Excel (XLSX, XLS) and choose it again.",
+        "done_one": "{{count}} line imported",
+        "done_other": "{{count}} lines imported",
+        "doneCounts": "Matched: {{matched}} · needs review: {{suggested}} · unmatched: {{unmatched}} · already imported: {{duplicate}}.",
+        "submit": "Import ({{count}})",
+        "tooMany": "More than {{max}} payments in one file",
+        "tooManyHint": "Split the statement by period and import the parts one by one.",
+        "failed": "The statement was not imported",
+        "done_few": "{{count}} lines imported",
+        "done_many": "{{count}} lines imported"
+      },
+      "mapping": {
+        "title": "Columns",
+        "hint": "Tell us which column holds what. Only the date, the amount and the currency are required.",
+        "usingLayout": "Read with the layout «{{name}}».",
+        "edit": "Change columns",
+        "hide": "Hide columns",
+        "headerRow": "Row with the column names",
+        "amountLayout": "Amount",
+        "layouts": {
+          "signed": "One amount column",
+          "split": "Debit and credit columns"
+        },
+        "choose": "— choose —",
+        "notInFile": "— not in the file —",
+        "unnamedColumn": "Column {{letter}}",
+        "fixedCurrency": "Currency of the statement",
+        "fixedCurrencyHint": "The file has no currency column: every payment is in this currency.",
+        "fixedCurrencyUnused": "Taken from the currency column.",
+        "dateFormat": "Date format",
+        "dateFormats": {
+          "dmyDot": "DD.MM.YYYY (05.10.2026)",
+          "dmySlash": "DD/MM/YYYY (05/10/2026)",
+          "mdySlash": "MM/DD/YYYY (10/05/2026)",
+          "iso": "YYYY-MM-DD (2026-10-05)"
+        },
+        "decimalSeparator": "Decimal separator",
+        "decimals": {
+          "auto": "Detect automatically",
+          "point": "Point (1,234.56)",
+          "comma": "Comma (1 234,56)"
+        },
+        "skipDebits": "Skip outgoing payments",
+        "skipDebitsHint": "Clear it when the file lists incoming payments only: an outgoing one is then shown as an error.",
+        "saveAs": "Save the layout as",
+        "namePlaceholder": "The bank's name",
+        "save": "Save layout",
+        "saved": "Layout saved",
+        "saveFailed": "The layout was not saved",
+        "incomplete": "The columns are not set yet",
+        "problems": {
+          "noHeader": "The chosen row holds no column names.",
+          "dateColumn": "Choose the column with the payment date.",
+          "amountColumn": "Choose the column with the amount.",
+          "creditColumn": "Choose the credit (incoming) column.",
+          "currency": "Choose the currency column, or the currency of the whole statement.",
+          "columnNotFound": "A column of this layout is not in the file — choose it again."
+        }
+      },
+      "preview": {
+        "kept": "To import:",
+        "debits": "Outgoing skipped:",
+        "skipped": "Empty and total rows:",
+        "errors": "Not readable:",
+        "errorsTitle_one": "{{count}} row will not be imported",
+        "errorsTitle_other": "{{count}} rows will not be imported",
+        "errorLine": "Row {{line}}: {{reason}}",
+        "moreErrors_one": "and {{count}} more",
+        "moreErrors_other": "and {{count}} more",
+        "first_one": "The first payment of {{total}}:",
+        "first_other": "The first {{count}} payments of {{total}}:",
+        "errorsTitle_few": "{{count}} rows will not be imported",
+        "errorsTitle_many": "{{count}} rows will not be imported",
+        "moreErrors_few": "and {{count}} more",
+        "moreErrors_many": "and {{count}} more",
+        "first_few": "The first {{count}} payments of {{total}}:",
+        "first_many": "The first {{count}} payments of {{total}}:"
+      },
+      "rowErrors": {
+        "dateMissing": "no date",
+        "dateInvalid": "the date is not readable",
+        "amountMissing": "no amount",
+        "amountInvalid": "the amount is not readable",
+        "amountZero": "the amount is zero",
+        "currencyMissing": "no currency",
+        "currencyInvalid": "unknown currency",
+        "debit": "an outgoing payment"
+      },
+      "fields": {
+        "line": "Row",
+        "value_date": "Date",
+        "amount": "Amount",
+        "credit": "Credit (incoming)",
+        "debit": "Debit (outgoing)",
+        "currency": "Currency",
+        "purpose": "Payment purpose",
+        "reference": "Document no.",
+        "payer": "Payer",
+        "payerPurpose": "Payer / purpose",
+        "policy": "Policy",
+        "reason": "Basis",
+        "status": "Status",
+        "policyBasis": "Policy / basis"
+      },
+      "imports": {
+        "title": "Imported statements",
+        "hint": "The latest 50. Choose one to work its lines.",
+        "importedAt": "Imported",
+        "file": "File",
+        "lines": "Lines",
+        "importedBy": "Imported by",
+        "noName": "Statement without a name"
+      },
+      "lines": {
+        "title": "Statement {{file}}",
+        "hint": "{{lines}} lines, imported {{when}}.",
+        "loadFailed": "The statement's lines could not be loaded",
+        "refused_one": "{{count}} line was not recorded",
+        "refused_other": "{{count}} lines were not recorded",
+        "refusedLine": "Row {{line}}: {{reason}}",
+        "allDone": "Every line of this statement is worked",
+        "allDoneHint": "The payments are recorded on their policies; the Agenda task has closed.",
+        "refused_few": "{{count}} lines were not recorded",
+        "refused_many": "{{count}} lines were not recorded"
+      },
+      "sections": {
+        "matched": "Matched",
+        "matchedHint": "The reference and the amount agree. Check and confirm.",
+        "matchedEmpty": "No confident matches in this statement.",
+        "suggested": "Needs review",
+        "suggestedHint": "A reference was found, but the amount or the date disagree.",
+        "suggestedEmpty": "Nothing to review.",
+        "unmatched": "Unmatched",
+        "unmatchedHint": "Nothing to go on, or the payment would exceed what is owed: assign it to a policy or set it aside.",
+        "unmatchedEmpty": "Every payment was recognised.",
+        "processed": "Worked",
+        "processedHint": "Recorded, set aside, or already imported.",
+        "processedEmpty": "Nothing worked yet.",
+        "expand": "Show",
+        "collapse": "Hide"
+      },
+      "statuses": {
+        "matched": "Matched",
+        "suggested": "Needs review",
+        "unmatched": "Unmatched",
+        "confirmed": "Recorded",
+        "ignored": "Set aside",
+        "duplicate": "Duplicate"
+      },
+      "reasons": {
+        "invoice_number": "Invoice number",
+        "policy_number": "Policy number",
+        "amount_differs": "Amount differs",
+        "date_far": "Far from due date",
+        "currency": "Other currency",
+        "exceeds_outstanding": "More than owed",
+        "no_reference": "No reference",
+        "ambiguous": "Several policies",
+        "assigned": "Assigned by hand",
+        "duplicate": "Already imported"
+      },
+      "actions": {
+        "confirm": "Confirm",
+        "confirmAll": "Confirm all",
+        "assign": "Assign",
+        "assignOther": "Assign to another policy",
+        "ignore": "Set aside"
+      },
+      "assign": {
+        "title": "Assign the payment to a policy",
+        "search": "Policy number or policyholder",
+        "owed": "owed {{amount}}",
+        "currencyHint": "Only policies in {{currency}}: a payment is recorded in the policy's currency.",
+        "overpays": "More than is owed on this policy",
+        "overpaysHint": "{{amount}} is still owed. A larger payment is refused: choose another policy or set the line aside.",
+        "failed": "The payment was not recorded"
+      },
+      "ignore": {
+        "title": "Set the line aside",
+        "hint": "Not a premium payment (a refund, another product, a transfer between accounts)? It stays in the statement with your reason and leaves the queue.",
+        "reason": "Reason",
+        "placeholder": "Why this is not a premium payment"
+      },
+      "errors": {
+        "statementEmpty": "The statement holds no incoming payments to import.",
+        "statementTooLarge": "At most 5,000 payments per import: split the statement.",
+        "statementLineInvalid": "A line has no readable date, amount or currency — check the column mapping.",
+        "lineResolved": "This line has already been worked.",
+        "lineNotMatched": "The line has no matched policy: assign it to one.",
+        "profileNameRequired": "Name the bank this layout belongs to.",
+        "profileMappingInvalid": "The column mapping is not readable.",
+        "ignoreReasonRequired": "Say why this line is not a premium payment."
+      }
+    }
   },
   "overdues": {
     "title": "Overdue accounts",
@@ -4073,5 +4388,316 @@
     "previousMonth": "Previous month",
     "nextMonth": "Next month",
     "today": "Today"
+  },
+  "contractDrafts": {
+    "title": "Draft contract",
+    "current": "current",
+    "notFound": "Draft contract not found",
+    "notFoundHint": "It may not exist, or your role cannot see it. Open it from the policy or the submission.",
+    "emptyHint": "Generate it from the active template: it opens in the app, where it can be read, edited and compared; every save is kept as a version.",
+    "generateNote": "The draft is filled from the current data and opens in the editor; the fields stay linked to the policy or submission until you turn them into text.",
+    "versionSelect": "Version",
+    "statuses": {
+      "draft": "Draft",
+      "under_review": "Under review",
+      "agreed": "Agreed",
+      "signed": "Signed"
+    },
+    "sources": {
+      "generated": "Generated from the template",
+      "manual": "Edited",
+      "restored": "Restored",
+      "restoredFrom": "Restored from v{{version}}",
+      "refreshed": "Fields refreshed"
+    },
+    "columns": {
+      "version": "Version",
+      "status": "Status",
+      "saved": "Saved",
+      "author": "Author",
+      "template": "Origin and template"
+    },
+    "actions": {
+      "view": "View",
+      "edit": "Edit",
+      "compare": "Compare versions",
+      "compareWithPrevious": "Compare with the previous version",
+      "download": "Download",
+      "docx": "Word (.docx)",
+      "pdf": "PDF (print)",
+      "pdfPrint": "PDF — print or save",
+      "openDraft": "Open the draft",
+      "regenerate": "Generate again",
+      "share": "Share v{{version}} with the policyholder",
+      "unshare": "Stop sharing with the policyholder",
+      "restore": "Restore v{{version}}",
+      "backToCurrent": "Current version",
+      "backToDocument": "Back to the document",
+      "closeEditor": "Close the editor",
+      "saveVersion": "Save version",
+      "refreshFields": "Refresh fields"
+    },
+    "status": {
+      "comment": "Comment (optional)",
+      "reason": "Reason",
+      "reasonHint": "Required: the reviewers and the history will show it.",
+      "submitForReview": {
+        "action": "Send for review",
+        "title": "Send the draft for review",
+        "body": "Commercial underwriting gets a review task in its Agenda. The draft can still be edited while it is under review.",
+        "confirm": "Send for review"
+      },
+      "returnToDraft": {
+        "action": "Return to draft",
+        "title": "Return the draft from review",
+        "body": "The review task closes. Send the draft for review again when it is ready.",
+        "confirm": "Return to draft"
+      },
+      "agree": {
+        "action": "Agree",
+        "title": "Agree the draft",
+        "body": "The current version becomes the agreed text and editing closes. Next: the signed scan.",
+        "confirm": "Agree"
+      },
+      "reopen": {
+        "action": "Return for rework",
+        "title": "Return the agreed draft for rework",
+        "body": "The draft goes back to draft and can be edited again. Say why.",
+        "confirm": "Return for rework"
+      },
+      "sign": {
+        "action": "Attach the signed contract"
+      }
+    },
+    "sign": {
+      "title": "Signed contract — v{{version}}",
+      "finalTitle": "Signing is final",
+      "finalBody": "A signed contract is locked for good. A later change will be a new document (an endorsement).",
+      "file": "Scan of the signed contract (PDF)",
+      "fileHint": "PDF up to 20 MB. It is attached to the agreed version.",
+      "submit": "Sign"
+    },
+    "signed": {
+      "title": "Signed: v{{version}}, {{date}}",
+      "body": "This contract is final and can no longer be edited. A change will need an endorsement.",
+      "download": "Signed scan"
+    },
+    "locked": {
+      "title": "This draft cannot be edited now",
+      "signed": "It is signed and final.",
+      "notEditable": "A draft is edited while it is a draft or under review.",
+      "agreedTitle": "Agreed — editing is closed",
+      "agreed": "Attach the signed scan to finish, or return the draft for rework with a reason."
+    },
+    "older": {
+      "title": "You are reading v{{version}}; the current version is v{{current}}",
+      "body": "Versions are never changed. Restoring makes a new version with this text."
+    },
+    "stale": {
+      "title_one": "{{count}} field no longer matches the data",
+      "title_few": "{{count}} fields no longer match the data",
+      "title_many": "{{count}} fields no longer match the data",
+      "title_other": "{{count}} fields no longer match the data",
+      "body": "The policy or submission changed since this version was saved; the fields are marked in amber. Refreshing makes a new version that changes the fields only.",
+      "editorBody": "The fields marked in amber differ from the data now. Refreshing changes the fields only, not the text around them.",
+      "scheduleTitle": "The credit limit schedule has changed",
+      "scheduleBody": "The number of buyers with a limit is different now. A field refresh cannot add or remove rows: generate the draft again to rebuild the schedule."
+    },
+    "shared": {
+      "title": "Shared with the policyholder: v{{version}}",
+      "current": "The policyholder reads the current version in the portal and may comment while it is under review.",
+      "older": "The current version is v{{current}}; share it again for the policyholder to see it."
+    },
+    "warnings": {
+      "title": "Some of the template could not be carried into the editor",
+      "images": "Images and drawings",
+      "textBoxes": "Text boxes",
+      "headerFooter": "Headers and footers (the export adds page numbers)",
+      "unclosedSection": "A section tag without its closing tag",
+      "unsupportedSection": "A repeated section that crosses a table boundary",
+      "multiLevelList": "Multi-level list nesting (kept as one level)"
+    },
+    "toc": {
+      "title": "Contents",
+      "empty": "No headings or clauses yet."
+    },
+    "comments": {
+      "title": "Comments",
+      "hint": "Internal: the policyholder does not see these.",
+      "empty": "No comments yet.",
+      "placeholder": "Write a comment on the current version",
+      "send": "Comment",
+      "policyholder": "Policyholder",
+      "fromPortal": "portal"
+    },
+    "history": {
+      "title": "Status history",
+      "empty": "The draft has not moved yet."
+    },
+    "editor": {
+      "area": "Contract text",
+      "toolbar": "Formatting",
+      "undo": "Undo (Ctrl/⌘ Z)",
+      "redo": "Redo (Ctrl/⌘ Shift Z)",
+      "blockStyle": "Paragraph style",
+      "styles": {
+        "paragraph": "Text",
+        "clause": "Numbered clause",
+        "section": "Numbered section",
+        "heading": "Heading",
+        "title": "Document title"
+      },
+      "bold": "Bold (Ctrl/⌘ B)",
+      "italic": "Italic (Ctrl/⌘ I)",
+      "underline": "Underline (Ctrl/⌘ U)",
+      "align": {
+        "left": "Align left",
+        "center": "Centre",
+        "justify": "Justify"
+      },
+      "bulletList": "Bulleted list",
+      "orderedList": "Numbered list",
+      "insertTable": "Insert a table",
+      "addRow": "Add a row below",
+      "addColumn": "Add a column to the right",
+      "tableMore": "Table…",
+      "bordersOn": "Show borders",
+      "bordersOff": "Hide borders",
+      "deleteRow": "Remove the row",
+      "deleteColumn": "Remove the column",
+      "deleteTable": "Remove the table",
+      "pageBreak": "Page break",
+      "insertField": "Insert a field…",
+      "fieldToText": "Turn the selected field into plain text (it will no longer be refreshed)",
+      "editing": "Editing on top of v{{version}}.",
+      "unsaved": "Unsaved changes",
+      "localSaved": "Unsaved — a local copy is kept in this browser ({{time}})",
+      "noChanges": "No changes yet",
+      "saveShortcut": "Ctrl/⌘ S",
+      "restoreTitle": "You have unsaved changes from {{time}}",
+      "restoreBody": "They were kept in this browser. Restore them into the editor, or discard them.",
+      "restoreBodyOlder": "They were made on top of v{{base}}; the current version is v{{current}}. Restoring them puts your text over v{{current}}.",
+      "restore": "Restore my changes",
+      "discard": "Discard",
+      "leaveTitle": "Leave without saving a version?",
+      "leaveBody": "Your changes are not a version yet. A local copy stays in this browser and is offered when you come back.",
+      "leave": "Leave"
+    },
+    "save": {
+      "title": "Save as v{{version}}",
+      "body": "A new version v{{version}} is created; earlier versions stay as they are.",
+      "note": "What changed (optional)",
+      "noteHint": "Shown in the version list and in the history.",
+      "submit": "Save version"
+    },
+    "regenerate": {
+      "title": "Generate the draft again",
+      "locked": "A draft is generated again only while it is a draft or under review.",
+      "manualEditsTitle": "v{{version}} contains manual edits",
+      "manualEditsBody": "Generating from the template again would replace them. Keep them and refresh only the fields, or start a fresh version from the template.",
+      "choose": "How to proceed",
+      "refresh": "Keep my edits, refresh the fields",
+      "refreshHint": "A new version with the current data in the fields; your text is untouched.",
+      "fresh": "Start a fresh version from the template",
+      "freshHint": "The manual edits are not carried over; they stay in the earlier versions.",
+      "submit": "Generate a new version",
+      "submitRefresh": "Refresh the fields",
+      "nothingChanged": "Nothing to refresh: every field already shows the current data.",
+      "refreshNote_one": "{{count}} field refreshed",
+      "refreshNote_few": "{{count}} fields refreshed",
+      "refreshNote_many": "{{count}} fields refreshed",
+      "refreshNote_other": "{{count}} fields refreshed"
+    },
+    "restore": {
+      "note": "Restored from v{{version}}"
+    },
+    "confirm": {
+      "restore": {
+        "title": "Restore v{{version}}?",
+        "message": "A new version is created with the text of v{{version}}. v{{current}} and every other version stay in the history.",
+        "confirm": "Restore as a new version"
+      },
+      "share": {
+        "title": "Share v{{current}} with the policyholder?",
+        "message": "The policyholder will read this version in the portal (read-only) and may comment while the draft is under review. Internal comments stay internal.",
+        "confirm": "Share"
+      },
+      "unshare": {
+        "title": "Stop sharing the draft?",
+        "message": "The draft disappears from the policyholder's portal; their comments stay.",
+        "confirm": "Stop sharing"
+      },
+      "refresh": {
+        "title": "Refresh the fields of v{{current}}?",
+        "message": "A new version is created in which only the fields change to the current data ({{count}}). The text around them stays as it is.",
+        "confirm": "Refresh the fields"
+      }
+    },
+    "compare": {
+      "older": "Earlier version",
+      "newer": "Later version",
+      "layout": "Layout",
+      "inline": "Inline",
+      "side": "Side by side",
+      "summary": "Added: {{inserted}} · removed: {{deleted}} · changed: {{changed}}",
+      "same": "The two versions have the same text.",
+      "sameVersion": "Pick two different versions.",
+      "legendInserted": "added",
+      "legendDeleted": "removed",
+      "renumbered": "Was {{from}}"
+    },
+    "legacy": {
+      "title": "Files generated earlier",
+      "hint": ".docx files made before drafts were editable in the app."
+    },
+    "register": {
+      "number": "Draft",
+      "empty": "No draft contracts yet",
+      "emptyHint": "Generate one from a policy or a submission; it opens in the editor."
+    },
+    "print": {
+      "back": "Back to the draft",
+      "print": "Print or save as PDF"
+    },
+    "portal": {
+      "title": "Draft contracts",
+      "subtitle": "Draft contracts the insurer shared with you for review. Read them here and leave a comment while a draft is under review.",
+      "empty": "No draft contract has been shared with you",
+      "emptyHint": "When the insurer sends a draft for your review, it appears here.",
+      "number": "Draft",
+      "for": "For",
+      "sharedAt": "Shared",
+      "comments": "Your comments",
+      "commentsHint": "The insurer's reviewers read them.",
+      "commentsClosed": "Comments are taken while the draft is under review.",
+      "noComments": "You have not commented yet.",
+      "placeholder": "Your comment on the draft",
+      "send": "Send",
+      "sent": "Sent. The reviewers will see it.",
+      "signed": "This contract is signed."
+    },
+    "errors": {
+      "exists": "This policy or submission already has a draft contract — generate a new version of it instead.",
+      "targetNotLive": "No contract is drafted for a submission in draft, declined or withdrawn.",
+      "notEditable": "This draft cannot be edited in its current status.",
+      "conflict": "Someone saved a newer version while you were working. Your text is kept as a local copy: reopen the editor, restore it and save again.",
+      "unchanged": "Nothing changed: the text is the same as the current version.",
+      "manualEdits": "The current version has manual edits; confirm how to proceed.",
+      "refreshChangedText": "A field refresh may change the fields only, not the text.",
+      "contentInvalid": "The document could not be saved: it is not a valid contract document or exceeds 2 MB.",
+      "transition": "This status change is not allowed from the current status.",
+      "reasonRequired": "Returning an agreed draft for rework needs a reason.",
+      "signNeedsScan": "A contract is signed by attaching the signed scan.",
+      "signedFinal": "A signed contract is locked; a change needs an endorsement.",
+      "scanInvalid": "The signed scan must be a PDF file.",
+      "scanMissing": "The uploaded scan was not found. Try again.",
+      "scanNotPdf": "Only a PDF file can be attached.",
+      "scanTooLarge": "The file is larger than 20 MB.",
+      "shareNotAllowed": "A draft is shared with the policyholder once it is under review.",
+      "commentClosed": "Comments are taken while the draft is under review.",
+      "commentEmpty": "Write something first.",
+      "commentTooLong": "A comment is at most 2,000 characters.",
+      "agreeCommercialOnly": "Only commercial underwriting may agree a contract or return an agreed one."
+    }
   }
 }

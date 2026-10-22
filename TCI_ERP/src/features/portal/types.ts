@@ -1,3 +1,4 @@
+import type { DerivedStatus } from '../policies/premium'
 /** Row shapes of the tci.v_client_* views (migration 0025).
  *
  * These deliberately do NOT extend the staff types: the whole point of the
@@ -212,9 +213,13 @@ export interface ClientPremium {
   adjustment_amount: number
   premium_due_total: number
   period_closed: boolean
+  // 0056
+  instalments_outstanding: number
+  last_payment_date: string | null
 }
 
-/** tci.v_client_premium_instalments */
+/** tci.v_client_premium_instalments — paid and outstanding derived from the
+ * payments, oldest first (0056). */
 export interface ClientInstalment {
   id: string
   policy_id: string
@@ -222,8 +227,14 @@ export interface ClientInstalment {
   due_date: string
   amount: number
   status: 'pending' | 'invoiced' | 'paid'
+  /** When the payments first covered it in full. */
   paid_at: string | null
   overdue: boolean
+  paid_amount: number
+  outstanding: number
+  derived_status: DerivedStatus
+  invoice_number: string | null
+  invoice_date: string | null
 }
 
 /** tci.v_client_overdue_notifications */

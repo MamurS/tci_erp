@@ -40,6 +40,12 @@ export const ORIGIN_SOURCES: Readonly<Partial<Record<TaskType, readonly OriginSo
   entity_requested: [{ kind: 'entityRequestNote' }],
   statements_requested: [{ kind: 'entityRequestNote' }],
   buyer_needs_entity: [{ kind: 'proposalJustification' }],
+  // 0057: the policyholder's latest portal comment and the note the draft
+  // was sent for review with, both carried on the task by the mapping
+  contract_review: [
+    { kind: 'param', param: 'client_comment', author: 'policyholder' },
+    { kind: 'param', param: 'comment', author: 'requester' },
+  ],
 }
 
 /** Origin comments carried in params, ready to show without a fetch. */
@@ -127,6 +133,11 @@ export function systemNote(task: Pick<Task, 'task_type' | 'params' | 'source_eve
       return {
         key: 'agenda.note.group_exposure_near_limit',
         values: { exposure: p.exposure_uzs, limit: p.limit_uzs, pct: p.utilisation_pct },
+      }
+    case 'premium_payment_unmatched':
+      return {
+        key: 'agenda.note.premium_payment_unmatched',
+        values: { lines: num(p.count) ?? 0, file: p.file_name },
       }
     case 'group_limit_missing':
       return {

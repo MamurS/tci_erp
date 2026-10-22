@@ -17,6 +17,8 @@ import PHASE5 from '../../../supabase/migrations/0036_claims_agenda_portal.sql?r
 import PHASE6 from '../../../supabase/migrations/0041_group_agenda_financials.sql?raw'
 import DATA from '../../../supabase/migrations/0054_data_management.sql?raw'
 import AGENDA from '../../../supabase/migrations/0055_agenda_redesign.sql?raw'
+import PAYMENTS from '../../../supabase/migrations/0056_premium_payments.sql?raw'
+import CONTRACTS from '../../../supabase/migrations/0057_contract_drafts.sql?raw'
 import {
   AGENDA_GROUPS,
   agendaCounts,
@@ -83,6 +85,8 @@ describe('task type enum', () => {
       ...PHASE6.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
       ...DATA.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
       ...AGENDA.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
+      ...PAYMENTS.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
+      ...CONTRACTS.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
     ].map((m) => m[1])
     expect([...created, ...appended]).toEqual([...TASK_TYPES])
   })
@@ -111,7 +115,13 @@ describe('task type enum', () => {
     // 0055 adds rating_new_statements.
     const addedAgenda = AGENDA.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
     expect(addedAgenda).toHaveLength(1)
-    expect(TASK_TYPES).toHaveLength(31)
+    // 0056 adds premium_payment_unmatched.
+    const addedPayments = PAYMENTS.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
+    expect(addedPayments).toHaveLength(1)
+    // 0057 adds contract_review.
+    const addedContracts = CONTRACTS.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
+    expect(addedContracts).toHaveLength(1)
+    expect(TASK_TYPES).toHaveLength(33)
   })
 
   it('lists exactly the values of tci.task_priority', () => {
@@ -153,7 +163,7 @@ describe('completion rules', () => {
 
   it('agrees with the catalogue table in the migration headers', () => {
     // Each header row is "<type>  <target>  AUTO ..." or "... MANUAL - ...".
-    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}`.split('\n')
+    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}\n${PAYMENTS}\n${CONTRACTS}`.split('\n')
     for (const type of TASK_TYPES) {
       const row = headers.find(
         (line) => line.startsWith(`--   ${type}`) && /\b(AUTO|MANUAL)\b/.test(line),

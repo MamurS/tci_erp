@@ -7,12 +7,15 @@ import { useTranslation } from 'react-i18next'
 import {
   Badge,
   Button,
+  COL,
   EmptyState,
   Input,
-  ViewBar, Select,
+  labelCol,
+  Select,
   Spinner,
   Table,
   Truncate,
+  ViewBar,
 } from '../../components/ui'
 import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { usePolicies } from './api'
@@ -147,15 +150,14 @@ export function PoliciesPage() {
           <EmptyState title={t('policies.empty')} hint={t('policies.emptyHint')} />
         )
       ) : (
-        <Table>
+        <Table columns={[COL.code, COL.fill, COL.period, labelCol('policyStatus'), COL.money]}>
           <thead>
             <tr>
               <th>{t('policies.fields.policyNumber')}</th>
-              <th className="cell-fill w-[30%]">{t('policies.fields.policyholder')}</th>
-              <th>{t('policies.fields.productStructure')}</th>
+              <th>{t('policies.fields.policyholder')}</th>
               <th>{t('policies.fields.period')}</th>
               <th>{t('policies.fields.status')}</th>
-              <th className="text-right">{t('policies.terms.discretionaryLimit')}</th>
+              <th className="num">{t('policies.terms.discretionaryLimit')}</th>
             </tr>
           </thead>
           <tbody>
@@ -166,12 +168,14 @@ export function PoliciesPage() {
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
                 <td className="font-medium whitespace-nowrap text-slate-800">{p.policy_number}</td>
-                <td className="cell-fill text-slate-600">
+                <td className="text-slate-600">
                   <Truncate text={p.legal_entities?.name} className="max-w-none">
                     {p.legal_entities?.name ?? EM_DASH}
                   </Truncate>
+                  {/* The structure under the name: a column of its own pushed
+                      the register past a laptop's width. */}
+                  <span className="block text-[12px] text-slate-500">{t(`policies.structures.${p.product_structure}`)}</span>
                 </td>
-                <td className="whitespace-nowrap text-slate-500">{t(`policies.structures.${p.product_structure}`)}</td>
                 <td className="whitespace-nowrap text-slate-500">
                   {formatDate(p.inception_date, locale)} — {formatDate(p.expiry_date, locale)}
                 </td>

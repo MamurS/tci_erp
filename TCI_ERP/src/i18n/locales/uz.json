@@ -1217,7 +1217,8 @@
       "registry": "Polislar reyestri",
       "contracts": "Shartnomalar",
       "templates": "Shartnoma shablonlari",
-      "overview": "Umumiy ko‘rinish"
+      "overview": "Umumiy ko‘rinish",
+      "payments": "To‘lovlar"
     },
     "sectionSubtitle": "Tijorat anderrayterining vositalari: portfel, polislar reyestri, shartnoma loyihalari va ular tuziladigan shablonlar.",
     "eyebrow": "Savdo krediti sug‘urtasi polisi",
@@ -1371,7 +1372,8 @@
       "holdAndDiscuss": "Ushlab turish va muhokama qilish",
       "holdComment": "Nimani muhokama qilish kerak",
       "holdCommentPlaceholder": "Ushlab turish sababi…",
-      "actionFailed": "Amal bajarilmadi"
+      "actionFailed": "Amal bajarilmadi",
+      "windowShort": "sotuv oynasi"
     },
     "commercial": {
       "title": "Tijorat bosqichi",
@@ -2011,7 +2013,9 @@
       "overdue_notification": "Muddati o‘tganlik haqida xabarnoma",
       "claim": "Da’vo",
       "entity_request": "Ma’lumot so‘rovi",
-      "client_buyer_proposal": "Taklif qilingan bayer"
+      "client_buyer_proposal": "Taklif qilingan bayer",
+      "contract_draft": "Shartnoma loyihasi",
+      "bank_statement_import": "Bank ko‘chirmasi"
     },
     "taskTypes": {
       "buyer_needs_entity": "Bayerni aniqlash",
@@ -2045,8 +2049,8 @@
       "statements_requested": "Hisobot so‘ralgan",
       "entity_request_resolved": "So‘rovingiz bajarildi",
       "rating_new_statements": "Yangi hisobot — reytingni qayta ko‘rish",
-      "premium_payment_unmatched": "To‘lovlarni taqsimlash",
-      "contract_review": "Shartnomani kelishish"
+      "contract_review": "Shartnomani kelishish",
+      "premium_payment_unmatched": "To‘lovlarni taqsimlash"
     },
     "tasks": {
       "buyer_needs_entity": "{{subject}} arizasidagi «{{name}}» ortidagi tashkilotni aniqlang",
@@ -2149,7 +2153,8 @@
       "declarations": "Deklaratsiyalar",
       "groups": "Guruhlar",
       "submissions": "Arizalar",
-      "data": "Ma’lumotlar"
+      "data": "Ma’lumotlar",
+      "contracts": "Shartnomalar"
     },
     "buckets": {
       "overdue": "Muddati o‘tgan",
@@ -2181,7 +2186,8 @@
       "declaration": "Deklaratsiya",
       "group": "Guruh",
       "submission": "Ariza",
-      "data": "Ma’lumot"
+      "data": "Ma’lumot",
+      "contract": "Shartnoma"
     },
     "due": {
       "days_one": "{{count}} kun",
@@ -2269,7 +2275,12 @@
         "instalment_due_many": "{{count}} ta mukofot to‘lovi",
         "instalment_overdue_few": "{{count}} ta mukofot to‘lovi muddati o‘tgan",
         "instalment_overdue_many": "{{count}} ta mukofot to‘lovi muddati o‘tgan"
-      }
+      },
+      "contract_review": "Shartnoma loyihasi ko‘rib chiqilmoqda",
+      "premium_payment_unmatched_one": "Ko‘chirmadagi {{count}} ta to‘lovni taqsimlash kerak",
+      "premium_payment_unmatched_few": "Ko‘chirmadagi {{count}} ta to‘lovni taqsimlash kerak",
+      "premium_payment_unmatched_many": "Ko‘chirmadagi {{count}} ta to‘lovni taqsimlash kerak",
+      "premium_payment_unmatched_other": "Ko‘chirmadagi {{count}} ta to‘lovni taqsimlash kerak"
     },
     "facts": {
       "policies_one": "{{count}} ta polis",
@@ -2353,7 +2364,8 @@
       "group_limit_missing_few": "{{count}} ta ishtirokchida limit bor (jami {{exposure}} UZS), guruh limiti belgilanmagan.",
       "group_limit_missing_many": "{{count}} ta ishtirokchida limit bor (jami {{exposure}} UZS), guruh limiti belgilanmagan.",
       "instalment_due": "{{amount}} miqdoridagi {{sequence}}-to‘lov muddati {{date}}.",
-      "rating_new_statements_zero": "{{period}} uchun hisobot {{date}} da qo‘shildi ({{user}}). Joriy baho {{grade}} · {{score}} {{ratedPeriod}} gacha bo‘lgan hisobotga asoslangan va bir davr orqada qoldi; unga hozircha amaldagi limit tayanmaydi."
+      "rating_new_statements_zero": "{{period}} uchun hisobot {{date}} da qo‘shildi ({{user}}). Joriy baho {{grade}} · {{score}} {{ratedPeriod}} gacha bo‘lgan hisobotga asoslangan va bir davr orqada qoldi; unga hozircha amaldagi limit tayanmaydi.",
+      "premium_payment_unmatched": "{{file}} ko‘chirmasi: ko‘rib chiqiladigan qatorlar — {{count}}. Har birini polisga biriktiring yoki sababini ko‘rsatib chetga qo‘ying."
     },
     "dest": {
       "opens": "Ochiladi",
@@ -2375,7 +2387,8 @@
         "salesWindow": "Sotuv tasdig‘i",
         "buyers": "Bayerlar",
         "openClaim": "Ish ochish",
-        "proposals": "Taklif qilingan bayerlar"
+        "proposals": "Taklif qilingan bayerlar",
+        "payments": "To‘lovlar"
       },
       "with": {
         "task": "shu vazifa konteksti bilan",
@@ -2385,7 +2398,9 @@
         "notice": "xabarnoma asosida to‘ldirilgan ish shakli bilan",
         "instalments_few": "{{count}} ta to‘lov ko‘rsatiladi",
         "instalments_many": "{{count}} ta to‘lov ko‘rsatiladi"
-      }
+      },
+      "contract": "Shartnoma loyihasi",
+      "statement": "Ko‘chirma"
     },
     "triage": {
       "position": "{{total}} tadan {{index}}-band",
@@ -2633,7 +2648,8 @@
       "declarations": "Deklaratsiyalar",
       "premium": "Sug‘urta mukofoti",
       "overdues": "Muddati o‘tgan qarzlar",
-      "claims": "Da’volar"
+      "claims": "Da’volar",
+      "contracts": "Shartnomalar"
     },
     "policies": {
       "title": "Mening polislarim",
@@ -2958,12 +2974,18 @@
       "pending": "Kutilmoqda",
       "invoiced": "Hisob-faktura berilgan",
       "paid": "To‘langan",
-      "cancelled": "Bekor qilingan"
+      "cancelled": "Bekor qilingan",
+      "partially_paid": "Qisman to‘langan",
+      "overdue": "Muddati o‘tgan"
     },
     "actions": {
       "generate": "Jadval yaratish",
       "invoice": "Hisob-faktura berish",
-      "markPaid": "To‘langan deb belgilash"
+      "markPaid": "To‘langan deb belgilash",
+      "recordPayment": "To‘lovni kiritish",
+      "reverse": "Storno qilish",
+      "more": "{{sequence}}-badal bo‘yicha boshqa amallar",
+      "paymentMore": "To‘lov bo‘yicha boshqa amallar"
     },
     "fields": {
       "minimumPremium": "Minimal sug‘urta mukofoti",
@@ -2976,10 +2998,39 @@
       "amount": "Summa",
       "status": "Holat",
       "scheduleTotal": "Jadval bo‘yicha jami",
-      "computedAt": "Hisoblangan"
+      "computedAt": "Hisoblangan",
+      "sequence": "№",
+      "paid": "To‘langan",
+      "outstanding": "Qoldiq",
+      "actions": "Amallar",
+      "invoiceNumber": "Hisob-faktura raqami",
+      "invoiceDate": "Hisob-faktura sanasi",
+      "note": "Izoh",
+      "paymentDate": "To‘lov sanasi",
+      "currency": "Valyuta",
+      "reference": "To‘lov hujjati raqami",
+      "source": "Manba",
+      "reason": "Sabab",
+      "received": "Tushgan",
+      "date": "Sana"
     },
     "errors": {
-      "scheduleLocked": "Jadvalni qayta yaratib bo‘lmaydi: ayrim to‘lovlar uchun hisob-faktura berilgan yoki ular to‘langan."
+      "scheduleLocked": "Jadvalni qayta yaratib bo‘lmaydi: ayrim to‘lovlar uchun hisob-faktura berilgan yoki ular to‘langan.",
+      "alreadyInvoiced": "Bu badal bo‘yicha hisob-faktura allaqachon berilgan.",
+      "alreadyPaid": "Bu badal bo‘yicha qarz yo‘q — hisob-faktura berishga asos yo‘q.",
+      "instalmentCancelled": "Bekor qilingan badal bo‘yicha hisob-faktura berilmaydi.",
+      "invoiceNumberRequired": "Hisob-faktura raqamini kiriting.",
+      "invoiceNumberTaken": "Bu raqam boshqa hisob-fakturada band.",
+      "invoiceNumberTooLong": "Hisob-faktura raqami 64 belgidan oshmasin.",
+      "invoiceDateInFuture": "Hisob-faktura sanasi — bugun yoki undan oldin.",
+      "amountPositive": "To‘lov summasi noldan katta bo‘lishi kerak.",
+      "currencyMismatch": "To‘lov polis valyutasida emas.",
+      "paymentDateInvalid": "To‘lov sanasi — bugun yoki undan oldin.",
+      "exceedsOutstanding": "To‘lov polis bo‘yicha qolgan summadan ko‘p. Ortiqcha to‘lov qabul qilinmaydi.",
+      "policyNotBillable": "Qoralama yoki annulyatsiya qilingan polis bo‘yicha mukofot qabul qilinmaydi.",
+      "isReversal": "Stornoni storno qilib bo‘lmaydi.",
+      "alreadyReversed": "Bu to‘lov allaqachon storno qilingan.",
+      "reasonRequired": "To‘lov nima uchun storno qilinayotganini yozing."
     },
     "overdue": "Muddati o‘tgan",
     "paidSoFar": "{{amount}} to‘langan",
@@ -2987,7 +3038,271 @@
     "linkedInstalments_few": "Kun tartibidan {{count}} ta to‘lov ko‘rsatilmoqda",
     "linkedInstalments_many": "Kun tartibidan {{count}} ta to‘lov ko‘rsatilmoqda",
     "linkedInstalments_other": "Kun tartibidan {{count}} ta to‘lov ko‘rsatilmoqda",
-    "showAllInstalments": "Hammasini ko‘rsatish"
+    "showAllInstalments": "Hammasini ko‘rsatish",
+    "tooltips": {
+      "invoice": "{{sequence}}-badal bo‘yicha hisob-faktura berish ({{amount}}); shundan so‘ng summa va muddat o‘zgarmaydi",
+      "recordPayment": "Polis bo‘yicha tushgan pulni kiritish; u eng avvalgi to‘lanmagan badallarni yopadi",
+      "invoiced": "{{date}} sanali {{number}}-hisob-faktura",
+      "settled": "{{date}} da to‘liq to‘langan",
+      "reverse": "Xato to‘lovni storno bilan tuzatish; to‘lovning o‘zi tarixda qoladi"
+    },
+    "sources": {
+      "manual": "Qo‘lda",
+      "bank_import": "Bank ko‘chirmasi",
+      "accounting_import": "Hisob tizimi"
+    },
+    "figures": {
+      "receivedMeta_one": "{{count}} ta to‘lov",
+      "receivedMeta_few": "{{count}} ta to‘lov",
+      "receivedMeta_many": "{{count}} ta to‘lov",
+      "receivedMeta_other": "{{count}} ta to‘lov",
+      "noPayments": "Hozircha to‘lovlar yo‘q",
+      "overdueMeta": "{{amount}} muddati o‘tgan",
+      "nothingOverdue": "Muddati o‘tganlar yo‘q"
+    },
+    "invoice": {
+      "title": "{{sequence}}-badal bo‘yicha hisob-faktura",
+      "hint": "Hisob-faktura berilgach, badalning summasi va muddati qat’iylashadi: ular sug‘urtalanuvchidagi hujjatda.",
+      "submit": "Hisob-faktura berish",
+      "numberHint": "Sug‘urtalanuvchi uni to‘lov maqsadida ko‘rsatadi — bank to‘lovi shu badal bilan solishtiriladi."
+    },
+    "payment": {
+      "title": "To‘lovni kiritish",
+      "hint": "Pul eng avvalgi to‘lanmagan badallarga taqsimlanadi. Polis bo‘yicha jami {{amount}} to‘lanishi qolgan.",
+      "submit": "To‘lovni kiritish",
+      "currencyHint": "To‘lovlar polis valyutasida hisobga olinadi.",
+      "amountRequired": "Noldan katta summani kiriting.",
+      "amountTooHigh": "Bu polis bo‘yicha qolgan {{amount}} dan ko‘p. Ortiqcha to‘lov qabul qilinmaydi.",
+      "dateInFuture": "To‘lov sanasi — bugun yoki undan oldin."
+    },
+    "payments": {
+      "title": "To‘lovlar",
+      "hint": "Faqat qo‘shiladi: xato storno bilan tuzatiladi, tahrirlanmaydi.",
+      "empty": "Hozircha to‘lovlar yo‘q",
+      "emptyHint": "Tushgan pulni «To‘lovni kiritish» tugmasi bilan kiriting yoki «Polislar › To‘lovlar» bo‘limida bank ko‘chirmasini yuklang.",
+      "reversal": "Storno",
+      "reversalOf": "{{date}} dagi to‘lov stornosi",
+      "reversed": "Storno qilingan",
+      "migrated": "«To‘langan» belgisidan ko‘chirilgan"
+    },
+    "reverse": {
+      "title": "{{amount}} lik to‘lovni storno qilish",
+      "hint": "Storno qatori qo‘shiladi, to‘lovning o‘zi tarixda qoladi. U yopgan badallar yana to‘lanishi kerak bo‘ladi va ular bo‘yicha vazifalar qaytadi.",
+      "submit": "To‘lovni storno qilish",
+      "reasonRequired": "To‘lov nima uchun storno qilinayotganini yozing."
+    },
+    "bank": {
+      "viewHint": "Bank ko‘chirmasini yuklang: har bir tushum to‘lov maqsadidagi hisob-faktura yoki polis raqami, summa va sana bo‘yicha polis bilan solishtiriladi. Ishonchli mosliklar bitta tugma bilan tasdiqlanadi, qolganlari «Aniqlanmagan» bo‘limida va kun tartibida kutadi. To‘lovni qo‘lda kiritish polisning «Sug‘urta mukofoti» yorlig‘ida avvalgidek mumkin.",
+      "empty": {
+        "title": "Hali bank ko‘chirmasi yuklanmagan",
+        "hint": "Yuqorida bank ko‘chirmasi faylini tanlang (CSV yoki Excel). Birinchi marta ustunlarni moslang va maketni bank nomi bilan saqlang — shu bankning keyingi ko‘chirmasi savolsiz o‘qiladi."
+      },
+      "import": {
+        "title": "Ko‘chirmani import qilish",
+        "hint": "Fayl brauzeringizda o‘qiladi; serverga faqat undagi tushumlar yuboriladi.",
+        "file": "Ko‘chirma fayli",
+        "fileHint": "CSV, XLSX yoki XLS, 5 000 tagacha to‘lov.",
+        "choose": "Faylni tanlash",
+        "noFile": "Fayl tanlanmagan",
+        "reading": "Fayl o‘qilmoqda…",
+        "layout": "Bank maketi",
+        "layoutHint": "Shu bank uchun saqlangan ustunlar mosligi.",
+        "newLayout": "Yangi maket…",
+        "readFailed": "Faylni o‘qib bo‘lmadi",
+        "readFailedHint": "Uni bank tizimidan CSV yoki Excel (XLSX, XLS) formatida saqlang va qayta tanlang.",
+        "done_one": "{{count}} ta qator yuklandi",
+        "done_other": "{{count}} ta qator yuklandi",
+        "doneCounts": "Mos keldi: {{matched}} · tekshiruvda: {{suggested}} · aniqlanmagan: {{unmatched}} · avval yuklangan: {{duplicate}}.",
+        "submit": "Import qilish ({{count}})",
+        "tooMany": "Bitta faylda {{max}} tadan ortiq to‘lov",
+        "tooManyHint": "Ko‘chirmani davrlarga bo‘ling va qismlarni navbat bilan yuklang.",
+        "failed": "Ko‘chirma yuklanmadi",
+        "done_few": "{{count}} ta qator yuklandi",
+        "done_many": "{{count}} ta qator yuklandi"
+      },
+      "mapping": {
+        "title": "Ustunlar",
+        "hint": "Qaysi ustunda nima borligini ko‘rsating. Faqat sana, summa va valyuta majburiy.",
+        "usingLayout": "«{{name}}» maketi bo‘yicha o‘qildi.",
+        "edit": "Ustunlarni o‘zgartirish",
+        "hide": "Ustunlarni yashirish",
+        "headerRow": "Ustun nomlari qatori",
+        "amountLayout": "Summa",
+        "layouts": {
+          "signed": "Bitta summa ustuni",
+          "split": "Debet va kredit alohida"
+        },
+        "choose": "— tanlang —",
+        "notInFile": "— faylda yo‘q —",
+        "unnamedColumn": "{{letter}} ustun",
+        "fixedCurrency": "Ko‘chirma valyutasi",
+        "fixedCurrencyHint": "Faylda valyuta ustuni yo‘q: barcha to‘lovlar shu valyutada.",
+        "fixedCurrencyUnused": "Valyuta ustunidan olinadi.",
+        "dateFormat": "Sana formati",
+        "dateFormats": {
+          "dmyDot": "KK.OO.YYYY (05.10.2026)",
+          "dmySlash": "KK/OO/YYYY (05/10/2026)",
+          "mdySlash": "OO/KK/YYYY (10/05/2026)",
+          "iso": "YYYY-OO-KK (2026-10-05)"
+        },
+        "decimalSeparator": "O‘nlik ajratkich",
+        "decimals": {
+          "auto": "Avtomatik aniqlash",
+          "point": "Nuqta (1,234.56)",
+          "comma": "Vergul (1 234,56)"
+        },
+        "skipDebits": "Chiqimlarni o‘tkazib yuborish",
+        "skipDebitsHint": "Faylda faqat tushumlar bo‘lsa, belgini olib tashlang: unda chiqim xato sifatida ko‘rsatiladi.",
+        "saveAs": "Maketni saqlash nomi",
+        "namePlaceholder": "Bank nomi",
+        "save": "Maketni saqlash",
+        "saved": "Maket saqlandi",
+        "saveFailed": "Maket saqlanmadi",
+        "incomplete": "Ustunlar hali ko‘rsatilmagan",
+        "problems": {
+          "noHeader": "Tanlangan qatorda ustun nomlari yo‘q.",
+          "dateColumn": "To‘lov sanasi ustunini tanlang.",
+          "amountColumn": "Summa ustunini tanlang.",
+          "creditColumn": "Kredit (tushum) ustunini tanlang.",
+          "currency": "Valyuta ustunini yoki butun ko‘chirma valyutasini tanlang.",
+          "columnNotFound": "Maketdagi ustun faylda yo‘q — uni qayta tanlang."
+        }
+      },
+      "preview": {
+        "kept": "Import uchun:",
+        "debits": "O‘tkazib yuborilgan chiqimlar:",
+        "skipped": "Bo‘sh va jami qatorlar:",
+        "errors": "O‘qilmadi:",
+        "errorsTitle_one": "{{count}} ta qator yuklanmaydi",
+        "errorsTitle_other": "{{count}} ta qator yuklanmaydi",
+        "errorLine": "{{line}}-qator: {{reason}}",
+        "moreErrors_one": "va yana {{count}} ta",
+        "moreErrors_other": "va yana {{count}} ta",
+        "first_one": "{{total}} tadan birinchi to‘lov:",
+        "first_other": "{{total}} tadan birinchi {{count}} ta to‘lov:",
+        "errorsTitle_few": "{{count}} ta qator yuklanmaydi",
+        "errorsTitle_many": "{{count}} ta qator yuklanmaydi",
+        "moreErrors_few": "va yana {{count}} ta",
+        "moreErrors_many": "va yana {{count}} ta",
+        "first_few": "{{total}} tadan birinchi {{count}} ta to‘lov:",
+        "first_many": "{{total}} tadan birinchi {{count}} ta to‘lov:"
+      },
+      "rowErrors": {
+        "dateMissing": "sana yo‘q",
+        "dateInvalid": "sana aniqlanmadi",
+        "amountMissing": "summa yo‘q",
+        "amountInvalid": "summa aniqlanmadi",
+        "amountZero": "summa nolga teng",
+        "currencyMissing": "valyuta yo‘q",
+        "currencyInvalid": "noma’lum valyuta",
+        "debit": "bu chiqim"
+      },
+      "fields": {
+        "line": "Qator",
+        "value_date": "Sana",
+        "amount": "Summa",
+        "credit": "Kredit (tushum)",
+        "debit": "Debet (chiqim)",
+        "currency": "Valyuta",
+        "purpose": "To‘lov maqsadi",
+        "reference": "Hujjat raqami",
+        "payer": "To‘lovchi",
+        "payerPurpose": "To‘lovchi / maqsad",
+        "policy": "Polis",
+        "reason": "Asos",
+        "status": "Holat",
+        "policyBasis": "Polis / asos"
+      },
+      "imports": {
+        "title": "Yuklangan ko‘chirmalar",
+        "hint": "Oxirgi 50 ta. Qatorlarini ko‘rib chiqish uchun ko‘chirmani tanlang.",
+        "importedAt": "Yuklangan",
+        "file": "Fayl",
+        "lines": "Qatorlar",
+        "importedBy": "Yuklagan",
+        "noName": "Nomsiz ko‘chirma"
+      },
+      "lines": {
+        "title": "{{file}} ko‘chirmasi",
+        "hint": "Qatorlar: {{lines}}, yuklangan: {{when}}.",
+        "loadFailed": "Ko‘chirma qatorlarini yuklab bo‘lmadi",
+        "refused_one": "{{count}} ta qator biriktirilmadi",
+        "refused_other": "{{count}} ta qator biriktirilmadi",
+        "refusedLine": "{{line}}-qator: {{reason}}",
+        "allDone": "Ko‘chirmaning barcha qatorlari ko‘rib chiqildi",
+        "allDoneHint": "To‘lovlar o‘z polislariga yozildi, kun tartibidagi vazifa yopildi.",
+        "refused_few": "{{count}} ta qator biriktirilmadi",
+        "refused_many": "{{count}} ta qator biriktirilmadi"
+      },
+      "sections": {
+        "matched": "Mos keldi",
+        "matchedHint": "Havola va summa mos. Tekshiring va tasdiqlang.",
+        "matchedEmpty": "Bu ko‘chirmada ishonchli mosliklar yo‘q.",
+        "suggested": "Tekshirish kerak",
+        "suggestedHint": "Havola topildi, lekin summa yoki sana mos emas.",
+        "suggestedEmpty": "Tekshiradigan narsa yo‘q.",
+        "unmatched": "Aniqlanmagan",
+        "unmatchedHint": "Tayanadigan narsa yo‘q yoki to‘lov qarzdan ko‘p: polisga biriktiring yoki chiqarib qo‘ying.",
+        "unmatchedEmpty": "Barcha to‘lovlar aniqlandi.",
+        "processed": "Ko‘rib chiqilgan",
+        "processedHint": "Biriktirilgan, chiqarib qo‘yilgan yoki avval yuklangan.",
+        "processedEmpty": "Hali hech narsa ko‘rib chiqilmagan.",
+        "expand": "Ko‘rsatish",
+        "collapse": "Yashirish"
+      },
+      "statuses": {
+        "matched": "Mos keldi",
+        "suggested": "Tekshiruvda",
+        "unmatched": "Aniqlanmagan",
+        "confirmed": "Biriktirilgan",
+        "ignored": "Chiqarib qo‘yilgan",
+        "duplicate": "Takroriy"
+      },
+      "reasons": {
+        "invoice_number": "Hisob-faktura raqami",
+        "policy_number": "Polis raqami",
+        "amount_differs": "Summa mos emas",
+        "date_far": "Muddatdan uzoq",
+        "currency": "Boshqa valyuta",
+        "exceeds_outstanding": "Qarzdan ko‘p",
+        "no_reference": "Havola yo‘q",
+        "ambiguous": "Bir nechta polis",
+        "assigned": "Qo‘lda biriktirilgan",
+        "duplicate": "Avval yuklangan"
+      },
+      "actions": {
+        "confirm": "Tasdiqlash",
+        "confirmAll": "Barchasini tasdiqlash",
+        "assign": "Biriktirish",
+        "assignOther": "Boshqa polisga biriktirish",
+        "ignore": "Chiqarib qo‘yish"
+      },
+      "assign": {
+        "title": "To‘lovni polisga biriktirish",
+        "search": "Polis raqami yoki sug‘urtalanuvchi",
+        "owed": "to‘lanishi kerak {{amount}}",
+        "currencyHint": "Faqat {{currency}} dagi polislar: to‘lov polis valyutasida yoziladi.",
+        "overpays": "Polis bo‘yicha qarzdan ko‘p",
+        "overpaysHint": "To‘lanishi kerak qoldiq — {{amount}}. Qoldiqdan katta to‘lov rad etiladi: boshqa polisni tanlang yoki qatorni chiqarib qo‘ying.",
+        "failed": "To‘lov yozilmadi"
+      },
+      "ignore": {
+        "title": "Qatorni chiqarib qo‘yish",
+        "hint": "Sug‘urta mukofoti to‘lovi emasmi (qaytarish, boshqa mahsulot, hisoblar orasidagi o‘tkazma)? Qator sababingiz bilan ko‘chirmada qoladi va navbatdan chiqadi.",
+        "reason": "Sabab",
+        "placeholder": "Nega bu sug‘urta mukofoti to‘lovi emas"
+      },
+      "errors": {
+        "statementEmpty": "Ko‘chirmada yuklash uchun tushumlar yo‘q.",
+        "statementTooLarge": "Bir yuklashda 5 000 tadan ko‘p bo‘lmagan to‘lov: ko‘chirmani bo‘ling.",
+        "statementLineInvalid": "Qatorda sana, summa yoki valyuta aniqlanmadi — ustunlar mosligini tekshiring.",
+        "lineResolved": "Bu qator allaqachon ko‘rib chiqilgan.",
+        "lineNotMatched": "Qator uchun polis topilmagan: uni qo‘lda biriktiring.",
+        "profileNameRequired": "Maket qaysi bankka tegishli ekanini ko‘rsating.",
+        "profileMappingInvalid": "Ustunlar mosligini o‘qib bo‘lmaydi.",
+        "ignoreReasonRequired": "Nega bu qator sug‘urta mukofoti to‘lovi emasligini ko‘rsating."
+      }
+    }
   },
   "overdues": {
     "title": "Muddati o‘tgan qarz to‘g‘risida xabarnomalar",
@@ -4073,5 +4388,316 @@
     "previousMonth": "Oldingi oy",
     "nextMonth": "Keyingi oy",
     "today": "Bugun"
+  },
+  "contractDrafts": {
+    "title": "Shartnoma loyihasi",
+    "current": "joriy",
+    "notFound": "Shartnoma loyihasi topilmadi",
+    "notFoundHint": "U mavjud emas yoki rolingiz uni ko‘ra olmaydi. Uni polis yoki arizadan oching.",
+    "emptyHint": "Uni amaldagi shablon bo‘yicha tuzing: u ilovada ochiladi — uni o‘qish, tahrirlash va solishtirish mumkin; har bir saqlash versiya sifatida qoladi.",
+    "generateNote": "Loyiha joriy ma’lumotlar bilan to‘ldiriladi va muharrirda ochiladi; maydonlar matnga aylantirilmaguncha polis yoki ariza bilan bog‘liq qoladi.",
+    "versionSelect": "Versiya",
+    "statuses": {
+      "draft": "Qoralama",
+      "under_review": "Ko‘rib chiqilmoqda",
+      "agreed": "Kelishilgan",
+      "signed": "Imzolangan"
+    },
+    "sources": {
+      "generated": "Shablondan tuzilgan",
+      "manual": "Tahrir",
+      "restored": "Tiklangan",
+      "restoredFrom": "v{{version}} dan tiklangan",
+      "refreshed": "Maydonlar yangilangan"
+    },
+    "columns": {
+      "version": "Versiya",
+      "status": "Holat",
+      "saved": "Saqlangan",
+      "author": "Muallif",
+      "template": "Kelib chiqishi va shablon"
+    },
+    "actions": {
+      "view": "Ochish",
+      "edit": "Tahrirlash",
+      "compare": "Versiyalarni solishtirish",
+      "compareWithPrevious": "Oldingi versiya bilan solishtirish",
+      "download": "Yuklab olish",
+      "docx": "Word (.docx)",
+      "pdf": "PDF (chop etish)",
+      "pdfPrint": "PDF — chop etish yoki saqlash",
+      "openDraft": "Loyihani ochish",
+      "regenerate": "Qayta tuzish",
+      "share": "v{{version}} ni sug‘urtalanuvchiga ko‘rsatish",
+      "unshare": "Sug‘urtalanuvchiga ko‘rsatishni to‘xtatish",
+      "restore": "v{{version}} ni tiklash",
+      "backToCurrent": "Joriy versiyaga",
+      "backToDocument": "Hujjatga qaytish",
+      "closeEditor": "Muharrirni yopish",
+      "saveVersion": "Versiyani saqlash",
+      "refreshFields": "Maydonlarni yangilash"
+    },
+    "status": {
+      "comment": "Izoh (ixtiyoriy)",
+      "reason": "Sabab",
+      "reasonHint": "Majburiy: uni kelishuvchilar va tarix ko‘radi.",
+      "submitForReview": {
+        "action": "Ko‘rib chiqishga yuborish",
+        "title": "Loyihani ko‘rib chiqishga yuborish",
+        "body": "Tijorat anderrayteri kun tartibida vazifa oladi. Loyiha ko‘rib chiqilayotganda uni hali tahrirlash mumkin.",
+        "confirm": "Yuborish"
+      },
+      "returnToDraft": {
+        "action": "Qoralamaga qaytarish",
+        "title": "Loyihani ko‘rib chiqishdan qaytarish",
+        "body": "Ko‘rib chiqish vazifasi yopiladi. Loyiha tayyor bo‘lgach, uni yana ko‘rib chiqishga yuboring.",
+        "confirm": "Qoralamaga qaytarish"
+      },
+      "agree": {
+        "action": "Kelishish",
+        "title": "Loyihani kelishish",
+        "body": "Joriy versiya kelishilgan matnga aylanadi va tahrirlash yopiladi. Keyingi qadam — imzolangan shartnomaning skan nusxasi.",
+        "confirm": "Kelishish"
+      },
+      "reopen": {
+        "action": "Qayta ishlashga qaytarish",
+        "title": "Kelishilgan loyihani qayta ishlashga qaytarish",
+        "body": "Loyiha qoralamaga qaytadi va yana tahrirlanadi. Sababini ko‘rsating.",
+        "confirm": "Qayta ishlashga qaytarish"
+      },
+      "sign": {
+        "action": "Imzolangan shartnomani biriktirish"
+      }
+    },
+    "sign": {
+      "title": "Imzolangan shartnoma — v{{version}}",
+      "finalTitle": "Imzolash yakuniy",
+      "finalBody": "Imzolangan shartnoma butunlay qulflanadi. Keyingi o‘zgartirishlar yangi hujjat (qo‘shimcha kelishuv) bilan kiritiladi.",
+      "file": "Imzolangan shartnomaning skan nusxasi (PDF)",
+      "fileHint": "20 MB gacha PDF. Kelishilgan versiyaga biriktiriladi.",
+      "submit": "Imzolash"
+    },
+    "signed": {
+      "title": "Imzolangan: v{{version}}, {{date}}",
+      "body": "Shartnoma yakuniy va endi tahrirlanmaydi. O‘zgartirish faqat qo‘shimcha kelishuv bilan.",
+      "download": "Imzolangan skan nusxa"
+    },
+    "locked": {
+      "title": "Hozir bu loyiha tahrirlanmaydi",
+      "signed": "U imzolangan va yakuniy.",
+      "notEditable": "Loyiha qoralama yoki ko‘rib chiqilayotgan paytda tahrirlanadi.",
+      "agreedTitle": "Kelishilgan — tahrirlash yopiq",
+      "agreed": "Yakunlash uchun imzolangan skan nusxani biriktiring yoki loyihani sababini ko‘rsatib qayta ishlashga qaytaring."
+    },
+    "older": {
+      "title": "Siz v{{version}} ni o‘qiyapsiz; joriy versiya — v{{current}}",
+      "body": "Versiyalar o‘zgarmaydi. Tiklash shu matn bilan yangi versiya yaratadi."
+    },
+    "stale": {
+      "title_one": "{{count}} ta maydon endi ma’lumotlarga mos emas",
+      "title_few": "{{count}} ta maydon endi ma’lumotlarga mos emas",
+      "title_many": "{{count}} ta maydon endi ma’lumotlarga mos emas",
+      "title_other": "{{count}} ta maydon endi ma’lumotlarga mos emas",
+      "body": "Ushbu versiya saqlangandan keyin polis yoki ariza o‘zgargan; bunday maydonlar sariq rangda belgilangan. Yangilash faqat maydonlar o‘zgaradigan yangi versiya yaratadi.",
+      "editorBody": "Sariq rangda belgilangan maydonlar joriy ma’lumotlardan farq qiladi. Yangilash faqat maydonlarni o‘zgartiradi, atrofdagi matnni emas.",
+      "scheduleTitle": "Kredit limitlari ilovasi o‘zgargan",
+      "scheduleBody": "Limitga ega bayerlar soni o‘zgargan. Maydonlarni yangilash qator qo‘shmaydi va olib tashlamaydi: ilovani qayta tuzish uchun loyihani qayta tuzing."
+    },
+    "shared": {
+      "title": "Sug‘urtalanuvchiga ko‘rsatilgan: v{{version}}",
+      "current": "Sug‘urtalanuvchi joriy versiyani portalda ko‘radi va loyiha ko‘rib chiqilayotganda izoh qoldirishi mumkin.",
+      "older": "Joriy versiya — v{{current}}; sug‘urtalanuvchi ko‘rishi uchun uni qayta ko‘rsating."
+    },
+    "warnings": {
+      "title": "Shablonning bir qismi muharrirga o‘tkazilmadi",
+      "images": "Rasmlar va chizmalar",
+      "textBoxes": "Matn bloklari",
+      "headerFooter": "Kolontitullar (eksportda sahifa raqamlari qo‘shiladi)",
+      "unclosedSection": "Yopuvchi tegi yo‘q bo‘lim tegi",
+      "unsupportedSection": "Jadval chegarasidan chiqadigan takrorlanuvchi bo‘lim",
+      "multiLevelList": "Ko‘p darajali ro‘yxatlar (bir darajaga keltirilgan)"
+    },
+    "toc": {
+      "title": "Mundarija",
+      "empty": "Hozircha sarlavha va bandlar yo‘q."
+    },
+    "comments": {
+      "title": "Izohlar",
+      "hint": "Ichki: sug‘urtalanuvchi ularni ko‘rmaydi.",
+      "empty": "Hozircha izohlar yo‘q.",
+      "placeholder": "Joriy versiyaga izoh",
+      "send": "Yuborish",
+      "policyholder": "Sug‘urtalanuvchi",
+      "fromPortal": "portal"
+    },
+    "history": {
+      "title": "Holatlar tarixi",
+      "empty": "Holat hali o‘zgarmagan."
+    },
+    "editor": {
+      "area": "Shartnoma matni",
+      "toolbar": "Formatlash",
+      "undo": "Amalni qaytarish (Ctrl/⌘ Z)",
+      "redo": "Takrorlash (Ctrl/⌘ Shift Z)",
+      "blockStyle": "Xatboshi uslubi",
+      "styles": {
+        "paragraph": "Matn",
+        "clause": "Raqamli band",
+        "section": "Raqamli bo‘lim",
+        "heading": "Sarlavha",
+        "title": "Hujjat nomi"
+      },
+      "bold": "Qalin (Ctrl/⌘ B)",
+      "italic": "Kursiv (Ctrl/⌘ I)",
+      "underline": "Tagi chizilgan (Ctrl/⌘ U)",
+      "align": {
+        "left": "Chap tomonga",
+        "center": "Markazga",
+        "justify": "Kenglik bo‘yicha"
+      },
+      "bulletList": "Markerli ro‘yxat",
+      "orderedList": "Raqamli ro‘yxat",
+      "insertTable": "Jadval qo‘shish",
+      "addRow": "Pastga qator qo‘shish",
+      "addColumn": "O‘ngga ustun qo‘shish",
+      "tableMore": "Jadval…",
+      "bordersOn": "Chegaralarni ko‘rsatish",
+      "bordersOff": "Chegaralarni yashirish",
+      "deleteRow": "Qatorni o‘chirish",
+      "deleteColumn": "Ustunni o‘chirish",
+      "deleteTable": "Jadvalni o‘chirish",
+      "pageBreak": "Sahifa uzilishi",
+      "insertField": "Maydon qo‘shish…",
+      "fieldToText": "Tanlangan maydonni oddiy matnga aylantirish (u endi yangilanmaydi)",
+      "editing": "v{{version}} ustida tahrirlash.",
+      "unsaved": "Saqlanmagan o‘zgarishlar bor",
+      "localSaved": "Saqlanmagan — mahalliy nusxa shu brauzerda ({{time}})",
+      "noChanges": "Hozircha o‘zgarishlar yo‘q",
+      "saveShortcut": "Ctrl/⌘ S",
+      "restoreTitle": "Sizda {{time}} dagi saqlanmagan o‘zgarishlar bor",
+      "restoreBody": "Ular shu brauzerda saqlangan. Ularni muharrirga qaytaring yoki voz keching.",
+      "restoreBodyOlder": "Ular v{{base}} ustida qilingan; joriy versiya — v{{current}}. Ularni qaytarsangiz, matningiz v{{current}} o‘rnini egallaydi.",
+      "restore": "O‘zgarishlarimni qaytarish",
+      "discard": "Voz kechish",
+      "leaveTitle": "Versiyani saqlamasdan chiqasizmi?",
+      "leaveBody": "O‘zgarishlaringiz hali versiya emas. Mahalliy nusxa shu brauzerda qoladi va qaytganingizda taklif qilinadi.",
+      "leave": "Chiqish"
+    },
+    "save": {
+      "title": "v{{version}} sifatida saqlash",
+      "body": "Yangi v{{version}} versiya yaratiladi; avvalgi versiyalar o‘zgarmaydi.",
+      "note": "Nima o‘zgardi (ixtiyoriy)",
+      "noteHint": "Versiyalar ro‘yxatida va tarixda ko‘rsatiladi.",
+      "submit": "Versiyani saqlash"
+    },
+    "regenerate": {
+      "title": "Loyihani qayta tuzish",
+      "locked": "Loyiha faqat qoralama yoki ko‘rib chiqilayotgan paytda qayta tuziladi.",
+      "manualEditsTitle": "v{{version}} da qo‘lda kiritilgan tahrirlar bor",
+      "manualEditsBody": "Shablondan qayta tuzish ularni almashtiradi. Ularni saqlab, faqat maydonlarni yangilang — yoki shablondan yangi versiyani boshlang.",
+      "choose": "Qanday davom etish",
+      "refresh": "Tahrirlarni saqlash, maydonlarni yangilash",
+      "refreshHint": "Maydonlarda joriy ma’lumotlar bilan yangi versiya; matningiz o‘zgarmaydi.",
+      "fresh": "Shablondan yangi versiyani boshlash",
+      "freshHint": "Qo‘lda kiritilgan tahrirlar o‘tkazilmaydi; ular avvalgi versiyalarda qoladi.",
+      "submit": "Yangi versiyani tuzish",
+      "submitRefresh": "Maydonlarni yangilash",
+      "nothingChanged": "Yangilash shart emas: barcha maydonlar allaqachon joriy ma’lumotlarni ko‘rsatmoqda.",
+      "refreshNote_one": "{{count}} ta maydon yangilandi",
+      "refreshNote_few": "{{count}} ta maydon yangilandi",
+      "refreshNote_many": "{{count}} ta maydon yangilandi",
+      "refreshNote_other": "{{count}} ta maydon yangilandi"
+    },
+    "restore": {
+      "note": "v{{version}} dan tiklandi"
+    },
+    "confirm": {
+      "restore": {
+        "title": "v{{version}} tiklansinmi?",
+        "message": "v{{version}} matni bilan yangi versiya yaratiladi. v{{current}} va boshqa barcha versiyalar tarixda qoladi.",
+        "confirm": "Yangi versiya sifatida tiklash"
+      },
+      "share": {
+        "title": "v{{current}} sug‘urtalanuvchiga ko‘rsatilsinmi?",
+        "message": "Sug‘urtalanuvchi bu versiyani portalda ko‘radi (faqat o‘qish) va loyiha ko‘rib chiqilayotganda izoh qoldirishi mumkin. Ichki izohlarni u ko‘rmaydi.",
+        "confirm": "Ko‘rsatish"
+      },
+      "unshare": {
+        "title": "Loyihani ko‘rsatish to‘xtatilsinmi?",
+        "message": "Loyiha sug‘urtalanuvchi portalidan yo‘qoladi; uning izohlari saqlanadi.",
+        "confirm": "Ko‘rsatishni to‘xtatish"
+      },
+      "refresh": {
+        "title": "v{{current}} maydonlari yangilansinmi?",
+        "message": "Faqat maydonlar joriy qiymatlarni oladigan yangi versiya yaratiladi ({{count}}). Atrofdagi matn o‘zgarmaydi.",
+        "confirm": "Maydonlarni yangilash"
+      }
+    },
+    "compare": {
+      "older": "Avvalgi versiya",
+      "newer": "Keyingi versiya",
+      "layout": "Ko‘rinish",
+      "inline": "Matn ichida",
+      "side": "Yonma-yon",
+      "summary": "Qo‘shilgan: {{inserted}} · olib tashlangan: {{deleted}} · o‘zgargan: {{changed}}",
+      "same": "Ikki versiya matni bir xil.",
+      "sameVersion": "Ikki xil versiyani tanlang.",
+      "legendInserted": "qo‘shilgan",
+      "legendDeleted": "olib tashlangan",
+      "renumbered": "Avval {{from}} edi"
+    },
+    "legacy": {
+      "title": "Avval tuzilgan fayllar",
+      "hint": "Loyiha ilovada tahrirlanadigan bo‘lishidan oldin tuzilgan .docx fayllar."
+    },
+    "register": {
+      "number": "Loyiha",
+      "empty": "Hozircha shartnoma loyihalari yo‘q",
+      "emptyHint": "Polis yoki ariza bo‘yicha loyiha tuzing — u muharrirda ochiladi."
+    },
+    "print": {
+      "back": "Loyihaga qaytish",
+      "print": "Chop etish yoki PDF sifatida saqlash"
+    },
+    "portal": {
+      "title": "Shartnoma loyihalari",
+      "subtitle": "Sug‘urtalovchi sizga kelishish uchun ko‘rsatgan shartnoma loyihalari. Ularni shu yerda o‘qing va loyiha ko‘rib chiqilayotganda izoh qoldiring.",
+      "empty": "Sizga hali birorta shartnoma loyihasi ko‘rsatilmagan",
+      "emptyHint": "Sug‘urtalovchi sizga loyihani kelishish uchun yuborganda, u shu yerda paydo bo‘ladi.",
+      "number": "Loyiha",
+      "for": "Hujjat",
+      "sharedAt": "Ko‘rsatilgan",
+      "comments": "Izohlaringiz",
+      "commentsHint": "Ularni sug‘urtalovchining kelishuvchilari o‘qiydi.",
+      "commentsClosed": "Izohlar loyiha ko‘rib chiqilayotganda qabul qilinadi.",
+      "noComments": "Siz hali izoh qoldirmagansiz.",
+      "placeholder": "Loyihaga izohingiz",
+      "send": "Yuborish",
+      "sent": "Yuborildi. Kelishuvchilar uni ko‘radi.",
+      "signed": "Shartnoma imzolangan."
+    },
+    "errors": {
+      "exists": "Bu polis yoki arizaning shartnoma loyihasi allaqachon bor — uning yangi versiyasini tuzing.",
+      "targetNotLive": "Qoralama, rad etilgan yoki qaytarib olingan ariza bo‘yicha shartnoma loyihasi tuzilmaydi.",
+      "notEditable": "Joriy holatda loyiha tahrirlanmaydi.",
+      "conflict": "Siz ishlayotganingizda kimdir yangiroq versiyani saqladi. Matningiz mahalliy nusxa sifatida saqlangan: muharrirni qayta oching, uni qaytaring va yana saqlang.",
+      "unchanged": "O‘zgarish yo‘q: matn joriy versiya bilan bir xil.",
+      "manualEdits": "Joriy versiyada qo‘lda kiritilgan tahrirlar bor — qanday davom etishni tasdiqlang.",
+      "refreshChangedText": "Maydonlarni yangilash faqat maydonlarni o‘zgartiradi, matnni emas.",
+      "contentInvalid": "Hujjat saqlanmadi: bu shartnoma hujjati emas yoki 2 MB dan katta.",
+      "transition": "Joriy holatdan bunday o‘tish mumkin emas.",
+      "reasonRequired": "Kelishilgan loyihani qayta ishlashga qaytarish uchun sababni ko‘rsating.",
+      "signNeedsScan": "Shartnoma imzolangan skan nusxani biriktirish orqali imzolanadi.",
+      "signedFinal": "Imzolangan shartnoma qulflangan; o‘zgartirish faqat qo‘shimcha kelishuv bilan.",
+      "scanInvalid": "Imzolangan skan nusxa PDF fayl bo‘lishi kerak.",
+      "scanMissing": "Yuklangan skan nusxa topilmadi. Qaytadan urinib ko‘ring.",
+      "scanNotPdf": "Faqat PDF faylni biriktirish mumkin.",
+      "scanTooLarge": "Fayl 20 MB dan katta.",
+      "shareNotAllowed": "Loyiha ko‘rib chiqilayotganda sug‘urtalanuvchiga ko‘rsatiladi.",
+      "commentClosed": "Izohlar loyiha ko‘rib chiqilayotganda qabul qilinadi.",
+      "commentEmpty": "Avval izoh yozing.",
+      "commentTooLong": "Izoh 2 000 belgidan oshmasligi kerak.",
+      "agreeCommercialOnly": "Shartnomani kelishish yoki kelishilganini qaytarish faqat tijorat anderrayteriga ruxsat etilgan."
+    }
   }
 }
