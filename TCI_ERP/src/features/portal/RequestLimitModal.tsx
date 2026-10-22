@@ -53,7 +53,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
   const buyerChosen = Boolean(picked) || (proposing && proposedName.trim().length > 0)
   const amountValue = parseAmount(amount) ?? Number.NaN
   const amountValid = Number.isFinite(amountValue) && amountValue > 0
-  const canSubmit = Boolean(policyId) && buyerChosen && amountValid && !request.isPending
+  const canSubmit = Boolean(policyId) && buyerChosen && amountValid
 
   const reset = () => {
     setQuery('')
@@ -130,7 +130,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
           <Button variant="secondary" onClick={close}>
             {t('common.cancel')}
           </Button>
-          <Button disabled={!canSubmit} onClick={() => void submit()}>
+          <Button disabled={!canSubmit} loading={request.isPending} onClick={() => void submit()}>
             {t('portal.limits.send')}
           </Button>
         </>

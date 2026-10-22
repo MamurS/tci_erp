@@ -2,10 +2,14 @@
  * official registries (analytics service). */
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import type { QueryClient } from '@tanstack/react-query'
 
 import { getRegistrySources, searchRegistry } from '../../lib/analytics'
 import type { RegistrySource } from '../../lib/analytics'
+import { useAuth } from '../../auth/AuthContext'
+import { optimistic, rowAt, rowInList, updateRow } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
+import { assigned, resolved, taken } from './optimistic'
 import type { EntityRequest, FreshnessRow, RequestResult, StaffMember } from './types'
 
 const KEYS = {
@@ -75,9 +79,27 @@ function useInvalidate() {
   return () => {
     void queryClient.invalidateQueries({ queryKey: KEYS.all })
     // the Agenda badge and board move with every request
-    void queryClient.invalidateQueries({ queryKey: ['agenda'] })
+    void queryClient.invalidateQueries({ queryKey: ['agenda', 'tasks'] })
   }
 }
+
+/** The request's row, in the list and on its own key. */
+function requestPatches<V>(idOf: (v: V) => string, change: (row: EntityRequest, v: V) => EntityRequest) {
+  return (v: V) => [
+    rowInList<EntityRequest, V>(KEYS.requests, idOf, change),
+    rowAt<EntityRequest, V>(KEYS.request(idOf(v)), change),
+  ]
+}
+
+/** The stored row (the RPC's answer) in the list and on its own key. */
+function answerRow(qc: QueryClient, row: EntityRequest) {
+  qc.setQueryData<EntityRequest>(KEYS.request(row.id), (old) => (old ? { ...old, ...row } : old))
+  qc.setQueryData<EntityRequest[]>(KEYS.requests, (rows) => rows && updateRow(rows, row.id, (old) => ({ ...old, ...row })))
+}
+
+/** After a request moves: the freshness worklist and the Agenda tasks it
+ * opens and closes. */
+const AFTER_MOVE = [KEYS.freshness, ['agenda', 'tasks']] as const
 
 export function useRequestEntity() {
   const invalidate = useInvalidate()
@@ -116,37 +138,65 @@ export function useRequestStatementsUpdate() {
   })
 }
 
+/** Optimistic, like every move below: the row changes at once. */
 export function useTakeRequest() {
-  const invalidate = useInvalidate()
+  const qc = useQueryClient()
+  const { session } = useAuth()
+  const me = session?.user.id ?? ''
   return useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await tci().rpc('take_entity_request', { p_request_id: id })
+    mutationKey: ['data', 'take'],
+    mutationFn: async (id: string): Promise<EntityRequest> => {
+      const { data, error } = await tci().rpc('take_entity_request', { p_request_id: id })
       if (error) throw error
+      return data as EntityRequest
     },
-    onSuccess: invalidate,
+    ...optimistic<string, EntityRequest>(qc, {
+      patches: requestPatches<string>((id) => id, (row) => taken(row, me, new Date().toISOString())),
+      answer: answerRow,
+      invalidate: () => AFTER_MOVE,
+    }),
   })
 }
 
 export function useAssignRequest() {
-  const invalidate = useInvalidate()
+  const qc = useQueryClient()
+  type Vars = { id: string; userId: string }
   return useMutation({
-    mutationFn: async (input: { id: string; userId: string }) => {
-      const { error } = await tci().rpc('assign_entity_request', { p_request_id: input.id, p_user_id: input.userId })
+    mutationKey: ['data', 'assign'],
+    mutationFn: async (input: Vars): Promise<EntityRequest> => {
+      const { data, error } = await tci().rpc('assign_entity_request', { p_request_id: input.id, p_user_id: input.userId })
       if (error) throw error
+      return data as EntityRequest
     },
-    onSuccess: invalidate,
+    ...optimistic<Vars, EntityRequest>(qc, {
+      patches: requestPatches<Vars>((v) => v.id, (row, v) => assigned(row, v.userId, new Date().toISOString())),
+      answer: answerRow,
+      invalidate: () => AFTER_MOVE,
+    }),
   })
 }
 
+type ResolveVars = {
+  id: string
+  outcome: 'created' | 'linked' | 'updated' | 'rejected'
+  entityId?: string | null
+  note?: string | null
+}
+
 export function useResolveRequest() {
-  const invalidate = useInvalidate()
+  const qc = useQueryClient()
+  const { session } = useAuth()
+  const me = session?.user.id ?? null
   return useMutation({
-    mutationFn: async (input: {
-      id: string
-      outcome: 'created' | 'linked' | 'updated' | 'rejected'
-      entityId?: string | null
-      note?: string | null
-    }) => {
+    mutationKey: ['data', 'resolve'],
+    ...optimistic<ResolveVars, void>(qc, {
+      patches: requestPatches<ResolveVars>(
+        (v) => v.id,
+        (row, v) => resolved(row, v.outcome, v.entityId ?? null, v.note ?? null, me, new Date().toISOString()),
+      ),
+      invalidate: () => AFTER_MOVE,
+    }),
+    mutationFn: async (input: ResolveVars) => {
       const { error } = await tci().rpc('resolve_entity_request', {
         p_request_id: input.id,
         p_outcome: input.outcome,
@@ -155,7 +205,6 @@ export function useResolveRequest() {
       })
       if (error) throw error
     },
-    onSuccess: invalidate,
   })
 }
 

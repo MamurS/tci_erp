@@ -5,6 +5,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { exactly, optimistic, rowAt, rowInList, rowInLists, rowOutOfList, updateRow } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
 import type {
   InsuranceRequest,
@@ -207,14 +208,16 @@ export function useCreateInsuranceRequest() {
   })
 }
 
+type AdvanceVars = { requestId: string; to: InsuranceRequestStatus; comment?: string | null }
+
+/** The submission's status paints in its list and on its page at once; the
+ * RPC answers with the stored row, which the cache takes. */
 export function useAdvanceInsuranceRequest() {
   const queryClient = useQueryClient()
+  const toStatus = (row: InsuranceRequestWithRefs, v: AdvanceVars) => ({ ...row, status: v.to })
   return useMutation({
-    mutationFn: async (input: {
-      requestId: string
-      to: InsuranceRequestStatus
-      comment?: string | null
-    }): Promise<InsuranceRequest> => {
+    mutationKey: ['insurance-requests', 'advance'],
+    mutationFn: async (input: AdvanceVars): Promise<InsuranceRequest> => {
       const { data, error } = await tci().rpc('advance_insurance_request', {
         p_request_id: input.requestId,
         p_to_status: input.to,
@@ -223,7 +226,20 @@ export function useAdvanceInsuranceRequest() {
       if (error) throw error
       return data as InsuranceRequest
     },
-    onSuccess: (_data, input) => invalidateRequest(queryClient, input.requestId),
+    ...optimistic<AdvanceVars, InsuranceRequest>(queryClient, {
+      patches: (v) => [
+        rowInList<InsuranceRequestWithRefs, AdvanceVars>(KEYS.requests, (x) => x.requestId, toStatus),
+        rowAt<InsuranceRequestWithRefs, AdvanceVars>(KEYS.request(v.requestId), toStatus),
+        rowInLists<InsuranceRequestWithRefs, AdvanceVars>(['insurance-requests', 'for-entity'], (x) => x.requestId, toStatus),
+      ],
+      answer: (qc, row, v) => {
+        const merge = (old: InsuranceRequestWithRefs) => ({ ...old, ...row })
+        qc.setQueryData<InsuranceRequestWithRefs | null>(KEYS.request(v.requestId), (old) => (old ? merge(old) : old))
+        qc.setQueryData<InsuranceRequestWithRefs[]>(KEYS.requests, (rows) => rows && updateRow(rows, row.id, merge))
+      },
+      // The status moves the work to another desk: its Agenda tasks change.
+      invalidate: (v) => [KEYS.history(v.requestId), ['insurance-requests', 'for-entity'], ['agenda', 'tasks']],
+    }),
   })
 }
 
@@ -231,15 +247,21 @@ export function useAdvanceInsuranceRequest() {
  * status may not be written this way. */
 export function useUpdateProposedTerms(requestId: string) {
   const queryClient = useQueryClient()
+  type Vars = Partial<ProposedTerms> & { notes?: string | null }
   return useMutation({
-    mutationFn: async (patch: Partial<ProposedTerms> & { notes?: string | null }) => {
+    mutationKey: ['insurance-requests', 'terms'],
+    mutationFn: async (fields: Vars) => {
       const { error } = await tci()
         .from('insurance_requests')
-        .update(patch)
+        .update(fields)
         .eq('id', requestId)
       if (error) throw error
     },
-    onSuccess: () => invalidateRequest(queryClient, requestId),
+    // The terms are exactly what was typed: painted at once.
+    ...optimistic<Vars, void>(queryClient, {
+      patches: () => [rowAt<InsuranceRequestWithRefs, Vars>(KEYS.request(requestId), (row, v) => ({ ...row, ...v }))],
+      invalidate: () => [exactly(KEYS.requests)],
+    }),
   })
 }
 
@@ -261,6 +283,7 @@ export function useAddRequestBuyer(requestId: string) {
 export function useRemoveRequestBuyer(requestId: string) {
   const queryClient = useQueryClient()
   return useMutation({
+    mutationKey: ['insurance-requests', 'remove-buyer'],
     mutationFn: async (buyerRowId: string) => {
       const { error } = await tci()
         .from('insurance_request_buyers')
@@ -268,7 +291,11 @@ export function useRemoveRequestBuyer(requestId: string) {
         .eq('id', buyerRowId)
       if (error) throw error
     },
-    onSuccess: () => invalidateRequest(queryClient, requestId),
+    // The buyer leaves the package at once; a refusal brings it back.
+    ...optimistic<string, void>(queryClient, {
+      patches: () => [rowOutOfList<RequestBuyerWithRefs, string>(KEYS.buyers(requestId), (id) => id)],
+      invalidate: () => [exactly(KEYS.request(requestId)), exactly(KEYS.requests)],
+    }),
   })
 }
 

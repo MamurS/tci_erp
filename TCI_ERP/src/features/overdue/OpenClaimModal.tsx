@@ -50,8 +50,8 @@ export function OpenClaimModal({ noa, onClose }: { noa: OverdueNotification; onC
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button disabled={openClaim.isPending} onClick={submit}>
-            {openClaim.isPending ? t('common.saving') : t('claims.actions.open')}
+          <Button loading={openClaim.isPending} onClick={submit}>
+            {t('claims.actions.open')}
           </Button>
         </>
       }

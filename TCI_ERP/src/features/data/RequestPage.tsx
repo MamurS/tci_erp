@@ -105,10 +105,14 @@ export function RequestPage() {
           open && worker ? (
             <>
               {request.assigned_to !== me && (
-                <Button onClick={() => void run(take.mutateAsync(request.id))}>{t('data.actions.take')}</Button>
+                <Button loading={take.isPending} onClick={() => void run(take.mutateAsync(request.id))}>
+                  {t('data.actions.take')}
+                </Button>
               )}
               {request.assigned_to === me && request.status === 'new' && (
-                <Button onClick={() => void run(take.mutateAsync(request.id))}>{t('data.actions.start')}</Button>
+                <Button loading={take.isPending} onClick={() => void run(take.mutateAsync(request.id))}>
+                  {t('data.actions.start')}
+                </Button>
               )}
               <Button variant="secondary" onClick={() => setReassigning(true)}>
                 {t('data.actions.reassign')}
@@ -189,6 +193,7 @@ export function RequestPage() {
               )}
               {mineToWork && (
                 <Button
+                  loading={resolve.isPending}
                   onClick={() => void run(resolve.mutateAsync({ id: request.id, outcome: 'updated' }))}
                 >
                   {t('data.actions.markUpdated')}
@@ -242,6 +247,7 @@ export function RequestPage() {
 
       <RejectModal
         open={rejecting}
+        busy={resolve.isPending}
         onClose={() => setRejecting(false)}
         onConfirm={(note) =>
           run(resolve.mutateAsync({ id: request.id, outcome: 'rejected', note })).then(() => setRejecting(false))
@@ -250,6 +256,7 @@ export function RequestPage() {
 
       <ReassignModal
         open={reassigning}
+        busy={assign.isPending}
         current={request.assigned_to}
         people={informationManagers(staff.data)}
         onClose={() => setReassigning(false)}
@@ -264,10 +271,12 @@ export function RequestPage() {
 
 function RejectModal({
   open,
+  busy = false,
   onClose,
   onConfirm,
 }: {
   open: boolean
+  busy?: boolean
   onClose: () => void
   onConfirm: (note: string) => Promise<unknown>
 }) {
@@ -283,7 +292,7 @@ function RejectModal({
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button variant="danger" disabled={!note.trim()} onClick={() => void onConfirm(note.trim()).catch(() => {})}>
+          <Button variant="danger" disabled={!note.trim()} loading={busy} onClick={() => void onConfirm(note.trim()).catch(() => {})}>
             {t('data.actions.reject')}
           </Button>
         </>
@@ -299,12 +308,14 @@ function RejectModal({
 
 function ReassignModal({
   open,
+  busy = false,
   current,
   people,
   onClose,
   onConfirm,
 }: {
   open: boolean
+  busy?: boolean
   current: string | null
   people: { user_id: string; full_name: string | null; email: string }[]
   onClose: () => void
@@ -323,7 +334,7 @@ function ReassignModal({
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button disabled={!userId} onClick={() => void onConfirm(userId).catch(() => {})}>
+          <Button disabled={!userId} loading={busy} onClick={() => void onConfirm(userId).catch(() => {})}>
             {t('data.actions.reassign')}
           </Button>
         </>

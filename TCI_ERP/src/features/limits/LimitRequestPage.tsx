@@ -17,6 +17,7 @@ import { bandForGrade, hasRole } from '../../lib/roles'
 import { EM_DASH, formatAmount, formatDate, formatMoment } from '../../lib/format'
 import { useGradeScale } from '../../lib/gradeScale'
 import { pickParam } from '../../lib/deepLink'
+import { refusalOr } from '../../lib/optimistic'
 import { DEEP_LINK_SCROLL_MARGIN, useDeepLinkFocus } from '../../lib/useDeepLinkFocus'
 import { useAssessments } from '../entities/rating/assessmentsApi'
 import {
@@ -92,8 +93,9 @@ export function LimitRequestPage() {
     setActionError(null)
     try {
       await action
-    } catch {
-      setActionError(t('common.saveFailed'))
+    } catch (failure) {
+      // The optimistic status is already rolled back; say why, mapped.
+      setActionError(t(refusalOr(failure, 'common.saveFailed')))
     }
   }
 
@@ -143,7 +145,7 @@ export function LimitRequestPage() {
             {canSubmit(request.status) && (
               <Button
                 onClick={() => void act(submit.mutateAsync(request.id))}
-                disabled={submit.isPending}
+                loading={submit.isPending}
               >
                 {t('limits.actions.submit')}
               </Button>
@@ -152,7 +154,7 @@ export function LimitRequestPage() {
               <Button
                 variant="secondary"
                 onClick={() => void act(startReview.mutateAsync(request.id))}
-                disabled={startReview.isPending}
+                loading={startReview.isPending}
               >
                 {t('limits.actions.startReview')}
               </Button>
@@ -211,7 +213,7 @@ export function LimitRequestPage() {
               </Button>
               <Button
                 variant="danger"
-                disabled={withdraw.isPending}
+                loading={withdraw.isPending}
                 onClick={() =>
                   void act(
                     withdraw
@@ -503,8 +505,10 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
           }),
         )
       }
-    } catch {
-      setError(t('limits.decideFailed'))
+    } catch (failure) {
+      // A refusal the database makes on purpose is named; only an unknown
+      // failure gets the generic decision message.
+      setError(t(refusalOr(failure, 'limits.decideFailed')))
     }
   }
 
@@ -607,10 +611,11 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
       <div className="flex flex-wrap items-center gap-3">
         <Button
           onClick={() => void handleDecide()}
-          disabled={decide.isPending || (needsAmount && !amountValid)}
+          disabled={needsAmount && !amountValid}
+          loading={decide.isPending}
           variant={outcome === 'declined' ? 'danger' : 'primary'}
         >
-          {decide.isPending ? t('common.saving') : t('limits.actions.decide')}
+          {t('limits.actions.decide')}
         </Button>
         {needsAmount && !amountValid && (
           <span className="text-[13px] text-slate-500">{t('limits.amountRequired')}</span>

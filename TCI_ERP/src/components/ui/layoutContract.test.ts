@@ -136,6 +136,48 @@ describe('layout contract', () => {
     expect(offenders).toEqual([])
   })
 
+  // «No layout shift on interaction» (DESIGN.md): a table is laid out fixed
+  // from declared widths, so nothing in it moves when a status, a button or a
+  // translation changes. The browser half of this rule is e2e/layout.
+  const FIXED_TABLE_PENDING: Record<string, string> = {
+    'PolicyPremiumTab.tsx': 'premium screens being rebuilt in the same round (Prompt 23); remove when they land',
+    'PortalPremiumPage.tsx': 'premium screens being rebuilt in the same round (Prompt 23); remove when they land',
+  }
+
+  it('every Table (and TableCard) declares its column widths', () => {
+    const offenders: string[] = []
+    for (const [path, text] of files) {
+      if (path.endsWith('/primitives.tsx')) continue
+      if (Object.keys(FIXED_TABLE_PENDING).some((name) => path.endsWith(`/${name}`))) continue
+      for (const m of text.matchAll(/<(Table|TableCard)\b([^>]*)>/g)) {
+        if (!/\bcolumns=/.test(m[2] ?? '')) offenders.push(`${path}: <${m[1]}${(m[2] ?? '').slice(0, 40)}>`)
+      }
+    }
+    expect(offenders).toEqual([])
+  })
+
+  it('never reveals on hover by display (hidden → flex): the space must stay taken', () => {
+    const offenders: string[] = []
+    for (const [path, text] of files) {
+      for (const line of text.split('\n')) {
+        if (/\bhidden\b[^"'`]*\bgroup-(hover|focus-within)(\/\w+)?:(flex|block|inline-flex|inline|grid)\b|group-(hover|focus-within)(\/\w+)?:hidden\b/.test(line))
+          offenders.push(`${path}: ${line.trim()}`)
+      }
+    }
+    expect(offenders).toEqual([])
+  })
+
+  it('a right-aligned table header is a numeric one (`num`), as its cells are', () => {
+    const offenders: string[] = []
+    for (const [path, text] of files) {
+      if (Object.keys(FIXED_TABLE_PENDING).some((name) => path.endsWith(`/${name}`))) continue
+      if (!/<Table\b/.test(text)) continue
+      for (const m of text.matchAll(/<th className="([^"]*)"/g))
+        if (/\btext-right\b/.test(m[1] ?? '') && !/\bnum\b/.test(m[1] ?? '')) offenders.push(`${path}: <th className="${m[1]}">`)
+    }
+    expect(offenders).toEqual([])
+  })
+
   it('takes dates in DateInput, never the browser date field', () => {
     // <input type="date"> follows the BROWSER's locale: «mm/dd/yyyy» in a
     // Russian interface, where «04/03/2026» reads as 4 March.

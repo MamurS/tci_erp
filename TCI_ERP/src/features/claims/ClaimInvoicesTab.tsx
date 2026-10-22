@@ -12,12 +12,14 @@ import {
   Button,
   Callout,
   Card,
+  COL,
   DateInput,
   EmptyState,
-  KeyFigures,
   Field,
   Input,
+  KeyFigures,
   Modal,
+  RowActions,
   Select,
   Spinner,
   Table,
@@ -86,7 +88,7 @@ export function ClaimInvoicesTab({ claim }: { claim: Claim }) {
             {canVerify && (
               <Button
                 variant="secondary"
-                disabled={verify.isPending}
+                loading={verify.isPending}
                 onClick={() => {
                   setError(null)
                   verify.mutateAsync(claim.id).catch((e: unknown) => {
@@ -115,18 +117,18 @@ export function ClaimInvoicesTab({ claim }: { claim: Claim }) {
           <EmptyState title={t('claims.invoices.emptyTitle')} hint={t('claims.invoices.emptyHint')} />
         </Card>
       ) : (
-        <Table dense>
+        <Table dense columns={[COL.code, COL.date, COL.date, COL.money, COL.money, COL.fill, COL.icon]}>
           <thead>
             <tr>
               <th>{t('claims.fields.invoiceNumber')}</th>
               <th>{t('claims.fields.shipmentDate')}</th>
               <th>{t('claims.fields.dueDate')}</th>
-              <th className="text-right">{t('claims.fields.claimable')}</th>
-              <th className="text-right">{t('claims.fields.covered')}</th>
+              <th className="num">{t('claims.fields.claimable')}</th>
+              <th className="num">{t('claims.fields.covered')}</th>
               {/* The verdict and the reasons behind it share a column: side by
                   side they pushed the table past a laptop's width. */}
               <th>{t('claims.fields.verdict')}</th>
-              <th className="w-px" />
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -213,7 +215,7 @@ function InvoiceRow({
             </div>
           )}
         </td>
-        <td className="text-right">
+        <RowActions>
           {canOverride && line.verdict_id && (
             <button
               type="button"
@@ -225,7 +227,7 @@ function InvoiceRow({
               <PenLine className="size-4" aria-hidden />
             </button>
           )}
-        </td>
+        </RowActions>
       </tr>
       {open && (
         <tr>
@@ -329,6 +331,7 @@ function OverrideModal({
           {line.is_overridden && (
             <Button
               variant="secondary"
+              loading={clear.isPending}
               onClick={() =>
                 clear
                   .mutateAsync({ claim_id: claim.id, claim_invoice_id: line.claim_invoice_id })
@@ -344,6 +347,7 @@ function OverrideModal({
           </Button>
           <Button
             disabled={justification.trim() === ''}
+            loading={override.isPending}
             title={justification.trim() === '' ? t('claims.override.justificationHint') : undefined}
             onClick={() =>
               override
@@ -420,7 +424,8 @@ function InvoiceModal({ claim, onClose }: { claim: Claim; onClose: () => void })
             {t('common.cancel')}
           </Button>
           <Button
-            disabled={!ready || save.isPending}
+            disabled={!ready}
+            loading={save.isPending}
             title={ready ? undefined : t('claims.invoices.requiredHint')}
             onClick={() =>
               save

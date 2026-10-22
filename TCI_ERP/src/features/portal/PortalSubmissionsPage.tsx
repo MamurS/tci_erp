@@ -13,6 +13,7 @@ import {
   Button,
   Callout,
   Card,
+  COL,
   DescriptionList,
   EmptyState,
   Field,
@@ -183,16 +184,16 @@ function SubmissionCard({
               {!buyers?.length ? (
                 <p className="text-[13px] text-slate-500">{t('portal.submissions.noBuyers')}</p>
               ) : (
-                <Table dense>
+                <Table dense columns={[COL.fill, COL.money]}>
                   <tbody>
                     {buyers.map((b) => (
                       <tr key={b.id}>
-                        <td className="cell-fill">
+                        <td>
                           <Truncate text={b.buyer_name} className="max-w-none">
                             {b.buyer_name ?? EM_DASH}
                           </Truncate>
                         </td>
-                        <td className="num text-right">{money(b.requested_amount)}</td>
+                        <td className="num">{money(b.requested_amount)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -249,7 +250,7 @@ function RespondModal({
   const [error, setError] = useState<string | null>(null)
 
   const needsComment = action !== 'accept'
-  const canSend = !respond.isPending && (!needsComment || comment.trim().length > 0)
+  const canSend = !needsComment || comment.trim().length > 0
 
   const send = async () => {
     setError(null)
@@ -283,6 +284,7 @@ function RespondModal({
           <Button
             variant={action === 'accept' ? 'primary' : 'danger'}
             disabled={!canSend}
+            loading={respond.isPending}
             onClick={() => void send()}
           >
             {t('common.confirm')}

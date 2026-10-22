@@ -7,6 +7,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { optimistic, rowAt, rowInLists } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
 import type { ClaimStatus } from '../claims/types'
 import type { NoaStatus, OverdueNotification } from './types'
@@ -80,7 +81,7 @@ function useInvalidateOverdues() {
     void qc.invalidateQueries({ queryKey: ['overdues'] })
     // Filing suspends a limit, so the limits views move too.
     void qc.invalidateQueries({ queryKey: ['limits'] })
-    void qc.invalidateQueries({ queryKey: ['agenda'] })
+    void qc.invalidateQueries({ queryKey: ['agenda', 'tasks'] })
   }
 }
 
@@ -108,10 +109,28 @@ export function useFileNoa() {
   })
 }
 
+type ResolveVars = { id: string; status: NoaStatus; note?: string | null }
+
+/** The notice shows its resolution at once (list and page). Resolving does
+ * NOT reinstate the limit, so nothing else is painted. */
 export function useResolveNoa() {
+  const qc = useQueryClient()
   const invalidate = useInvalidateOverdues()
+  const settle = (row: OverdueNotification, v: ResolveVars): OverdueNotification => ({
+    ...row,
+    status: v.status,
+    resolution_note: v.note ?? null,
+    resolved_at: new Date().toISOString(),
+  })
   return useMutation({
-    mutationFn: async (input: { id: string; status: NoaStatus; note?: string | null }) => {
+    mutationKey: ['overdues', 'resolve'],
+    ...optimistic<ResolveVars, void>(qc, {
+      patches: (v) => [
+        rowAt<OverdueNotification, ResolveVars>(KEYS.one(v.id), settle),
+        rowInLists<OverdueNotification, ResolveVars>(['overdues', 'list'], (x) => x.id, settle),
+      ],
+    }),
+    mutationFn: async (input: ResolveVars) => {
       const { error } = await tci().rpc('resolve_overdue_notification', {
         p_noa_id: input.id,
         p_status: input.status,

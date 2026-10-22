@@ -4,7 +4,16 @@
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, EmptyState, Spinner, Table, Truncate } from '../../components/ui'
+import {
+  Badge,
+  COL,
+  EmptyState,
+  labelCol,
+  labelsCol,
+  Spinner,
+  Table,
+  Truncate,
+} from '../../components/ui'
 import { EM_DASH } from '../../lib/format'
 import { useRequestsForEntity } from './api'
 import { owningRole, requestAgeDays, statusTone } from './machine'
@@ -21,7 +30,7 @@ export function EntityRequestsSection({ entityId }: { entityId: string }) {
   }
 
   return (
-    <Table dense>
+    <Table dense columns={[COL.code, labelsCol(['requestRole', 'requestRole']), COL.fill, labelCol('requestStatus'), '12rem', COL.count]}>
       <thead>
         <tr>
           <th>{t('requests.fields.number')}</th>
@@ -29,7 +38,7 @@ export function EntityRequestsSection({ entityId }: { entityId: string }) {
           <th>{t('requests.fields.applicant')}</th>
           <th>{t('requests.fields.status')}</th>
           <th>{t('requests.fields.waitingOn')}</th>
-          <th className="text-right">{t('requests.fields.ageDays')}</th>
+          <th className="num">{t('requests.fields.ageDays')}</th>
         </tr>
       </thead>
       <tbody>
@@ -59,8 +68,8 @@ export function EntityRequestsSection({ entityId }: { entityId: string }) {
                   {t(`requests.statuses.${request.status}`)}
                 </Badge>
               </td>
-              <td className="text-slate-500">{owner ? t(`roles.${owner}`) : EM_DASH}</td>
-              <td className="num text-right">{age ?? EM_DASH}</td>
+              <td className="text-slate-500">{owner ? <Truncate text={t(`roles.${owner}`)} className="max-w-none" /> : EM_DASH}</td>
+              <td className="num">{age ?? EM_DASH}</td>
             </tr>
           )
         })}

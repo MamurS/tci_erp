@@ -81,7 +81,7 @@ export function BindPolicyModal({ request, open, onClose }: Props) {
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button disabled={bind.isPending || missing.length > 0} onClick={() => void run()}>
+          <Button disabled={missing.length > 0} loading={bind.isPending} onClick={() => void run()}>
             {t('requests.bind.confirm')}
           </Button>
         </>

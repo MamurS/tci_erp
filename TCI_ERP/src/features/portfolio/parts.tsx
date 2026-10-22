@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Panel, Table } from '../../components/ui'
+import type { ColumnWidth } from '../../components/ui'
 import { formatPercent } from '../../lib/format'
 
 /** A share of a whole, as a bar and a percentage (the percentage alone when
@@ -29,10 +30,16 @@ export function TableCard({
   hint,
   empty,
   head,
+  columns,
+  fillMin,
   children,
 }: {
   title: ReactNode
   hint?: ReactNode
+  /** The table's column widths (DESIGN.md «No layout shift»). */
+  columns: readonly ColumnWidth[]
+  /** These cards are often half a page wide: the name column may get narrow. */
+  fillMin?: string
   /** Shown instead of the table when there are no rows. */
   empty: ReactNode | null
   head: ReactNode
@@ -43,7 +50,7 @@ export function TableCard({
       {empty ? (
         <p className="py-4 text-[13px] text-slate-500">{empty}</p>
       ) : (
-        <Table dense>
+        <Table dense columns={columns} fillMin={fillMin}>
           <thead>{head}</thead>
           <tbody>{children}</tbody>
         </Table>

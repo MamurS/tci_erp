@@ -10,7 +10,14 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Table, SectionTitle } from '../../components/ui'
+import {
+  Badge,
+  Button,
+  Card,
+  COL,
+  SectionTitle,
+  Table,
+} from '../../components/ui'
 import { EM_DASH, formatAmount, formatCompact, formatPercent } from '../../lib/format'
 import { exposureByMember, exposureByPolicyholder, utilisationTone } from './group'
 import { GroupCapAmount } from './GroupCapAmount'
@@ -126,12 +133,12 @@ export function GroupExposurePanel({
             <h4 className="mb-1.5 text-[13px] font-semibold text-slate-700">
               {t('groups.exposure.byMember')}
             </h4>
-            <Table dense>
+            <Table dense columns={[COL.fill, COL.count, COL.amount]}>
               <thead>
                 <tr>
-                  <th className="text-left">{t('groups.exposure.member')}</th>
-                  <th className="text-right">{t('groups.exposure.limits')}</th>
-                  <th className="text-right">{t('groups.exposure.amountUzs')}</th>
+                  <th>{t('groups.exposure.member')}</th>
+                  <th className="num">{t('groups.exposure.limits')}</th>
+                  <th className="num">{t('groups.exposure.amountUzs')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -150,8 +157,8 @@ export function GroupExposurePanel({
                         </span>
                       )}
                     </td>
-                    <td className="num text-right">{row.limits}</td>
-                    <td className="num text-right">{formatAmount(row.exposureUzs, locale)}</td>
+                    <td className="num">{row.limits}</td>
+                    <td className="num">{formatAmount(row.exposureUzs, locale)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -162,12 +169,12 @@ export function GroupExposurePanel({
             <h4 className="mb-1.5 text-[13px] font-semibold text-slate-700">
               {t('groups.exposure.byPolicyholder')}
             </h4>
-            <Table dense>
+            <Table dense columns={[COL.fill, COL.count, COL.amount]}>
               <thead>
                 <tr>
-                  <th className="text-left">{t('groups.exposure.policyholder')}</th>
-                  <th className="text-right">{t('groups.exposure.policies')}</th>
-                  <th className="text-right">{t('groups.exposure.amountUzs')}</th>
+                  <th>{t('groups.exposure.policyholder')}</th>
+                  <th className="num">{t('groups.exposure.policies')}</th>
+                  <th className="num">{t('groups.exposure.amountUzs')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -181,8 +188,8 @@ export function GroupExposurePanel({
                         {row.policyholderName}
                       </Link>
                     </td>
-                    <td className="num text-right">{row.policies}</td>
-                    <td className="num text-right">{formatAmount(row.exposureUzs, locale)}</td>
+                    <td className="num">{row.policies}</td>
+                    <td className="num">{formatAmount(row.exposureUzs, locale)}</td>
                   </tr>
                 ))}
               </tbody>

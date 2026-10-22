@@ -4,7 +4,7 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Table } from '../../components/ui'
+import { Badge, COL, Table } from '../../components/ui'
 import { formatAmount } from '../../lib/format'
 import { gradeTone } from '../../lib/grade'
 import type { Claim } from '../claims/types'
@@ -50,15 +50,15 @@ export function GroupMembersTable({
   }
 
   return (
-    <Table dense>
+    <Table dense columns={[COL.fill, COL.count, COL.grade, COL.count, COL.amount, COL.count]}>
       <thead>
         <tr>
-          <th className="text-left">{t('groups.members.company')}</th>
-          <th className="text-right">{t('groups.members.depth')}</th>
-          <th className="text-left">{t('groups.members.grade')}</th>
-          <th className="text-right">{t('groups.members.limits')}</th>
-          <th className="text-right">{t('groups.members.exposureUzs')}</th>
-          <th className="text-right">{t('groups.members.openClaims')}</th>
+          <th>{t('groups.members.company')}</th>
+          <th className="num">{t('groups.members.depth')}</th>
+          <th>{t('groups.members.grade')}</th>
+          <th className="num">{t('groups.members.limits')}</th>
+          <th className="num">{t('groups.members.exposureUzs')}</th>
+          <th className="num">{t('groups.members.openClaims')}</th>
         </tr>
       </thead>
       <tbody>
@@ -82,15 +82,15 @@ export function GroupMembersTable({
                   )}
                 </span>
               </td>
-              <td className="num text-right">{m.depth}</td>
+              <td className="num">{m.depth}</td>
               <td>
                 {grade ? <Badge tone={gradeTone(grade)}>{grade}</Badge> : <span>—</span>}
               </td>
-              <td className="num text-right">{exp?.limits ?? 0}</td>
-              <td className="num text-right">
+              <td className="num">{exp?.limits ?? 0}</td>
+              <td className="num">
                 {exp ? formatAmount(exp.exposureUzs, locale) : '—'}
               </td>
-              <td className="num text-right">{openClaims.get(m.member_id) ?? 0}</td>
+              <td className="num">{openClaims.get(m.member_id) ?? 0}</td>
             </tr>
           )
         })}

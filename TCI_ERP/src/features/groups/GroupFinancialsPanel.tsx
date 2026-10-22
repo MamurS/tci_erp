@@ -12,7 +12,13 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Card, Segmented, Table, SectionTitle } from '../../components/ui'
+import {
+  Card,
+  COL,
+  SectionTitle,
+  Segmented,
+  Table,
+} from '../../components/ui'
 import { formatAmount } from '../../lib/format'
 import { rankMembers, type RankableFigure } from './group'
 import type { GroupFinancials, GroupMemberFinancials } from './types'
@@ -97,13 +103,13 @@ export function GroupFinancialsPanel({ totals, members }: GroupFinancialsPanelPr
             />
           </div>
 
-          <Table dense>
+          <Table dense columns={[COL.fill, COL.count, COL.currency, COL.amount]}>
             <thead>
               <tr>
-                <th className="text-left">{t('groups.members.company')}</th>
-                <th className="text-right">{t('groups.financials.fiscalYear')}</th>
-                <th className="text-left">{t('groups.fields.currency')}</th>
-                <th className="text-right">{t(`groups.financials.${camel(rankBy)}`)}</th>
+                <th>{t('groups.members.company')}</th>
+                <th className="num">{t('groups.financials.fiscalYear')}</th>
+                <th>{t('groups.fields.currency')}</th>
+                <th className="num">{t(`groups.financials.${camel(rankBy)}`)}</th>
               </tr>
             </thead>
             <tbody>
@@ -114,9 +120,9 @@ export function GroupFinancialsPanel({ totals, members }: GroupFinancialsPanelPr
                       {m.member_name}
                     </Link>
                   </td>
-                  <td className="num text-right">{m.fiscal_year}</td>
+                  <td className="num">{m.fiscal_year}</td>
                   <td>{m.currency_code}</td>
-                  <td className="num text-right">
+                  <td className="num">
                     {formatAmount(Number(m[rankBy]), locale)}
                   </td>
                 </tr>

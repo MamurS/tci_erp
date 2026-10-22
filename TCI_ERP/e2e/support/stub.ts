@@ -25,15 +25,38 @@ export interface StubOptions {
   sidebar?: 'open' | 'closed'
   /** Rows per REST resource name (table, view or rpc), e.g. { legal_entities: [...] }. */
   rows?: Record<string, unknown>
+  /** The signed-in user; a stub id and e2e.user@demo.invalid by default. */
+  user?: { id: string; email: string }
+  /** Answers a REST call before `rows` and the defaults (undefined: fall
+   * through) — e.g. replaying recorded fixtures (e2e/layout/fixtures.ts). */
+  respond?: (request: StubRequest) => StubReply | undefined
 }
 
-function fakeSession() {
+/** A REST call as the stub sees it. */
+export interface StubRequest {
+  method: string
+  /** Table, view or rpc name, without /rest/v1/ and rpc/. */
+  resource: string
+  rpc: boolean
+  url: URL
+  /** The request wants one object (Accept: application/vnd.pgrst.object). */
+  single: boolean
+  body: string | null
+}
+
+export interface StubReply {
+  status?: number
+  json: unknown
+  headers?: Record<string, string>
+}
+
+function fakeSession(id = STUB_USER_ID, email = 'e2e.user@demo.invalid') {
   const now = Math.floor(Date.now() / 1000)
   const user = {
-    id: STUB_USER_ID,
+    id,
     aud: 'authenticated',
     role: 'authenticated',
-    email: 'e2e.user@demo.invalid',
+    email,
     app_metadata: { provider: 'email' },
     user_metadata: {},
     created_at: '2026-01-01T00:00:00Z',
@@ -49,8 +72,8 @@ function fakeSession() {
 }
 
 export async function stubBackend(context: BrowserContext, options: StubOptions = {}): Promise<void> {
-  const { lang = 'ru', roles = ['commercial_underwriter'], sidebar = 'open', rows = {} } = options
-  const session = fakeSession()
+  const { lang = 'ru', roles = ['commercial_underwriter'], sidebar = 'open', rows = {}, user, respond } = options
+  const session = fakeSession(user?.id, user?.email)
 
   await context.addInitScript(
     ([key, value, language, side]) => {
@@ -80,6 +103,16 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
     const { pathname } = new URL(request.url())
     const resource = pathname.replace(/^\/rest\/v1\/(rpc\/)?/, '')
     const single = (request.headers()['accept'] ?? '').includes('vnd.pgrst.object')
+
+    const reply = respond?.({
+      method: request.method(),
+      resource,
+      rpc: pathname.includes('/rpc/'),
+      url: new URL(request.url()),
+      single,
+      body: request.postData(),
+    })
+    if (reply) return route.fulfill({ status: reply.status ?? 200, json: reply.json, headers: reply.headers })
 
     if (request.method() !== 'GET' && !pathname.includes('/rpc/')) {
       return route.fulfill({ status: 201, json: single ? {} : [] })

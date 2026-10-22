@@ -80,8 +80,8 @@ export function RequestFormModal({ open, onClose }: { open: boolean; onClose: ()
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button onClick={() => void handleCreate()} disabled={!valid || createRequest.isPending}>
-            {createRequest.isPending ? t('common.saving') : t('requests.actions.createDraft')}
+          <Button onClick={() => void handleCreate()} disabled={!valid} loading={createRequest.isPending}>
+            {t('requests.actions.createDraft')}
           </Button>
         </>
       }

@@ -14,10 +14,14 @@ export function ReleaseBadge({
   facts,
   salesWindowHours,
   nowIso,
+  compact = false,
 }: {
   facts: ReleaseFacts & { hold_comment?: string | null }
   salesWindowHours: number
   nowIso: string
+  /** In a table column: the state alone (its width reserved by
+   * `labelCol('releaseState')`), the moment and the comment on hover. */
+  compact?: boolean
 }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
@@ -30,7 +34,7 @@ export function ReleaseBadge({
     return (
       <Wrap title={comment}>
         <Badge tone="warn">
-          {comment
+          {comment && !compact
             ? t('limits.release.heldWith', { comment: truncate(comment) })
             : t('limits.release.held')}
         </Badge>
@@ -42,7 +46,9 @@ export function ReleaseBadge({
     return (
       <Wrap title={t('limits.release.window', { until: formatMoment(status.endsAt, locale) })}>
         <Badge tone="neutral">
-          {t('limits.release.window', { until: formatMoment(status.endsAt, locale) })}
+          {compact
+            ? t('limits.release.windowShort')
+            : t('limits.release.window', { until: formatMoment(status.endsAt, locale) })}
         </Badge>
       </Wrap>
     )
@@ -51,10 +57,11 @@ export function ReleaseBadge({
   // Released. The KIND explains how it got there and belongs in the
   // tooltip; the badge itself stays short enough for a table cell.
   const kindLabel = t(`limits.release.kinds.${status.kind}`)
+  const since = status.at ? t('limits.release.withClientSince', { since: formatMoment(status.at, locale) }) : null
   return (
-    <Wrap title={kindLabel}>
+    <Wrap title={compact && since ? `${since} · ${kindLabel}` : kindLabel}>
       <Badge tone={status.kind === 'immediate' ? 'neg' : 'pos'}>
-        {status.at
+        {status.at && !compact
           ? t('limits.release.withClientSince', { since: formatMoment(status.at, locale) })
           : t('limits.release.withClient')}
       </Badge>

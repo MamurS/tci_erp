@@ -6,7 +6,21 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, ConfirmDialog, EmptyState, Spinner, Table, SectionTitle } from '../../components/ui'
+import {
+  actionsCol,
+  Badge,
+  Button,
+  Card,
+  COL,
+  ConfirmDialog,
+  EmptyState,
+  labelCol,
+  RowActions,
+  SectionTitle,
+  Spinner,
+  Table,
+} from '../../components/ui'
+import { refusalOr } from '../../lib/optimistic'
 import { formatMoment } from '../../lib/format'
 import {
   useAdminSessions,
@@ -97,8 +111,12 @@ export function SecurityTab() {
             <Button
               size="sm"
               variant={policy.data.login_gate_enforced ? 'secondary' : 'primary'}
-              disabled={setGate.isPending}
-              onClick={() => setGate.mutate(!policy.data!.login_gate_enforced)}
+              loading={setGate.isPending}
+              onClick={() =>
+                setGate.mutate(!policy.data!.login_gate_enforced, {
+                  onError: (failure) => setActionError(t(refusalOr(failure, 'common.saveFailed'))),
+                })
+              }
             >
               {policy.data.login_gate_enforced ? t('admin.security.gate.disable') : t('admin.security.gate.enable')}
             </Button>
@@ -139,7 +157,7 @@ export function SecurityTab() {
         ) : !activeLockouts.length && !pastLockouts.length ? (
           <EmptyState title={t('admin.security.lockouts.none')} hint={t('admin.security.lockouts.noneHint')} />
         ) : (
-          <Table dense>
+          <Table dense columns={[COL.fill, COL.moment, COL.moment, '8rem', '14rem', actionsCol(['unlock'])]}>
             <thead>
               <tr>
                 <th>{t('admin.fields.email')}</th>
@@ -158,7 +176,7 @@ export function SecurityTab() {
                   <td>{when(l.locked_until)}</td>
                   <td>
                     {l.reason === 'bypass' ? (
-                      <span className="text-[13px] text-neg-500">{t('admin.security.lockouts.reasonBypass')}</span>
+                      <span className="block text-[13px] whitespace-normal text-neg-500">{t('admin.security.lockouts.reasonBypass')}</span>
                     ) : (
                       l.failures
                     )}
@@ -174,23 +192,23 @@ export function SecurityTab() {
                       <span className="text-[13px] text-slate-500">{t('admin.security.lockouts.expired')}</span>
                     )}
                   </td>
-                  <td className="text-right">
+                  <RowActions>
                     {l.active && (
                       <Button
                         size="sm"
                         variant="secondary"
-                        disabled={unlock.isPending}
+                        loading={unlock.isPending && unlock.variables === l.user_id}
                         onClick={() => {
                           setActionError(null)
                           unlock.mutate(l.user_id, {
-                            onError: () => setActionError(t('common.saveFailed')),
+                            onError: (failure) => setActionError(t(refusalOr(failure, 'common.saveFailed'))),
                           })
                         }}
                       >
                         {t('admin.security.lockouts.unlock')}
                       </Button>
                     )}
-                  </td>
+                  </RowActions>
                 </tr>
               ))}
             </tbody>
@@ -204,7 +222,7 @@ export function SecurityTab() {
         {users.isLoading ? (
           <Spinner label={t('common.loading')} />
         ) : (
-          <Table dense>
+          <Table dense columns={[COL.fill, labelCol('mfaState'), COL.count, COL.count, COL.moment, COL.moment, actionsCol(['revokeSessions'])]}>
             <thead>
               <tr>
                 <th>{t('admin.fields.email')}</th>
@@ -236,7 +254,7 @@ export function SecurityTab() {
                   <td>{u.failures_in_window}</td>
                   <td>{when(u.last_failure_at)}</td>
                   <td>{when(u.last_success_at)}</td>
-                  <td className="text-right">
+                  <RowActions>
                     {u.sessions > 0 && (
                       <Button
                         size="sm"
@@ -247,7 +265,7 @@ export function SecurityTab() {
                         {t('admin.security.sessions.revoke')}
                       </Button>
                     )}
-                  </td>
+                  </RowActions>
                 </tr>
               ))}
             </tbody>
@@ -264,7 +282,7 @@ export function SecurityTab() {
         ) : !sessions.data?.length ? (
           <EmptyState title={t('admin.security.sessions.none')} />
         ) : (
-          <Table dense>
+          <Table dense columns={[COL.fill, COL.moment, COL.moment, '5.5rem', '9rem', COL.fill]}>
             <thead>
               <tr>
                 <th>{t('admin.fields.email')}</th>
@@ -308,7 +326,7 @@ export function SecurityTab() {
         ) : !events.data?.length ? (
           <EmptyState title={t('admin.security.events.none')} hint={t('admin.security.events.noneHint')} />
         ) : (
-          <Table dense>
+          <Table dense columns={[COL.moment, labelCol('securityEvent'), '14rem', '14rem', COL.fill]}>
             <thead>
               <tr>
                 <th>{t('admin.security.events.at')}</th>
@@ -346,7 +364,10 @@ export function SecurityTab() {
           setActionError(null)
           revoke.mutate(
             { userId: revoking.userId, keepCurrent: true },
-            { onError: () => setActionError(t('common.saveFailed')), onSettled: () => setRevoking(null) },
+            {
+              onError: (failure) => setActionError(t(refusalOr(failure, 'common.saveFailed'))),
+              onSettled: () => setRevoking(null),
+            },
           )
         }}
       />

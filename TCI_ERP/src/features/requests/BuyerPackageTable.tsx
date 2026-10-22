@@ -10,7 +10,16 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, SectionTitle, Table, Truncate } from '../../components/ui'
+import {
+  Badge,
+  Card,
+  COL,
+  EmptyState,
+  labelCol,
+  SectionTitle,
+  Table,
+  Truncate,
+} from '../../components/ui'
 import { EM_DASH, formatAmount } from '../../lib/format'
 import { ReleaseBadge } from '../limits/ReleaseBadge'
 import { useEffectiveLimits, useLimitRequests, useSalesWindowHours } from '../limits/api'
@@ -61,13 +70,13 @@ export function BuyerPackageTable({
       {buyers.length === 0 ? (
         <EmptyState title={t('requests.noBuyersYet')} hint={t('requests.noBuyersHint')} />
       ) : (
-        <Table dense>
+        <Table dense columns={[COL.fill, COL.money, labelCol('packageState'), COL.money, labelCol('releaseState')]}>
           <thead>
             <tr>
-              <th className="cell-fill w-[34%]">{t('limits.fields.buyer')}</th>
-              <th className="text-right">{t('requests.fields.requestedAmount')}</th>
+              <th>{t('limits.fields.buyer')}</th>
+              <th className="num">{t('requests.fields.requestedAmount')}</th>
               <th>{t('requests.package.state')}</th>
-              <th className="text-right">{t('requests.package.limit')}</th>
+              <th className="num">{t('requests.package.limit')}</th>
               <th>{t('requests.columns.release')}</th>
             </tr>
           </thead>
@@ -80,7 +89,7 @@ export function BuyerPackageTable({
               return (
                 <tr key={buyer.id}>
                   {/* One line per buyer: the name cut with a tooltip when long. */}
-                  <td className="cell-fill">
+                  <td>
                     <Truncate text={name} className="max-w-none">
                       {buyer.entity_id ? (
                         <Link to={`/entities/${buyer.entity_id}`} className="font-medium text-accent-700 hover:underline">
@@ -143,7 +152,7 @@ export function BuyerPackageTable({
                   </td>
                   <td>
                     {limit ? (
-                      <ReleaseBadge facts={limit} salesWindowHours={windowHours ?? 24} nowIso={nowIso} />
+                      <ReleaseBadge compact facts={limit} salesWindowHours={windowHours ?? 24} nowIso={nowIso} />
                     ) : (
                       <span className="text-slate-300">{EM_DASH}</span>
                     )}

@@ -5,7 +5,18 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Plus } from 'lucide-react'
 
-import { Badge, Button, EmptyState, Modal, Spinner, Table } from '../../components/ui'
+import {
+  actionsCol,
+  Badge,
+  Button,
+  COL,
+  EmptyState,
+  Modal,
+  RowActions,
+  Spinner,
+  Table,
+} from '../../components/ui'
+import { refusalOr } from '../../lib/optimistic'
 import { EM_DASH, formatMoment } from '../../lib/format'
 import { STAFF_ROLES, USER_ROLES } from '../../lib/roles'
 import type { UserRole } from '../../lib/roles'
@@ -42,6 +53,9 @@ export function UsersRolesTab({
   const [createOpen, setCreateOpen] = useState(false)
   const [credentials, setCredentials] = useState<ProvisionedUser | null>(null)
   const [actionErrorKey, setActionErrorKey] = useState<string | null>(null)
+  // The roles dialog closes at once (the chips repaint optimistically), so
+  // a refusal is said here, beside the list it rolled back.
+  const [rolesError, setRolesError] = useState<string | null>(null)
 
   const runReset = async (user: AdminUser) => {
     setActionErrorKey(null)
@@ -98,11 +112,16 @@ export function UsersRolesTab({
           {t(`provisioning.errors.${actionErrorKey}`)}
         </p>
       )}
+      {rolesError && (
+        <p className="mb-3 text-[13px] text-neg-500" role="alert">
+          {rolesError}
+        </p>
+      )}
 
       {!users?.length ? (
         <EmptyState title={t('admin.noUsers')} />
       ) : (
-      <Table>
+      <Table columns={[COL.fill, '22rem', COL.moment, actionsCol(['editRoles', 'resetPassword', 'disableEnable'])]}>
         <thead>
           <tr>
             <th>{t('admin.fields.email')}</th>
@@ -138,7 +157,7 @@ export function UsersRolesTab({
               <td className="text-slate-500">
                 {u.last_sign_in_at ? formatMoment(u.last_sign_in_at, i18n.language) : EM_DASH}
               </td>
-              <td className="text-right">
+              <RowActions>
                 <span className="inline-flex flex-wrap justify-end gap-1.5">
                   <Button
                     variant="secondary"
@@ -155,6 +174,7 @@ export function UsersRolesTab({
                       variant="secondary"
                       size="sm"
                       disabled={provisioningUp === false || resetPassword.isPending}
+                      loading={resetPassword.isPending && resetPassword.variables === u.user_id}
                       onClick={(e) => {
                         e.stopPropagation()
                         void runReset(u)
@@ -170,6 +190,7 @@ export function UsersRolesTab({
                       variant={u.disabled ? 'secondary' : 'ghost'}
                       size="sm"
                       disabled={provisioningUp === false || setDisabled.isPending}
+                      loading={setDisabled.isPending && setDisabled.variables?.userId === u.user_id}
                       onClick={(e) => {
                         e.stopPropagation()
                         void toggleDisabled(u)
@@ -179,14 +200,21 @@ export function UsersRolesTab({
                     </Button>
                   )}
                 </span>
-              </td>
+              </RowActions>
             </tr>
           ))}
         </tbody>
       </Table>
       )}
 
-      {editing && <RolesModal user={editing} onClose={() => setEditing(null)} />}
+      {editing && (
+        <RolesModal
+          user={editing}
+          onClose={() => setEditing(null)}
+          onSaving={() => setRolesError(null)}
+          onFailed={setRolesError}
+        />
+      )}
       <CreateUserModal
         open={createOpen}
         onClose={() => setCreateOpen(false)}
@@ -210,7 +238,17 @@ export function RoleChips({ roles }: { roles: readonly UserRole[] }) {
   )
 }
 
-function RolesModal({ user, onClose }: { user: AdminUser; onClose: () => void }) {
+function RolesModal({
+  user,
+  onClose,
+  onSaving,
+  onFailed,
+}: {
+  user: AdminUser
+  onClose: () => void
+  onSaving: () => void
+  onFailed: (message: string) => void
+}) {
   const { t } = useTranslation()
   const setRoles = useSetUserRoles()
   const [selected, setSelected] = useState<UserRole[]>(user.roles)
@@ -223,14 +261,15 @@ function RolesModal({ user, onClose }: { user: AdminUser; onClose: () => void })
       prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role],
     )
 
-  const save = async () => {
+  // The user's role chips change at once (optimistic, api.ts): the dialog
+  // closes on the click and a refusal is reported in the list.
+  const save = () => {
     setError(null)
-    try {
-      await setRoles.mutateAsync({ userId: user.user_id, roles: selected })
-      onClose()
-    } catch {
-      setError(t('common.saveFailed'))
-    }
+    onSaving()
+    onClose()
+    setRoles
+      .mutateAsync({ userId: user.user_id, roles: selected })
+      .catch((failure: unknown) => onFailed(t(refusalOr(failure, 'common.saveFailed'))))
   }
 
   return (
@@ -243,8 +282,8 @@ function RolesModal({ user, onClose }: { user: AdminUser; onClose: () => void })
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button onClick={() => void save()} disabled={setRoles.isPending}>
-            {setRoles.isPending ? t('common.saving') : t('common.save')}
+          <Button onClick={save} loading={setRoles.isPending}>
+            {t('common.save')}
           </Button>
         </>
       }

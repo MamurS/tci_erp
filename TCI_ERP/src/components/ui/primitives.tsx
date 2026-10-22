@@ -11,9 +11,12 @@ import { Suspense, createContext, useContext, useEffect, useId, useRef } from 'r
 
 import { buttonClassName } from './buttonStyles'
 import type { ButtonVariant } from './buttonStyles'
+import { COL, tableMinWidth } from './columns'
+import type { ColumnWidth } from './columns'
 import type {
   ButtonHTMLAttributes,
   InputHTMLAttributes,
+  MouseEvent,
   ReactNode,
   SelectHTMLAttributes,
   TextareaHTMLAttributes,
@@ -26,10 +29,33 @@ import type {
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant
   size?: 'md' | 'sm'
+  /** Working: a spinner INSIDE the same box. The label keeps its place
+   * (invisible), so the button is exactly as wide and tall as before and
+   * nothing beside it moves; it is disabled while it works. */
+  loading?: boolean
 }
 
-export function Button({ variant = 'primary', size = 'md', className = '', ...rest }: ButtonProps) {
-  return <button type="button" className={buttonClassName(variant, size, className)} {...rest} />
+export function Button({ variant = 'primary', size = 'md', className = '', loading = false, children, disabled, ...rest }: ButtonProps) {
+  return (
+    <button
+      type="button"
+      className={buttonClassName(variant, size, `relative ${className}`)}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
+      {...rest}
+    >
+      {loading ? (
+        <>
+          <span className="invisible contents">{children}</span>
+          <span aria-hidden className="absolute inset-0 flex items-center justify-center">
+            <span className="size-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          </span>
+        </>
+      ) : (
+        children
+      )}
+    </button>
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -262,11 +288,15 @@ interface BadgeProps {
 
 export function Badge({ tone = 'neutral', size = 'md', children }: BadgeProps) {
   const sizing = size === 'lg' ? 'px-3 py-1 text-sm font-bold' : 'px-2 py-0.5 text-xs font-medium'
+  // Never wider than its cell: a label longer than the column reserved for it
+  // is cut with an ellipsis (a fixed Table names it in full on hover) instead
+  // of widening the column or wrapping the row.
+  const text = typeof children === 'string' ? children : undefined
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full whitespace-nowrap ring-1 ring-inset ${sizing} ${BADGE_TONES[tone]}`}
+      className={`inline-flex max-w-full min-w-0 items-center gap-1 rounded-full whitespace-nowrap ring-1 ring-inset ${sizing} ${BADGE_TONES[tone]}`}
     >
-      {children}
+      {text !== undefined ? <span className="min-w-0 truncate">{text}</span> : children}
     </span>
   )
 }
@@ -377,7 +407,7 @@ export function PageHeader({ title, subtitle, actions, eyebrow }: PageHeaderProp
 interface SectionPageProps {
   title: ReactNode
   subtitle?: ReactNode
-  tabs: { key: string; label: string; count?: number }[]
+  tabs: TabDef[]
   active: string
   onChange: (key: string) => void
   children: ReactNode
@@ -471,11 +501,41 @@ export function EmptyState({ title, hint, action, icon }: EmptyStateProps) {
 // Tabs
 // ---------------------------------------------------------------------------
 
+/**
+ * A number in a pill — a tab's count, a sidebar badge, a filter chip's count.
+ * Tabular digits, centred in a box at least `digits` wide, so a count going
+ * from 9 to 10 (or a refetch) never pushes the label or the pill beside it.
+ * The tone (background, text colour, weight) is the caller's.
+ */
+export function Count({
+  value,
+  digits = 2,
+  className = '',
+  title,
+}: {
+  value: ReactNode
+  digits?: number
+  className?: string
+  title?: string
+}) {
+  return (
+    <span
+      title={title}
+      style={{ minWidth: `calc(${digits}ch + 0.75rem)` }}
+      className={`inline-block rounded-full px-1.5 text-center text-[11px] tabular-nums ${className}`}
+    >
+      {value}
+    </span>
+  )
+}
+
 export interface TabDef {
   key: string
   label: string
-  /** Optional counter rendered after the label. */
-  count?: number
+  /** Counter after the label. `null` keeps its place while it has nothing
+   * to show (loading, or zero), so the tabs beside it never move when it
+   * appears; leave it out on a tab that never counts. */
+  count?: number | null
 }
 
 interface TabsProps {
@@ -489,7 +549,7 @@ export function Tabs({ tabs, active, onChange, size = 'md' }: TabsProps) {
   // A section with many views (credit limits: seven) tightens its tabs so the
   // strip still fits a laptop in every language instead of scrolling.
   const dense = tabs.length > 5
-  const pad = size === 'sm' ? 'px-3 py-2 text-[13px]' : dense ? 'px-2.5 py-2.5 text-sm' : 'px-3.5 py-2.5 text-sm'
+  const pad = size === 'sm' ? 'px-3 py-2 text-[13px]' : dense ? 'px-2 py-2.5 text-sm' : 'px-3.5 py-2.5 text-sm'
   // The rule under the tabs is an inset shadow, not a border: the selected
   // tab's underline then sits ON it without a negative margin, so the strip
   // never overflows vertically (which showed a stray scrollbar on Windows).
@@ -515,13 +575,12 @@ export function Tabs({ tabs, active, onChange, size = 'md' }: TabsProps) {
           >
             {tab.label}
             {tab.count !== undefined && (
-              <span
-                className={`rounded-full px-1.5 text-[11px] font-semibold ${
+              <Count
+                value={tab.count ?? ''}
+                className={`font-semibold ${tab.count === null ? 'invisible' : ''} ${
                   selected ? 'bg-accent-100 text-accent-700' : 'bg-slate-100 text-slate-500'
                 }`}
-              >
-                {tab.count}
-              </span>
+              />
             )}
           </button>
         )
@@ -619,14 +678,49 @@ interface TableProps {
   children: ReactNode
   dense?: boolean
   className?: string
+  /**
+   * One width per column (columns.ts: `COL.*`, `labelCol`, `actionsCol`, or
+   * any CSS width). The table is then laid out FIXED: a column is exactly
+   * that wide whatever its cells hold, so nothing moves when a status, a
+   * button or a translation changes. Cells keep to one line and cut with an
+   * ellipsis; a cut cell shows its full text on hover.
+   */
+  columns?: readonly ColumnWidth[]
+  /** The narrowest a fill column may get before the table scrolls sideways (6rem). */
+  fillMin?: string
+}
+
+/** A cut cell (or a `truncate` element in it) names its full text on hover. */
+function titleIfCut(event: MouseEvent<HTMLTableElement>) {
+  const target = event.target as HTMLElement
+  const el = target.closest<HTMLElement>('.truncate') ?? target.closest<HTMLElement>('td, th')
+  if (!el || !event.currentTarget.contains(el)) return
+  const cut = el.scrollWidth > el.clientWidth + 1
+  if (cut && !el.hasAttribute('title')) {
+    el.setAttribute('title', el.innerText.trim())
+    el.dataset.autoTitle = '1'
+  } else if (!cut && el.dataset.autoTitle) {
+    el.removeAttribute('title')
+    delete el.dataset.autoTitle
+  }
 }
 
 /** Scrollable table container. `dense` is the financial variant: the navy
  * header band of the risk report, condensed caps, zebra rows. */
-export function Table({ children, dense = false, className = '' }: TableProps) {
+export function Table({ children, dense = false, className = '', columns, fillMin }: TableProps) {
   // On the page a table is its own card; inside a card it sits flush, its
   // rows on the card's own surface — never a box in a box.
   const framed = useContext(FramedContext)
+  const fixed = columns !== undefined
+  // Fixed layout: one line per cell, cut with an ellipsis (`:where` keeps it
+  // overridable by a cell's own class, e.g. `whitespace-normal`).
+  // Fixed layout: one line per body cell, cut with an ellipsis (`:where`
+  // keeps it overridable by a cell's own class, e.g. `whitespace-normal`). A
+  // header may wrap between words — it is never cut — and sits on the bottom
+  // line, so a one-line header lines up with a two-line one beside it.
+  const fixedCells = fixed
+    ? 'table-fixed [:where(&_td,&_th)]:overflow-hidden [:where(&_td,&_th)]:text-ellipsis [:where(&_td)]:whitespace-nowrap [&_th]:whitespace-normal [&_th]:align-bottom [&_th]:[text-wrap:balance]'
+    : '[&_th]:whitespace-nowrap'
   const head = dense
     ? '[&_thead_th]:bg-accent-600 [&_thead_th]:text-white [&_thead_th]:font-display [&_thead_th]:text-[13px] [&_thead_th]:font-bold [&_thead_th]:tracking-wide [&_thead_th]:border-accent-600 [:where(&_tbody_tr:nth-child(even))]:bg-accent-50/60'
     : '[&_thead_th]:bg-slate-50 [&_thead_th]:text-slate-500 [&_thead_th]:text-[12px] [&_thead_th]:font-semibold [&_thead_th]:tracking-wide [&_thead_th]:uppercase [&_thead_th]:border-slate-200'
@@ -637,15 +731,49 @@ export function Table({ children, dense = false, className = '' }: TableProps) {
       } ${className}`}
     >
       <table
-        className={`w-full border-collapse ${dense ? 'text-[13px]' : 'text-sm'} [&_th]:border-b [&_th]:whitespace-nowrap [&_td.num]:whitespace-nowrap [:where(&_th)]:text-left [&_td]:border-b [&_td]:border-slate-100 [:where(&_tbody_tr)]:transition-colors [:where(&_tbody_tr:hover)]:bg-accent-50 [&_tbody_tr:last-child_td]:border-b-0 ${head} ${
+        style={fixed ? { minWidth: tableMinWidth(columns, fillMin) } : undefined}
+        onMouseOver={fixed ? titleIfCut : undefined}
+        className={`w-full border-collapse ${fixedCells} ${dense ? 'text-[13px]' : 'text-sm'} [&_th]:border-b [&_td.num]:whitespace-nowrap [:where(&_th)]:text-left [&_td]:border-b [&_td]:border-slate-100 [:where(&_tbody_tr)]:transition-colors [:where(&_tbody_tr:hover)]:bg-accent-50 [&_tbody_tr:last-child_td]:border-b-0 ${head} ${
           dense
             ? '[&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-1.5'
             : '[&_th]:px-4 [&_th]:py-2.5 [&_td]:px-4 [&_td]:py-2.5'
         }`}
       >
+        {fixed && (
+          <colgroup>
+            {columns.map((width, i) => (
+              <col key={i} style={width === COL.fill ? undefined : { width }} />
+            ))}
+          </colgroup>
+        )}
         {children}
       </table>
     </div>
+  )
+}
+
+/**
+ * The action cell of a table row: its buttons right-aligned in the column
+ * reserved for them (`actionsCol`). It does not clip, so a focus ring or an
+ * open menu is never cut. `reveal`: the buttons fade in while the row is
+ * hovered or focused — by OPACITY, never display, so their space is always
+ * taken and nothing in the row moves; they stay reachable by keyboard.
+ */
+export function RowActions({ children, reveal = false }: { children: ReactNode; reveal?: boolean }) {
+  return (
+    <td className="!overflow-visible">
+      <div
+        className={`flex items-center justify-end gap-2 ${
+          reveal
+            ? 'opacity-0 transition-opacity focus-within:opacity-100 [tr:focus-within>td>&]:opacity-100 [tr:hover>td>&]:opacity-100'
+            : ''
+        }`}
+        // A click on an action must not also open the row.
+        onClick={(e) => e.stopPropagation()}
+      >
+        {children}
+      </div>
+    </td>
   )
 }
 

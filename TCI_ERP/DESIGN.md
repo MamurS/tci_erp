@@ -221,6 +221,136 @@ mechanical ones.
 * **Every literal translation key exists** (`i18n/keysExist.test.ts`) — a
   missing one is printed raw on screen.
 
+### No layout shift on interaction (owner rule, October 2026 — zero tolerance)
+
+Hovering, clicking, opening a menu, a button starting to load, a status
+changing, a count refreshing or the language switching **never moves or
+resizes anything else** — not by one pixel. Checked in the browser by the
+layout guard (`e2e/layout/`, every table/list screen × en/ru/uz × 1440 and
+1280 px, fails on a move over 1 px) and on the source by
+`layoutContract.test.ts` and `columns.test.ts`.
+
+**Tables are fixed-layout with declared widths.** Copy this:
+
+```tsx
+import { Badge, Button, COL, RowActions, Table, actionsCol, labelCol } from '../../components/ui'
+
+// One width per column, in order. COL.fill is the main text column (one,
+// or two sharing equally): it takes what is left and cuts with an ellipsis.
+const COLUMNS = [COL.code, COL.fill, labelCol('policyStatus'), COL.money, actionsCol(['edit'])]
+
+<Table columns={COLUMNS}>
+  <thead>
+    <tr>
+      <th>{t('policies.fields.number')}</th>
+      <th>{t('policies.fields.policyholder')}</th>
+      <th>{t('policies.fields.status')}</th>
+      <th className="num">{t('policies.fields.maxLiability')}</th>
+      <th><span className="sr-only">{t('common.actions')}</span></th>
+    </tr>
+  </thead>
+  <tbody>
+    {rows.map((r) => (
+      <tr key={r.id}>
+        <td className="font-mono">{r.policy_number}</td>
+        <td>{r.name}</td>
+        <td><Badge tone={tone(r.status)}>{t(`policies.statuses.${r.status}`)}</Badge></td>
+        <td className="num">{formatAmount(r.amount, locale)} {r.currency}</td>
+        <RowActions>
+          <Button size="sm" variant="secondary">{t('common.edit')}</Button>
+        </RowActions>
+      </tr>
+    ))}
+  </tbody>
+</Table>
+```
+
+* `<Table columns={…}>` lays the table out with `table-layout: fixed` and a
+  `<colgroup>`: a column is exactly as wide as declared whatever its cells
+  hold. Widths come from `src/components/ui/columns.ts`: `COL.date`,
+  `COL.moment`, `COL.period`, `COL.amount`, `COL.money` (amount + currency),
+  `COL.moneyShort`, `COL.code`, `COL.count`, `COL.days`, `COL.pct`,
+  `COL.grade`, `COL.currency`, `COL.person`, `COL.pair`, `COL.review`,
+  `COL.share`, `COL.icon`, `COL.fill` — or any CSS width. Several badges side
+  by side: `labelsCol(['entityRole', 'entityRole'])`. Below the sum of the widths (plus 6rem for
+  each fill column, `fillMin` to change it) the table scrolls sideways instead
+  of crushing a column.
+* **Cells keep to one line** and cut with an ellipsis; a cut cell names its
+  full text on hover (`title`, set by the table itself). A cell that must wrap
+  says so (`whitespace-normal`) — its row is then taller, but always the same
+  height. **Headers are never cut**: they wrap between words (balanced, on the
+  bottom line), so a column is sized for its content, not for a long
+  uppercase caption; a single word longer than its column fails the guard.
+* **Numbers**: `num` on the `<th>` and the `<td>` — right-aligned,
+  `tabular-nums`, never wraps. Not on a text line (a key figure's label, a
+  sentence with a number in it).
+* **Status columns reserve their widest label in en, ru and uz:**
+  `labelCol('claimStatus')`. Each vocabulary is a `LABEL_SETS` entry (its i18n
+  keys and the length of its longest label); `columns.test.ts` reads the three
+  locale files and prints the number to write when a translation outgrows it.
+  A new status vocabulary in a column is a new `LABEL_SETS` entry first.
+* **Action columns** are `<RowActions>` (the `<td>` itself — it never clips, so
+  a focus ring or a menu is not cut) sized with `actionsCol([...labels], icons)`
+  for the labelled buttons it can hold, each at its widest translation. A
+  button that is not offered in this row is still absent from a column that
+  is wide enough for it — the column never depends on the row.
+* **When the buttons do not fit, the secondary ones fold into ⋯**
+  (`ActionsMenu trigger="icon"`, destructive items last and in red): one
+  primary button per row plus the menu. The menu is `fixed`, so it never
+  grows a scrollbar on the table's card.
+* **Revealed on hover by opacity, never `display`.** `<RowActions reveal>`
+  fades its buttons in while the row is hovered or focused; their space is
+  always taken. `hidden group-hover:flex` is the bug this rule exists for
+  (the Agenda row used it: the title jumped left on every hover).
+* **Loading stays inside the button's box**: the label keeps its place (a
+  spinner replaces the icon or overlays the label), the button keeps its
+  min-width. A row never grows a line while it saves; an error goes in a
+  Callout above the table, not under the row.
+* **Never a conditional column**: a cell with nothing to say renders «—» or
+  stays empty — it is never left out of one row.
+
+**Badges, chips, tab counts and sidebar badges reserve their width.**
+
+* A number in a pill is `<Count value={n} />`: tabular digits in a box at
+  least two digits wide, so 9 → 10 does not push its neighbour.
+* A tab that counts passes `count: n || null` — `null` keeps the pill's place
+  (invisible) while it loads or is zero; `undefined` is a tab that never counts.
+* A toggle chip has its border in BOTH states (navy when pressed), and the
+  same font weight: pressing it never changes its width.
+* A Badge never grows past its cell: a label longer than its reserved column
+  is cut with an ellipsis (and the guard fails on it — reserve more).
+* Key figures and cards (`KeyFigures`, `StatCard`): values in tabular digits,
+  so a refreshed figure keeps its width; the figures of one strip share one
+  height (the grid stretches them), so a meta line under one of them does not
+  make it taller than its neighbours.
+
+**The guard** (`e2e/layout/layout.spec.ts`, part of `npm run test:e2e` and
+CI). Screens come from the router: `e2e/layout/screens.ts` names every route
+in `App.tsx` with the demo user who opens it, or the reason it has nothing to
+guard — a new route fails the guard until it is listed. Their data is the
+demo book, recorded once from canonical by the manual tool
+`tools/layout-fixtures/record.mjs` (reads only; sanitised) into
+`e2e/layout/fixtures/<role>.json`, and replayed by the stub with the network
+**sealed** (`e2e/support/network.ts`): every `*.supabase.co` call is answered
+by the stub, anything else that would leave localhost is aborted — never
+continued or fetched — and the test fails if a request tried. The guard
+never reaches canonical. For each screen, each tab found on it, en/ru/uz, 1440×900
+and 1280×800: the boxes of every table (header, first row), the first row of
+every `data-layout-row` list, every tab and toolbar chip are recorded; then
+each first row is hovered and each control in it hovered, clicked and
+dismissed with Escape (a disclosure is closed by a second click, and only what
+lies below its row may move); any box moving or resizing by more than 1 px
+fails, and so does a cut header word, badge, number, date or button, a table
+that scrolls sideways or a tab strip that does (`LAYOUT_STATIC=1` runs only
+these static checks, for calibrating widths). A list that is not
+a table marks its rows `data-layout-row` to be guarded. Re-record after a
+screen gains a query:
+
+```sh
+SUPABASE_ANON_KEY=… DEMO_PASSWORD=… \
+  node --experimental-strip-types tools/layout-fixtures/record.mjs [role …]
+```
+
 ### The rating scale
 
 Score 1–100, lower is better. The ten-band presentation scale
@@ -295,10 +425,60 @@ and the statement badge names its framework (РСБУ, HGB, US GAAP…).
 «Шаблоны договоров» lists the insurer's .docx templates with status badges
 (draft amber, active green, retired neutral), the insurer's particulars and
 the placeholder reference (monospace, select-all). A draft contract is
-generated from the «Договор» tab of a policy or the submission page; the
-history of generated documents stays beside the button.
+generated from the «Договор» tab of a policy or the submission page into the
+in-app editor (see «Contract drafts» below); .docx files generated before
+that stay listed under «Ранее сформированные файлы».
 Templates and the contract register are tabs of «Полисы» («Реестр
 полисов» / «Договоры» / «Шаблоны договоров»), not sidebar items of their own.
+
+## Contract drafts (viewer, editor, comparison)
+
+A draft contract reads like paper and works like an object page
+(`src/features/contracts`, migration 0057).
+
+* **The «Проект договора» section** (policy «Договор» tab, submission page —
+  full width) is the draft's version table: Версия · Статус · Сохранена ·
+  Автор · Происхождение и шаблон · actions. Fixed widths: the status column
+  reserves «Ko‘rib chiqilmoqda» (`contracts/columns.ts`, tested), the actions
+  are four icon buttons — view, edit (current version, editable statuses
+  only; otherwise its place stays empty), compare with the previous version,
+  and the «Скачать» menu (DOCX / PDF) — so the table fits 60rem. Older
+  versions show the status they last reached, or «—».
+* **One layout for viewer, editor and comparison:** `DetailHeader` (eyebrow
+  «Проект договора», the CD- number, the status badge, links to the policy or
+  submission, the template and language; actions: the next status step as the
+  one primary button, «Редактировать», «Скачать ▾», «Действия ▾»), then the
+  callouts (signed, agreed, older version, stale fields, schedule changed,
+  shared, conversion warnings), then two columns: a 17rem side column (the
+  contents — headings and clauses with their numbers, click to jump — the
+  comments, the status history) and the sheet. Below 1280px the sheet comes
+  first.
+* **The sheet** is page-like: white, a hairline border, `max-width: 210mm`,
+  padding from the template's margins, the template's font (Arial → Arimo)
+  and size. Clause numbers are drawn, not typed. Merge fields are chips (pale
+  blue with a blue underline); a field whose source has moved is AMBER with a
+  ring and the callout says how many; an empty field shows its path in grey
+  italics on screen and nothing on paper or in the portal.
+* **The editor** keeps the same sheet with a sticky compact toolbar above it
+  (undo/redo · paragraph style: text, numbered clause, numbered section,
+  heading, document title · bold/italic/underline · align left/centre/justify
+  · bulleted/numbered list · table insert, row, column, «Таблица…» menu ·
+  page break · «Вставить поле…» · field → text). Nothing in the toolbar
+  appears or disappears with the selection — controls disable instead — so it
+  never reflows. A status line above it says what the edit is based on and
+  whether there are unsaved changes (with the time of the local copy);
+  «Сохранить версию» (⌘S) asks for an optional change note.
+* **The comparison**: two version pickers, «В тексте | Рядом», a one-line
+  summary with the legend. Insertions are green AND underlined, deletions red
+  AND struck through, changed lines carry an amber left rule — never colour
+  alone. Side by side keeps the two columns aligned with blank lines; a clause
+  that only moved number is not a change (its old number is the tooltip).
+* **Print / PDF** is a bare page with a navy toolbar (back, «Печать или
+  сохранение в PDF»); `@page` uses the template's size and margins and prints
+  «page x of y» at the bottom in the document's language.
+* **The portal** lists the shared drafts and shows the selected one as a
+  plain sheet with «Ваши комментарии» beside it (a comment box only while
+  under review).
 
 ## Financial data display rules (apply everywhere)
 

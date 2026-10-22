@@ -5,7 +5,19 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, EmptyState, Input, PageHeader, Spinner, Table, Tabs, Truncate } from '../../components/ui'
+import {
+  Badge,
+  Button,
+  COL,
+  EmptyState,
+  Input,
+  labelCol,
+  PageHeader,
+  Spinner,
+  Table,
+  Tabs,
+  Truncate,
+} from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH } from '../../lib/format'
 import { useInsuranceRequests } from './api'
@@ -60,7 +72,7 @@ export function RequestsPage() {
 
   const tabs = [
     { key: 'mine', label: t('requests.tabs.mine') },
-    { key: 'open', label: t('requests.tabs.open'), count: openCount || undefined },
+    { key: 'open', label: t('requests.tabs.open'), count: openCount || null },
     { key: 'withClient', label: t('requests.tabs.withClient') },
     { key: 'closed', label: t('requests.tabs.closed') },
   ]
@@ -106,15 +118,15 @@ export function RequestsPage() {
           <EmptyState title={t('requests.queueEmpty')} hint={t('requests.queueEmptyHint')} />
         )
       ) : (
-        <Table>
+        <Table columns={[COL.code, COL.fill, COL.count, labelCol('requestStatus'), '12rem', COL.count]}>
           <thead>
             <tr>
               <th>{t('requests.fields.number')}</th>
-              <th className="cell-fill w-[34%]">{t('requests.fields.applicant')}</th>
-              <th className="text-right">{t('requests.fields.buyersCount')}</th>
+              <th>{t('requests.fields.applicant')}</th>
+              <th className="num">{t('requests.fields.buyersCount')}</th>
               <th>{t('requests.fields.status')}</th>
               <th>{t('requests.fields.waitingOn')}</th>
-              <th className="text-right">{t('requests.fields.ageDays')}</th>
+              <th className="num">{t('requests.fields.ageDays')}</th>
             </tr>
           </thead>
           <tbody>
@@ -125,7 +137,7 @@ export function RequestsPage() {
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
                 <td className="font-medium whitespace-nowrap text-slate-800 tabular-nums">{r.request_number}</td>
-                <td className="cell-fill text-slate-700">
+                <td className="text-slate-700">
                   <Truncate text={r.legal_entities?.name} className="max-w-none">
                     {r.legal_entities?.name ?? EM_DASH}
                   </Truncate>
@@ -155,7 +167,7 @@ function WaitingOn({ request }: { request: InsuranceRequestWithRefs }) {
   const { t } = useTranslation()
   const role = owningRole(request.status)
   if (!role) return <span className="text-slate-300">{EM_DASH}</span>
-  return <span>{t(`roles.${role}`)}</span>
+  return <Truncate text={t(`roles.${role}`)} className="max-w-none" />
 }
 
 function AgeCell({ days }: { days: number | null }) {

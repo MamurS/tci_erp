@@ -9,7 +9,18 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
-import { Badge, Card, Panel, Segmented, Spinner, Table, Truncate, ViewBar } from '../../components/ui'
+import {
+  Badge,
+  Card,
+  COL,
+  labelCol,
+  Panel,
+  Segmented,
+  Spinner,
+  Table,
+  Truncate,
+  ViewBar,
+} from '../../components/ui'
 import { formatMoment } from '../../lib/format'
 import { useAgendaTasks } from '../agenda/api'
 import { taskLink } from '../agenda/catalogue'
@@ -71,12 +82,12 @@ export function QueueView() {
           <p className="mt-0.5 text-[13px] text-slate-500">{t(`data.queue.emptyHints.${scope}`)}</p>
         </Card>
       ) : (
-        <Table dense>
+        <Table dense columns={[COL.code, labelCol('dataKind'), COL.fill, COL.person, COL.person, COL.moment, labelCol('dataStatus')]}>
           <thead>
             <tr>
               <th>№</th>
               <th>{t('data.fields.kind')}</th>
-              <th className="cell-fill w-[30%]">{t('data.fields.company')}</th>
+              <th>{t('data.fields.company')}</th>
               <th>{t('data.fields.requestedBy')}</th>
               <th>{t('data.fields.assignedTo')}</th>
               <th>{t('data.fields.createdAt')}</th>
@@ -92,7 +103,7 @@ export function QueueView() {
                   </Link>
                 </td>
                 <td className="whitespace-nowrap text-slate-600">{t(`data.kinds.${r.kind}`)}</td>
-                <td className="cell-fill">
+                <td>
                   <Truncate text={r.requested_name} className="max-w-none font-medium text-slate-800" />
                   {r.country_code && (
                     <span className="block text-[11.5px] text-slate-500">{countryName(r.country_code)}</span>
@@ -124,6 +135,7 @@ export function QueueView() {
               return (
                 <li
                   key={task.id}
+                  data-layout-row
                   className="flex items-baseline justify-between gap-4 border-b border-slate-100 py-2.5 text-[13px] first:pt-0 last:border-b-0"
                 >
                   <span className="min-w-0 truncate font-medium text-slate-800" title={name}>

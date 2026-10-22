@@ -10,6 +10,7 @@ import {
   Button,
   Callout,
   Card,
+  COL,
   DateInput,
   EmptyState,
   Field,
@@ -102,12 +103,12 @@ export function ClaimMoneyTab({ claim }: { claim: Claim }) {
             {(payments ?? []).length === 0 ? (
               <p className="py-2 text-[13px] text-slate-500">{t('claims.money.noPayments')}</p>
             ) : (
-              <Table dense>
+              <Table dense columns={[COL.date, COL.fill, COL.money]}>
                 <thead>
                   <tr>
                     <th>{t('claims.fields.paidAt')}</th>
                     <th>{t('claims.fields.reference')}</th>
-                    <th className="text-right">{t('claims.fields.amount')}</th>
+                    <th className="num">{t('claims.fields.amount')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -139,13 +140,13 @@ export function ClaimMoneyTab({ claim }: { claim: Claim }) {
             {(recoveries ?? []).length === 0 ? (
               <p className="py-2 text-[13px] text-slate-500">{t('claims.money.noRecoveries')}</p>
             ) : (
-              <Table dense>
+              <Table dense columns={[COL.fill, COL.amount, COL.amount, COL.amount]}>
                 <thead>
                   <tr>
                     <th>{t('claims.fields.receivedAt')}</th>
-                    <th className="text-right">{t('claims.fields.net')}</th>
-                    <th className="text-right">{t('claims.fields.insurerShare')}</th>
-                    <th className="text-right">{t('claims.fields.policyholderShare')}</th>
+                    <th className="num">{t('claims.fields.net')}</th>
+                    <th className="num">{t('claims.fields.insurerShare')}</th>
+                    <th className="num">{t('claims.fields.policyholderShare')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -196,7 +197,8 @@ function PaymentModal({ claim, onClose }: { claim: Claim; onClose: () => void })
             {t('common.cancel')}
           </Button>
           <Button
-            disabled={!(Number(amount) > 0) || paidAt === '' || record.isPending}
+            disabled={!(Number(amount) > 0) || paidAt === ''}
+            loading={record.isPending}
             title={Number(amount) > 0 && paidAt !== '' ? undefined : t('claims.money.paymentRequiredHint')}
             onClick={() =>
               record
@@ -252,7 +254,8 @@ function RecoveryModal({ claim, onClose }: { claim: Claim; onClose: () => void }
             {t('common.cancel')}
           </Button>
           <Button
-            disabled={!(Number(gross) > 0) || receivedAt === '' || record.isPending}
+            disabled={!(Number(gross) > 0) || receivedAt === ''}
+            loading={record.isPending}
             title={Number(gross) > 0 && receivedAt !== '' ? undefined : t('claims.money.recoveryRequiredHint')}
             onClick={() =>
               record

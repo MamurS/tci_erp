@@ -3,6 +3,7 @@ export {
   Segmented,
   Button,
   Card,
+  Count,
   EmptyState,
   Field,
   Input,
@@ -10,6 +11,7 @@ export {
   PageHeader,
   Panel,
   PanelGrid,
+  RowActions,
   SectionPage,
   SectionTitle,
   Select,
@@ -35,6 +37,8 @@ export { ConfirmDialog } from './ConfirmDialog'
 export { ActionsMenu } from './ActionsMenu'
 export type { MenuAction } from './ActionsMenu'
 export { Truncate } from './Truncate'
+export { COL, LABEL_SETS, actionsCol, labelCol, labelsCol } from './columns'
+export type { ColumnWidth, LabelSetName } from './columns'
 export { AmountInput } from './AmountInput'
 export { DateInput } from './DateInput'
 export { amountToPlain, parseAmount } from './amount'

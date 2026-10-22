@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AmountInput, Button, Card, Field, Segmented, Select, SectionTitle } from '../../components/ui'
+import { refusalOr } from '../../lib/optimistic'
 import { amountToPlain, parseAmount } from '../../components/ui/amount'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH, formatAmount, formatPercent } from '../../lib/format'
@@ -86,8 +87,8 @@ export function ProposedTermsSection({ request }: { request: InsuranceRequestWit
     try {
       await update.mutateAsync(patch as Partial<ProposedTerms>)
       setEditing(false)
-    } catch {
-      setError(t('common.saveFailed'))
+    } catch (failure) {
+      setError(t(refusalOr(failure, 'common.saveFailed')))
     }
   }
 
@@ -154,8 +155,8 @@ export function ProposedTermsSection({ request }: { request: InsuranceRequestWit
               <Button variant="secondary" size="sm" onClick={() => setEditing(false)}>
                 {t('common.cancel')}
               </Button>
-              <Button size="sm" onClick={() => void save()} disabled={update.isPending}>
-                {update.isPending ? t('common.saving') : t('common.save')}
+              <Button size="sm" onClick={() => void save()} loading={update.isPending}>
+                {t('common.save')}
               </Button>
             </>
           ) : (

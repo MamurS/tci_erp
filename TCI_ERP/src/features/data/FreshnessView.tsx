@@ -9,7 +9,18 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, Segmented, Spinner, Table, ViewBar } from '../../components/ui'
+import {
+  Badge,
+  Card,
+  COL,
+  EmptyState,
+  labelCol,
+  Segmented,
+  Spinner,
+  Table,
+  Truncate,
+  ViewBar,
+} from '../../components/ui'
 import { formatDate } from '../../lib/format'
 import { useCountryName } from '../portfolio/useCountryName'
 import { useDataFreshness } from './api'
@@ -69,7 +80,7 @@ export function FreshnessView() {
           <EmptyState title={t('data.freshness.empty')} hint={t('data.freshness.emptyHint')} />
         </Card>
       ) : (
-        <Table dense>
+        <Table dense columns={[COL.fill, '8.5rem', labelCol('freshnessReason'), COL.date, '8rem', labelCol('openDataRequest')]}>
           <thead>
             <tr>
               <th>{t('data.fields.company')}</th>
@@ -77,7 +88,7 @@ export function FreshnessView() {
               <th>{t('data.freshness.reason')}</th>
               <th>{t('data.freshness.latestPeriod')}</th>
               <th>{t('data.freshness.gaps')}</th>
-              <th className="w-px" />
+              <th />
             </tr>
           </thead>
           <tbody>
@@ -98,10 +109,13 @@ export function FreshnessView() {
                     </Link>
                     <span className="block text-[11.5px] text-slate-500">{countryName(r.country_code)}</span>
                   </td>
-                  <td className="whitespace-nowrap text-slate-600">
-                    {[r.is_buyer && t('data.roles.buyer'), r.is_policyholder && t('data.roles.policyholder')]
-                      .filter(Boolean)
-                      .join(' · ')}
+                  <td className="text-slate-600">
+                    <Truncate
+                      text={[r.is_buyer && t('data.roles.buyer'), r.is_policyholder && t('data.roles.policyholder')]
+                        .filter(Boolean)
+                        .join(' · ')}
+                      className="max-w-none"
+                    />
                   </td>
                   <td>
                     <Badge tone={REASON_TONE[r.reason]}>{t(`data.freshness.reasons.${r.reason}`)}</Badge>
@@ -109,7 +123,7 @@ export function FreshnessView() {
                   <td className="whitespace-nowrap text-slate-600">
                     {r.latest_period_end ? formatDate(r.latest_period_end, locale) : '—'}
                   </td>
-                  <td className="text-[12px] text-slate-500">{gaps.length ? gaps.join(', ') : '—'}</td>
+                  <td className="text-[12px] whitespace-normal text-slate-500">{gaps.length ? gaps.join(', ') : '—'}</td>
                   <td className="whitespace-nowrap text-right">
                     {r.open_request_id && (
                       <Link to={`/data/requests/${r.open_request_id}`} className="text-[13px] text-accent-600 hover:underline">

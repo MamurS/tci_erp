@@ -13,12 +13,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { useAuth } from '../../auth/AuthContext'
 import {
+  actionsCol,
   Badge,
   Button,
+  COL,
   EmptyState,
   Field,
   Input,
   Modal,
+  RowActions,
   Spinner,
   Table,
 } from '../../components/ui'
@@ -85,13 +88,13 @@ export function BuyerProposalsSection() {
 
   return (
     <>
-      <Table>
+      <Table columns={[COL.fill, COL.regNumber, COL.code, COL.money, COL.moment, actionsCol(['resolveProposal'])]}>
         <thead>
           <tr>
             <th>{t('limits.proposals.proposedName')}</th>
             <th>{t('limits.proposals.registrationNumber')}</th>
             <th>{t('limits.proposals.policy')}</th>
-            <th className="text-right">{t('limits.fields.requestedAmount')}</th>
+            <th className="num">{t('limits.fields.requestedAmount')}</th>
             <th>{t('limits.proposals.asked')}</th>
             <th />
           </tr>
@@ -109,14 +112,14 @@ export function BuyerProposalsSection() {
               <td className="num text-slate-500">
                 {proposal.policies?.policy_number ?? EM_DASH}
               </td>
-              <td className="num text-right">
+              <td className="num">
                 {formatAmount(proposal.requested_amount, i18n.language)}{' '}
                 {proposal.currency_code}
               </td>
               <td className="text-slate-500">
                 {formatMoment(proposal.created_at, i18n.language)}
               </td>
-              <td className="text-right">
+              <RowActions>
                 <Button
                   size="sm"
                   disabled={!canResolve}
@@ -124,7 +127,7 @@ export function BuyerProposalsSection() {
                 >
                   {t('limits.proposals.resolve')}
                 </Button>
-              </td>
+              </RowActions>
             </tr>
           ))}
         </tbody>
@@ -227,10 +230,10 @@ function ResolveModal({
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button variant="dangerOutline" disabled={busy} onClick={() => reject.mutate()}>
+          <Button variant="dangerOutline" disabled={busy} loading={reject.isPending} onClick={() => reject.mutate()}>
             {t('limits.proposals.reject')}
           </Button>
-          <Button disabled={busy || !name.trim()} onClick={() => resolve.mutate(null)}>
+          <Button disabled={busy || !name.trim()} loading={resolve.isPending} onClick={() => resolve.mutate(null)}>
             {t('limits.proposals.createAndRaise')}
           </Button>
         </>

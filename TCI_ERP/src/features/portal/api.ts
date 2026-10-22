@@ -8,8 +8,14 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { optimistic, patch, pendingId, rowInList, rowOutOfList, rowsOutOfLists } from '../../lib/optimistic'
 import { supabase, tci } from '../../lib/supabase'
+import type { CoverageSplit } from '../declarations/coverage'
+import { retotalled, savedLine, transitioned } from '../declarations/optimistic'
+import type { LineInput } from '../declarations/optimistic'
 import { CLAIM_DOCUMENTS_BUCKET, claimDocumentPath } from '../claims/documents'
+import { claimErrorKey } from '../claims/errors'
+import { CLIENT_CLAIM_STATUS, portalClaimQueryAffected, SUBMISSION_RESPONSE_STATUS } from './optimistic'
 import type {
   ClientClaim,
   ClientClaimDocument,
@@ -248,14 +254,23 @@ export function useRequestLimit() {
 
 export type SubmissionAction = 'accept' | 'decline' | 'request_changes'
 
+type RespondVars = { requestId: string; action: SubmissionAction; comment?: string | null }
+
+/** The submission shows the client's answer at once; a refusal restores it. */
 export function useRespondToSubmission() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (input: {
-      requestId: string
-      action: SubmissionAction
-      comment?: string | null
-    }) => {
+    mutationKey: ['portal', 'respond'],
+    ...optimistic<RespondVars, void>(queryClient, {
+      patches: () => [
+        rowInList<ClientSubmission, RespondVars>(KEYS.submissions, (v) => v.requestId, (row, v) => ({
+          ...row,
+          status: SUBMISSION_RESPONSE_STATUS[v.action],
+        })),
+      ],
+      invalidate: (v) => [KEYS.submissionHistory(v.requestId), KEYS.policies, ['portal', 'tasks']],
+    }),
+    mutationFn: async (input: RespondVars) => {
       const { error } = await tci().rpc('client_respond_to_submission', {
         p_request_id: input.requestId,
         p_action: input.action,
@@ -263,7 +278,6 @@ export function useRespondToSubmission() {
       })
       if (error) throw error
     },
-    onSuccess: () => invalidatePortal(queryClient),
   })
 }
 
@@ -390,16 +404,22 @@ export function useOpenDeclaration() {
   })
 }
 
+/** The pending line's buyer name and split, when the screen knows them
+ * (classifyLine). Without it a NEW line waits for the answer. */
+export interface LinePreview {
+  entity_name: string
+  split: CoverageSplit
+}
+
+type SaveLineVars = LineInput & { preview?: LinePreview }
+
+/** Optimistic: the line (and the declaration's total in the register above)
+ * changes at once; a refusal puts both back. */
 export function useSaveClientLine() {
-  const invalidate = useInvalidatePortalP4()
+  const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (input: {
-      declaration_id: string
-      entity_id: string
-      turnover: number
-      overdue_amount?: number | null
-      line_note?: string | null
-    }) => {
+    mutationKey: ['portal', 'save-line'],
+    mutationFn: async (input: SaveLineVars) => {
       const { error } = await tci().rpc('client_save_declaration_line', {
         p_declaration_id: input.declaration_id,
         p_entity_id: input.entity_id,
@@ -409,31 +429,83 @@ export function useSaveClientLine() {
       })
       if (error) throw error
     },
-    onSuccess: invalidate,
+    ...optimistic<SaveLineVars, void>(qc, {
+      patches: (input) => {
+        const lines = qc.getQueryData<ClientDeclarationLine[]>(P4_KEYS.lines(input.declaration_id)) ?? []
+        const before = lines.find((l) => l.entity_id === input.entity_id)
+        const painted = Boolean(before || input.preview)
+        return [
+          patch<ClientDeclarationLine[], SaveLineVars>(
+            P4_KEYS.lines(input.declaration_id),
+            (rows, v) =>
+              savedLine(rows, v, v.preview ? { ...v.preview, id: pendingId() } : null),
+            { exact: true },
+          ),
+          ...(painted
+            ? [
+                rowInList<ClientDeclaration, SaveLineVars>(
+                  P4_KEYS.declarations,
+                  (v) => v.declaration_id,
+                  (d, v) => retotalled(d, before ? Number(before.insurable_turnover) : null, v.turnover),
+                ),
+              ]
+            : []),
+        ]
+      },
+    }),
   })
 }
 
 export function useDeleteClientLine() {
-  const invalidate = useInvalidatePortalP4()
+  const qc = useQueryClient()
+  type Vars = string | { lineId: string; declarationId: string }
+  const of = (v: Vars) => (typeof v === 'string' ? { lineId: v, declarationId: null } : v)
   return useMutation({
-    mutationFn: async (lineId: string) => {
-      const { error } = await tci().rpc('client_delete_declaration_line', { p_line_id: lineId })
+    mutationKey: ['portal', 'delete-line'],
+    mutationFn: async (v: Vars) => {
+      const { error } = await tci().rpc('client_delete_declaration_line', { p_line_id: of(v).lineId })
       if (error) throw error
     },
-    onSuccess: invalidate,
+    ...optimistic<Vars, void>(qc, {
+      patches: (v) => {
+        const { lineId, declarationId } = of(v)
+        if (!declarationId) return []
+        const before = qc.getQueryData<ClientDeclarationLine[]>(P4_KEYS.lines(declarationId))?.find((l) => l.id === lineId)
+        return [
+          rowOutOfList<ClientDeclarationLine, Vars>(P4_KEYS.lines(declarationId), () => lineId),
+          ...(before
+            ? [
+                rowInList<ClientDeclaration, Vars>(P4_KEYS.declarations, () => declarationId, (d) =>
+                  retotalled(d, Number(before.insurable_turnover), null),
+                ),
+              ]
+            : []),
+        ]
+      },
+      // Without the declaration the screen cannot paint; refetch its lists.
+      invalidate: (v) => (of(v).declarationId ? [] : [['portal', 'declaration-lines'], P4_KEYS.declarations]),
+    }),
   })
 }
 
+/** Optimistic: the declaration reads «submitted» at once. */
 export function useSubmitClientDeclaration() {
-  const invalidate = useInvalidatePortalP4()
+  const qc = useQueryClient()
   return useMutation({
+    mutationKey: ['portal', 'submit-declaration'],
     mutationFn: async (declarationId: string) => {
       const { error } = await tci().rpc('client_submit_declaration', {
         p_declaration_id: declarationId,
       })
       if (error) throw error
     },
-    onSuccess: invalidate,
+    ...optimistic<string, void>(qc, {
+      patches: () => [
+        rowInList<ClientDeclaration, string>(P4_KEYS.declarations, (id) => id, (d) =>
+          transitioned(d, 'submitted', new Date().toISOString()),
+        ),
+      ],
+    }),
   })
 }
 
@@ -586,8 +658,13 @@ export function useMyClaimReadiness(claimId: string | undefined) {
 function useInvalidatePortalClaims() {
   const qc = useQueryClient()
   return () => {
-    void qc.invalidateQueries({ queryKey: ['portal'] })
+    void qc.invalidateQueries({ queryKey: ['portal'], predicate: (q) => portalClaimQueryAffected(q.queryKey) })
   }
+}
+
+/** A claim's status, painted in the portal's claim list. */
+function claimStatusPatch<V>(idOf: (v: V) => string, status: string) {
+  return rowInList<ClientClaim, V>(['portal', 'claims'], idOf, (claim) => ({ ...claim, status } as ClientClaim))
 }
 
 export function useClientOpenClaim() {
@@ -647,8 +724,15 @@ export function useClientSaveClaimInvoice() {
 }
 
 export function useClientDeleteClaimInvoice() {
+  const qc = useQueryClient()
   const invalidate = useInvalidatePortalClaims()
   return useMutation({
+    mutationKey: ['portal', 'delete-claim-invoice'],
+    // The invoice leaves the claim at once.
+    ...optimistic<string, void>(qc, {
+      patches: () => [rowsOutOfLists<ClientClaimInvoice, string>(['portal', 'claim-invoices'], (id) => id)],
+      mapError: (e) => claimErrorKey(e) ?? 'common.somethingWentWrong',
+    }),
     mutationFn: async (invoiceId: string) => {
       const { error } = await tci().rpc('delete_claim_invoice', { p_invoice_id: invoiceId })
       if (error) throw error
@@ -658,8 +742,14 @@ export function useClientDeleteClaimInvoice() {
 }
 
 export function useClientSubmitClaim() {
+  const qc = useQueryClient()
   const invalidate = useInvalidatePortalClaims()
   return useMutation({
+    mutationKey: ['portal', 'submit-claim'],
+    ...optimistic<string, void>(qc, {
+      patches: () => [claimStatusPatch<string>((id) => id, CLIENT_CLAIM_STATUS.submit)],
+      mapError: (e) => claimErrorKey(e) ?? 'common.somethingWentWrong',
+    }),
     mutationFn: async (claimId: string) => {
       const { error } = await tci().rpc('client_submit_claim', { p_claim_id: claimId })
       if (error) throw error
@@ -669,8 +759,14 @@ export function useClientSubmitClaim() {
 }
 
 export function useClientWithdrawClaim() {
+  const qc = useQueryClient()
   const invalidate = useInvalidatePortalClaims()
   return useMutation({
+    mutationKey: ['portal', 'withdraw-claim'],
+    ...optimistic<{ claim_id: string; comment?: string | null }, void>(qc, {
+      patches: () => [claimStatusPatch<{ claim_id: string }>((v) => v.claim_id, CLIENT_CLAIM_STATUS.withdraw)],
+      mapError: (e) => claimErrorKey(e) ?? 'common.somethingWentWrong',
+    }),
     mutationFn: async (input: { claim_id: string; comment?: string | null }) => {
       const { error } = await tci().rpc('client_withdraw_claim', {
         p_claim_id: input.claim_id,
@@ -683,8 +779,14 @@ export function useClientWithdrawClaim() {
 }
 
 export function useClientRespondToInfoRequest() {
+  const qc = useQueryClient()
   const invalidate = useInvalidatePortalClaims()
   return useMutation({
+    mutationKey: ['portal', 'respond-info'],
+    ...optimistic<{ claim_id: string; comment: string }, void>(qc, {
+      patches: () => [claimStatusPatch<{ claim_id: string }>((v) => v.claim_id, CLIENT_CLAIM_STATUS.respond)],
+      mapError: (e) => claimErrorKey(e) ?? 'common.somethingWentWrong',
+    }),
     mutationFn: async (input: { claim_id: string; comment: string }) => {
       const { error } = await tci().rpc('client_respond_to_info_request', {
         p_claim_id: input.claim_id,

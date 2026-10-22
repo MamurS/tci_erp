@@ -121,8 +121,13 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
+      # Includes the layout guard (e2e/layout): every table/list screen in
+      # en/ru/uz at 1440 and 1280 px, replayed from recorded fixtures with the
+      # network sealed — nothing reaches Supabase or any other host. About
+      # 12 minutes on two workers.
       - name: Playwright
         run: npm run test:e2e
+        timeout-minutes: 40
 
       - name: Upload traces of failures
         if: ${{ failure() }}

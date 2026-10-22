@@ -11,15 +11,19 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
+  actionsCol,
   AmountInput,
   Badge,
   Button,
   Callout,
   Card,
+  COL,
   EmptyState,
   Field,
+  labelCol,
   PageHeader,
   parseAmount,
+  RowActions,
   SectionTitle,
   Select,
   Spinner,
@@ -93,7 +97,9 @@ export function PortalDeclarationsPage() {
         subtitle={t('portal.declarations.subtitle')}
         actions={
           activePolicy ? (
-            <Button onClick={startPeriod}>{t('portal.declarations.actions.declarePeriod')}</Button>
+            <Button onClick={startPeriod} loading={open.isPending}>
+              {t('portal.declarations.actions.declarePeriod')}
+            </Button>
           ) : undefined
         }
       />
@@ -108,13 +114,13 @@ export function PortalDeclarationsPage() {
           hint={t('portal.declarations.emptyHint')}
         />
       ) : (
-        <Table>
+        <Table columns={[COL.fill, COL.money, COL.money, COL.money, labelCol('declarationStatus')]}>
           <thead>
             <tr>
               <th>{t('declarations.fields.period')}</th>
-              <th className="text-right">{t('declarations.fields.totalTurnover')}</th>
-              <th className="text-right">{t('declarations.fields.uncoveredExcess')}</th>
-              <th className="text-right">{t('portal.declarations.premium')}</th>
+              <th className="num">{t('declarations.fields.totalTurnover')}</th>
+              <th className="num">{t('declarations.fields.uncoveredExcess')}</th>
+              <th className="num">{t('portal.declarations.premium')}</th>
               <th>{t('declarations.fields.status')}</th>
             </tr>
           </thead>
@@ -132,14 +138,14 @@ export function PortalDeclarationsPage() {
                   } ${d.superseded ? 'text-slate-400' : ''}`}
                 >
                   <td className="font-medium">{formatPeriod(d.period_start, d.period_end, locale)}</td>
-                  <td className="num text-right">
+                  <td className="num">
                     {formatAmount(Number(d.total_insurable_turnover), locale)} {d.currency_code}
                   </td>
                   {/* No excess is «—», not a zero that reads like an amount. */}
                   <td className={`num text-right ${excess ? 'font-medium text-warn-500' : ''}`}>
                     {excess ? `${formatAmount(excess, locale)} ${d.currency_code}` : EM_DASH}
                   </td>
-                  <td className="num text-right">
+                  <td className="num">
                     {d.premium_amount === null
                       ? EM_DASH
                       : `${formatAmount(Number(d.premium_amount), locale)} ${d.currency_code}`}
@@ -161,6 +167,7 @@ export function PortalDeclarationsPage() {
           policyId={activePolicy?.id}
           discretionaryLimit={Number(activePolicy?.discretionary_limit ?? 0)}
           onSubmit={() => void run(submit.mutateAsync(openId))}
+          submitting={submit.isPending}
           onError={setError}
         />
       )}
@@ -174,8 +181,10 @@ function DeclarationEditor({
   policyId,
   discretionaryLimit,
   onSubmit,
+  submitting,
   onError,
 }: {
+  submitting: boolean
   declaration: ClientDeclaration | null
   declarationId: string
   policyId: string | undefined
@@ -238,23 +247,23 @@ function DeclarationEditor({
         {!lines?.length ? (
           <EmptyState title={t('portal.declarations.noLines')} />
         ) : (
-          <Table dense>
+          <Table dense columns={[COL.fill, COL.money, labelCol('coverageBasis'), COL.money, actionsCol(['delete'])]}>
             <thead>
               <tr>
-                <th className="cell-fill w-[35%]">{t('limits.fields.buyer')}</th>
-                <th className="text-right">{t('declarations.fields.insurableTurnover')}</th>
+                <th>{t('limits.fields.buyer')}</th>
+                <th className="num">{t('declarations.fields.insurableTurnover')}</th>
                 <th>{t('declarations.fields.coverageBasis')}</th>
-                <th className="text-right">{t('declarations.fields.uncovered')}</th>
+                <th className="num">{t('declarations.fields.uncovered')}</th>
                 <th />
               </tr>
             </thead>
             <tbody>
               {lines.map((l) => (
                 <tr key={l.id}>
-                  <td className="cell-fill font-medium">
+                  <td className="font-medium">
                     <Truncate text={l.entity_name} className="max-w-none" />
                   </td>
-                  <td className="num text-right">{money(Number(l.insurable_turnover))}</td>
+                  <td className="num">{money(Number(l.insurable_turnover))}</td>
                   <td>
                     <Badge
                       tone={l.coverage_basis === 'uncovered_excess' ? 'warn' : 'neutral'}
@@ -267,14 +276,14 @@ function DeclarationEditor({
                   >
                     {Number(l.uncovered_excess) > 0 ? money(Number(l.uncovered_excess)) : EM_DASH}
                   </td>
-                  <td className="text-right">
+                  <RowActions>
                     {editable && (
                       <Button
                         size="sm"
                         variant="ghost"
                         onClick={() =>
                           void remove
-                            .mutateAsync(l.id)
+                            .mutateAsync({ lineId: l.id, declarationId })
                             .catch((e: unknown) =>
                               onError(t(refusalKey(e))),
                             )
@@ -283,7 +292,7 @@ function DeclarationEditor({
                         {t('common.delete')}
                       </Button>
                     )}
-                  </td>
+                  </RowActions>
                 </tr>
               ))}
             </tbody>
@@ -309,12 +318,20 @@ function DeclarationEditor({
               <Button
                 variant="secondary"
                 disabled={!buyerId || !((parseAmount(turnover) ?? 0) > 0)}
+                loading={save.isPending}
                 onClick={() =>
                   void save
                     .mutateAsync({
                       declaration_id: declarationId,
                       entity_id: buyerId,
                       turnover: parseAmount(turnover) ?? 0,
+                      // The line shows at once with the split it will get.
+                      preview: preview
+                        ? {
+                            entity_name: (buyers ?? []).find((b) => b.entity_id === buyerId)?.entity_name ?? '',
+                            split: preview,
+                          }
+                        : undefined,
                     })
                     .then(() => {
                       setBuyerId('')
@@ -342,6 +359,7 @@ function DeclarationEditor({
             <div className="flex justify-end">
               <Button
               onClick={onSubmit}
+              loading={submitting}
               disabled={!lines?.length}
               title={lines?.length ? undefined : t('portal.declarations.noLines')}
             >

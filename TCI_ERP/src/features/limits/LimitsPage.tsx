@@ -8,8 +8,10 @@ import { useTranslation } from 'react-i18next'
 
 import {
   Badge,
+  COL,
   EmptyState,
   Input,
+  labelCol,
   Segmented,
   Select,
   Spinner,
@@ -165,20 +167,19 @@ export function LimitsPage() {
         // with an ellipsis, so the queue fits a 1280px screen with the
         // sidebar docked instead of scrolling sideways. Dense, like every
         // other table of the credit hub.
-        <Table dense>
+        <Table dense columns={[COL.fill, '9.75rem', '9.5rem', labelCol('limitStatus'), '5rem', '4.5rem']}>
           <thead>
             <tr>
-              <th className="cell-fill w-[55%]">{t('limits.fields.buyer')}</th>
-              <th className="cell-fill w-[45%]">{t('limits.fields.policyAndPolicyholder')}</th>
+              <th>{t('limits.fields.buyer')}</th>
+              <th>{t('limits.fields.policyAndPolicyholder')}</th>
               {/* w-px: the figure columns keep their content width and leave
                   the rest to the two name columns. */}
-              <th className="w-px text-right">{t('portfolio.credit.amount')}</th>
-              <th className="w-px">{t('limits.fields.status')}</th>
-              <th className="w-px text-right" title={t('limits.ageHint', { days: REQUEST_AGE_WARN_DAYS })}>
+              <th className="num">{t('portfolio.credit.amount')}</th>
+              <th>{t('limits.fields.status')}</th>
+              <th className="num" title={t('limits.ageHint', { days: REQUEST_AGE_WARN_DAYS })}>
                 {t('limits.fields.ageDaysUnit')}
               </th>
-              <th className="w-px">{t('limits.fields.grade')}</th>
-              {showDecision && <th className="w-px">{t('limits.workbench.queue.authority')}</th>}
+              <th>{t('limits.fields.grade')}</th>
             </tr>
           </thead>
           <tbody>
@@ -188,19 +189,26 @@ export function LimitsPage() {
                 onClick={() => void navigate(`/limits/${r.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="cell-fill font-medium text-slate-800">
+                <td className="font-medium text-slate-800">
                   <Truncate text={r.legal_entities?.name} className="max-w-none">
                     {r.legal_entities?.name ?? EM_DASH}
                   </Truncate>
                 </td>
-                <td className="cell-fill">
+                <td>
                   <ScopeCell request={r} />
                 </td>
                 <td className="num">
                   {formatAmount(Number(r.requested_amount), locale)} {r.currency_code}
                 </td>
+                {/* The authority exception sits under the status: a column of
+                    its own left the buyer's name a few letters on a laptop. */}
                 <td>
                   <Badge tone={statusTone(r.status)}>{t(`limits.statuses.${r.status}`)}</Badge>
+                  {showDecision && (
+                    <span className="mt-1 block">
+                      <AuthorityCell row={annotated.get(r.id)} />
+                    </span>
+                  )}
                 </td>
                 <td className="num">
                   <AgeCell days={requestAgeDays(r.submitted_at, nowIso)} />
@@ -208,11 +216,6 @@ export function LimitsPage() {
                 <td>
                   <GradeCell grade={grades.data?.get(r.entity_id)} />
                 </td>
-                {showDecision && (
-                  <td>
-                    <AuthorityCell row={annotated.get(r.id)} />
-                  </td>
-                )}
               </tr>
             ))}
           </tbody>

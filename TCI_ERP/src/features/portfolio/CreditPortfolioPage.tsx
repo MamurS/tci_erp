@@ -14,7 +14,20 @@ import { useTranslation } from 'react-i18next'
 
 import { ChevronRight } from 'lucide-react'
 
-import { Badge, Card, EmptyState, KeyFigures, Panel, PanelGrid, Skeleton, Spinner, Truncate, ViewBar } from '../../components/ui'
+import {
+  Badge,
+  Card,
+  COL,
+  EmptyState,
+  KeyFigures,
+  labelCol,
+  Panel,
+  PanelGrid,
+  Skeleton,
+  Spinner,
+  Truncate,
+  ViewBar,
+} from '../../components/ui'
 import { formatAmount, formatCompact } from '../../lib/format'
 import {
   creditTotals,
@@ -90,24 +103,24 @@ export function CreditPortfolioPage() {
           <AttentionPanel rows={rows} />
 
           <PanelGrid>
-            <TableCard
+            <TableCard columns={['7.5rem', '4.5rem', '8.5rem', '5rem']}
               title={t('portfolio.credit.byBand')}
               hint={t('portfolio.credit.byBandHint')}
               empty={null}
               head={
                 <tr>
                   <th>{t('portfolio.credit.band')}</th>
-                  <th className="text-right">{t('portfolio.credit.limits')}</th>
-                  <th className="text-right">{t('portfolio.credit.exposure')}</th>
-                  <th className="text-right">{t('portfolio.share')}</th>
+                  <th className="num">{t('portfolio.credit.limits')}</th>
+                  <th className="num">{t('portfolio.credit.exposure')}</th>
+                  <th className="num">{t('portfolio.share')}</th>
                 </tr>
               }
             >
               {bands.map((b) => (
                 <tr key={b.key}>
                   <td>{band(b.key)}</td>
-                  <td className="num text-right">{b.limits}</td>
-                  <td className="num text-right whitespace-nowrap">{uzs(b.exposureUzs)}</td>
+                  <td className="num">{b.limits}</td>
+                  <td className="num whitespace-nowrap">{uzs(b.exposureUzs)}</td>
                   <td>
                     <ShareBar compact share={b.share} />
                   </td>
@@ -115,25 +128,25 @@ export function CreditPortfolioPage() {
               ))}
             </TableCard>
 
-            <TableCard
+            <TableCard columns={[COL.fill, '4.5rem', '8.5rem', '5rem']}
               title={t('portfolio.credit.byCountry')}
               empty={countries.length ? null : t('portfolio.none')}
               head={
                 <tr>
-                  <th className="cell-fill w-full">{t('portfolio.credit.country')}</th>
-                  <th className="w-px text-right">{t('portfolio.credit.limits')}</th>
-                  <th className="w-px text-right">{t('portfolio.credit.exposure')}</th>
-                  <th className="w-px text-right">{t('portfolio.share')}</th>
+                  <th>{t('portfolio.credit.country')}</th>
+                  <th className="num">{t('portfolio.credit.limits')}</th>
+                  <th className="num">{t('portfolio.credit.exposure')}</th>
+                  <th className="num">{t('portfolio.share')}</th>
                 </tr>
               }
             >
               {countries.map((c) => (
                 <tr key={c.key}>
-                  <td className="cell-fill">
+                  <td>
                     <Truncate text={countryName(c.key || null)} className="max-w-none" />
                   </td>
-                  <td className="num text-right">{c.limits}</td>
-                  <td className="num text-right whitespace-nowrap">{uzs(c.exposureUzs)}</td>
+                  <td className="num">{c.limits}</td>
+                  <td className="num whitespace-nowrap">{uzs(c.exposureUzs)}</td>
                   <td>
                     <ShareBar compact share={c.share} />
                   </td>
@@ -142,37 +155,37 @@ export function CreditPortfolioPage() {
             </TableCard>
           </PanelGrid>
 
-          <TableCard
+          <TableCard columns={[COL.fill, '11rem', labelCol('limitBand'), COL.count, COL.count, COL.amount, COL.share]}
             title={t('portfolio.credit.topBuyers')}
             empty={null}
             head={
               <tr>
-                <th className="cell-fill w-[60%]">{t('portfolio.credit.buyer')}</th>
-                <th className="cell-fill w-[40%]">{t('portfolio.credit.country')}</th>
-                <th className="w-px">{t('portfolio.credit.rating')}</th>
-                <th className="w-px text-right">{t('portfolio.credit.limits')}</th>
-                <th className="w-px text-right">{t('portfolio.credit.policies')}</th>
-                <th className="w-px text-right">{t('portfolio.credit.exposure')}</th>
-                <th className="w-px text-right">{t('portfolio.share')}</th>
+                <th>{t('portfolio.credit.buyer')}</th>
+                <th>{t('portfolio.credit.country')}</th>
+                <th>{t('portfolio.credit.rating')}</th>
+                <th className="num">{t('portfolio.credit.limits')}</th>
+                <th className="num">{t('portfolio.credit.policies')}</th>
+                <th className="num">{t('portfolio.credit.exposure')}</th>
+                <th className="num">{t('portfolio.share')}</th>
               </tr>
             }
           >
             {buyers.map((b) => (
               <tr key={b.buyerId}>
-                <td className="cell-fill">
+                <td>
                   <Truncate text={b.buyerName} className="max-w-none">
                     {buyerLink(b.buyerId, b.buyerName)}
                   </Truncate>
                 </td>
-                <td className="cell-fill text-slate-600">
+                <td className="text-slate-600">
                   <Truncate text={countryName(b.country)} className="max-w-none" />
                 </td>
                 <td>
                   <BandBadge band={b.band} grade={b.grade} />
                 </td>
-                <td className="num text-right">{b.limits}</td>
-                <td className="num text-right">{b.policies}</td>
-                <td className="num text-right">
+                <td className="num">{b.limits}</td>
+                <td className="num">{b.policies}</td>
+                <td className="num">
                   {uzs(b.exposureUzs)}
                   {b.missingRates > 0 && (
                     <span className="ml-1 text-warn-500" title={t('portfolio.missingRatesHint')}>
@@ -188,28 +201,28 @@ export function CreditPortfolioPage() {
           </TableCard>
 
           <PanelGrid>
-            <TableCard
+            <TableCard columns={[COL.fill, COL.count, COL.amount]}
               title={t('portfolio.credit.byCurrency')}
               hint={t('portfolio.credit.byCurrencyHint')}
               empty={null}
               head={
                 <tr>
                   <th>{t('policies.fields.currency')}</th>
-                  <th className="text-right">{t('portfolio.credit.limits')}</th>
-                  <th className="text-right">{t('portfolio.credit.amount')}</th>
+                  <th className="num">{t('portfolio.credit.limits')}</th>
+                  <th className="num">{t('portfolio.credit.amount')}</th>
                 </tr>
               }
             >
               {currencies.map((c) => (
                 <tr key={c.currency}>
                   <td>{c.currency}</td>
-                  <td className="num text-right">{c.limits}</td>
-                  <td className="num text-right">{formatAmount(c.amount, locale)}</td>
+                  <td className="num">{c.limits}</td>
+                  <td className="num">{formatAmount(c.amount, locale)}</td>
                 </tr>
               ))}
             </TableCard>
 
-            <TableCard
+            <TableCard columns={[COL.fill, COL.amount]}
               title={t('portfolio.credit.groups')}
               hint={t('portfolio.credit.groupsHint')}
               empty={groups?.length ? null : t('portfolio.credit.noGroups')}
@@ -219,14 +232,14 @@ export function CreditPortfolioPage() {
                       below it and would spill over the next column. The member
                       count sits under the name — a third column did not fit
                       half the page. */}
-                  <th className="w-full">{t('portfolio.credit.group')}</th>
-                  <th className="w-px text-right">{t('portfolio.credit.exposure')}</th>
+                  <th>{t('portfolio.credit.group')}</th>
+                  <th className="num">{t('portfolio.credit.exposure')}</th>
                 </tr>
               }
             >
               {(groups ?? []).map((g) => (
                 <tr key={g.ultimate_parent_id}>
-                  <td className="cell-fill">
+                  <td>
                     <Truncate text={g.ultimate_parent_name} className="max-w-none">
                       <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} tab="group" />
                     </Truncate>
@@ -234,7 +247,7 @@ export function CreditPortfolioPage() {
                       {t('portfolio.credit.membersWithLimits', { count: g.members_with_limits })}
                     </span>
                   </td>
-                  <td className="num text-right">{uzs(Number(g.exposure_uzs))}</td>
+                  <td className="num">{uzs(Number(g.exposure_uzs))}</td>
                 </tr>
               ))}
             </TableCard>

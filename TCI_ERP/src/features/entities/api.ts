@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { exactly, optimistic, rowOutOfList } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
 import { NAME_MIN_CHARS, REG_MIN_CHARS } from './dedup'
 import type {
@@ -261,15 +262,17 @@ export function useUpdateStatement(entityId: string, statementId: string) {
 export function useDeleteStatement(entityId: string) {
   const queryClient = useQueryClient()
   return useMutation({
+    mutationKey: ['entities', 'delete-statement'],
     mutationFn: async (statementId: string) => {
       // balance_sheets / income_statements cascade on delete
       const { error } = await tci().from('financial_statements').delete().eq('id', statementId)
       if (error) throw error
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: KEYS.statements(entityId) })
-      void queryClient.invalidateQueries({ queryKey: KEYS.entities })
-    },
+    // The statement leaves the list at once; a refusal brings it back.
+    ...optimistic<string, void>(queryClient, {
+      patches: () => [rowOutOfList<StatementBundle, string>(KEYS.statements(entityId), (id) => id)],
+      invalidate: () => [exactly(KEYS.entities)],
+    }),
   })
 }
 

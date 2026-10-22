@@ -159,8 +159,8 @@ export function EntityFormModal({
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button onClick={() => void handleSubmit()} disabled={saving || !valid}>
-            {saving ? t('common.saving') : t('common.save')}
+          <Button onClick={() => void handleSubmit()} disabled={!valid} loading={saving}>
+            {t('common.save')}
           </Button>
         </>
       }

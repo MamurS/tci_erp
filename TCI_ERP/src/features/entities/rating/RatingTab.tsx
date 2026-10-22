@@ -27,8 +27,10 @@ import {
   Badge,
   Button,
   Card,
+  COL,
   EmptyState,
   GradeScale,
+  labelCol,
   LinkButton,
   RatingGauge,
   RatingLegend,
@@ -252,9 +254,11 @@ export function RatingTab({ entityId }: { entityId: string }) {
           </label>
           <Button
             onClick={() => selected && calculate.mutate(selected)}
-            disabled={calculate.isPending || !selected}
+            disabled={!selected}
+            loading={calculate.isPending}
+            title={calculate.isPending ? t('rating.calculating') : undefined}
           >
-            {calculate.isPending ? t('rating.calculating') : t('rating.calculate')}
+            {t('rating.calculate')}
           </Button>
           <Button variant="secondary" onClick={() => setReportModalOpen(true)}>
             {t('rating.generateReport')}
@@ -419,13 +423,13 @@ function ResultView({
 
       {/* Component breakdown */}
       <div id={FACTOR_TABLE_ANCHOR_ID} className="scroll-mt-4">
-        <Table dense>
+        <Table dense columns={[COL.fill, COL.amount, COL.count, COL.count, labelCol('ratingBand')]}>
           <thead>
             <tr>
               <th>{t('rating.componentsTitle')}</th>
-              <th className="text-right">{t('rating.value')}</th>
-              <th className="text-right">{t('rating.score')}</th>
-              <th className="text-right">{t('rating.weight')}</th>
+              <th className="num">{t('rating.value')}</th>
+              <th className="num">{t('rating.score')}</th>
+              <th className="num">{t('rating.weight')}</th>
               <th>{t('rating.band')}</th>
             </tr>
           </thead>
@@ -600,14 +604,14 @@ function HistoryCard({
   return (
     <div>
       <SectionTitle className="mb-2">{t('rating.historyTitle')}</SectionTitle>
-      <Table dense>
+      <Table dense columns={[COL.moment, COL.fill, COL.count, COL.grade, COL.money]}>
         <thead>
           <tr>
             <th>{t('rating.historyDate')}</th>
             <th>{t('rating.statement')}</th>
-            <th className="text-right">{t('rating.score')}</th>
+            <th className="num">{t('rating.score')}</th>
             <th>{t('rating.gradeTitle')}</th>
-            <th className="text-right">{t('rating.limitTitle')}</th>
+            <th className="num">{t('rating.limitTitle')}</th>
           </tr>
         </thead>
         <tbody>

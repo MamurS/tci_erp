@@ -73,7 +73,8 @@ export function LimitsSection() {
   const tabs = limitViewsFor(roles).map((key) => ({
     key,
     label: t(`limits.views.${key}`),
-    count: counts[key] || undefined,
+    // A counting view keeps its pill's place while it is zero or loading.
+    count: key in counts ? counts[key] || null : undefined,
   }))
 
   const body = (() => {

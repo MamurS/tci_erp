@@ -42,7 +42,7 @@ export function ConfirmDialog({
           <Button variant="secondary" onClick={onCancel}>
             {t('common.cancel')}
           </Button>
-          <Button variant={tone === 'danger' ? 'danger' : 'primary'} disabled={pending} onClick={onConfirm}>
+          <Button variant={tone === 'danger' ? 'danger' : 'primary'} loading={pending} onClick={onConfirm}>
             {confirmLabel}
           </Button>
         </>

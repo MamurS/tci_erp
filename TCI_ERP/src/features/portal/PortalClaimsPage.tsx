@@ -6,17 +6,22 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
+  actionsCol,
+  ActionsMenu,
   Badge,
   Button,
   Callout,
   Card,
+  COL,
   ConfirmDialog,
   DescriptionList,
   EmptyState,
   Field,
   Input,
+  labelCol,
   Modal,
   PageHeader,
+  RowActions,
   SectionTitle,
   Select,
   Spinner,
@@ -84,12 +89,12 @@ export function PortalClaimsPage() {
           <SectionTitle className="mb-3" hint={t('portal.claims.claimableHint')}>
             {t('portal.claims.claimableTitle')}
           </SectionTitle>
-          <Table>
+          <Table columns={[COL.fill, COL.code, COL.money, '15rem', actionsCol(['fileClaim'])]}>
             <thead>
               <tr>
-                <th className="cell-fill w-[35%]">{t('portal.claims.fields.buyer')}</th>
+                <th>{t('portal.claims.fields.buyer')}</th>
                 <th>{t('portal.claims.fields.policy')}</th>
-                <th className="text-right">{t('portal.claims.fields.overdueAmount')}</th>
+                <th className="num">{t('portal.claims.fields.overdueAmount')}</th>
                 <th>{t('portal.claims.fields.claimableFrom')}</th>
                 <th />
               </tr>
@@ -97,7 +102,7 @@ export function PortalClaimsPage() {
             <tbody>
               {ready.map((c) => (
                 <tr key={c.noa_id}>
-                  <td className="cell-fill">
+                  <td>
                     <Truncate text={c.buyer_name} className="max-w-none" />
                   </td>
                   <td className="whitespace-nowrap text-slate-600 tabular-nums">{c.policy_number}</td>
@@ -112,11 +117,11 @@ export function PortalClaimsPage() {
                       </span>
                     )}
                   </td>
-                  <td className="text-right">
+                  <RowActions>
                     <Button size="sm" disabled={!c.claimable_now} onClick={() => setFiling(c)}>
                       {t('portal.claims.actions.file')}
                     </Button>
-                  </td>
+                  </RowActions>
                 </tr>
               ))}
             </tbody>
@@ -129,13 +134,13 @@ export function PortalClaimsPage() {
         {(claims ?? []).length === 0 ? (
           <EmptyState title={t('portal.claims.emptyTitle')} hint={t('portal.claims.emptyHint')} />
         ) : (
-          <Table>
+          <Table columns={[COL.code, COL.fill, COL.money, COL.money, labelCol('claimStatus'), actionsCol(['claimNextStep'], 1)]}>
             <thead>
               <tr>
                 <th>{t('portal.claims.fields.number')}</th>
-                <th className="cell-fill w-[35%]">{t('portal.claims.fields.buyer')}</th>
-                <th className="text-right">{t('portal.claims.fields.claimed')}</th>
-                <th className="text-right">{t('portal.claims.fields.indemnity')}</th>
+                <th>{t('portal.claims.fields.buyer')}</th>
+                <th className="num">{t('portal.claims.fields.claimed')}</th>
+                <th className="num">{t('portal.claims.fields.indemnity')}</th>
                 <th>{t('portal.claims.fields.status')}</th>
                 <th />
               </tr>
@@ -153,13 +158,13 @@ export function PortalClaimsPage() {
                   }`}
                 >
                   <td className="whitespace-nowrap font-medium text-accent-700 tabular-nums">{c.claim_number}</td>
-                  <td className="cell-fill">
+                  <td>
                     <Truncate text={c.buyer_name} className="max-w-none" />
                   </td>
-                  <td className="num text-right">
+                  <td className="num">
                     {formatAmount(Number(c.claimed_amount), locale)} {c.currency_code}
                   </td>
-                  <td className="num text-right">
+                  <td className="num">
                     {c.approved_indemnity === null
                       ? EM_DASH
                       : `${formatAmount(Number(c.approved_indemnity), locale)} ${c.currency_code}`}
@@ -167,23 +172,39 @@ export function PortalClaimsPage() {
                   <td>
                     <Badge tone={TONE[c.status]}>{t(`claims.statuses.${c.status}`)}</Badge>
                   </td>
-                  <td className="text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                  <RowActions>
                     {c.status === 'draft' && (
-                      <span className="inline-flex gap-2">
-                        <Button size="sm" onClick={() => submit.mutateAsync(c.id).catch(fail)}>
+                      <>
+                        <Button
+                          size="sm"
+                          loading={submit.isPending && submit.variables === c.id}
+                          onClick={() => submit.mutateAsync(c.id).catch(fail)}
+                        >
                           {t('portal.claims.actions.submit')}
                         </Button>
-                        <Button size="sm" variant="dangerOutline" onClick={() => setWithdrawing(c)}>
-                          {t('portal.claims.actions.withdraw')}
-                        </Button>
-                      </span>
+                        {/* The withdrawal folds into ⋯ (it ends the claim, so it
+                            sits apart, in red): two buttons side by side did
+                            not fit the row on a laptop. */}
+                        <ActionsMenu
+                          trigger="icon"
+                          size="sm"
+                          actions={[
+                            {
+                              key: 'withdraw',
+                              label: t('portal.claims.actions.withdraw'),
+                              danger: true,
+                              onSelect: () => setWithdrawing(c),
+                            },
+                          ]}
+                        />
+                      </>
                     )}
                     {c.status === 'info_requested' && (
                       <Button size="sm" onClick={() => setResponding(c)}>
                         {t('portal.claims.actions.respond')}
                       </Button>
                     )}
-                  </td>
+                  </RowActions>
                 </tr>
               ))}
             </tbody>
@@ -213,10 +234,9 @@ export function PortalClaimsPage() {
         onCancel={() => setWithdrawing(null)}
         onConfirm={() => {
           if (!withdrawing) return
-          void withdraw
-            .mutateAsync({ claim_id: withdrawing.id })
-            .catch(fail)
-            .finally(() => setWithdrawing(null))
+          // The claim reads «withdrawn» at once (optimistic): close now.
+          setWithdrawing(null)
+          void withdraw.mutateAsync({ claim_id: withdrawing.id }).catch(fail)
         }}
       />
 
@@ -256,7 +276,7 @@ function FileClaimModal({
             {t('common.cancel')}
           </Button>
           <Button
-            disabled={openClaim.isPending}
+            loading={openClaim.isPending}
             onClick={() =>
               openClaim
                 .mutateAsync({
@@ -333,6 +353,7 @@ function RespondModal({
           </Button>
           <Button
             disabled={comment.trim() === ''}
+            loading={respond.isPending}
             onClick={() =>
               respond
                 .mutateAsync({ claim_id: claim.id, comment })

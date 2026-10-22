@@ -14,13 +14,17 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
+  actionsCol,
   Badge,
   Button,
   Callout,
   Card,
+  COL,
   EmptyState,
+  labelCol,
   Modal,
   PageHeader,
+  RowActions,
   SectionTitle,
   Spinner,
   Table,
@@ -114,11 +118,11 @@ export function PortalLimitsPage() {
       {pending.length > 0 && (
         <Card className="p-5">
           <SectionTitle className="mb-3">{t('portal.limits.pendingTitle')}</SectionTitle>
-          <Table>
+          <Table columns={[COL.fill, COL.money, labelCol('portalRequestStatus'), COL.moment]}>
             <thead>
               <tr>
-                <th className="cell-fill w-[40%]">{t('portal.limits.buyer')}</th>
-                <th className="text-right">{t('portal.limits.requested')}</th>
+                <th>{t('portal.limits.buyer')}</th>
+                <th className="num">{t('portal.limits.requested')}</th>
                 <th>{t('portal.limits.status')}</th>
                 <th>{t('portal.limits.asked')}</th>
               </tr>
@@ -130,12 +134,12 @@ export function PortalLimitsPage() {
                   <tr key={r.id}>
                     {/* A proposal's status already says «Определяем организацию»;
                         the name cell does not repeat it. */}
-                    <td className="cell-fill">
+                    <td>
                       <Truncate text={name} className="max-w-none">
                         {name ?? EM_DASH}
                       </Truncate>
                     </td>
-                    <td className="num text-right">
+                    <td className="num">
                       {formatAmount(r.requested_amount, locale)} {r.currency_code}
                     </td>
                     <td>
@@ -155,14 +159,14 @@ export function PortalLimitsPage() {
         {!rows.length ? (
           <EmptyState title={t('portal.limits.empty')} hint={t('portal.limits.emptyHint')} />
         ) : (
-          <Table>
+          <Table columns={[COL.fill, ...(manyPolicies ? [COL.code] : []), COL.money, COL.period, COL.days, ...(anyConditions ? ['14rem'] : []), labelCol('limitLifecycle'), actionsCol(['limitHistory'])]}>
             <thead>
               <tr>
-                <th className="cell-fill w-[34%]">{t('portal.limits.buyer')}</th>
+                <th>{t('portal.limits.buyer')}</th>
                 {manyPolicies && <th>{t('portal.limits.policy')}</th>}
-                <th className="text-right">{t('portal.limits.approved')}</th>
+                <th className="num">{t('portal.limits.approved')}</th>
                 <th>{t('portal.limits.validity')}</th>
-                <th className="text-right">{t('portal.limits.paymentTerms')}</th>
+                <th className="num">{t('portal.limits.paymentTerms')}</th>
                 {anyConditions && <th>{t('portal.limits.conditions')}</th>}
                 <th>{t('portal.limits.status')}</th>
                 <th />
@@ -174,11 +178,11 @@ export function PortalLimitsPage() {
                 const rowConditions = withdrawn ? [] : (conditionsByDecision.get(limit.decision_id) ?? [])
                 return (
                   <tr key={limit.decision_id}>
-                    <td className="cell-fill font-medium text-slate-900">
+                    <td className="font-medium text-slate-900">
                       <Truncate text={limit.buyer_name} className="max-w-none" />
                     </td>
                     {manyPolicies && <td className="whitespace-nowrap text-slate-500 tabular-nums">{limit.policy_number}</td>}
-                    <td className="num text-right font-semibold">
+                    <td className="num font-semibold">
                       {withdrawn || limit.approved_amount === null
                         ? EM_DASH
                         : `${formatAmount(limit.approved_amount, locale)} ${limit.currency_code}`}
@@ -200,7 +204,7 @@ export function PortalLimitsPage() {
                         </>
                       )}
                     </td>
-                    <td className="num text-right text-slate-500">
+                    <td className="num text-slate-500">
                       {withdrawn || limit.payment_terms_days === null
                         ? EM_DASH
                         : t('portal.days', {
@@ -211,7 +215,7 @@ export function PortalLimitsPage() {
                     {anyConditions && (
                       <td className="text-[13px] text-slate-600">
                         {rowConditions.length ? (
-                          <ul className="list-inside list-disc">
+                          <ul className="list-inside list-disc whitespace-normal">
                             {rowConditions.map((c, i) => (
                               <li key={i}>{c}</li>
                             ))}
@@ -224,11 +228,11 @@ export function PortalLimitsPage() {
                     <td className="whitespace-nowrap">
                       <LimitStatus row={limit} />
                     </td>
-                    <td className="text-right">
+                    <RowActions>
                       <Button variant="ghost" size="sm" onClick={() => setHistoryFor(limit)}>
                         {t('portal.limits.history')}
                       </Button>
-                    </td>
+                    </RowActions>
                   </tr>
                 )
               })}
@@ -280,11 +284,11 @@ function HistoryModal({ limit, onClose }: { limit: ClientLimit; onClose: () => v
       ) : !history?.length ? (
         <p className="text-sm text-slate-500">{t('portal.limits.noHistory')}</p>
       ) : (
-        <Table dense>
+        <Table dense columns={[COL.moment, COL.money, COL.period, COL.fill]}>
           <thead>
             <tr>
               <th>{t('portal.limits.decided')}</th>
-              <th className="text-right">{t('portal.limits.approved')}</th>
+              <th className="num">{t('portal.limits.approved')}</th>
               <th>{t('portal.limits.validity')}</th>
               <th>{t('portal.limits.status')}</th>
             </tr>
@@ -295,7 +299,7 @@ function HistoryModal({ limit, onClose }: { limit: ClientLimit; onClose: () => v
               return (
                 <tr key={row.decision_id}>
                   <td className="whitespace-nowrap text-slate-500">{formatMoment(row.decided_at, locale)}</td>
-                  <td className="num text-right">
+                  <td className="num">
                     {withdrawn || row.approved_amount === null
                       ? EM_DASH
                       : `${formatAmount(row.approved_amount, locale)} ${row.currency_code}`}

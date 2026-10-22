@@ -149,7 +149,7 @@ function RowView({ row, ctx }: { row: AgendaRow; ctx: ListContext }) {
         focused ? 'bg-accent-50/40' : ''
       }`}
     >
-      <div className="relative flex min-h-14 items-center gap-3 py-2 pr-4 pl-3">
+      <div data-layout-row className="relative flex min-h-14 items-center gap-3 py-2 pr-4 pl-3">
         {row.kind === 'collapsed' ? (
           <button
             type="button"
@@ -197,9 +197,13 @@ function RowView({ row, ctx }: { row: AgendaRow; ctx: ListContext }) {
             {(snippet?.kind === 'note' ? facts.filter((f) => f === referenceOf(row.lead, ctx.subjects)) : facts).join(' · ')}
           </p>
         </div>
+        {/* Revealed by OPACITY, never display: the buttons' space is always
+            taken, so hovering a row never moves its title, due date or owner. */}
         <div
-          className={`relative z-10 shrink-0 items-center gap-2 ${
-            focused || commenting ? 'flex' : 'hidden group-focus-within/row:flex group-hover/row:flex'
+          className={`relative z-10 flex shrink-0 items-center gap-2 transition-opacity ${
+            focused || commenting
+              ? ''
+              : 'pointer-events-none opacity-0 group-focus-within/row:pointer-events-auto group-focus-within/row:opacity-100 group-hover/row:pointer-events-auto group-hover/row:opacity-100'
           }`}
         >
           <LinkButton to={dest.path} size="sm" onClick={() => ctx.onHandled(row)}>

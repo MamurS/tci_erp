@@ -104,8 +104,8 @@ export function CreateUserModal({
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button onClick={() => void submit()} disabled={!valid || createUser.isPending}>
-            {createUser.isPending ? t('common.saving') : t('provisioning.create')}
+          <Button onClick={() => void submit()} disabled={!valid} loading={createUser.isPending}>
+            {t('provisioning.create')}
           </Button>
         </>
       }

@@ -11,7 +11,19 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Callout, EmptyState, Field, PageHeader, Select, Spinner, Table, Truncate } from '../../components/ui'
+import {
+  Badge,
+  Callout,
+  COL,
+  EmptyState,
+  Field,
+  labelCol,
+  PageHeader,
+  Select,
+  Spinner,
+  Table,
+  Truncate,
+} from '../../components/ui'
 import { EM_DASH, formatAmount, formatDate, formatPeriod } from '../../lib/format'
 import { useDeclarations, usePolicyDeclarationFrequency } from './api'
 import { periodEnd } from './period'
@@ -96,13 +108,13 @@ export function DeclarationsPage() {
       ) : rows.length === 0 ? (
         <EmptyState title={t('declarations.empty')} hint={t('declarations.emptyHint')} />
       ) : (
-        <Table>
+        <Table columns={[COL.period, COL.code, COL.fill, COL.money, labelCol('declarationStatus')]}>
           <thead>
             <tr>
               <th>{t('declarations.fields.period')}</th>
               <th>{t('policies.fields.policyNumber')}</th>
-              <th className="cell-fill w-[34%]">{t('policies.fields.policyholder')}</th>
-              <th className="text-right">{t('declarations.fields.totalTurnover')}</th>
+              <th>{t('policies.fields.policyholder')}</th>
+              <th className="num">{t('declarations.fields.totalTurnover')}</th>
               <th>{t('declarations.fields.status')}</th>
             </tr>
           </thead>
@@ -120,7 +132,7 @@ export function DeclarationsPage() {
                   </Link>
                 </td>
                 <td className="whitespace-nowrap text-slate-600">{d.policies?.policy_number ?? EM_DASH}</td>
-                <td className="cell-fill text-slate-500">
+                <td className="text-slate-500">
                   <Truncate text={d.policies?.legal_entities?.name ?? EM_DASH} className="max-w-none" />
                 </td>
                 <td>
