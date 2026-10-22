@@ -108,6 +108,9 @@ export const LABEL_SETS = {
   bankLineStatus: { keys: ['premium.bank.statuses.*'], chars: 18, kind: 'badge' },
   /** The primary button of an instalment row (invoice, or record a payment). */
   premiumAction: { keys: ['premium.actions.invoice', 'premium.actions.recordPayment'], chars: 20, kind: 'button' },
+  // commercial offers (0058)
+  offerStatus: { keys: ['offers.statuses.*'], chars: 22, kind: 'badge' },
+  offerVersionState: { keys: ['offers.versionStates.*', 'offers.statuses.*'], chars: 22, kind: 'badge' },
   premiumSource: { keys: ['premium.sources.*'], chars: 18, kind: 'text' },
   portalRequestStatus: { keys: ['portal.limits.requestStatuses.*'], chars: 23, kind: 'badge' },
   portalSubmissionStatus: { keys: ['portal.submissions.statuses.*'], chars: 28, kind: 'badge' },
@@ -172,6 +175,9 @@ export const LABEL_SETS = {
   limitHistory: { keys: ['portal.limits.history'], chars: 7, kind: 'button' },
   /** Why a bank-statement line matched, or did not (premium payments). */
   bankMatchReason: { keys: ['premium.bank.reasons.*'], chars: 20, kind: 'text' },
+  /** A version of the TCI brochure (0058) and its one labelled row action. */
+  brochureStatus: { keys: ['brochure.statuses.*'], chars: 14, kind: 'badge' },
+  brochurePublish: { keys: ['brochure.actions.publish'], chars: 12, kind: 'button' },
   /** A bank-statement line: confirm a match, or assign an unmatched one. */
   bankLineAction: { keys: ['premium.bank.actions.confirm', 'premium.bank.actions.assign'], chars: 11, kind: 'button' },
 } as const satisfies Record<string, LabelSet>

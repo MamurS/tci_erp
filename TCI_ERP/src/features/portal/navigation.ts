@@ -28,6 +28,8 @@ export const PORTAL_NAV_ITEMS: readonly PortalNavItem[] = [
   // Phase 5: an overdue account that never gets paid becomes a claim.
   { key: 'claims', path: '/portal/claims' },
   { key: 'submissions', path: '/portal/submissions' },
+  // Prompt 26 (0058): commercial offers published to the policyholder.
+  { key: 'offers', path: '/portal/offers' },
   // Prompt 25 (0057): draft contracts the insurer shared, read-only.
   { key: 'contracts', path: '/portal/contracts' },
   { key: 'account', path: '/portal/account' },

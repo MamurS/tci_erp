@@ -25,6 +25,7 @@ import { ProposedTermsSection } from './ProposedTermsSection'
 import { RequestHistoryTimeline } from './RequestHistoryTimeline'
 import { SalesWindowPanel } from './SalesWindowPanel'
 import { DraftContractSection } from '../wording'
+import { OfferSection } from '../offers/OfferSection'
 import { bindBlocker, canBindAs } from './bind'
 import {
   creditComplete,
@@ -36,7 +37,7 @@ import {
 import type { InsuranceRequestStatus } from './types'
 
 /** The sections `?focus=` may name; each is the `id` of its wrapper. */
-const REQUEST_FOCUS_TARGETS = ['sales-window', 'buyers'] as const
+const REQUEST_FOCUS_TARGETS = ['sales-window', 'buyers', 'offer'] as const
 
 export function RequestDetailPage() {
   const { t } = useTranslation()
@@ -229,6 +230,18 @@ export function RequestDetailPage() {
         <div className="grid items-start gap-5 xl:grid-cols-2">
           <ProposedTermsSection request={request} />
           <RequestHistoryTimeline requestId={request.id} notes={request.notes} />
+        </div>
+        {/* The commercial offer published to the client (0058). */}
+        <div id="offer" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
+          <OfferSection
+            requestId={request.id}
+            requestStatus={request.status}
+            entityId={request.entity_id}
+            termsReady={Boolean(
+              request.product_structure && request.currency_code && request.premium_rate_pct !== null &&
+                request.minimum_premium !== null,
+            )}
+          />
         </div>
         {/* The contract draft's versions table needs the full width (0057). */}
         <DraftContractSection

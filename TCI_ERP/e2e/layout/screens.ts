@@ -27,6 +27,9 @@ const REDIRECT = 'a redirect to another route, which is covered under its own pa
 const CONCURRENT =
   'contract drafts, added in the same round by another workstream: record them (tools/layout-fixtures/record.mjs) and give them a role once they land'
 
+const OFFERS_PENDING =
+  'PENDING (Prompt 26): the demo book holds no published commercial offer to record — record it with the client demo user (tools/layout-fixtures/record.mjs) once one is published, and give it role client. Its table uses declared columns (labelCol offerStatus)'
+
 export const ROUTES: Record<string, RouteEntry> = {
   '/login': { skip: 'sign-in page: no session, no table' },
   '/entities/:id/report': { skip: 'the printable risk report: a document without row actions (its online face is the company Overview tab, covered)' },
@@ -75,9 +78,17 @@ export const ROUTES: Record<string, RouteEntry> = {
   '/data/requests/:id': {
     skip: 'the demo book holds no data request to record (re-record once one exists and give it role info); the page is a request form with its own facts, no register',
   },
+  '/brochure': {
+    skip: 'PENDING (Prompt 26): the brochure editor and media library are new in 0058 and the demo book holds no brochure version or image to record — fixtures cannot be recorded now; record them with the sales demo user (tools/layout-fixtures/record.mjs) once 0058 is applied and give it role sales. Its tables use declared columns (versions: labelCol brochureStatus + actionsCol brochurePublish; media: fixed widths)',
+  },
   '/admin': {
     skip: 'admin only, and an admin session needs a second factor that a headless sign-in cannot pass — no demo admin to record; its tables use the same fixed columns and are held by the static contract',
   },
+  '/requests/offers/:offerId/print': { skip: 'the printable commercial offer: a document without row actions (its versions table lives on the submission page, covered under /requests/:id)' },
+  '/requests/offers/:offerId/edit': { skip: FORM },
+  '/portal/offers': { skip: OFFERS_PENDING },
+  '/portal/offers/:offerId': { skip: 'the client\'s view of one offer: a document with two answer buttons, no table' },
+  '/portal/offers/:offerId/print': { skip: 'the printable commercial offer (portal face): a document without row actions' },
   '/portal/contracts': { skip: CONCURRENT },
   '/policies/contracts/:draftId': { skip: CONCURRENT },
   '/policies/contracts/:draftId/print': { skip: CONCURRENT },

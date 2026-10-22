@@ -69,6 +69,12 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   premium_payment_unmatched: 'auto',
   // Contract drafts (migration 0057): closes when the draft leaves review.
   contract_review: 'auto',
+  // Commercial offers (migration 0058): the viewed notice closes when the
+  // client answers or the offer moves on; the two date kinds are generated
+  // and retired by refresh_agenda (refresh_offer_tasks).
+  offer_viewed: 'auto',
+  offer_expiring: 'auto',
+  offer_expired: 'auto',
 }
 
 /** Mirrors tci.complete_task's guard (as 0054 restates it): it refuses
@@ -139,6 +145,11 @@ export function taskLink(
       return `/policies?view=payments&import=${task.object_id}`
     case 'contract_draft':
       return `/policies/contracts/${task.object_id}`
+    case 'commercial_offer': {
+      // The offer is worked from its submission's «Коммерческое предложение».
+      const requestId = task.params?.request_id
+      return typeof requestId === 'string' ? `/requests/${requestId}?focus=offer` : null
+    }
     default:
       return null
   }
@@ -268,6 +279,7 @@ export const OBJECT_FILTERS = [
   'client_buyer_proposal',
   'bank_statement_import',
   'contract_draft',
+  'commercial_offer',
 ] as const satisfies readonly TaskObjectType[]
 
 export interface AgendaFilters {

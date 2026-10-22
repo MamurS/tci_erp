@@ -19,6 +19,7 @@ import DATA from '../../../supabase/migrations/0054_data_management.sql?raw'
 import AGENDA from '../../../supabase/migrations/0055_agenda_redesign.sql?raw'
 import PAYMENTS from '../../../supabase/migrations/0056_premium_payments.sql?raw'
 import CONTRACTS from '../../../supabase/migrations/0057_contract_drafts.sql?raw'
+import OFFERS from '../../../supabase/migrations/0058_commercial_offers.sql?raw'
 import {
   AGENDA_GROUPS,
   agendaCounts,
@@ -87,6 +88,7 @@ describe('task type enum', () => {
       ...AGENDA.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
       ...PAYMENTS.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
       ...CONTRACTS.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
+      ...OFFERS.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
     ].map((m) => m[1])
     expect([...created, ...appended]).toEqual([...TASK_TYPES])
   })
@@ -121,7 +123,10 @@ describe('task type enum', () => {
     // 0057 adds contract_review.
     const addedContracts = CONTRACTS.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
     expect(addedContracts).toHaveLength(1)
-    expect(TASK_TYPES).toHaveLength(33)
+    // 0058 adds the three offer types.
+    const addedOffers = OFFERS.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
+    expect(addedOffers).toHaveLength(3)
+    expect(TASK_TYPES).toHaveLength(36)
   })
 
   it('lists exactly the values of tci.task_priority', () => {
@@ -163,7 +168,7 @@ describe('completion rules', () => {
 
   it('agrees with the catalogue table in the migration headers', () => {
     // Each header row is "<type>  <target>  AUTO ..." or "... MANUAL - ...".
-    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}\n${PAYMENTS}\n${CONTRACTS}`.split('\n')
+    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}\n${PAYMENTS}\n${CONTRACTS}\n${OFFERS}`.split('\n')
     for (const type of TASK_TYPES) {
       const row = headers.find(
         (line) => line.startsWith(`--   ${type}`) && /\b(AUTO|MANUAL)\b/.test(line),

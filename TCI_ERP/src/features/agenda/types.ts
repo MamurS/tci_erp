@@ -44,6 +44,10 @@ export const TASK_TYPES = [
   'premium_payment_unmatched',
   // Contract drafts (migration 0057)
   'contract_review',
+  // Commercial offers (migration 0058)
+  'offer_viewed',
+  'offer_expiring',
+  'offer_expired',
 ] as const
 
 export type TaskType = (typeof TASK_TYPES)[number]
@@ -72,6 +76,8 @@ export type TaskObjectType =
   | 'bank_statement_import'
   // a contract draft under review (0057)
   | 'contract_draft'
+  // a commercial offer out with the client (0058)
+  | 'commercial_offer'
 
 export interface Task {
   id: string

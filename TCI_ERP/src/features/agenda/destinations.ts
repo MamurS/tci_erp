@@ -110,6 +110,19 @@ const submission =
     ],
   })
 
+/** A commercial offer is worked from its submission (0058). */
+const offer =
+  (action: ActionKey): Builder =>
+  (_row, lead, names) => ({
+    path: `/requests/${str(lead.params?.request_id) ?? ''}?focus=offer`,
+    action,
+    crumbs: [
+      { key: 'nav.requests' },
+      named({ reference: names.reference ?? str(lead.params?.request_number) }, 'agenda.dest.submission'),
+      { key: 'agenda.dest.place.offer' },
+    ],
+  })
+
 const premium: Builder = (row, lead) => {
   const policyId = str(lead.params?.policy_id)
   const ids = row.items.filter((i) => str(i.params?.policy_id) === policyId).map((i) => i.object_id)
@@ -234,6 +247,9 @@ export const DESTINATIONS: Readonly<Record<TaskType, Builder>> = {
       str(lead.params?.draft_number) ? { text: String(lead.params?.draft_number) } : { key: 'agenda.dest.contract' },
     ],
   }),
+  offer_viewed: offer('open'),
+  offer_expiring: offer('review'),
+  offer_expired: offer('review'),
   entity_request_resolved: (row, lead, names) => {
     const entityId = str(lead.params?.entity_id)
     return entityId

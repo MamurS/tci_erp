@@ -134,6 +134,12 @@ export function systemNote(task: Pick<Task, 'task_type' | 'params' | 'source_eve
         key: 'agenda.note.group_exposure_near_limit',
         values: { exposure: p.exposure_uzs, limit: p.limit_uzs, pct: p.utilisation_pct },
       }
+    case 'offer_expiring':
+    case 'offer_expired':
+      return {
+        key: `agenda.note.${task.task_type}`,
+        values: { number: p.offer_number, validUntil: p.valid_until },
+      }
     case 'premium_payment_unmatched':
       return {
         key: 'agenda.note.premium_payment_unmatched',

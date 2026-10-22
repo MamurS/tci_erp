@@ -1,5 +1,6 @@
 import {
   AlarmClock,
+  BookOpen,
   BriefcaseBusiness,
   Building2,
   ClipboardList,
@@ -28,6 +29,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   overdues: AlarmClock,
   claims: FileWarning,
   data: DatabaseZap,
+  brochure: BookOpen,
   admin: Settings,
 }
 

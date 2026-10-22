@@ -52,7 +52,8 @@
         "hint": "Company and statement requests, data freshness, proposed buyers"
       }
     },
-    "data": "Data management"
+    "data": "Data management",
+    "brochure": "TCI brochure"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -2015,7 +2016,8 @@
       "entity_request": "Data request",
       "client_buyer_proposal": "Proposed buyer",
       "contract_draft": "Draft contract",
-      "bank_statement_import": "Bank statement"
+      "bank_statement_import": "Bank statement",
+      "commercial_offer": "Commercial offer"
     },
     "taskTypes": {
       "buyer_needs_entity": "Identify buyer",
@@ -2050,7 +2052,10 @@
       "entity_request_resolved": "Your request is done",
       "rating_new_statements": "New statements — rating review",
       "contract_review": "Contract review",
-      "premium_payment_unmatched": "Payments to match"
+      "premium_payment_unmatched": "Payments to match",
+      "offer_viewed": "Offer viewed by the client",
+      "offer_expiring": "Offer expiring",
+      "offer_expired": "Offer expired"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -2089,7 +2094,10 @@
       "entity_request_resolved_rejected": "Request {{request_number}} for «{{name}}» was declined: {{note}}",
       "rating_new_statements": "Review the rating of {{subject}}: new financial statements since it was calculated",
       "contract_review": "Review the draft contract {{draft_number}} ({{reference}}), v{{version_no}}",
-      "premium_payment_unmatched": "Bank payments need matching to policies"
+      "premium_payment_unmatched": "Bank payments need matching to policies",
+      "offer_viewed": "The client opened commercial offer {{offer_number}} on submission {{request_number}}",
+      "offer_expiring": "Commercial offer {{offer_number}} is valid until {{valid_until}}",
+      "offer_expired": "Commercial offer {{offer_number}} has expired"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -2280,7 +2288,10 @@
       "premium_payment_unmatched_one": "{{count}} bank payment to match",
       "premium_payment_unmatched_few": "{{count}} bank payments to match",
       "premium_payment_unmatched_many": "{{count}} bank payments to match",
-      "premium_payment_unmatched_other": "{{count}} bank payments to match"
+      "premium_payment_unmatched_other": "{{count}} bank payments to match",
+      "offer_viewed": "The client opened the offer",
+      "offer_expiring": "Offer expiring",
+      "offer_expired": "Offer expired"
     },
     "facts": {
       "policies_one": "{{count}} policy",
@@ -2365,7 +2376,9 @@
       "group_limit_missing_many": "{{count}} members carry limits ({{exposure}} UZS in all) and no group limit is set.",
       "instalment_due": "Instalment {{sequence}} of {{amount}} is due on {{date}}.",
       "rating_new_statements_zero": "{{period}} statements were added by {{user}} on {{date}}. The current assessment {{grade}} · {{score}} rests on statements to {{ratedPeriod}} and is now a period behind; no effective limit depends on it yet.",
-      "premium_payment_unmatched": "Statement {{file}}: lines to resolve — {{count}}. Assign each to a policy, or set it aside with a reason."
+      "premium_payment_unmatched": "Statement {{file}}: lines to resolve — {{count}}. Assign each to a policy, or set it aside with a reason.",
+      "offer_expiring": "Offer {{number}} is valid until {{validUntil}}. Contact the client or publish a version with a new date.",
+      "offer_expired": "Offer {{number}} was valid until {{validUntil}} and can no longer be accepted. Publish a version with a new date or withdraw it."
     },
     "dest": {
       "opens": "Opens",
@@ -2388,7 +2401,8 @@
         "buyers": "Buyers",
         "openClaim": "Open a claim",
         "proposals": "Proposed buyers",
-        "payments": "Payments"
+        "payments": "Payments",
+        "offer": "Commercial offer"
       },
       "with": {
         "task": "with this task’s context",
@@ -2649,7 +2663,8 @@
       "premium": "Premium",
       "overdues": "Overdue accounts",
       "claims": "Claims",
-      "contracts": "Contracts"
+      "contracts": "Contracts",
+      "offers": "Offers"
     },
     "policies": {
       "title": "My policies",
@@ -4698,6 +4713,445 @@
       "commentEmpty": "Write something first.",
       "commentTooLong": "A comment is at most 2,000 characters.",
       "agreeCommercialOnly": "Only commercial underwriting may agree a contract or return an agreed one."
+    }
+  },
+  "offers": {
+    "title": "Commercial offer",
+    "validUntil": "valid until {{date}}",
+    "empty": "No commercial offer yet",
+    "emptyHint": "Prepare an offer from the submission's agreed terms: the terms, premium and limits come from the submission; the text blocks can be edited.",
+    "emptyHintStep": "An offer is prepared during the commercial review, the sales confirmation or the client review.",
+    "createBlockedTerms": "Fill in the proposed terms first: structure, currency, rate and minimum premium",
+    "earlier": "Earlier offers",
+    "clientAskedChanges": "The client asks for changes",
+    "statuses": {
+      "draft": "Draft",
+      "published": "Published",
+      "viewed": "Viewed",
+      "accepted": "Accepted",
+      "changes_requested": "Changes requested",
+      "declined": "Declined",
+      "withdrawn": "Withdrawn",
+      "expired": "Expired"
+    },
+    "versionStates": {
+      "published": "Published",
+      "superseded": "Superseded",
+      "unpublished": "Not published"
+    },
+    "publishBlockers": {
+      "closed": "The offer is closed and cannot be published",
+      "nothing_new": "The latest version is already published",
+      "request_step": "An offer is published at the sales confirmation step",
+      "expired_version": "The latest version has expired — save a version with a new date"
+    },
+    "languages": {
+      "ru": "Русский",
+      "en": "English",
+      "uz": "Oʻzbekcha"
+    },
+    "blocks": {
+      "intro": "Cover letter",
+      "why_tci": "Why trade credit insurance",
+      "conditions": "Conditions",
+      "next_steps": "Next steps"
+    },
+    "actions": {
+      "create": "Prepare offer",
+      "view": "View",
+      "edit": "Edit",
+      "publish": "Publish",
+      "republish": "Publish new version",
+      "publishHint": "The offer appears in the client's portal and the submission moves to the client review",
+      "downloadPdf": "Download PDF",
+      "withdraw": "Withdraw offer",
+      "more": "More offer actions"
+    },
+    "columns": {
+      "version": "Version",
+      "state": "Status",
+      "saved": "Saved",
+      "validUntil": "Valid until",
+      "author": "Author",
+      "note": "Note"
+    },
+    "fields": {
+      "language": "Offer language",
+      "validUntil": "Valid until",
+      "includeBrochure": "Append the trade credit insurance brochure",
+      "note": "Version note",
+      "reason": "Reason"
+    },
+    "create": {
+      "title": "Prepare a commercial offer",
+      "hint": "The terms, premium and buyer limits come from the submission. The text blocks start from standard wording you can edit before publishing.",
+      "languageHint": "Independent of the interface language",
+      "brochureHint": "The currently published brochure version is appended",
+      "submit": "Prepare"
+    },
+    "edit": {
+      "title": "Offer {{number}}",
+      "back": "Back to submission {{number}}",
+      "basedOn": "based on version {{version}} · {{language}}",
+      "save": "Save version",
+      "notEditable": "The offer is closed or the submission has left the offer steps — changes will not be saved",
+      "texts": "Text blocks",
+      "textsHint": "An empty block is not printed",
+      "settings": "Settings",
+      "noteHint": "Optional: what changed",
+      "fromSubmission": "From the submission",
+      "fromSubmissionHint": "The terms, premium and limits are taken from the submission again on every save.",
+      "buyers": "Buyers in the package",
+      "approvedBuyers": "With an approved limit",
+      "composedAt": "Data as of"
+    },
+    "withdraw": {
+      "title": "Withdraw offer {{number}}",
+      "hintPublished": "The client can no longer accept this offer; the submission returns to the sales confirmation with your reason.",
+      "hintDraft": "The draft is closed; a new offer can be prepared.",
+      "submit": "Withdraw offer"
+    },
+    "prospectHint": {
+      "title": "Nobody from this organisation has portal access yet",
+      "body": "A published offer waits in the portal. Until the user provisioning service is hosted, portal users are created with docs/create-user.sql; meanwhile, download the PDF and send it to the client."
+    },
+    "entity": {
+      "title": "Commercial offers",
+      "empty": "No offers",
+      "emptyHint": "An offer is prepared on the insurance submission page.",
+      "columns": {
+        "number": "Number",
+        "submission": "Submission",
+        "status": "Status",
+        "validUntil": "Valid until",
+        "updated": "Updated",
+        "language": "Language"
+      }
+    },
+    "errors": {
+      "validUntilPast": "The validity date cannot be in the past",
+      "withdrawReason": "Give a reason for the withdrawal",
+      "requestStatus": "An offer is not prepared or published at this step of the submission",
+      "termsMissing": "The submission's proposed terms are incomplete (structure, currency, rate, minimum premium)",
+      "exists": "This submission already has a live offer — edit it or withdraw it",
+      "language": "This language is not available for offers",
+      "textsInvalid": "The offer's text blocks are damaged — reload the page",
+      "closed": "The offer is closed and cannot be changed",
+      "versionConflict": "A newer version was saved while you were editing — open it and make your changes again",
+      "nothingNew": "The latest version is already published",
+      "notOpen": "The offer is no longer awaiting an answer",
+      "expired": "The offer has expired and can no longer be accepted; request changes to receive an updated one",
+      "commentTooLong": "The comment is too long (2,000 characters at most)",
+      "sayWhatChanges": "Say what should change"
+    },
+    "print": {
+      "back": "Back to submission",
+      "backPortal": "Back to the offer",
+      "print": "Print / PDF",
+      "missing": "Offer not found",
+      "missingHint": "It does not exist or you have no access to it."
+    },
+    "portal": {
+      "title": "Offers",
+      "subtitle": "The insurer's commercial offers on your submissions",
+      "empty": "No offers yet",
+      "emptyHint": "When the insurer prepares an offer on your submission, it will appear here.",
+      "columns": {
+        "number": "Number",
+        "submission": "Submission",
+        "published": "Published",
+        "validUntil": "Valid until",
+        "status": "Status"
+      },
+      "open": "Open",
+      "back": "All offers",
+      "accept": "Accept offer",
+      "acceptTitle": "Accept offer {{number}}?",
+      "acceptBody": "Accepting the offer is your agreement to the submission's terms. The insurer will then issue the policy.",
+      "acceptConfirm": "Accept",
+      "acceptedTitle": "Offer accepted — the insurer will issue the policy",
+      "requestChanges": "Request changes",
+      "sendChanges": "Send",
+      "commentLabel": "What should change",
+      "commentHint": "Your sales manager will receive your comment",
+      "commentRequired": "Say what should change",
+      "changesTitle": "You asked for changes — your manager will prepare an updated offer",
+      "expiredTitle": "This offer has expired",
+      "expiredHint": "It can no longer be accepted. Request changes and your manager will prepare an offer with a new date.",
+      "withdrawnTitle": "The insurer has withdrawn this offer",
+      "noContent": "Content not available",
+      "noContentHint": "The insurer has withdrawn the offer.",
+      "missingHint": "The offer does not exist or is not available to you."
+    },
+    "doc": {
+      "kicker": "Trade credit insurance",
+      "title": "Commercial offer",
+      "number": "Number",
+      "date": "Date",
+      "validUntil": "Valid until",
+      "request": "Submission",
+      "sections": {
+        "whyTci": "Why trade credit insurance",
+        "cover": "Proposed cover",
+        "premium": "Premium",
+        "buyers": "Buyer limits",
+        "conditions": "Conditions",
+        "nextSteps": "Next steps",
+        "contacts": "Contacts and particulars"
+      },
+      "premium": {
+        "estimated": "Estimated premium on the expected turnover",
+        "due": "Premium payable for the year (not below the minimum)",
+        "instalments": "Minimum premium payable in",
+        "instalmentsValue_one": "{{count}} instalment of {{amount}}",
+        "instalmentsValue_few": "{{count}} instalments of {{amount}}",
+        "instalmentsValue_many": "{{count}} instalments of {{amount}}",
+        "instalmentsValue_other": "{{count}} instalments of {{amount}}",
+        "note": "The minimum premium is payable in any case; if the premium earned on the actual turnover is higher, the difference is charged at the end of the period. There is no refund below the minimum premium."
+      },
+      "buyers": {
+        "buyer": "Buyer",
+        "country": "Country",
+        "requested": "Requested",
+        "offered": "Offered",
+        "terms": "Payment terms",
+        "basis": "Basis",
+        "notOffered": "No limit granted",
+        "none": "No buyers are included in the submission.",
+        "bases": {
+          "approved": "Approved",
+          "indicative": "Indicative",
+          "declined": "Declined"
+        },
+        "footnote": "“Approved” is a limit the insurer has decided. “Indicative” is the amount requested, before the limit decision; the final amount may differ."
+      },
+      "contact": {
+        "title": "Your manager",
+        "portal": "You can accept the offer or request changes in the client portal."
+      },
+      "requisites": {
+        "title": "Insurer's particulars",
+        "name": "Name",
+        "registration": "Registration number",
+        "taxId": "Tax ID",
+        "licence": "Licence",
+        "licenceValue": "No. {{number}} of {{date}}",
+        "address": "Address",
+        "phone": "Phone",
+        "email": "Email",
+        "website": "Website",
+        "bank": "Bank details"
+      }
+    },
+    "defaults": {
+      "intro": "Thank you for your interest in trade credit insurance. Please find our commercial offer on your submission: the proposed cover, the premium and the limits on your buyers.\n\nThe terms are based on the submission and the limit decisions as of the date of this offer.",
+      "why_tci": "Receivables are part of your working capital, and a large customer that does not pay can strain your liquidity.\n\n- Cover when a buyer does not pay because of insolvency or protracted default — within the insured percentage and the limit.\n- Buyer limits: the insurer assesses each buyer's creditworthiness, and the limit shows how much you can ship with cover.\n- Monitoring: if a buyer's situation worsens, the insurer may review the limit.\n- Insured receivables can make the conversation with your bank about financing easier.",
+      "conditions": "This offer is valid until the date on its cover page. The cover is governed by the insurance contract; this offer is not a contract.\n\nLimits marked as indicative take effect only once the insurer has decided them.",
+      "next_steps": "- Accept the offer in the client portal, or tell your manager if the terms should change.\n- Once accepted, the insurer prepares the insurance contract and the policy.\n- The organisation's registration documents and information on the buyers may be needed, if not provided yet."
+    }
+  },
+  "brochure": {
+    "sectionSubtitle": "The trade credit insurance brochure attached to commercial offers, and the library of images it uses.",
+    "views": {
+      "brochure": "Brochure",
+      "media": "Media library"
+    },
+    "langs": {
+      "ru": "Русский",
+      "en": "English",
+      "uz": "O‘zbekcha"
+    },
+    "sections": {
+      "what": "What it is",
+      "how": "How it works",
+      "covered": "Cover",
+      "benefits": "Benefits",
+      "limits": "Limits",
+      "process": "Process",
+      "faq": "FAQ",
+      "contacts": "Contacts"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "published": "Published",
+      "retired": "Retired"
+    },
+    "doc": {
+      "eyebrow": "Product overview",
+      "title": "Trade credit insurance"
+    },
+    "diagram": {
+      "aria": "Diagram: the policyholder delivers to the buyer on credit terms, pays the insurer a premium and receives cover and credit limits; the insurer monitors the buyer.",
+      "insurer": "Insurer",
+      "insurerSub": "the credit insurer",
+      "policyholder": "Policyholder",
+      "policyholderSub": "your company, the seller",
+      "buyer": "Buyer",
+      "buyerSub": "your customer, the debtor",
+      "sells": "Delivery on credit terms",
+      "pays": "Payment when due — the risk of non-payment is insured",
+      "premium": "Premium",
+      "cover": "Cover and credit limits",
+      "monitoring": "Monitoring and credit limits"
+    },
+    "currentIs": "The current brochure is version {{version}}, published {{date}}. New commercial offers embed it.",
+    "noneCurrent": "No version has been published yet: commercial offers go out without a brochure.",
+    "defaultBanner": {
+      "title": "Default draft — check every statement before publishing",
+      "text": "The editor holds a standard text on trade credit insurance in three languages. It is never published by itself: save it as a version, check every statement against your terms of cover, and only then publish it."
+    },
+    "versions": {
+      "title": "Versions",
+      "empty": "No versions yet",
+      "emptyHint": "Save the draft in the editor below — it becomes the first version.",
+      "number": "No.",
+      "status": "Status",
+      "created": "Saved",
+      "published": "Published",
+      "note": "Note"
+    },
+    "actions": {
+      "view": "View",
+      "viewVersion": "View version {{version}}",
+      "editAsNew": "Edit as a new version",
+      "editAsNewVersion": "Edit version {{version}} as a new one",
+      "publish": "Publish",
+      "publishHint": "Make this version the current brochure",
+      "publishSaveFirst": "Save your changes as a version first",
+      "save": "Save version"
+    },
+    "editor": {
+      "heading": "Editor",
+      "basedOn": "Based on version {{version}} ({{status}})",
+      "basedOnDefault": "Default draft, not saved yet",
+      "unsaved": "unsaved changes",
+      "saved": "saved",
+      "note": "Version note",
+      "notePlaceholder": "What changed (optional)",
+      "saveHint": "Every save is a new draft version; published versions never change.",
+      "newerDraft": "There is a newer draft — version {{version}}. Open it so as not to lose its edits.",
+      "language": "Text language",
+      "missingIn": "Missing: {{langs}}",
+      "complete": "Filled in all languages",
+      "title": "Title",
+      "body": "Text",
+      "conventions": "A blank line starts a paragraph; a line “- …” is a bullet; a line “? …” is a question, and the paragraph after it is the answer.",
+      "diagramNote": "The “How it works” diagram is drawn under the text automatically.",
+      "image": "Image",
+      "pickImage": "Choose an image",
+      "removeImage": "Remove",
+      "noImage": "No image",
+      "imageRetired": "This image has been retired from the library — choose another, or the version will not save.",
+      "imageHint": "From the media library only; it is shown beside the section’s text.",
+      "noImages": "The media library has no images",
+      "noImagesHint": "Upload an image with its alt text, source and licence on the Media library tab.",
+      "goToLibrary": "Open the media library"
+    },
+    "preview": {
+      "title": "Preview",
+      "language": "Preview language",
+      "versionTitle": "Version {{version}}"
+    },
+    "publish": {
+      "title": "Publish version {{version}}?",
+      "message": "It becomes the current brochure: new commercial offers embed it, and clients see it with the offer. The previously published version is retired; offers already sent keep theirs.",
+      "missing": "Fields still empty (a title or a text in one of the languages): {{n}}."
+    },
+    "replace": {
+      "title": "Open another version?",
+      "message": "Unsaved changes in the editor will be lost. Open version {{version}} for editing?",
+      "confirm": "Open version"
+    },
+    "errors": {
+      "contentInvalid": "The brochure content is malformed or too large.",
+      "imageUnknown": "A section names an image that is not in the media library or has been retired. Choose another image.",
+      "notDraft": "Only a draft can be published: this version is already published or retired."
+    }
+  },
+  "media": {
+    "hint": "Images for the brochure. Each is stored with us, with alt text in three languages, a source and a licence; nothing is shown by linking to another site.",
+    "filter": {
+      "label": "Show",
+      "active": "Active",
+      "retired": "Retired"
+    },
+    "upload": {
+      "open": "Upload an image",
+      "title": "New image",
+      "submit": "Upload",
+      "chooseFile": "Choose a file",
+      "chooseAnother": "Choose another file",
+      "noFile": "No file chosen",
+      "fileHint": "PNG, JPEG or WebP, up to 5 MB."
+    },
+    "edit": {
+      "title": "Image details",
+      "open": "Edit details",
+      "fileFixed": "The file itself never changes: upload a new image instead."
+    },
+    "retire": {
+      "open": "Retire",
+      "title": "Retire this image?",
+      "message": "It can no longer be chosen for new brochure versions. Versions that already use it keep showing it. The image is not deleted.",
+      "confirm": "Retire image"
+    },
+    "empty": {
+      "title": "No images in the library yet",
+      "hint": "Upload the first image: you will need alt text in three languages, a source and a licence.",
+      "retiredTitle": "No retired images",
+      "retiredHint": "Images you retire appear here."
+    },
+    "fields": {
+      "image": "Image",
+      "alt": "Alt text",
+      "altIn": "Alt text — {{lang}}",
+      "altHint": "Say briefly what the image shows: screen readers read it, and it is shown if the image does not load.",
+      "sourceAndLicence": "Source and licence",
+      "source": "Source",
+      "sourceHint": "Where it comes from: your own shoot, a photo library…",
+      "sourceUrl": "Source link",
+      "sourceUrlHint": "The image’s page on the source’s site (optional).",
+      "licence": "Licence",
+      "licenceText": "Licence name",
+      "licenceTextPlaceholder": "E.g. the terms agreed with the photographer",
+      "author": "Author",
+      "authorHint": "Photographer or rights holder (optional).",
+      "authorRequiredHint": "Required for CC BY: the author must be credited.",
+      "uploaded": "Uploaded",
+      "retired": "Retired on",
+      "file": "File"
+    },
+    "licences": {
+      "choose": "Choose a licence",
+      "own": "Owner’s own photo",
+      "unsplash": "Unsplash License",
+      "pexels": "Pexels License",
+      "cc0": "CC0 (public domain)",
+      "ccBy": "CC BY 4.0 (with attribution)",
+      "other": "Other"
+    },
+    "units": {
+      "mb": "{{value}} MB",
+      "kb": "{{value}} KB"
+    },
+    "dimensions": "{{width}} × {{height}} px",
+    "form": {
+      "missing": "Still needed: {{fields}}",
+      "ready": "All set"
+    },
+    "errors": {
+      "fileType": "Only PNG, JPEG and WebP images are accepted.",
+      "fileEmpty": "The file is empty.",
+      "fileTooLarge": "The file is larger than 5 MB.",
+      "unreadable": "The image could not be read: the file is damaged or not an image.",
+      "altRequired": "Alt text is required in all three languages.",
+      "sourceRequired": "Name the image’s source.",
+      "licenceRequired": "Name the licence: an image without one is not accepted into the library.",
+      "authorRequired": "CC BY requires the author’s name.",
+      "sourceUrlInvalid": "The link must start with http:// or https://.",
+      "notUploaded": "The file did not reach storage — upload it again.",
+      "checkFailed": "The image details did not pass the check — review the alt text, source and licence.",
+      "uploadConflict": "A file with that name already exists — try the upload again."
     }
   }
 }

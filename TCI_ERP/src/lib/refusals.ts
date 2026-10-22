@@ -47,6 +47,21 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'profile_name_required', key: 'premium.bank.errors.profileNameRequired' },
   { fragment: 'profile_mapping_invalid', key: 'premium.bank.errors.profileMappingInvalid' },
   { fragment: 'ignore_reason_required', key: 'premium.bank.errors.ignoreReasonRequired' },
+  // commercial offers (0058)
+  { fragment: 'offer_request_status', key: 'offers.errors.requestStatus' },
+  { fragment: 'offer_terms_missing', key: 'offers.errors.termsMissing' },
+  { fragment: 'offer_exists', key: 'offers.errors.exists' },
+  { fragment: 'offer_language', key: 'offers.errors.language' },
+  { fragment: 'offer_valid_until_past', key: 'offers.errors.validUntilPast' },
+  { fragment: 'offer_texts_invalid', key: 'offers.errors.textsInvalid' },
+  { fragment: 'offer_closed', key: 'offers.errors.closed' },
+  { fragment: 'offer_version_conflict', key: 'offers.errors.versionConflict' },
+  { fragment: 'offer_nothing_new', key: 'offers.errors.nothingNew' },
+  { fragment: 'offer_withdraw_reason', key: 'offers.errors.withdrawReason' },
+  { fragment: 'offer_not_open', key: 'offers.errors.notOpen' },
+  { fragment: 'offer_expired', key: 'offers.errors.expired' },
+  { fragment: 'offer_comment_too_long', key: 'offers.errors.commentTooLong' },
+  { fragment: 'say what should change', key: 'offers.errors.sayWhatChanges' },
   // overdue notifications (0028)
   { fragment: 'an overdue notification needs a positive amount', key: 'overdues.errors.amountPositive' },
   { fragment: 'overdue accounts can only be notified under an active policy', key: 'overdues.errors.policyNotActive' },
@@ -67,6 +82,11 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'comment_too_long', key: 'agenda.errors.commentTooLong' },
   { fragment: 'closes itself when its object moves on', key: 'agenda.completeFailed' },
   { fragment: 'not found or not yours', key: 'agenda.errors.notYours' },
+  // the TCI brochure and its media library (0058)
+  { fragment: 'brochure_content_invalid', key: 'brochure.errors.contentInvalid' },
+  { fragment: 'brochure_image_unknown', key: 'brochure.errors.imageUnknown' },
+  { fragment: 'brochure_not_draft', key: 'brochure.errors.notDraft' },
+  { fragment: 'media_not_uploaded', key: 'media.errors.notUploaded' },
 ]
 
 /** The i18n key for a refused operation. Never returns raw server text. */

@@ -52,7 +52,8 @@
         "hint": "Tashkilot va hisobot so‘rovlari, ma’lumotlar dolzarbligi, taklif qilingan bayerlar"
       }
     },
-    "data": "Ma’lumotlarni boshqarish"
+    "data": "Ma’lumotlarni boshqarish",
+    "brochure": "TCI broshyurasi"
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -2015,7 +2016,8 @@
       "entity_request": "Ma’lumot so‘rovi",
       "client_buyer_proposal": "Taklif qilingan bayer",
       "contract_draft": "Shartnoma loyihasi",
-      "bank_statement_import": "Bank ko‘chirmasi"
+      "bank_statement_import": "Bank ko‘chirmasi",
+      "commercial_offer": "Tijorat taklifi"
     },
     "taskTypes": {
       "buyer_needs_entity": "Bayerni aniqlash",
@@ -2050,7 +2052,10 @@
       "entity_request_resolved": "So‘rovingiz bajarildi",
       "rating_new_statements": "Yangi hisobot — reytingni qayta ko‘rish",
       "contract_review": "Shartnomani kelishish",
-      "premium_payment_unmatched": "To‘lovlarni taqsimlash"
+      "premium_payment_unmatched": "To‘lovlarni taqsimlash",
+      "offer_viewed": "Taklif mijoz tomonidan ko‘rildi",
+      "offer_expiring": "Taklif muddati tugamoqda",
+      "offer_expired": "Taklif muddati o‘tdi"
     },
     "tasks": {
       "buyer_needs_entity": "{{subject}} arizasidagi «{{name}}» ortidagi tashkilotni aniqlang",
@@ -2089,7 +2094,10 @@
       "entity_request_resolved_rejected": "«{{name}}» bo‘yicha {{request_number}} so‘rovi rad etildi: {{note}}",
       "rating_new_statements": "{{subject}} reytingini qayta ko‘ring: hisoblangandan keyin yangi moliyaviy hisobot kelgan",
       "contract_review": "{{draft_number}} shartnoma loyihasini kelishish ({{reference}}), v{{version_no}}",
-      "premium_payment_unmatched": "Ko‘chirmadagi to‘lovlarni polislarga taqsimlash kerak"
+      "premium_payment_unmatched": "Ko‘chirmadagi to‘lovlarni polislarga taqsimlash kerak",
+      "offer_viewed": "Mijoz {{request_number}} arizasi bo‘yicha {{offer_number}} tijorat taklifini ochdi",
+      "offer_expiring": "{{offer_number}} tijorat taklifi {{valid_until}} gacha amal qiladi",
+      "offer_expired": "{{offer_number}} tijorat taklifining muddati o‘tdi"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
@@ -2280,7 +2288,10 @@
       "premium_payment_unmatched_one": "Ko‘chirmadagi {{count}} ta to‘lovni taqsimlash kerak",
       "premium_payment_unmatched_few": "Ko‘chirmadagi {{count}} ta to‘lovni taqsimlash kerak",
       "premium_payment_unmatched_many": "Ko‘chirmadagi {{count}} ta to‘lovni taqsimlash kerak",
-      "premium_payment_unmatched_other": "Ko‘chirmadagi {{count}} ta to‘lovni taqsimlash kerak"
+      "premium_payment_unmatched_other": "Ko‘chirmadagi {{count}} ta to‘lovni taqsimlash kerak",
+      "offer_viewed": "Mijoz taklifni ochdi",
+      "offer_expiring": "Taklif muddati tugamoqda",
+      "offer_expired": "Taklif muddati o‘tdi"
     },
     "facts": {
       "policies_one": "{{count}} ta polis",
@@ -2365,7 +2376,9 @@
       "group_limit_missing_many": "{{count}} ta ishtirokchida limit bor (jami {{exposure}} UZS), guruh limiti belgilanmagan.",
       "instalment_due": "{{amount}} miqdoridagi {{sequence}}-to‘lov muddati {{date}}.",
       "rating_new_statements_zero": "{{period}} uchun hisobot {{date}} da qo‘shildi ({{user}}). Joriy baho {{grade}} · {{score}} {{ratedPeriod}} gacha bo‘lgan hisobotga asoslangan va bir davr orqada qoldi; unga hozircha amaldagi limit tayanmaydi.",
-      "premium_payment_unmatched": "{{file}} ko‘chirmasi: ko‘rib chiqiladigan qatorlar — {{count}}. Har birini polisga biriktiring yoki sababini ko‘rsatib chetga qo‘ying."
+      "premium_payment_unmatched": "{{file}} ko‘chirmasi: ko‘rib chiqiladigan qatorlar — {{count}}. Har birini polisga biriktiring yoki sababini ko‘rsatib chetga qo‘ying.",
+      "offer_expiring": "{{number}} taklifi {{validUntil}} gacha amal qiladi. Mijoz bilan bog‘laning yoki yangi muddatli versiyani e’lon qiling.",
+      "offer_expired": "{{number}} taklifi {{validUntil}} gacha amal qilgan va endi qabul qilinmaydi. Yangi muddatli versiyani e’lon qiling yoki uni qaytarib oling."
     },
     "dest": {
       "opens": "Ochiladi",
@@ -2388,7 +2401,8 @@
         "buyers": "Bayerlar",
         "openClaim": "Ish ochish",
         "proposals": "Taklif qilingan bayerlar",
-        "payments": "To‘lovlar"
+        "payments": "To‘lovlar",
+        "offer": "Tijorat taklifi"
       },
       "with": {
         "task": "shu vazifa konteksti bilan",
@@ -2649,7 +2663,8 @@
       "premium": "Sug‘urta mukofoti",
       "overdues": "Muddati o‘tgan qarzlar",
       "claims": "Da’volar",
-      "contracts": "Shartnomalar"
+      "contracts": "Shartnomalar",
+      "offers": "Takliflar"
     },
     "policies": {
       "title": "Mening polislarim",
@@ -4698,6 +4713,445 @@
       "commentEmpty": "Avval izoh yozing.",
       "commentTooLong": "Izoh 2 000 belgidan oshmasligi kerak.",
       "agreeCommercialOnly": "Shartnomani kelishish yoki kelishilganini qaytarish faqat tijorat anderrayteriga ruxsat etilgan."
+    }
+  },
+  "offers": {
+    "title": "Tijorat taklifi",
+    "validUntil": "{{date}} gacha amal qiladi",
+    "empty": "Tijorat taklifi hali yo‘q",
+    "emptyHint": "Arizaning kelishilgan shartlaridan taklif tayyorlang: shartlar, mukofot va limitlar arizadan olinadi, matn bloklarini tahrirlash mumkin.",
+    "emptyHintStep": "Taklif tijorat ko‘rib chiqish, sotuv tasdig‘i yoki mijoz ko‘rib chiqishi bosqichida tayyorlanadi.",
+    "createBlockedTerms": "Avval taklif etilayotgan shartlarni to‘ldiring: tuzilma, valyuta, stavka va minimal mukofot",
+    "earlier": "Oldingi takliflar",
+    "clientAskedChanges": "Mijoz shartlarni o‘zgartirishni so‘ramoqda",
+    "statuses": {
+      "draft": "Qoralama",
+      "published": "E’lon qilingan",
+      "viewed": "Ko‘rilgan",
+      "accepted": "Qabul qilingan",
+      "changes_requested": "O‘zgartirish so‘ralgan",
+      "declined": "Rad etilgan",
+      "withdrawn": "Qaytarib olingan",
+      "expired": "Muddati o‘tgan"
+    },
+    "versionStates": {
+      "published": "E’lon qilingan",
+      "superseded": "Almashtirilgan",
+      "unpublished": "E’lon qilinmagan"
+    },
+    "publishBlockers": {
+      "closed": "Taklif yopilgan — e’lon qilib bo‘lmaydi",
+      "nothing_new": "Oxirgi versiya allaqachon e’lon qilingan",
+      "request_step": "Taklif sotuv tasdig‘i bosqichida e’lon qilinadi",
+      "expired_version": "Oxirgi versiyaning muddati o‘tgan — yangi sana bilan versiyani saqlang"
+    },
+    "languages": {
+      "ru": "Русский",
+      "en": "English",
+      "uz": "Oʻzbekcha"
+    },
+    "blocks": {
+      "intro": "Ilova xati",
+      "why_tci": "Nega savdo kreditlarini sug‘urtalash",
+      "conditions": "Shartlar",
+      "next_steps": "Keyingi qadamlar"
+    },
+    "actions": {
+      "create": "Taklif tayyorlash",
+      "view": "Ko‘rish",
+      "edit": "Tahrirlash",
+      "publish": "E’lon qilish",
+      "republish": "Yangi versiyani e’lon qilish",
+      "publishHint": "Taklif mijoz portalida paydo bo‘ladi, ariza mijoz ko‘rib chiqishiga o‘tadi",
+      "downloadPdf": "PDF yuklab olish",
+      "withdraw": "Taklifni qaytarib olish",
+      "more": "Taklif bo‘yicha boshqa amallar"
+    },
+    "columns": {
+      "version": "Versiya",
+      "state": "Holat",
+      "saved": "Saqlangan",
+      "validUntil": "Amal qilish muddati",
+      "author": "Muallif",
+      "note": "Izoh"
+    },
+    "fields": {
+      "language": "Taklif tili",
+      "validUntil": "Amal qilish muddati",
+      "includeBrochure": "Savdo kreditlarini sug‘urtalash haqidagi broshyurani ilova qilish",
+      "note": "Versiyaga izoh",
+      "reason": "Sabab"
+    },
+    "create": {
+      "title": "Tijorat taklifini tayyorlash",
+      "hint": "Shartlar, mukofot va bayerlar bo‘yicha limitlar arizadan olinadi. Matn bloklari standart matndan boshlanadi — ularni e’lon qilishdan oldin tahrirlash mumkin.",
+      "languageHint": "Interfeys tiliga bog‘liq emas",
+      "brochureHint": "Broshyuraning joriy e’lon qilingan versiyasi ilova qilinadi",
+      "submit": "Tayyorlash"
+    },
+    "edit": {
+      "title": "Taklif {{number}}",
+      "back": "{{number}} arizasiga qaytish",
+      "basedOn": "{{version}}-versiya asosida · {{language}}",
+      "save": "Versiyani saqlash",
+      "notEditable": "Taklif yopilgan yoki ariza taklif bosqichidan chiqqan — o‘zgarishlar saqlanmaydi",
+      "texts": "Matn bloklari",
+      "textsHint": "Bo‘sh blok chop etilmaydi",
+      "settings": "Parametrlar",
+      "noteHint": "Ixtiyoriy: nima o‘zgardi",
+      "fromSubmission": "Arizadan",
+      "fromSubmissionHint": "Shartlar, mukofot va limitlar har saqlashda arizadan qayta olinadi.",
+      "buyers": "Paketdagi bayerlar",
+      "approvedBuyers": "Tasdiqlangan limit bilan",
+      "composedAt": "Ma’lumotlar sanasi"
+    },
+    "withdraw": {
+      "title": "{{number}} taklifini qaytarib olish",
+      "hintPublished": "Mijoz bu taklifni endi qabul qila olmaydi; ariza ko‘rsatilgan sabab bilan sotuv tasdig‘iga qaytadi.",
+      "hintDraft": "Qoralama yopiladi; yangi taklif tayyorlash mumkin bo‘ladi.",
+      "submit": "Taklifni qaytarib olish"
+    },
+    "prospectHint": {
+      "title": "Tashkilotda hali portal foydalanuvchisi yo‘q",
+      "body": "E’lon qilingan taklif portalda kutib turadi. Foydalanuvchilarni tayyorlash xizmati joylashtirilmaguncha portal foydalanuvchisi docs/create-user.sql orqali yaratiladi; shu vaqtgacha PDF yuklab olib, mijozga yuborishingiz mumkin."
+    },
+    "entity": {
+      "title": "Tijorat takliflari",
+      "empty": "Takliflar yo‘q",
+      "emptyHint": "Taklif sug‘urta arizasi sahifasida tayyorlanadi.",
+      "columns": {
+        "number": "Raqam",
+        "submission": "Ariza",
+        "status": "Holat",
+        "validUntil": "Amal qilish muddati",
+        "updated": "O‘zgartirilgan",
+        "language": "Til"
+      }
+    },
+    "errors": {
+      "validUntilPast": "Amal qilish sanasi o‘tgan kun bo‘lishi mumkin emas",
+      "withdrawReason": "Qaytarib olish sababini ko‘rsating",
+      "requestStatus": "Arizaning bu bosqichida taklif tayyorlanmaydi va e’lon qilinmaydi",
+      "termsMissing": "Arizaning taklif etilayotgan shartlari to‘ldirilmagan (tuzilma, valyuta, stavka, minimal mukofot)",
+      "exists": "Arizada amaldagi taklif bor — uni tahrirlang yoki qaytarib oling",
+      "language": "Bu til takliflar uchun mavjud emas",
+      "textsInvalid": "Taklifning matn bloklari buzilgan — sahifani yangilang",
+      "closed": "Taklif yopilgan va uni o‘zgartirib bo‘lmaydi",
+      "versionConflict": "Siz tahrirlayotganingizda yangiroq versiya saqlandi — uni oching va o‘zgarishlarni qayta kiriting",
+      "nothingNew": "Oxirgi versiya allaqachon e’lon qilingan",
+      "notOpen": "Taklif endi javob kutmayapti",
+      "expired": "Taklifning muddati o‘tgan — uni qabul qilib bo‘lmaydi; yangilangan taklif olish uchun o‘zgartirish so‘rang",
+      "commentTooLong": "Izoh juda uzun (ko‘pi bilan 2000 belgi)",
+      "sayWhatChanges": "Nima o‘zgarishi kerakligini yozing"
+    },
+    "print": {
+      "back": "Arizaga qaytish",
+      "backPortal": "Taklifga qaytish",
+      "print": "Chop etish / PDF",
+      "missing": "Taklif topilmadi",
+      "missingHint": "U mavjud emas yoki sizda unga kirish huquqi yo‘q."
+    },
+    "portal": {
+      "title": "Takliflar",
+      "subtitle": "Sug‘urtalovchining arizalaringiz bo‘yicha tijorat takliflari",
+      "empty": "Hozircha takliflar yo‘q",
+      "emptyHint": "Sug‘urtalovchi arizangiz bo‘yicha taklif tayyorlasa, u shu yerda paydo bo‘ladi.",
+      "columns": {
+        "number": "Raqam",
+        "submission": "Ariza",
+        "published": "E’lon qilingan",
+        "validUntil": "Amal qilish muddati",
+        "status": "Holat"
+      },
+      "open": "Ochish",
+      "back": "Barcha takliflar",
+      "accept": "Taklifni qabul qilish",
+      "acceptTitle": "{{number}} taklifini qabul qilasizmi?",
+      "acceptBody": "Taklifni qabul qilish — ariza shartlariga roziligingiz. So‘ngra sug‘urtalovchi polisni rasmiylashtiradi.",
+      "acceptConfirm": "Qabul qilish",
+      "acceptedTitle": "Taklif qabul qilindi — sug‘urtalovchi polisni rasmiylashtiradi",
+      "requestChanges": "O‘zgartirish so‘rash",
+      "sendChanges": "Yuborish",
+      "commentLabel": "Nima o‘zgarishi kerak",
+      "commentHint": "Izohingizni sotuv menejeri oladi",
+      "commentRequired": "Nima o‘zgarishi kerakligini yozing",
+      "changesTitle": "Siz o‘zgartirish so‘radingiz — menejer yangilangan taklif tayyorlaydi",
+      "expiredTitle": "Taklifning muddati o‘tgan",
+      "expiredHint": "Uni endi qabul qilib bo‘lmaydi. O‘zgartirish so‘rang — menejer yangi muddatli taklif tayyorlaydi.",
+      "withdrawnTitle": "Sug‘urtalovchi bu taklifni qaytarib oldi",
+      "noContent": "Mazmun mavjud emas",
+      "noContentHint": "Taklif sug‘urtalovchi tomonidan qaytarib olingan.",
+      "missingHint": "Taklif mavjud emas yoki sizga ochiq emas."
+    },
+    "doc": {
+      "kicker": "Savdo kreditlarini sug‘urtalash",
+      "title": "Tijorat taklifi",
+      "number": "Raqam",
+      "date": "Sana",
+      "validUntil": "Amal qilish muddati",
+      "request": "Ariza",
+      "sections": {
+        "whyTci": "Nega savdo kreditlarini sug‘urtalash",
+        "cover": "Taklif etilayotgan qoplama",
+        "premium": "Mukofot",
+        "buyers": "Bayerlar bo‘yicha limitlar",
+        "conditions": "Shartlar",
+        "nextSteps": "Keyingi qadamlar",
+        "contacts": "Aloqa va rekvizitlar"
+      },
+      "premium": {
+        "estimated": "Kutilayotgan aylanmadan hisoblangan mukofot",
+        "due": "Yil uchun to‘lanadigan mukofot (minimaldan kam emas)",
+        "instalments": "Minimal mukofotni to‘lash",
+        "instalmentsValue_one": "{{amount}} dan {{count}} ta badal",
+        "instalmentsValue_few": "{{amount}} dan {{count}} ta badal",
+        "instalmentsValue_many": "{{amount}} dan {{count}} ta badal",
+        "instalmentsValue_other": "{{amount}} dan {{count}} ta badal",
+        "note": "Minimal mukofot har qanday holatda to‘lanadi; agar haqiqiy aylanmadan hisoblangan mukofot yuqori bo‘lsa, farq davr yakunida qo‘shimcha hisoblanadi. Minimal mukofotdan past qaytarish yo‘q."
+      },
+      "buyers": {
+        "buyer": "Bayer",
+        "country": "Mamlakat",
+        "requested": "So‘ralgan",
+        "offered": "Taklif etiladi",
+        "terms": "To‘lov muddati",
+        "basis": "Asos",
+        "notOffered": "Limit berilmagan",
+        "none": "Arizaga bayerlar kiritilmagan.",
+        "bases": {
+          "approved": "Tasdiqlangan",
+          "indicative": "Taxminiy",
+          "declined": "Rad etilgan"
+        },
+        "footnote": "«Tasdiqlangan» — qaror qabul qilingan limit. «Taxminiy» — limit bo‘yicha qarorgacha so‘ralgan summa; yakuniy summa farq qilishi mumkin."
+      },
+      "contact": {
+        "title": "Sizning menejeringiz",
+        "portal": "Taklifni qabul qilish yoki o‘zgartirish so‘rash mijoz portalida mumkin."
+      },
+      "requisites": {
+        "title": "Sug‘urtalovchining rekvizitlari",
+        "name": "Nomi",
+        "registration": "Ro‘yxatdan o‘tish raqami",
+        "taxId": "STIR",
+        "licence": "Litsenziya",
+        "licenceValue": "{{date}} dagi № {{number}}",
+        "address": "Manzil",
+        "phone": "Telefon",
+        "email": "Elektron pochta",
+        "website": "Veb-sayt",
+        "bank": "Bank rekvizitlari"
+      }
+    },
+    "defaults": {
+      "intro": "Savdo kreditlarini sug‘urtalashga qiziqishingiz uchun rahmat. Arizangiz bo‘yicha tijorat taklifimizni yuboramiz: taklif etilayotgan qoplama, mukofot va bayerlaringiz bo‘yicha limitlar.\n\nShartlar taklif sanasidagi ariza ma’lumotlari va limitlar bo‘yicha qarorlar asosida hisoblangan.",
+      "why_tci": "Debitorlik qarzi aylanma mablag‘ning bir qismidir va yirik xaridorning to‘lamasligi likvidlikka sezilarli ta’sir qilishi mumkin.\n\n- Bayer to‘lovga qobiliyatsizligi yoki uzoq muddatli to‘lamaganligi sababli to‘lamasa — sug‘urta qoplamasi va limit doirasida qoplama.\n- Bayerlar bo‘yicha limitlar: sug‘urtalovchi har bir bayerning to‘lov qobiliyatini tahlil qiladi va limit qancha summaga qoplama bilan jo‘natish mumkinligini ko‘rsatadi.\n- Monitoring: bayerning holati yomonlashsa, sug‘urtalovchi limitni qayta ko‘rib chiqishi mumkin.\n- Sug‘urtalangan debitorlik qarzi bank bilan moliyalashtirish haqidagi muloqotni osonlashtirishi mumkin.",
+      "conditions": "Taklif titul sahifasida ko‘rsatilgan sanagacha amal qiladi. Qoplama shartlari sug‘urta shartnomasi bilan belgilanadi; ushbu taklif shartnoma emas.\n\nTaxminiy deb belgilangan limitlar faqat sug‘urtalovchi qaroridan keyin amalga kiradi.",
+      "next_steps": "- Taklifni mijoz portalida qabul qiling yoki shartlarni o‘zgartirish kerak bo‘lsa, menejerga xabar bering.\n- Qabul qilingandan so‘ng sug‘urtalovchi sug‘urta shartnomasi va polisni tayyorlaydi.\n- Rasmiylashtirish uchun tashkilotning ro‘yxatdan o‘tish hujjatlari va bayerlar haqidagi ma’lumotlar kerak bo‘lishi mumkin, agar hali taqdim etilmagan bo‘lsa."
+    }
+  },
+  "brochure": {
+    "sectionSubtitle": "Tijorat takliflariga ilova qilinadigan savdo kreditlarini sug‘urtalash broshyurasi va uning rasmlar kutubxonasi.",
+    "views": {
+      "brochure": "Broshyura",
+      "media": "Media kutubxona"
+    },
+    "langs": {
+      "ru": "Русский",
+      "en": "English",
+      "uz": "O‘zbekcha"
+    },
+    "sections": {
+      "what": "Bu nima",
+      "how": "Qanday ishlaydi",
+      "covered": "Qoplama",
+      "benefits": "Afzalliklar",
+      "limits": "Limitlar",
+      "process": "Jarayon",
+      "faq": "Savollar",
+      "contacts": "Aloqa"
+    },
+    "statuses": {
+      "draft": "Qoralama",
+      "published": "E’lon qilingan",
+      "retired": "Arxivda"
+    },
+    "doc": {
+      "eyebrow": "Mahsulot haqida",
+      "title": "Savdo kreditlarini sug‘urtalash"
+    },
+    "diagram": {
+      "aria": "Chizma: sug‘urtalanuvchi bayerga to‘lovni kechiktirish sharti bilan yetkazib beradi, sug‘urtalovchiga mukofot to‘laydi va qoplama hamda kredit limitlarini oladi; sug‘urtalovchi bayerni kuzatib boradi.",
+      "insurer": "Sug‘urtalovchi",
+      "insurerSub": "sug‘urta kompaniyasi",
+      "policyholder": "Sug‘urtalanuvchi",
+      "policyholderSub": "kompaniyangiz, sotuvchi",
+      "buyer": "Bayer",
+      "buyerSub": "debitor kontragentingiz",
+      "sells": "To‘lovni kechiktirish sharti bilan yetkazib berish",
+      "pays": "Muddatida to‘lov — to‘lanmaslik qaltisligi sug‘urtalangan",
+      "premium": "Sug‘urta mukofoti",
+      "cover": "Sug‘urta qoplamasi va kredit limitlari",
+      "monitoring": "Monitoring va kredit limitlari"
+    },
+    "currentIs": "Joriy broshyura — {{version}}-versiya (e’lon qilingan: {{date}}). Yangi tijorat takliflariga aynan u ilova qilinadi.",
+    "noneCurrent": "Hali birorta versiya e’lon qilinmagan: tijorat takliflari broshyurasiz yuboriladi.",
+    "defaultBanner": {
+      "title": "Standart qoralama — e’lon qilishdan oldin barcha bayonotlarni tekshiring",
+      "text": "Muharrirda savdo kreditlarini sug‘urtalash haqida uch tildagi namunaviy matn bor. U o‘z-o‘zidan e’lon qilinmaydi: uni versiya sifatida saqlang, har bir bayonotni sug‘urta shartlaringiz bilan solishtiring va shundan keyingina e’lon qiling."
+    },
+    "versions": {
+      "title": "Versiyalar",
+      "empty": "Hali versiyalar yo‘q",
+      "emptyHint": "Quyidagi muharrirda qoralamani saqlang — u birinchi versiya bo‘ladi.",
+      "number": "№",
+      "status": "Holat",
+      "created": "Saqlangan",
+      "published": "E’lon qilingan",
+      "note": "Izoh"
+    },
+    "actions": {
+      "view": "Ko‘rish",
+      "viewVersion": "{{version}}-versiyani ko‘rish",
+      "editAsNew": "Yangi versiya sifatida tahrirlash",
+      "editAsNewVersion": "{{version}}-versiyani yangi versiya sifatida tahrirlash",
+      "publish": "E’lon qilish",
+      "publishHint": "Ushbu versiyani joriy broshyuraga aylantirish",
+      "publishSaveFirst": "Avval o‘zgarishlarni versiya sifatida saqlang",
+      "save": "Versiyani saqlash"
+    },
+    "editor": {
+      "heading": "Muharrir",
+      "basedOn": "{{version}}-versiya asosida ({{status}})",
+      "basedOnDefault": "Standart qoralama, hali saqlanmagan",
+      "unsaved": "saqlanmagan o‘zgarishlar bor",
+      "saved": "saqlangan",
+      "note": "Versiya uchun izoh",
+      "notePlaceholder": "Nima o‘zgardi (ixtiyoriy)",
+      "saveHint": "Har bir saqlash — yangi qoralama versiya; e’lon qilingan versiyalar o‘zgarmaydi.",
+      "newerDraft": "Yangiroq qoralama bor — {{version}}-versiya. Undagi tahrirlarni yo‘qotmaslik uchun uni oching.",
+      "language": "Matn tili",
+      "missingIn": "To‘ldirilmagan: {{langs}}",
+      "complete": "Barcha tillarda to‘ldirilgan",
+      "title": "Sarlavha",
+      "body": "Matn",
+      "conventions": "Bo‘sh qator — yangi xatboshi; «- …» qatori — ro‘yxat bandi; «? …» qatori — savol, undan keyingi xatboshi — javob.",
+      "diagramNote": "«Qanday ishlaydi» chizmasi matn ostida avtomatik chiziladi.",
+      "image": "Rasm",
+      "pickImage": "Rasm tanlash",
+      "removeImage": "Olib tashlash",
+      "noImage": "Rasmsiz",
+      "imageRetired": "Bu rasm kutubxona arxiviga olingan — boshqasini tanlang, aks holda versiya saqlanmaydi.",
+      "imageHint": "Faqat media kutubxonadan; rasm bo‘lim matni yonida ko‘rsatiladi.",
+      "noImages": "Media kutubxonada rasmlar yo‘q",
+      "noImagesHint": "«Media kutubxona» bo‘limida tavsifi, manbasi va litsenziyasi bilan rasm yuklang.",
+      "goToLibrary": "Media kutubxonani ochish"
+    },
+    "preview": {
+      "title": "Oldindan ko‘rish",
+      "language": "Ko‘rish tili",
+      "versionTitle": "{{version}}-versiya"
+    },
+    "publish": {
+      "title": "{{version}}-versiya e’lon qilinsinmi?",
+      "message": "U joriy broshyuraga aylanadi: yangi tijorat takliflariga ilova qilinadi va mijozlar uni taklif bilan birga ko‘radi. Avval e’lon qilingan versiya arxivga o‘tadi; yuborilgan takliflar o‘z versiyasini saqlab qoladi.",
+      "missing": "To‘ldirilmagan maydonlar (biror tildagi sarlavha yoki matn): {{n}}."
+    },
+    "replace": {
+      "title": "Boshqa versiyani ochasizmi?",
+      "message": "Muharrirdagi saqlanmagan o‘zgarishlar yo‘qoladi. {{version}}-versiya tahrirlash uchun ochilsinmi?",
+      "confirm": "Versiyani ochish"
+    },
+    "errors": {
+      "contentInvalid": "Broshyura mazmuni noto‘g‘ri formatda yoki juda katta.",
+      "imageUnknown": "Bo‘limlardan biri media kutubxonada yo‘q yoki arxivga olingan rasmga ishora qiladi. Boshqa rasm tanlang.",
+      "notDraft": "Faqat qoralamani e’lon qilish mumkin: bu versiya allaqachon e’lon qilingan yoki arxivda."
+    }
+  },
+  "media": {
+    "hint": "Broshyura uchun rasmlar. Har biri bizda uch tildagi tavsif, manba va litsenziya bilan saqlanadi; boshqa saytlardagi rasmlar havola orqali ko‘rsatilmaydi.",
+    "filter": {
+      "label": "Ko‘rsatish",
+      "active": "Faol",
+      "retired": "Arxivda"
+    },
+    "upload": {
+      "open": "Rasm yuklash",
+      "title": "Yangi rasm",
+      "submit": "Yuklash",
+      "chooseFile": "Fayl tanlash",
+      "chooseAnother": "Boshqa fayl tanlash",
+      "noFile": "Fayl tanlanmagan",
+      "fileHint": "PNG, JPEG yoki WebP, 5 MB dan oshmasin."
+    },
+    "edit": {
+      "title": "Rasm ma’lumotlari",
+      "open": "Ma’lumotlarni tahrirlash",
+      "fileFixed": "Faylning o‘zi o‘zgarmaydi: boshqa rasm uchun yangisini yuklang."
+    },
+    "retire": {
+      "open": "Arxivga olish",
+      "title": "Rasm arxivga olinsinmi?",
+      "message": "Uni broshyuraning yangi versiyalari uchun tanlab bo‘lmaydi. U allaqachon ishlatilgan versiyalar uni ko‘rsatishda davom etadi. Rasm o‘chirilmaydi.",
+      "confirm": "Arxivga olish"
+    },
+    "empty": {
+      "title": "Kutubxonada hali rasmlar yo‘q",
+      "hint": "Birinchi rasmni yuklang: uch tildagi tavsif, manba va litsenziya kerak bo‘ladi.",
+      "retiredTitle": "Arxiv bo‘sh",
+      "retiredHint": "Arxivga olingan rasmlar shu yerda ko‘rinadi."
+    },
+    "fields": {
+      "image": "Rasm",
+      "alt": "Tavsif (alt)",
+      "altIn": "Tavsif — {{lang}}",
+      "altHint": "Rasmda nima borligini qisqacha yozing: uni ekran o‘quvchi dasturlar o‘qiydi va rasm yuklanmasa ko‘rsatiladi.",
+      "sourceAndLicence": "Manba va litsenziya",
+      "source": "Manba",
+      "sourceHint": "Rasm qayerdan: o‘z suratingiz, fotobank…",
+      "sourceUrl": "Manba havolasi",
+      "sourceUrlHint": "Manba saytidagi rasm sahifasi (ixtiyoriy).",
+      "licence": "Litsenziya",
+      "licenceText": "Litsenziya nomi",
+      "licenceTextPlaceholder": "Masalan, fotograf bilan kelishilgan shartlar",
+      "author": "Muallif",
+      "authorHint": "Fotograf yoki huquq egasi (ixtiyoriy).",
+      "authorRequiredHint": "CC BY uchun majburiy: muallif ko‘rsatilishi kerak.",
+      "uploaded": "Yuklangan",
+      "retired": "Arxivga olingan",
+      "file": "Fayl"
+    },
+    "licences": {
+      "choose": "Litsenziyani tanlang",
+      "own": "O‘z suratimiz",
+      "unsplash": "Unsplash litsenziyasi",
+      "pexels": "Pexels litsenziyasi",
+      "cc0": "CC0 (jamoat mulki)",
+      "ccBy": "CC BY 4.0 (muallifni ko‘rsatgan holda)",
+      "other": "Boshqa"
+    },
+    "units": {
+      "mb": "{{value}} MB",
+      "kb": "{{value}} KB"
+    },
+    "dimensions": "{{width}} × {{height}} piksel",
+    "form": {
+      "missing": "Yana kerak: {{fields}}",
+      "ready": "Hammasi to‘ldirilgan"
+    },
+    "errors": {
+      "fileType": "Faqat PNG, JPEG va WebP rasmlari qabul qilinadi.",
+      "fileEmpty": "Fayl bo‘sh.",
+      "fileTooLarge": "Fayl 5 MB dan katta.",
+      "unreadable": "Rasmni o‘qib bo‘lmadi: fayl shikastlangan yoki rasm emas.",
+      "altRequired": "Rasm tavsifi uchala tilda ham talab qilinadi.",
+      "sourceRequired": "Rasm manbasini ko‘rsating.",
+      "licenceRequired": "Litsenziyani ko‘rsating: litsenziyasiz rasm kutubxonaga qabul qilinmaydi.",
+      "authorRequired": "CC BY uchun muallifni ko‘rsating.",
+      "sourceUrlInvalid": "Havola http:// yoki https:// bilan boshlanishi kerak.",
+      "notUploaded": "Fayl omborga yetib bormadi — uni qayta yuklang.",
+      "checkFailed": "Rasm ma’lumotlari tekshiruvdan o‘tmadi — tavsif, manba va litsenziyani tekshiring.",
+      "uploadConflict": "Bunday nomli fayl allaqachon mavjud — yuklashni qayta urinib ko‘ring."
     }
   }
 }

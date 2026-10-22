@@ -183,6 +183,11 @@ export function rowFacts(
     case 'premium_payment_unmatched':
       facts.push(str(p.file_name), str(p.source) ? t(`premium.sources.${p.source as string}`) : null)
       break
+    case 'offer_viewed':
+    case 'offer_expiring':
+    case 'offer_expired':
+      facts.push(str(p.offer_number), str(p.request_number))
+      break
     default:
       facts.push(ref)
   }

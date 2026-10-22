@@ -52,6 +52,10 @@ export const TASK_FAMILY: Readonly<Record<TaskType, Family>> = {
   entity_request_resolved: 'data',
 
   contract_review: 'contracts',
+
+  offer_viewed: 'submissions',
+  offer_expiring: 'submissions',
+  offer_expired: 'submissions',
 }
 
 export const TAGS = [
@@ -102,6 +106,9 @@ export const TASK_TAG: Readonly<Record<TaskType, Tag>> = {
   statements_requested: 'data',
   entity_request_resolved: 'data',
   contract_review: 'contract',
+  offer_viewed: 'submission',
+  offer_expiring: 'submission',
+  offer_expired: 'submission',
 }
 
 /** Badge tone per tag: an escalation is amber and a claim red, as on the
