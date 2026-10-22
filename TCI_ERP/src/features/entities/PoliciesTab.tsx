@@ -12,7 +12,9 @@ import {
   Button,
   Callout,
   Card,
+  COL,
   EmptyState,
+  labelCol,
   SectionTitle,
   Skeleton,
   Spinner,
@@ -83,7 +85,7 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
         {policies.length === 0 ? (
           <EmptyState title={t('policies.emptyForPolicyholder')} />
         ) : (
-          <Table dense>
+          <Table dense columns={[COL.code, COL.fill, COL.period, COL.currency, labelCol('policyStatus')]}>
             <thead>
               <tr>
                 <th>{t('policies.fields.policyNumber')}</th>
@@ -132,12 +134,12 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
         ) : !limits.data?.length ? (
           <EmptyState title={t('entities.portfolioLimitsEmpty')} />
         ) : (
-          <Table dense>
+          <Table dense columns={[COL.fill, COL.code, COL.money, labelCol('limitOutcome'), COL.review]}>
             <thead>
               <tr>
-                <th className="cell-fill w-[40%]">{t('limits.fields.buyer')}</th>
+                <th>{t('limits.fields.buyer')}</th>
                 <th>{t('policies.fields.policyNumber')}</th>
-                <th className="text-right">{t('limits.fields.approvedAmount')}</th>
+                <th className="num">{t('limits.fields.approvedAmount')}</th>
                 <th>{t('limits.fields.outcome')}</th>
                 <th>{t('limits.fields.validUntil')}</th>
               </tr>
@@ -145,7 +147,7 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
             <tbody>
               {limits.data.map((l) => (
                 <tr key={l.decision_id}>
-                  <td className="cell-fill font-medium text-slate-800">
+                  <td className="font-medium text-slate-800">
                     <Truncate text={l.legal_entities?.name || EM_DASH} className="max-w-none" />
                   </td>
                   <td className="whitespace-nowrap text-slate-500">

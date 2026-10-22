@@ -8,8 +8,10 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { optimistic, rowAt, rowInLists } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
 import type { FxRateRow } from '../limits/authority'
+import { transitioned } from './optimistic'
 import type { Declaration, DeclarationFrequency, DeclarationLine, DeclarationTotals } from './types'
 
 const KEYS = {
@@ -141,7 +143,7 @@ function useInvalidate() {
   const qc = useQueryClient()
   return (declarationId?: string) => {
     void qc.invalidateQueries({ queryKey: ['declarations'] })
-    void qc.invalidateQueries({ queryKey: ['agenda'] })
+    void qc.invalidateQueries({ queryKey: ['agenda', 'tasks'] })
     void qc.invalidateQueries({ queryKey: ['premium'] })
     if (declarationId) void qc.invalidateQueries({ queryKey: KEYS.one(declarationId) })
   }
@@ -208,28 +210,78 @@ function transition(fn: string) {
   }
 }
 
-export function useSubmitDeclaration() {
-  const invalidate = useInvalidate()
+/** What a transition touches besides the declaration itself: its lines and
+ * totals (the split freezes on acceptance), the premium of its policy (an
+ * accepted declaration earns premium), and the Agenda's review tasks. */
+function useTransitionKeys() {
+  const qc = useQueryClient()
+  return (id: string) => {
+    const policyId = qc.getQueryData<DeclarationRow | null>(KEYS.one(id))?.policy_id
+    return [
+      KEYS.one(id),
+      KEYS.lines(id),
+      KEYS.totals(id),
+      ['declarations', 'list'],
+      ['agenda', 'tasks'],
+      ...(policyId ? [['premium', 'policy', policyId], ['premium', 'entries', policyId], ['premium', 'all']] : [['premium']]),
+    ] as const
+  }
+}
+
+type Target = 'submitted' | 'accepted' | 'disputed'
+
+/** A transition through its SQL function, painted at once: the declaration
+ * shows its new status (and moment) in the list, on its page and on its
+ * totals row the frame after the click; a refusal puts the old one back. */
+function useTransition<V>(spec: {
+  fn: string
+  idOf: (v: V) => string
+  args: (v: V) => Record<string, unknown>
+  status: Target
+  noteOf?: (v: V) => string
+}) {
+  const qc = useQueryClient()
+  const keys = useTransitionKeys()
+  const change = (row: DeclarationRow, v: V) => transitioned(row, spec.status, new Date().toISOString(), spec.noteOf?.(v))
   return useMutation({
-    mutationFn: (id: string) => transition('submit_declaration')({ p_declaration_id: id }),
-    onSuccess: (_d, id) => invalidate(id),
+    mutationKey: ['declarations', spec.fn],
+    mutationFn: (v: V) => transition(spec.fn)(spec.args(v)),
+    ...optimistic<V, Record<string, unknown>>(qc, {
+      patches: (v) => [
+        rowAt<DeclarationRow, V>(KEYS.one(spec.idOf(v)), change),
+        rowAt<DeclarationTotals, V>(KEYS.totals(spec.idOf(v)), (row) => ({ ...row, status: spec.status })),
+        rowInLists<DeclarationRow, V>(['declarations', 'list'], spec.idOf, change),
+      ],
+      invalidate: (v) => keys(spec.idOf(v)),
+    }),
+  })
+}
+
+export function useSubmitDeclaration() {
+  return useTransition<string>({
+    fn: 'submit_declaration',
+    idOf: (id) => id,
+    args: (id) => ({ p_declaration_id: id }),
+    status: 'submitted',
   })
 }
 
 export function useAcceptDeclaration() {
-  const invalidate = useInvalidate()
-  return useMutation({
-    mutationFn: (id: string) => transition('accept_declaration')({ p_declaration_id: id }),
-    onSuccess: (_d, id) => invalidate(id),
+  return useTransition<string>({
+    fn: 'accept_declaration',
+    idOf: (id) => id,
+    args: (id) => ({ p_declaration_id: id }),
+    status: 'accepted',
   })
 }
 
 export function useDisputeDeclaration() {
-  const invalidate = useInvalidate()
-  return useMutation({
-    mutationFn: (input: { id: string; note: string }) =>
-      transition('dispute_declaration')({ p_declaration_id: input.id, p_note: input.note }),
-    onSuccess: (_d, v) => invalidate(v.id),
+  return useTransition<{ id: string; note: string }>({
+    fn: 'dispute_declaration',
+    idOf: (v) => v.id,
+    args: (v) => ({ p_declaration_id: v.id, p_note: v.note }),
+    status: 'disputed',
+    noteOf: (v) => v.note,
   })
 }
 

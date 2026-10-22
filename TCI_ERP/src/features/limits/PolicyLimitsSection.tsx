@@ -5,7 +5,16 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, EmptyState, Table, SectionTitle, Truncate } from '../../components/ui'
+import {
+  Badge,
+  Button,
+  COL,
+  EmptyState,
+  labelCol,
+  SectionTitle,
+  Table,
+  Truncate,
+} from '../../components/ui'
 import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { useEntities } from '../entities/api'
 import type { PolicyWithRefs } from '../policies/types'
@@ -67,13 +76,13 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
           }
         />
       ) : (
-        <Table dense>
+        <Table dense columns={[COL.fill, COL.pair, labelCol('limitOutcome'), '13rem', labelCol('releaseState')]}>
           <thead>
             <tr>
               {/* The name takes what the figures leave and cuts with an
                   ellipsis — never four lines per buyer. */}
-              <th className="cell-fill w-[30%]">{t('limits.fields.buyer')}</th>
-              <th className="text-right">{t('limits.pairHeader')}</th>
+              <th>{t('limits.fields.buyer')}</th>
+              <th className="num">{t('limits.pairHeader')}</th>
               <th>{t('limits.fields.outcome')}</th>
               <th>{t('limits.fields.validUntil')}</th>
               <th>{t('requests.columns.release')}</th>
@@ -87,7 +96,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
               const noCover = limit.outcome === 'revoked' || limit.outcome === 'declined'
               return (
                 <tr key={limit.decision_id}>
-                  <td className="cell-fill">
+                  <td>
                     <div className="flex min-w-0 items-center gap-2">
                       <Truncate text={buyerName(limit.entity_id)} className="max-w-none min-w-0">
                         <Link
@@ -170,6 +179,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                   </td>
                   <td>
                     <ReleaseBadge
+                      compact
                       facts={limit}
                       salesWindowHours={windowHours ?? 24}
                       nowIso={nowIso}
@@ -184,7 +194,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                 onClick={() => void navigate(`/limits/${r.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="cell-fill">
+                <td>
                   <Truncate text={buyerName(r.entity_id)} className="max-w-none font-medium text-slate-800">
                     {buyerName(r.entity_id)}
                   </Truncate>

@@ -39,6 +39,10 @@ export function ActionsMenu({
 }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  // Where the open menu sits, in the viewport: it is FIXED, so a table's
+  // scrolling card cannot clip it or grow a scrollbar for it (that moved the
+  // whole table when a row's menu opened near its bottom).
+  const [place, setPlace] = useState<{ top: number; right: number } | null>(null)
   const wrapRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const menuId = useId()
@@ -62,12 +66,18 @@ export function ActionsMenu({
         items[next]?.focus()
       }
     }
+    // A fixed menu would drift from its button: scrolling closes it.
+    const onScroll = () => setOpen(false)
     window.addEventListener('mousedown', onDown)
     window.addEventListener('keydown', onKey)
-    menuRef.current?.querySelector<HTMLButtonElement>('[role="menuitem"]:not(:disabled)')?.focus()
+    window.addEventListener('scroll', onScroll, true)
+    window.addEventListener('resize', onScroll)
+    menuRef.current?.querySelector<HTMLButtonElement>('[role="menuitem"]:not(:disabled)')?.focus({ preventScroll: true })
     return () => {
       window.removeEventListener('mousedown', onDown)
       window.removeEventListener('keydown', onKey)
+      window.removeEventListener('scroll', onScroll, true)
+      window.removeEventListener('resize', onScroll)
     }
   }, [open])
 
@@ -111,6 +121,8 @@ export function ActionsMenu({
           // A menu inside a clickable row must not open the row too.
           e.stopPropagation()
           e.preventDefault()
+          const rect = e.currentTarget.getBoundingClientRect()
+          setPlace({ top: rect.bottom + 8, right: document.documentElement.clientWidth - rect.right })
           setOpen((v) => !v)
         }}
       >
@@ -123,12 +135,13 @@ export function ActionsMenu({
           </>
         )}
       </Button>
-      {open && (
+      {open && place && (
         <div
           ref={menuRef}
           id={menuId}
           role="menu"
-          className="animate-fade-in absolute right-0 z-30 mt-2 w-64 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-pop"
+          style={{ top: place.top, right: place.right }}
+          className="animate-fade-in fixed z-50 w-64 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-pop"
         >
           {ordinary.map(item)}
           {danger.length > 0 && (

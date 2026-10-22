@@ -232,6 +232,7 @@ export function DashboardPage() {
                 return (
                   <li key={signal.key}>
                     <Link
+                      data-layout-row
                       to={signal.to}
                       className="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-accent-50/60"
                     >
@@ -432,11 +433,13 @@ function TaskLine({
   return (
     <li>
       {href ? (
-        <Link to={href} className="group flex items-start gap-3 px-5 py-3 transition-colors hover:bg-accent-50/60">
+        <Link data-layout-row to={href} className="group flex items-start gap-3 px-5 py-3 transition-colors hover:bg-accent-50/60">
           {body}
         </Link>
       ) : (
-        <div className="flex items-start gap-3 px-5 py-3">{body}</div>
+        <div data-layout-row className="flex items-start gap-3 px-5 py-3">
+          {body}
+        </div>
       )}
     </li>
   )

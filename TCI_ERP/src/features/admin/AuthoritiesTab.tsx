@@ -6,7 +6,23 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AmountInput, Badge, Button, Card, DateInput, EmptyState, Segmented, Select, Table, SectionTitle } from '../../components/ui'
+import {
+  actionsCol,
+  AmountInput,
+  Badge,
+  Button,
+  Card,
+  COL,
+  DateInput,
+  EmptyState,
+  labelCol,
+  RowActions,
+  SectionTitle,
+  Segmented,
+  Select,
+  Table,
+} from '../../components/ui'
+import { refusalOr } from '../../lib/optimistic'
 import { amountToPlain, parseAmount } from '../../components/ui/amount'
 import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { GRADE_BANDS } from '../../lib/roles'
@@ -60,11 +76,11 @@ export function AuthoritiesTab({ user }: { user: AdminUser | null }) {
         </p>
       )}
 
-      <Table dense>
+      <Table dense columns={[labelCol('limitBand'), COL.fill, '7rem', '10rem', '10rem', actionsCol(['grantPrimary', 'grantSecondary'])]}>
         <thead>
           <tr>
             <th>{t('admin.fields.band')}</th>
-            <th className="text-right">{t('admin.fields.maxAmount')}</th>
+            <th className="num">{t('admin.fields.maxAmount')}</th>
             <th>{t('admin.fields.currency')}</th>
             <th>{t('admin.fields.validFrom')}</th>
             <th>{t('admin.fields.validTo')}</th>
@@ -146,14 +162,16 @@ function BandRow({
         valid_to: validTo || null,
       })
       setEditing(false)
-    } catch {
-      setError(t('common.saveFailed'))
+    } catch (failure) {
+      setError(t(refusalOr(failure, 'common.saveFailed')))
     }
   }
 
+  // Editing in place swaps text for 36px fields: both modes are one height,
+  // so the rows below never move when a grant is opened or saved.
   if (editing) {
     return (
-      <tr>
+      <tr className="h-12">
         <td className="font-medium text-slate-800">{t(`limits.bands.${band}`)}</td>
         <td>
           <AmountInput value={amount} onChange={setAmount} suffix={currency} />
@@ -173,8 +191,8 @@ function BandRow({
         <td>
           <DateInput value={validTo} onChange={setValidTo} min={validFrom || undefined} />
         </td>
-        <td className="text-right whitespace-nowrap">
-          <Button size="sm" onClick={() => void commit()} disabled={save.isPending}>
+        <RowActions>
+          <Button size="sm" onClick={() => void commit()} loading={save.isPending}>
             {t('common.save')}
           </Button>{' '}
           <Button variant="ghost" size="sm" onClick={() => setEditing(false)}>
@@ -185,13 +203,13 @@ function BandRow({
               {error}
             </span>
           )}
-        </td>
+        </RowActions>
       </tr>
     )
   }
 
   return (
-    <tr className={grant ? '' : 'text-slate-400'}>
+    <tr className={`h-12 ${grant ? '' : 'text-slate-400'}`}>
       <td className="font-medium text-slate-800">{t(`limits.bands.${band}`)}</td>
       <td>
         <span className="num block">
@@ -199,9 +217,9 @@ function BandRow({
         </span>
       </td>
       <td>{grant?.currency_code ?? EM_DASH}</td>
-      <td>{grant?.valid_from ?? EM_DASH}</td>
-      <td>{grant?.valid_to ?? (grant ? t('admin.openEnded') : EM_DASH)}</td>
-      <td className="text-right whitespace-nowrap">
+      <td>{grant ? formatDate(grant.valid_from, locale) : EM_DASH}</td>
+      <td>{grant?.valid_to ? formatDate(grant.valid_to, locale) : grant ? t('admin.openEnded') : EM_DASH}</td>
+      <RowActions>
         <Button variant="secondary" size="sm" onClick={start}>
           {grant ? t('common.edit') : t('admin.grant')}
         </Button>
@@ -211,14 +229,23 @@ function BandRow({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => void remove.mutateAsync(grant.id)}
-              disabled={remove.isPending}
+              onClick={() => {
+                setError(null)
+                remove.mutateAsync(grant.id).catch((failure: unknown) => setError(t(refusalOr(failure, 'common.saveFailed'))))
+              }}
+              loading={remove.isPending}
             >
               {t('common.delete')}
             </Button>
           </>
         )}
-      </td>
+        {/* A refused delete puts the grant back; say why beside it. */}
+        {error && (
+          <span className="ml-2 text-[13px] text-neg-500" role="alert">
+            {error}
+          </span>
+        )}
+      </RowActions>
     </tr>
   )
 }

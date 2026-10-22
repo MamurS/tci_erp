@@ -196,8 +196,8 @@ export function StatementFormPage() {
             <LinkButton variant="secondary" to={`/buyers/${entityId}?tab=financials`}>
               {t('common.cancel')}
             </LinkButton>
-            <Button onClick={() => void handleSave()} disabled={saving}>
-              {saving ? t('common.saving') : t('common.save')}
+            <Button onClick={() => void handleSave()} loading={saving}>
+              {t('common.save')}
             </Button>
           </>
         }

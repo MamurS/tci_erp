@@ -7,7 +7,19 @@ import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
-import { Button, Callout, ConfirmDialog, EmptyState, Panel, PanelGrid, Select, Spinner, Table } from '../../components/ui'
+import {
+  Button,
+  Callout,
+  COL,
+  ConfirmDialog,
+  EmptyState,
+  Panel,
+  PanelGrid,
+  RowActions,
+  Select,
+  Spinner,
+  Table,
+} from '../../components/ui'
 import { formatMoment } from '../../lib/format'
 import {
   signedDocumentUrl,
@@ -79,6 +91,7 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
               return (
                 <li
                   key={r}
+                  data-layout-row
                   className="flex items-center gap-3 border-b border-slate-100 py-2.5 text-[13px] first:pt-0 last:border-b-0"
                 >
                   {ok ? (
@@ -129,7 +142,7 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
                 accept={ACCEPTED_MIME_TYPES.join(',')}
                 onChange={(e) => onPick(e.target.files?.[0])}
               />
-              <Button variant="secondary" disabled={upload.isPending} onClick={() => fileRef.current?.click()}>
+              <Button variant="secondary" loading={upload.isPending} onClick={() => fileRef.current?.click()}>
                 <Upload aria-hidden />
                 {t('claims.documents.upload')}
               </Button>
@@ -138,19 +151,19 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
           {(docs ?? []).length === 0 ? (
             <EmptyState title={t('claims.documents.emptyTitle')} hint={t('claims.documents.emptyHint')} />
           ) : (
-            <Table dense>
+            <Table dense columns={[COL.fill, '12rem', COL.moment, ...(canUpload ? [COL.icon] : [])]}>
               <thead>
                 <tr>
                   <th>{t('claims.fields.filename')}</th>
                   <th>{t('claims.fields.documentType')}</th>
                   <th>{t('claims.fields.uploadedAt')}</th>
-                  {canUpload && <th className="w-px" />}
+                  {canUpload && <th />}
                 </tr>
               </thead>
               <tbody>
                 {(docs ?? []).map((d) => (
                   <tr key={d.id}>
-                    <td className="max-w-72">
+                    <td>
                       <button
                         type="button"
                         className="block truncate text-left font-medium text-accent-600 hover:underline"
@@ -164,10 +177,10 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
                         {d.original_filename}
                       </button>
                     </td>
-                    <td className="text-slate-600">{t(`claims.documentTypes.${d.document_type}`)}</td>
+                    <td className="whitespace-normal text-slate-600">{t(`claims.documentTypes.${d.document_type}`)}</td>
                     <td className="whitespace-nowrap text-slate-500">{formatMoment(d.uploaded_at, locale)}</td>
                     {canUpload && (
-                      <td className="text-right">
+                      <RowActions>
                         <button
                           type="button"
                           aria-label={t('claims.documents.remove', { name: d.original_filename })}
@@ -177,7 +190,7 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
                         >
                           <Trash2 className="size-4" aria-hidden />
                         </button>
-                      </td>
+                      </RowActions>
                     )}
                   </tr>
                 ))}
@@ -197,13 +210,15 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
         onConfirm={() => {
           if (!removing) return
           setError(null)
+          // The row leaves the register at once (optimistic), so the
+          // confirmation closes at once too.
+          setRemoving(null)
           remove
             .mutateAsync({ claim_id: claim.id, document_id: removing.id })
             .catch((e: unknown) => {
               const k = claimErrorKey(e)
               setError(k ? t(k) : t('common.somethingWentWrong'))
             })
-            .finally(() => setRemoving(null))
         }}
       />
     </div>

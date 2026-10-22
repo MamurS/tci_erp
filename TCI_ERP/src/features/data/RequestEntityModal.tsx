@@ -69,7 +69,7 @@ export function RequestEntityModal({
             <Button variant="secondary" onClick={onClose}>
               {t('common.cancel')}
             </Button>
-            <Button disabled={!name.trim() || request.isPending} onClick={submit}>
+            <Button disabled={!name.trim()} loading={request.isPending} onClick={submit}>
               {t('data.requestModal.submit')}
             </Button>
           </>

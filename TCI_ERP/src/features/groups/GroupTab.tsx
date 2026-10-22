@@ -112,12 +112,12 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
   const handleEndEdge = async () => {
     setError(null)
     if (!endingEdge) return
+    // The edge shows its end date at once (optimistic), so the dialog closes.
+    setEndingChildId(null)
     try {
       await endRelationship.mutateAsync({ relationshipId: endingEdge.id })
     } catch (e) {
       setError(t(groupErrorKey(e) ?? 'groups.errors.saveFailed'))
-    } finally {
-      setEndingChildId(null)
     }
   }
 

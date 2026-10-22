@@ -11,6 +11,7 @@ import {
   Badge,
   Button,
   Card,
+  COL,
   Combobox,
   CountryFlag,
   EmptyState,
@@ -257,12 +258,12 @@ export function EntitiesPage() {
         // «Add company» is in the page header; the empty state does not repeat it.
         <EmptyState title={t('entities.empty')} hint={t('entities.emptyHint')} />
       ) : (
-        <Table>
+        <Table columns={[COL.fill, '9rem', '10rem', '13.5rem', COL.date, COL.grade]}>
           <thead>
             <tr>
-              <th className="cell-fill w-[32%]">{t('buyers.fields.name')}</th>
-              <th className="cell-fill w-[17%]">{t('buyers.fields.country')}</th>
-              <th className="cell-fill w-[18%]">{t('buyers.fields.industry')}</th>
+              <th>{t('buyers.fields.name')}</th>
+              <th>{t('buyers.fields.country')}</th>
+              <th>{t('buyers.fields.industry')}</th>
               <th>{t('entities.rolesHeader')}</th>
               <th>{t('buyers.latestStatement')}</th>
               <th>{t('limits.fields.grade')}</th>
@@ -279,7 +280,7 @@ export function EntitiesPage() {
                   onClick={() => void navigate(`/entities/${entity.id}`)}
                   className="cursor-pointer transition-colors hover:bg-slate-50"
                 >
-                  <td className="cell-fill font-medium text-slate-800">
+                  <td className="font-medium text-slate-800">
                     <Truncate text={entity.name} className="max-w-none" />
                     {entity.registration_number && (
                       // A registration number is one token: never broken.
@@ -288,13 +289,13 @@ export function EntitiesPage() {
                       </span>
                     )}
                   </td>
-                  <td className="cell-fill">
+                  <td>
                     <Truncate text={refName(entity.countries, locale)} className="max-w-none">
                       <CountryFlag code={entity.country_code} className="mr-1.5" />
                       {refName(entity.countries, locale)}
                     </Truncate>
                   </td>
-                  <td className="cell-fill text-slate-500">
+                  <td className="text-slate-500">
                     {industry ? <Truncate text={industry} className="max-w-none" /> : EM_DASH}
                   </td>
                   <td>

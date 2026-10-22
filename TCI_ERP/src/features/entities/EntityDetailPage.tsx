@@ -19,6 +19,7 @@ import { FinancialsTab } from './financials/FinancialsTab'
 import { OverviewTab } from './overview/OverviewTab'
 import { PoliciesTab } from './PoliciesTab'
 import { EntityRequestsSection } from '../requests'
+import { EntityOffersList } from '../offers/EntityOffersList'
 import { ClaimsSection } from '../claims'
 import { GroupTab } from '../groups'
 import { useRequestsForEntity } from '../requests/api'
@@ -154,7 +155,12 @@ export function EntityDetailPage() {
         {activeTab === 'rating' && <RatingTab entityId={id} />}
         {activeTab === 'limits' && <BuyerLimitsTab entityId={id} />}
         {activeTab === 'policies' && <PoliciesTab entityId={id} />}
-        {activeTab === 'requests' && <EntityRequestsSection entityId={id} />}
+        {activeTab === 'requests' && (
+          <div className="flex flex-col gap-5">
+            <EntityRequestsSection entityId={id} />
+            <EntityOffersList entityId={id} />
+          </div>
+        )}
         {activeTab === 'claims' && <ClaimsSection entityId={id} />}
         {activeTab === 'group' && <GroupTab entityId={id} entityName={entity.name} />}
         {activeTab === 'access' && <EntityClientAccessSection entityId={id} />}

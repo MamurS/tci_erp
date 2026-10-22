@@ -136,7 +136,7 @@ export function ClaimDetailPage() {
           primary || menu.length > 0 ? (
             <>
               {primary && (
-                <Button onClick={() => setPending(primary)}>
+                <Button onClick={() => setPending(primary)} loading={changeStatus.isPending && changeStatus.variables?.to === primary}>
                   {t(`claims.actions.${primary}`)}
                 </Button>
               )}
@@ -240,13 +240,25 @@ export function ClaimDetailPage() {
             </Button>
             <Button
               variant={pendingDestructive ? 'danger' : 'primary'}
-              disabled={reasonMissing || approve.isPending || changeStatus.isPending}
+              disabled={reasonMissing}
+              loading={approve.isPending || changeStatus.isPending}
               title={reasonMissing ? t('claims.reasonRequiredHint') : undefined}
               onClick={() => {
                 if (pending === 'approve') {
+                  // The indemnity is the database's computation: the dialog
+                  // stays, working, until it answers.
                   run(approve.mutateAsync({ id: claim.id, comment: comment || null }))
                 } else if (pending) {
-                  run(changeStatus.mutateAsync({ id: claim.id, to: pending, comment: comment || null }))
+                  // The status paints at once (optimistic), so the dialog
+                  // closes at once; a refusal reopens it with its message.
+                  const to = pending
+                  setPending(null)
+                  run(
+                    changeStatus.mutateAsync({ id: claim.id, to, comment: comment || null }).catch((e: unknown) => {
+                      setPending(to)
+                      throw e
+                    }),
+                  )
                 }
               }}
             >

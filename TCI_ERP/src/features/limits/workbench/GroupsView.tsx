@@ -8,7 +8,17 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, Spinner, Table, Truncate, ViewBar } from '../../../components/ui'
+import {
+  Badge,
+  Card,
+  COL,
+  EmptyState,
+  labelCol,
+  Spinner,
+  Table,
+  Truncate,
+  ViewBar,
+} from '../../../components/ui'
 import { EM_DASH, formatAmount, formatPercent } from '../../../lib/format'
 import { GroupCapAmount } from '../../groups/GroupCapAmount'
 import { num } from '../../portfolio/aggregate'
@@ -43,18 +53,18 @@ export function GroupsView() {
           <EmptyState title={t('limits.workbench.groups.empty')} hint={t('limits.workbench.groups.emptyHint')} />
         </Card>
       ) : (
-        <Table dense>
+        <Table dense columns={[COL.fill, COL.count, COL.count, '8.5rem', '10rem', '8rem', labelCol('groupState')]}>
           <thead>
             <tr>
               {/* No cell-fill on the header: «Группа (материнская компания)» is
                   longer than most names and would spill into the next column. */}
-              <th className="w-full">{t('portfolio.credit.group')}</th>
-              <th className="w-px text-right">{t('limits.workbench.groups.members')}</th>
-              <th className="w-px text-right">{t('portfolio.credit.limits')}</th>
-              <th className="w-px text-right">{t('portfolio.credit.exposure')}</th>
-              <th className="w-px text-right">{t('limits.workbench.groups.cap')}</th>
-              <th className="w-px text-right">{t('limits.workbench.groups.used')}</th>
-              <th className="w-px">{t('limits.workbench.groups.state')}</th>
+              <th>{t('portfolio.credit.group')}</th>
+              <th className="num">{t('limits.workbench.groups.members')}</th>
+              <th className="num">{t('portfolio.credit.limits')}</th>
+              <th className="num">{t('portfolio.credit.exposure')}</th>
+              <th className="num">{t('limits.workbench.groups.cap')}</th>
+              <th className="num">{t('limits.workbench.groups.used')}</th>
+              <th>{t('limits.workbench.groups.state')}</th>
             </tr>
           </thead>
           <tbody>
@@ -62,7 +72,7 @@ export function GroupsView() {
               const state = groupState(g)
               return (
                 <tr key={g.ultimate_parent_id}>
-                  <td className="cell-fill">
+                  <td>
                     <Truncate text={g.ultimate_parent_name} className="max-w-none">
                       <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} tab="group" />
                     </Truncate>
@@ -71,11 +81,11 @@ export function GroupsView() {
                       className="max-w-none text-[12px] text-slate-500"
                     />
                   </td>
-                  <td className="num text-right">
+                  <td className="num">
                     {formatAmount(g.members_with_limits, locale)} / {formatAmount(g.members_count, locale)}
                   </td>
-                  <td className="num text-right">{formatAmount(g.limits_count, locale)}</td>
-                  <td className="num text-right">
+                  <td className="num">{formatAmount(g.limits_count, locale)}</td>
+                  <td className="num">
                     <Uzs value={g.exposure_uzs} />
                     {g.missing_rates > 0 && (
                       <span className="ml-1 text-warn-500" title={t('portfolio.missingRatesHint')}>

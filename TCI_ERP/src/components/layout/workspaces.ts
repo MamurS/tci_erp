@@ -42,11 +42,11 @@ export const WORKSPACES: readonly Workspace[] = [
   {
     key: 'sales',
     roles: ['sales'],
-    items: ['requests', 'policies', 'limits', 'declarations', 'overdues'],
+    items: ['requests', 'policies', 'limits', 'declarations', 'overdues', 'brochure'],
   },
   { key: 'claims', roles: ['claims'], items: ['claims', 'overdues'] },
   { key: 'data', roles: ['information_manager'], items: ['data'] },
-  { key: 'admin', roles: ['admin'], items: ['admin', 'policies'] },
+  { key: 'admin', roles: ['admin'], items: ['admin', 'policies', 'brochure'] },
 ]
 
 export const WORKSPACE_KEY = 'tci-erp-workspace'

@@ -97,6 +97,45 @@ jobs:
           path: TCI_ERP/sbom-frontend.cdx.json
           retention-days: 90
 
+
+  e2e:
+    name: Browser tests (TCI_ERP e2e)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: TCI_ERP
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: TCI_ERP/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      # The app runs against a stubbed Supabase (e2e/support/stub.ts): no
+      # secrets, no network beyond the browser download.
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      # Includes the layout guard (e2e/layout): every table/list screen in
+      # en/ru/uz at 1440 and 1280 px, replayed from recorded fixtures with the
+      # network sealed — nothing reaches Supabase or any other host. About
+      # 12 minutes on two workers.
+      - name: Playwright
+        run: npm run test:e2e
+        timeout-minutes: 40
+
+      - name: Upload traces of failures
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: TCI_ERP/test-results/
+          retention-days: 7
   analytics:
     name: Analytics service (services/analytics)
     runs-on: ubuntu-latest

@@ -8,7 +8,11 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { todayIso } from '../../components/ui/dateEntry'
+import { optimistic, rowInLists, rowsOutOfLists } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
+import { groupErrorKey } from './errors'
+import { edgeEdited, edgeEnded } from './optimistic'
 import type {
   EntityRelationship,
   GroupExposure,
@@ -38,11 +42,13 @@ const KEYS = {
 
 /** Everything a group screen shows changes together: an accepted suggestion
  * moves the members, which moves the exposure, which moves the preflight. */
+const groupMessageKey = (error: unknown) => groupErrorKey(error) ?? 'common.somethingWentWrong'
+
 function invalidateGroups(queryClient: ReturnType<typeof useQueryClient>) {
   void queryClient.invalidateQueries({ queryKey: ['groups'] })
   // A new edge can change a limit's group, so the limits screens follow.
   void queryClient.invalidateQueries({ queryKey: ['limits'] })
-  void queryClient.invalidateQueries({ queryKey: ['agenda'] })
+  void queryClient.invalidateQueries({ queryKey: ['agenda', 'tasks'] })
 }
 
 // ---------------------------------------------------------------------------
@@ -276,9 +282,25 @@ export interface SaveRelationshipInput {
   sourceNote?: string | null
 }
 
+/** An EDIT repaints the edge at once; a new edge waits for the answer (the
+ * names and the group it lands in are the database's). */
 export function useSaveRelationship() {
   const queryClient = useQueryClient()
   return useMutation({
+    mutationKey: ['groups', 'save-relationship'],
+    ...optimistic<SaveRelationshipInput, void>(queryClient, {
+      patches: (v) =>
+        v.relationshipId
+          ? [
+              rowInLists<EntityRelationship, SaveRelationshipInput>(
+                ['groups', 'relationships'],
+                (x) => x.relationshipId ?? '',
+                (edge, x) => edgeEdited(edge, x),
+              ),
+            ]
+          : [],
+      mapError: groupMessageKey,
+    }),
     mutationFn: async (input: SaveRelationshipInput): Promise<void> => {
       const { error } = await tci().rpc('save_entity_relationship', {
         p_parent_entity_id: input.parentEntityId,
@@ -301,8 +323,20 @@ export function useSaveRelationship() {
  * has to stay readable, so nothing is ever deleted. */
 export function useEndRelationship() {
   const queryClient = useQueryClient()
+  type Vars = { relationshipId: string; validTo?: string | null }
   return useMutation({
-    mutationFn: async (input: { relationshipId: string; validTo?: string | null }) => {
+    mutationKey: ['groups', 'end-relationship'],
+    ...optimistic<Vars, void>(queryClient, {
+      patches: () => [
+        rowInLists<EntityRelationship, Vars>(
+          ['groups', 'relationships'],
+          (x) => x.relationshipId,
+          (edge, x) => edgeEnded(edge, x.validTo, todayIso()),
+        ),
+      ],
+      mapError: groupMessageKey,
+    }),
+    mutationFn: async (input: Vars) => {
       const { error } = await tci().rpc('end_entity_relationship', {
         p_relationship_id: input.relationshipId,
         p_valid_to: input.validTo ?? null,
@@ -350,15 +384,25 @@ export function useEndGroupLimit() {
   })
 }
 
+type AcceptVars = {
+  suggestionId: string
+  parentEntityId: string
+  relationshipType: RelationshipType
+  ownershipPct?: number | null
+}
+
+/** Accepting or rejecting takes the hint out of the panel at once. */
 export function useAcceptSuggestion() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (input: {
-      suggestionId: string
-      parentEntityId: string
-      relationshipType: RelationshipType
-      ownershipPct?: number | null
-    }) => {
+    mutationKey: ['groups', 'accept-suggestion'],
+    ...optimistic<AcceptVars, void>(queryClient, {
+      patches: () => [
+        rowsOutOfLists<RelationshipSuggestion, AcceptVars>(['groups', 'suggestions'], (x) => x.suggestionId),
+      ],
+      mapError: groupMessageKey,
+    }),
+    mutationFn: async (input: AcceptVars) => {
       const { error } = await tci().rpc('accept_relationship_suggestion', {
         p_suggestion_id: input.suggestionId,
         p_parent_entity_id: input.parentEntityId,
@@ -374,6 +418,16 @@ export function useAcceptSuggestion() {
 export function useRejectSuggestion() {
   const queryClient = useQueryClient()
   return useMutation({
+    mutationKey: ['groups', 'reject-suggestion'],
+    ...optimistic<{ suggestionId: string }, void>(queryClient, {
+      patches: () => [
+        rowsOutOfLists<RelationshipSuggestion, { suggestionId: string }>(
+          ['groups', 'suggestions'],
+          (x) => x.suggestionId,
+        ),
+      ],
+      mapError: groupMessageKey,
+    }),
     mutationFn: async (input: { suggestionId: string }) => {
       const { error } = await tci().rpc('reject_relationship_suggestion', {
         p_suggestion_id: input.suggestionId,

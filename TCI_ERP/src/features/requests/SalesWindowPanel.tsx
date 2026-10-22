@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, Card, Field, Input, SectionTitle, Truncate } from '../../components/ui'
+import { refusalOr } from '../../lib/optimistic'
 import { useAuth } from '../../auth/AuthContext'
 import { hasRole } from '../../lib/roles'
 import { EM_DASH, formatAmount } from '../../lib/format'
@@ -94,8 +95,8 @@ function DecisionRow({
       await action
       setHoldOpen(false)
       setComment('')
-    } catch {
-      setError(t('limits.release.actionFailed'))
+    } catch (failure) {
+      setError(t(refusalOr(failure, 'limits.release.actionFailed')))
     }
   }
 
@@ -127,7 +128,7 @@ function DecisionRow({
             {canRelease(limit) && (
               <Button
                 size="sm"
-                disabled={release.isPending}
+                loading={release.isPending}
                 onClick={() => void run(release.mutateAsync({ decisionId: limit.decision_id }))}
               >
                 {t('limits.release.confirmNow')}
@@ -154,7 +155,8 @@ function DecisionRow({
           <Button
             size="sm"
             variant="danger"
-            disabled={!comment.trim() || hold.isPending}
+            disabled={!comment.trim()}
+            loading={hold.isPending}
             onClick={() =>
               void run(
                 hold.mutateAsync({ decisionId: limit.decision_id, comment: comment.trim() }),

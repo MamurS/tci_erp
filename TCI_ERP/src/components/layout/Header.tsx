@@ -11,12 +11,16 @@ import { sectionFor } from './shell'
 
 interface HeaderProps {
   onOpenPalette: () => void
-  /** The sidebar is not on screen: offer the button that brings it back. */
-  sidebarHidden: boolean
+  /**
+   * What sits at the top bar's left edge: nothing (pinned panel), a blank of
+   * the toggle's size (desktop, hidden panel — the fixed toggle of AppShell
+   * is drawn over it), or the drawer's open button (small screens).
+   */
+  toggleSlot: 'none' | 'spacer' | 'button'
+  /** Opens the drawer (toggleSlot 'button'). */
   onShowSidebar: () => void
-  /** Resting on the toggle floats the panel out as a card; leaving both puts it away (desktop). */
-  onPeekSidebar?: () => void
-  onUnpeekSidebar?: () => void
+  /** id of the panel the drawer button controls. */
+  sidebarId: string
 }
 
 /** Initials for the avatar: first letters of the e-mail's local part words. */
@@ -27,7 +31,7 @@ function initials(email: string | undefined): string {
   return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || local[0]?.toUpperCase() || '·'
 }
 
-export function Header({ onOpenPalette, sidebarHidden, onShowSidebar, onPeekSidebar, onUnpeekSidebar }: HeaderProps) {
+export function Header({ onOpenPalette, toggleSlot, onShowSidebar, sidebarId }: HeaderProps) {
   const { t } = useTranslation()
   const { pathname } = useLocation()
   const section = sectionFor(pathname)
@@ -56,16 +60,11 @@ export function Header({ onOpenPalette, sidebarHidden, onShowSidebar, onPeekSide
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200/80 bg-white/85 px-4 backdrop-blur sm:gap-4 sm:px-6">
-      {sidebarHidden && (
-        // 20px in and centred 32px down — where the peek card puts its own.
+      {/* 20px in and centred 32px down — the toggle's one position. */}
+      {toggleSlot === 'spacer' && <span aria-hidden className="-ml-1 size-9 shrink-0" />}
+      {toggleSlot === 'button' && (
         <div className="-ml-1">
-          <SidebarToggle
-            action="show"
-            tone="plain"
-            onClick={onShowSidebar}
-            onMouseEnter={onPeekSidebar}
-            onMouseLeave={onUnpeekSidebar}
-          />
+          <SidebarToggle action="show" tone="plain" expanded={false} controls={sidebarId} onClick={onShowSidebar} />
         </div>
       )}
       {section && SectionIcon && (
@@ -81,7 +80,7 @@ export function Header({ onOpenPalette, sidebarHidden, onShowSidebar, onPeekSide
         type="button"
         onClick={onOpenPalette}
         aria-label={t('palette.trigger')}
-        className="flex h-9 shrink-0 items-center gap-2.5 rounded-md border border-slate-200 bg-slate-50 px-2.5 text-left text-sm text-slate-400 transition-colors hover:border-slate-300 hover:bg-white sm:w-full sm:max-w-md sm:shrink sm:px-3"
+        className="flex h-9 shrink-0 items-center gap-2.5 rounded-md border border-slate-200 bg-slate-50 px-2.5 text-left text-sm text-slate-600 transition-colors hover:border-slate-300 hover:bg-white sm:w-full sm:max-w-md sm:shrink sm:px-3"
       >
         <Search className="size-4" />
         <span className="hidden flex-1 truncate sm:inline">{t('palette.trigger')}</span>
@@ -106,7 +105,7 @@ export function Header({ onOpenPalette, sidebarHidden, onShowSidebar, onPeekSide
           </span>
           <span className="hidden max-w-[220px] flex-col items-start leading-tight md:flex">
             <span className="w-full truncate text-[13px] font-semibold text-slate-800">{email}</span>
-            <span className="w-full truncate text-[11px] text-slate-400">
+            <span className="w-full truncate text-[11px] text-slate-500">
               {roles.length ? roles.map((r) => t(`roles.${r}`)).join(' · ') : t('roles.unassigned')}
             </span>
           </span>

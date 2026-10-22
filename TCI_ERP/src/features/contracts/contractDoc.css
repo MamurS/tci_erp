@@ -1,0 +1,264 @@
+/*
+ * The contract document — one look for the viewer, the editor (TipTap renders
+ * the same element names inside .cdoc), the portal and the print route.
+ * Loaded only with those screens (their lazy chunks), never by the main
+ * bundle. Scoped under .cdoc / .cd-*.
+ */
+
+.cd-sheet {
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 4px 16px rgb(15 23 42 / 0.06);
+  border: 1px solid rgb(226 232 240);
+  border-radius: 4px;
+  margin-inline: auto;
+  width: 100%;
+  max-width: 210mm;
+  min-height: 60vh;
+  /* the template's margins, scaled to the screen */
+  padding: var(--cd-pad-top, 20mm) var(--cd-pad-right, 15mm) var(--cd-pad-bottom, 20mm) var(--cd-pad-left, 25mm);
+}
+
+@media (max-width: 900px) {
+  .cd-sheet {
+    padding: 8mm 6mm;
+  }
+}
+
+.cdoc {
+  font-family: var(--cd-font, 'Arimo'), 'Arimo', Arial, sans-serif;
+  font-size: var(--cd-size, 10.5pt);
+  line-height: 1.45;
+  color: #111;
+  overflow-wrap: anywhere;
+}
+
+.cdoc:focus {
+  outline: none;
+}
+
+.cdoc h1 {
+  font-size: 1.35em;
+  font-weight: 700;
+  margin: 0 0 0.6em;
+  text-transform: none;
+}
+
+.cdoc h2 {
+  font-size: 1.05em;
+  font-weight: 700;
+  margin: 1.1em 0 0.4em;
+}
+
+.cdoc h3 {
+  font-size: 1em;
+  font-weight: 700;
+  margin: 0.9em 0 0.3em;
+}
+
+.cdoc p {
+  margin: 0 0 0.55em;
+  min-height: 1.45em;
+}
+
+.cdoc ul,
+.cdoc ol {
+  margin: 0 0 0.55em;
+  padding-left: 1.6em;
+}
+
+.cdoc ul {
+  list-style: disc;
+}
+
+.cdoc ol {
+  list-style: decimal;
+}
+
+.cdoc li > p {
+  margin-bottom: 0.2em;
+}
+
+.cdoc table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: 0.4em 0 0.9em;
+  font-size: 0.9em;
+}
+
+.cdoc td,
+.cdoc th {
+  vertical-align: top;
+  padding: 0.25em 0.45em;
+  text-align: left;
+  font-weight: inherit;
+}
+
+.cdoc th {
+  font-weight: 700;
+}
+
+.cdoc td p,
+.cdoc th p {
+  margin: 0 0 0.15em;
+}
+
+.cdoc table.cd-bordered td,
+.cdoc table.cd-bordered th,
+.cdoc table[data-bordered='true'] td,
+.cdoc table[data-bordered='true'] th {
+  border: 1px solid #999;
+}
+
+/* The derived clause number (never part of the text). */
+.cd-num {
+  display: inline-block;
+  min-width: 2.1em;
+  padding-right: 0.35em;
+  font-weight: inherit;
+  user-select: none;
+}
+
+/* A merge field: a chip on screen, plain text on paper. */
+.cd-field {
+  border-radius: 3px;
+  background: rgb(220 239 248 / 0.9);
+  box-shadow: inset 0 -1px 0 rgb(0 147 208 / 0.45);
+  padding: 0 0.15em;
+  white-space: pre-wrap;
+}
+
+.cd-field-empty::before {
+  content: attr(data-path);
+  color: rgb(100 116 139);
+  font-style: italic;
+  font-size: 0.85em;
+}
+
+.cd-field-stale {
+  background: rgb(254 243 199);
+  box-shadow: inset 0 0 0 1px rgb(217 119 6 / 0.7);
+}
+
+.cdoc.cd-plain .cd-field {
+  background: none;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* On paper an empty field is a blank to fill, never its path. */
+.cdoc.cd-plain .cd-field-empty::before {
+  content: none;
+}
+
+.ProseMirror-selectednode.cd-field,
+.cd-field.ProseMirror-selectednode {
+  outline: 2px solid rgb(0 147 208);
+}
+
+/* A page break: a dashed rule on screen, a real break on paper. */
+.cd-pagebreak {
+  display: block;
+  height: 0;
+  border-top: 1px dashed rgb(148 163 184);
+  margin: 1.2em 0;
+  position: relative;
+}
+
+.cd-pagebreak::after {
+  content: attr(data-label);
+  position: absolute;
+  top: -0.7em;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 0 0.5em;
+  font-size: 0.75em;
+  color: rgb(100 116 139);
+}
+
+/* The comparison. Never colour alone: a strike-through and an underline. */
+.cd-ins {
+  background: rgb(220 252 231);
+  text-decoration: underline;
+  text-decoration-color: rgb(22 101 52 / 0.6);
+  color: rgb(20 83 45);
+}
+
+.cd-del {
+  background: rgb(254 226 226);
+  text-decoration: line-through;
+  color: rgb(153 27 27);
+}
+
+.cd-diff-line {
+  border-left: 3px solid transparent;
+  padding-left: 0.6em;
+  margin-left: -0.9em;
+}
+
+.cd-diff-line[data-op='insert'] {
+  border-left-color: rgb(22 163 74);
+}
+
+.cd-diff-line[data-op='delete'] {
+  border-left-color: rgb(220 38 38);
+}
+
+.cd-diff-line[data-op='change'] {
+  border-left-color: rgb(217 119 6);
+}
+
+.cd-diff-row {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.9em;
+  color: rgb(51 65 85);
+}
+
+/* The editor's own touches. */
+.cdoc .ProseMirror-gapcursor::after {
+  border-top-color: rgb(0 82 136);
+}
+
+.cdoc .selectedCell::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgb(0 147 208 / 0.12);
+  pointer-events: none;
+}
+
+.cdoc td,
+.cdoc th {
+  position: relative;
+}
+
+@media print {
+  .cd-sheet {
+    box-shadow: none;
+    border: 0;
+    padding: 0;
+    max-width: none;
+    min-height: 0;
+  }
+
+  .cd-field {
+    background: none !important;
+    box-shadow: none !important;
+    padding: 0;
+  }
+
+  .cd-field-empty::before {
+    content: none !important;
+  }
+
+  .cd-pagebreak {
+    border: 0;
+    margin: 0;
+    break-after: page;
+  }
+
+  .cd-pagebreak::after {
+    content: none;
+  }
+}

@@ -10,14 +10,19 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { useAuth } from '../../auth/AuthContext'
+import { optimistic, patch, pendingId } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
 import { tashkentDay } from './board'
 import { SUBJECT_IN_TITLE } from './catalogue'
+import { clearedPlus, asIds, commentsKeyHolds, withAnswers, withComment, withoutTasks, withSnooze } from './optimistic'
 import type { Task, TaskComment } from './types'
 
 const KEYS = {
   tasks: ['agenda', 'tasks'] as const,
+  commentsAll: ['agenda', 'comments'] as const,
   comments: (ids: readonly string[]) => ['agenda', 'comments', ids] as const,
+  events: ['agenda', 'events'] as const,
   cleared: ['agenda', 'cleared'] as const,
   justifications: (ids: readonly string[]) => ['agenda', 'justifications', ids] as const,
 }
@@ -62,17 +67,33 @@ export function useAgendaTasks(options: { enabled?: boolean } = {}) {
 
 /** Manual completion. tci.complete_task refuses every type except
  * submission_declined — catalogue.ts mirrors that so the button is only ever
- * offered where the database will accept it. */
+ * offered where the database will accept it.
+ *
+ * Optimistic (lib/optimistic.ts): the tasks leave the board — and the
+ * sidebar badge, which reads the same key — in the frame after the click;
+ * a refusal puts them back. Each RPC answers with the task row, which the
+ * cache takes, so the board is not refetched. Several tasks of one row go
+ * out together, not one round trip after another. */
 export function useCompleteTask() {
-  const queryClient = useQueryClient()
+  const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (taskId: string): Promise<void> => {
-      const { error } = await tci().rpc('complete_task', { p_task_id: taskId })
-      if (error) throw error
-    },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: KEYS.tasks })
-    },
+    mutationKey: ['agenda', 'complete'],
+    mutationFn: (taskIds: string | readonly string[]): Promise<Task[]> =>
+      Promise.all(
+        asIds(taskIds).map(async (taskId) => {
+          const { data, error } = await tci().rpc('complete_task', { p_task_id: taskId })
+          if (error) throw error
+          return data as unknown as Task
+        }),
+      ),
+    ...optimistic<string | readonly string[], Task[]>(qc, {
+      patches: () => [
+        patch<Task[], string | readonly string[]>(KEYS.tasks, (tasks, v) => withoutTasks(tasks, asIds(v)), { exact: true }),
+        patch<number, string | readonly string[]>(KEYS.cleared, (n, v) => clearedPlus(n, asIds(v).length), { exact: true }),
+      ],
+      answer: (client, rows) => client.setQueryData<Task[]>(KEYS.tasks, (tasks) => tasks && withAnswers(tasks, rows)),
+      invalidate: () => [KEYS.cleared, KEYS.events],
+    }),
   })
 }
 
@@ -80,60 +101,114 @@ export function useCompleteTask() {
 // Snooze and comments (migration 0055)
 // ---------------------------------------------------------------------------
 
-function useInvalidateAgenda() {
-  const queryClient = useQueryClient()
-  // One prefix: the board, the badge, the comments and the cleared count.
-  return () => void queryClient.invalidateQueries({ queryKey: ['agenda'] })
-}
-
 /** tci.snooze_task: out of sight until `until`. Per task — a department
- * task is put aside for the department. */
+ * task is put aside for the department. Optimistic: the row leaves the
+ * board at once (activeTasks hides a snoozed task everywhere). */
 export function useSnoozeTask() {
-  const invalidate = useInvalidateAgenda()
+  const qc = useQueryClient()
+  const { session } = useAuth()
+  const me = session?.user.id ?? null
+  type Vars = { taskId?: string; taskIds?: readonly string[]; until: Date }
+  const of = (v: Vars) => (v.taskIds ? [...v.taskIds] : v.taskId ? [v.taskId] : [])
   return useMutation({
-    mutationFn: async ({ taskId, until }: { taskId: string; until: Date }): Promise<void> => {
-      const { error } = await tci().rpc('snooze_task', { p_task_id: taskId, p_until: until.toISOString() })
-      if (error) throw error
-    },
-    onSuccess: invalidate,
+    mutationKey: ['agenda', 'snooze'],
+    mutationFn: (v: Vars): Promise<Task[]> =>
+      Promise.all(
+        of(v).map(async (taskId) => {
+          const { data, error } = await tci().rpc('snooze_task', { p_task_id: taskId, p_until: v.until.toISOString() })
+          if (error) throw error
+          return data as unknown as Task
+        }),
+      ),
+    ...optimistic<Vars, Task[]>(qc, {
+      patches: () => [
+        patch<Task[], Vars>(KEYS.tasks, (tasks, v) => withSnooze(tasks, of(v), v.until.toISOString(), me), {
+          exact: true,
+        }),
+      ],
+      answer: (client, rows) => client.setQueryData<Task[]>(KEYS.tasks, (tasks) => tasks && withAnswers(tasks, rows)),
+      invalidate: () => [KEYS.events],
+    }),
   })
 }
 
 export function useUnsnoozeTask() {
-  const invalidate = useInvalidateAgenda()
+  const qc = useQueryClient()
   return useMutation({
-    mutationFn: async (taskId: string): Promise<void> => {
-      const { error } = await tci().rpc('unsnooze_task', { p_task_id: taskId })
-      if (error) throw error
-    },
-    onSuccess: invalidate,
+    mutationKey: ['agenda', 'unsnooze'],
+    mutationFn: (taskIds: string | readonly string[]): Promise<Task[]> =>
+      Promise.all(
+        asIds(taskIds).map(async (taskId) => {
+          const { data, error } = await tci().rpc('unsnooze_task', { p_task_id: taskId })
+          if (error) throw error
+          return data as unknown as Task
+        }),
+      ),
+    ...optimistic<string | readonly string[], Task[]>(qc, {
+      patches: () => [
+        patch<Task[], string | readonly string[]>(KEYS.tasks, (tasks, v) => withSnooze(tasks, asIds(v), null, null), {
+          exact: true,
+        }),
+      ],
+      answer: (client, rows) => client.setQueryData<Task[]>(KEYS.tasks, (tasks) => tasks && withAnswers(tasks, rows)),
+      invalidate: () => [KEYS.events],
+    }),
   })
 }
 
+/** A comment appears under the task at once (a pending placeholder, then
+ * the stored row the RPC answers with); a refusal takes it back. */
 export function useAddTaskComment() {
-  const invalidate = useInvalidateAgenda()
+  const qc = useQueryClient()
+  const { session } = useAuth()
+  const me = session?.user.id ?? ''
+  type Vars = { taskId: string; body: string }
   return useMutation({
-    mutationFn: async ({ taskId, body }: { taskId: string; body: string }): Promise<void> => {
-      const { error } = await tci().rpc('add_task_comment', { p_task_id: taskId, p_body: body })
+    mutationKey: ['agenda', 'comment'],
+    mutationFn: async ({ taskId, body }: Vars): Promise<TaskComment> => {
+      const { data, error } = await tci().rpc('add_task_comment', { p_task_id: taskId, p_body: body })
       if (error) throw error
+      return data as unknown as TaskComment
     },
-    onSuccess: invalidate,
+    ...optimistic<Vars, TaskComment>(qc, {
+      patches: () => [
+        patch<TaskComment[], Vars>(KEYS.commentsAll, (comments, v, key) =>
+          commentsKeyHolds(key, v.taskId)
+            ? withComment(comments, {
+                id: pendingId(),
+                task_id: v.taskId,
+                author_id: me,
+                body: v.body.trim(),
+                created_at: new Date().toISOString(),
+              })
+            : comments,
+        ),
+      ],
+      answer: (client, row) => {
+        for (const [key] of client.getQueriesData<TaskComment[]>({ queryKey: KEYS.commentsAll })) {
+          if (commentsKeyHolds(key, row.task_id)) {
+            client.setQueryData<TaskComment[]>(key, (comments) => comments && withComment(comments, row))
+          }
+        }
+      },
+      invalidate: () => [KEYS.events],
+    }),
   })
 }
 
 /** Comments on the given tasks, oldest first. RLS returns only those on
  * tasks the caller can see. */
 export function useTaskComments(taskIds: readonly string[]) {
-  const ids = [...new Set(taskIds)].sort()
+  const unique = [...new Set(taskIds)].sort()
   return useQuery({
-    queryKey: KEYS.comments(ids),
-    enabled: ids.length > 0,
+    queryKey: KEYS.comments(unique),
+    enabled: unique.length > 0,
     staleTime: 60_000,
     queryFn: async (): Promise<TaskComment[]> => {
       const { data, error } = await tci()
         .from('task_comments')
         .select('id, task_id, author_id, body, created_at')
-        .in('task_id', ids)
+        .in('task_id', unique)
         .order('created_at', { ascending: true })
       if (error) throw error
       return (data ?? []) as TaskComment[]

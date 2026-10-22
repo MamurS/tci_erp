@@ -455,8 +455,8 @@ export function PolicyFormPage() {
         <Button variant="secondary" onClick={() => void navigate(backTo)}>
           {t('common.cancel')}
         </Button>
-        <Button onClick={() => void handleSave()} disabled={saving || (submitted && blocked)}>
-          {saving ? t('common.saving') : t('common.save')}
+        <Button onClick={() => void handleSave()} disabled={submitted && blocked} loading={saving}>
+          {t('common.save')}
         </Button>
       </div>
     </div>

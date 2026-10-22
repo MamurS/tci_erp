@@ -15,10 +15,12 @@ import {
   Badge,
   Button,
   Callout,
+  COL,
   DetailHeader,
   EmptyState,
   Field,
   KeyFigures,
+  labelCol,
   Modal,
   Panel,
   Spinner,
@@ -99,10 +101,14 @@ export function DeclarationDetailPage() {
         actions={
           <>
             {canTransition(declaration.status, 'submitted') && (
-              <Button onClick={() => run(submit.mutateAsync(declaration.id))}>{t('declarations.actions.submit')}</Button>
+              <Button loading={submit.isPending} onClick={() => run(submit.mutateAsync(declaration.id))}>
+                {t('declarations.actions.submit')}
+              </Button>
             )}
             {canTransition(declaration.status, 'accepted') && (
-              <Button onClick={() => run(accept.mutateAsync(declaration.id))}>{t('declarations.actions.accept')}</Button>
+              <Button loading={accept.isPending} onClick={() => run(accept.mutateAsync(declaration.id))}>
+                {t('declarations.actions.accept')}
+              </Button>
             )}
             {/* Sending it back is the alternative to accepting, not a peer of
                 it: a secondary button, and the note is asked for in a dialog. */}
@@ -112,7 +118,11 @@ export function DeclarationDetailPage() {
               </Button>
             )}
             {canCorrect(declaration.status) && (
-              <Button variant="secondary" onClick={() => run(correct.mutateAsync({ id: declaration.id }))}>
+              <Button
+                variant="secondary"
+                loading={correct.isPending}
+                onClick={() => run(correct.mutateAsync({ id: declaration.id }))}
+              >
                 {t('declarations.actions.correct')}
               </Button>
             )}
@@ -158,15 +168,15 @@ export function DeclarationDetailPage() {
         {!lines?.length ? (
           <EmptyState title={t('declarations.noLines')} hint={t('declarations.noLinesHint')} />
         ) : (
-          <Table dense>
+          <Table dense columns={[COL.fill, '8.5rem', labelCol('coverageBasis'), '8.5rem', '8.5rem', '8.5rem']}>
             <thead>
               <tr>
                 <th>{t('limits.fields.buyer')}</th>
-                <th className="text-right">{t('declarations.fields.insurableTurnover')}</th>
+                <th className="num">{t('declarations.fields.insurableTurnover')}</th>
                 <th>{t('declarations.fields.coverageBasis')}</th>
-                <th className="text-right">{t('declarations.fields.covered')}</th>
-                <th className="text-right">{t('declarations.fields.uncovered')}</th>
-                <th className="text-right">{t('declarations.fields.reportedOverdue')}</th>
+                <th className="num">{t('declarations.fields.covered')}</th>
+                <th className="num">{t('declarations.fields.uncovered')}</th>
+                <th className="num">{t('declarations.fields.reportedOverdue')}</th>
               </tr>
             </thead>
             <tbody>
@@ -211,20 +221,18 @@ export function DeclarationDetailPage() {
               {t('common.cancel')}
             </Button>
             <Button
-              disabled={!disputeNote.trim() || dispute.isPending}
+              disabled={!disputeNote.trim()}
+              loading={dispute.isPending}
               title={disputeNote.trim() ? undefined : t('declarations.disputeNoteRequired')}
               onClick={() => {
                 setError(null)
+                // The status paints at once (optimistic), so the dialog
+                // closes at once; the note is kept until the server agrees.
+                setDisputing(false)
                 dispute
                   .mutateAsync({ id: declaration.id, note: disputeNote.trim() })
-                  .then(() => {
-                    setDisputing(false)
-                    setDisputeNote('')
-                  })
-                  .catch((e: unknown) => {
-                    setDisputing(false)
-                    setError(t(refusalKey(e)))
-                  })
+                  .then(() => setDisputeNote(''))
+                  .catch((e: unknown) => setError(t(refusalKey(e))))
               }}
             >
               {t('declarations.actions.dispute')}

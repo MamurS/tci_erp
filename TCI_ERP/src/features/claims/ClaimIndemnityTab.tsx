@@ -5,7 +5,16 @@
 import { ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Callout, Card, EmptyState, Panel, Spinner, Table } from '../../components/ui'
+import {
+  Badge,
+  Callout,
+  Card,
+  COL,
+  EmptyState,
+  Panel,
+  Spinner,
+  Table,
+} from '../../components/ui'
 import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
 import { useIndemnity } from './api'
 import type { Claim, IndemnityStep, IndemnityTrace } from './types'
@@ -75,12 +84,12 @@ function TraceCard({
         </Badge>
       }
     >
-      <Table dense>
+      <Table dense columns={[COL.fill, COL.fill, COL.money]}>
         <thead>
           <tr>
             <th>{t('claims.indemnity.stepLabel')}</th>
             <th>{t('claims.indemnity.applied')}</th>
-            <th className="text-right">{t('claims.indemnity.running')}</th>
+            <th className="num">{t('claims.indemnity.running')}</th>
           </tr>
         </thead>
         <tbody>
@@ -171,7 +180,8 @@ function StepRow({
   const failed = isThreshold && d.met === false
   return (
     <tr className={failed ? 'bg-neg-50' : undefined}>
-      <td>
+      {/* A trace reads as sentences: its two text columns wrap, never cut. */}
+      <td className="whitespace-normal">
         <span className="mr-2 text-slate-400">{index + 1}</span>
         {t(step.key)}
         {isThreshold && (
@@ -196,7 +206,7 @@ function StepRow({
           </span>
         )}
       </td>
-      <td className={failed ? 'text-neg-500' : 'text-slate-600'}>{applied}</td>
+      <td className={`whitespace-normal ${failed ? 'text-neg-500' : 'text-slate-600'}`}>{applied}</td>
       <td className="num font-medium">
         {formatAmount(Number(step.amount), locale)} {currency}
       </td>

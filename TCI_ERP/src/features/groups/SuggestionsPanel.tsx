@@ -33,10 +33,18 @@ export function SuggestionsPanel({
   mayEdit,
 }: SuggestionsPanelProps) {
   const { t } = useTranslation()
+  // Held here, not on the row: an accepted or rejected hint leaves the list
+  // at once (optimistic), so a refusal must be said where it outlives it.
+  const [error, setError] = useState<string | null>(null)
 
   return (
     <Card className="flex flex-col gap-3 p-5">
       <SectionTitle hint={t('groups.suggestions.hint')}>{t('groups.suggestions.title')}</SectionTitle>
+      {error && (
+        <p className="text-[13px] text-neg-500" role="alert">
+          {error}
+        </p>
+      )}
 
       {isLoading ? (
         <Skeleton className="h-16 w-full" />
@@ -45,7 +53,7 @@ export function SuggestionsPanel({
       ) : (
         <ul className="flex flex-col gap-3">
           {suggestions.map((s) => (
-            <SuggestionRow key={s.id} entityId={entityId} suggestion={s} mayEdit={mayEdit} />
+            <SuggestionRow key={s.id} entityId={entityId} suggestion={s} mayEdit={mayEdit} setError={setError} />
           ))}
         </ul>
       )}
@@ -57,10 +65,12 @@ function SuggestionRow({
   entityId,
   suggestion,
   mayEdit,
+  setError,
 }: {
   entityId: string
   suggestion: RelationshipSuggestion
   mayEdit: boolean
+  setError: (message: string | null) => void
 }) {
   const { t } = useTranslation()
   const accept = useAcceptSuggestion()
@@ -73,8 +83,6 @@ function SuggestionRow({
   const [thisIsParent, setThisIsParent] = useState(true)
   const [relationshipType, setRelationshipType] = useState<RelationshipType>('ownership')
   const [ownershipPct, setOwnershipPct] = useState('')
-  const [error, setError] = useState<string | null>(null)
-
   const otherId = suggestion.entity_a === entityId ? suggestion.entity_b : suggestion.entity_a
   const otherName =
     suggestion.entity_a === entityId ? suggestion.entity_b_name : suggestion.entity_a_name
@@ -100,12 +108,11 @@ function SuggestionRow({
 
   const handleReject = async () => {
     setError(null)
+    setConfirmReject(false)
     try {
       await reject.mutateAsync({ suggestionId: suggestion.id })
     } catch (e) {
       setError(t(groupErrorKey(e) ?? 'groups.errors.saveFailed'))
-    } finally {
-      setConfirmReject(false)
     }
   }
 
@@ -143,7 +150,7 @@ function SuggestionRow({
                 size="sm"
                 variant="dangerOutline"
                 onClick={() => setConfirmReject(true)}
-                disabled={reject.isPending}
+                loading={reject.isPending}
               >
                 {t('groups.suggestions.reject')}
               </Button>
@@ -180,8 +187,8 @@ function SuggestionRow({
                 )}
               </div>
               <div className="flex gap-2">
-                <Button size="sm" onClick={() => void handleAccept()} disabled={accept.isPending}>
-                  {accept.isPending ? t('common.saving') : t('groups.suggestions.createEdge')}
+                <Button size="sm" onClick={() => void handleAccept()} loading={accept.isPending}>
+                  {t('groups.suggestions.createEdge')}
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>
                   {t('common.cancel')}
@@ -190,12 +197,6 @@ function SuggestionRow({
             </div>
           )}
         </div>
-      )}
-
-      {error && (
-        <p className="mt-1.5 text-[13px] text-neg-500" role="alert">
-          {error}
-        </p>
       )}
 
       <ConfirmDialog

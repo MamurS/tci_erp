@@ -19,9 +19,11 @@ import {
   Button,
   Callout,
   Card,
+  COL,
   DateInput,
   EmptyState,
   Field,
+  labelCol,
   PageHeader,
   parseAmount,
   SectionTitle,
@@ -114,7 +116,8 @@ export function PortalOverduesPage() {
               <AmountInput value={amount} onChange={setAmount} suffix={activePolicy.currency_code} />
             </Field>
             <Button
-              disabled={!ready || file.isPending}
+              disabled={!ready}
+              loading={file.isPending}
               title={ready ? undefined : t('portal.overdues.fillToFile')}
               onClick={() => {
                 setError(null)
@@ -168,12 +171,15 @@ export function PortalOverduesPage() {
         ) : !overdues?.length ? (
           <EmptyState title={t('portal.overdues.empty')} hint={t('portal.overdues.emptyHint')} />
         ) : (
-          <Table>
+          <Table
+            columns={[COL.fill, COL.money, '7rem', COL.moment, labelCol('portalCover'), labelCol('overdueStatus')]}
+            fillMin="5.5rem"
+          >
             <thead>
               <tr>
-                <th className="cell-fill w-[30%]">{t('limits.fields.buyer')}</th>
-                <th className="text-right">{t('overdues.fields.overdueAmount')}</th>
-                <th className="text-right">{t('overdues.fields.daysPastDue')}</th>
+                <th>{t('limits.fields.buyer')}</th>
+                <th className="num">{t('overdues.fields.overdueAmount')}</th>
+                <th className="num">{t('overdues.fields.daysPastDue')}</th>
                 <th>{t('overdues.fields.reported')}</th>
                 <th>{t('portal.overdues.cover')}</th>
                 <th>{t('overdues.fields.status')}</th>
@@ -182,13 +188,13 @@ export function PortalOverduesPage() {
             <tbody>
               {overdues.map((n) => (
                 <tr key={n.id}>
-                  <td className="cell-fill font-medium">
+                  <td className="font-medium">
                     <Truncate text={n.buyer_name} className="max-w-none" />
                   </td>
-                  <td className="num text-right">
+                  <td className="num">
                     {formatAmount(Number(n.overdue_amount), locale)} {n.currency_code}
                   </td>
-                  <td className="num text-right">{n.days_past_due}</td>
+                  <td className="num">{n.days_past_due}</td>
                   <td className="whitespace-nowrap text-[13px]">
                     {n.reported_late ? (
                       <Badge tone="negStrong">{t('overdues.lateBy', { days: n.days_late })}</Badge>

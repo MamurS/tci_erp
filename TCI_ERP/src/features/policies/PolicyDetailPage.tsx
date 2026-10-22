@@ -25,6 +25,7 @@ import {
   Textarea,
   ActionsMenu,
 } from '../../components/ui'
+import { refusalOr } from '../../lib/optimistic'
 import type { MenuAction } from '../../components/ui'
 import type { TabDef } from '../../components/ui'
 import { ClaimsSection } from '../claims'
@@ -192,14 +193,17 @@ function StatusActions({ policy, onEdit }: { policy: PolicyWithRefs; onEdit: () 
 
   const targets = allowedTargets(policy.status)
 
+  // The badge changes at once (optimistic, api.ts), so a confirmation
+  // closes at once too; a refusal reopens it with the comment still there.
   const run = async (to: PolicyStatus, withComment: string) => {
     setError(null)
+    setPending(null)
     try {
       await changeStatus.mutateAsync({ to, comment: withComment.trim() || undefined })
-      setPending(null)
       setComment('')
-    } catch {
-      setError(t('policies.transitionFailed'))
+    } catch (failure) {
+      setError(t(refusalOr(failure, 'policies.transitionFailed')))
+      if (requiresComment(to)) setPending(to)
     }
   }
 
@@ -234,7 +238,7 @@ function StatusActions({ policy, onEdit }: { policy: PolicyWithRefs; onEdit: () 
   return (
     <>
       {next && (
-        <Button onClick={() => start(next)} disabled={changeStatus.isPending}>
+        <Button onClick={() => start(next)} loading={changeStatus.isPending}>
           {t(`policies.transitions.${next}`)}
         </Button>
       )}
@@ -261,12 +265,13 @@ function StatusActions({ policy, onEdit }: { policy: PolicyWithRefs; onEdit: () 
               <Button
                 variant={destructive(pending) ? 'danger' : 'primary'}
                 onClick={() => void run(pending, comment)}
-                disabled={changeStatus.isPending || (commentMandatory(pending) && !comment.trim())}
+                disabled={commentMandatory(pending) && !comment.trim()}
+                loading={changeStatus.isPending}
                 title={
                   commentMandatory(pending) && !comment.trim() ? t('policies.commentRequired') : undefined
                 }
               >
-                {changeStatus.isPending ? t('common.saving') : t(`policies.transitions.${pending}`)}
+                {t(`policies.transitions.${pending}`)}
               </Button>
             </>
           }

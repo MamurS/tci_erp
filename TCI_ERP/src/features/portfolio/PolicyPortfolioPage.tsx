@@ -10,7 +10,20 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, KeyFigures, Panel, Segmented, Spinner, Table, ViewBar, Truncate } from '../../components/ui'
+import {
+  Badge,
+  Card,
+  COL,
+  EmptyState,
+  KeyFigures,
+  labelCol,
+  Panel,
+  Segmented,
+  Spinner,
+  Table,
+  Truncate,
+  ViewBar,
+} from '../../components/ui'
 import { formatAmount, formatCompact, formatDate, formatDays, formatPercent } from '../../lib/format'
 import { statusTone } from '../policies/statusMachine'
 import type { PolicyPortfolioRow } from './aggregate'
@@ -37,7 +50,7 @@ const LOSS_BAR = { default: 'bg-accent-500', warn: 'bg-warn-500', neg: 'bg-neg-5
 /** A quiet second line under a figure. */
 function Sub({ children, tone }: { children: ReactNode; tone?: 'warn' }) {
   return (
-    <span className={`mt-0.5 block text-[11.5px] font-normal ${tone === 'warn' ? 'text-warn-500' : 'text-slate-500'}`}>
+    <span className={`mt-0.5 block text-[11.5px] font-normal whitespace-normal ${tone === 'warn' ? 'text-warn-500' : 'text-slate-500'}`}>
       {children}
     </span>
   )
@@ -192,15 +205,15 @@ export function PolicyPortfolioPage() {
               currencies are compared by eye. Amounts are never added ACROSS
               currencies (DESIGN.md). */}
           <Panel title={t('portfolio.policies.byCurrency')} hint={t('portfolio.policies.byCurrencyHint')}>
-            <Table dense>
+            <Table dense columns={['5.5rem', '8rem', '10rem', '8rem', '5rem', '8rem', '8rem']}>
               <thead>
                 <tr>
                   <th>{t('policies.fields.currency')}</th>
-                  <th className="text-right">{t('portfolio.policies.premiumBase')}</th>
+                  <th className="num">{t('portfolio.policies.premiumBase')}</th>
                   <th>{t('portfolio.policies.premiumPaid')}</th>
-                  <th className="text-right">{t('portfolio.policies.maxLiability')}</th>
-                  <th className="text-right">{t('portfolio.policies.claimsShort')}</th>
-                  <th className="text-right">{t('portfolio.policies.incurred')}</th>
+                  <th className="num">{t('portfolio.policies.maxLiability')}</th>
+                  <th className="num">{t('portfolio.policies.claimsShort')}</th>
+                  <th className="num">{t('portfolio.policies.incurred')}</th>
                   <th>{t('portfolio.policies.lossRatio')}</th>
                 </tr>
               </thead>
@@ -217,7 +230,7 @@ export function PolicyPortfolioPage() {
                         {formatCompact(c.premiumBase, locale)}
                         <Sub>{t('portfolio.policies.earned', { amount: formatCompact(c.earnedPremium, locale) })}</Sub>
                       </td>
-                      <td className="min-w-40">
+                      <td>
                         <div className="flex items-baseline justify-between gap-3 tabular-nums">
                           <span>{formatCompact(c.premiumPaid, locale)}</span>
                           <span className="text-[12px] text-slate-500">{formatPercent(paidShare, locale, 0)}</span>
@@ -237,7 +250,7 @@ export function PolicyPortfolioPage() {
                       {/* Nothing incurred is a real 0, as its 0.0% loss ratio says —
                           not «—», which means "not known". */}
                       <td className="num">{formatCompact(c.incurred, locale)}</td>
-                      <td className="min-w-28">
+                      <td>
                         <LossRatio pct={c.lossRatioPct} locale={locale} />
                       </td>
                     </tr>
@@ -270,7 +283,7 @@ export function PolicyPortfolioPage() {
             </div>
           </Panel>
 
-          <TableCard
+          <TableCard columns={[COL.code, COL.fill, COL.date, COL.days, '10.5rem', COL.pct]}
             title={t('portfolio.policies.renewals', { days: RENEWAL_WINDOW_DAYS })}
             hint={t('portfolio.policies.renewalsHint')}
             empty={renewals.length ? null : t('portfolio.policies.noRenewals')}
@@ -279,9 +292,9 @@ export function PolicyPortfolioPage() {
                 <th>{t('policies.fields.policyNumber')}</th>
                 <th>{t('policies.fields.policyholder')}</th>
                 <th>{t('policies.fields.expiryDate')}</th>
-                <th className="text-right">{t('portfolio.policies.daysLeft')}</th>
-                <th className="text-right">{t('portfolio.policies.premiumBase')}</th>
-                <th className="text-right">{t('portfolio.policies.lossRatio')}</th>
+                <th className="num">{t('portfolio.policies.daysLeft')}</th>
+                <th className="num">{t('portfolio.policies.premiumBase')}</th>
+                <th className="num">{t('portfolio.policies.lossRatio')}</th>
               </tr>
             }
           >
@@ -292,14 +305,14 @@ export function PolicyPortfolioPage() {
                   <Truncate text={r.policyholder_name}>{r.policyholder_name}</Truncate>
                 </td>
                 <td className="text-slate-500">{formatDate(r.expiry_date, locale)}</td>
-                <td className="num text-right">{formatDays(r.days_to_expiry, locale)}</td>
-                <td className="num text-right">{money(r.premium_base, r.currency_code)}</td>
+                <td className="num">{formatDays(r.days_to_expiry, locale)}</td>
+                <td className="num">{money(r.premium_base, r.currency_code)}</td>
                 <td className={`num ${LOSS_TEXT[lossTone(num(r.loss_ratio_pct))]}`}>{pct(num(r.loss_ratio_pct))}</td>
               </tr>
             ))}
           </TableCard>
 
-          <TableCard
+          <TableCard columns={[COL.code, COL.fill, labelCol('policyStatus'), '10.5rem', '10.5rem', COL.pct]}
             title={t('portfolio.policies.worst')}
             empty={worst.length ? null : t('portfolio.policies.noLosses')}
             head={
@@ -307,9 +320,9 @@ export function PolicyPortfolioPage() {
                 <th>{t('policies.fields.policyNumber')}</th>
                 <th>{t('policies.fields.policyholder')}</th>
                 <th>{t('policies.fields.status')}</th>
-                <th className="text-right">{t('portfolio.policies.premiumBase')}</th>
-                <th className="text-right">{t('portfolio.policies.incurred')}</th>
-                <th className="text-right">{t('portfolio.policies.lossRatio')}</th>
+                <th className="num">{t('portfolio.policies.premiumBase')}</th>
+                <th className="num">{t('portfolio.policies.incurred')}</th>
+                <th className="num">{t('portfolio.policies.lossRatio')}</th>
               </tr>
             }
           >
@@ -324,8 +337,8 @@ export function PolicyPortfolioPage() {
                     {t(`policies.statuses.${r.status}`)}
                   </Badge>
                 </td>
-                <td className="num text-right">{money(r.premium_base, r.currency_code)}</td>
-                <td className="num text-right">{money(r.incurred, r.currency_code)}</td>
+                <td className="num">{money(r.premium_base, r.currency_code)}</td>
+                <td className="num">{money(r.incurred, r.currency_code)}</td>
                 <td className={`num ${LOSS_TEXT[lossTone(num(r.loss_ratio_pct))]}`}>{pct(num(r.loss_ratio_pct))}</td>
               </tr>
             ))}

@@ -217,7 +217,13 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 | company / organization (registry entity; en "Company") | **Организация** | **Tashkilot** |
 | insured person | Застрахованное лицо | **Sug‘urtalanuvchi shaxs** |
 | insurer | Страховщик | **Sug‘urtalovchi** |
-| non-qualifying loss | NQL | **Qoplanmaydigan zarar (NQL)** |
+| non-qualifying loss | **Невозмещаемые убытки (NQL)**; «невозмещаемые убытки» in running text (NOT «Некредитуемый / Некомпенсируемый / Неквалифицируемый убыток») — owner-decided 2026-10-22 | **Qoplanmaydigan zarar (NQL)** |
+| insured percentage (`insured_percentage`) | **Процент покрытия** (NOT «страховой процент», «доля покрытия», «Страховое покрытие») — owner-decided 2026-10-22 | — (not decided; uz unchanged) |
+| aggregate first loss (AFL) | **Агрегатная франшиза** (NOT «Совокупная франшиза») — owner-decided 2026-10-22 | — (not decided; uz unchanged) |
+| policy (the insurance policy object) | **Полис** (NOT «Договор» / «по договору TCI-…»); «договор» stays ONLY for the generated contract document and its templates («Договоры», «Шаблоны договоров», «Проект договора», `wording.*`) and for the buyer's supply contract («Договор поставки») — owner-decided 2026-10-22 | — (not decided; uz unchanged) |
+| grade band (A/B/C/D/unrated, authority) | **Диапазон рейтинга** — «в диапазоне рейтинга B», «по диапазонам рейтинга» (NOT «рейтинговый класс», «класс B», bare «Диапазон», «грейд-бэнд»); en "rating band" — owner-decided 2026-10-22 | **reyting diapazoni** (NOT «reyting klassi», «reyting sinfi», bare «Diapazon») |
+| engine-calculated credit limit | **Рекомендуемый лимит** (NOT «Расчётный лимит (модель)», «Расчётный лимит»); en "Recommended limit" — owner-decided 2026-10-22 | **Tavsiya etilgan limit** |
+| overdue notification (NOA) | Уведомление о просрочке | **xabarnoma** in every form and suffix (NOT «bildirishnoma») — owner-decided 2026-10-22 |
 | discretionary limit | Дискреционный лимит | **Diskretsion limit** |
 | deductible | Франшиза | **Franshiza** |
 | risk | Риск | **Qaltislik** |
@@ -225,8 +231,11 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 | policy annulment | Аннулирован | **Annulyatsiya** / **Annulyatsiya qilingan** |
 | limit revocation (risk action) | Отозван | **Limitni bekor qilish** / **Bekor qilingan** |
 | request withdrawal (by requester) | Отозвана | **Qaytarib olish** / **Qaytarib olingan** |
-| claims (department / section) | Убытки | **Sug‘urta da’volari** |
+| claims (department / section / role / workspace) | **Претензии** (NOT «Убытки») — owner-decided 2026-10-22; «убыток / убытки» stays ONLY for the accounting loss (P&L, NQL, deductibles, incurred losses) | **Sug‘urta da’volari** |
+| a claim (the object) | **Претензия** (NOT «Требование», «Требование о возмещении», «Убыток», «дело по убытку») — owner-decided 2026-10-22 | **da’vo** |
 | insured event | Страховой случай | **Sug‘urta hodisasi** (the event itself — never for the department) |
+
+The ru decisions of 2026-10-22 (and uz «xabarnoma») are enforced by `src/i18n/ruTerminology.test.ts`, which names every retired variant it finds and the key it sits on.
 
 **Homonymy rule (owner-dictated).** Policy cancellation and limit revocation deliberately share the short status label **«Bekor qilingan»** — they live on different screens, so the badge is unambiguous in context. Buttons and confirmations must ALWAYS name the object: «Shartnomani bekor qilish», «Limitni bekor qilish». Never ship a bare «Bekor qilish» as a domain action. `zarar` stays the accounting term for *loss* (P&L, NQL, deductibles) and must not be swapped for `da’vo`.
 
@@ -328,7 +337,7 @@ is fine for internal test accounts and not fine for customers.
 - [x] Phase 1d: Analytics core — derived cash flow (indirect), risk analysis (Altman Z-double-prime), statutory/management split, multi-period display, CBU currency conversion, Excel export
 - [x] Phase 1f: Rating presentation & Risk Report — GradeScale, factor traffic lights, score history, buyer profile (founded/legal form), print-route PDF report en/ru/uz
 - [x] Phase 1g: Buyer dashboard — Overview tab as a living report composed from existing modules (requisites + compact GradeScale, factor chips, key-figure strip, clickable narrative bullets → tab/sub-tab drill-down, responsive dynamics charts); growth dynamics always in original statement currency; report print pagination fixed (verified headlessly)
-- [ ] Phase 1e: credit limit requests/decisions (UI will be modeled on screenshots of our legacy system — to be provided)
+- ~~Phase 1e: credit limit requests/decisions modelled on the legacy system's screens~~ — **CLOSED by the owner 2026-10-22**: there are no screenshots of the legacy system's limit requests/decisions (the ten in `legacy/СКРИНЩОТЫ ИСКК/` show its financial analysis card, already covered by 1a/1d), and the limit workflow of Phase 2b (+ 3c-1, 0053) stays as it is
 - [x] Phase 2a: commercial underwriting foundation — policyholder registry, TCI policies with wording terms, SQL status machine (change_policy_status + history), portal-ready policy RLS, dashboard stat cards (quotations deliberately deferred)
 - [x] Phase 2b: credit limit workflow — requests/decisions attached to (policy, buyer): one open request per pair, immutable decisions with typed conditions, authority routing in UZS (escalation to senior), supersede/revoke chains, exposure views, /limits workspace + request page, policy & buyer integration
 - [x] Phase 3a: unified legal-entities registry — tci.legal_entities merges buyers + policyholders (merge on country+reg number, FKs renamed to entity_id, old tables dropped), roles COMPUTED via v_entity_roles (never assigned), pg_trgm dedup-on-entry (blocking reg match + fuzzy suggestions), /entities registry + card with conditional tabs, legacy /buyers & /policyholders redirects
@@ -405,7 +414,7 @@ is fine for internal test accounts and not fine for customers.
   ratio tables with % change, commentary, glossary, group structure, page
   x of y). The NAME on every screen and report is the neutral "TCI ERP"
   from `src/lib/brand.ts`, never an insurer's or Delcreda's. Second pass:
-  Claude-style hideable sidebar (docked / hidden / hover-peek / drawer,
+  Claude-style hideable sidebar (docked / hidden / hover-peek / drawer — since Prompt 24 one fixed toggle that never moves and no animation, `e2e/shell/sidebar.spec.ts`;
   Ctrl/⌘ B), lazily loaded pages and en/uz strings, SVG flags, a work-first
   dashboard (KPI strip + own Agenda + non-zero signals), and the company
   card's **Overview tab is the online risk report** (same `RiskReportBody`
@@ -426,7 +435,7 @@ is fine for internal test accounts and not fine for customers.
   hop, and caps the compute endpoints. **Canonical: 0046–0048 fully applied**
   (2026-10-20): sections 1–4, 6 and most of 5 of 0046 through the MCP
   tooling, the remainder of 0046 plus 0047 and 0048 by the owner running
-  `docs/deploy/canonical-apply-0046-0048.sql` in the SQL Editor; verified
+  `docs/deploy/canonical-apply-0046-0048.sql` (since removed — in git history) in the SQL Editor; verified
   afterwards (ledger, guard triggers, `anon` executes only `login_begin`,
   `login_gate_enforced` still off, data counts unchanged)
 - [x] National statement forms + policy wording (migrations 0049–0051):
@@ -531,10 +540,80 @@ is fine for internal test accounts and not fine for customers.
   fix: `tci.tasks` lost the column UPDATE grant that let a REST PATCH close
   any automatic task. J/K/Enter/O/C/E/S/T keyboard. See **Agenda rules**
   below. **Canonical: 0055 applied 2026-10-21** in chunks (the owner runs
-  `docs/deploy/canonical-apply-0055.sql` for the one held DROP POLICY),
+  `docs/deploy/canonical-apply-0055.sql`, since removed, for the one held DROP POLICY),
   function bodies md5-identical to a local replay, live smoke with role
   impersonation rolled back, counts unchanged
-- [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
+- [x] Premium payments, instant UI, layout stability (Prompt 23, migration
+  0056): instalments are PAYMENT RECORDS — append-only `tci.premium_payments`
+  (payments and reversals, never edited), allocated OLDEST FIRST and DERIVED in
+  `tci.v_premium_instalments` (paid / outstanding / derived status, nothing
+  stored), an invoice step (`invoice_premium_instalment`), overpayment
+  REFUSED, a bank-statement import (per-bank profiles, matching on policy /
+  invoice number + amount + date, one-click confirm, the
+  `premium_payment_unmatched` Agenda type) and a service-role
+  `record_premium_payment_import(jsonb)` for a future accounting feed; a
+  payment closes the instalment tasks it settles. Schedule bug D fixed (an
+  anniversary policy counted «1 year 1 day» and got 13 monthly / 5 quarterly
+  instalments; the mock schedules regenerated, money preserved). Optimistic
+  writes with rollback across the app and a dev-only mutation timing log; a
+  Playwright LAYOUT GUARD (`e2e/layout/`) over every list screen in en/ru/uz
+  at 1280 and 1440, in CI, with the network to Supabase SEALED. See **Premium
+  payments rules**, **Tools never write to canonical** below and DESIGN.md
+  «No layout shift on interaction». **Canonical: 0056 applied 2026-10-22**
+  (dry run of the schedule regeneration first), live smoke with role
+  impersonation rolled back
+- [x] Contract drafts in the app (Prompt 25, migration 0057) — «Проект договора» is an editable document with immutable
+  versions. Generation turns the active wording template (the TEMPLATE, not a
+  rendered file) into the editor document — headings, numbered sections and
+  clauses, tables, lists, page breaks — in which every placeholder is a
+  merge-field chip (path, row, printed value); TipTap (open source, lazy chunk
+  on the editor route only) edits it; every save is a new
+  `tci.contract_versions` row (author, note, source generated / manual /
+  restored / refreshed, server-made merge-data snapshot); compare any two
+  versions inline or side by side; restore = a new version; a field refresh
+  changes field values only (DB-checked); regeneration over manual edits needs
+  confirmation (DB-checked); draft → under review (Agenda `contract_review` for
+  commercial underwriting, a SIXTH event trigger) → agreed → signed with the
+  scan in the private `contract-scans` bucket, then locked forever; DOCX export
+  in the browser (`docx`, lazy) and PDF through the print route; the portal
+  reads the SHARED version and comments while under review
+  (`v_client_contract_*`, `client_comment_contract_draft`). See **Contract
+  drafts rules** below. **Canonical: 0057 applied 2026-10-22** — sections 1–9
+  through the MCP tooling (fingerprints identical to a local replay), section
+  10 (the three removal guards) by the owner with
+  `docs/deploy/canonical-apply-0057.sql` (since removed); acceptance smoke (generate → edit →
+  compare → restore → review → share → agree → sign → locked) with role
+  impersonation rolled back, nothing left behind
+- [x] Commercial offers (КП) and the TCI brochure (Prompt 26, migration
+  0058): a commercial offer is generated from a submission at commercial
+  review / sales confirmation / client review, in its own language (ru / en /
+  uz), as versions whose TEXTS staff write in the Prompt 25 editor and whose
+  DATA the database composes (`tci.offer_merge_data`: client, proposed terms,
+  premium estimate and instalments, buyer limits marked approved / indicative
+  / declined, insurer particulars, contact — never a grade, an engine limit,
+  an authority or a comment). Draft → published → viewed → accepted /
+  changes requested / declined, withdrawn; EXPIRED derived from
+  `valid_until`. Publishing hands the submission to the client
+  (sales_confirmation → client_review); accepting in the portal IS the 3c
+  acceptance (`client_accept_offer` → `client_respond_to_submission`), and an
+  expired offer refuses acceptance from every path. A seventh trigger keeps
+  the offer in step with its submission and tells sales when the client first
+  opens it; `offer_expiring` / `offer_expired` are lazy. Print route (A4,
+  page x of y, brochure from a new page) → the browser's PDF; portal
+  «Предложения»; offers on the company card. The versioned product brochure
+  (`tci.brochure_versions`, current = latest published) and a licensed media
+  library (`tci.media_assets`, private `media-assets` bucket, alt in three
+  languages, source and licence required) are managed by admin and sales.
+  FIX riding along: since 0043 a client's own answer to a submission was
+  refused with 42501 (`begin_internal_call` refused every non-staff caller);
+  the answer step now marks itself trusted. See **Commercial offer rules**
+  below. **Canonical: 0058 applied 2026-10-22** in sections (refresh_agenda
+  rebuilt server-side from its 0056 body + one call), every 0058 function,
+  view, column and grant fingerprint-identical to a local replay; live smoke
+  with role impersonation (prospect: generate ru → edit → brochure → publish →
+  view → changes → republish → expiry refused twice → accept) rolled back,
+  counts unchanged, offer sequence reset
+- [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
 ## Design notes (future phases — recorded, not built)
@@ -563,11 +642,15 @@ is fine for internal test accounts and not fine for customers.
 * **Assignees are stored, not yet used.** `assigned_sales` / `assigned_commercial`
   / `assigned_credit` exist and are surfaced nowhere: the Agenda owns
   assignment, and inventing a second assignment UI now would compete with it.
-* **`buyer_resolution_status` beyond `ready` is still not advanced
-  automatically.** `rating_done` / `limit_done` are set by hand. The Agenda now
-  consumes `rating.created` and `limit.credit_decided` to CLOSE its own tasks,
-  but it does not write back to `insurance_request_buyers`; doing so is a small
-  follow-up in the same mapping.
+* ~~`buyer_resolution_status` beyond `ready` is not advanced
+  automatically~~ — **RESOLVED in 0059**. `tci.buyer_progress_status` derives
+  the status from facts (an effective credit-stage approved/partial decision
+  in the submission ⇒ `limit_done`, any rating ⇒ `rating_done`), and an
+  eighth trigger on `tci.workflow_events` (`rating.created`,
+  `limit.credit_decided`, `request.buyer_resolved`, `request.buyer_added`)
+  moves rows of LIVE submissions forward only. A declined limit stays at
+  `rating_done`. Canonical: applied 2026-10-22 after a rolled-back dry run
+  (8 of 11 rows moved forward, none back), fingerprints identical.
 
 ### Workflow event catalogue (`tci.workflow_events`, migration 0019)
 
@@ -1056,7 +1139,8 @@ body (a quoted string literal is fine). Split a migration at section
 boundaries, apply the clean sections with `execute_sql`, and hand the rest
 to the owner as one transactional SQL Editor script that ends with the
 closing assertions and the ledger insert
-(`docs/deploy/canonical-apply-0046-0048.sql` is the template). Do not
+(the template is `docs/deploy/canonical-apply-0057.sql` in git history,
+commit 05d4381; owner scripts are deleted once run and verified). Do not
 disguise the keywords to get past the check.
 
 *Update 2026-10-20:* the hold has moved. `alter … drop not null` and a
@@ -1261,6 +1345,184 @@ automatic task (no source event, ⚡) is an i18n key over params, rendered by
 the «Сегодня» label, the due label and the «Эскалация» tag carry amber as a
 stripe, a dot, a fill or a ring, with dark text.
 
+### Premium payments rules (migration 0056)
+
+**Money is a list of payments; everything else is derived.** An instalment
+stores only its BILLING state (`pending` / `invoiced` / `cancelled`; a check
+forbids `paid`). `tci.v_premium_instalments` lets the policy's net payments
+(payments − reversals) fill the instalments OLDEST FIRST — by `due_date`, then
+`sequence`; a cancelled instalment takes nothing — and derives `paid_amount`,
+`outstanding` and the status, in this precedence: cancelled > paid > overdue
+(outstanding and past due) > partially_paid > invoiced > pending. `premium.ts`
+mirrors the allocation cent-exact and the precedence order, contract-tested
+against the migration text, so a payment paints before the server answers.
+
+**Corrections are reversals, never edits.** `tci.premium_payments` has no
+UPDATE or DELETE for any API role; `reverse_premium_payment` writes a
+`reversal` row pointing at the payment (`reverses_id` is unique: a payment is
+reversed once, a reversal never). **An overpayment is refused**
+(`payment_exceeds_outstanding`, P0001): money beyond what the schedule owes is
+not premium, and a credit balance has no home until accounting exists.
+
+**Every write answers with the schedule.** `record_premium_payment`,
+`reverse_premium_payment` and `invoice_premium_instalment` return `setof
+v_premium_instalments` for the policy, so the screen takes the answer instead
+of refetching. A payment that settles an instalment closes its
+`instalment_due` / `instalment_overdue` tasks; a reversal reopens them through
+`refresh_agenda`, which reads the view.
+
+**The bank import matches, a person confirms.** Lines are matched on a policy
+or invoice number found in the payment text (`payment_text_key`), the amount
+and the date; a matched line still needs one click (`confirm_bank_lines`), an
+unmatched one is assigned or ignored by hand, and while any line is unmatched
+the import carries one `premium_payment_unmatched` task.
+`record_premium_payment_import(jsonb)` is `require_service_role()` only — the
+door for a future accounting feed; no connector exists.
+
+**The instalment count steps from inception** (bug D). 0027 measured
+`age(expiry + 1, inception)`, so an anniversary policy read as one year and
+one day and got 13 monthly / 5 quarterly instalments, the last two clamped
+onto the expiry date. Periods now start at inception + k months and count
+while the start is before the last day of cover; 0056 asserts the invariants
+on every schedule (the count, sum = minimum premium, no two instalments on
+one date) and the anniversary cases on fixtures.
+
+### Tools never write to canonical (incident 2026-10-22)
+
+A latency harness measured clicks against the canonical project with
+Playwright route stubs, and `unrouteAll()` released stubbed writes that were
+still inside their injected delay: a premium payment, three snoozes, eight
+escalating decisions and a declaration acceptance reached the owner's data
+and were undone by hand. The rules since:
+
+* **E2E, layout and latency runs never touch `*.supabase.co`.**
+  `e2e/support/network.ts` `sealNetwork(context)` aborts every request no stub
+  answers — never `continue()`, never `fetch()` — and fails the test on any
+  response from a real host. Slow networks are SIMULATED with an injected
+  delay.
+* **The only reader of canonical is `tools/layout-fixtures/record.mjs`**, run
+  by hand: GET/HEAD and STABLE functions only, writes answered locally,
+  output sanitised (`@demo.invalid` e-mails, no names or phones).
+* **A canonical smoke is one transaction ending in a forced rollback**, as
+  before. Anything else that writes is a bug.
+
+### Commercial offer rules (migration 0058)
+
+**The browser writes words; the database writes facts.** A version's
+`texts` (one editor document per block: intro, why TCI, conditions, next
+steps) come from the screen; its `data` is composed by `tci.offer_merge_data`
+on EVERY save, so terms, premium and limits always print what the submission
+says now. A buyer limit is `approved` only for an effective approved/partial
+decision that is not held, `declined` for a declined/revoked one, and
+`indicative` (the requested amount) otherwise. `offer_merge_data` is granted
+to no API role, and 0058 plus `tests/db/commercial_offers.sql` assert that
+the client view carries no internal column and the data no internal field.
+
+**One source of truth for acceptance.** The offer FOLLOWS its submission:
+`client_accept_offer` and `client_request_offer_changes` call
+`client_respond_to_submission`, and the seventh trigger
+(`handle_offer_event`) settles the live offer from `request.status_changed`
+whichever screen answered. «Request changes» reuses the existing reopen of
+`submission_sales_confirmation` with the client's comment — no second sales
+task. Publishing is sales' step (sales_confirmation → client_review);
+withdrawing a published offer hands the submission back with the reason.
+
+**Expiry is derived and binding.** `tci.offer_effective_status` reads
+`expired` for a published/viewed offer past `valid_until` (the day in
+Tashkent, `tci.offer_today`); nothing is rewritten when the date passes.
+`client_respond_to_submission` itself refuses to accept a submission whose
+offer has expired, so the older «Мои заявки» page is not a way around it.
+Asking for changes stays possible after expiry ("renew it").
+
+**Versions and brochures are immutable.** An offer version is never updated
+(trigger, owner included); a brochure version's content never changes and
+only its status moves (draft → published → retired; the current brochure is
+the latest published, embedded in a version when that version is saved).
+`save_brochure_version` stamps each image's storage path and alt text from
+the library onto the section — a portal client cannot read the library, and
+a later alt edit must not rewrite a published brochure.
+
+**The client answer path is trusted code.** `advance_insurance_request`
+opens with `begin_internal_call()`, which refuses non-staff. A client
+reaches it only through `client_respond_to_submission`, which now calls
+`begin_trusted_call()` first, and `begin_internal_call()` accepts a
+transaction that already carries the token. A client calling it directly is
+still refused (asserted). This was broken from 0043 to 0058: no DB test had
+exercised the client's own answer.
+
+**The brochure's claims are reviewed before anything reaches a client.** The
+default brochure text is a DRAFT offered in the editor; it is never published
+automatically, and nothing without a recorded source and licence enters the
+media library. Statistics, partner names, ratings and awards are never
+invented. Every statement the draft makes is listed for sign-off in
+`docs/BROCHURE-CLAIMS.md` (generated from `BROCHURE_CLAIMS` in
+`defaultContent.ts`; the two marked ⚠ — collection support and disputed
+debts — are not modelled by the system and need the owner's confirmation).
+
+### Contract drafts rules (migration 0057)
+
+**The template is converted, not the rendered file.** `contracts/fromDocx.ts`
+reads the wording template's own .docx parts with its `{{placeholders}}`,
+evaluates the sections against the printable context of `wording/context.ts`
+(a list repeats — in a paragraph, over paragraphs, over table rows; a value
+shows or hides; a paragraph emptied by a hidden section disappears) and emits
+the editor document, in which each placeholder is a `mergeField` chip carrying
+its catalogue path, its row index inside `limits`, and the value it printed.
+The mapping table is the file header; what is not carried (images, text
+boxes, headers/footers, run fonts and spacing, multi-level lists, column
+widths) comes back as conversion warnings shown on the viewer once.
+
+**Numbers are derived, never text.** A numbered section heading carries
+`numbered: true`, a clause paragraph `clause: true`; `numbering.ts` is the
+one rule (N. / N.M., a clause before any section is M.) used by the viewer,
+the editor (ProseMirror decorations), the print route, the comparison and
+the DOCX export. The template's typed «2.1.» is stripped at conversion, so a
+hidden conditional clause closes its gap.
+
+**Versions are never changed.** No INSERT/UPDATE grant for `authenticated`
+on the four tables, SELECT + INSERT only for `service_role`, a BEFORE UPDATE
+trigger for everyone, and (section 10, an owner step) a BEFORE DELETE
+trigger. Every write is a gated SECURITY DEFINER function;
+`save_contract_version` takes the BASE version number and refuses a save on
+top of a newer one (`contract_version_conflict`), refuses an identical
+document (`contract_version_unchanged`), refuses `generated` over manual
+edits without `p_confirm_replace` (`contract_has_manual_edits`, mirrored by
+`machine.ts hasManualEdits`), and refuses a `refreshed` version whose
+`tci.contract_skeleton` (the document with every merge-field VALUE removed)
+differs from its base — a field refresh cannot touch the words. A restore is
+copied server-side from the old version, never taken from the browser.
+
+**The machine** (`contract_transition_allowed`, mirrored and contract-tested
+in `machine.ts`): draft → under_review → agreed → signed; under_review and
+agreed go back to draft, agreed only with a reason and only by commercial
+underwriting or admin, who alone agree; writers are admin, commercial
+underwriting and sales; editing in draft and under_review only; signed is
+reached only by `sign_contract_draft` with the signer's own PDF at
+`contract-scans/<draft>/<file>.pdf`, and a trigger keeps a signed row final.
+A change to a signed contract will be an endorsement (not built).
+
+**The client sees what was shared, never more.** `share_contract_draft` pins
+the CURRENT version; a later save does not move what the client sees. The
+portal reads `v_client_contract_drafts` (definer view over base tables,
+`has_role('client')` + `my_client_entities()`, status under review / agreed
+/ signed) and its own side of the comments; staff comments, authors and the
+merge-data snapshot never reach it. The client comments only while the draft
+is under review, and the comment rides on the open review task as
+`client_comment` (shown by the Agenda as the policyholder's origin comment).
+
+**Nothing leaves our infrastructure.** No viewer or editor service: the
+editor is TipTap in a lazy chunk; .docx is built in the browser with `docx`
+(lazy); PDF is the print route (`/policies/contracts/:id/print`, @page from
+the template's page size and margins, «page x of y» in the document's
+language) and the browser's own «Save as PDF».
+
+**The local working copy is not a version.** The editor writes
+`tci-contract-wc:<draft>:<user>` to localStorage on change (guarded; the page
+works without it), offers it back on return, and asks before leaving with
+unsaved changes (beforeunload + in-app link capture — the BrowserRouter has
+no blocker). Only «Сохранить версию» (⌘S, with an optional change note)
+makes a version.
+
 ### Credit workbench rules (migration 0053)
 
 **A section is a set of views, and the roles choose which.** «Полисы» and
@@ -1429,16 +1691,34 @@ reference Internet Resheniya figures produce 6 pages in en and uz, 7 in ru.
 
 ### Replaying the migration chain locally
 
-Phase 5 was developed against a **local Postgres 16** with a small Supabase
-stub (roles, `auth.users` + `auth.uid()`, `storage.buckets`/`objects`,
-`pg_trgm` in schema `extensions`), replaying `0001` … `latest` with
-`psql --single-transaction` per file. It is worth rebuilding when a phase gets
-large: it caught two real defects that typecheck, lint and the unit tests all
-missed — four staff views shipped with **no `select` grant** (every claims
-screen would have rendered "permission denied"), and the `text[] || 'literal'`
-crash above. Two things to know: use `--single-transaction`, because
-`apply_migration` is transactional and 0015 relies on a temp table surviving
-between statements; and install `pg_trgm` into `extensions`, not `public`.
+The harness is committed in **`TCI_ERP/tools/db/`** (audit Phase B):
+`bootstrap.sql` is the Supabase stub (API roles, `auth.users` + `auth.uid()`,
+`storage.buckets`/`objects`, pgcrypto and `pg_trgm` in schema `extensions`,
+database `search_path = public, extensions`), and
+
+```sh
+createdb tci_replay                     # a FRESH, empty database
+TCI_ERP/tools/db/replay.sh tci_replay   # name or URL; stub + 0001…latest + tests/db/*.sql
+```
+
+applies every migration with `psql -v ON_ERROR_STOP=1 --single-transaction`,
+one transaction per file, then runs every `tests/db/*.sql`, stopping at the
+first failure (`--no-tests`, `--tests-only` for a restored backup). It needs
+a superuser connection and takes seconds. CI runs it on a **Postgres 17**
+service container (`.github/workflows/db.yml`, on changes to migrations,
+`tests/db` or `tools/db`); run it locally before applying a migration to
+canonical. A new `tests/db/*.sql` must roll back and print one
+`<name>: OK — …` notice, which is how `replay.sh` knows it passed.
+`tools/db/schema-fingerprint.sql` + `ledger-check.md` compare a replay with
+canonical; `docs/BACKUP-RESTORE.md` restores a nightly backup into it.
+
+It has paid for itself: it caught defects that typecheck, lint and the unit
+tests all missed — four staff views shipped with **no `select` grant** (every
+claims screen would have rendered "permission denied"), and the
+`text[] || 'literal'` crash above. Two things to know: use
+`--single-transaction`, because `apply_migration` is transactional and 0015
+relies on a temp table surviving between statements; and `pg_trgm` lives in
+`extensions`, not `public`.
 
 ### Client visibility (migration 0025)
 
@@ -1491,16 +1771,17 @@ Agenda task, now carrying the client's comment.
 
 ### The analytics service in production (Phase 3d)
 
-**Not hosted yet — hosting is deferred.** The Render blueprint
-(`Dockerfile` + `render.yaml` at the repository root — the build context
-must be the root, because the service imports `credit_engine` as an
-editable path dependency) is ready to use, and its free tier sleeps after
-~15 min idle (~1 min cold start) with $7/mo Starter removing that. The
-current preferred option is **Cloudflare Containers on the existing
-account** ($5/mo Workers Paid, 1–3s cold start) — see **The service-role
-key** above for the comparison. Until one is chosen and set up, users are
-created by hand: `docs/create-user.sql`. Full runbook, env vars and key
-rotation: `services/analytics/README.md`.
+**Not hosted yet — the deploy is prepared and waits for the owner's
+dashboard steps.** Host: **Cloudflare Containers** on the existing account
+($5/mo Workers Paid). `deploy/cloudflare-analytics/` holds the Worker that
+fronts one `lite` container built from the repo-root `Dockerfile` (build
+context = the root, because the service imports `credit_engine` as a path
+dependency); it overwrites the client-IP headers from the edge's
+`CF-Connecting-IP` and passes the service's env from Worker vars/secrets.
+Owner steps, secrets and the follow-up CSP change:
+[`services/analytics/README.md` → Cloudflare Containers](services/analytics/README.md#cloudflare-containers).
+`render.yaml` stays as a fallback. Until the steps are done, users are
+created by hand: `docs/create-user.sql`.
 
 Hardening that must not regress: CORS allowlist + an ANCHORED preview regex
 (never `*`), 1 MB body cap, 30s request deadline, opaque 500s with a request

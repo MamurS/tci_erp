@@ -76,10 +76,11 @@ export function RelationshipModal({ open, onClose, entityId, entityName }: Relat
           </Button>
           <Button
             onClick={() => void handleSave()}
-            disabled={!valid || save.isPending}
+            disabled={!valid}
+            loading={save.isPending}
             title={otherId ? undefined : t('groups.errors.counterpartyRequired')}
           >
-            {save.isPending ? t('common.saving') : t('common.save')}
+            {t('common.save')}
           </Button>
         </>
       }

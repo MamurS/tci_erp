@@ -1,22 +1,26 @@
 /**
  * The views of the «Полисы» section and their ?view= values. The portfolio
- * overview is commercial underwriting's own (and admin's); everyone else who
- * may open /policies gets the registry, the contracts and the templates.
+ * overview and the bank-statement payments are commercial underwriting's own
+ * (and admin's: tci.bank_statement_* is theirs alone); everyone else who may
+ * open /policies gets the registry, the contracts and the templates.
  */
 
 import { hasRole } from '../../lib/roles'
 import type { UserRole } from '../../lib/roles'
 
-export const POLICY_VIEWS = ['overview', 'registry', 'contracts', 'templates'] as const
+export const POLICY_VIEWS = ['overview', 'registry', 'payments', 'contracts', 'templates'] as const
 export type PolicyView = (typeof POLICY_VIEWS)[number]
 
-/** Commercial underwriting and admin see the portfolio overview. */
+/** The views only the commercial desk sees. */
+const COMMERCIAL_DESK_VIEWS: readonly PolicyView[] = ['overview', 'payments']
+
+/** Commercial underwriting and admin see the portfolio overview and payments. */
 export function isCommercialDesk(roles: readonly UserRole[]): boolean {
   return hasRole(roles, 'admin', 'commercial_underwriter')
 }
 
 export function policyViewsFor(roles: readonly UserRole[]): readonly PolicyView[] {
-  return isCommercialDesk(roles) ? POLICY_VIEWS : POLICY_VIEWS.filter((v) => v !== 'overview')
+  return isCommercialDesk(roles) ? POLICY_VIEWS : POLICY_VIEWS.filter((v) => !COMMERCIAL_DESK_VIEWS.includes(v))
 }
 
 /** A known view the roles may see, otherwise the first one: the overview for

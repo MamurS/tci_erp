@@ -46,13 +46,220 @@ The endpoints authenticate the **caller** with the caller's own Supabase
 access token and load their roles from `tci.user_roles` server-side. A role
 claimed in a request body is never trusted; there is no such field.
 
+## Cloudflare Containers
+
+> **Status: prepared, not yet deployed.** The chosen host is Cloudflare
+> Containers on the existing Cloudflare account. Everything the deploy needs is
+> in [`deploy/cloudflare-analytics/`](../../deploy/cloudflare-analytics); what
+> is left are the owner's dashboard steps below. Until they are done, users are
+> created by hand with `docs/create-user.sql` (root `CLAUDE.md`, **Creating
+> users while the service is unhosted**).
+
+### How it is put together
+
+```
+browser ──https──▶ Worker "tci-analytics" (deploy/cloudflare-analytics/src/index.ts)
+                     │  sets CF-Connecting-IP + X-Forwarded-For from the edge's
+                     │  CF-Connecting-IP, drops every client-sent address header
+                     ▼
+                   Durable Object "AnalyticsContainer" (one instance, by name)
+                     ▼
+                   container: the repo-root Dockerfile, uvicorn on :8000
+```
+
+| What | Where | Value |
+|---|---|---|
+| Worker + container config | `deploy/cloudflare-analytics/wrangler.jsonc` | `image: ../../Dockerfile`, `image_build_context: ../..` (the repo root — the service needs `credit_engine/`) |
+| Instance type | same | `lite` — 1/16 vCPU, 256 MiB, 2 GB disk (the service measures ~27 MiB RSS) |
+| Instances | same | `max_instances: 2`; the Worker only ever addresses ONE instance, because the rate limiter is in-process. The second slot is headroom. |
+| Sleep | `src/index.ts` | `sleepAfter = '10m'`: the container stops after 10 idle minutes (billing stops with it); the next request cold-starts it |
+| Readiness probe | `src/index.ts` | `pingEndpoint = 'localhost/health'` |
+| Container port | `src/index.ts` / `Dockerfile` | `8000` (`PORT` is passed explicitly) |
+| Plain configuration | `wrangler.jsonc` → `vars` | committed, see the table below |
+| Secrets | Worker → Settings → Variables and Secrets | set by the owner, never in the repo |
+
+**Client IP.** `app/hardening.py` `client_ip()` trusts `CF-Connecting-IP`,
+else the right-most `X-Forwarded-For` hop, and only when
+`TRUST_PROXY_HEADERS=true`. The container has no public address — every request
+reaches it through the Worker — and the Worker OVERWRITES `CF-Connecting-IP`
+and `X-Forwarded-For` with the edge's `CF-Connecting-IP` and deletes
+`X-Real-IP`, `True-Client-IP`, `Forwarded` and `CF-Connecting-IPv6`. Nothing a
+client sends is appended. The Worker also drops `cf-container-target-port`,
+which the `@cloudflare/containers` proxy would otherwise obey to pick the
+container port. Locked by `deploy/cloudflare-analytics/test/forward.test.ts`.
+
+**Environment.** The Worker passes exactly the variables this service reads
+(the test reads them out of `app/*.py`, so a new one fails until it is listed
+in `src/forward.ts`); an empty one is left out, so the service's own default
+applies. The container reads its environment **when it starts**: a secret
+added or changed later reaches the service at its next start, i.e. after 10
+idle minutes, not immediately.
+
+**Errors.** The service's own errors pass through unchanged (they are JSON and
+opaque). When the container cannot be reached, or the proxy answers with its
+own text error, the Worker returns `503 {"detail":"analytics service
+unavailable"}` and logs the cause — the frontend already has an unavailable
+state for this.
+
+#### Variables passed to the container
+
+| Variable | Kind | Value |
+|---|---|---|
+| `SUPABASE_URL` | var (`wrangler.jsonc`) | `https://reunqrpeumokqgarknge.supabase.co` |
+| `CORS_ALLOW_ORIGINS` | var (`wrangler.jsonc`) | `https://tci-erp.pages.dev` — plus `,https://<custom-domain>` once one is added (by commit) |
+| `TRUST_PROXY_HEADERS` | var (`wrangler.jsonc`) | `true` |
+| `LOG_LEVEL` | var (`wrangler.jsonc`) | `INFO` |
+| `SUPABASE_SERVICE_ROLE_KEY` | **secret** (dashboard) | Supabase → Project Settings → API keys → `service_role` |
+| `COMPANIES_HOUSE_API_KEY` | **secret** (dashboard), optional | key from developer.company-information.service.gov.uk; unset = source off |
+| `CORS_PREVIEW_REGEX`, `MAX_BODY_BYTES`, `REQUEST_TIMEOUT_SECONDS`, `PROVISIONING_PER_IP_PER_HOUR`, `PROVISIONING_PER_CALLER_PER_HOUR`, `COMPUTE_PER_IP_PER_HOUR` | not set | the service defaults (see **Environment variables** below) apply |
+| `PORT` | set by the Worker | `8000` |
+
+Plain vars live in `wrangler.jsonc` on purpose: every deploy re-applies them,
+so a value edited only in the dashboard would be overwritten by the next push.
+Change them by commit. Secrets are never touched by a deploy.
+
+**CORS.** No code change is needed for Cloudflare Pages. Production
+`https://tci-erp.pages.dev` is matched exactly by `CORS_ALLOW_ORIGINS`;
+commit previews (`https://<hash>.tci-erp.pages.dev`) and branch aliases
+(`https://<branch>.tci-erp.pages.dev`) by the anchored default
+`^https://[a-z0-9][a-z0-9-]*\.tci-erp\.pages\.dev$`. Do not list previews, and
+never use `*`. Setting `CORS_ALLOW_ORIGINS` replaces the localhost defaults,
+which is what production wants.
+
+### Owner steps
+
+All in the Cloudflare dashboard of the account that already serves the
+`tci-erp` Pages project.
+
+1. **Enable Workers Paid ($5/month).** [Workers & Pages → Plans](https://dash.cloudflare.com/?to=/:account/workers/plans)
+   → **Workers Paid** → *Purchase*. Containers have no free tier.
+2. **Create the Worker from the repository** (Workers Builds).
+   [Workers & Pages](https://dash.cloudflare.com/?to=/:account/workers-and-pages)
+   → **Create application** → **GitHub** (authorise `MamurS/tci_erp` if asked)
+   → pick the repository, then set:
+
+   | Field | Value |
+   |---|---|
+   | Project / Worker name | `tci-analytics` (must equal `name` in `wrangler.jsonc`) |
+   | Production branch | `main` |
+   | Build command | *(leave empty — Workers Builds installs `package.json` dependencies itself)* |
+   | Deploy command | `npx wrangler deploy` |
+   | Root directory (under *Advanced settings*) | `deploy/cloudflare-analytics` |
+
+   **Save and Deploy.** The build compiles the Docker image from the repo
+   root; the first one takes several minutes, and container requests can fail
+   for a few more minutes while Cloudflare provisions the image.
+3. **Build settings** — the Worker → **Settings → Build**:
+   * **Branch control**: untick *Enable Preview Builds*. Only `wrangler deploy`
+     on the production branch updates the container; previews would only add
+     builds.
+   * **Build watch paths** → Include: `deploy/cloudflare-analytics/*`,
+     `services/analytics/*`, `credit_engine/*`, `Dockerfile`,
+     `.dockerignore`. A frontend-only commit then does not rebuild the
+     service.
+4. **Set the secrets — before the first request reaches the service.** The
+   Worker → **Settings → Variables and Secrets → Add** → type **Secret**:
+
+   | Name | Value |
+   |---|---|
+   | `SUPABASE_SERVICE_ROLE_KEY` | Supabase dashboard → Project Settings → API keys → `service_role` → reveal → copy |
+   | `COMPANIES_HOUSE_API_KEY` | *(optional)* the Companies House key; skip to leave the UK source off |
+
+   **Deploy.** Do not add the plain vars here — they come from
+   `wrangler.jsonc`.
+5. **Find the service URL.** The Worker → **Settings → Domains & Routes**
+   shows `https://tci-analytics.<your-account-subdomain>.workers.dev`.
+   That is `<service-url>` below.
+6. **Verify.** Open, or `curl`:
+   * `<service-url>/health` → `{"status":"ok","engine_version":"…"}` (the first
+     call cold-starts the container — give it up to ~20 s, retry once if it
+     answers 503);
+   * `<service-url>/users/provisioning-status` → `{"configured":true}`.
+     `false` means the service started without the secret: check step 4,
+     wait 10 minutes without calling the service (the container goes to
+     sleep), and try again.
+7. **Point the frontend at it.** [Workers & Pages](https://dash.cloudflare.com/?to=/:account/workers-and-pages)
+   → the **`tci-erp`** Pages project → **Settings → Variables and Secrets → Add**,
+   type *Text*, once for **Production** and once for **Preview**:
+
+   | Variable | Value |
+   |---|---|
+   | `VITE_ANALYTICS_API_URL` | `<service-url>` — no trailing slash |
+
+   Vite inlines it at BUILD time: **Deployments → … → Retry deployment** on the
+   latest production deployment (or push any commit).
+8. **Hand the URL to the developer** for the CSP change below. Until that
+   change is deployed, the browser blocks every call to the service and the
+   screens stay in their unavailable state.
+
+### Then the developer
+
+* Add `<service-url>` to `connect-src` in `TCI_ERP/public/_headers`
+  (the comment there already says so), e.g.
+  `connect-src 'self' https://reunqrpeumokqgarknge.supabase.co wss://reunqrpeumokqgarknge.supabase.co https://tci-analytics.<sub>.workers.dev;`
+  — the exact origin, never `*.workers.dev`. Re-run the headless CSP check.
+* If the owner adds a custom domain to the Pages project, append it to
+  `CORS_ALLOW_ORIGINS` in `deploy/cloudflare-analytics/wrangler.jsonc`.
+* Update the status lines in the root `CLAUDE.md` and in this README.
+
+### Redeploying, logs, rotation
+
+* **Redeploy**: push to `main` touching a watched path; or the Worker →
+  **Deployments → View build history → Retry build**. A deploy that changes
+  the image or the container config rolls the container; a Worker-only
+  change does not.
+* **Logs**: the Worker → **Observability**, or [Workers & Pages → Containers](https://dash.cloudflare.com/?to=/:account/workers/containers)
+  for instance status. The service's JSON access lines appear there (no
+  header values, no bodies, no key).
+* **Rotate the service-role key**: rotate in Supabase, replace
+  `SUPABASE_SERVICE_ROLE_KEY` in the Worker's Variables and Secrets →
+  **Deploy**, then wait 10 idle minutes (or retry a build that changes the
+  image) so the container restarts with it; check
+  `/users/provisioning-status`.
+* **Local run** (developer, needs Docker): `cd deploy/cloudflare-analytics &&
+  npm ci && npx wrangler dev`, with test values in a git-ignored `.dev.vars`.
+  Never `wrangler deploy` from a laptop with real secrets in `.dev.vars`.
+
+### Checks
+
+```bash
+cd deploy/cloudflare-analytics
+npm ci
+npm run typecheck   # the Worker (workers types) and the tests (node types)
+npm test            # node --test: IP rewrite, env list vs app/*.py, port, /health
+```
+
+### Documentation relied on (checked 2026-10-22)
+
+* Get started — <https://developers.cloudflare.com/containers/get-started/>
+* Wrangler configuration for Containers — <https://developers.cloudflare.com/containers/configuration/wrangler/>
+  and the full field reference — <https://developers.cloudflare.com/workers/wrangler/configuration/#containers>
+* Scheduling policies (`default` vs `durable_object`) — <https://developers.cloudflare.com/containers/configuration/scheduling-policy/>
+* `Container` class (`defaultPort`, `sleepAfter`, `envVars`, `pingEndpoint`) — <https://developers.cloudflare.com/containers/api/container-class/>
+  and <https://www.npmjs.com/package/@cloudflare/containers>
+* API comparison — <https://developers.cloudflare.com/containers/api/>
+* Environment variables — <https://developers.cloudflare.com/containers/configuration/environment-variables/>
+  and secrets — <https://developers.cloudflare.com/containers/examples/env-vars-and-secrets/>,
+  <https://developers.cloudflare.com/workers/configuration/secrets/>,
+  global `env` — <https://developers.cloudflare.com/workers/runtime-apis/bindings/>
+* Instance types and limits — <https://developers.cloudflare.com/containers/platform/limits/>
+* Pricing — <https://developers.cloudflare.com/containers/platform/pricing/>
+* Deploy, incl. Workers Builds — <https://developers.cloudflare.com/containers/guides/deploy/>
+* Workers Builds — <https://developers.cloudflare.com/workers/ci-cd/builds/>,
+  <https://developers.cloudflare.com/workers/ci-cd/builds/configuration/>,
+  <https://developers.cloudflare.com/workers/ci-cd/builds/advanced-setups/>,
+  <https://developers.cloudflare.com/workers/ci-cd/builds/build-watch-paths/>,
+  <https://developers.cloudflare.com/workers/ci-cd/builds/build-branches/>
+  and the build image (auto-install, x86_64) — <https://developers.cloudflare.com/workers/ci-cd/builds/build-image/>
+* workers.dev — <https://developers.cloudflare.com/workers/configuration/routing/workers-dev/>
+* `CF-Connecting-IP` / `X-Forwarded-For` — <https://developers.cloudflare.com/fundamentals/reference/http-headers/>
+* FAQ (cold starts, logs, placement) — <https://developers.cloudflare.com/containers/faq/>
+
 ## Deployment
 
-> **Status: not hosted.** Hosting is deferred, so this service runs nowhere and
-> the provisioning screens stay in their service-unavailable state. Until it is
-> hosted, users are created by hand with `docs/create-user.sql` — see
-> **Creating users while the service is unhosted** in the root `CLAUDE.md`.
-> The rest of this section is the runbook for when hosting goes ahead.
+> **Superseded by [Cloudflare Containers](#cloudflare-containers)**, the chosen
+> host. The Render runbook below is kept as a fallback; `render.yaml` still
+> works unchanged.
 
 The service deploys as a Docker container from this repository. Everything
 it needs is committed: `Dockerfile` and `render.yaml` at the **repository

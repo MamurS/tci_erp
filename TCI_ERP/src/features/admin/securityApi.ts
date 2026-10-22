@@ -5,6 +5,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { optimistic, rowAt, rowInList } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
 
 const KEYS = {
@@ -175,14 +176,27 @@ function useInvalidateSecurity() {
   return () => queryClient.invalidateQueries({ queryKey: ['admin', 'security'] })
 }
 
+/** The lockout reads «cleared» at once; a refusal (it had already expired:
+ * P0002) restores it. */
 export function useUnlockAccount() {
-  const invalidate = useInvalidateSecurity()
+  const qc = useQueryClient()
   return useMutation({
+    mutationKey: ['admin', 'unlock'],
     mutationFn: async (userId: string) => {
       const { error } = await tci().rpc('unlock_account', { p_user_id: userId })
       if (error) throw error
     },
-    onSuccess: () => void invalidate(),
+    ...optimistic<string, void>(qc, {
+      patches: () => [
+        rowInList<LockoutRow, string>(
+          KEYS.lockouts,
+          (userId) => userId,
+          (row) => (row.active ? { ...row, active: false, cleared_at: new Date().toISOString() } : row),
+          (row) => row.user_id,
+        ),
+      ],
+      invalidate: () => [['admin', 'security']],
+    }),
   })
 }
 
@@ -203,12 +217,16 @@ export function useRevokeSessions() {
 
 /** Switch the sign-in gate's enforcement (tci.set_login_gate_enforced). */
 export function useSetLoginGateEnforced() {
-  const invalidate = useInvalidateSecurity()
+  const qc = useQueryClient()
   return useMutation({
+    mutationKey: ['admin', 'login-gate'],
     mutationFn: async (enforced: boolean) => {
       const { error } = await tci().rpc('set_login_gate_enforced', { p_enforced: enforced })
       if (error) throw error
     },
-    onSuccess: () => void invalidate(),
+    // The switch shows its new position at once.
+    ...optimistic<boolean, void>(qc, {
+      patches: () => [rowAt<AuthPolicy, boolean>(KEYS.policy, (policy, enforced) => ({ ...policy, login_gate_enforced: enforced }))],
+    }),
   })
 }

@@ -9,6 +9,7 @@
 import type { TFunction } from 'i18next'
 
 import { formatCompact, formatDays, formatPercent, formatRatio, formatSignedPercent } from '../../../lib/format'
+import { buildCashFlowColumns } from '../../entities/financials/cashflow'
 import { buildCommentary } from '../../entities/report/commentary'
 import type { CommentaryMetric, CommentarySection, CommentarySentence } from '../../entities/report/commentary'
 import { normalizeBundle } from '../../entities/report/model'
@@ -150,6 +151,28 @@ export function whatMoved(rated: StatementBundle, latest: StatementBundle): Move
     .filter((s) => s.commentary.kind === 'change' || s.commentary.kind === 'changeNm')
   sentences.sort((a, b) => MOVED_METRICS.indexOf(a.metric) - MOVED_METRICS.indexOf(b.metric))
   return { comparable: true, currency: latest.currency_code, chips: sentences }
+}
+
+/**
+ * How many consecutive periods, ending at `latest`, show a NEGATIVE operating
+ * cash flow (derived, indirect method — the cash-flow tab's own rule, see
+ * hasPersistentNegativeCfo). Only periods of the same kind and report type
+ * count, each needing the one before it; 0 when the latest CFO is not
+ * negative or cannot be derived. The chip shows it from two periods up.
+ */
+export function negativeCfoStreak(latest: StatementBundle, all: StatementBundle[]): number {
+  const columns = buildCashFlowColumns(
+    all.filter(
+      (s) =>
+        s.statement_kind === latest.statement_kind &&
+        s.report_type === latest.report_type &&
+        s.period_end_date <= latest.period_end_date,
+    ),
+    all,
+  )
+  let streak = 0
+  for (let i = columns.length - 1; i >= 0 && columns[i]!.cfo < 0; i--) streak++
+  return columns.length > 0 && columns[columns.length - 1]!.statement.id === latest.id ? streak : 0
 }
 
 /** The existing label of each metric (report / fin namespaces). */

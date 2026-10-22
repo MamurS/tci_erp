@@ -73,10 +73,11 @@ export function GroupLimitModal({
           </Button>
           <Button
             onClick={() => void handleSave()}
-            disabled={!valid || setLimit.isPending}
+            disabled={!valid}
+            loading={setLimit.isPending}
             title={valid ? undefined : t('groups.errors.amountRequired')}
           >
-            {setLimit.isPending ? t('common.saving') : t('common.save')}
+            {t('common.save')}
           </Button>
         </>
       }

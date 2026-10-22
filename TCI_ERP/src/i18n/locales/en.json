@@ -52,7 +52,8 @@
         "hint": "Company and statement requests, data freshness, proposed buyers"
       }
     },
-    "data": "Data management"
+    "data": "Data management",
+    "brochure": "TCI brochure"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -529,7 +530,7 @@
     "gradeTitle": "Credit rating",
     "scaleHint": "Scale 1–100, lower is better",
     "coverage": "Data covers factors carrying {{pct}} of the total weight; the rest have none",
-    "limitTitle": "Suggested credit limit",
+    "limitTitle": "Recommended credit limit",
     "model": "Method",
     "models": {
       "benchmark": "capital and trade turnover",
@@ -696,7 +697,7 @@
       "netLoss": "The net result is a loss or unknown",
       "intangiblesUnknown": "Intangible assets not given: taken as zero",
       "dsoDefault": "Days sales outstanding unknown: {{days}} days assumed",
-      "belowMinimum": "The calculated limit is below the minimum ({{amount}} USD equivalent)",
+      "belowMinimum": "The recommended limit is below the minimum ({{amount}} USD equivalent)",
       "other": "The calculation noted a reservation — see “How the limit was calculated”"
     },
     "units": {
@@ -1217,7 +1218,8 @@
       "registry": "Policy register",
       "contracts": "Contracts",
       "templates": "Contract templates",
-      "overview": "Overview"
+      "overview": "Overview",
+      "payments": "Payments"
     },
     "sectionSubtitle": "The commercial underwriter's tools: the portfolio, the policy register, draft contracts and the templates they are made from.",
     "eyebrow": "Trade credit policy",
@@ -1303,8 +1305,8 @@
       "ageDaysUnit": "Age, days"
     },
     "preflight": {
-      "within": "Within your authority in grade band “{{band}}” ({{authority}} UZS eq.)",
-      "exceeds": "Exceeds your authority in grade band “{{band}}” ({{authority}} UZS eq.) — the decision will be escalated",
+      "within": "Within your authority in rating band “{{band}}” ({{authority}} UZS eq.)",
+      "exceeds": "Exceeds your authority in rating band “{{band}}” ({{authority}} UZS eq.) — the decision will be escalated",
       "missingRate": "No UZS rate for {{currency}}: your authority cannot be compared without it, so the decision will be escalated"
     },
     "searchPlaceholder": "Buyer, policy № or policyholder…",
@@ -1322,13 +1324,13 @@
     "untilReview": "until review",
     "validUntilHint": "Leave empty for an open-ended limit (valid until review)",
     "willSupersede": "A new decision will supersede this limit",
-    "calculatedHint": "Calculated limit: {{amount}} {{currency}}",
+    "calculatedHint": "Recommended limit: {{amount}} {{currency}}",
     "addCondition": "Add condition",
     "noConditions": "No conditions",
     "conditionPlaceholder": "Condition description…",
     "conditionsTooltip": "Conditions: {{count}}",
     "awaitingSenior": "Escalated — awaiting a senior underwriter's decision",
-    "escalatedResult": "The amount exceeds your authority in grade band “{{band}}” — the request has been escalated",
+    "escalatedResult": "The amount exceeds your authority in rating band “{{band}}” — the request has been escalated",
     "decideFailed": "Failed to record the decision",
     "withdrawConfirm": "Withdraw this limit request? The buyer's effective limit is not affected.",
     "requestLimit": "Request limit",
@@ -1371,7 +1373,8 @@
       "holdAndDiscuss": "Hold & discuss",
       "holdComment": "What must be discussed",
       "holdCommentPlaceholder": "Reason for the hold…",
-      "actionFailed": "The action failed"
+      "actionFailed": "The action failed",
+      "windowShort": "sales window"
     },
     "commercial": {
       "title": "Commercial stage",
@@ -1379,8 +1382,8 @@
       "readOnly": "Only commercial underwriting can adjust a limit.",
       "newAmount": "Adjusted amount",
       "action": "Record adjustment",
-      "within": "Within your commercial authority in grade band “{{band}}” ({{authority}} UZS eq.)",
-      "exceeds": "Exceeds your commercial authority in grade band “{{band}}” ({{authority}} UZS eq.)",
+      "within": "Within your commercial authority in rating band “{{band}}” ({{authority}} UZS eq.)",
+      "exceeds": "Exceeds your commercial authority in rating band “{{band}}” ({{authority}} UZS eq.)",
       "reductionWarning": "A reduction is an emergency risk action: it reaches the client immediately, bypassing the sales window.",
       "adjusted": "Adjustment recorded — the sales window is running.",
       "adjustedImmediate": "Adjustment recorded and released to the client immediately (reduction).",
@@ -1435,13 +1438,13 @@
         "beyond": "Beyond my authority",
         "noRate": "No UZS rate",
         "authority": "Authority",
-        "beyondHint": "Above your authority in grade band “{{band}}”: the decision will be escalated, or taken by a colleague with more authority.",
+        "beyondHint": "Above your authority in rating band “{{band}}”: the decision will be escalated, or taken by a colleague with more authority.",
         "noRateHint": "No UZS rate for {{currency}}: your authority cannot be compared, so a decision would be escalated."
       },
       "inforce": {
         "title": "Limits in force",
         "subtitle": "Every approved or partially approved limit on a bound policy, with the buyer's current rating and the review date. Amounts in UZS at the latest rate.",
-        "allBands": "All bands",
+        "allBands": "All rating bands",
         "allCountries": "All countries",
         "allCurrencies": "All currencies",
         "noMatch": "No limit matches the filters",
@@ -1457,9 +1460,9 @@
         "reviews": "Reviews within {{days}} days and overdue",
         "reviewsHint": "Limits whose review date is near or has passed, soonest first.",
         "worse": "Rating worse than at the decision",
-        "worseHint": "The buyer's latest rating is in a worse band than the one the limit was decided in.",
+        "worseHint": "The buyer's latest rating is in a worse rating band than the one the limit was decided in.",
         "noWorse": "No buyer's rating has worsened since its limit was decided.",
-        "decidedIn": "Decided in",
+        "decidedIn": "Rating band at decision",
         "ratedNow": "Rated now",
         "noas": "Open overdue notifications",
         "noasHint": "Buyers reported overdue by a policyholder. Filing suspends the buyer's limit on that policy automatically.",
@@ -1513,8 +1516,8 @@
         "subtitle": "How much you may approve on your own in each rating band, and the grants behind it. Above it a decision is escalated.",
         "rateMissing": "A grant's currency has no UZS rate",
         "none": "No authority",
-        "byBand": "Credit authority by band",
-        "byBandHint": "The highest of your valid credit grants for the band, in UZS at the latest rate — the figure a decision is checked against.",
+        "byBand": "Credit authority by rating band",
+        "byBandHint": "The highest of your valid credit grants for the rating band, in UZS at the latest rate — the figure a decision is checked against.",
         "creditUzs": "Equivalent, UZS",
         "grants": "My grants",
         "grantsHint": "Every grant valid today, credit and commercial, in the currency it was given in. An administrator sets them.",
@@ -1595,7 +1598,7 @@
     "selectUser": "Select a user",
     "selectUserHint": "Pick a user on the “Users & roles” tab to edit their authority.",
     "authoritiesFor": "Authority — {{email}}",
-    "authoritiesHint": "Maximum amount this user may approve per grade band. Amounts are compared in UZS at the latest rate.",
+    "authoritiesHint": "Maximum amount this user may approve per rating band. Amounts are compared in UZS at the latest rate.",
     "commercialDormant": "Commercial authority is stored now and starts being used in Phase 3c.",
     "adminUnlimited": "Administrators decide any amount — the matrix does not apply to them.",
     "scopes": {
@@ -1609,7 +1612,7 @@
       "email": "Email",
       "roles": "Roles",
       "lastSignIn": "Last sign-in",
-      "band": "Grade band",
+      "band": "Rating band",
       "maxAmount": "Max amount",
       "currency": "Currency",
       "validFrom": "Valid from",
@@ -2011,7 +2014,10 @@
       "overdue_notification": "Overdue notification",
       "claim": "Claim",
       "entity_request": "Data request",
-      "client_buyer_proposal": "Proposed buyer"
+      "client_buyer_proposal": "Proposed buyer",
+      "contract_draft": "Draft contract",
+      "bank_statement_import": "Bank statement",
+      "commercial_offer": "Commercial offer"
     },
     "taskTypes": {
       "buyer_needs_entity": "Identify buyer",
@@ -2044,7 +2050,12 @@
       "entity_requested": "Company requested",
       "statements_requested": "Statements requested",
       "entity_request_resolved": "Your request is done",
-      "rating_new_statements": "New statements — rating review"
+      "rating_new_statements": "New statements — rating review",
+      "contract_review": "Contract review",
+      "premium_payment_unmatched": "Payments to match",
+      "offer_viewed": "Offer viewed by the client",
+      "offer_expiring": "Offer expiring",
+      "offer_expired": "Offer expired"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -2081,7 +2092,12 @@
       "entity_request_resolved_linked": "«{{name}}» was already in the registry — see the company ({{request_number}})",
       "entity_request_resolved_updated": "The statements of «{{name}}» are up to date ({{request_number}})",
       "entity_request_resolved_rejected": "Request {{request_number}} for «{{name}}» was declined: {{note}}",
-      "rating_new_statements": "Review the rating of {{subject}}: new financial statements since it was calculated"
+      "rating_new_statements": "Review the rating of {{subject}}: new financial statements since it was calculated",
+      "contract_review": "Review the draft contract {{draft_number}} ({{reference}}), v{{version_no}}",
+      "premium_payment_unmatched": "Bank payments need matching to policies",
+      "offer_viewed": "The client opened commercial offer {{offer_number}} on submission {{request_number}}",
+      "offer_expiring": "Commercial offer {{offer_number}} is valid until {{valid_until}}",
+      "offer_expired": "Commercial offer {{offer_number}} has expired"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -2145,7 +2161,8 @@
       "declarations": "Declarations",
       "groups": "Groups",
       "submissions": "Submissions",
-      "data": "Data"
+      "data": "Data",
+      "contracts": "Contracts"
     },
     "buckets": {
       "overdue": "Overdue",
@@ -2177,7 +2194,8 @@
       "declaration": "Declaration",
       "group": "Group",
       "submission": "Submission",
-      "data": "Data"
+      "data": "Data",
+      "contract": "Contract"
     },
     "due": {
       "days_one": "{{count}} day",
@@ -2265,7 +2283,15 @@
         "instalment_due_many": "{{count}} premium instalments due",
         "instalment_overdue_few": "{{count}} premium instalments overdue",
         "instalment_overdue_many": "{{count}} premium instalments overdue"
-      }
+      },
+      "contract_review": "Draft contract under review",
+      "premium_payment_unmatched_one": "{{count}} bank payment to match",
+      "premium_payment_unmatched_few": "{{count}} bank payments to match",
+      "premium_payment_unmatched_many": "{{count}} bank payments to match",
+      "premium_payment_unmatched_other": "{{count}} bank payments to match",
+      "offer_viewed": "The client opened the offer",
+      "offer_expiring": "Offer expiring",
+      "offer_expired": "Offer expired"
     },
     "facts": {
       "policies_one": "{{count}} policy",
@@ -2341,15 +2367,18 @@
       "group_exposure_near_limit": "Group exposure is {{exposure}} UZS of a {{limit}} UZS group limit ({{pct}}%).",
       "group_limit_missing_one": "{{count}} member carries limits ({{exposure}} UZS in all) and no group limit is set.",
       "group_limit_missing_other": "{{count}} members carry limits ({{exposure}} UZS in all) and no group limit is set.",
-      "limit_escalated": "Escalated automatically: {{amount}} is above the band {{band}} authority of the deciding underwriter ({{authority}} UZS) — {{user}}.",
-      "limit_escalated_noAuthority": "Escalated automatically: {{amount}} ({{amountUzs}} UZS) is above the band {{band}} authority of the deciding underwriter.",
+      "limit_escalated": "Escalated automatically: {{amount}} is above the rating band {{band}} authority of the deciding underwriter ({{authority}} UZS) — {{user}}.",
+      "limit_escalated_noAuthority": "Escalated automatically: {{amount}} ({{amountUzs}} UZS) is above the rating band {{band}} authority of the deciding underwriter.",
       "limit_escalated_group": "Escalated automatically: the group’s exposure would reach {{exposure}} UZS against a group limit of {{cap}} UZS.",
       "rating_new_statements_few": "{{period}} statements were added by {{user}} on {{date}}. The current assessment {{grade}} · {{score}} rests on statements to {{ratedPeriod}} and is now a period behind; {{count}} effective limits depend on it.",
       "rating_new_statements_many": "{{period}} statements were added by {{user}} on {{date}}. The current assessment {{grade}} · {{score}} rests on statements to {{ratedPeriod}} and is now a period behind; {{count}} effective limits depend on it.",
       "group_limit_missing_few": "{{count}} members carry limits ({{exposure}} UZS in all) and no group limit is set.",
       "group_limit_missing_many": "{{count}} members carry limits ({{exposure}} UZS in all) and no group limit is set.",
       "instalment_due": "Instalment {{sequence}} of {{amount}} is due on {{date}}.",
-      "rating_new_statements_zero": "{{period}} statements were added by {{user}} on {{date}}. The current assessment {{grade}} · {{score}} rests on statements to {{ratedPeriod}} and is now a period behind; no effective limit depends on it yet."
+      "rating_new_statements_zero": "{{period}} statements were added by {{user}} on {{date}}. The current assessment {{grade}} · {{score}} rests on statements to {{ratedPeriod}} and is now a period behind; no effective limit depends on it yet.",
+      "premium_payment_unmatched": "Statement {{file}}: lines to resolve — {{count}}. Assign each to a policy, or set it aside with a reason.",
+      "offer_expiring": "Offer {{number}} is valid until {{validUntil}}. Contact the client or publish a version with a new date.",
+      "offer_expired": "Offer {{number}} was valid until {{validUntil}} and can no longer be accepted. Publish a version with a new date or withdraw it."
     },
     "dest": {
       "opens": "Opens",
@@ -2371,7 +2400,9 @@
         "salesWindow": "Sales confirmation",
         "buyers": "Buyers",
         "openClaim": "Open a claim",
-        "proposals": "Proposed buyers"
+        "proposals": "Proposed buyers",
+        "payments": "Payments",
+        "offer": "Commercial offer"
       },
       "with": {
         "task": "with this task’s context",
@@ -2381,7 +2412,9 @@
         "notice": "with the claim form prefilled from the notice",
         "instalments_few": "showing {{count}} instalments",
         "instalments_many": "showing {{count}} instalments"
-      }
+      },
+      "contract": "Draft contract",
+      "statement": "Statement"
     },
     "triage": {
       "position": "Item {{index}} of {{total}}",
@@ -2435,16 +2468,16 @@
         "terms_few": "{{count}}-day terms",
         "terms_many": "{{count}}-day terms",
         "terms_other": "{{count}}-day terms",
-        "yourAuthority": "Your authority · band {{band}}",
+        "yourAuthority": "Your authority · rating band {{band}}",
         "yourAuthorityPlain": "Your authority",
         "unlimited": "Unlimited",
-        "adminNote": "administrator — no band limit",
+        "adminNote": "administrator — no rating band limit",
         "noRate": "no UZS rate for {{currency}} — cannot be compared",
         "withinAuthority": "UZS · the request is within it",
         "shortBy": "UZS · short by {{amount}}",
         "groupAfter": "UZS · group exposure after the decision {{amount}}",
         "heldDecision": "Your decision, on hold",
-        "engine": "Calculated limit (engine)",
+        "engine": "Recommended limit",
         "noAssessment": "no assessment yet",
         "engineNoRate": "{{from}} · no rate to convert it into {{to}}",
         "engineOriginal": "calculated as {{amount}}",
@@ -2477,7 +2510,11 @@
           "currency": "The new statement is in another currency, so the figures are not compared."
         },
         "nothingMoved": "No material change in the key figures.",
-        "notHere": "The rating itself is recalculated on the rating page, not here."
+        "notHere": "The rating itself is recalculated on the rating page, not here.",
+        "cfoNegative_one": "CFO negative {{count}} period running",
+        "cfoNegative_other": "CFO negative {{count}} periods running",
+        "cfoNegative_few": "CFO negative {{count}} periods running",
+        "cfoNegative_many": "CFO negative {{count}} periods running"
       },
       "premium": {
         "title": "Instalments",
@@ -2629,7 +2666,9 @@
       "declarations": "Declarations",
       "premium": "Premium",
       "overdues": "Overdue accounts",
-      "claims": "Claims"
+      "claims": "Claims",
+      "contracts": "Contracts",
+      "offers": "Offers"
     },
     "policies": {
       "title": "My policies",
@@ -2954,12 +2993,18 @@
       "pending": "Pending",
       "invoiced": "Invoiced",
       "paid": "Paid",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "partially_paid": "Partially paid",
+      "overdue": "Overdue"
     },
     "actions": {
       "generate": "Generate schedule",
       "invoice": "Invoice",
-      "markPaid": "Mark paid"
+      "markPaid": "Mark paid",
+      "recordPayment": "Record payment",
+      "reverse": "Reverse",
+      "more": "More actions for instalment {{sequence}}",
+      "paymentMore": "More actions for this payment"
     },
     "fields": {
       "minimumPremium": "Minimum premium",
@@ -2972,10 +3017,39 @@
       "amount": "Amount",
       "status": "Status",
       "scheduleTotal": "Schedule total",
-      "computedAt": "Earned"
+      "computedAt": "Earned",
+      "sequence": "No.",
+      "paid": "Paid",
+      "outstanding": "Outstanding",
+      "actions": "Actions",
+      "invoiceNumber": "Invoice number",
+      "invoiceDate": "Invoice date",
+      "note": "Note",
+      "paymentDate": "Payment date",
+      "currency": "Currency",
+      "reference": "Payment reference",
+      "source": "Source",
+      "reason": "Reason",
+      "received": "Received",
+      "date": "Date"
     },
     "errors": {
-      "scheduleLocked": "The schedule cannot be regenerated: some instalments are already invoiced or paid."
+      "scheduleLocked": "The schedule cannot be regenerated: some instalments are already invoiced or paid.",
+      "alreadyInvoiced": "This instalment has already been invoiced.",
+      "alreadyPaid": "Nothing is owed on this instalment, so there is nothing to invoice.",
+      "instalmentCancelled": "A cancelled instalment is not invoiced.",
+      "invoiceNumberRequired": "An invoice needs its number.",
+      "invoiceNumberTaken": "This number is already used by another invoice.",
+      "invoiceNumberTooLong": "An invoice number is at most 64 characters.",
+      "invoiceDateInFuture": "An invoice is dated today or earlier.",
+      "amountPositive": "A payment must be a positive amount.",
+      "currencyMismatch": "The payment is not in the policy currency.",
+      "paymentDateInvalid": "A payment is dated today or earlier.",
+      "exceedsOutstanding": "The payment is more than what is still owed on this policy. An overpayment is not accepted.",
+      "policyNotBillable": "A draft or annulled policy takes no premium payments.",
+      "isReversal": "A reversal cannot itself be reversed.",
+      "alreadyReversed": "This payment has already been reversed.",
+      "reasonRequired": "Say why the payment is reversed."
     },
     "overdue": "Overdue",
     "paidSoFar": "{{amount}} paid so far",
@@ -2983,7 +3057,271 @@
     "linkedInstalments_few": "Showing {{count}} instalments from the agenda",
     "linkedInstalments_many": "Showing {{count}} instalments from the agenda",
     "linkedInstalments_other": "Showing {{count}} instalments from the agenda",
-    "showAllInstalments": "Show all"
+    "showAllInstalments": "Show all",
+    "tooltips": {
+      "invoice": "Issue the invoice for instalment {{sequence}} ({{amount}}); its amount and due date are then fixed",
+      "recordPayment": "Record money received on this policy; it settles the oldest unpaid instalments first",
+      "invoiced": "Invoice {{number}} of {{date}}",
+      "settled": "Paid in full on {{date}}",
+      "reverse": "Correct a mistaken payment with a reversal; the payment stays in the history"
+    },
+    "sources": {
+      "manual": "Entered by hand",
+      "bank_import": "Bank statement",
+      "accounting_import": "Accounting system"
+    },
+    "figures": {
+      "receivedMeta_one": "{{count}} payment",
+      "receivedMeta_few": "{{count}} payments",
+      "receivedMeta_many": "{{count}} payments",
+      "receivedMeta_other": "{{count}} payments",
+      "noPayments": "No payments yet",
+      "overdueMeta": "{{amount}} overdue",
+      "nothingOverdue": "Nothing overdue"
+    },
+    "invoice": {
+      "title": "Invoice instalment {{sequence}}",
+      "hint": "Once invoiced, the instalment's amount and due date are fixed: they are on a document the policyholder holds.",
+      "submit": "Issue invoice",
+      "numberHint": "Quoted by the policyholder in the payment purpose, so a bank payment can be matched to this instalment."
+    },
+    "payment": {
+      "title": "Record a payment",
+      "hint": "The money is allocated to the oldest unpaid instalments first. {{amount}} is still owed on this policy.",
+      "submit": "Record payment",
+      "currencyHint": "Payments are recorded in the policy currency.",
+      "amountRequired": "Enter an amount above zero.",
+      "amountTooHigh": "That is more than the {{amount}} still owed on this policy. An overpayment is not accepted.",
+      "dateInFuture": "A payment is dated today or earlier."
+    },
+    "payments": {
+      "title": "Payments",
+      "hint": "Append-only: a mistake is corrected by a reversal, never edited.",
+      "empty": "No payments recorded",
+      "emptyHint": "Record money received with «Record payment», or import a bank statement in Policies › Payments.",
+      "reversal": "Reversal",
+      "reversalOf": "Reversal of the payment of {{date}}",
+      "reversed": "Reversed",
+      "migrated": "Carried over from the paid status"
+    },
+    "reverse": {
+      "title": "Reverse the payment of {{amount}}",
+      "hint": "A reversal row is added and the payment stays in the history. The instalments it paid become owed again, and their chasing tasks return.",
+      "submit": "Reverse payment",
+      "reasonRequired": "Say why the payment is reversed."
+    },
+    "bank": {
+      "viewHint": "Import a bank statement: each incoming payment is matched to a policy by the invoice or policy number in its purpose, its amount and its date. Confident matches are confirmed in one click; the rest wait under «Unmatched» and in the Agenda. A payment can still be entered by hand on the policy's Premium tab.",
+      "empty": {
+        "title": "No bank statements imported yet",
+        "hint": "Choose the bank's statement file above (CSV or Excel). The first time, map its columns and save the layout under the bank's name: the next statement from that bank is read without asking."
+      },
+      "import": {
+        "title": "Import a statement",
+        "hint": "The file is read in your browser; only the incoming payments it holds are sent.",
+        "file": "Statement file",
+        "fileHint": "CSV, XLSX or XLS, up to 5,000 payments.",
+        "choose": "Choose file",
+        "noFile": "No file chosen",
+        "reading": "Reading the file…",
+        "layout": "Bank layout",
+        "layoutHint": "The column mapping saved for this bank.",
+        "newLayout": "New layout…",
+        "readFailed": "The file could not be read",
+        "readFailedHint": "Save it from the bank's system as CSV or Excel (XLSX, XLS) and choose it again.",
+        "done_one": "{{count}} line imported",
+        "done_other": "{{count}} lines imported",
+        "doneCounts": "Matched: {{matched}} · needs review: {{suggested}} · unmatched: {{unmatched}} · already imported: {{duplicate}}.",
+        "submit": "Import ({{count}})",
+        "tooMany": "More than {{max}} payments in one file",
+        "tooManyHint": "Split the statement by period and import the parts one by one.",
+        "failed": "The statement was not imported",
+        "done_few": "{{count}} lines imported",
+        "done_many": "{{count}} lines imported"
+      },
+      "mapping": {
+        "title": "Columns",
+        "hint": "Tell us which column holds what. Only the date, the amount and the currency are required.",
+        "usingLayout": "Read with the layout «{{name}}».",
+        "edit": "Change columns",
+        "hide": "Hide columns",
+        "headerRow": "Row with the column names",
+        "amountLayout": "Amount",
+        "layouts": {
+          "signed": "One amount column",
+          "split": "Debit and credit columns"
+        },
+        "choose": "— choose —",
+        "notInFile": "— not in the file —",
+        "unnamedColumn": "Column {{letter}}",
+        "fixedCurrency": "Currency of the statement",
+        "fixedCurrencyHint": "The file has no currency column: every payment is in this currency.",
+        "fixedCurrencyUnused": "Taken from the currency column.",
+        "dateFormat": "Date format",
+        "dateFormats": {
+          "dmyDot": "DD.MM.YYYY (05.10.2026)",
+          "dmySlash": "DD/MM/YYYY (05/10/2026)",
+          "mdySlash": "MM/DD/YYYY (10/05/2026)",
+          "iso": "YYYY-MM-DD (2026-10-05)"
+        },
+        "decimalSeparator": "Decimal separator",
+        "decimals": {
+          "auto": "Detect automatically",
+          "point": "Point (1,234.56)",
+          "comma": "Comma (1 234,56)"
+        },
+        "skipDebits": "Skip outgoing payments",
+        "skipDebitsHint": "Clear it when the file lists incoming payments only: an outgoing one is then shown as an error.",
+        "saveAs": "Save the layout as",
+        "namePlaceholder": "The bank's name",
+        "save": "Save layout",
+        "saved": "Layout saved",
+        "saveFailed": "The layout was not saved",
+        "incomplete": "The columns are not set yet",
+        "problems": {
+          "noHeader": "The chosen row holds no column names.",
+          "dateColumn": "Choose the column with the payment date.",
+          "amountColumn": "Choose the column with the amount.",
+          "creditColumn": "Choose the credit (incoming) column.",
+          "currency": "Choose the currency column, or the currency of the whole statement.",
+          "columnNotFound": "A column of this layout is not in the file — choose it again."
+        }
+      },
+      "preview": {
+        "kept": "To import:",
+        "debits": "Outgoing skipped:",
+        "skipped": "Empty and total rows:",
+        "errors": "Not readable:",
+        "errorsTitle_one": "{{count}} row will not be imported",
+        "errorsTitle_other": "{{count}} rows will not be imported",
+        "errorLine": "Row {{line}}: {{reason}}",
+        "moreErrors_one": "and {{count}} more",
+        "moreErrors_other": "and {{count}} more",
+        "first_one": "The first payment of {{total}}:",
+        "first_other": "The first {{count}} payments of {{total}}:",
+        "errorsTitle_few": "{{count}} rows will not be imported",
+        "errorsTitle_many": "{{count}} rows will not be imported",
+        "moreErrors_few": "and {{count}} more",
+        "moreErrors_many": "and {{count}} more",
+        "first_few": "The first {{count}} payments of {{total}}:",
+        "first_many": "The first {{count}} payments of {{total}}:"
+      },
+      "rowErrors": {
+        "dateMissing": "no date",
+        "dateInvalid": "the date is not readable",
+        "amountMissing": "no amount",
+        "amountInvalid": "the amount is not readable",
+        "amountZero": "the amount is zero",
+        "currencyMissing": "no currency",
+        "currencyInvalid": "unknown currency",
+        "debit": "an outgoing payment"
+      },
+      "fields": {
+        "line": "Row",
+        "value_date": "Date",
+        "amount": "Amount",
+        "credit": "Credit (incoming)",
+        "debit": "Debit (outgoing)",
+        "currency": "Currency",
+        "purpose": "Payment purpose",
+        "reference": "Document no.",
+        "payer": "Payer",
+        "payerPurpose": "Payer / purpose",
+        "policy": "Policy",
+        "reason": "Basis",
+        "status": "Status",
+        "policyBasis": "Policy / basis"
+      },
+      "imports": {
+        "title": "Imported statements",
+        "hint": "The latest 50. Choose one to work its lines.",
+        "importedAt": "Imported",
+        "file": "File",
+        "lines": "Lines",
+        "importedBy": "Imported by",
+        "noName": "Statement without a name"
+      },
+      "lines": {
+        "title": "Statement {{file}}",
+        "hint": "{{lines}} lines, imported {{when}}.",
+        "loadFailed": "The statement's lines could not be loaded",
+        "refused_one": "{{count}} line was not recorded",
+        "refused_other": "{{count}} lines were not recorded",
+        "refusedLine": "Row {{line}}: {{reason}}",
+        "allDone": "Every line of this statement is worked",
+        "allDoneHint": "The payments are recorded on their policies; the Agenda task has closed.",
+        "refused_few": "{{count}} lines were not recorded",
+        "refused_many": "{{count}} lines were not recorded"
+      },
+      "sections": {
+        "matched": "Matched",
+        "matchedHint": "The reference and the amount agree. Check and confirm.",
+        "matchedEmpty": "No confident matches in this statement.",
+        "suggested": "Needs review",
+        "suggestedHint": "A reference was found, but the amount or the date disagree.",
+        "suggestedEmpty": "Nothing to review.",
+        "unmatched": "Unmatched",
+        "unmatchedHint": "Nothing to go on, or the payment would exceed what is owed: assign it to a policy or set it aside.",
+        "unmatchedEmpty": "Every payment was recognised.",
+        "processed": "Worked",
+        "processedHint": "Recorded, set aside, or already imported.",
+        "processedEmpty": "Nothing worked yet.",
+        "expand": "Show",
+        "collapse": "Hide"
+      },
+      "statuses": {
+        "matched": "Matched",
+        "suggested": "Needs review",
+        "unmatched": "Unmatched",
+        "confirmed": "Recorded",
+        "ignored": "Set aside",
+        "duplicate": "Duplicate"
+      },
+      "reasons": {
+        "invoice_number": "Invoice number",
+        "policy_number": "Policy number",
+        "amount_differs": "Amount differs",
+        "date_far": "Far from due date",
+        "currency": "Other currency",
+        "exceeds_outstanding": "More than owed",
+        "no_reference": "No reference",
+        "ambiguous": "Several policies",
+        "assigned": "Assigned by hand",
+        "duplicate": "Already imported"
+      },
+      "actions": {
+        "confirm": "Confirm",
+        "confirmAll": "Confirm all",
+        "assign": "Assign",
+        "assignOther": "Assign to another policy",
+        "ignore": "Set aside"
+      },
+      "assign": {
+        "title": "Assign the payment to a policy",
+        "search": "Policy number or policyholder",
+        "owed": "owed {{amount}}",
+        "currencyHint": "Only policies in {{currency}}: a payment is recorded in the policy's currency.",
+        "overpays": "More than is owed on this policy",
+        "overpaysHint": "{{amount}} is still owed. A larger payment is refused: choose another policy or set the line aside.",
+        "failed": "The payment was not recorded"
+      },
+      "ignore": {
+        "title": "Set the line aside",
+        "hint": "Not a premium payment (a refund, another product, a transfer between accounts)? It stays in the statement with your reason and leaves the queue.",
+        "reason": "Reason",
+        "placeholder": "Why this is not a premium payment"
+      },
+      "errors": {
+        "statementEmpty": "The statement holds no incoming payments to import.",
+        "statementTooLarge": "At most 5,000 payments per import: split the statement.",
+        "statementLineInvalid": "A line has no readable date, amount or currency — check the column mapping.",
+        "lineResolved": "This line has already been worked.",
+        "lineNotMatched": "The line has no matched policy: assign it to one.",
+        "profileNameRequired": "Name the bank this layout belongs to.",
+        "profileMappingInvalid": "The column mapping is not readable.",
+        "ignoreReasonRequired": "Say why this line is not a premium payment."
+      }
+    }
   },
   "overdues": {
     "title": "Overdue accounts",
@@ -3514,7 +3852,7 @@
       "duplicateEdge": "This relationship is already recorded and still in force.",
       "limitNotPermitted": "Only credit underwriting may set or remove a group limit.",
       "limitAmount": "A group limit needs a positive amount.",
-      "limitAuthority": "This group limit exceeds your authority for the ultimate parent's grade band.",
+      "limitAuthority": "This group limit exceeds your authority for the ultimate parent's rating band.",
       "noLimitInForce": "This group has no limit in force.",
       "suggestionNotFound": "This suggestion no longer exists.",
       "suggestionReviewed": "This suggestion has already been reviewed.",
@@ -3843,8 +4181,8 @@
       "buyers": "Buyers",
       "policies": "Policies",
       "byBand": "By rating band",
-      "byBandHint": "The band of the buyer's latest rating.",
-      "band": "Band",
+      "byBandHint": "The rating band of the buyer's latest rating.",
+      "band": "Rating band",
       "byCountry": "By buyer country",
       "country": "Country",
       "topBuyers": "Largest buyers",
@@ -4069,5 +4407,755 @@
     "previousMonth": "Previous month",
     "nextMonth": "Next month",
     "today": "Today"
+  },
+  "contractDrafts": {
+    "title": "Draft contract",
+    "current": "current",
+    "notFound": "Draft contract not found",
+    "notFoundHint": "It may not exist, or your role cannot see it. Open it from the policy or the submission.",
+    "emptyHint": "Generate it from the active template: it opens in the app, where it can be read, edited and compared; every save is kept as a version.",
+    "generateNote": "The draft is filled from the current data and opens in the editor; the fields stay linked to the policy or submission until you turn them into text.",
+    "versionSelect": "Version",
+    "statuses": {
+      "draft": "Draft",
+      "under_review": "Under review",
+      "agreed": "Agreed",
+      "signed": "Signed"
+    },
+    "sources": {
+      "generated": "Generated from the template",
+      "manual": "Edited",
+      "restored": "Restored",
+      "restoredFrom": "Restored from v{{version}}",
+      "refreshed": "Fields refreshed"
+    },
+    "columns": {
+      "version": "Version",
+      "status": "Status",
+      "saved": "Saved",
+      "author": "Author",
+      "template": "Origin and template"
+    },
+    "actions": {
+      "view": "View",
+      "edit": "Edit",
+      "compare": "Compare versions",
+      "compareWithPrevious": "Compare with the previous version",
+      "download": "Download",
+      "docx": "Word (.docx)",
+      "pdf": "PDF (print)",
+      "pdfPrint": "PDF — print or save",
+      "openDraft": "Open the draft",
+      "regenerate": "Generate again",
+      "share": "Share v{{version}} with the policyholder",
+      "unshare": "Stop sharing with the policyholder",
+      "restore": "Restore v{{version}}",
+      "backToCurrent": "Current version",
+      "backToDocument": "Back to the document",
+      "closeEditor": "Close the editor",
+      "saveVersion": "Save version",
+      "refreshFields": "Refresh fields"
+    },
+    "status": {
+      "comment": "Comment (optional)",
+      "reason": "Reason",
+      "reasonHint": "Required: the reviewers and the history will show it.",
+      "submitForReview": {
+        "action": "Send for review",
+        "title": "Send the draft for review",
+        "body": "Commercial underwriting gets a review task in its Agenda. The draft can still be edited while it is under review.",
+        "confirm": "Send for review"
+      },
+      "returnToDraft": {
+        "action": "Return to draft",
+        "title": "Return the draft from review",
+        "body": "The review task closes. Send the draft for review again when it is ready.",
+        "confirm": "Return to draft"
+      },
+      "agree": {
+        "action": "Agree",
+        "title": "Agree the draft",
+        "body": "The current version becomes the agreed text and editing closes. Next: the signed scan.",
+        "confirm": "Agree"
+      },
+      "reopen": {
+        "action": "Return for rework",
+        "title": "Return the agreed draft for rework",
+        "body": "The draft goes back to draft and can be edited again. Say why.",
+        "confirm": "Return for rework"
+      },
+      "sign": {
+        "action": "Attach the signed contract"
+      }
+    },
+    "sign": {
+      "title": "Signed contract — v{{version}}",
+      "finalTitle": "Signing is final",
+      "finalBody": "A signed contract is locked for good. A later change will be a new document (an endorsement).",
+      "file": "Scan of the signed contract (PDF)",
+      "fileHint": "PDF up to 20 MB. It is attached to the agreed version.",
+      "submit": "Sign"
+    },
+    "signed": {
+      "title": "Signed: v{{version}}, {{date}}",
+      "body": "This contract is final and can no longer be edited. A change will need an endorsement.",
+      "download": "Signed scan"
+    },
+    "locked": {
+      "title": "This draft cannot be edited now",
+      "signed": "It is signed and final.",
+      "notEditable": "A draft is edited while it is a draft or under review.",
+      "agreedTitle": "Agreed — editing is closed",
+      "agreed": "Attach the signed scan to finish, or return the draft for rework with a reason."
+    },
+    "older": {
+      "title": "You are reading v{{version}}; the current version is v{{current}}",
+      "body": "Versions are never changed. Restoring makes a new version with this text."
+    },
+    "stale": {
+      "title_one": "{{count}} field no longer matches the data",
+      "title_few": "{{count}} fields no longer match the data",
+      "title_many": "{{count}} fields no longer match the data",
+      "title_other": "{{count}} fields no longer match the data",
+      "body": "The policy or submission changed since this version was saved; the fields are marked in amber. Refreshing makes a new version that changes the fields only.",
+      "editorBody": "The fields marked in amber differ from the data now. Refreshing changes the fields only, not the text around them.",
+      "scheduleTitle": "The credit limit schedule has changed",
+      "scheduleBody": "The number of buyers with a limit is different now. A field refresh cannot add or remove rows: generate the draft again to rebuild the schedule."
+    },
+    "shared": {
+      "title": "Shared with the policyholder: v{{version}}",
+      "current": "The policyholder reads the current version in the portal and may comment while it is under review.",
+      "older": "The current version is v{{current}}; share it again for the policyholder to see it."
+    },
+    "warnings": {
+      "title": "Some of the template could not be carried into the editor",
+      "images": "Images and drawings",
+      "textBoxes": "Text boxes",
+      "headerFooter": "Headers and footers (the export adds page numbers)",
+      "unclosedSection": "A section tag without its closing tag",
+      "unsupportedSection": "A repeated section that crosses a table boundary",
+      "multiLevelList": "Multi-level list nesting (kept as one level)"
+    },
+    "toc": {
+      "title": "Contents",
+      "empty": "No headings or clauses yet."
+    },
+    "comments": {
+      "title": "Comments",
+      "hint": "Internal: the policyholder does not see these.",
+      "empty": "No comments yet.",
+      "placeholder": "Write a comment on the current version",
+      "send": "Comment",
+      "policyholder": "Policyholder",
+      "fromPortal": "portal"
+    },
+    "history": {
+      "title": "Status history",
+      "empty": "The draft has not moved yet."
+    },
+    "editor": {
+      "area": "Contract text",
+      "toolbar": "Formatting",
+      "undo": "Undo (Ctrl/⌘ Z)",
+      "redo": "Redo (Ctrl/⌘ Shift Z)",
+      "blockStyle": "Paragraph style",
+      "styles": {
+        "paragraph": "Text",
+        "clause": "Numbered clause",
+        "section": "Numbered section",
+        "heading": "Heading",
+        "title": "Document title"
+      },
+      "bold": "Bold (Ctrl/⌘ B)",
+      "italic": "Italic (Ctrl/⌘ I)",
+      "underline": "Underline (Ctrl/⌘ U)",
+      "align": {
+        "left": "Align left",
+        "center": "Centre",
+        "justify": "Justify"
+      },
+      "bulletList": "Bulleted list",
+      "orderedList": "Numbered list",
+      "insertTable": "Insert a table",
+      "addRow": "Add a row below",
+      "addColumn": "Add a column to the right",
+      "tableMore": "Table…",
+      "bordersOn": "Show borders",
+      "bordersOff": "Hide borders",
+      "deleteRow": "Remove the row",
+      "deleteColumn": "Remove the column",
+      "deleteTable": "Remove the table",
+      "pageBreak": "Page break",
+      "insertField": "Insert a field…",
+      "fieldToText": "Turn the selected field into plain text (it will no longer be refreshed)",
+      "editing": "Editing on top of v{{version}}.",
+      "unsaved": "Unsaved changes",
+      "localSaved": "Unsaved — a local copy is kept in this browser ({{time}})",
+      "noChanges": "No changes yet",
+      "saveShortcut": "Ctrl/⌘ S",
+      "restoreTitle": "You have unsaved changes from {{time}}",
+      "restoreBody": "They were kept in this browser. Restore them into the editor, or discard them.",
+      "restoreBodyOlder": "They were made on top of v{{base}}; the current version is v{{current}}. Restoring them puts your text over v{{current}}.",
+      "restore": "Restore my changes",
+      "discard": "Discard",
+      "leaveTitle": "Leave without saving a version?",
+      "leaveBody": "Your changes are not a version yet. A local copy stays in this browser and is offered when you come back.",
+      "leave": "Leave"
+    },
+    "save": {
+      "title": "Save as v{{version}}",
+      "body": "A new version v{{version}} is created; earlier versions stay as they are.",
+      "note": "What changed (optional)",
+      "noteHint": "Shown in the version list and in the history.",
+      "submit": "Save version"
+    },
+    "regenerate": {
+      "title": "Generate the draft again",
+      "locked": "A draft is generated again only while it is a draft or under review.",
+      "manualEditsTitle": "v{{version}} contains manual edits",
+      "manualEditsBody": "Generating from the template again would replace them. Keep them and refresh only the fields, or start a fresh version from the template.",
+      "choose": "How to proceed",
+      "refresh": "Keep my edits, refresh the fields",
+      "refreshHint": "A new version with the current data in the fields; your text is untouched.",
+      "fresh": "Start a fresh version from the template",
+      "freshHint": "The manual edits are not carried over; they stay in the earlier versions.",
+      "submit": "Generate a new version",
+      "submitRefresh": "Refresh the fields",
+      "nothingChanged": "Nothing to refresh: every field already shows the current data.",
+      "refreshNote_one": "{{count}} field refreshed",
+      "refreshNote_few": "{{count}} fields refreshed",
+      "refreshNote_many": "{{count}} fields refreshed",
+      "refreshNote_other": "{{count}} fields refreshed"
+    },
+    "restore": {
+      "note": "Restored from v{{version}}"
+    },
+    "confirm": {
+      "restore": {
+        "title": "Restore v{{version}}?",
+        "message": "A new version is created with the text of v{{version}}. v{{current}} and every other version stay in the history.",
+        "confirm": "Restore as a new version"
+      },
+      "share": {
+        "title": "Share v{{current}} with the policyholder?",
+        "message": "The policyholder will read this version in the portal (read-only) and may comment while the draft is under review. Internal comments stay internal.",
+        "confirm": "Share"
+      },
+      "unshare": {
+        "title": "Stop sharing the draft?",
+        "message": "The draft disappears from the policyholder's portal; their comments stay.",
+        "confirm": "Stop sharing"
+      },
+      "refresh": {
+        "title": "Refresh the fields of v{{current}}?",
+        "message": "A new version is created in which only the fields change to the current data ({{count}}). The text around them stays as it is.",
+        "confirm": "Refresh the fields"
+      }
+    },
+    "compare": {
+      "older": "Earlier version",
+      "newer": "Later version",
+      "layout": "Layout",
+      "inline": "Inline",
+      "side": "Side by side",
+      "summary": "Added: {{inserted}} · removed: {{deleted}} · changed: {{changed}}",
+      "same": "The two versions have the same text.",
+      "sameVersion": "Pick two different versions.",
+      "legendInserted": "added",
+      "legendDeleted": "removed",
+      "renumbered": "Was {{from}}"
+    },
+    "legacy": {
+      "title": "Files generated earlier",
+      "hint": ".docx files made before drafts were editable in the app."
+    },
+    "register": {
+      "number": "Draft",
+      "empty": "No draft contracts yet",
+      "emptyHint": "Generate one from a policy or a submission; it opens in the editor."
+    },
+    "print": {
+      "back": "Back to the draft",
+      "print": "Print or save as PDF"
+    },
+    "portal": {
+      "title": "Draft contracts",
+      "subtitle": "Draft contracts the insurer shared with you for review. Read them here and leave a comment while a draft is under review.",
+      "empty": "No draft contract has been shared with you",
+      "emptyHint": "When the insurer sends a draft for your review, it appears here.",
+      "number": "Draft",
+      "for": "For",
+      "sharedAt": "Shared",
+      "comments": "Your comments",
+      "commentsHint": "The insurer's reviewers read them.",
+      "commentsClosed": "Comments are taken while the draft is under review.",
+      "noComments": "You have not commented yet.",
+      "placeholder": "Your comment on the draft",
+      "send": "Send",
+      "sent": "Sent. The reviewers will see it.",
+      "signed": "This contract is signed."
+    },
+    "errors": {
+      "exists": "This policy or submission already has a draft contract — generate a new version of it instead.",
+      "targetNotLive": "No contract is drafted for a submission in draft, declined or withdrawn.",
+      "notEditable": "This draft cannot be edited in its current status.",
+      "conflict": "Someone saved a newer version while you were working. Your text is kept as a local copy: reopen the editor, restore it and save again.",
+      "unchanged": "Nothing changed: the text is the same as the current version.",
+      "manualEdits": "The current version has manual edits; confirm how to proceed.",
+      "refreshChangedText": "A field refresh may change the fields only, not the text.",
+      "contentInvalid": "The document could not be saved: it is not a valid contract document or exceeds 2 MB.",
+      "transition": "This status change is not allowed from the current status.",
+      "reasonRequired": "Returning an agreed draft for rework needs a reason.",
+      "signNeedsScan": "A contract is signed by attaching the signed scan.",
+      "signedFinal": "A signed contract is locked; a change needs an endorsement.",
+      "scanInvalid": "The signed scan must be a PDF file.",
+      "scanMissing": "The uploaded scan was not found. Try again.",
+      "scanNotPdf": "Only a PDF file can be attached.",
+      "scanTooLarge": "The file is larger than 20 MB.",
+      "shareNotAllowed": "A draft is shared with the policyholder once it is under review.",
+      "commentClosed": "Comments are taken while the draft is under review.",
+      "commentEmpty": "Write something first.",
+      "commentTooLong": "A comment is at most 2,000 characters.",
+      "agreeCommercialOnly": "Only commercial underwriting may agree a contract or return an agreed one."
+    }
+  },
+  "offers": {
+    "title": "Commercial offer",
+    "validUntil": "valid until {{date}}",
+    "empty": "No commercial offer yet",
+    "emptyHint": "Prepare an offer from the submission's agreed terms: the terms, premium and limits come from the submission; the text blocks can be edited.",
+    "emptyHintStep": "An offer is prepared during the commercial review, the sales confirmation or the client review.",
+    "createBlockedTerms": "Fill in the proposed terms first: structure, currency, rate and minimum premium",
+    "earlier": "Earlier offers",
+    "clientAskedChanges": "The client asks for changes",
+    "statuses": {
+      "draft": "Draft",
+      "published": "Published",
+      "viewed": "Viewed",
+      "accepted": "Accepted",
+      "changes_requested": "Changes requested",
+      "declined": "Declined",
+      "withdrawn": "Withdrawn",
+      "expired": "Expired"
+    },
+    "versionStates": {
+      "published": "Published",
+      "superseded": "Superseded",
+      "unpublished": "Not published"
+    },
+    "publishBlockers": {
+      "closed": "The offer is closed and cannot be published",
+      "nothing_new": "The latest version is already published",
+      "request_step": "An offer is published at the sales confirmation step",
+      "expired_version": "The latest version has expired — save a version with a new date"
+    },
+    "languages": {
+      "ru": "Русский",
+      "en": "English",
+      "uz": "Oʻzbekcha"
+    },
+    "blocks": {
+      "intro": "Cover letter",
+      "why_tci": "Why trade credit insurance",
+      "conditions": "Conditions",
+      "next_steps": "Next steps"
+    },
+    "actions": {
+      "create": "Prepare offer",
+      "view": "View",
+      "edit": "Edit",
+      "publish": "Publish",
+      "republish": "Publish new version",
+      "publishHint": "The offer appears in the client's portal and the submission moves to the client review",
+      "downloadPdf": "Download PDF",
+      "withdraw": "Withdraw offer",
+      "more": "More offer actions"
+    },
+    "columns": {
+      "version": "Version",
+      "state": "Status",
+      "saved": "Saved",
+      "validUntil": "Valid until",
+      "author": "Author",
+      "note": "Note"
+    },
+    "fields": {
+      "language": "Offer language",
+      "validUntil": "Valid until",
+      "includeBrochure": "Append the trade credit insurance brochure",
+      "note": "Version note",
+      "reason": "Reason"
+    },
+    "create": {
+      "title": "Prepare a commercial offer",
+      "hint": "The terms, premium and buyer limits come from the submission. The text blocks start from standard wording you can edit before publishing.",
+      "languageHint": "Independent of the interface language",
+      "brochureHint": "The currently published brochure version is appended",
+      "submit": "Prepare"
+    },
+    "edit": {
+      "title": "Offer {{number}}",
+      "back": "Back to submission {{number}}",
+      "basedOn": "based on version {{version}} · {{language}}",
+      "save": "Save version",
+      "notEditable": "The offer is closed or the submission has left the offer steps — changes will not be saved",
+      "texts": "Text blocks",
+      "textsHint": "An empty block is not printed",
+      "settings": "Settings",
+      "noteHint": "Optional: what changed",
+      "fromSubmission": "From the submission",
+      "fromSubmissionHint": "The terms, premium and limits are taken from the submission again on every save.",
+      "buyers": "Buyers in the package",
+      "approvedBuyers": "With an approved limit",
+      "composedAt": "Data as of"
+    },
+    "withdraw": {
+      "title": "Withdraw offer {{number}}",
+      "hintPublished": "The client can no longer accept this offer; the submission returns to the sales confirmation with your reason.",
+      "hintDraft": "The draft is closed; a new offer can be prepared.",
+      "submit": "Withdraw offer"
+    },
+    "prospectHint": {
+      "title": "Nobody from this organisation has portal access yet",
+      "body": "A published offer waits in the portal. Until the user provisioning service is hosted, portal users are created with docs/create-user.sql; meanwhile, download the PDF and send it to the client."
+    },
+    "entity": {
+      "title": "Commercial offers",
+      "empty": "No offers",
+      "emptyHint": "An offer is prepared on the insurance submission page.",
+      "columns": {
+        "number": "Number",
+        "submission": "Submission",
+        "status": "Status",
+        "validUntil": "Valid until",
+        "updated": "Updated",
+        "language": "Language"
+      }
+    },
+    "errors": {
+      "validUntilPast": "The validity date cannot be in the past",
+      "withdrawReason": "Give a reason for the withdrawal",
+      "requestStatus": "An offer is not prepared or published at this step of the submission",
+      "termsMissing": "The submission's proposed terms are incomplete (structure, currency, rate, minimum premium)",
+      "exists": "This submission already has a live offer — edit it or withdraw it",
+      "language": "This language is not available for offers",
+      "textsInvalid": "The offer's text blocks are damaged — reload the page",
+      "closed": "The offer is closed and cannot be changed",
+      "versionConflict": "A newer version was saved while you were editing — open it and make your changes again",
+      "nothingNew": "The latest version is already published",
+      "notOpen": "The offer is no longer awaiting an answer",
+      "expired": "The offer has expired and can no longer be accepted; request changes to receive an updated one",
+      "commentTooLong": "The comment is too long (2,000 characters at most)",
+      "sayWhatChanges": "Say what should change"
+    },
+    "print": {
+      "back": "Back to submission",
+      "backPortal": "Back to the offer",
+      "print": "Print / PDF",
+      "missing": "Offer not found",
+      "missingHint": "It does not exist or you have no access to it."
+    },
+    "portal": {
+      "title": "Offers",
+      "subtitle": "The insurer's commercial offers on your submissions",
+      "empty": "No offers yet",
+      "emptyHint": "When the insurer prepares an offer on your submission, it will appear here.",
+      "columns": {
+        "number": "Number",
+        "submission": "Submission",
+        "published": "Published",
+        "validUntil": "Valid until",
+        "status": "Status"
+      },
+      "open": "Open",
+      "back": "All offers",
+      "accept": "Accept offer",
+      "acceptTitle": "Accept offer {{number}}?",
+      "acceptBody": "Accepting the offer is your agreement to the submission's terms. The insurer will then issue the policy.",
+      "acceptConfirm": "Accept",
+      "acceptedTitle": "Offer accepted — the insurer will issue the policy",
+      "requestChanges": "Request changes",
+      "sendChanges": "Send",
+      "commentLabel": "What should change",
+      "commentHint": "Your sales manager will receive your comment",
+      "commentRequired": "Say what should change",
+      "changesTitle": "You asked for changes — your manager will prepare an updated offer",
+      "expiredTitle": "This offer has expired",
+      "expiredHint": "It can no longer be accepted. Request changes and your manager will prepare an offer with a new date.",
+      "withdrawnTitle": "The insurer has withdrawn this offer",
+      "noContent": "Content not available",
+      "noContentHint": "The insurer has withdrawn the offer.",
+      "missingHint": "The offer does not exist or is not available to you."
+    },
+    "doc": {
+      "kicker": "Trade credit insurance",
+      "title": "Commercial offer",
+      "number": "Number",
+      "date": "Date",
+      "validUntil": "Valid until",
+      "request": "Submission",
+      "sections": {
+        "whyTci": "Why trade credit insurance",
+        "cover": "Proposed cover",
+        "premium": "Premium",
+        "buyers": "Buyer limits",
+        "conditions": "Conditions",
+        "nextSteps": "Next steps",
+        "contacts": "Contacts and particulars"
+      },
+      "premium": {
+        "estimated": "Estimated premium on the expected turnover",
+        "due": "Premium payable for the year (not below the minimum)",
+        "instalments": "Minimum premium payable in",
+        "instalmentsValue_one": "{{count}} instalment of {{amount}}",
+        "instalmentsValue_few": "{{count}} instalments of {{amount}}",
+        "instalmentsValue_many": "{{count}} instalments of {{amount}}",
+        "instalmentsValue_other": "{{count}} instalments of {{amount}}",
+        "note": "The minimum premium is payable in any case; if the premium earned on the actual turnover is higher, the difference is charged at the end of the period. There is no refund below the minimum premium."
+      },
+      "buyers": {
+        "buyer": "Buyer",
+        "country": "Country",
+        "requested": "Requested",
+        "offered": "Offered",
+        "terms": "Payment terms",
+        "basis": "Basis",
+        "notOffered": "No limit granted",
+        "none": "No buyers are included in the submission.",
+        "bases": {
+          "approved": "Approved",
+          "indicative": "Indicative",
+          "declined": "Declined"
+        },
+        "footnote": "“Approved” is a limit the insurer has decided. “Indicative” is the amount requested, before the limit decision; the final amount may differ."
+      },
+      "contact": {
+        "title": "Your manager",
+        "portal": "You can accept the offer or request changes in the client portal."
+      },
+      "requisites": {
+        "title": "Insurer's particulars",
+        "name": "Name",
+        "registration": "Registration number",
+        "taxId": "Tax ID",
+        "licence": "Licence",
+        "licenceValue": "No. {{number}} of {{date}}",
+        "address": "Address",
+        "phone": "Phone",
+        "email": "Email",
+        "website": "Website",
+        "bank": "Bank details"
+      }
+    },
+    "defaults": {
+      "intro": "Thank you for your interest in trade credit insurance. Please find our commercial offer on your submission: the proposed cover, the premium and the limits on your buyers.\n\nThe terms are based on the submission and the limit decisions as of the date of this offer.",
+      "why_tci": "Receivables are part of your working capital, and a large customer that does not pay can strain your liquidity.\n\n- Cover when a buyer does not pay because of insolvency or protracted default — within the insured percentage and the limit.\n- Buyer limits: the insurer assesses each buyer's creditworthiness, and the limit shows how much you can ship with cover.\n- Monitoring: if a buyer's situation worsens, the insurer may review the limit.\n- Insured receivables can make the conversation with your bank about financing easier.",
+      "conditions": "This offer is valid until the date on its cover page. The cover is governed by the insurance contract; this offer is not a contract.\n\nLimits marked as indicative take effect only once the insurer has decided them.",
+      "next_steps": "- Accept the offer in the client portal, or tell your manager if the terms should change.\n- Once accepted, the insurer prepares the insurance contract and the policy.\n- The organisation's registration documents and information on the buyers may be needed, if not provided yet."
+    }
+  },
+  "brochure": {
+    "sectionSubtitle": "The trade credit insurance brochure attached to commercial offers, and the library of images it uses.",
+    "views": {
+      "brochure": "Brochure",
+      "media": "Media library"
+    },
+    "langs": {
+      "ru": "Русский",
+      "en": "English",
+      "uz": "O‘zbekcha"
+    },
+    "sections": {
+      "what": "What it is",
+      "how": "How it works",
+      "covered": "Cover",
+      "benefits": "Benefits",
+      "limits": "Limits",
+      "process": "Process",
+      "faq": "FAQ",
+      "contacts": "Contacts"
+    },
+    "statuses": {
+      "draft": "Draft",
+      "published": "Published",
+      "retired": "Retired"
+    },
+    "doc": {
+      "eyebrow": "Product overview",
+      "title": "Trade credit insurance"
+    },
+    "diagram": {
+      "aria": "Diagram: the policyholder delivers to the buyer on credit terms, pays the insurer a premium and receives cover and credit limits; the insurer monitors the buyer.",
+      "insurer": "Insurer",
+      "insurerSub": "the credit insurer",
+      "policyholder": "Policyholder",
+      "policyholderSub": "your company, the seller",
+      "buyer": "Buyer",
+      "buyerSub": "your customer, the debtor",
+      "sells": "Delivery on credit terms",
+      "pays": "Payment when due — the risk of non-payment is insured",
+      "premium": "Premium",
+      "cover": "Cover and credit limits",
+      "monitoring": "Monitoring and credit limits"
+    },
+    "currentIs": "The current brochure is version {{version}}, published {{date}}. New commercial offers embed it.",
+    "noneCurrent": "No version has been published yet: commercial offers go out without a brochure.",
+    "defaultBanner": {
+      "title": "Default draft — check every statement before publishing",
+      "text": "The editor holds a standard text on trade credit insurance in three languages. It is never published by itself: save it as a version, check every statement against your terms of cover, and only then publish it."
+    },
+    "versions": {
+      "title": "Versions",
+      "empty": "No versions yet",
+      "emptyHint": "Save the draft in the editor below — it becomes the first version.",
+      "number": "No.",
+      "status": "Status",
+      "created": "Saved",
+      "published": "Published",
+      "note": "Note"
+    },
+    "actions": {
+      "view": "View",
+      "viewVersion": "View version {{version}}",
+      "editAsNew": "Edit as a new version",
+      "editAsNewVersion": "Edit version {{version}} as a new one",
+      "publish": "Publish",
+      "publishHint": "Make this version the current brochure",
+      "publishSaveFirst": "Save your changes as a version first",
+      "save": "Save version"
+    },
+    "editor": {
+      "heading": "Editor",
+      "basedOn": "Based on version {{version}} ({{status}})",
+      "basedOnDefault": "Default draft, not saved yet",
+      "unsaved": "unsaved changes",
+      "saved": "saved",
+      "note": "Version note",
+      "notePlaceholder": "What changed (optional)",
+      "saveHint": "Every save is a new draft version; published versions never change.",
+      "newerDraft": "There is a newer draft — version {{version}}. Open it so as not to lose its edits.",
+      "language": "Text language",
+      "missingIn": "Missing: {{langs}}",
+      "complete": "Filled in all languages",
+      "title": "Title",
+      "body": "Text",
+      "conventions": "A blank line starts a paragraph; a line “- …” is a bullet; a line “? …” is a question, and the paragraph after it is the answer.",
+      "diagramNote": "The “How it works” diagram is drawn under the text automatically.",
+      "image": "Image",
+      "pickImage": "Choose an image",
+      "removeImage": "Remove",
+      "noImage": "No image",
+      "imageRetired": "This image has been retired from the library — choose another, or the version will not save.",
+      "imageHint": "From the media library only; it is shown beside the section’s text.",
+      "noImages": "The media library has no images",
+      "noImagesHint": "Upload an image with its alt text, source and licence on the Media library tab.",
+      "goToLibrary": "Open the media library"
+    },
+    "preview": {
+      "title": "Preview",
+      "language": "Preview language",
+      "versionTitle": "Version {{version}}"
+    },
+    "publish": {
+      "title": "Publish version {{version}}?",
+      "message": "It becomes the current brochure: new commercial offers embed it, and clients see it with the offer. The previously published version is retired; offers already sent keep theirs.",
+      "missing": "Fields still empty (a title or a text in one of the languages): {{n}}."
+    },
+    "replace": {
+      "title": "Open another version?",
+      "message": "Unsaved changes in the editor will be lost. Open version {{version}} for editing?",
+      "confirm": "Open version"
+    },
+    "errors": {
+      "contentInvalid": "The brochure content is malformed or too large.",
+      "imageUnknown": "A section names an image that is not in the media library or has been retired. Choose another image.",
+      "notDraft": "Only a draft can be published: this version is already published or retired."
+    }
+  },
+  "media": {
+    "hint": "Images for the brochure. Each is stored with us, with alt text in three languages, a source and a licence; nothing is shown by linking to another site.",
+    "filter": {
+      "label": "Show",
+      "active": "Active",
+      "retired": "Retired"
+    },
+    "upload": {
+      "open": "Upload an image",
+      "title": "New image",
+      "submit": "Upload",
+      "chooseFile": "Choose a file",
+      "chooseAnother": "Choose another file",
+      "noFile": "No file chosen",
+      "fileHint": "PNG, JPEG or WebP, up to 5 MB."
+    },
+    "edit": {
+      "title": "Image details",
+      "open": "Edit details",
+      "fileFixed": "The file itself never changes: upload a new image instead."
+    },
+    "retire": {
+      "open": "Retire",
+      "title": "Retire this image?",
+      "message": "It can no longer be chosen for new brochure versions. Versions that already use it keep showing it. The image is not deleted.",
+      "confirm": "Retire image"
+    },
+    "empty": {
+      "title": "No images in the library yet",
+      "hint": "Upload the first image: you will need alt text in three languages, a source and a licence.",
+      "retiredTitle": "No retired images",
+      "retiredHint": "Images you retire appear here."
+    },
+    "fields": {
+      "image": "Image",
+      "alt": "Alt text",
+      "altIn": "Alt text — {{lang}}",
+      "altHint": "Say briefly what the image shows: screen readers read it, and it is shown if the image does not load.",
+      "sourceAndLicence": "Source and licence",
+      "source": "Source",
+      "sourceHint": "Where it comes from: your own shoot, a photo library…",
+      "sourceUrl": "Source link",
+      "sourceUrlHint": "The image’s page on the source’s site (optional).",
+      "licence": "Licence",
+      "licenceText": "Licence name",
+      "licenceTextPlaceholder": "E.g. the terms agreed with the photographer",
+      "author": "Author",
+      "authorHint": "Photographer or rights holder (optional).",
+      "authorRequiredHint": "Required for CC BY: the author must be credited.",
+      "uploaded": "Uploaded",
+      "retired": "Retired on",
+      "file": "File"
+    },
+    "licences": {
+      "choose": "Choose a licence",
+      "own": "Owner’s own photo",
+      "unsplash": "Unsplash License",
+      "pexels": "Pexels License",
+      "cc0": "CC0 (public domain)",
+      "ccBy": "CC BY 4.0 (with attribution)",
+      "other": "Other"
+    },
+    "units": {
+      "mb": "{{value}} MB",
+      "kb": "{{value}} KB"
+    },
+    "dimensions": "{{width}} × {{height}} px",
+    "form": {
+      "missing": "Still needed: {{fields}}",
+      "ready": "All set"
+    },
+    "errors": {
+      "fileType": "Only PNG, JPEG and WebP images are accepted.",
+      "fileEmpty": "The file is empty.",
+      "fileTooLarge": "The file is larger than 5 MB.",
+      "unreadable": "The image could not be read: the file is damaged or not an image.",
+      "altRequired": "Alt text is required in all three languages.",
+      "sourceRequired": "Name the image’s source.",
+      "licenceRequired": "Name the licence: an image without one is not accepted into the library.",
+      "authorRequired": "CC BY requires the author’s name.",
+      "sourceUrlInvalid": "The link must start with http:// or https://.",
+      "notUploaded": "The file did not reach storage — upload it again.",
+      "checkFailed": "The image details did not pass the check — review the alt text, source and licence.",
+      "uploadConflict": "A file with that name already exists — try the upload again."
+    }
   }
 }

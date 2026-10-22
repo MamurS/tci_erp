@@ -255,10 +255,11 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
           <div className="flex flex-wrap items-center gap-3">
             <Button
               onClick={() => void handleAdjust()}
-              disabled={!amountValid || adjust.isPending || check?.withinAuthority === false}
+              disabled={!amountValid || check?.withinAuthority === false}
+              loading={adjust.isPending}
               variant={isReduction ? 'danger' : 'primary'}
             >
-              {adjust.isPending ? t('common.saving') : t('limits.commercial.action')}
+              {t('limits.commercial.action')}
             </Button>
             {/* A disabled button says why. Over authority the banner above
                 already explains; this line only points at it. */}

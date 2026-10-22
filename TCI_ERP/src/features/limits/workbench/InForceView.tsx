@@ -9,7 +9,19 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Card, EmptyState, Input, KeyFigures, ViewBar, Select, Spinner, Table, Truncate } from '../../../components/ui'
+import {
+  Card,
+  COL,
+  EmptyState,
+  Input,
+  KeyFigures,
+  labelCol,
+  Select,
+  Spinner,
+  Table,
+  Truncate,
+  ViewBar,
+} from '../../../components/ui'
 import { EM_DASH, formatAmount, formatCompact, formatDays } from '../../../lib/format'
 import { GRADE_BANDS, num } from '../../portfolio/aggregate'
 import { useCreditPortfolio } from '../../portfolio/api'
@@ -105,21 +117,21 @@ export function InForceView() {
             // second, smaller line), the names cut with an ellipsis: eleven
             // limits used to wrap onto three lines a row. Payment terms were
             // «—» on almost every row, so they sit under the amount when set.
-            <Table dense>
+            <Table dense columns={[COL.fill, COL.fill, COL.money, COL.amount, labelCol('limitBand'), COL.days]}>
               <thead>
                 <tr>
-                  <th className="cell-fill w-[30%]">{t('limits.fields.buyer')}</th>
-                  <th className="cell-fill w-[28%]">{t('limits.fields.policyAndPolicyholder')}</th>
-                  <th className="w-px text-right">{t('limits.fields.approvedAmount')}</th>
-                  <th className="w-px text-right">{t('portfolio.credit.exposure')}</th>
-                  <th className="w-px">{t('portfolio.credit.rating')}</th>
-                  <th className="w-px text-right">{t('limits.workbench.inforce.review')}</th>
+                  <th>{t('limits.fields.buyer')}</th>
+                  <th>{t('limits.fields.policyAndPolicyholder')}</th>
+                  <th className="num">{t('limits.fields.approvedAmount')}</th>
+                  <th className="num">{t('portfolio.credit.exposure')}</th>
+                  <th>{t('portfolio.credit.rating')}</th>
+                  <th className="num">{t('limits.workbench.inforce.review')}</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((r) => (
                   <tr key={r.decision_id}>
-                    <td className="cell-fill">
+                    <td>
                       <Truncate text={r.buyer_name} className="max-w-none">
                         <EntityLink id={r.buyer_entity_id} name={r.buyer_name} tab="limits" />
                       </Truncate>
@@ -127,7 +139,7 @@ export function InForceView() {
                         {countryName(r.buyer_country)}
                       </Truncate>
                     </td>
-                    <td className="cell-fill">
+                    <td>
                       <Link to={`/limits/${r.request_id}`} className="block whitespace-nowrap text-accent-600 hover:text-accent-500">
                         {r.policy_number}
                       </Link>

@@ -8,7 +8,11 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { useAuth } from '../../auth/AuthContext'
+import { optimistic, rowAt, rowInList, rowInLists, rowOutOfList } from '../../lib/optimistic'
 import { supabase, tci } from '../../lib/supabase'
+import { claimErrorKey } from './errors'
+import { claimQueryAffected, overrideCleared, overridden, withClaimStatus } from './optimistic'
 import { CLAIM_DOCUMENTS_BUCKET, claimDocumentPath } from './documents'
 import type {
   CauseOfLoss,
@@ -217,14 +221,15 @@ export function useClaimReadiness(claimId: string | undefined) {
   })
 }
 
+/** This claim's queries and the claim lists — not every other claim's tabs
+ * (claimQueryAffected) — and the Agenda's claim tasks. */
 function useInvalidateClaims() {
   const qc = useQueryClient()
   return (claimId?: string) => {
-    void qc.invalidateQueries({ queryKey: ['claims'] })
-    void qc.invalidateQueries({ queryKey: ['agenda'] })
+    void qc.invalidateQueries({ queryKey: ['claims'], predicate: (q) => claimQueryAffected(q.queryKey, claimId) })
+    void qc.invalidateQueries({ queryKey: ['agenda', 'tasks'] })
     // Approving suspends the buyer's limit.
     void qc.invalidateQueries({ queryKey: ['limits'] })
-    if (claimId) void qc.invalidateQueries({ queryKey: KEYS.one(claimId) })
   }
 }
 
@@ -252,10 +257,17 @@ export function useOpenClaim() {
   })
 }
 
+type StatusVars = { id: string; to: ClaimStatus; comment?: string | null }
+
+/** The badge (page and lists) shows the new status at once; a refusal
+ * restores it with the claims department's own message (errors.ts). */
 export function useChangeClaimStatus() {
+  const qc = useQueryClient()
   const invalidate = useInvalidateClaims()
+  const move = (claim: Claim, v: StatusVars) => withClaimStatus(claim, v.to)
   return useMutation({
-    mutationFn: async (input: { id: string; to: ClaimStatus; comment?: string | null }) => {
+    mutationKey: ['claims', 'status'],
+    mutationFn: async (input: StatusVars) => {
       const { error } = await tci().rpc('change_claim_status', {
         p_claim_id: input.id,
         p_to: input.to,
@@ -263,6 +275,13 @@ export function useChangeClaimStatus() {
       })
       if (error) throw error
     },
+    ...optimistic<StatusVars, void>(qc, {
+      patches: (v) => [
+        rowAt<Claim, StatusVars>(KEYS.one(v.id), move),
+        rowInLists<Claim, StatusVars>(['claims', 'list'], (x) => x.id, move),
+      ],
+      mapError: (e) => claimErrorKey(e) ?? 'common.somethingWentWrong',
+    }),
     onSuccess: (_d, v) => invalidate(v.id),
   })
 }
@@ -301,12 +320,22 @@ export function useSaveClaimInvoice() {
 }
 
 export function useDeleteClaimInvoice() {
+  const qc = useQueryClient()
   const invalidate = useInvalidateClaims()
+  type Vars = { claim_id: string; invoice_id: string }
   return useMutation({
-    mutationFn: async (input: { claim_id: string; invoice_id: string }) => {
+    mutationKey: ['claims', 'delete-invoice'],
+    mutationFn: async (input: Vars) => {
       const { error } = await tci().rpc('delete_claim_invoice', { p_invoice_id: input.invoice_id })
       if (error) throw error
     },
+    // The invoice leaves the list at once.
+    ...optimistic<Vars, void>(qc, {
+      patches: (v) => [
+        rowOutOfList<ClaimInvoiceCoverage, Vars>(KEYS.coverage(v.claim_id), (x) => x.invoice_id, (l) => l.claim_invoice_id),
+      ],
+      mapError: (e) => claimErrorKey(e) ?? 'common.somethingWentWrong',
+    }),
     onSuccess: (_d, v) => invalidate(v.claim_id),
   })
 }
@@ -322,16 +351,35 @@ export function useVerifyCoverage() {
   })
 }
 
+type OverrideVars = {
+  claim_id: string
+  claim_invoice_id: string
+  verdict: CoverageVerdict
+  covered_amount: number
+  justification: string
+}
+
+/** The invoice's effective verdict changes at once — the engine's own
+ * verdict beside it never does (0033). */
 export function useOverrideVerdict() {
+  const qc = useQueryClient()
+  const { session } = useAuth()
+  const me = session?.user.id ?? null
   const invalidate = useInvalidateClaims()
   return useMutation({
-    mutationFn: async (input: {
-      claim_id: string
-      claim_invoice_id: string
-      verdict: CoverageVerdict
-      covered_amount: number
-      justification: string
-    }) => {
+    mutationKey: ['claims', 'override'],
+    ...optimistic<OverrideVars, void>(qc, {
+      patches: (v) => [
+        rowInList<ClaimInvoiceCoverage, OverrideVars>(
+          KEYS.coverage(v.claim_id),
+          (x) => x.claim_invoice_id,
+          (line, x) => overridden(line, x.verdict, x.covered_amount, x.justification, me, new Date().toISOString()),
+          (line) => line.claim_invoice_id,
+        ),
+      ],
+      mapError: (e) => claimErrorKey(e) ?? 'common.somethingWentWrong',
+    }),
+    mutationFn: async (input: OverrideVars) => {
       const { error } = await tci().rpc('override_claim_verdict', {
         p_claim_invoice_id: input.claim_invoice_id,
         p_verdict: input.verdict,
@@ -345,9 +393,23 @@ export function useOverrideVerdict() {
 }
 
 export function useClearOverride() {
+  const qc = useQueryClient()
   const invalidate = useInvalidateClaims()
+  type Vars = { claim_id: string; claim_invoice_id: string }
   return useMutation({
-    mutationFn: async (input: { claim_id: string; claim_invoice_id: string }) => {
+    mutationKey: ['claims', 'clear-override'],
+    ...optimistic<Vars, void>(qc, {
+      patches: (v) => [
+        rowInList<ClaimInvoiceCoverage, Vars>(
+          KEYS.coverage(v.claim_id),
+          (x) => x.claim_invoice_id,
+          (line) => overrideCleared(line),
+          (line) => line.claim_invoice_id,
+        ),
+      ],
+      mapError: (e) => claimErrorKey(e) ?? 'common.somethingWentWrong',
+    }),
+    mutationFn: async (input: Vars) => {
       const { error } = await tci().rpc('clear_claim_verdict_override', {
         p_claim_invoice_id: input.claim_invoice_id,
       })
@@ -452,9 +514,17 @@ export function useUploadClaimDocument() {
 }
 
 export function useDeleteClaimDocument() {
+  const qc = useQueryClient()
   const invalidate = useInvalidateClaims()
+  type Vars = { claim_id: string; document_id: string }
   return useMutation({
-    mutationFn: async (input: { claim_id: string; document_id: string }) => {
+    mutationKey: ['claims', 'delete-document'],
+    // The document leaves the register at once; a refusal brings it back.
+    ...optimistic<Vars, void>(qc, {
+      patches: (v) => [rowOutOfList<ClaimDocument, Vars>(KEYS.documents(v.claim_id), (x) => x.document_id)],
+      mapError: (e) => claimErrorKey(e) ?? 'common.somethingWentWrong',
+    }),
+    mutationFn: async (input: Vars) => {
       const { data: path, error } = await tci().rpc('delete_claim_document', { p_document_id: input.document_id })
       if (error) throw error
       // The register row is gone; the bytes go through the Storage API (SQL

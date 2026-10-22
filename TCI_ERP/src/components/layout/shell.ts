@@ -10,6 +10,11 @@ export type SidebarState = 'open' | 'closed'
 
 export const SIDEBAR_KEY = 'tci-erp-sidebar'
 
+/** Hover intent of the peek: rest this long before the hidden panel shows… */
+export const PEEK_OPEN_MS = 100
+/** …and it goes this long after the pointer has left the panel and the toggle. */
+export const PEEK_CLOSE_MS = 300
+
 /** Anything but an explicit "closed" opens: a first visit sees the menu. */
 export function parseSidebarState(stored: string | null | undefined): SidebarState {
   return stored === 'closed' ? 'closed' : 'open'

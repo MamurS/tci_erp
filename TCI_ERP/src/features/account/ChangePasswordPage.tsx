@@ -142,8 +142,8 @@ export function ChangePasswordPage() {
         )}
 
         <div className="flex gap-2">
-          <Button onClick={() => void submit()} disabled={saving || !verdict.valid}>
-            {saving ? t('common.saving') : t('account.savePassword')}
+          <Button onClick={() => void submit()} disabled={!verdict.valid} loading={saving}>
+            {t('account.savePassword')}
           </Button>
           {/* No way out while the rotation is mandatory. */}
           {!mustChangePassword && (

@@ -6,7 +6,17 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, EmptyState, PageHeader, Segmented, Spinner, Table, Truncate } from '../../components/ui'
+import {
+  Badge,
+  COL,
+  EmptyState,
+  labelCol,
+  PageHeader,
+  Segmented,
+  Spinner,
+  Table,
+  Truncate,
+} from '../../components/ui'
 import { EM_DASH, formatAmount } from '../../lib/format'
 import { useClaims } from './api'
 import { isOpen } from './machine'
@@ -69,24 +79,24 @@ export function ClaimsPage() {
           hint={t('claims.empty.hint')}
         />
       ) : (
-        <Table>
+        <Table columns={[COL.code, COL.fill, COL.money, COL.money, '7rem', labelCol('claimStatus')]}>
           <thead>
             <tr>
               {/* w-px: the other columns take their content's width, and the
                   names column everything left over. */}
-              <th className="w-px">{t('claims.fields.number')}</th>
+              <th>{t('claims.fields.number')}</th>
               {/* Buyer over policyholder in one column: seven columns side by
                   side cut both names to a few letters on a laptop. */}
-              <th className="cell-fill w-[45%]">
+              <th>
                 {t('claims.fields.buyer')} / {t('claims.fields.policyholder')}
               </th>
-              <th className="num w-px">{t('claims.fields.claimed')}</th>
-              <th className="num w-px">{t('claims.fields.indemnity')}</th>
+              <th className="num">{t('claims.fields.claimed')}</th>
+              <th className="num">{t('claims.fields.indemnity')}</th>
               {/* The unit is in each cell; the rule behind the count on hover. */}
-              <th className="num w-px" title={t('claims.ageHint')}>
+              <th className="num" title={t('claims.ageHint')}>
                 {t('claims.fields.ageColumn')}
               </th>
-              <th className="w-px">{t('claims.fields.status')}</th>
+              <th>{t('claims.fields.status')}</th>
             </tr>
           </thead>
           <tbody>

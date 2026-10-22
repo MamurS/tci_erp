@@ -1,0 +1,125 @@
+name: Nightly backup
+
+# Audit Phase B.1: a nightly logical backup of the canonical database,
+# encrypted before it touches disk, kept 30 days as a workflow artifact.
+# Restore and the quarterly drill: docs/BACKUP-RESTORE.md.
+#
+# Needs two repository secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_DB_URL       session-pooler connection string of canonical
+#   BACKUP_AGE_RECIPIENT  the age PUBLIC key (age1…) the dump is encrypted to
+# Without either, the backup job is SKIPPED with a notice, never failed.
+on:
+  schedule:
+    # 21:17 UTC = 02:17 in Tashkent, off the top of the hour
+    - cron: '17 21 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check backup secrets
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.secrets.outputs.ready }}
+    steps:
+      - id: secrets
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_AGE_RECIPIENT: ${{ secrets.BACKUP_AGE_RECIPIENT }}
+        run: |
+          missing=''
+          [ -n "$SUPABASE_DB_URL" ] || missing="$missing SUPABASE_DB_URL"
+          [ -n "$BACKUP_AGE_RECIPIENT" ] || missing="$missing BACKUP_AGE_RECIPIENT"
+          if [ -n "$missing" ]; then
+            echo "::notice title=Backup skipped::Repository secret(s) not set:$missing. See docs/BACKUP-RESTORE.md."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  backup:
+    name: pg_dump → age → artifact
+    needs: check
+    if: needs.check.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      # Canonical runs Postgres 17; pg_dump must be the same major or newer.
+      PG_MAJOR: '17'
+      # What the TCI system owns or depends on. Supabase's internal schemas
+      # (vault, realtime, graphql, …) are left out: they are recreated by the
+      # platform, and some are not readable by `postgres`.
+      BACKUP_SCHEMAS: tci auth storage public supabase_migrations
+    steps:
+      - name: Install postgresql-client-17 and age
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -q "postgresql-client-$PG_MAJOR" age
+          "/usr/lib/postgresql/$PG_MAJOR/bin/pg_dump" --version
+          age --version
+
+      - name: Check the server version
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          server=$("/usr/lib/postgresql/$PG_MAJOR/bin/psql" "$SUPABASE_DB_URL" -X -Atc 'show server_version_num')
+          echo "server_version_num=$server"
+          if [ "$((server / 10000))" -gt "$PG_MAJOR" ]; then
+            echo "::error::Server is Postgres $((server / 10000)), the client is $PG_MAJOR. Raise PG_MAJOR in backup.yml."
+            exit 1
+          fi
+          echo "SERVER_VERSION_NUM=$server" >> "$GITHUB_ENV"
+
+      # The plaintext dump never touches the runner's disk: pg_dump streams
+      # straight into age. pipefail makes a pg_dump failure fail the step.
+      - name: Dump and encrypt
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          BACKUP_AGE_RECIPIENT: ${{ secrets.BACKUP_AGE_RECIPIENT }}
+        run: |
+          set -euo pipefail
+          stamp=$(date -u +%Y%m%dT%H%MZ)
+          name="tci-$stamp"
+          mkdir -p out
+          schemas=()
+          for s in $BACKUP_SCHEMAS; do schemas+=(--schema="$s"); done
+          "/usr/lib/postgresql/$PG_MAJOR/bin/pg_dump" "$SUPABASE_DB_URL" \
+              --format=custom --no-owner "${schemas[@]}" \
+            | age --encrypt --recipient "$BACKUP_AGE_RECIPIENT" --output "out/$name.dump.age"
+          size=$(stat -c %s "out/$name.dump.age")
+          if [ "$size" -lt 10240 ]; then
+            echo "::error::Encrypted dump is only $size bytes; refusing to keep it as a backup."
+            exit 1
+          fi
+          sha=$(sha256sum "out/$name.dump.age" | cut -d' ' -f1)
+          {
+            echo "file=$name.dump.age"
+            echo "created_utc=$stamp"
+            echo "bytes=$size"
+            echo "sha256=$sha"
+            echo "server_version_num=$SERVER_VERSION_NUM"
+            echo "pg_dump=$("/usr/lib/postgresql/$PG_MAJOR/bin/pg_dump" --version)"
+            echo "schemas=$BACKUP_SCHEMAS"
+            echo "format=custom, --no-owner, encrypted with age"
+            echo "commit=$GITHUB_SHA"
+          } > "out/$name.manifest.txt"
+          cat "out/$name.manifest.txt"
+          echo "BACKUP_NAME=$name" >> "$GITHUB_ENV"
+
+      - name: Upload artifact (30 days)
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.BACKUP_NAME }}
+          path: out/
+          retention-days: 30
+          # age output is already incompressible
+          compression-level: 0
+          if-no-files-found: error

@@ -6,9 +6,11 @@ import M28 from '../../supabase/migrations/0028_overdue_notifications.sql?raw'
 import M29 from '../../supabase/migrations/0029_phase4_agenda_portal.sql?raw'
 import M54 from '../../supabase/migrations/0054_data_management.sql?raw'
 import M55 from '../../supabase/migrations/0055_agenda_redesign.sql?raw'
+import M56 from '../../supabase/migrations/0056_premium_payments.sql?raw'
+import M58 from '../../supabase/migrations/0058_commercial_offers.sql?raw'
 import { OPERATIONS_REFUSALS, refusalKey } from './refusals'
 
-const ALL = [M26, M27, M28, M29, M54, M55].join('\n')
+const ALL = [M26, M27, M28, M29, M54, M55, M56, M58].join('\n')
 
 describe('operations refusal mapping — contract with 0026-0029', () => {
   it('maps only refusals the database actually raises', () => {
@@ -28,6 +30,12 @@ describe('operations refusal mapping — contract with 0026-0029', () => {
     )
     expect(refusalKey({ message: 'this notification is already resolved_paid', code: 'P0001' })).toBe(
       'overdues.errors.alreadyResolved',
+    )
+    expect(refusalKey({ message: 'brochure_not_draft: version 3 is published', code: 'P0001' })).toBe(
+      'brochure.errors.notDraft',
+    )
+    expect(refusalKey({ message: 'media_not_uploaded: the file is not in the media library bucket', code: 'P0002' })).toBe(
+      'media.errors.notUploaded',
     )
   })
 

@@ -6,3 +6,8 @@ dist/
 .DS_Store
 supabase/.temp/
 supabase/.branches/
+test-results/
+playwright-report/
+
+# Agent worktrees (Claude Code): temporary checkouts, never committed
+.claude/worktrees/

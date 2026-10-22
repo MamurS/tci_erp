@@ -30,7 +30,7 @@ const STAFF: readonly UserRole[] = [
  *   commercial_underwriter  dashboard, agenda, companies, submissions, limits, policies,
  *                           policy portfolio, declarations, overdues, claims
  *   sales                   dashboard, agenda, companies, submissions, limits, policies,
- *                           declarations, overdues
+ *                           declarations, overdues, the TCI brochure
  *   information_manager     dashboard, agenda, companies, data management
  *   claims                  dashboard, agenda, companies, overdues, claims
  *   client                  the portal only
@@ -83,6 +83,9 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // Anyone on staff FILES a request (from a search or a company card); only
   // information managers and admins work them.
   { key: 'data', path: '/data', roles: ['admin', 'information_manager'] },
+  // «Брошюра TCI» (0058): the product brochure sent with commercial offers and
+  // its media library — written by admin and sales, so not under /admin.
+  { key: 'brochure', path: '/brochure', roles: ['admin', 'sales'] },
   { key: 'admin', path: '/admin', roles: ['admin'] },
 ]
 

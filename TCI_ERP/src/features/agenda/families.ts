@@ -8,12 +8,13 @@
 
 import type { TaskType } from './types'
 
-export const FAMILIES = ['premium', 'limits', 'claims', 'declarations', 'groups', 'submissions', 'data'] as const
+export const FAMILIES = ['premium', 'limits', 'claims', 'declarations', 'groups', 'submissions', 'contracts', 'data'] as const
 export type Family = (typeof FAMILIES)[number]
 
 export const TASK_FAMILY: Readonly<Record<TaskType, Family>> = {
   instalment_due: 'premium',
   instalment_overdue: 'premium',
+  premium_payment_unmatched: 'premium',
 
   limit_needs_decision: 'limits',
   limit_escalated: 'limits',
@@ -49,6 +50,12 @@ export const TASK_FAMILY: Readonly<Record<TaskType, Family>> = {
   entity_requested: 'data',
   statements_requested: 'data',
   entity_request_resolved: 'data',
+
+  contract_review: 'contracts',
+
+  offer_viewed: 'submissions',
+  offer_expiring: 'submissions',
+  offer_expired: 'submissions',
 }
 
 export const TAGS = [
@@ -60,6 +67,7 @@ export const TAGS = [
   'declaration',
   'group',
   'submission',
+  'contract',
   'data',
 ] as const
 export type Tag = (typeof TAGS)[number]
@@ -67,6 +75,7 @@ export type Tag = (typeof TAGS)[number]
 export const TASK_TAG: Readonly<Record<TaskType, Tag>> = {
   instalment_due: 'premium',
   instalment_overdue: 'premium',
+  premium_payment_unmatched: 'premium',
   limit_needs_decision: 'limit',
   limit_escalated: 'escalated',
   limit_held: 'limit',
@@ -96,6 +105,10 @@ export const TASK_TAG: Readonly<Record<TaskType, Tag>> = {
   entity_requested: 'data',
   statements_requested: 'data',
   entity_request_resolved: 'data',
+  contract_review: 'contract',
+  offer_viewed: 'submission',
+  offer_expiring: 'submission',
+  offer_expired: 'submission',
 }
 
 /** Badge tone per tag: an escalation is amber and a claim red, as on the
@@ -109,6 +122,7 @@ export const TAG_TONE: Readonly<Record<Tag, 'neutral' | 'warn' | 'neg'>> = {
   declaration: 'neutral',
   group: 'neutral',
   submission: 'neutral',
+  contract: 'neutral',
   data: 'neutral',
 }
 

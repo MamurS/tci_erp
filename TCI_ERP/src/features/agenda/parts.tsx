@@ -131,9 +131,11 @@ export function SnoozeMenu({
   const [picking, setPicking] = useState(false)
   const [date, setDate] = useState('')
 
+  // One call for the whole row: the row leaves the board in the next frame
+  // (optimistic, api.ts) instead of after one round trip per task.
   const run = async (until: Date) => {
     try {
-      for (const taskId of taskIds) await snooze.mutateAsync({ taskId, until })
+      await snooze.mutateAsync({ taskIds, until })
       onDone?.()
     } catch (error) {
       onError(t(refusalKey(error)))
@@ -238,7 +240,7 @@ export function CommentComposer({
           <Button variant="secondary" size="sm" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button size="sm" disabled={!body.trim() || add.isPending} onClick={() => void send()}>
+          <Button size="sm" disabled={!body.trim()} loading={add.isPending} onClick={() => void send()}>
             {t('agenda.comments.send')}
           </Button>
         </div>

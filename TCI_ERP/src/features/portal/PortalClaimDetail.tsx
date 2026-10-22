@@ -11,14 +11,15 @@ import {
   Button,
   Callout,
   Card,
+  COL,
   DateInput,
   Field,
   Input,
   Modal,
+  SectionTitle,
   Select,
   Spinner,
   Table,
-  SectionTitle,
 } from '../../components/ui'
 import { parseAmount } from '../../components/ui/amount'
 import { signedDocumentUrl } from '../claims/api'
@@ -62,7 +63,7 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
         >
           <p>{claim.decision_reason}</p>
           {claim.assessed_at && (
-            <p className="mt-1 text-xs text-slate-500">{formatMoment(claim.assessed_at, locale)}</p>
+            <p className="mt-1 text-xs whitespace-normal text-slate-500">{formatMoment(claim.assessed_at, locale)}</p>
           )}
         </Callout>
       )}
@@ -87,14 +88,14 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
         {(invoices ?? []).length === 0 ? (
           <p className="text-[13px] text-slate-500">{t('portal.claims.noInvoices')}</p>
         ) : (
-          <Table dense>
+          <Table dense columns={[COL.code, COL.date, COL.date, COL.money, COL.money, COL.fill]}>
             <thead>
               <tr>
                 <th>{t('portal.claims.fields.invoiceNumber')}</th>
                 <th>{t('portal.claims.fields.shipmentDate')}</th>
                 <th>{t('portal.claims.fields.dueDate')}</th>
-                <th className="text-right">{t('portal.claims.fields.outstanding')}</th>
-                <th className="text-right">{t('portal.claims.fields.covered')}</th>
+                <th className="num">{t('portal.claims.fields.outstanding')}</th>
+                <th className="num">{t('portal.claims.fields.covered')}</th>
                 <th>{t('portal.claims.fields.verdict')}</th>
               </tr>
             </thead>
@@ -104,10 +105,10 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
                   <td className="whitespace-nowrap tabular-nums">{i.invoice_number}</td>
                   <td className="whitespace-nowrap">{formatDate(i.shipment_date, locale)}</td>
                   <td className="whitespace-nowrap">{formatDate(i.due_date, locale)}</td>
-                  <td className="num text-right">
+                  <td className="num">
                     {formatAmount(Number(i.claimable_amount), locale)} {i.currency_code}
                   </td>
-                  <td className="num text-right">
+                  <td className="num">
                     {i.effective_covered_amount === null
                       ? EM_DASH
                       : `${formatAmount(Number(i.effective_covered_amount), locale)} ${i.currency_code}`}
@@ -251,7 +252,8 @@ function AddInvoice({ claim, onError }: { claim: ClientClaim; onError: (e: unkno
               {t('common.cancel')}
             </Button>
             <Button
-              disabled={!ready || save.isPending}
+              disabled={!ready}
+              loading={save.isPending}
               onClick={() =>
                 save
                   .mutateAsync({
@@ -266,7 +268,7 @@ function AddInvoice({ claim, onError }: { claim: ClientClaim; onError: (e: unkno
                   .catch(onError)
               }
             >
-              {save.isPending ? t('common.saving') : t('portal.claims.actions.addInvoice')}
+              {t('portal.claims.actions.addInvoice')}
             </Button>
           </>
         }

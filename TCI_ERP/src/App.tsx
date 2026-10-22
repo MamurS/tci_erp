@@ -48,6 +48,19 @@ const OverdueDetailPage = lazyPage(overdue, 'OverdueDetailPage')
 const claims = () => import('./features/claims')
 const ClaimsPage = lazyPage(claims, 'ClaimsPage')
 const ClaimDetailPage = lazyPage(claims, 'ClaimDetailPage')
+const contractDrafts = () => import('./features/contracts')
+const ContractViewPage = lazyPage(contractDrafts, 'ContractViewPage')
+const ContractEditPage = lazyPage(contractDrafts, 'ContractEditPage')
+const ContractComparePage = lazyPage(contractDrafts, 'ContractComparePage')
+const ContractPrintPage = lazyPage(contractDrafts, 'ContractPrintPage')
+const PortalContractsPage = lazyPage(() => import('./features/contracts/portal'), 'PortalContractsPage')
+const offers = () => import('./features/offers')
+const OfferEditPage = lazyPage(offers, 'OfferEditPage')
+const OfferPrintPage = lazyPage(offers, 'OfferPrintPage')
+const PortalOfferPrintPage = lazyPage(offers, 'PortalOfferPrintPage')
+const PortalOffersPage = lazyPage(offers, 'PortalOffersPage')
+const PortalOfferPage = lazyPage(offers, 'PortalOfferPage')
+const BrochurePage = lazyPage(() => import('./features/brochure'), 'BrochurePage')
 const AdminPage = lazyPage(() => import('./features/admin'), 'AdminPage')
 const AgendaPage = lazyPage(() => import('./features/agenda'), 'AgendaPage')
 const account = () => import('./features/account')
@@ -79,6 +92,11 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="entities/:id/report" element={<ReportPage />} />
         <Route path="buyers/:id/report" element={<LegacyRedirect />} />
+        {/* A contract draft on paper: the browser's «Save as PDF» (0057). */}
+        <Route path="policies/contracts/:draftId/print" element={<ContractPrintPage />} />
+        {/* A commercial offer on paper (0058); the role guard of /requests is
+            not needed here — RLS returns nothing to anyone else. */}
+        <Route path="requests/offers/:offerId/print" element={<OfferPrintPage />} />
         {/* The portal: its own shell, its own navigation, no staff sections.
             Still behind the password gate — a provisioned client must rotate
             their temporary password before reaching any of it. */}
@@ -87,6 +105,7 @@ export default function App() {
         <Route element={<RequirePasswordChange />}>
           <Route element={<RequireMfa />}>
           <Route element={<PortalRedirect />}>
+            <Route path="portal/offers/:offerId/print" element={<PortalOfferPrintPage />} />
             <Route path="portal" element={<PortalShell />}>
               <Route index element={<PortalPoliciesPage />} />
               <Route path="limits" element={<PortalLimitsPage />} />
@@ -95,6 +114,9 @@ export default function App() {
               <Route path="overdues" element={<PortalOverduesPage />} />
               <Route path="claims" element={<PortalClaimsPage />} />
               <Route path="submissions" element={<PortalSubmissionsPage />} />
+              <Route path="contracts" element={<PortalContractsPage />} />
+              <Route path="offers" element={<PortalOffersPage />} />
+              <Route path="offers/:offerId" element={<PortalOfferPage />} />
               <Route path="account" element={<PortalAccountPage />} />
             </Route>
           </Route>
@@ -132,12 +154,17 @@ export default function App() {
                 />
                 <Route path="requests" element={<RequestsPage />} />
                 <Route path="requests/:id" element={<RequestDetailPage />} />
+                <Route path="requests/offers/:offerId/edit" element={<OfferEditPage />} />
                 <Route path="limits" element={<LimitsSection />} />
                 <Route path="limits/:id" element={<LimitRequestPage />} />
                 <Route path="policies" element={<PoliciesSection />} />
                 <Route path="policies/new" element={<PolicyFormPage />} />
                 <Route path="policies/:id" element={<PolicyDetailPage />} />
                 <Route path="policies/:id/edit" element={<PolicyFormPage />} />
+                {/* Contract drafts (0057): viewer, editor, comparison. */}
+                <Route path="policies/contracts/:draftId" element={<ContractViewPage />} />
+                <Route path="policies/contracts/:draftId/edit" element={<ContractEditPage />} />
+                <Route path="policies/contracts/:draftId/compare" element={<ContractComparePage />} />
                 <Route path="declarations" element={<DeclarationsPage />} />
                 <Route path="declarations/:id" element={<DeclarationDetailPage />} />
                 <Route path="overdues" element={<OverduesPage />} />
@@ -152,6 +179,8 @@ export default function App() {
                 <Route path="portfolio/credit" element={<Navigate to={LEGACY_LIMIT_VIEW_PATHS['/portfolio/credit']} replace />} />
                 <Route path="data" element={<DataSection />} />
                 <Route path="data/requests/:id" element={<DataRequestPage />} />
+                {/* «Брошюра TCI» and its media library (0058): admin and sales. */}
+                <Route path="brochure" element={<BrochurePage />} />
                 <Route path="admin" element={<AdminPage />} />
               </Route>
             </Route>

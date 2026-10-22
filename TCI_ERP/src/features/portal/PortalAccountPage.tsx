@@ -115,8 +115,8 @@ export function PortalAccountPage() {
             </p>
           )}
           <div className="mt-4 flex items-center gap-3">
-            <Button disabled={save.isPending} onClick={() => save.mutate()}>
-              {save.isPending ? t('common.saving') : t('common.save')}
+            <Button loading={save.isPending} onClick={() => save.mutate()}>
+              {t('common.save')}
             </Button>
             {saved && <span className="text-[13px] text-pos-500">{t('portal.account.saved')}</span>}
           </div>

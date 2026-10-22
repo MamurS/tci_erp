@@ -18,6 +18,7 @@ import type { PolicyView } from './views'
 
 const ContractsPage = lazy(() => import('../wording').then((m) => ({ default: m.ContractsPage })))
 const WordingPage = lazy(() => import('../wording').then((m) => ({ default: m.WordingPage })))
+const PaymentsView = lazy(() => import('./payments/PaymentsView').then((m) => ({ default: m.PaymentsView })))
 const PolicyPortfolioPage = lazy(() =>
   import('../portfolio').then((m) => ({ default: m.PolicyPortfolioPage })),
 )
@@ -50,6 +51,8 @@ export function PoliciesSection() {
     >
       {view === 'overview' ? (
         <PolicyPortfolioPage />
+      ) : view === 'payments' ? (
+        <PaymentsView />
       ) : view === 'contracts' ? (
         <ContractsPage />
       ) : view === 'templates' ? (

@@ -10,7 +10,20 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Spinner, Table, SectionTitle, Truncate } from '../../components/ui'
+import {
+  actionsCol,
+  Badge,
+  Button,
+  Card,
+  COL,
+  EmptyState,
+  labelCol,
+  RowActions,
+  SectionTitle,
+  Spinner,
+  Table,
+  Truncate,
+} from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH, formatMoment } from '../../lib/format'
 import { canProvision } from './provisioningAccess'
@@ -88,7 +101,7 @@ export function EntityClientAccessSection({ entityId }: { entityId: string }) {
           hint={t('provisioning.noClientUsersHint')}
         />
       ) : (
-        <Table dense>
+        <Table dense columns={[COL.fill, COL.person, COL.moment, labelCol('accountState'), actionsCol(['resetPassword'])]}>
           <thead>
             <tr>
               <th>{t('provisioning.fields.email')}</th>
@@ -119,7 +132,7 @@ export function EntityClientAccessSection({ entityId }: { entityId: string }) {
                     <Badge tone="pos">{t('provisioning.active')}</Badge>
                   )}
                 </td>
-                <td className="text-right">
+                <RowActions>
                   <Button
                     variant="secondary"
                     size="sm"
@@ -128,7 +141,7 @@ export function EntityClientAccessSection({ entityId }: { entityId: string }) {
                   >
                     {t('provisioning.resetPassword')}
                   </Button>
-                </td>
+                </RowActions>
               </tr>
             ))}
           </tbody>

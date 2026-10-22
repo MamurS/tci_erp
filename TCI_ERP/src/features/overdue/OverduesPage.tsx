@@ -11,7 +11,18 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, EmptyState, Field, PageHeader, Select, Spinner, Table, Truncate } from '../../components/ui'
+import {
+  Badge,
+  COL,
+  EmptyState,
+  Field,
+  labelCol,
+  PageHeader,
+  Select,
+  Spinner,
+  Table,
+  Truncate,
+} from '../../components/ui'
 import { formatAmount } from '../../lib/format'
 import { useOverdueNotifications } from './api'
 import { NOA_STATUSES } from './types'
@@ -65,14 +76,14 @@ export function OverduesPage() {
       ) : rows.length === 0 ? (
         <EmptyState title={t('overdues.empty')} hint={t('overdues.emptyHint')} />
       ) : (
-        <Table>
+        <Table columns={[COL.fill, COL.fill, '10.5rem', '7rem', labelCol('overdueReported'), labelCol('overdueStatus')]}>
           <thead>
             <tr>
-              <th className="cell-fill w-[30%]">{t('limits.fields.buyer')}</th>
-              <th className="cell-fill w-[30%]">{t('policies.fields.policyholder')}</th>
-              <th className="text-right">{t('overdues.fields.overdueAmount')}</th>
+              <th>{t('limits.fields.buyer')}</th>
+              <th>{t('policies.fields.policyholder')}</th>
+              <th className="num">{t('overdues.fields.overdueAmount')}</th>
               {/* The unit is in each cell; what the count runs from on hover. */}
-              <th className="text-right" title={t('overdues.pastDueHint')}>
+              <th className="num" title={t('overdues.pastDueHint')}>
                 {t('overdues.fields.pastDueColumn')}
               </th>
               <th>{t('overdues.fields.reported')}</th>
@@ -86,7 +97,7 @@ export function OverduesPage() {
                 onClick={() => void navigate(`/overdues/${n.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="cell-fill font-medium">
+                <td className="font-medium">
                   {/* The row opens on click; the link is what a keyboard reaches. */}
                   <Truncate text={n.buyer_name} className="max-w-none">
                     <Link to={`/overdues/${n.id}`} className="text-accent-700 hover:underline">
@@ -94,7 +105,7 @@ export function OverduesPage() {
                     </Link>
                   </Truncate>
                 </td>
-                <td className="cell-fill text-slate-500">
+                <td className="text-slate-500">
                   <Truncate text={n.policyholder_name} className="max-w-none" />
                 </td>
                 <td>

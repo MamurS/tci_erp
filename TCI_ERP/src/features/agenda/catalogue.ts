@@ -64,6 +64,17 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   // Agenda redesign (migration 0055): refresh_agenda retires it once the new
   // period is rated, and so does rating.created at once.
   rating_new_statements: 'auto',
+  // Premium payments (migration 0056): closes when no line of the import is
+  // unmatched or suggested any more (assigned, confirmed or set aside).
+  premium_payment_unmatched: 'auto',
+  // Contract drafts (migration 0057): closes when the draft leaves review.
+  contract_review: 'auto',
+  // Commercial offers (migration 0058): the viewed notice closes when the
+  // client answers or the offer moves on; the two date kinds are generated
+  // and retired by refresh_agenda (refresh_offer_tasks).
+  offer_viewed: 'auto',
+  offer_expiring: 'auto',
+  offer_expired: 'auto',
 }
 
 /** Mirrors tci.complete_task's guard (as 0054 restates it): it refuses
@@ -129,6 +140,16 @@ export function taskLink(
     case 'client_buyer_proposal':
       // A buyer a client proposed from the portal: resolved on the data desk.
       return '/data?view=proposals'
+    case 'bank_statement_import':
+      // The import's lines are resolved in Полисы › Платежи.
+      return `/policies?view=payments&import=${task.object_id}`
+    case 'contract_draft':
+      return `/policies/contracts/${task.object_id}`
+    case 'commercial_offer': {
+      // The offer is worked from its submission's «Коммерческое предложение».
+      const requestId = task.params?.request_id
+      return typeof requestId === 'string' ? `/requests/${requestId}?focus=offer` : null
+    }
     default:
       return null
   }
@@ -256,6 +277,9 @@ export const OBJECT_FILTERS = [
   'claim',
   'entity_request',
   'client_buyer_proposal',
+  'bank_statement_import',
+  'contract_draft',
+  'commercial_offer',
 ] as const satisfies readonly TaskObjectType[]
 
 export interface AgendaFilters {

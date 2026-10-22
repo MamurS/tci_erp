@@ -1,0 +1,70 @@
+name: DB replay
+
+# Audit Phase B.3: the schema can be rebuilt from the repository. A fresh
+# Postgres 17 (the canonical project's major) gets the Supabase stub, every
+# migration in order (one transaction each), then every tests/db/*.sql probe.
+# Red if any migration or any probe fails.
+#
+# Path-filtered on purpose, so it runs only when the database changes. That
+# also means it must NOT be made a required status check: a required check
+# that is skipped never reports, and branch protection would wait forever
+# (see the note at the top of ci.yml).
+on:
+  push:
+    paths:
+      - 'TCI_ERP/supabase/migrations/**'
+      - 'TCI_ERP/tests/db/**'
+      - 'TCI_ERP/tools/db/**'
+      - '.github/workflows/db.yml'
+  pull_request:
+    paths:
+      - 'TCI_ERP/supabase/migrations/**'
+      - 'TCI_ERP/tests/db/**'
+      - 'TCI_ERP/tools/db/**'
+      - '.github/workflows/db.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: db-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  replay:
+    name: Replay migrations + DB tests (Postgres 17)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        # The official image ships the contrib extensions (pgcrypto, pg_trgm)
+        # that tools/db/bootstrap.sql installs into schema `extensions`.
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Throwaway container credentials, not a secret. `postgres` is a
+      # superuser, which the tests need (SET SESSION AUTHORIZATION).
+      PGHOST: localhost
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: postgres
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Server version
+        run: psql -X -d postgres -Atc 'select version()'
+
+      - name: Create the database
+        run: createdb tci_replay
+
+      - name: Bootstrap + replay migrations + DB tests
+        run: bash TCI_ERP/tools/db/replay.sh tci_replay

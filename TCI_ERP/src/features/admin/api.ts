@@ -3,8 +3,9 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { optimistic, rowInList, rowOutOfList } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
-import { isUserRole } from '../../lib/roles'
+import { isUserRole, USER_ROLES } from '../../lib/roles'
 import type { AuthorityScope, GradeBand, UserRole } from '../../lib/roles'
 import type { AuthorityGrant } from '../limits/types'
 
@@ -51,9 +52,15 @@ export function useAdminUsers() {
   })
 }
 
+/** The user with exactly these roles, in the canonical order. */
+export function withRoles(user: AdminUser, roles: readonly UserRole[]): AdminUser {
+  return { ...user, roles: USER_ROLES.filter((role) => roles.includes(role)) }
+}
+
 export function useSetUserRoles() {
   const queryClient = useQueryClient()
   return useMutation({
+    mutationKey: ['admin', 'roles'],
     mutationFn: async (input: { userId: string; roles: UserRole[] }): Promise<void> => {
       // Replace the whole set: delete what is gone, insert what is new.
       const { data: current, error: readError } = await tci()
@@ -80,7 +87,17 @@ export function useSetUserRoles() {
         if (error) throw error
       }
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: KEYS.users }),
+    // The chips repaint at once; a refusal restores them.
+    ...optimistic<{ userId: string; roles: UserRole[] }, void>(queryClient, {
+      patches: () => [
+        rowInList<AdminUser, { userId: string; roles: UserRole[] }>(
+          KEYS.users,
+          (v) => v.userId,
+          (user, v) => withRoles(user, v.roles),
+          (user) => user.user_id,
+        ),
+      ],
+    }),
   })
 }
 
@@ -132,10 +149,14 @@ export function useSaveGrant() {
 export function useDeleteGrant(userId: string) {
   const queryClient = useQueryClient()
   return useMutation({
+    mutationKey: ['admin', 'delete-grant'],
     mutationFn: async (id: string): Promise<void> => {
       const { error } = await tci().from('authority_grants').delete().eq('id', id)
       if (error) throw error
     },
-    onSuccess: () => void queryClient.invalidateQueries({ queryKey: KEYS.grants(userId) }),
+    // The grant leaves the matrix at once; a refusal brings it back.
+    ...optimistic<string, void>(queryClient, {
+      patches: () => [rowOutOfList<AuthorityGrant, string>(KEYS.grants(userId), (id) => id)],
+    }),
   })
 }

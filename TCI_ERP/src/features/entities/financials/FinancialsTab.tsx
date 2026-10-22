@@ -5,13 +5,16 @@ import { useTranslation } from 'react-i18next'
 import { Check, Download, Plus } from 'lucide-react'
 
 import {
+  actionsCol,
   AmountInput,
   Badge,
   Button,
+  COL,
   ConfirmDialog,
   EmptyState,
   LinkButton,
   Modal,
+  RowActions,
   Segmented,
   Spinner,
   Table,
@@ -356,12 +359,13 @@ function ManualRateModal({ need, onClose }: { need: RateNeed; onClose: () => voi
             {t('common.cancel')}
           </Button>
           <Button
-            disabled={!valid || save.isPending}
+            disabled={!valid}
+            loading={save.isPending}
             onClick={() => {
               void save.mutateAsync({ need, rate }).then(onClose)
             }}
           >
-            {save.isPending ? t('common.saving') : t('common.save')}
+            {t('common.save')}
           </Button>
         </>
       }
@@ -485,7 +489,7 @@ function ManageStatementsModal({
             {t('fin.deleteStatement.failed')}
           </p>
         )}
-        <Table dense>
+        <Table dense columns={[COL.fill, COL.date, '9rem', '6rem', actionsCol(['edit', 'delete'])]}>
           <thead>
             <tr>
               <th>{t('fin.fields.period')}</th>
@@ -525,18 +529,18 @@ function ManageStatementsModal({
                 <td>
                   {s.audited ? <Badge tone="pos">{t('common.yes')}</Badge> : <Badge>{t('common.no')}</Badge>}
                 </td>
-                <td>
+                <RowActions>
                   {mayEdit && (
-                    <div className="flex justify-end gap-1.5">
+                    <>
                       <LinkButton variant="secondary" size="sm" to={`/buyers/${entityId}/statements/${s.id}/edit`}>
                         {t('common.edit')}
                       </LinkButton>
                       <Button variant="dangerOutline" size="sm" onClick={() => setConfirming(s)}>
                         {t('common.delete')}
                       </Button>
-                    </div>
+                    </>
                   )}
-                </td>
+                </RowActions>
               </tr>
             ))}
           </tbody>
@@ -560,10 +564,9 @@ function ManageStatementsModal({
           onConfirm={() => {
             if (!confirming) return
             setDeleteFailed(false)
-            void deleteStatement
-              .mutateAsync(confirming.id)
-              .catch(() => setDeleteFailed(true))
-              .finally(() => setConfirming(null))
+            // The statement leaves the list at once (optimistic): close now.
+            setConfirming(null)
+            void deleteStatement.mutateAsync(confirming.id).catch(() => setDeleteFailed(true))
           }}
         />
     </>

@@ -20,7 +20,7 @@ import type { TaskSubjects } from '../api'
 import type { AgendaRow } from '../board'
 import { periodLabel } from '../rowText'
 import { GenericBody } from './GenericBody'
-import { movedChipText, num, whatMoved } from './figures'
+import { movedChipText, negativeCfoStreak, num, whatMoved } from './figures'
 import { useExposureFigure } from './hooks'
 import { BodySkeleton, ChipList, FigureStrip, Muted, Section } from './parts'
 import type { Figure } from './parts'
@@ -89,6 +89,9 @@ export function RatingBody(props: { row: AgendaRow; now: Date; subjects: TaskSub
         { label: t('agenda.triage.rating.latestStatements'), value: EM_DASH, sub: t('agenda.triage.rating.noStatements'), tone: 'warn' }
 
   const moved = rated && newer ? whatMoved(rated, newer) : null
+  // A warning the commentary does not make: operating cash flow negative for
+  // a second period running (or longer) up to the new statements.
+  const cfoStreak = moved?.comparable && newer ? negativeCfoStreak(newer, list) : 0
 
   return (
     <>
@@ -97,15 +100,20 @@ export function RatingBody(props: { row: AgendaRow; now: Date; subjects: TaskSub
         <Section title={t('agenda.triage.rating.moved', { from: label(t, rated), to: label(t, newer) })}>
           {!moved.comparable ? (
             <Muted>{t(`agenda.triage.rating.notComparable.${moved.reason}`)}</Muted>
-          ) : moved.chips.length === 0 ? (
+          ) : moved.chips.length === 0 && cfoStreak < 2 ? (
             <Muted>{t('agenda.triage.rating.nothingMoved')}</Muted>
           ) : (
             <ChipList
-              chips={moved.chips.map((s) => ({
-                key: s.metric,
-                text: movedChipText(s, moved.currency, t, locale),
-                tone: s.tone,
-              }))}
+              chips={[
+                ...moved.chips.map((s) => ({
+                  key: s.metric,
+                  text: movedChipText(s, moved.currency, t, locale),
+                  tone: s.tone,
+                })),
+                ...(cfoStreak >= 2
+                  ? [{ key: 'cfo', text: t('agenda.triage.rating.cfoNegative', { count: cfoStreak }), tone: 'neg' as const }]
+                  : []),
+              ]}
             />
           )}
         </Section>

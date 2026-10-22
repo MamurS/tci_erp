@@ -8,7 +8,16 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, ViewBar, Spinner, Truncate } from '../../../components/ui'
+import {
+  Badge,
+  Card,
+  COL,
+  EmptyState,
+  labelCol,
+  Spinner,
+  Truncate,
+  ViewBar,
+} from '../../../components/ui'
 import { formatAmount, formatDays, formatPercent } from '../../../lib/format'
 import { num } from '../../portfolio/aggregate'
 import { useCreditPortfolio } from '../../portfolio/api'
@@ -51,22 +60,22 @@ export function MonitoringView() {
         // One list under another, full width: side by side the halves left
         // the buyer's name about 100px at 1280 and cut every one of them.
         <div className="grid gap-5">
-          <TableCard
+          <TableCard columns={[COL.fill, COL.code, COL.moneyShort, COL.days]}
             title={t('limits.workbench.monitoring.reviews', { days: REVIEW_WINDOW_DAYS })}
             hint={t('limits.workbench.monitoring.reviewsHint')}
             empty={reviews.length ? null : t('portfolio.credit.noReviews')}
             head={
               <tr>
-                <th className="cell-fill w-full">{t('limits.fields.buyer')}</th>
-                <th className="w-px">{t('policies.fields.policyNumber')}</th>
-                <th className="w-px text-right">{t('portfolio.credit.amount')}</th>
-                <th className="w-px text-right">{t('portfolio.credit.daysLeft')}</th>
+                <th>{t('limits.fields.buyer')}</th>
+                <th>{t('policies.fields.policyNumber')}</th>
+                <th className="num">{t('portfolio.credit.amount')}</th>
+                <th className="num">{t('portfolio.credit.daysLeft')}</th>
               </tr>
             }
           >
             {reviews.map((r) => (
               <tr key={r.decision_id}>
-                <td className="cell-fill">
+                <td>
                   <Truncate text={r.buyer_name} className="max-w-none">
                     <Link to={`/limits/${r.request_id}`} className="font-medium text-accent-600 hover:text-accent-500">
                       {r.buyer_name}
@@ -74,7 +83,7 @@ export function MonitoringView() {
                   </Truncate>
                 </td>
                 <td className="whitespace-nowrap text-slate-600">{r.policy_number}</td>
-                <td className="num text-right whitespace-nowrap">
+                <td className="num whitespace-nowrap">
                   {formatAmount(num(r.approved_amount), locale)} {r.currency_code}
                 </td>
                 <td
@@ -87,22 +96,22 @@ export function MonitoringView() {
             ))}
           </TableCard>
 
-          <TableCard
+          <TableCard columns={[COL.fill, labelCol('limitBand'), labelCol('limitBand'), COL.amount]}
             title={t('limits.workbench.monitoring.worse')}
             hint={t('limits.workbench.monitoring.worseHint')}
             empty={worse.length ? null : t('limits.workbench.monitoring.noWorse')}
             head={
               <tr>
-                <th className="cell-fill w-full">{t('limits.fields.buyer')}</th>
-                <th className="w-px">{t('limits.workbench.monitoring.decidedIn')}</th>
-                <th className="w-px">{t('limits.workbench.monitoring.ratedNow')}</th>
-                <th className="w-px text-right">{t('portfolio.credit.exposure')}</th>
+                <th>{t('limits.fields.buyer')}</th>
+                <th>{t('limits.workbench.monitoring.decidedIn')}</th>
+                <th>{t('limits.workbench.monitoring.ratedNow')}</th>
+                <th className="num">{t('portfolio.credit.exposure')}</th>
               </tr>
             }
           >
             {worse.map((r) => (
               <tr key={r.decision_id}>
-                <td className="cell-fill">
+                <td>
                   <Truncate text={r.buyer_name} className="max-w-none">
                     <EntityLink id={r.buyer_entity_id} name={r.buyer_name} tab="rating" />
                   </Truncate>
@@ -113,45 +122,45 @@ export function MonitoringView() {
                 <td>
                   <BandBadge band={r.current_band} grade={r.current_grade} />
                 </td>
-                <td className="num text-right">
+                <td className="num">
                   <Uzs value={r.amount_uzs} />
                 </td>
               </tr>
             ))}
           </TableCard>
 
-          <TableCard
+          <TableCard columns={[COL.fill, COL.fill, COL.moneyShort, COL.days, labelCol('monitoringSuspension')]}
             title={t('limits.workbench.monitoring.noas')}
             hint={t('limits.workbench.monitoring.noasHint')}
             empty={openNoas.length ? null : t('limits.workbench.monitoring.noNoas')}
             head={
               <tr>
-                <th className="cell-fill w-[30%]">{t('limits.fields.buyer')}</th>
-                <th className="cell-fill w-[30%]">{t('policies.fields.policyholder')}</th>
-                <th className="w-px text-right">{t('limits.workbench.monitoring.overdueAmount')}</th>
-                <th className="w-px text-right">{t('limits.workbench.monitoring.daysPastDue')}</th>
-                <th className="w-px">{t('limits.workbench.monitoring.limit')}</th>
+                <th>{t('limits.fields.buyer')}</th>
+                <th>{t('policies.fields.policyholder')}</th>
+                <th className="num">{t('limits.workbench.monitoring.overdueAmount')}</th>
+                <th className="num">{t('limits.workbench.monitoring.daysPastDue')}</th>
+                <th>{t('limits.workbench.monitoring.limit')}</th>
               </tr>
             }
           >
             {openNoas.map((n) => (
               <tr key={n.id}>
-                <td className="cell-fill">
+                <td>
                   <Truncate text={n.buyer_name} className="max-w-none">
                     <Link to={`/overdues/${n.id}`} className="font-medium text-accent-600 hover:text-accent-500">
                       {n.buyer_name}
                     </Link>
                   </Truncate>
                 </td>
-                <td className="cell-fill text-slate-600">
+                <td className="text-slate-600">
                   <Truncate text={n.policyholder_name} className="max-w-none">
                     {n.policyholder_name}
                   </Truncate>
                 </td>
-                <td className="num text-right whitespace-nowrap">
+                <td className="num whitespace-nowrap">
                   {formatAmount(num(n.overdue_amount), locale)} {n.currency_code}
                 </td>
-                <td className="num text-right">{formatDays(n.days_past_due, locale)}</td>
+                <td className="num">{formatDays(n.days_past_due, locale)}</td>
                 <td>
                   {n.limit_suspended ? (
                     <Badge tone="neg">{t('limits.workbench.monitoring.suspended')}</Badge>
@@ -163,31 +172,31 @@ export function MonitoringView() {
             ))}
           </TableCard>
 
-          <TableCard
+          <TableCard columns={[COL.fill, COL.amount, COL.money, '8rem']}
             title={t('limits.workbench.monitoring.groups')}
             hint={t('limits.workbench.monitoring.groupsHint')}
             empty={atRisk.length ? null : t('limits.workbench.monitoring.noGroups')}
             head={
               <tr>
-                <th className="w-full">{t('portfolio.credit.group')}</th>
-                <th className="w-px text-right">{t('portfolio.credit.exposure')}</th>
-                <th className="w-px text-right">{t('limits.workbench.groups.cap')}</th>
-                <th className="w-px text-right">{t('limits.workbench.groups.used')}</th>
+                <th>{t('portfolio.credit.group')}</th>
+                <th className="num">{t('portfolio.credit.exposure')}</th>
+                <th className="num">{t('limits.workbench.groups.cap')}</th>
+                <th className="num">{t('limits.workbench.groups.used')}</th>
               </tr>
             }
           >
             {atRisk.map((g) => (
               <tr key={g.ultimate_parent_id}>
-                <td className="cell-fill">
+                <td>
                   <Truncate text={g.ultimate_parent_name} className="max-w-none">
                     <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} tab="group" />
                   </Truncate>
                 </td>
-                <td className="num text-right">
+                <td className="num">
                   <Uzs value={g.exposure_uzs} />
                 </td>
                 <td className="num">
-                  <GroupCapAmount amount={g.limit_amount} currency={g.limit_currency} amountUzs={g.limit_uzs} />
+                  <GroupCapAmount amount={g.limit_amount} currency={g.limit_currency} amountUzs={g.limit_uzs} stacked />
                 </td>
                 <td className="text-right">
                   <Badge tone={groupState(g) === 'over' ? 'neg' : 'warn'}>

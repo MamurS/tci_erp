@@ -1,0 +1,80 @@
+// Cloudflare Worker + Container hosting services/analytics (the FastAPI
+// service). Runbook: services/analytics/README.md, «Cloudflare Containers».
+//
+// What runs where:
+//   * the Worker (src/index.ts) receives every request on
+//     https://tci-analytics.<account-subdomain>.workers.dev and forwards it to
+//     ONE container instance (the rate limiter is in-process, so one instance
+//     is what keeps its counts honest);
+//   * the container is the repo-root Dockerfile, unchanged.
+//
+// Paths are relative to THIS file (wrangler resolves `image` and
+// `image_build_context` against the config directory). The build context has
+// to be the repository root: the service imports ../../credit_engine as a
+// path dependency, exactly as for the Render blueprint.
+//
+// Secrets are NOT here and never will be. SUPABASE_SERVICE_ROLE_KEY and the
+// optional COMPANIES_HOUSE_API_KEY are Worker secrets set in the dashboard
+// (Settings → Variables and Secrets → type «Secret»). Deliberately no
+// `secrets.required` list: wrangler refuses the FIRST deploy of a Worker whose
+// required secrets are not set yet, and a secret cannot be set on a Worker
+// that does not exist — the dashboard path would deadlock.
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	// Must equal the Worker name in the dashboard, or Workers Builds fails.
+	// It is also the workers.dev label: https://tci-analytics.<sub>.workers.dev
+	"name": "tci-analytics",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-10-13",
+	"workers_dev": true,
+	// Version/preview URLs would be a second public door to the same
+	// container; Workers with Durable Objects do not get them anyway.
+	"preview_urls": false,
+	"observability": {
+		"enabled": true
+	},
+	"containers": [
+		{
+			"class_name": "AnalyticsContainer",
+			"image": "../../Dockerfile",
+			"image_build_context": "../..",
+			// Smallest preset: 1/16 vCPU, 256 MiB, 2 GB disk. The service
+			// measures ~27 MiB RSS; the image is ~200 MB.
+			"instance_type": "lite",
+			// The Worker only ever addresses one instance (one Durable Object
+			// name). The second slot is headroom, not a second replica.
+			"max_instances": 2
+		}
+	],
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "ANALYTICS",
+				"class_name": "AnalyticsContainer"
+			}
+		]
+	},
+	// The current declaration of a Durable Object class (SQLite-backed, which
+	// a Container requires). It replaces the legacy `migrations` array for new
+	// applications; the two must not be combined.
+	"exports": {
+		"AnalyticsContainer": {
+			"type": "durable-object",
+			"storage": "sqlite"
+		}
+	},
+	// Non-secret configuration, passed into the container by src/index.ts.
+	// A deploy overwrites dashboard-edited plain vars with these values, so
+	// change them HERE (a commit), not in the dashboard.
+	"vars": {
+		"SUPABASE_URL": "https://reunqrpeumokqgarknge.supabase.co",
+		// Exact origins, comma-separated. Branch / commit previews
+		// (<x>.tci-erp.pages.dev) are matched by the service's anchored
+		// regex and must NOT be listed. Add a custom domain here.
+		"CORS_ALLOW_ORIGINS": "https://tci-erp.pages.dev",
+		// The Worker sets CF-Connecting-IP itself (overwriting anything the
+		// client sent), so the service may believe it.
+		"TRUST_PROXY_HEADERS": "true",
+		"LOG_LEVEL": "INFO"
+	}
+}

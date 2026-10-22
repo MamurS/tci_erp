@@ -48,7 +48,7 @@ export function RequestStatementsButton({ entityId }: { entityId: string }) {
                 {t('common.cancel')}
               </Button>
               <Button
-                disabled={request.isPending}
+                loading={request.isPending}
                 onClick={() =>
                   request
                     .mutateAsync({ entityId, note })

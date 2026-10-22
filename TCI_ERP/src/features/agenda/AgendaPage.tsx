@@ -181,7 +181,8 @@ export function AgendaPage() {
   const runComplete = async (row: AgendaRow) => {
     setActionError(null)
     try {
-      for (const task of row.tasks) if (canCompleteByHand(task.task_type)) await complete.mutateAsync(task.id)
+      // One call for the row: it leaves the board in the next frame.
+      await complete.mutateAsync(row.tasks.filter((task) => canCompleteByHand(task.task_type)).map((task) => task.id))
       markHandled(row)
     } catch (error) {
       setActionError(t(refusalKey(error)))
@@ -190,7 +191,7 @@ export function AgendaPage() {
   const runUnsnooze = async (row: AgendaRow) => {
     setActionError(null)
     try {
-      for (const task of row.tasks) if (task.snoozed_until) await unsnooze.mutateAsync(task.id)
+      await unsnooze.mutateAsync(row.tasks.filter((task) => task.snoozed_until).map((task) => task.id))
     } catch (error) {
       setActionError(t(refusalKey(error)))
     }
@@ -454,16 +455,20 @@ function Chip({
       type="button"
       aria-pressed={active}
       onClick={onClick}
-      className={`inline-flex h-8 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-medium transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-1 focus-visible:outline-none ${
+      // The border is there in both states (navy when active), so pressing a
+      // chip never changes its width and the chips beside it never move.
+      className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-1 focus-visible:outline-none ${
         active
-          ? 'bg-accent-600 text-white'
-          : `border bg-white text-slate-700 hover:border-slate-400 hover:text-slate-900 ${
+          ? 'border-accent-600 bg-accent-600 text-white'
+          : `bg-white text-slate-700 hover:border-slate-400 hover:text-slate-900 ${
               dashed ? 'border-dashed border-slate-400' : 'border-slate-300'
             }`
       }`}
     >
       {label}
-      <span className={`tabular-nums ${active ? 'text-white' : 'text-slate-600'}`}>{count}</span>
+      <span className={`inline-block min-w-[2ch] text-center tabular-nums ${active ? 'text-white' : 'text-slate-600'}`}>
+        {count}
+      </span>
     </button>
   )
 }

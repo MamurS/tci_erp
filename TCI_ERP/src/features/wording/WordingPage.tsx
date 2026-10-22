@@ -7,12 +7,17 @@ import { useTranslation } from 'react-i18next'
 import { Download } from 'lucide-react'
 
 import {
+  actionsCol,
+  ActionsMenu,
   Badge,
   Button,
   Card,
+  COL,
   ConfirmDialog,
   CountryFlag,
   EmptyState,
+  labelCol,
+  RowActions,
   SectionTitle,
   Spinner,
   Table,
@@ -95,15 +100,15 @@ export function WordingPage() {
         ) : !templates?.length ? (
           <EmptyState title={t('wording.templates.empty')} hint={t('wording.templates.emptyHint', WORDING_SYNTAX)} />
         ) : (
-          <Table dense>
+          <Table dense columns={[COL.fill, '11rem', labelCol('policyStructure'), labelCol('wordingStatus'), COL.date, actionsCol([], 2)]}>
             <thead>
               <tr>
-                <th className="cell-fill w-[40%]">{t('wording.fields.name')}</th>
+                <th>{t('wording.fields.name')}</th>
                 <th>{t('wording.fields.country')}</th>
                 <th>{t('wording.fields.product')}</th>
                 <th>{t('wording.fields.status')}</th>
                 <th>{t('wording.fields.uploaded')}</th>
-                <th className="w-px" />
+                <th />
               </tr>
             </thead>
             <tbody>
@@ -114,7 +119,7 @@ export function WordingPage() {
                   <tr key={tpl.id}>
                     {/* Name, version and language on one line, the description
                         under it; the whole text on hover. */}
-                    <td className="cell-fill">
+                    <td>
                       <Truncate
                         text={`${name} v${tpl.version} · ${languageName(tpl.language, locale)}`}
                         className="max-w-none"
@@ -153,9 +158,8 @@ export function WordingPage() {
                     <td className="whitespace-nowrap" title={formatMoment(tpl.uploaded_at, locale)}>
                       {formatDate(tpl.uploaded_at, locale)}
                     </td>
-                    <td>
+                    <RowActions>
                       {/* Download, then the next step, the retirement last and in red. */}
-                      <div className="flex justify-end gap-1.5 whitespace-nowrap">
                         <Button
                           size="sm"
                           variant="ghost"
@@ -165,18 +169,24 @@ export function WordingPage() {
                         >
                           <Download aria-hidden />
                         </Button>
-                        {canManage && tpl.status === 'draft' && (
-                          <Button size="sm" variant="secondary" onClick={() => void act(tpl.id, 'active')}>
-                            {t('wording.templates.activate')}
-                          </Button>
+                        {/* The next step and the retirement (last, in red) fold
+                            into ⋯: as buttons they pushed the register past a
+                            laptop's width. */}
+                        {canManage && (
+                          <ActionsMenu
+                            trigger="icon"
+                            size="sm"
+                            actions={[
+                              ...(tpl.status === 'draft'
+                                ? [{ key: 'activate', label: t('wording.templates.activate'), onSelect: () => void act(tpl.id, 'active') }]
+                                : []),
+                              ...(tpl.status !== 'retired'
+                                ? [{ key: 'retire', label: t('wording.templates.retire'), danger: true, onSelect: () => setRetiring(tpl) }]
+                                : []),
+                            ]}
+                          />
                         )}
-                        {canManage && tpl.status !== 'retired' && (
-                          <Button size="sm" variant="dangerOutline" onClick={() => setRetiring(tpl)}>
-                            {t('wording.templates.retire')}
-                          </Button>
-                        )}
-                      </div>
-                    </td>
+                    </RowActions>
                   </tr>
                 )
               })}

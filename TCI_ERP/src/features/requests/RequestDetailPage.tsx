@@ -7,6 +7,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Button, Callout, EmptyState, Field, LinkButton, Modal, PageHeader, Spinner, Textarea } from '../../components/ui'
+import { refusalOr } from '../../lib/optimistic'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH } from '../../lib/format'
 import { pickParam } from '../../lib/deepLink'
@@ -24,6 +25,7 @@ import { ProposedTermsSection } from './ProposedTermsSection'
 import { RequestHistoryTimeline } from './RequestHistoryTimeline'
 import { SalesWindowPanel } from './SalesWindowPanel'
 import { DraftContractSection } from '../wording'
+import { OfferSection } from '../offers/OfferSection'
 import { bindBlocker, canBindAs } from './bind'
 import {
   creditComplete,
@@ -35,7 +37,7 @@ import {
 import type { InsuranceRequestStatus } from './types'
 
 /** The sections `?focus=` may name; each is the `id` of its wrapper. */
-const REQUEST_FOCUS_TARGETS = ['sales-window', 'buyers'] as const
+const REQUEST_FOCUS_TARGETS = ['sales-window', 'buyers', 'offer'] as const
 
 export function RequestDetailPage() {
   const { t } = useTranslation()
@@ -106,12 +108,15 @@ export function RequestDetailPage() {
 
   const runTransition = async (to: InsuranceRequestStatus, withComment: string | null) => {
     setActionError(null)
+    // The status paints at once (optimistic, api.ts); a confirmation closes
+    // at once too and reopens, comment kept, if the database refuses.
+    setPending(null)
     try {
       await advance.mutateAsync({ requestId: request.id, to, comment: withComment })
-      setPending(null)
       setComment('')
-    } catch {
-      setActionError(t('requests.transitionFailed'))
+    } catch (failure) {
+      setActionError(t(refusalOr(failure, 'requests.transitionFailed')))
+      if (needsComment(to)) setPending(to)
     }
   }
 
@@ -172,6 +177,7 @@ export function RequestDetailPage() {
                   <Button
                     variant={isDestructive(offer.to) ? 'dangerOutline' : 'primary'}
                     disabled={advance.isPending || offer.guard !== null}
+                    loading={advance.isPending && advance.variables?.to === offer.to}
                     onClick={() => {
                       if (needsComment(offer.to)) {
                         setPending(offer.to)
@@ -223,16 +229,27 @@ export function RequestDetailPage() {
         )}
         <div className="grid items-start gap-5 xl:grid-cols-2">
           <ProposedTermsSection request={request} />
-          <div className="flex flex-col gap-5">
-            <DraftContractSection
-              target={{ requestId: request.id }}
-              reference={request.request_number}
-              countryCode={request.legal_entities?.country_code ?? null}
-              product={request.product_structure}
-            />
-            <RequestHistoryTimeline requestId={request.id} notes={request.notes} />
-          </div>
+          <RequestHistoryTimeline requestId={request.id} notes={request.notes} />
         </div>
+        {/* The commercial offer published to the client (0058). */}
+        <div id="offer" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
+          <OfferSection
+            requestId={request.id}
+            requestStatus={request.status}
+            entityId={request.entity_id}
+            termsReady={Boolean(
+              request.product_structure && request.currency_code && request.premium_rate_pct !== null &&
+                request.minimum_premium !== null,
+            )}
+          />
+        </div>
+        {/* The contract draft's versions table needs the full width (0057). */}
+        <DraftContractSection
+          target={{ requestId: request.id }}
+          reference={request.request_number}
+          countryCode={request.legal_entities?.country_code ?? null}
+          product={request.product_structure}
+        />
       </div>
 
       {binding && (
@@ -251,7 +268,8 @@ export function RequestDetailPage() {
               </Button>
               <Button
                 variant="danger"
-                disabled={advance.isPending || (pending === 'declined' && !comment.trim())}
+                disabled={pending === 'declined' && !comment.trim()}
+                loading={advance.isPending}
                 title={pending === 'declined' && !comment.trim() ? t('requests.guards.declineNeedsReason') : undefined}
                 onClick={() => void runTransition(pending, comment.trim() || null)}
               >

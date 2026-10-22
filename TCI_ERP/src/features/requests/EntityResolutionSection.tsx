@@ -118,7 +118,8 @@ function ResolveRow({
             <Button
               size="sm"
               onClick={() => void handleResolve()}
-              disabled={disabled || !entityId || resolve.isPending}
+              disabled={disabled || !entityId}
+              loading={resolve.isPending}
             >
               {t('requests.actions.resolve')}
             </Button>

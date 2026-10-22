@@ -7,7 +7,13 @@ import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown } from 'lucide-react'
 
-import { Button, Card, SectionTitle, Table } from '../../components/ui'
+import {
+  Button,
+  Card,
+  COL,
+  SectionTitle,
+  Table,
+} from '../../components/ui'
 import { PLACEHOLDER_GROUPS, PLACEHOLDERS, placeholderGroup, placeholderKey, placeholderSyntax, WORDING_SYNTAX } from './catalogue'
 
 export function PlaceholderReference() {
@@ -39,11 +45,11 @@ export function PlaceholderReference() {
               <h3 className="mb-1 text-xs font-semibold tracking-wide text-slate-400 uppercase">
                 {t(`wording.reference.groups.${group}`, WORDING_SYNTAX)}
               </h3>
-              <Table dense>
+              <Table dense columns={['50%', COL.fill]}>
                 <tbody>
                   {PLACEHOLDERS.filter((p) => placeholderGroup(p) === group).map((p) => (
                     <tr key={p}>
-                      <td className="w-1/2 font-mono text-[12px] text-accent-700 select-all">{placeholderSyntax(p)}</td>
+                      <td className="font-mono text-[12px] text-accent-700 select-all">{placeholderSyntax(p)}</td>
                       <td className="text-[13px]">{t(placeholderKey(p))}</td>
                     </tr>
                   ))}

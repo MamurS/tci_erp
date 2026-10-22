@@ -215,7 +215,7 @@ export function useAllPolicyDocuments() {
   })
 }
 
-async function fetchTemplateBytes(path: string): Promise<ArrayBuffer> {
+export async function fetchTemplateBytes(path: string): Promise<ArrayBuffer> {
   const { data, error } = await supabase.storage.from(WORDING_BUCKET).download(path)
   if (error) throw error
   return data.arrayBuffer()

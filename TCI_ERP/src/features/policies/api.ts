@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
+import { optimistic, rowAt, rowInList } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
 import type { Policy, PolicyStatus, PolicyStatusHistoryRow, PolicyWithRefs } from './types'
 
@@ -87,8 +88,11 @@ export function useUpdatePolicy(id: string) {
  * mirrors it for the UI). */
 export function useChangePolicyStatus(policyId: string) {
   const queryClient = useQueryClient()
+  type Vars = { to: PolicyStatus; comment?: string }
+  const toStatus = (row: PolicyWithRefs, v: Vars): PolicyWithRefs => ({ ...row, status: v.to })
   return useMutation({
-    mutationFn: async (input: { to: PolicyStatus; comment?: string }): Promise<void> => {
+    mutationKey: ['policies', 'status'],
+    mutationFn: async (input: Vars): Promise<void> => {
       const { error } = await tci().rpc('change_policy_status', {
         p_policy_id: policyId,
         p_to_status: input.to,
@@ -96,9 +100,14 @@ export function useChangePolicyStatus(policyId: string) {
       })
       if (error) throw error
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: KEYS.policies })
-      void queryClient.invalidateQueries({ queryKey: ['entities'] })
-    },
+    // Optimistic: the machine's target status is certain once it accepts;
+    // the badge (list and page) changes at once and a refusal restores it.
+    ...optimistic<Vars, void>(queryClient, {
+      patches: () => [
+        rowInList<PolicyWithRefs, Vars>(KEYS.policies, () => policyId, toStatus),
+        rowAt<PolicyWithRefs, Vars>(KEYS.policy(policyId), toStatus),
+      ],
+      invalidate: () => [KEYS.history(policyId), ['entities'], ['portfolio']],
+    }),
   })
 }

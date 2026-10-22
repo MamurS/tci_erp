@@ -169,7 +169,7 @@ export function OverdueDetailPage() {
               {t('common.cancel')}
             </Button>
             <Button
-              disabled={resolve.isPending}
+              loading={resolve.isPending}
               onClick={() => {
                 setError(null)
                 resolve

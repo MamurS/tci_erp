@@ -61,7 +61,8 @@ In scope:
 Out of scope:
 
 * Supabase's and Cloudflare's own platforms (report those to the vendor);
-* the vendored `Fineye*` directories, which are not part of TCI ERP;
+* the archived `legacy/` directory (the vendored `Fineye*` projects and
+  reference material), which is not part of TCI ERP;
 * findings that require a compromised staff device or credentials.
 
 ## Supported versions

@@ -8,7 +8,18 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, Segmented, Spinner, Table, Truncate, ViewBar } from '../../../components/ui'
+import {
+  Badge,
+  Card,
+  COL,
+  EmptyState,
+  labelCol,
+  Segmented,
+  Spinner,
+  Table,
+  Truncate,
+  ViewBar,
+} from '../../../components/ui'
 import { EM_DASH, formatAmount, formatDate } from '../../../lib/format'
 import { useCountryName } from '../../portfolio/useCountryName'
 import { useRatingWorklist } from './api'
@@ -72,16 +83,16 @@ export function RatingsView() {
           <EmptyState title={t('limits.workbench.ratings.empty')} hint={t('limits.workbench.ratings.emptyHint')} />
         </Card>
       ) : (
-        <Table dense>
+        <Table dense columns={[COL.fill, labelCol('ratingReason'), COL.grade, COL.date, COL.count, COL.count, COL.count]}>
           <thead>
             <tr>
-              <th className="cell-fill w-full">{t('limits.fields.buyer')}</th>
-              <th className="w-px">{t('limits.workbench.ratings.reason')}</th>
-              <th className="w-px">{t('portfolio.credit.rating')}</th>
-              <th className="w-px">{t('portfolio.credit.ratedAt')}</th>
-              <th className="w-px text-right">{t('limits.workbench.ratings.latestStatement')}</th>
-              <th className="w-px text-right">{t('limits.workbench.ratings.openRequests')}</th>
-              <th className="w-px text-right">{t('limits.workbench.ratings.limitsInForce')}</th>
+              <th>{t('limits.fields.buyer')}</th>
+              <th>{t('limits.workbench.ratings.reason')}</th>
+              <th>{t('portfolio.credit.rating')}</th>
+              <th>{t('portfolio.credit.ratedAt')}</th>
+              <th className="num">{t('limits.workbench.ratings.latestStatement')}</th>
+              <th className="num">{t('limits.workbench.ratings.openRequests')}</th>
+              <th className="num">{t('limits.workbench.ratings.limitsInForce')}</th>
             </tr>
           </thead>
           <tbody>
@@ -89,7 +100,7 @@ export function RatingsView() {
               <tr key={r.entity_id}>
                 {/* The country is a second line under the name, so the name
                     keeps the width the counts would otherwise take. */}
-                <td className="cell-fill">
+                <td>
                   <Truncate text={r.buyer_name} className="max-w-none">
                     <EntityLink id={r.entity_id} name={r.buyer_name} tab={REASON_TAB[r.reason]} />
                   </Truncate>
@@ -104,8 +115,8 @@ export function RatingsView() {
                 </td>
                 <td className="whitespace-nowrap text-slate-500">{formatDate(r.rated_at, locale)}</td>
                 <td className="num">{r.latest_fiscal_year ?? EM_DASH}</td>
-                <td className="num text-right">{formatAmount(r.open_requests, locale)}</td>
-                <td className="num text-right">{formatAmount(r.limits_in_force, locale)}</td>
+                <td className="num">{formatAmount(r.open_requests, locale)}</td>
+                <td className="num">{formatAmount(r.limits_in_force, locale)}</td>
               </tr>
             ))}
           </tbody>
