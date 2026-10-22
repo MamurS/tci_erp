@@ -97,8 +97,13 @@ export function ActionsMenu({
         setOpen(false)
         action.onSelect()
       }}
+      // The highlight is the focus indicator (no ring), shown for keyboard
+      // focus only: a menu opened by a click focuses its first item without
+      // lighting it (lib/focusSource.ts).
       className={`flex w-full items-center px-3.5 py-2 text-left text-[13px] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 ${
-        action.danger ? 'text-neg-500 hover:bg-neg-50 focus:bg-neg-50' : 'text-slate-700 hover:bg-slate-50 focus:bg-slate-50'
+        action.danger
+          ? 'text-neg-500 hover:bg-neg-50 focus-visible:bg-neg-50'
+          : 'text-slate-700 hover:bg-slate-50 focus-visible:bg-slate-50'
       }`}
     >
       {action.label}

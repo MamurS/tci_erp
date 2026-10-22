@@ -1,6 +1,16 @@
 @import 'tailwindcss';
 
 /*
+ * Focus rings show for KEYBOARD focus only (src/lib/focusSource.ts).
+ * Chrome lights `:focus-visible` on a mouse-clicked button as soon as a key
+ * is pressed while it keeps the focus (the Agenda's J/K/T shortcuts do
+ * that). `<html data-focus-source>` says how the focus last arrived; every
+ * `focus-visible:` utility in the app applies only while it is not
+ * `pointer`. Text fields use `focus:` and keep their ring on every focus.
+ */
+@custom-variant focus-visible (&:focus-visible:where(:root:not([data-focus-source='pointer']) *));
+
+/*
  * TCI ERP design tokens — see DESIGN.md.
  * Delcreda corporate palette: navy + process blue, orange accent,
  * semantic green/red for dynamics, a five-colour rating scale.
@@ -61,6 +71,12 @@
 }
 
 @layer base {
+  /* The browser's own focus outline follows the same rule (elements with no
+     focus style of their own); text entry keeps it, as above. */
+  :root[data-focus-source='pointer']
+    :focus-visible:not(textarea, select, [contenteditable], input:not([type='checkbox'], [type='radio'])) {
+    outline: none;
+  }
   html {
     @apply antialiased;
     font-feature-settings: 'cv11', 'ss01';

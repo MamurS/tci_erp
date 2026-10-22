@@ -356,7 +356,7 @@ export function Segmented({ value, options, onChange, ariaLabel, tone = 'default
           disabled={option.disabled}
           aria-pressed={option.key === value}
           onClick={() => onChange(option.key)}
-          className={`rounded-[5px] px-2.5 py-1 text-xs font-semibold transition-colors ${
+          className={`rounded-[5px] px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none ${
             option.key === value
               ? 'bg-white text-accent-600 shadow-sm ring-1 ring-slate-200'
               : 'text-slate-600 hover:text-slate-900'
