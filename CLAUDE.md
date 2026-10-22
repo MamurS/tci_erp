@@ -41,7 +41,7 @@ Department roles (stored in `tci.user_roles`, enforced via RLS). **A user may ho
 
 SQL helpers: `tci.current_user_roles()` (setof), `tci.has_role(variadic)`, `tci.is_staff()` (= any role except `client`). There is **no `senior_underwriter`** any more — seniority is expressed by the authority matrix.
 
-Underwriting authority is a **2D matrix** (`tci.authority_grants`): user × stream (`credit` | `commercial`) × grade band (`A`/`B`/`C`/`D`/`unrated`) × amount × currency × validity. `tci.my_authority_uzs(band)` = MAX over the caller's currently valid `credit` grants for that band, converted to UZS by the Phase 2b fx rule. **Admin is unlimited.** A decision above the deciding user's band authority sets the request to `escalated` (a workflow status, not just UI hiding); any credit underwriter whose band authority covers it — or an admin — can then decide it. The band comes from the grade FAMILY of the assessment the decision is based on (A1/A2→A …); no assessment ⇒ `unrated`. Band families are served by the analytics service (`GET /grade-scale` → `family`), never hardcoded outside the band names.
+Underwriting authority is a **2D matrix** (`tci.authority_grants`): user × stream (`credit` | `commercial`) × grade band (`A`/`B`/`C`/`D`/`unrated`) × amount × currency × validity. `tci.my_authority_uzs(band)` = MAX over the caller's currently valid `credit` grants for that band, converted to UZS by the Phase 2b fx rule. **Admin is unlimited.** A decision above the deciding user's band authority is not recorded: since 0060 `decide_limit_request` answers `needs_validation`, and the author sends the PROPOSED decision to a NAMED validator of the same department whose band authority covers it (`submit_limit_for_validation`; the author's manager is offered first). The request sits as `escalated` (a workflow status, not just UI hiding) «на валидации» with that person, who approves, approves modified within their own authority, returns, rejects or forwards — see **Limit validation rules** below. A group-limit breach (0040) still escalates to the credit pool. The band comes from the grade FAMILY of the assessment the decision is based on (A1/A2→A …); no assessment ⇒ `unrated`. Band families are served by the analytics service (`GET /grade-scale` → `family`), never hardcoded outside the band names.
 
 ## i18n
 
@@ -613,6 +613,53 @@ is fine for internal test accounts and not fine for customers.
   with role impersonation (prospect: generate ru → edit → brochure → publish →
   view → changes → republish → expiry refused twice → accept) rolled back,
   counts unchanged, offer sequence reset
+- [x] Limit validation (migration 0060): a decision beyond the author's
+  authority — or, voluntarily with a comment, within it — goes to a NAMED,
+  more senior colleague of the same department before it exists.
+  `tci.limit_validations` holds one immutable step per hop (the proposed
+  decision, proposer, validator, outcome); the validator approves, approves
+  modified within THEIR authority (commercial: amount and payment terms only),
+  returns with a comment, rejects (= their own decline) or forwards — a chain
+  of any length, four eyes across the whole chain. `user_profiles.manager_id`
+  (admin, «Руководитель») is offered first. The credit request is parked as
+  `escalated`; a commercial increase HOLDS the credit decision; nothing is in
+  force or visible to the client, and the sales window starts only from the
+  validated decision. Agenda `limit_validation` (validator, urgent if
+  required) and `limit_validation_result` (author, manual) through a ninth
+  trigger. «Отправить на валидацию», «На валидации у …» and the chain history
+  on the limit request page; RLS: a step is read only by the people of its
+  chain (and admin). **Canonical: 0060 applied 2026-10-22** in five
+  `execute_sql` parts, every function, grant, column, policy, enum and
+  trigger fingerprint-identical to a local replay; the whole
+  `tests/db/limit_validation.sql` run on canonical with role impersonation
+  and rolled back, counts unchanged
+- [x] Auto decisions — ADT (migration 0061, Euler Hermes / Allianz Trade
+  practice): a credit underwriter sets, at a buyer's review and within their
+  own authority for the buyer's rating band, the buyer's AUTO DECISION
+  THRESHOLD — the largest single auto decision and how many
+  (`tci.buyer_adt`, one live row per buyer, replaced never edited; the
+  counter is the BUYER's, shared across policyholders, one charged per
+  decision whatever the amount). A SUBMITTED limit request is decided
+  automatically only when ALL hold: the global switch
+  (`workflow_settings.auto_decisions_enabled`, **OFF**) is on, the ADT is
+  active with decisions left, the policy is active, the amount ≤ the ADT
+  amount and ≤ the recommended limit, and no stop factor (open NOA, claim,
+  revoked limit, manual ban, stale/missing financials, group limit). The
+  auto decision is approved for the requested amount on the policy's maximum
+  payment terms, released AT ONCE (no commercial stage, no sales window),
+  system-made (`limits.auto.adt`, «Авторешение (ADT)»); anything else goes
+  to an underwriter with the reasons recorded (`tci.auto_decision_attempts`).
+  Used up, a downgrade below the ADT's band, a stop factor or stale
+  financials suspend it and open `adt_review` («Пересмотр байера / обновить
+  ADT») through a tenth trigger. Buyer card ADT block, «Авторешения» view
+  of the credit workbench, the switch on Admin › Полномочия; credit desk and
+  admin only — sales, commercial underwriting and clients never see an ADT.
+  **Canonical: 0061 applied 2026-10-22** in four `execute_sql` parts
+  (`refresh_agenda` rebuilt server-side from its 0058 body plus one call,
+  md5-checked), every 0061 function, grant, column, constraint, index,
+  policy, view and trigger fingerprint-identical to a local replay; the
+  whole `tests/db/auto_decisions.sql` run on canonical with role
+  impersonation and rolled back, counts unchanged, switch still OFF
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1522,6 +1569,89 @@ works without it), offers it back on return, and asks before leaving with
 unsaved changes (beforeunload + in-app link capture — the BrowserRouter has
 no blocker). Only «Сохранить версию» (⌘S, with an optional change note)
 makes a version.
+
+### Limit validation rules (migration 0060)
+
+**Beyond authority records nothing.** `decide_limit_request` and
+`adjust_limit_commercial` answer `{result: 'needs_validation'}` above the
+caller's band authority instead of escalating to an anonymous pool. The
+proposal is stored only by `submit_limit_for_validation` /
+`submit_adjustment_for_validation`, with a named validator; the decision row
+is written later, BY THE VALIDATOR, through the same decide / adjust
+functions (the GUC `tci.resolving_validation` marks that call), so every
+guard — group limit, supersede, sales window — still applies, and
+`credit_limit_decisions.validation_id` links the result to its step.
+
+**Who may validate** (`tci.check_validator`, offered by
+`tci.validation_candidates`): the same department (`credit_underwriter` for
+credit, `commercial_underwriter` for commercial) or admin; band authority in
+UZS covering the amount (`tci.user_authority_uzs`, admin = Infinity); never
+anyone who proposed or validated an earlier step of the same chain. Nobody
+qualifies ⇒ the screen says so by name; the database refuses
+`validator_lacks_authority` / `validator_wrong_department` /
+`validator_four_eyes`. A voluntary validation (within authority) needs a
+comment (`validation_comment_required`).
+
+**One pending step per request.** While a step is pending nobody but its
+validator decides or adjusts that request (`limit_validation_pending`,
+checked through the token-gated DEFINER `pending_validation_of`, because an
+invoker query under RLS would not see someone else's chain). Reject is the
+validator's own decline; return reopens the request (`under_review`) for the
+author; forward closes the step as `forwarded` and opens the next one with
+`forwarded_by`.
+
+**Reductions never need validation.** A commercial REDUCTION is no longer
+authority-checked at all (as revocations never were); the emergency path is
+untouched.
+
+**Visibility.** `tci.limit_validations` RLS = admin or
+`is_validation_participant(chain)`; the request page reads the chain through
+`limit_validation_history` (same rule) and anyone on staff may see THAT a
+request is on validation and with whom (`limit_request_validation_state`).
+No API role writes the table; a BEFORE UPDATE trigger lets only the
+resolution columns of a pending step change, once.
+
+### Auto decision (ADT) rules (migration 0061)
+
+**Off until the owner switches it on.** `try_auto_decision` returns
+`disabled` and records nothing while `auto_decisions_enabled` is false;
+switch it on (`set_auto_decision_settings`, admin) only after the rating
+engine is calibrated and the analytics service is hosted. Every save sends
+the switch explicitly: the function reads a missing value as OFF.
+
+**All conditions or nothing.** The rule (`tci.try_auto_decision`, called by
+`handle_adt_event` on `limit.request_submitted`, a trigger named to fire
+AFTER the Agenda mapping) collects EVERY failing reason
+(`limits.auto.reasons.*`) instead of stopping at the first, writes them to
+`auto_decision_attempts`, and leaves the request `submitted` for an
+underwriter. There is no partial auto decision: above the ADT amount or the
+recommended limit is a reason, never a reduction. Amounts are compared in
+UZS; a missing rate is `fx_missing`, never a pass.
+
+**The ADT is set within authority and replaced, never edited.**
+`set_buyer_adt` takes the band from the buyer's latest rating and refuses
+`adt_beyond_authority` above the setter's `my_authority_uzs(band)` (admin
+unlimited); the previous live row becomes `replaced`. `disable_buyer_adt`
+ends it; `set_buyer_adt_block` bans auto decisions with a reason and
+suspends the live ADT. Used = decisions with that `adt_id`, counted, never
+a stored counter.
+
+**Suspension is decided from facts.** `recheck_buyer_adt` runs on
+`rating.created`, `noa.filed`, `claim.created`, before every evaluation,
+and lazily from `refresh_agenda` (stale financials are a matter of time —
+no cron); a band WORSE than the one it was set at, or any stop factor,
+suspends it with the first reason and opens `adt_review`, which closes on
+`adt.set` / `adt.disabled`.
+
+**The auto decision is an ordinary decision row.** Approved, the policy's
+`max_payment_terms_days`, valid `adt_limit_validity_months`,
+`decided_by = null`, `system_generated`, `system_reason_key =
+'limits.auto.adt'`, `released_at = now()`, `release_kind = 'immediate'`,
+`adt_id`; it supersedes the scope's effective decisions like
+`decide_limit_request` and closes the request's Agenda tasks. Staff see the
+mark «Авторешение (ADT)»; the parameters, attempts and report
+(`v_auto_decisions`, security invoker) are RLS-limited to admin and credit
+underwriting, and every ADT function refuses other roles with `42501`.
 
 ### Credit workbench rules (migration 0053)
 

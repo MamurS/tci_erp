@@ -12,7 +12,10 @@
  *   - ADMIN is unlimited and never consults the matrix.
  *
  * Used for the decision-form preflight banner; the SQL function is the
- * enforcing side.
+ * enforcing side. Since 0060 a decision beyond authority is not escalated:
+ * decide_limit_request (and adjust_limit_commercial, for an increase) answer
+ * `needs_validation` and record nothing, and the screen offers «Отправить на
+ * валидацию» instead of the decision button (validation.ts).
  */
 
 import { hasRole } from '../../lib/roles'
@@ -136,7 +139,7 @@ export interface AuthorityPreflight {
   /** null = cannot evaluate (missing rate) — the SQL side would raise P0003. */
   amountUzs: number | null
   authorityUzs: number | null
-  /** true = decision records; false = would escalate; null = unknown (missing rate). */
+  /** true = decision records; false = needs validation (0060); null = unknown (missing rate). */
   withinAuthority: boolean | null
 }
 

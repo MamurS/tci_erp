@@ -3,6 +3,11 @@
  * (grade, calculated limit, current effective limit), and the decision
  * form with the authority preflight banner (same conversion rule as the
  * SQL function — authority.ts is the contract mirror).
+ *
+ * Since 0060 a decision beyond the decider's authority is not recorded: it
+ * is sent to a named validator («Отправить на валидацию»), and while a step
+ * is pending the page says with whom, the validator gets their panel here
+ * (?focus=validation), and the chain is listed under «Валидация».
  */
 
 import { useMemo, useState } from 'react'
@@ -33,8 +38,16 @@ import {
 } from './api'
 import { convertAtLatest, preflight } from './authority'
 import { GroupChip, GroupPreflightNotice, useGroupPreflight } from '../groups'
+import { useSystemDecisionMarks } from './adtApi'
+import { AutoDecisionPanel } from './AutoDecisionPanel'
 import { CommercialStageSection } from './CommercialStageSection'
+import { DecisionMark } from './DecisionMark'
 import { ReleaseBadge } from './ReleaseBadge'
+import { SendForValidationModal } from './ValidationDialogs'
+import { ValidationHistory, ValidationPanel, ValidationStatusLine } from './ValidationSection'
+import { myPendingStep, validationKind } from './validation'
+import type { NeedsValidation } from './validation'
+import { useSubmitLimitForValidation, useValidationHistory, useValidationState } from './validationApi'
 import {
   canDecideAs,
   canStartReview,
@@ -47,7 +60,7 @@ import type { ConditionInput, LimitRequestWithRefs } from './types'
 import { CONDITION_TYPES, requestScopeFilter } from './types'
 
 /** The sections `?focus=` may name; each is the `id` of its card. */
-const LIMIT_FOCUS_TARGETS = ['decision', 'commercial'] as const
+const LIMIT_FOCUS_TARGETS = ['decision', 'commercial', 'validation'] as const
 
 export function LimitRequestPage() {
   const { t, i18n } = useTranslation()
@@ -62,13 +75,24 @@ export function LimitRequestPage() {
   const [withdrawOpen, setWithdrawOpen] = useState(false)
   const [withdrawComment, setWithdrawComment] = useState('')
   const [actionError, setActionError] = useState<string | null>(null)
+  // What a validation step became, said here: the form or panel that did it
+  // goes away with the answer.
+  const [notice, setNotice] = useState<string | null>(null)
 
-  // ?focus=decision|commercial — the Agenda's «decide» / «adjust» link lands
-  // on the section where that is done. A section this person does not get
-  // (no rights, wrong status) is simply never found, and the page is as usual.
+  // On validation (0060): with whom (any colleague), and the chain itself
+  // (admin and the people of the chain only).
+  const validationState = useValidationState(id ? [id] : [])
+  const history = useValidationHistory(id)
+  const pendingValidation = validationState.data?.[0] ?? null
+  const myStep = myPendingStep(history.data ?? [], session?.user.id)
+
+  // ?focus=decision|commercial|validation — the Agenda's «decide» / «adjust»
+  // / «validate» link lands on the section where that is done. A section this
+  // person does not get (no rights, wrong status) is simply never found, and
+  // the page is as usual.
   const [searchParams] = useSearchParams()
   const focus = pickParam(searchParams.get('focus'), LIMIT_FOCUS_TARGETS)
-  useDeepLinkFocus(focus, { focusField: focus === 'decision' })
+  useDeepLinkFocus(focus, { focusField: focus === 'decision', ready: !history.isLoading })
 
   if (isLoading) return <Spinner label={t('common.loading')} />
   if (!request) {
@@ -85,9 +109,16 @@ export function LimitRequestPage() {
   }
 
   const isRequester = request.requested_by === session?.user.id
-  const showDecisionForm = canDecideAs(request.status, roles)
+  // A request on validation is decided only by its validator, from the panel
+  // (decide_limit_request refuses everyone else); the form waits until the
+  // page knows, so it never shows for a moment and goes.
+  const validationKnown = !validationState.isLoading
+  const onValidation = pendingValidation !== null
+  const showDecisionForm = validationKnown && !onValidation && canDecideAs(request.status, roles)
+  // Escalated with no named validator: the group control (0040), or an
+  // escalation from before 0060.
   const awaitingSenior =
-    request.status === 'escalated' && !hasRole(roles, 'admin', 'credit_underwriter')
+    validationKnown && !onValidation && request.status === 'escalated' && !hasRole(roles, 'admin', 'credit_underwriter')
 
   const act = async (action: Promise<unknown>) => {
     setActionError(null)
@@ -107,9 +138,15 @@ export function LimitRequestPage() {
             <span>
               {t('limits.requestTitle', { buyer: request.legal_entities?.name ?? EM_DASH })}
             </span>
-            <Badge tone={statusTone(request.status)} size="lg">
-              {t(`limits.statuses.${request.status}`)}
-            </Badge>
+            {onValidation ? (
+              <Badge tone="warn" size="lg">
+                {t('limits.validation.badge')}
+              </Badge>
+            ) : (
+              <Badge tone={statusTone(request.status)} size="lg">
+                {t(`limits.statuses.${request.status}`)}
+              </Badge>
+            )}
           </span>
         }
         subtitle={
@@ -175,10 +212,23 @@ export function LimitRequestPage() {
           {actionError}
         </div>
       )}
+      {notice && (
+        <div className="mb-4 rounded-md border border-pos-500/25 bg-pos-50 px-4 py-2.5 text-[13px] text-slate-800" role="status">
+          {notice}
+        </div>
+      )}
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="flex flex-col gap-5">
           <RequestCard request={request} locale={locale} />
+          {/* The auto-decision rule's answer (0061): the credit desk only. */}
+          <AutoDecisionPanel requestId={request.id} />
+          {pendingValidation && <ValidationStatusLine state={pendingValidation} />}
+          {myStep && (
+            <div id="validation" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
+              <ValidationPanel request={request} step={myStep} onResolved={setNotice} />
+            </div>
+          )}
           {awaitingSenior && (
             <Card className="border-warn-500/30 bg-warn-50 p-5 text-sm text-warn-500">
               {t('limits.awaitingSenior')}
@@ -189,17 +239,25 @@ export function LimitRequestPage() {
               gap while the section renders itself away. */}
           {showDecisionForm && (
             <div id="decision" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
-              <DecisionForm request={request} />
+              <DecisionForm request={request} onNotice={setNotice} />
             </div>
           )}
           {/* Stage 2: commercial adjustment + the release state of the
               effective decision. Renders itself away when there is none. */}
           <div id="commercial" className={`rounded-lg empty:hidden ${DEEP_LINK_SCROLL_MARGIN}`}>
-            <CommercialStageSection request={request} />
+            <CommercialStageSection request={request} validation={pendingValidation} onNotice={setNotice} />
           </div>
         </div>
         <BuyerSnapshot request={request} locale={locale} />
       </div>
+
+      {/* Full width: who decided, who validated, what changed. Drawn only
+          for admin and the people of a chain (the function's own rule). */}
+      {(history.data?.length ?? 0) > 0 && (
+        <div className="mt-5">
+          <ValidationHistory steps={history.data ?? []} locale={locale} />
+        </div>
+      )}
 
       {withdrawOpen && (
         <Modal
@@ -343,6 +401,7 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
   const assessments = useAssessments(request.entity_id)
   const { data: gradeBands } = useGradeScale()
   const effective = useEffectiveLimits(requestScopeFilter(request))
+  const { data: marks } = useSystemDecisionMarks()
 
   const latest = assessments.data?.[0] ?? null
   const current = effective.data?.[0] ?? null
@@ -400,6 +459,11 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
                 : t('limits.untilReview')}
             </span>
           </p>
+          {marks?.get(current.decision_id) && (
+            <p className="mt-1">
+              <DecisionMark reasonKey={marks.get(current.decision_id)} />
+            </p>
+          )}
           {current.commercially_adjusted && (
             <p className="num mt-1 text-xs text-slate-500">
               {t('limits.stagePair', {
@@ -426,11 +490,15 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
 // Decision form
 // ---------------------------------------------------------------------------
 
-function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
+function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; onNotice: (message: string) => void }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const { roles } = useAuth()
   const decide = useDecideLimitRequest()
+  const sendForValidation = useSubmitLimitForValidation()
+  // The send-to-validation dialog: opened by the author, or by the database
+  // answering `needs_validation` to a decision beyond their authority.
+  const [validationOpen, setValidationOpen] = useState<{ needs: NeedsValidation | null } | null>(null)
   const assessments = useAssessments(request.entity_id)
 
   const [outcome, setOutcome] = useState<'approved' | 'partial' | 'declined'>('approved')
@@ -476,6 +544,8 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
     [needsAmount, amountValid, parsedAmount, currency, roles, band, myAuthority, rates, todayIso],
   )
 
+  const overAuthority = check !== null && check.withinAuthority === false && !hasRole(roles, 'admin')
+
   const handleDecide = async () => {
     setError(null)
     setEscalatedInfo(null)
@@ -491,10 +561,10 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
         comment: comment.trim() || null,
         assessmentId: assessmentId || null,
       })
-      if (result.result === 'escalated') {
-        setEscalatedInfo(
-          t('limits.escalatedResult', { band: t(`limits.bands.${result.grade_band}`) }),
-        )
+      if (result.result === 'needs_validation') {
+        // Nothing was recorded: beyond authority it can only go to a
+        // validator. The dialog opens with this very proposal.
+        setValidationOpen({ needs: result })
       } else if (result.result === 'group_limit_exceeded') {
         // Not an error: the database escalated the request so a wider
         // authority can weigh the whole group.
@@ -609,18 +679,94 @@ function DecisionForm({ request }: { request: LimitRequestWithRefs }) {
       )}
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button
-          onClick={() => void handleDecide()}
-          disabled={needsAmount && !amountValid}
-          loading={decide.isPending}
-          variant={outcome === 'declined' ? 'danger' : 'primary'}
-        >
-          {t('limits.actions.decide')}
-        </Button>
+        {/* Beyond authority the decision cannot be taken here at all: the
+            one thing to do is send it for validation. */}
+        {overAuthority ? (
+          <Button onClick={() => setValidationOpen({ needs: null })} disabled={needsAmount && !amountValid}>
+            {t('limits.validation.send')}
+          </Button>
+        ) : (
+          <>
+            <Button
+              onClick={() => void handleDecide()}
+              disabled={needsAmount && !amountValid}
+              loading={decide.isPending}
+              variant={outcome === 'declined' ? 'danger' : 'primary'}
+            >
+              {t('limits.actions.decide')}
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setValidationOpen({ needs: null })}
+              disabled={needsAmount && !amountValid}
+            >
+              {t('limits.validation.send')}
+            </Button>
+          </>
+        )}
         {needsAmount && !amountValid && (
           <span className="text-[13px] text-slate-500">{t('limits.amountRequired')}</span>
         )}
       </div>
+
+      {validationOpen && (
+        <SendForValidationModal
+          stream="credit"
+          band={validationOpen.needs?.grade_band ?? band}
+          amount={needsAmount ? parsedAmount : null}
+          currency={currency}
+          kind={
+            validationOpen.needs
+              ? 'required'
+              : validationKind({
+                  amountUzs: needsAmount ? (check?.amountUzs ?? null) : null,
+                  authorityUzs: check?.authorityUzs ?? null,
+                  isAdmin: hasRole(roles, 'admin'),
+                })
+          }
+          figures={
+            validationOpen.needs
+              ? {
+                  amountUzs: Number(validationOpen.needs.amount_uzs),
+                  authorityUzs: Number(validationOpen.needs.authority_uzs),
+                }
+              : null
+          }
+          proposal={
+            <span className="inline-flex flex-wrap items-center gap-2">
+              <Badge tone={outcomeTone(outcome)}>{t(`limits.outcomes.${outcome}`)}</Badge>
+              {needsAmount && amountValid && (
+                <span className="num font-semibold">
+                  {formatAmount(parsedAmount, locale)} {currency}
+                </span>
+              )}
+              <span className="text-slate-500">
+                {t('limits.validation.bandOf', { band: t(`limits.bands.${validationOpen.needs?.grade_band ?? band}`) })}
+              </span>
+            </span>
+          }
+          pending={sendForValidation.isPending}
+          onClose={() => setValidationOpen(null)}
+          onSubmit={async (validatorId, validationComment, validatorName) => {
+            await sendForValidation.mutateAsync({
+              requestId: request.id,
+              validatorId,
+              outcome,
+              amount: needsAmount ? parsedAmount : null,
+              currency,
+              validFrom,
+              validUntil: validUntil || null,
+              conditions: conditions.filter((c) => c.description.trim()),
+              // One comment travels with the proposal: the note to the
+              // validator, else the decision's own comment.
+              comment: validationComment ?? (comment.trim() || null),
+              assessmentId: assessmentId || null,
+            })
+            setValidationOpen(null)
+            onNotice(t('limits.validation.sent', { name: validatorName }))
+          }}
+        />
+      )}
     </Card>
   )
 }

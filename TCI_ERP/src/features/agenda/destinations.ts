@@ -9,7 +9,9 @@
  * The query parameters are the contract the destination screens honour:
  *
  *   /limits/:id?focus=decision|commercial         the decision / commercial form
+ *   /limits/:id?focus=validation                  the validator's panel (0060)
  *   /entities/:id?tab=rating&statement=<id>       Rating & limit, statement preselected
+ *   /entities/:id?tab=rating&focus=adt            the buyer's ADT block (0061)
  *   /entities/:id?tab=group|limits                the group / limits tab
  *   /policies/:id?tab=premium&instalments=a,b     the Premium tab, those instalments only
  *   /overdues/:id?action=open-claim               the notice, the open-claim dialog open
@@ -73,6 +75,35 @@ const limitDecision: Builder = (_row, lead, names) => ({
   context: { key: 'agenda.dest.with.task' },
 })
 
+/** A validation step lives on its limit request (0060): the validator answers
+ * on their panel; the author is told the result and, when it came back to
+ * them, lands on the form to work it again. */
+const validation: Builder = (_row, lead, names) => {
+  const requestId = str(lead.params?.request_id)
+  const crumbs = (place: string | null): Crumb[] => [
+    { key: 'nav.limits' },
+    named({ subject: names.subject ?? str(lead.params?.entity_name) }, 'agenda.dest.request'),
+    ...(place ? [{ key: place }] : []),
+  ]
+  if (!requestId) return { path: '/limits', action: 'open', crumbs: crumbs(null) }
+  if (lead.task_type === 'limit_validation') {
+    return {
+      path: `/limits/${requestId}?focus=validation`,
+      action: 'review',
+      crumbs: crumbs('agenda.dest.place.validation'),
+    }
+  }
+  if (lead.params?.status === 'returned') {
+    const commercial = lead.params?.stream === 'commercial'
+    return {
+      path: `/limits/${requestId}?focus=${commercial ? 'commercial' : 'decision'}`,
+      action: 'review',
+      crumbs: crumbs(commercial ? 'agenda.dest.place.commercial' : 'agenda.dest.place.decision'),
+    }
+  }
+  return { path: `/limits/${requestId}`, action: 'open', crumbs: crumbs(null) }
+}
+
 const rating: Builder = (_row, lead, names) => {
   const statement = str(lead.params?.statement_id)
   const year = lead.params?.fiscal_year
@@ -86,6 +117,18 @@ const rating: Builder = (_row, lead, names) => {
         : undefined,
   }
 }
+
+/** «Пересмотр байера / обновить ADT» (0061): the ADT block on the rating
+ * tab, where the ADT is set again or disabled — either closes the task. */
+const adtReview: Builder = (_row, lead, names) => ({
+  path: `/entities/${str(lead.params?.entity_id) ?? lead.object_id}?tab=rating&focus=adt`,
+  action: 'review',
+  crumbs: [
+    { key: 'nav.entities' },
+    named({ subject: names.subject ?? str(lead.params?.entity_name) }, 'agenda.dest.company'),
+    { key: 'agenda.dest.place.adt' },
+  ],
+})
 
 const entityTab =
   (tab: 'group' | 'limits', action: ActionKey): Builder =>
@@ -250,6 +293,9 @@ export const DESTINATIONS: Readonly<Record<TaskType, Builder>> = {
   offer_viewed: offer('open'),
   offer_expiring: offer('review'),
   offer_expired: offer('review'),
+  limit_validation: validation,
+  limit_validation_result: validation,
+  adt_review: adtReview,
   entity_request_resolved: (row, lead, names) => {
     const entityId = str(lead.params?.entity_id)
     return entityId

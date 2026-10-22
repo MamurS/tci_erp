@@ -170,3 +170,31 @@ describe('families', () => {
     ])
   })
 })
+
+describe('limit validation (0060)', () => {
+  const v = (type: TaskType, params: Record<string, unknown>) =>
+    task(type, { object_type: 'limit_validation', object_id: 'val-1', params: { request_id: 'req-9', ...params } })
+
+  it('the validator lands on their panel on the limit request', () => {
+    const dest = destinationFor(rowOf(v('limit_validation', { kind: 'required' })))
+    expect(dest.path).toBe('/limits/req-9?focus=validation')
+    expect(dest.crumbs).toContainEqual({ key: 'agenda.dest.place.validation' })
+  })
+
+  it('a returned decision sends its author back to the form of its stream', () => {
+    expect(destinationFor(rowOf(v('limit_validation_result', { status: 'returned', stream: 'credit' }))).path).toBe(
+      '/limits/req-9?focus=decision',
+    )
+    expect(destinationFor(rowOf(v('limit_validation_result', { status: 'returned', stream: 'commercial' }))).path).toBe(
+      '/limits/req-9?focus=commercial',
+    )
+    expect(destinationFor(rowOf(v('limit_validation_result', { status: 'approved', stream: 'credit' }))).path).toBe(
+      '/limits/req-9',
+    )
+  })
+
+  it('the author’s and the validator’s comments are read from the step', () => {
+    expect(ORIGIN_SOURCES.limit_validation).toEqual([{ kind: 'validationComment' }])
+    expect(ORIGIN_SOURCES.limit_validation_result).toEqual([{ kind: 'validationResolution' }])
+  })
+})

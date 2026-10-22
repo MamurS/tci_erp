@@ -18,7 +18,7 @@ import { ArrowRight, Check, CornerDownRight, Zap } from 'lucide-react'
 import { Button, Card, LinkButton } from '../../components/ui'
 import { formatDue, formatMoment } from '../../lib/format'
 import type { StaffMember } from '../data/types'
-import { useObjectEvents } from './api'
+import { useObjectEvents, useValidationComments, validationOrigin } from './api'
 import type { LimitJustification, TaskSubjects } from './api'
 import { dueState, rowBucket } from './board'
 import type { AgendaRow, Bucket, RowGroup } from './board'
@@ -281,6 +281,10 @@ function DetailPanel({
   const snoozed = row.tasks.some((task) => isSnoozed(task, now))
 
   const { data: events } = useObjectEvents([lead.object_id])
+  // A validation task's comments live on its step (0060).
+  const { data: validationComments } = useValidationComments(
+    lead.object_type === 'limit_validation' ? [lead.object_id] : [],
+  )
   const source = events?.find((e) => e.id === lead.source_event_id)
 
   // Panel keys: Enter goes, O opens the object, C comments, S snoozes.
@@ -314,6 +318,16 @@ function DetailPanel({
   const authorLabel = (author: OriginAuthor) => t(`agenda.comments.authors.${author}`)
   for (const c of row.tasks.flatMap(paramComments)) {
     thread.push({ key: `p-${c.at}-${c.body}`, who: authorLabel(c.author), role: null, at: c.at, body: c.body })
+  }
+  const validationNote = validationOrigin(lead, validationComments)
+  if (validationNote) {
+    thread.push({
+      key: `v-${lead.object_id}-${validationNote.side}`,
+      who: personName(validationNote.author, staff) ?? authorLabel(validationNote.side),
+      role: t(`agenda.comments.authors.${validationNote.side}`),
+      at: validationNote.at,
+      body: validationNote.body,
+    })
   }
   const justification = lead.object_type === 'credit_limit_request' ? justifications?.get(lead.object_id) : undefined
   if (justification?.justification) {

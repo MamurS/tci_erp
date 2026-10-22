@@ -104,6 +104,8 @@ export const ROUTES: Record<string, RouteEntry> = {
 export const PENDING_VARIANTS: Record<string, string> = {
   '/portal/premium': 'premium screens being rebuilt in the same round (Prompt 23) — remove this line when they land',
   'tab=premium': 'premium screens being rebuilt in the same round (Prompt 23) — remove this line when they land',
+  'view=auto':
+    'PENDING (0061): «Авторешения» — the demo book holds no auto decision (auto decisions are switched OFF on canonical) and the view is not recorded; record it with the credit demo user (tools/layout-fixtures/record.mjs) once one exists. Its table uses declared columns (COL.date, two COL.fill, COL.money, COL.count, labelCol limitLifecycle)',
 }
 
 /** The full route patterns declared in src/App.tsx, nesting resolved. */

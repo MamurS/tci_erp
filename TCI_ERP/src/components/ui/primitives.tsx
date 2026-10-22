@@ -549,10 +549,19 @@ interface TabsProps {
 }
 
 export function Tabs({ tabs, active, onChange, size = 'md' }: TabsProps) {
-  // A section with many views (credit limits: seven) tightens its tabs so the
-  // strip still fits a laptop in every language instead of scrolling.
+  // A section with many views tightens its tabs so the strip still fits a
+  // laptop (1280 px) in every language instead of scrolling; credit limits,
+  // with eight views since 0061, tightens once more.
   const dense = tabs.length > 5
-  const pad = size === 'sm' ? 'px-3 py-2 text-[13px]' : dense ? 'px-2 py-2.5 text-sm' : 'px-3.5 py-2.5 text-sm'
+  const crowded = tabs.length > 7
+  const pad =
+    size === 'sm'
+      ? 'px-3 py-2 text-[13px]'
+      : crowded
+        ? 'px-1.5 py-2.5 text-[13px] leading-5'
+        : dense
+          ? 'px-2 py-2.5 text-sm'
+          : 'px-3.5 py-2.5 text-sm'
   // The rule under the tabs is an inset shadow, not a border: the selected
   // tab's underline then sits ON it without a negative margin, so the strip
   // never overflows vertically (which showed a stray scrollbar on Windows).

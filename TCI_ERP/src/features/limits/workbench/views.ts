@@ -15,6 +15,9 @@ export const LIMIT_VIEWS = [
   'monitoring',
   'ratings',
   'groups',
+  // Auto decisions (0061): the report of every ADT decision — the credit
+  // desk's own, like everything but the queue and the register.
+  'auto',
   'authority',
 ] as const
 export type LimitView = (typeof LIMIT_VIEWS)[number]

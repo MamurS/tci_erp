@@ -34,9 +34,12 @@ export function canDecide(status: LimitRequestStatus): boolean {
 }
 
 /** Credit underwriting decides (Phase 3b): there is no 'senior' role any
- * more - an escalated request is decidable by any credit underwriter whose
- * BAND authority covers the amount (the SQL function enforces the amount;
- * this only gates who may open the form) or by an admin. */
+ * more. Since 0060 an amount beyond the decider's band authority is sent to a
+ * named validator rather than escalated; `escalated` then means either «on
+ * validation» (decided only by that validator, from the validation panel — the
+ * page hides this form while a step is pending) or a group-limit breach (0040),
+ * which any credit underwriter whose authority covers it, or an admin, may
+ * decide. The SQL functions enforce the amount; this only gates the form. */
 export function canDecideAs(status: LimitRequestStatus, roles: readonly UserRole[]): boolean {
   if (!canDecide(status)) return false
   return hasRole(roles, 'admin', 'credit_underwriter')

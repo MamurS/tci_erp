@@ -26,6 +26,7 @@ import { EM_DASH, formatAmount, formatCompact, formatDays } from '../../../lib/f
 import { GRADE_BANDS, num } from '../../portfolio/aggregate'
 import { useCreditPortfolio } from '../../portfolio/api'
 import { useCountryName } from '../../portfolio/useCountryName'
+import { useSystemDecisionMarks } from '../adtApi'
 import { filterInForce, uzsTotal } from './model'
 import { BandBadge, EntityLink, Uzs } from './parts'
 
@@ -34,6 +35,8 @@ export function InForceView() {
   const locale = i18n.resolvedLanguage ?? 'en'
   const countryName = useCountryName()
   const { data, isLoading } = useCreditPortfolio()
+  // «Авторешение (ADT)» under the amount of a limit no person decided.
+  const { data: marks } = useSystemDecisionMarks()
   const [query, setQuery] = useState('')
   const [band, setBand] = useState('')
   const [country, setCountry] = useState('')
@@ -155,6 +158,9 @@ export function InForceView() {
                             terms: t('policies.terms.days', { count: r.payment_terms_days }),
                           })}
                         </span>
+                      )}
+                      {marks?.get(r.decision_id) && (
+                        <span className="block text-[12px] text-accent-600">{t(marks.get(r.decision_id) as string)}</span>
                       )}
                     </td>
                     <td className="num">
