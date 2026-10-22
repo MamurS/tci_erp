@@ -28,17 +28,22 @@ const TAG_CLASSES = {
   neg: 'bg-neg-50 text-neg-600',
 } as const
 
-/** The small type tag; ⚡ when the task was generated automatically. */
+/** The small type tag; ⚡ when the task was generated automatically. In
+ * the list it sits in a fixed column (rowGrid.ts) sized for the widest
+ * label: should one still not fit, it is cut with an ellipsis and its
+ * tooltip names it in full — the column never widens. */
 export function TypeTag({ type, automatic, groupLimit }: { type: TaskType; automatic: boolean; groupLimit?: boolean }) {
   const { t } = useTranslation()
   const tag = TASK_TAG[type]
+  const label = t(groupLimit ? 'agenda.tags.groupLimit' : `agenda.tags.${tag}`)
   return (
     <span
-      className={`inline-flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[11.5px] font-semibold whitespace-nowrap ${TAG_CLASSES[TAG_TONE[tag]]}`}
-      title={automatic ? t('agenda.auto') : undefined}
+      data-agenda-tag
+      className={`inline-flex max-w-full min-w-0 items-center gap-1 rounded px-1.5 py-0.5 text-[11.5px] font-semibold whitespace-nowrap ${TAG_CLASSES[TAG_TONE[tag]]}`}
+      title={automatic ? `${label} · ${t('agenda.auto')}` : label}
     >
-      {automatic && <Zap aria-label={t('agenda.auto')} className="size-3" strokeWidth={2.4} />}
-      {t(groupLimit ? 'agenda.tags.groupLimit' : `agenda.tags.${tag}`)}
+      {automatic && <Zap aria-label={t('agenda.auto')} className="size-3 shrink-0" strokeWidth={2.4} />}
+      <span className="min-w-0 truncate">{label}</span>
     </span>
   )
 }

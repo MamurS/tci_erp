@@ -21,7 +21,7 @@ import type { StaffMember } from '../data/types'
 import { useObjectEvents, useValidationComments, validationOrigin } from './api'
 import type { LimitJustification, TaskSubjects } from './api'
 import { dueState, rowBucket } from './board'
-import type { AgendaRow, Bucket, RowGroup } from './board'
+import type { AgendaRow, Bucket, Grouping, RowGroup } from './board'
 import { canCompleteByHand, isSnoozed, taskLink } from './catalogue'
 import { destinationFor } from './destinations'
 import type { Crumb } from './destinations'
@@ -35,6 +35,8 @@ import type { TaskComment } from './types'
 
 interface TriageProps {
   groups: RowGroup[]
+  /** How `groups` were built; a new grouping rebuilds the queue in its order. */
+  grouping: Grouping
   now: Date
   subjects: TaskSubjects | undefined
   staff: Map<string, StaffMember> | undefined
@@ -64,16 +66,23 @@ const STRIPE: Record<Bucket, string> = {
 }
 
 export function TriageView(props: TriageProps) {
-  const { groups, now, subjects, staff, handled, registerMove } = props
+  const { groups, grouping, now, subjects, staff, handled, registerMove } = props
   const { t, i18n } = useTranslation()
   const locale = i18n.language
 
   // The queue keeps every row it has shown until reload; rows that left the
   // board are marked gone (struck through), new rows join their group.
   const [entries, setEntries] = useState<QueueEntry[]>([])
+  const groupedBy = useRef(grouping)
   useEffect(() => {
+    // A new grouping (the header's «Group by», kept across both views)
+    // starts the queue afresh in the new groups' order: a row that left the
+    // board has no group under the new key.
+    const regrouped = groupedBy.current !== grouping
+    groupedBy.current = grouping
     setEntries((previous) => {
       const current = groups.flatMap((g) => g.rows.map((row) => ({ row, group: g.key, gone: false })))
+      if (regrouped) return current
       const live = new Map(current.map((e) => [e.row.key, e]))
       const kept = previous.map((e) => live.get(e.row.key) ?? { ...e, gone: true })
       const known = new Set(kept.map((e) => e.row.key))
@@ -87,7 +96,7 @@ export function TriageView(props: TriageProps) {
       }
       return out
     })
-  }, [groups])
+  }, [groups, grouping])
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const live = entries.filter((e) => !e.gone)
