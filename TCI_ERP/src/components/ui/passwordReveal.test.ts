@@ -8,10 +8,12 @@ import en from '../../i18n/locales/en.json'
 import ru from '../../i18n/locales/ru.json'
 import uz from '../../i18n/locales/uz.json'
 import {
+  CAPS_LOCK_HINT_KEY,
   REVEAL_LABEL_KEYS,
   initialReveal,
   isRevealed,
   revealView,
+  showCapsLockHint,
   toggleReveal,
 } from './passwordReveal'
 
@@ -79,6 +81,31 @@ describe('password reveal labels', () => {
     it(`exist in ${lang}`, () => {
       expect(lookup(locale, REVEAL_LABEL_KEYS.show)).toBe(expected[lang].show)
       expect(lookup(locale, REVEAL_LABEL_KEYS.hide)).toBe(expected[lang].hide)
+    })
+  }
+})
+
+describe('Caps Lock hint', () => {
+  it('shows only while the field has focus and Caps Lock is on', () => {
+    expect(showCapsLockHint(true, true)).toBe(true)
+    expect(showCapsLockHint(true, false)).toBe(false)
+    // A field you are not typing in never warns, and blur takes it away.
+    expect(showCapsLockHint(false, true)).toBe(false)
+    expect(showCapsLockHint(false, false)).toBe(false)
+  })
+
+  const expected = {
+    en: 'Caps Lock is on',
+    ru: 'Включён Caps Lock',
+    uz: 'Caps Lock yoqilgan',
+  } as const
+  for (const [lang, locale] of [
+    ['en', en],
+    ['ru', ru],
+    ['uz', uz],
+  ] as const) {
+    it(`is translated in ${lang}`, () => {
+      expect(lookup(locale, CAPS_LOCK_HINT_KEY)).toBe(expected[lang])
     })
   }
 })

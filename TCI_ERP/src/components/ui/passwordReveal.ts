@@ -45,3 +45,12 @@ export function revealView(visible: boolean): {
     ? { type: 'text', pressed: true, labelKey: REVEAL_LABEL_KEYS.hide }
     : { type: 'password', pressed: false, labelKey: REVEAL_LABEL_KEYS.show }
 }
+
+export const CAPS_LOCK_HINT_KEY = 'auth.capsLockOn' as const
+
+/** The «Caps Lock is on» hint shows only while the field has focus AND the
+ * last key event in it reported Caps Lock — never for a field you are not
+ * typing in, and it goes away on blur. */
+export function showCapsLockHint(focused: boolean, capsLock: boolean): boolean {
+  return focused && capsLock
+}

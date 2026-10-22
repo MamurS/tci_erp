@@ -16,13 +16,33 @@ import type { Locator, Page } from '@playwright/test'
 import { sealNetwork } from '../support/network'
 import { LANGS, stubBackend } from '../support/stub'
 
-const labelsOf = (lang: string): { field: string; show: string; hide: string } => {
+const labelsOf = (lang: string): { field: string; show: string; hide: string; caps: string } => {
   const auth = (
     JSON.parse(readFileSync(`src/i18n/locales/${lang}.json`, 'utf8')) as {
-      auth: { password: string; showPassword: string; hidePassword: string }
+      auth: { password: string; showPassword: string; hidePassword: string; capsLockOn: string }
     }
   ).auth
-  return { field: auth.password, show: auth.showPassword, hide: auth.hidePassword }
+  return {
+    field: auth.password,
+    show: auth.showPassword,
+    hide: auth.hidePassword,
+    caps: auth.capsLockOn,
+  }
+}
+
+/** A key event in the field as the browser reports it with Caps Lock on or
+ * off — Playwright's keyboard cannot latch Caps Lock itself. */
+async function keyInField(page: Page, capsLock: boolean) {
+  await field(page).evaluate((el, on) => {
+    for (const type of ['keydown', 'keyup'])
+      el.dispatchEvent(
+        new KeyboardEvent(type, {
+          key: 'A',
+          bubbles: true,
+          modifierCapsLock: on,
+        } as KeyboardEventInit),
+      )
+  }, capsLock)
 }
 
 const field = (page: Page) => page.locator('input[autocomplete="current-password"]')
@@ -112,6 +132,49 @@ for (const lang of LANGS) {
     // Nothing was submitted: still on the sign-in page, no sign-in call.
     await expect(page).toHaveURL(/\/login$/)
     expect(signInCalls).toEqual([])
+    expect(seal.violations()).toEqual([])
+  })
+}
+
+for (const lang of LANGS) {
+  test(`sign-in Caps Lock hint and Enter submits (${lang})`, async ({ page, context }) => {
+    const seal = await sealNetwork(context)
+    await stubBackend(context, { lang, signedIn: false })
+    const signInCalls: string[] = []
+    page.on('request', (r) => {
+      if (/\/auth\/v1\/token|\/rpc\/login_begin/.test(r.url())) signInCalls.push(r.url())
+    })
+    const { caps } = labelsOf(lang)
+
+    await page.goto('/login')
+    await expect(field(page)).toBeVisible()
+    const hint = page.locator(`[id="${await field(page).getAttribute('id')}-caps"]`)
+    const fieldBox = await box(field(page))
+    const submitBox = await box(page.locator('form button[type="submit"]'))
+
+    // Caps Lock on while typing in the field: the quiet hint, nothing moves.
+    await field(page).focus()
+    await keyInField(page, true)
+    await expect(hint).toHaveText(caps)
+    await expect(field(page)).toHaveAttribute('aria-describedby', new RegExp(`-caps$`))
+    expectSameBox(await box(field(page)), fieldBox)
+    expectSameBox(await box(page.locator('form button[type="submit"]')), submitBox)
+
+    // Caps Lock off, or the field left: the hint goes, nothing moves.
+    await keyInField(page, false)
+    await expect(hint).toHaveText('')
+    await keyInField(page, true)
+    await expect(hint).toHaveText(caps)
+    await page.locator('input[autocomplete="email"]').focus()
+    await expect(hint).toHaveText('')
+    expectSameBox(await box(page.locator('form button[type="submit"]')), submitBox)
+
+    // Enter in the password field still submits the form (the sealed network
+    // aborts the call, so nothing leaves the machine).
+    await page.locator('input[autocomplete="email"]').fill('someone@demo.invalid')
+    await field(page).fill('Secret-Pass-123')
+    await field(page).press('Enter')
+    await expect.poll(() => signInCalls.length).toBeGreaterThan(0)
     expect(seal.violations()).toEqual([])
   })
 }

@@ -83,7 +83,8 @@
     "forgotPassword": "Parolni unutdingizmi?",
     "forgotPasswordHelp": "Parolni tizim administratori tiklaydi. Unga murojaat qiling: siz vaqtinchalik parol olasiz va kirishda uni yangisiga almashtirishingiz kerak bo‘ladi.",
     "showPassword": "Parolni ko‘rsatish",
-    "hidePassword": "Parolni yashirish"
+    "hidePassword": "Parolni yashirish",
+    "capsLockOn": "Caps Lock yoqilgan"
   },
   "roles": {
     "admin": "Administrator",

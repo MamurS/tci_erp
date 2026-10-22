@@ -15,17 +15,29 @@
  * constraints go on `containerClassName`, which also carries the button.
  *
  * Hidden again after a successful submit: a form that stays on screen passes
- * `revealResetKey` and changes it on success (see passwordReveal.ts).
+ * `revealResetKey` and changes it on success (see passwordReveal.ts). The
+ * state lives in the component, so a field that unmounts comes back hidden.
+ *
+ * «Caps Lock is on» shows under the field while it has focus and the last
+ * key pressed in it reported Caps Lock. Its line is reserved from the first
+ * render, so the hint appearing or going never moves anything below.
  */
 
 import { useContext, useId, useState } from 'react'
-import type { ComponentProps } from 'react'
+import type { ComponentProps, KeyboardEvent } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 import { FieldLabelIdContext } from './fieldContext'
 import { Input } from './primitives'
-import { initialReveal, isRevealed, revealView, toggleReveal } from './passwordReveal'
+import {
+  CAPS_LOCK_HINT_KEY,
+  initialReveal,
+  isRevealed,
+  revealView,
+  showCapsLockHint,
+  toggleReveal,
+} from './passwordReveal'
 
 export interface PasswordInputProps extends Omit<ComponentProps<'input'>, 'type'> {
   /** Change it (a counter, a timestamp) after a successful submit: the field
@@ -41,6 +53,10 @@ export function PasswordInput({
   className = '',
   id,
   disabled,
+  onKeyDown,
+  onKeyUp,
+  onFocus,
+  onBlur,
   ...rest
 }: PasswordInputProps) {
   const { t } = useTranslation()
@@ -55,31 +71,77 @@ export function PasswordInput({
   const label = t(view.labelKey)
   const Icon = view.pressed ? EyeOff : Eye
 
+  const [focused, setFocused] = useState(false)
+  const [capsLock, setCapsLock] = useState(false)
+  const capsHintId = `${inputId}-caps`
+  const capsHint = showCapsLockHint(focused, capsLock)
+  const readCapsLock = (e: KeyboardEvent<HTMLInputElement>) =>
+    setCapsLock(e.getModifierState('CapsLock'))
+  const describedBy =
+    [rest['aria-describedby'], capsHint ? capsHintId : undefined].filter(Boolean).join(' ') ||
+    undefined
+
   return (
-    <div className={`relative w-full ${containerClassName}`}>
-      <Input
-        {...rest}
-        id={inputId}
-        aria-labelledby={labelledBy}
-        type={view.type}
-        disabled={disabled}
-        className={`pr-10 ${className}`}
-      />
-      <button
-        type="button"
-        aria-controls={inputId}
-        aria-pressed={view.pressed}
-        aria-label={label}
-        title={label}
-        disabled={disabled}
-        // Keep the caret in the field when the toggle is clicked with a
-        // mouse; Tab still reaches the button and Enter / Space toggle it.
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={() => setState((s) => toggleReveal(s, revealResetKey, disabled))}
-        className="absolute top-1/2 right-1.5 flex size-7 -translate-y-1/2 items-center justify-center rounded text-slate-500 transition-colors hover:bg-slate-100 hover:text-accent-600 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-slate-500"
+    <div className={`w-full ${containerClassName}`}>
+      <div className="relative w-full">
+        <Input
+          {...rest}
+          id={inputId}
+          aria-labelledby={labelledBy}
+          aria-describedby={describedBy}
+          type={view.type}
+          disabled={disabled}
+          className={`pr-10 ${className}`}
+          onKeyDown={(e) => {
+            readCapsLock(e)
+            onKeyDown?.(e)
+          }}
+          onKeyUp={(e) => {
+            readCapsLock(e)
+            onKeyUp?.(e)
+          }}
+          onFocus={(e) => {
+            setFocused(true)
+            onFocus?.(e)
+          }}
+          onBlur={(e) => {
+            setFocused(false)
+            onBlur?.(e)
+          }}
+        />
+        <button
+          type="button"
+          aria-controls={inputId}
+          aria-pressed={view.pressed}
+          aria-label={label}
+          title={label}
+          disabled={disabled}
+          // Keep the caret in the field when the toggle is clicked with a
+          // mouse; Tab still reaches the button and Enter / Space toggle it.
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={() => setState((s) => toggleReveal(s, revealResetKey, disabled))}
+          className="absolute top-1/2 right-1.5 flex size-7 -translate-y-1/2 items-center justify-center rounded text-slate-500 transition-colors hover:bg-slate-100 hover:text-accent-600 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-slate-500"
+        >
+          <Icon aria-hidden className="size-4" strokeWidth={2} />
+        </button>
+      </div>
+      {/* Always rendered at a fixed height: the hint fills it, never adds it. */}
+      <p
+        id={capsHintId}
+        aria-live="polite"
+        className="mt-1 h-4 truncate text-xs leading-4 text-slate-600"
       >
-        <Icon aria-hidden className="size-4" strokeWidth={2} />
-      </button>
+        {capsHint && (
+          <>
+            {/* Amber as a dot, never as text colour (DESIGN.md). */}
+            <span
+              aria-hidden
+              className="mr-1.5 inline-block size-1.5 rounded-full bg-warn-500 align-middle"
+            />
+            {t(CAPS_LOCK_HINT_KEY)}
+          </>
+        )}
+      </p>
     </div>
   )
 }

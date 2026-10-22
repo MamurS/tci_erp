@@ -83,7 +83,8 @@
     "forgotPassword": "Forgot your password?",
     "forgotPasswordHelp": "Passwords are reset by the system administrator. Contact them: you will receive a temporary password and will be asked to set a new one when you sign in.",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "capsLockOn": "Caps Lock is on"
   },
   "roles": {
     "admin": "Administrator",
