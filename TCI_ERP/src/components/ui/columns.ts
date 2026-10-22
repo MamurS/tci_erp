@@ -100,6 +100,8 @@ export const LABEL_SETS = {
   limitBand: { keys: ['limits.bands.*'], chars: 12, kind: 'badge' },
   /** A step of a limit-decision validation chain (0060). */
   validationStatus: { keys: ['limits.validation.statuses.*'], chars: 24, kind: 'badge' },
+  /** A buyer's auto decision threshold (0061): active / suspended / replaced / disabled. */
+  adtStatus: { keys: ['limits.adt.statuses.*'], chars: 14, kind: 'badge' },
   requestStatus: { keys: ['requests.statuses.*'], chars: 25, kind: 'badge' },
   claimStatus: { keys: ['claims.statuses.*'], chars: 21, kind: 'badge' },
   claimVerdict: { keys: ['claims.verdicts.*'], chars: 16, kind: 'badge' },

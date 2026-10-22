@@ -30,6 +30,7 @@ import {
 import { commercialPreflight } from './authority'
 import { outcomeTone } from './machine'
 import { GroupPreflightNotice, groupErrorKey, useGroupPreflight } from '../groups'
+import { DecisionMark } from './DecisionMark'
 import { ReleaseBadge } from './ReleaseBadge'
 import type { LimitRequestWithRefs } from './types'
 import { requestScopeFilter } from './types'
@@ -173,6 +174,11 @@ export function CommercialStageSection({
           {creditRow?.payment_terms_days != null && (
             <span className="text-slate-500">
               {t('policies.terms.days', { count: creditRow.payment_terms_days })}
+            </span>
+          )}
+          {creditRow?.system_reason_key && (
+            <span className="ml-auto">
+              <DecisionMark reasonKey={creditRow.system_reason_key} />
             </span>
           )}
         </div>

@@ -1426,7 +1426,8 @@
       "monitoring": "Monitoring",
       "ratings": "Ratings",
       "groups": "Groups",
-      "authority": "My authority"
+      "authority": "My authority",
+      "auto": "Auto decisions"
     },
     "workbench": {
       "queue": {
@@ -1523,6 +1524,21 @@
         "noGrants": "You hold no authority grant",
         "noGrantsHint": "An administrator grants authority on the administration screen. Without one every decision you take is escalated.",
         "stream": "Stream"
+      },
+      "auto": {
+        "subtitle": "Every limit decided automatically within a buyer's ADT: when, for which buyer and policy, how much, and what is left of the ADT now.",
+        "empty": "No auto decisions yet",
+        "emptyHint": "A limit request is decided automatically when the buyer has an active ADT that covers it. Set ADTs on the buyers' rating tab.",
+        "emptyOffHint": "Auto decisions are switched off. An administrator switches them on in Administration › Authorities.",
+        "allBuyers": "All buyers",
+        "count": "Auto decisions",
+        "buyers": "Buyers",
+        "switch": "Auto decisions",
+        "on": "Switched on",
+        "off": "Switched off",
+        "date": "Decided on",
+        "adtLeft": "ADT left now",
+        "lifecycle": "Limit"
       }
     },
     "sectionSubtitle": "The credit underwriter's workbench: portfolio, decisions, limits in force, monitoring, ratings, groups and your own authority.",
@@ -1672,6 +1688,114 @@
     },
     "errors": {
       "noRate": "There is no UZS rate for this currency, so the amount cannot be weighed against an authority. Add the rate first."
+    },
+    "auto": {
+      "adt": "Auto decision (ADT)",
+      "markHint": "Decided automatically within the buyer's auto decision threshold (ADT): no underwriter authored it.",
+      "reasons": {
+        "no_adt": "The buyer has no auto decision threshold (ADT)",
+        "adt_suspended": "The buyer's ADT is suspended",
+        "adt_exhausted": "The buyer's ADT is used up",
+        "no_policy": "The request is not on a policy (it belongs to a submission)",
+        "policy_not_active": "The policy is not active",
+        "fx_missing": "No UZS rate to compare the amounts",
+        "above_adt_amount": "The requested limit is above the ADT amount",
+        "no_rating": "The buyer has no rating",
+        "above_recommended": "The requested limit is above the recommended limit",
+        "open_noa": "An overdue notification is open on the buyer",
+        "claims": "The buyer has claims",
+        "limit_revoked": "A limit of the buyer is revoked (suspended)",
+        "manual_block": "Auto decisions are banned for the buyer",
+        "no_financials": "The buyer has no financial statements",
+        "stale_financials": "The buyer's financial statements are too old",
+        "group_limit": "The group would go over its group limit",
+        "downgrade": "The buyer was downgraded below the rating band the ADT was set at"
+      },
+      "attempt": {
+        "decided": "Decided automatically (ADT)",
+        "decidedHint": "On {{date}} the request met every condition of the buyer's ADT and was approved at once — no commercial stage, no sales window. What the rule saw:",
+        "toUnderwriter": "Handed to an underwriter",
+        "toUnderwriterHint": "On {{date}} the request could not be decided automatically:",
+        "rating": "Rating",
+        "recommended": "Recommended limit",
+        "requested": "Requested limit",
+        "adtAmount": "ADT amount",
+        "adtBefore": "ADT left before",
+        "adtAfter": "ADT left after",
+        "leftOf": "{{left}} of {{total}}",
+        "otherReason": "Another reason"
+      }
+    },
+    "adt": {
+      "title": "Auto decision threshold (ADT)",
+      "hint": "The largest limit one auto decision may grant this buyer, and how many auto decisions are allowed. Set at the buyer's review, within your authority for the rating band of its latest rating.",
+      "switchedOffTitle": "Auto decisions are switched off",
+      "switchedOffBody": "The ADT is recorded but not used: every limit request goes to a credit underwriter until an administrator switches auto decisions on.",
+      "statuses": {
+        "active": "Active",
+        "suspended": "Suspended",
+        "replaced": "Replaced",
+        "disabled": "Disabled"
+      },
+      "fields": {
+        "maxAmount": "ADT amount",
+        "currency": "Currency",
+        "count": "Number of auto decisions",
+        "used": "Used",
+        "remaining": "Left",
+        "band": "Rating band",
+        "status": "Status",
+        "setBy": "Set by",
+        "setAt": "Set on",
+        "ended": "Ended",
+        "comment": "Comment",
+        "banReason": "Reason for the ban"
+      },
+      "usedOf": "{{used}} of {{total}}",
+      "suspendedTitle": "ADT suspended: {{reason}}",
+      "suspendedBody": "Since {{date}}. No auto decision is made for this buyer until the ADT is set again.",
+      "none": "No ADT for this buyer",
+      "noneHint": "Every limit request for this buyer goes to a credit underwriter. Set an ADT at the buyer's review with the button above.",
+      "bannedTitle": "Auto decisions are banned for this buyer",
+      "bannedBody": "{{reason}} — {{name}}, {{date}}",
+      "history": "History",
+      "historyEmpty": "No ADT has been set for this buyer yet.",
+      "loadFailed": "Could not load the buyer's ADT.",
+      "actions": {
+        "set": "Set ADT",
+        "replace": "Replace ADT",
+        "disable": "Disable ADT",
+        "ban": "Ban auto decisions",
+        "unban": "Lift the ban"
+      },
+      "setTitle": "Set the ADT",
+      "replaceTitle": "Replace the ADT",
+      "setHint": "Auto decisions approve a requested limit up to this amount at once, if the recommended limit covers it and nothing stops it. The new ADT replaces the current one; each auto decision uses one, whatever its amount.",
+      "latestRating": "Latest rating {{grade}} · rating band {{band}}",
+      "recommended": "Recommended limit: {{amount}}",
+      "countHint": "From {{min}} to {{max}}.",
+      "authorityIn": "Your authority in rating band {{band}}: {{amount}}",
+      "unlimited": "unlimited",
+      "beyondAuthority": "Above your authority in rating band {{band}} — it will be refused.",
+      "noRate": "No UZS rate for {{currency}}: the amount cannot be weighed against your authority.",
+      "commentHint": "Optional.",
+      "disableTitle": "Disable the ADT",
+      "disableConfirm": "Limit requests for this buyer will go to a credit underwriter. The ADT stays in the history.",
+      "banTitle": "Ban auto decisions",
+      "banHint": "No auto decision will be made for this buyer, and the current ADT is suspended. The ban stays until it is lifted.",
+      "banReasonHint": "Required: say why.",
+      "unbanTitle": "Lift the ban",
+      "unbanConfirm": "Auto decisions will be allowed again. A suspended ADT stays suspended: set it again to use it.",
+      "errors": {
+        "invalid": "The ADT needs a positive amount and at least one auto decision.",
+        "assessmentMismatch": "That rating is not this buyer's.",
+        "noRating": "Rate the buyer before setting an ADT.",
+        "fxMissing": "There is no UZS rate for this currency, so the ADT cannot be weighed against your authority.",
+        "beyondAuthority": "The ADT amount is beyond your authority in the rating band of the buyer's latest rating.",
+        "none": "This buyer has no ADT.",
+        "blockReason": "Say why auto decisions are banned for this buyer.",
+        "saveFailed": "The ADT could not be saved."
+      }
     }
   },
   "entities": {
@@ -1859,6 +1983,27 @@
         "self": "A person cannot be their own manager.",
         "notStaff": "The manager must be a staff member, not a client."
       }
+    },
+    "autoDecisions": {
+      "title": "Auto decisions (ADT)",
+      "hint": "Credit limits decided automatically within each buyer's auto decision threshold. Off by default.",
+      "on": "Switched on",
+      "off": "Switched off",
+      "onBody": "Limit requests within a buyer's active ADT are approved automatically when they are submitted.",
+      "offBody": "Every limit request goes to a credit underwriter. ADTs set on buyers are recorded but not used.",
+      "enable": "Switch auto decisions on",
+      "disable": "Switch auto decisions off",
+      "confirmTitle": "Switch auto decisions on?",
+      "confirmBody": "From now on a submitted limit request within the buyer's ADT is approved at once, without an underwriter, the commercial stage or the sales window. Switch this on only after the rating engine is calibrated and the analytics service is hosted: the rule relies on the ratings and recommended limits they produce.",
+      "validity": "Validity of an auto-decided limit",
+      "validityHint": "Months, from {{min}} to {{max}}.",
+      "financialsAge": "Maximum age of financials",
+      "financialsAgeHint": "Months, from {{min}} to {{max}}. Older statements suspend the buyer's ADT.",
+      "months": "mo.",
+      "invalid": "Enter whole months within the limits shown.",
+      "saved": "Saved.",
+      "saveFailed": "The auto-decision settings could not be saved.",
+      "loadFailed": "Could not load the auto-decision settings."
     }
   },
   "requests": {
@@ -2210,7 +2355,8 @@
       "offer_expiring": "Offer expiring",
       "offer_expired": "Offer expired",
       "limit_validation": "Limit validation",
-      "limit_validation_result": "Validation result"
+      "limit_validation_result": "Validation result",
+      "adt_review": "ADT review"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -2257,7 +2403,15 @@
       "limit_validation_result_approved": "Your limit decision for {{entity_name}} was approved — {{validator_name}}",
       "limit_validation_result_approved_modified": "Your limit decision for {{entity_name}} was approved with changes — {{validator_name}}",
       "limit_validation_result_returned": "Your limit decision for {{entity_name}} was returned to you — {{validator_name}}",
-      "limit_validation_result_rejected": "Your limit decision for {{entity_name}} was rejected — {{validator_name}}"
+      "limit_validation_result_rejected": "Your limit decision for {{entity_name}} was rejected — {{validator_name}}",
+      "adt_review_exhausted": "The ADT of {{entity_name}} is used up — review the buyer and renew the ADT",
+      "adt_review_downgrade": "The ADT of {{entity_name}} is suspended: the buyer was downgraded — review the buyer and renew the ADT",
+      "adt_review_open_noa": "The ADT of {{entity_name}} is suspended: an overdue notification is open — review the buyer",
+      "adt_review_claims": "The ADT of {{entity_name}} is suspended: the buyer has claims — review the buyer",
+      "adt_review_limit_revoked": "The ADT of {{entity_name}} is suspended: a limit was revoked — review the buyer",
+      "adt_review_manual_block": "The ADT of {{entity_name}} is suspended: auto decisions are banned — review the buyer",
+      "adt_review_no_financials": "The ADT of {{entity_name}} is suspended: no financial statements — review the buyer",
+      "adt_review_stale_financials": "The ADT of {{entity_name}} is suspended: the financials are too old — review the buyer"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -2356,7 +2510,8 @@
       "submission": "Submission",
       "data": "Data",
       "contract": "Contract",
-      "validation": "Validation"
+      "validation": "Validation",
+      "adt": "ADT"
     },
     "due": {
       "days_one": "{{count}} day",
@@ -2458,7 +2613,16 @@
       "limit_validation_result_approved": "Your limit decision approved",
       "limit_validation_result_approved_modified": "Your limit decision approved with changes",
       "limit_validation_result_returned": "Your limit decision returned to you",
-      "limit_validation_result_rejected": "Your limit decision rejected"
+      "limit_validation_result_rejected": "Your limit decision rejected",
+      "adt_review": "Buyer review / renew the ADT",
+      "adt_review_exhausted": "ADT used up — review the buyer, renew the ADT",
+      "adt_review_downgrade": "ADT suspended: rating downgraded — review the buyer",
+      "adt_review_open_noa": "ADT suspended: overdue notification — review the buyer",
+      "adt_review_claims": "ADT suspended: claims — review the buyer",
+      "adt_review_limit_revoked": "ADT suspended: limit revoked — review the buyer",
+      "adt_review_manual_block": "ADT suspended: auto decisions banned — review the buyer",
+      "adt_review_no_financials": "ADT suspended: no financials — review the buyer",
+      "adt_review_stale_financials": "ADT suspended: financials too old — review the buyer"
     },
     "facts": {
       "policies_one": "{{count}} policy",
@@ -2574,7 +2738,8 @@
         "proposals": "Proposed buyers",
         "payments": "Payments",
         "offer": "Commercial offer",
-        "validation": "Validation"
+        "validation": "Validation",
+        "adt": "ADT"
       },
       "with": {
         "task": "with this task’s context",
@@ -2807,7 +2972,14 @@
         "data_entity_request_assigned": "Request assigned",
         "data_entity_request_resolved": "Request resolved",
         "limit_validation_requested": "Sent for validation",
-        "limit_validation_resolved": "Validation answered"
+        "limit_validation_resolved": "Validation answered",
+        "adt_set": "ADT set",
+        "adt_disabled": "ADT disabled",
+        "adt_blocked": "Auto decisions banned",
+        "adt_unblocked": "Ban on auto decisions lifted",
+        "adt_suspended": "ADT suspended",
+        "adt_exhausted": "ADT used up",
+        "limit_auto_decided": "Limit decided automatically (ADT)"
       }
     },
     "keys": {

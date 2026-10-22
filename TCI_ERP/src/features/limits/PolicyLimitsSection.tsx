@@ -18,6 +18,7 @@ import {
 import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { useEntities } from '../entities/api'
 import type { PolicyWithRefs } from '../policies/types'
+import { useSystemDecisionMarks } from './adtApi'
 import { useEffectiveLimits, useLimitRequests, useSalesWindowHours } from './api'
 import { isOpen, outcomeTone, statusTone } from './machine'
 import { ReleaseBadge } from './ReleaseBadge'
@@ -29,6 +30,8 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
   const navigate = useNavigate()
 
   const { data: effective } = useEffectiveLimits({ policyId: policy.id })
+  // A system-made decision names its mark (an auto decision, a suspension).
+  const { data: marks } = useSystemDecisionMarks()
   const { data: allRequests } = useLimitRequests()
   const { data: buyers } = useEntities()
   const { data: windowHours } = useSalesWindowHours()
@@ -149,6 +152,9 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                           commercial: formatAmount(Number(limit.approved_amount), locale),
                         })}
                       </span>
+                    )}
+                    {marks?.get(limit.decision_id) && (
+                      <span className="block text-xs text-accent-600">{t(marks.get(limit.decision_id) as string)}</span>
                     )}
                   </td>
                   <td>

@@ -81,9 +81,16 @@ export interface CreditLimitDecision {
   valid_until: string | null
   based_on_assessment_id: string | null
   comment: string | null
-  decided_by: string
+  /** Null for a decision a system made (an NOA or claim suspension, 0028;
+   * an auto decision, 0061): its mark is `system_reason_key`. */
+  decided_by: string | null
   decided_at: string
   lifecycle: DecisionLifecycle
+  system_generated?: boolean
+  /** An i18n key (limits.systemReason.*, limits.auto.adt), never text. */
+  system_reason_key?: string | null
+  /** The ADT an auto decision was charged to (0061). */
+  adt_id?: string | null
   // Stage + release (migration 0020)
   stage: DecisionStage
   adjusts_decision_id: string | null

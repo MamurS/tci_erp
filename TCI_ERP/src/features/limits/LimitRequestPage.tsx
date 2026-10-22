@@ -38,7 +38,10 @@ import {
 } from './api'
 import { convertAtLatest, preflight } from './authority'
 import { GroupChip, GroupPreflightNotice, useGroupPreflight } from '../groups'
+import { useSystemDecisionMarks } from './adtApi'
+import { AutoDecisionPanel } from './AutoDecisionPanel'
 import { CommercialStageSection } from './CommercialStageSection'
+import { DecisionMark } from './DecisionMark'
 import { ReleaseBadge } from './ReleaseBadge'
 import { SendForValidationModal } from './ValidationDialogs'
 import { ValidationHistory, ValidationPanel, ValidationStatusLine } from './ValidationSection'
@@ -218,6 +221,8 @@ export function LimitRequestPage() {
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="flex flex-col gap-5">
           <RequestCard request={request} locale={locale} />
+          {/* The auto-decision rule's answer (0061): the credit desk only. */}
+          <AutoDecisionPanel requestId={request.id} />
           {pendingValidation && <ValidationStatusLine state={pendingValidation} />}
           {myStep && (
             <div id="validation" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
@@ -396,6 +401,7 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
   const assessments = useAssessments(request.entity_id)
   const { data: gradeBands } = useGradeScale()
   const effective = useEffectiveLimits(requestScopeFilter(request))
+  const { data: marks } = useSystemDecisionMarks()
 
   const latest = assessments.data?.[0] ?? null
   const current = effective.data?.[0] ?? null
@@ -453,6 +459,11 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
                 : t('limits.untilReview')}
             </span>
           </p>
+          {marks?.get(current.decision_id) && (
+            <p className="mt-1">
+              <DecisionMark reasonKey={marks.get(current.decision_id)} />
+            </p>
+          )}
           {current.commercially_adjusted && (
             <p className="num mt-1 text-xs text-slate-500">
               {t('limits.stagePair', {

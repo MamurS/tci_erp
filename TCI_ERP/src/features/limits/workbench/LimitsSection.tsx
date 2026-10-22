@@ -27,6 +27,9 @@ const InForceView = lazy(() => import('./InForceView').then((m) => ({ default: m
 const MonitoringView = lazy(() => import('./MonitoringView').then((m) => ({ default: m.MonitoringView })))
 const RatingsView = lazy(() => import('./RatingsView').then((m) => ({ default: m.RatingsView })))
 const GroupsView = lazy(() => import('./GroupsView').then((m) => ({ default: m.GroupsView })))
+const AutoDecisionsView = lazy(() =>
+  import('./AutoDecisionsView').then((m) => ({ default: m.AutoDecisionsView })),
+)
 const AuthorityView = lazy(() => import('./AuthorityView').then((m) => ({ default: m.AuthorityView })))
 
 export function LimitsSection() {
@@ -89,6 +92,8 @@ export function LimitsSection() {
         return <RatingsView />
       case 'groups':
         return <GroupsView />
+      case 'auto':
+        return <AutoDecisionsView />
       case 'authority':
         return <AuthorityView />
       default:

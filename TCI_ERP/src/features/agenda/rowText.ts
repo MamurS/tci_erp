@@ -17,6 +17,11 @@ import { amountOf } from './board'
 import type { AgendaRow } from './board'
 import type { SystemNote } from './notes'
 import type { Task } from './types'
+import { ADT_REVIEW_REASONS } from '../limits/adt'
+import type { AdtReviewReason } from '../limits/adt'
+
+const isAdtReviewReason = (v: unknown): v is AdtReviewReason =>
+  typeof v === 'string' && (ADT_REVIEW_REASONS as readonly string[]).includes(v)
 
 const str = (v: unknown): string | null => (typeof v === 'string' && v.trim() !== '' ? v : null)
 const num = (v: unknown): number | null => {
@@ -39,7 +44,7 @@ export function companyOf(task: Task, subjects: TaskSubjects | undefined): strin
   const p = task.params ?? {}
   switch (task.object_type) {
     case 'legal_entity':
-      return s?.entities[task.object_id] ?? str(p.group_name)
+      return s?.entities[task.object_id] ?? str(p.group_name) ?? str(p.entity_name)
     case 'credit_limit_request':
       return s?.limitRequests[task.object_id] ?? null
     case 'credit_limit_decision':
@@ -103,7 +108,10 @@ export function rowTitle(
         : lead.task_type === 'limit_validation_result' && str(p.status)
           ? // how it ended (0060): approved / approved_modified / returned / rejected
             `agenda.row.limit_validation_result_${p.status as string}`
-          : `agenda.row.${row.displayType}`
+          : lead.task_type === 'adt_review' && isAdtReviewReason(p.reason)
+            ? // why the ADT needs review (0061): used up, or suspended for a reason
+              `agenda.row.adt_review_${p.reason}`
+            : `agenda.row.${row.displayType}`
   const what = t(key, {
     sequence: p.sequence ?? '',
     period,

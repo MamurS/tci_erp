@@ -26,6 +26,7 @@ export const TASK_FAMILY: Readonly<Record<TaskType, Family>> = {
   noa_credit_review: 'limits',
   limit_validation: 'limits',
   limit_validation_result: 'limits',
+  adt_review: 'limits',
 
   noa_matured_to_claim: 'claims',
   claim_ready_to_file: 'claims',
@@ -65,6 +66,7 @@ export const TAGS = [
   'limit',
   'escalated',
   'validation',
+  'adt',
   'rating',
   'claim',
   'declaration',
@@ -86,6 +88,7 @@ export const TASK_TAG: Readonly<Record<TaskType, Tag>> = {
   noa_credit_review: 'limit',
   limit_validation: 'validation',
   limit_validation_result: 'validation',
+  adt_review: 'adt',
   rating_stale: 'rating',
   rating_new_statements: 'rating',
   buyer_needs_rating: 'rating',
@@ -124,6 +127,8 @@ export const TAG_TONE: Readonly<Record<Tag, 'neutral' | 'warn' | 'neg'>> = {
   escalated: 'warn',
   // a decision nobody may finalise until it is validated
   validation: 'warn',
+  // the buyer's auto decision threshold (0061): suspended or used up
+  adt: 'neutral',
   rating: 'neutral',
   claim: 'neg',
   declaration: 'neutral',

@@ -1,5 +1,6 @@
 /** Admin section (Phase 3b): users & their department roles, and the 2D
- * underwriting authority matrix per user. Admin-only by route guard AND
+ * underwriting authority matrix per user — with the auto-decision (ADT)
+ * switch above it (0061). Admin-only by route guard AND
  * by RLS. */
 
 import { useState } from 'react'
@@ -8,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 
 import { PageHeader, Tabs } from '../../components/ui'
 import { AuthoritiesTab } from './AuthoritiesTab'
+import { AutoDecisionSettingsCard } from './AutoDecisionSettingsCard'
 import { SecurityTab } from './SecurityTab'
 import { UsersRolesTab } from './UsersRolesTab'
 import { useAdminUsers } from './api'
@@ -49,7 +51,14 @@ export function AdminPage() {
             }}
           />
         )}
-        {activeTab === 'authorities' && <AuthoritiesTab user={selectedUser} />}
+        {activeTab === 'authorities' && (
+          <div className="flex flex-col gap-5">
+            {/* Auto decisions (0061) are bounded by the same authority: an
+                ADT is never set above its setter's band authority. */}
+            <AutoDecisionSettingsCard />
+            <AuthoritiesTab user={selectedUser} />
+          </div>
+        )}
         {activeTab === 'security' && <SecurityTab />}
       </div>
     </div>

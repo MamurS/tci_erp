@@ -10,6 +10,8 @@ import en from '../../i18n/locales/en.json'
 import ru from '../../i18n/locales/ru.json'
 import uz from '../../i18n/locales/uz.json'
 import VALIDATION from '../../../supabase/migrations/0060_limit_validation.sql?raw'
+import ADT from '../../../supabase/migrations/0061_auto_decisions.sql?raw'
+import { ADT_REVIEW_REASONS } from '../limits/adt'
 import { VALIDATION_STATUSES } from '../limits/validation'
 import { OBJECT_FILTERS } from './catalogue'
 import { TASK_TYPES } from './types'
@@ -38,6 +40,15 @@ describe('0060 result titles', () => {
     expect(VALIDATION).toContain("if new.payload ->> 'status' not in ('forwarded', 'cancelled') and new.target_user is not null then")
     expect(VALIDATION).toContain("'agenda.tasks.limit_validation_result_' || (new.payload ->> 'status')")
     expect(VALIDATION_RESULT_STATUSES).toEqual(['approved', 'approved_modified', 'returned', 'rejected'])
+  })
+})
+
+describe('0061 ADT review titles', () => {
+  it('opens a review titled by its reason: used up, or the suspension reason', () => {
+    expect(ADT).toContain(
+      "'agenda.tasks.adt_review_' || case when new.event_type = 'adt.exhausted' then 'exhausted'\n                                         else new.payload ->> 'reason' end,",
+    )
+    expect(ADT_REVIEW_REASONS[0]).toBe('exhausted')
   })
 })
 
@@ -72,6 +83,7 @@ describe.each([
     const outcomes: Record<string, readonly string[]> = {
       entity_request_resolved_: ['created', 'linked', 'updated', 'rejected'],
       limit_validation_result_: VALIDATION_RESULT_STATUSES,
+      adt_review_: ADT_REVIEW_REASONS,
     }
     const prefixes = [...titleKeys].filter((key) => key.endsWith('_'))
     expect(prefixes.filter((key) => !outcomes[key])).toEqual([])

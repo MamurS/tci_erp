@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { Badge, Card, EmptyState, Segmented, Spinner } from '../../components/ui'
 import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { useBuyerDecisions, useBuyerExposure } from './api'
+import { DecisionMark } from './DecisionMark'
 import { buildLimitChains } from './exposure'
 import { outcomeTone } from './machine'
 import type { CreditLimitDecision } from './types'
@@ -122,6 +123,7 @@ export function BuyerLimitsTab({ entityId }: { entityId: string }) {
                       {t(`limits.lifecycles.${d.lifecycle}`)}
                     </Badge>
                   )}
+                  <DecisionMark reasonKey={d.system_reason_key} />
                   <span className="ml-auto text-xs text-slate-400">
                     {formatDate(d.decided_at, locale)}
                   </span>
