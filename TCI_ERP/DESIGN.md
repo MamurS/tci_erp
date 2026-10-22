@@ -174,8 +174,16 @@ title), SectionTitle, StatCard (key figure with a coloured top rule and
 tone), Skeleton, Spinner, BrandMark, GradeScale (engine grade bands),
 RatingGauge (semicircle 0–100 with needle and change vs previous) and
 RatingLegend (the ten-band scale), Combobox (typeahead), AmountInput,
-LinkButton, ConfirmDialog. Screens compose these — no ad-hoc one-off
-controls.
+LinkButton, ConfirmDialog, PasswordInput. Screens compose these — no ad-hoc
+one-off controls.
+
+**Every password field is a `PasswordInput`** — the `Input` with an eye
+button laid over its right edge («Показать пароль» / «Скрыть пароль»,
+`aria-pressed`, `aria-controls`, a `title`). The button is absolutely
+positioned at a fixed size and the input reserves `pr-10`, so toggling moves
+nothing; a form that stays on screen after a successful submit changes
+`revealResetKey` to hide the password again. `passwordReveal.test.ts` refuses
+a bare `type="password"` anywhere else.
 
 ### Interaction rules (owner review, October 2026)
 
