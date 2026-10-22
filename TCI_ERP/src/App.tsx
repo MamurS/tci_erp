@@ -55,7 +55,7 @@ const ContractComparePage = lazyPage(contractDrafts, 'ContractComparePage')
 const ContractPrintPage = lazyPage(contractDrafts, 'ContractPrintPage')
 const PortalContractsPage = lazyPage(() => import('./features/contracts/portal'), 'PortalContractsPage')
 const offers = () => import('./features/offers')
-const OfferEditPage = lazyPage(offers, 'OfferEditPage')
+const OfferPage = lazyPage(offers, 'OfferPage')
 const OfferPrintPage = lazyPage(offers, 'OfferPrintPage')
 const PortalOfferPrintPage = lazyPage(offers, 'PortalOfferPrintPage')
 const PortalOffersPage = lazyPage(offers, 'PortalOffersPage')
@@ -154,7 +154,7 @@ export default function App() {
                 />
                 <Route path="requests" element={<RequestsPage />} />
                 <Route path="requests/:id" element={<RequestDetailPage />} />
-                <Route path="requests/offers/:offerId/edit" element={<OfferEditPage />} />
+                <Route path="requests/offers/:offerId/edit" element={<OfferPage />} />
                 <Route path="limits" element={<LimitsSection />} />
                 <Route path="limits/:id" element={<LimitRequestPage />} />
                 <Route path="policies" element={<PoliciesSection />} />

@@ -1,19 +1,19 @@
-/** The offer dialogs: prepare a new offer (its language, validity and whether
- * the brochure is appended — the texts start from the defaults in that
- * language) and withdraw a live one (a reason is required). */
+/** The offer dialogs: prepare a new offer (its language — fixed for the
+ * offer's life — validity and whether the brochure is appended; the cover and
+ * the client note are chosen on the offer screen that opens next) and
+ * withdraw a live one (a reason is required). */
 
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Button, Callout, Field, Modal, Select, Textarea } from '../../components/ui'
 import { DateInput } from '../../components/ui/DateInput'
-import { useFixedT } from '../../i18n/useFixedT'
 import { refusalKey } from '../../lib/refusals'
-import { BROCHURE_LANGS } from '../brochure/model'
 import { useCreateOffer, useWithdrawOffer } from './api'
+import { defaultOfferParams } from './kp/params'
 import { addDays, DEFAULT_VALIDITY_DAYS, offerToday } from './machine'
+import { OFFER_LANGS } from './model'
 import type { OfferLang, OfferRow } from './model'
-import { defaultTexts } from './texts'
 
 export function CreateOfferModal({
   requestId,
@@ -28,12 +28,11 @@ export function CreateOfferModal({
 }) {
   const { t, i18n } = useTranslation()
   const ui = (i18n.resolvedLanguage ?? 'ru') as OfferLang
-  const [language, setLanguage] = useState<OfferLang>((BROCHURE_LANGS as readonly string[]).includes(ui) ? ui : 'ru')
+  const [language, setLanguage] = useState<OfferLang>((OFFER_LANGS as readonly string[]).includes(ui) ? ui : 'ru')
   const today = offerToday()
   const [validUntil, setValidUntil] = useState(addDays(today, DEFAULT_VALIDITY_DAYS))
   const [brochure, setBrochure] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const docT = useFixedT(language)
   const create = useCreateOffer()
 
   const submit = () => {
@@ -44,7 +43,7 @@ export function CreateOfferModal({
         requestId,
         entityId,
         language,
-        texts: defaultTexts((key) => docT.t(key)),
+        texts: defaultOfferParams(),
         validUntil,
         includeBrochure: brochure,
       })
@@ -62,7 +61,7 @@ export function CreateOfferModal({
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button onClick={submit} loading={create.isPending} disabled={!docT.ready}>
+          <Button onClick={submit} loading={create.isPending}>
             {t('offers.create.submit')}
           </Button>
         </>
@@ -73,7 +72,7 @@ export function CreateOfferModal({
         <div className="grid grid-cols-2 gap-3">
           <Field label={t('offers.fields.language')} hint={t('offers.create.languageHint')}>
             <Select value={language} onChange={(e) => setLanguage(e.target.value as OfferLang)}>
-              {BROCHURE_LANGS.map((l) => (
+              {OFFER_LANGS.map((l) => (
                 <option key={l} value={l}>
                   {t(`offers.languages.${l}`)}
                 </option>

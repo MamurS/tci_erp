@@ -27,4 +27,23 @@ export default tseslint.config(
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
+  {
+    // An HTML string reaches the screen in ONE place: the commercial offer's
+    // sandboxed frame (src/features/offers/OfferFrame.tsx, DESIGN.md).
+    files: ['src/**/*.tsx'],
+    ignores: ['src/features/offers/OfferFrame.tsx'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "JSXAttribute[name.name='dangerouslySetInnerHTML']",
+          message: 'No HTML strings in the DOM: render the offer document through OfferFrame (DESIGN.md).',
+        },
+        {
+          selector: "JSXAttribute[name.name='srcDoc']",
+          message: 'A srcDoc frame is OfferFrame’s alone (sandboxed, no scripts) — use it (DESIGN.md).',
+        },
+      ],
+    },
+  },
 )

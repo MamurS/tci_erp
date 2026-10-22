@@ -1,7 +1,9 @@
 /** «Коммерческое предложение» on a submission (migration 0058): the live
  *  offer's versions — which one the client sees, which are superseded, and
- *  the newest not yet published — with the actions on each: view, edit (the
- *  newest, while the offer is live), publish, download PDF, withdraw. A
+ *  the newest not yet published — with the actions on each: view (the offer
+ *  screen, read-only for an earlier version), edit the parameters (the
+ *  newest, while the offer is live), publish, download PDF (the same
+ *  renderer as the preview, printed from a hidden frame), withdraw. A
  *  prospect nobody can sign in for yet gets a hint on how a portal user is
  *  created today. Earlier offers (accepted, declined, withdrawn) are listed
  *  below the current one. */
@@ -10,6 +12,7 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { Eye, Pencil } from 'lucide-react'
 
 import {
@@ -31,8 +34,10 @@ import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH, formatDate, formatMoment } from '../../lib/format'
 import { refusalKey } from '../../lib/refusals'
 import { useStaffDirectory } from '../data/api'
-import { useOfferVersions, usePublishOffer, useRequestOffers } from './api'
+import { countriesQuery } from '../entities/api'
+import { offerVersionQuery, useOfferVersions, usePublishOffer, useRequestOffers } from './api'
 import type { OfferVersionMeta } from './api'
+import { staffRenderInput } from './kp/input'
 import {
   canEdit,
   canPublishOffers,
@@ -45,7 +50,8 @@ import {
 } from './machine'
 import type { OfferRow } from './model'
 import { CreateOfferModal, WithdrawOfferModal } from './modals'
-import { offerEditPath, offerPrintPath } from './paths'
+import { offerEditPath } from './paths'
+import { useOfferPrinter } from './useOfferPrinter'
 
 const VERSION_STATE_COL = labelCol('offerVersionState')
 const ACTIONS_COL = actionsCol([], 3)
@@ -89,6 +95,16 @@ export function OfferSection({ requestId, requestStatus, entityId, termsReady }:
   const [creating, setCreating] = useState(false)
   const [withdrawing, setWithdrawing] = useState<OfferRow | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const qc = useQueryClient()
+  const printer = useOfferPrinter(() => setError(t('offers.errors.printFailed')))
+  const downloadPdf = (offer: OfferRow, versionNo: number) =>
+    printer.print(async () => {
+      const [version, countries] = await Promise.all([
+        qc.fetchQuery(offerVersionQuery(offer.id, versionNo)),
+        qc.fetchQuery(countriesQuery),
+      ])
+      return version ? staffRenderInput(offer, version, countries) : null
+    })
 
   const writer = canWriteOffers(roles)
   const publisher = canPublishOffers(roles)
@@ -215,7 +231,7 @@ export function OfferSection({ requestId, requestStatus, entityId, termsReady }:
                   </td>
                   <RowActions>
                     <span className="flex items-center gap-1">
-                      <IconLink to={offerPrintPath(shown.id, v.version_no)} label={t('offers.actions.view')}>
+                      <IconLink to={offerEditPath(shown.id, newest ? null : v.version_no)} label={t('offers.actions.view')}>
                         <Eye />
                       </IconLink>
                       {editable ? (
@@ -233,7 +249,7 @@ export function OfferSection({ requestId, requestStatus, entityId, termsReady }:
                           {
                             key: 'pdf',
                             label: t('offers.actions.downloadPdf'),
-                            onSelect: () => window.open(offerPrintPath(shown.id, v.version_no, true), '_blank', 'noopener'),
+                            onSelect: () => downloadPdf(shown, v.version_no),
                           },
                           ...(newest && publisher && isLive(shown.status)
                             ? [
@@ -262,7 +278,7 @@ export function OfferSection({ requestId, requestStatus, entityId, termsReady }:
           <ul className="flex flex-col gap-1 text-[13px]">
             {earlier.map((o) => (
               <li key={o.id} className="flex items-center gap-2">
-                <Link to={offerPrintPath(o.id, o.published_version_no ?? o.current_version_no ?? 1)} className="font-mono text-accent-600 hover:underline">
+                <Link to={offerEditPath(o.id, o.published_version_no ?? o.current_version_no)} className="font-mono text-accent-600 hover:underline">
                   {o.offer_number}
                 </Link>
                 <Badge tone={statusTone(o.effective_status)}>{t(`offers.statuses.${o.effective_status}`)}</Badge>
@@ -285,6 +301,7 @@ export function OfferSection({ requestId, requestStatus, entityId, termsReady }:
         />
       )}
       {withdrawing && <WithdrawOfferModal offer={withdrawing} onClose={() => setWithdrawing(null)} />}
+      {printer.frame}
     </Card>
   )
 }

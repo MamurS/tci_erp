@@ -5104,12 +5104,6 @@
       "en": "English",
       "uz": "Oʻzbekcha"
     },
-    "blocks": {
-      "intro": "Cover letter",
-      "why_tci": "Why trade credit insurance",
-      "conditions": "Conditions",
-      "next_steps": "Next steps"
-    },
     "actions": {
       "create": "Prepare offer",
       "view": "View",
@@ -5119,7 +5113,8 @@
       "publishHint": "The offer appears in the client's portal and the submission moves to the client review",
       "downloadPdf": "Download PDF",
       "withdraw": "Withdraw offer",
-      "more": "More offer actions"
+      "more": "More offer actions",
+      "downloadPdfNumber": "Download the PDF of offer {{number}}"
     },
     "columns": {
       "version": "Version",
@@ -5134,30 +5129,41 @@
       "validUntil": "Valid until",
       "includeBrochure": "Append the trade credit insurance brochure",
       "note": "Version note",
-      "reason": "Reason"
+      "reason": "Reason",
+      "cover": "Cover",
+      "clientNote": "Note to the client"
     },
     "create": {
       "title": "Prepare a commercial offer",
-      "hint": "The terms, premium and buyer limits come from the submission. The text blocks start from standard wording you can edit before publishing.",
-      "languageHint": "Independent of the interface language",
-      "brochureHint": "The currently published brochure version is appended",
+      "hint": "The terms, premium and buyer limits come from the submission, the texts from the approved template. You choose the cover and the note to the client on the next step.",
+      "languageHint": "Independent of the interface language; it does not change later",
+      "brochureHint": "The approved TCI brochure after the letter with the terms",
       "submit": "Prepare"
     },
     "edit": {
       "title": "Offer {{number}}",
       "back": "Back to submission {{number}}",
-      "basedOn": "based on version {{version}} · {{language}}",
-      "save": "Save version",
-      "notEditable": "The offer is closed or the submission has left the offer steps — changes will not be saved",
-      "texts": "Text blocks",
-      "textsHint": "An empty block is not printed",
-      "settings": "Settings",
+      "save": "Save",
       "noteHint": "Optional: what changed",
-      "fromSubmission": "From the submission",
-      "fromSubmissionHint": "The terms, premium and limits are taken from the submission again on every save.",
       "buyers": "Buyers in the package",
-      "approvedBuyers": "With an approved limit",
-      "composedAt": "Data as of"
+      "composedAt": "Data as of",
+      "version": "version {{version}}",
+      "saveAndSend": "Save and send to the client",
+      "saved": "Version {{version}} saved",
+      "olderVersion": "You are viewing version {{version}}; the latest is {{latest}}. Read only.",
+      "readOnly": "Read only: the offer is closed, the submission has left the offer steps, or you may not change it.",
+      "publishedLocked": "The offer is with the client. Changes are saved as a new version — the client sees it once it is sent.",
+      "newVersionOpen": "You are preparing a new version — the client sees the previous one until it is sent.",
+      "newVersion": "New version",
+      "languageFixed": "The language is chosen when the offer is prepared and does not change",
+      "brochureHint": "The approved TCI brochure after the letter: what it is, how it works, cover, benefits, limits, process, FAQ, contacts",
+      "clientNoteHint": "Printed in the letter as plain text · {{chars}} of {{max}} characters",
+      "summary": {
+        "number": "Number",
+        "status": "Status",
+        "premium": "Premium payable for the year"
+      },
+      "buyersValue": "{{total}}, {{approved}} approved"
     },
     "withdraw": {
       "title": "Withdraw offer {{number}}",
@@ -5189,14 +5195,16 @@
       "termsMissing": "The submission's proposed terms are incomplete (structure, currency, rate, minimum premium)",
       "exists": "This submission already has a live offer — edit it or withdraw it",
       "language": "This language is not available for offers",
-      "textsInvalid": "The offer's text blocks are damaged — reload the page",
+      "textsInvalid": "The offer's parameters are damaged — reload the page",
       "closed": "The offer is closed and cannot be changed",
       "versionConflict": "A newer version was saved while you were editing — open it and make your changes again",
       "nothingNew": "The latest version is already published",
       "notOpen": "The offer is no longer awaiting an answer",
       "expired": "The offer has expired and can no longer be accepted; request changes to receive an updated one",
       "commentTooLong": "The comment is too long (2,000 characters at most)",
-      "sayWhatChanges": "Say what should change"
+      "sayWhatChanges": "Say what should change",
+      "noteTooLong": "The note to the client is at most {{max}} characters",
+      "printFailed": "The print dialog could not be opened — reload the page and try again"
     },
     "print": {
       "back": "Back to submission",
@@ -5237,71 +5245,17 @@
       "noContentHint": "The insurer has withdrawn the offer.",
       "missingHint": "The offer does not exist or is not available to you."
     },
-    "doc": {
-      "kicker": "Trade credit insurance",
-      "title": "Commercial offer",
-      "number": "Number",
-      "date": "Date",
-      "validUntil": "Valid until",
-      "request": "Submission",
-      "sections": {
-        "whyTci": "Why trade credit insurance",
-        "cover": "Proposed cover",
-        "premium": "Premium",
-        "buyers": "Buyer limits",
-        "conditions": "Conditions",
-        "nextSteps": "Next steps",
-        "contacts": "Contacts and particulars"
-      },
-      "premium": {
-        "estimated": "Estimated premium on the expected turnover",
-        "due": "Premium payable for the year (not below the minimum)",
-        "instalments": "Minimum premium payable in",
-        "instalmentsValue_one": "{{count}} instalment of {{amount}}",
-        "instalmentsValue_few": "{{count}} instalments of {{amount}}",
-        "instalmentsValue_many": "{{count}} instalments of {{amount}}",
-        "instalmentsValue_other": "{{count}} instalments of {{amount}}",
-        "note": "The minimum premium is payable in any case; if the premium earned on the actual turnover is higher, the difference is charged at the end of the period. There is no refund below the minimum premium."
-      },
-      "buyers": {
-        "buyer": "Buyer",
-        "country": "Country",
-        "requested": "Requested",
-        "offered": "Offered",
-        "terms": "Payment terms",
-        "basis": "Basis",
-        "notOffered": "No limit granted",
-        "none": "No buyers are included in the submission.",
-        "bases": {
-          "approved": "Approved",
-          "indicative": "Indicative",
-          "declined": "Declined"
-        },
-        "footnote": "“Approved” is a limit the insurer has decided. “Indicative” is the amount requested, before the limit decision; the final amount may differ."
-      },
-      "contact": {
-        "title": "Your manager",
-        "portal": "You can accept the offer or request changes in the client portal."
-      },
-      "requisites": {
-        "title": "Insurer's particulars",
-        "name": "Name",
-        "registration": "Registration number",
-        "taxId": "Tax ID",
-        "licence": "Licence",
-        "licenceValue": "No. {{number}} of {{date}}",
-        "address": "Address",
-        "phone": "Phone",
-        "email": "Email",
-        "website": "Website",
-        "bank": "Bank details"
-      }
+    "preview": {
+      "label": "Offer preview",
+      "pages_one": "{{count}} page",
+      "pages_other": "{{count}} pages",
+      "pageOf": "Page {{n}} of {{total}}"
     },
-    "defaults": {
-      "intro": "Thank you for your interest in trade credit insurance. Please find our commercial offer on your submission: the proposed cover, the premium and the limits on your buyers.\n\nThe terms are based on the submission and the limit decisions as of the date of this offer.",
-      "why_tci": "Receivables are part of your working capital, and a large customer that does not pay can strain your liquidity.\n\n- Cover when a buyer does not pay because of insolvency or protracted default — within the insured percentage and the limit.\n- Buyer limits: the insurer assesses each buyer's creditworthiness, and the limit shows how much you can ship with cover.\n- Monitoring: if a buyer's situation worsens, the insurer may review the limit.\n- Insured receivables can make the conversation with your bank about financing easier.",
-      "conditions": "This offer is valid until the date on its cover page. The cover is governed by the insurance contract; this offer is not a contract.\n\nLimits marked as indicative take effect only once the insurer has decided them.",
-      "next_steps": "- Accept the offer in the client portal, or tell your manager if the terms should change.\n- Once accepted, the insurer prepares the insurance contract and the policy.\n- The organisation's registration documents and information on the buyers may be needed, if not provided yet."
+    "pdfHint": "In the print dialog, choose “Save as PDF”",
+    "covers": {
+      "white": "White",
+      "navy": "Navy",
+      "blue": "Blue"
     }
   },
   "brochure": {

@@ -5104,12 +5104,6 @@
       "en": "English",
       "uz": "Oʻzbekcha"
     },
-    "blocks": {
-      "intro": "Ilova xati",
-      "why_tci": "Nega savdo kreditlarini sug‘urtalash",
-      "conditions": "Shartlar",
-      "next_steps": "Keyingi qadamlar"
-    },
     "actions": {
       "create": "Taklif tayyorlash",
       "view": "Ko‘rish",
@@ -5119,7 +5113,8 @@
       "publishHint": "Taklif mijoz portalida paydo bo‘ladi, ariza mijoz ko‘rib chiqishiga o‘tadi",
       "downloadPdf": "PDF yuklab olish",
       "withdraw": "Taklifni qaytarib olish",
-      "more": "Taklif bo‘yicha boshqa amallar"
+      "more": "Taklif bo‘yicha boshqa amallar",
+      "downloadPdfNumber": "{{number}} taklifining PDF faylini yuklab olish"
     },
     "columns": {
       "version": "Versiya",
@@ -5134,30 +5129,41 @@
       "validUntil": "Amal qilish muddati",
       "includeBrochure": "Savdo kreditlarini sug‘urtalash haqidagi broshyurani ilova qilish",
       "note": "Versiyaga izoh",
-      "reason": "Sabab"
+      "reason": "Sabab",
+      "cover": "Muqova",
+      "clientNote": "Mijoz uchun izoh"
     },
     "create": {
       "title": "Tijorat taklifini tayyorlash",
-      "hint": "Shartlar, mukofot va bayerlar bo‘yicha limitlar arizadan olinadi. Matn bloklari standart matndan boshlanadi — ularni e’lon qilishdan oldin tahrirlash mumkin.",
-      "languageHint": "Interfeys tiliga bog‘liq emas",
-      "brochureHint": "Broshyuraning joriy e’lon qilingan versiyasi ilova qilinadi",
+      "hint": "Shartlar, mukofot va bayerlar bo‘yicha limitlar arizadan, matnlar esa tasdiqlangan shablondan olinadi. Muqova va mijoz uchun izohni keyingi qadamda tanlaysiz.",
+      "languageHint": "Interfeys tiliga bog‘liq emas; keyin o‘zgarmaydi",
+      "brochureHint": "Shartlar ko‘rsatilgan xatdan keyin tasdiqlangan TCI broshyurasi",
       "submit": "Tayyorlash"
     },
     "edit": {
       "title": "Taklif {{number}}",
       "back": "{{number}} arizasiga qaytish",
-      "basedOn": "{{version}}-versiya asosida · {{language}}",
-      "save": "Versiyani saqlash",
-      "notEditable": "Taklif yopilgan yoki ariza taklif bosqichidan chiqqan — o‘zgarishlar saqlanmaydi",
-      "texts": "Matn bloklari",
-      "textsHint": "Bo‘sh blok chop etilmaydi",
-      "settings": "Parametrlar",
+      "save": "Saqlash",
       "noteHint": "Ixtiyoriy: nima o‘zgardi",
-      "fromSubmission": "Arizadan",
-      "fromSubmissionHint": "Shartlar, mukofot va limitlar har saqlashda arizadan qayta olinadi.",
       "buyers": "Paketdagi bayerlar",
-      "approvedBuyers": "Tasdiqlangan limit bilan",
-      "composedAt": "Ma’lumotlar sanasi"
+      "composedAt": "Ma’lumotlar sanasi",
+      "version": "{{version}}-versiya",
+      "saveAndSend": "Saqlash va mijozga yuborish",
+      "saved": "{{version}}-versiya saqlandi",
+      "olderVersion": "Siz {{version}}-versiyani ko‘ryapsiz; oxirgisi — {{latest}}. Faqat ko‘rish.",
+      "readOnly": "Faqat ko‘rish: taklif yopilgan, ariza taklif bosqichidan chiqqan yoki sizda o‘zgartirish huquqi yo‘q.",
+      "publishedLocked": "Taklif mijozda. O‘zgarishlar yangi versiya sifatida saqlanadi — mijoz uni yuborilgandan keyin ko‘radi.",
+      "newVersionOpen": "Siz yangi versiya tayyorlayapsiz — u yuborilmaguncha mijoz avvalgisini ko‘radi.",
+      "newVersion": "Yangi versiya",
+      "languageFixed": "Til taklif tayyorlanganda tanlanadi va keyin o‘zgarmaydi",
+      "brochureHint": "Xatdan keyin tasdiqlangan TCI broshyurasi: bu nima, qanday ishlaydi, qoplama, afzalliklar, limitlar, jarayon, savollar, aloqa",
+      "clientNoteHint": "Xatda oddiy matn sifatida chop etiladi · {{max}} belgidan {{chars}} ta",
+      "summary": {
+        "number": "Raqam",
+        "status": "Holat",
+        "premium": "Yil uchun to‘lanadigan mukofot"
+      },
+      "buyersValue": "{{total}} ta, tasdiqlangan: {{approved}}"
     },
     "withdraw": {
       "title": "{{number}} taklifini qaytarib olish",
@@ -5189,14 +5195,16 @@
       "termsMissing": "Arizaning taklif etilayotgan shartlari to‘ldirilmagan (tuzilma, valyuta, stavka, minimal mukofot)",
       "exists": "Arizada amaldagi taklif bor — uni tahrirlang yoki qaytarib oling",
       "language": "Bu til takliflar uchun mavjud emas",
-      "textsInvalid": "Taklifning matn bloklari buzilgan — sahifani yangilang",
+      "textsInvalid": "Taklif parametrlari buzilgan — sahifani yangilang",
       "closed": "Taklif yopilgan va uni o‘zgartirib bo‘lmaydi",
       "versionConflict": "Siz tahrirlayotganingizda yangiroq versiya saqlandi — uni oching va o‘zgarishlarni qayta kiriting",
       "nothingNew": "Oxirgi versiya allaqachon e’lon qilingan",
       "notOpen": "Taklif endi javob kutmayapti",
       "expired": "Taklifning muddati o‘tgan — uni qabul qilib bo‘lmaydi; yangilangan taklif olish uchun o‘zgartirish so‘rang",
       "commentTooLong": "Izoh juda uzun (ko‘pi bilan 2000 belgi)",
-      "sayWhatChanges": "Nima o‘zgarishi kerakligini yozing"
+      "sayWhatChanges": "Nima o‘zgarishi kerakligini yozing",
+      "noteTooLong": "Mijoz uchun izoh {{max}} belgidan oshmasligi kerak",
+      "printFailed": "Chop etish oynasini ochib bo‘lmadi — sahifani yangilang va qayta urinib ko‘ring"
     },
     "print": {
       "back": "Arizaga qaytish",
@@ -5237,71 +5245,17 @@
       "noContentHint": "Taklif sug‘urtalovchi tomonidan qaytarib olingan.",
       "missingHint": "Taklif mavjud emas yoki sizga ochiq emas."
     },
-    "doc": {
-      "kicker": "Savdo kreditlarini sug‘urtalash",
-      "title": "Tijorat taklifi",
-      "number": "Raqam",
-      "date": "Sana",
-      "validUntil": "Amal qilish muddati",
-      "request": "Ariza",
-      "sections": {
-        "whyTci": "Nega savdo kreditlarini sug‘urtalash",
-        "cover": "Taklif etilayotgan qoplama",
-        "premium": "Mukofot",
-        "buyers": "Bayerlar bo‘yicha limitlar",
-        "conditions": "Shartlar",
-        "nextSteps": "Keyingi qadamlar",
-        "contacts": "Aloqa va rekvizitlar"
-      },
-      "premium": {
-        "estimated": "Kutilayotgan aylanmadan hisoblangan mukofot",
-        "due": "Yil uchun to‘lanadigan mukofot (minimaldan kam emas)",
-        "instalments": "Minimal mukofotni to‘lash",
-        "instalmentsValue_one": "{{amount}} dan {{count}} ta badal",
-        "instalmentsValue_few": "{{amount}} dan {{count}} ta badal",
-        "instalmentsValue_many": "{{amount}} dan {{count}} ta badal",
-        "instalmentsValue_other": "{{amount}} dan {{count}} ta badal",
-        "note": "Minimal mukofot har qanday holatda to‘lanadi; agar haqiqiy aylanmadan hisoblangan mukofot yuqori bo‘lsa, farq davr yakunida qo‘shimcha hisoblanadi. Minimal mukofotdan past qaytarish yo‘q."
-      },
-      "buyers": {
-        "buyer": "Bayer",
-        "country": "Mamlakat",
-        "requested": "So‘ralgan",
-        "offered": "Taklif etiladi",
-        "terms": "To‘lov muddati",
-        "basis": "Asos",
-        "notOffered": "Limit berilmagan",
-        "none": "Arizaga bayerlar kiritilmagan.",
-        "bases": {
-          "approved": "Tasdiqlangan",
-          "indicative": "Taxminiy",
-          "declined": "Rad etilgan"
-        },
-        "footnote": "«Tasdiqlangan» — qaror qabul qilingan limit. «Taxminiy» — limit bo‘yicha qarorgacha so‘ralgan summa; yakuniy summa farq qilishi mumkin."
-      },
-      "contact": {
-        "title": "Sizning menejeringiz",
-        "portal": "Taklifni qabul qilish yoki o‘zgartirish so‘rash mijoz portalida mumkin."
-      },
-      "requisites": {
-        "title": "Sug‘urtalovchining rekvizitlari",
-        "name": "Nomi",
-        "registration": "Ro‘yxatdan o‘tish raqami",
-        "taxId": "STIR",
-        "licence": "Litsenziya",
-        "licenceValue": "{{date}} dagi № {{number}}",
-        "address": "Manzil",
-        "phone": "Telefon",
-        "email": "Elektron pochta",
-        "website": "Veb-sayt",
-        "bank": "Bank rekvizitlari"
-      }
+    "preview": {
+      "label": "Taklifni oldindan ko‘rish",
+      "pages_one": "{{count}} sahifa",
+      "pages_other": "{{count}} sahifa",
+      "pageOf": "{{total}} sahifadan {{n}}-sahifa"
     },
-    "defaults": {
-      "intro": "Savdo kreditlarini sug‘urtalashga qiziqishingiz uchun rahmat. Arizangiz bo‘yicha tijorat taklifimizni yuboramiz: taklif etilayotgan qoplama, mukofot va bayerlaringiz bo‘yicha limitlar.\n\nShartlar taklif sanasidagi ariza ma’lumotlari va limitlar bo‘yicha qarorlar asosida hisoblangan.",
-      "why_tci": "Debitorlik qarzi aylanma mablag‘ning bir qismidir va yirik xaridorning to‘lamasligi likvidlikka sezilarli ta’sir qilishi mumkin.\n\n- Bayer to‘lovga qobiliyatsizligi yoki uzoq muddatli to‘lamaganligi sababli to‘lamasa — sug‘urta qoplamasi va limit doirasida qoplama.\n- Bayerlar bo‘yicha limitlar: sug‘urtalovchi har bir bayerning to‘lov qobiliyatini tahlil qiladi va limit qancha summaga qoplama bilan jo‘natish mumkinligini ko‘rsatadi.\n- Monitoring: bayerning holati yomonlashsa, sug‘urtalovchi limitni qayta ko‘rib chiqishi mumkin.\n- Sug‘urtalangan debitorlik qarzi bank bilan moliyalashtirish haqidagi muloqotni osonlashtirishi mumkin.",
-      "conditions": "Taklif titul sahifasida ko‘rsatilgan sanagacha amal qiladi. Qoplama shartlari sug‘urta shartnomasi bilan belgilanadi; ushbu taklif shartnoma emas.\n\nTaxminiy deb belgilangan limitlar faqat sug‘urtalovchi qaroridan keyin amalga kiradi.",
-      "next_steps": "- Taklifni mijoz portalida qabul qiling yoki shartlarni o‘zgartirish kerak bo‘lsa, menejerga xabar bering.\n- Qabul qilingandan so‘ng sug‘urtalovchi sug‘urta shartnomasi va polisni tayyorlaydi.\n- Rasmiylashtirish uchun tashkilotning ro‘yxatdan o‘tish hujjatlari va bayerlar haqidagi ma’lumotlar kerak bo‘lishi mumkin, agar hali taqdim etilmagan bo‘lsa."
+    "pdfHint": "Chop etish oynasida «PDF sifatida saqlash»ni tanlang",
+    "covers": {
+      "white": "Oq",
+      "navy": "To‘q ko‘k",
+      "blue": "Ko‘k"
     }
   },
   "brochure": {

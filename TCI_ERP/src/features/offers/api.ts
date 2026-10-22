@@ -7,8 +7,8 @@ import type { QueryClient } from '@tanstack/react-query'
 
 import { optimistic, rowInList } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
-import type { BrochureContent } from '../brochure/model'
-import type { ClientOffer, OfferLang, OfferRow, OfferTexts, OfferVersion } from './model'
+import type { OfferParams } from './kp/params'
+import type { ClientOffer, OfferLang, OfferRow, OfferVersion } from './model'
 
 export const OFFER_KEYS = {
   all: ['offers'] as const,
@@ -17,7 +17,6 @@ export const OFFER_KEYS = {
   offer: (offerId: string) => ['offers', 'offer', offerId] as const,
   versions: (offerId: string) => ['offers', 'versions', offerId] as const,
   version: (offerId: string, versionNo: number) => ['offers', 'version', offerId, versionNo] as const,
-  brochure: (id: string) => ['offers', 'brochure', id] as const,
   client: ['portal', 'offers'] as const,
 }
 
@@ -87,40 +86,30 @@ export function useOfferVersions(offerId: string | undefined) {
   })
 }
 
-export function useOfferVersion(offerId: string | undefined, versionNo: number | null) {
-  return useQuery({
-    queryKey: OFFER_KEYS.version(offerId ?? '', versionNo ?? 0),
-    enabled: Boolean(offerId && versionNo),
-    queryFn: async (): Promise<OfferVersion | null> => {
-      const { data, error } = await tci()
-        .from('commercial_offer_versions')
-        .select('*')
-        .eq('offer_id', offerId!)
-        .eq('version_no', versionNo!)
-        .maybeSingle()
-      if (error) throw error
-      return (data ?? null) as unknown as OfferVersion | null
-    },
-    // a version never changes
-    staleTime: Infinity,
-  })
+async function fetchOfferVersion(offerId: string, versionNo: number): Promise<OfferVersion | null> {
+  const { data, error } = await tci()
+    .from('commercial_offer_versions')
+    .select('*')
+    .eq('offer_id', offerId)
+    .eq('version_no', versionNo)
+    .maybeSingle()
+  if (error) throw error
+  return (data ?? null) as unknown as OfferVersion | null
 }
 
-/** The brochure version an offer version embedded (staff). */
-export function useBrochureContent(brochureVersionId: string | null | undefined) {
-  return useQuery({
-    queryKey: OFFER_KEYS.brochure(brochureVersionId ?? ''),
-    enabled: Boolean(brochureVersionId),
-    queryFn: async (): Promise<BrochureContent | null> => {
-      const { data, error } = await tci()
-        .from('brochure_versions')
-        .select('content')
-        .eq('id', brochureVersionId!)
-        .maybeSingle()
-      if (error) throw error
-      return ((data as { content: BrochureContent } | null)?.content ?? null)
-    },
+/** One version, content included. A version never changes. */
+export function offerVersionQuery(offerId: string, versionNo: number) {
+  return {
+    queryKey: OFFER_KEYS.version(offerId, versionNo),
+    queryFn: () => fetchOfferVersion(offerId, versionNo),
     staleTime: Infinity,
+  }
+}
+
+export function useOfferVersion(offerId: string | undefined, versionNo: number | null) {
+  return useQuery({
+    ...offerVersionQuery(offerId ?? '', versionNo ?? 0),
+    enabled: Boolean(offerId && versionNo),
   })
 }
 
@@ -135,7 +124,8 @@ export interface CreateOfferInput {
   requestId: string
   entityId: string
   language: OfferLang
-  texts: OfferTexts
+  /** The document's parameters (kp/params.ts), stored as the version's texts. */
+  texts: OfferParams
   validUntil: string
   includeBrochure: boolean
 }
@@ -162,7 +152,7 @@ export function useCreateOffer() {
 export interface SaveOfferInput {
   offer: Pick<OfferRow, 'id' | 'insurance_request_id' | 'entity_id'>
   baseVersionNo: number
-  texts: OfferTexts
+  texts: OfferParams
   validUntil: string
   includeBrochure: boolean
   note: string | null
