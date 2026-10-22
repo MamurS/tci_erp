@@ -56,6 +56,8 @@ import { gradeChange, useGradeScale } from '../../../lib/gradeScale'
 import type { GradeBand } from '../../../lib/gradeScale'
 import { tci } from '../../../lib/supabase'
 import { DEEP_LINK_SCROLL_MARGIN, useDeepLinkFocus } from '../../../lib/useDeepLinkFocus'
+import { AdtSection } from '../../limits/AdtSection'
+import { ADT_FOCUS } from '../../limits/adt'
 import { useEntity, useStatements } from '../api'
 import type { StatementBundle } from '../types'
 import { statementPeriodLabel } from '../types'
@@ -109,6 +111,10 @@ export function RatingTab({ entityId }: { entityId: string }) {
   const selected: StatementBundle | null =
     ordered.find((s) => s.id === statementId) ?? ordered[0] ?? null
   useDeepLinkFocus(linkedStatement ? STATEMENT_ROW_ANCHOR_ID : null)
+  // ?focus=adt (the Agenda's «review the buyer / renew the ADT») lands on the
+  // ADT block, which only the credit desk gets; for anyone else it is never
+  // found and the tab is as usual.
+  useDeepLinkFocus(searchParams.get('focus') === ADT_FOCUS ? ADT_FOCUS : null, { ready: !isLoading })
 
   const [result, setResult] = useState<{
     rating: RatingResponse
@@ -206,18 +212,23 @@ export function RatingTab({ entityId }: { entityId: string }) {
     // Nothing to rate on yet: say what is needed, and offer the one step to
     // whoever may take it (the data and credit desks enter statements).
     return (
-      <EmptyState
-        title={t('rating.needStatementsTitle')}
-        hint={t('rating.needStatements')}
-        action={
-          mayEnterStatements(myRoles) ? (
-            <LinkButton to={`/entities/${entityId}/statements/new`}>
-              <Plus />
-              {t('fin.addStatement')}
-            </LinkButton>
-          ) : undefined
-        }
-      />
+      <div className="flex flex-col gap-5">
+        <EmptyState
+          title={t('rating.needStatementsTitle')}
+          hint={t('rating.needStatements')}
+          action={
+            mayEnterStatements(myRoles) ? (
+              <LinkButton to={`/entities/${entityId}/statements/new`}>
+                <Plus />
+                {t('fin.addStatement')}
+              </LinkButton>
+            ) : undefined
+          }
+        />
+        {/* A live ADT stays visible (and can be disabled) even when the
+            statements it was set on are gone (no_financials, 0061). */}
+        <AdtSection entityId={entityId} />
+      </div>
     )
   }
 
@@ -289,6 +300,10 @@ export function RatingTab({ entityId }: { entityId: string }) {
           <EmptyState title={t('rating.notAssessed')} hint={t('rating.notAssessedHint')} />
         </Card>
       )}
+
+      {/* The buyer's auto decision threshold (0061): set at the review, on
+          the rating above. The credit desk only. */}
+      <AdtSection entityId={entityId} />
 
       <ScoreHistoryChart
         assessments={assessments.data ?? []}

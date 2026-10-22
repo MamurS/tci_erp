@@ -97,6 +97,15 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'only the assigned validator may answer this validation', key: 'limits.validation.errors.notYours' },
   { fragment: 'manager_is_self', key: 'admin.manager.errors.self' },
   { fragment: 'manager_not_staff', key: 'admin.manager.errors.notStaff' },
+  // auto decisions — the buyer's ADT (0061). Before the generic «no UZS rate»
+  // below: adt_fx_missing says the same words and is the more precise one.
+  { fragment: 'adt_invalid', key: 'limits.adt.errors.invalid' },
+  { fragment: 'adt_assessment_mismatch', key: 'limits.adt.errors.assessmentMismatch' },
+  { fragment: 'adt_no_rating', key: 'limits.adt.errors.noRating' },
+  { fragment: 'adt_fx_missing', key: 'limits.adt.errors.fxMissing' },
+  { fragment: 'adt_beyond_authority', key: 'limits.adt.errors.beyondAuthority' },
+  { fragment: 'adt_none', key: 'limits.adt.errors.none' },
+  { fragment: 'adt_block_reason', key: 'limits.adt.errors.blockReason' },
   // a currency with no rate cannot be weighed against an authority (0013)
   { fragment: 'no UZS rate for', key: 'limits.errors.noRate' },
   // the TCI brochure and its media library (0058)

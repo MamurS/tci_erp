@@ -1426,7 +1426,8 @@
       "monitoring": "Monitoring",
       "ratings": "Reytinglar",
       "groups": "Guruhlar",
-      "authority": "Mening vakolatlarim"
+      "authority": "Mening vakolatlarim",
+      "auto": "Avtoqarorlar"
     },
     "workbench": {
       "queue": {
@@ -1523,6 +1524,21 @@
         "noGrants": "Sizga vakolat tayinlanmagan",
         "noGrantsHint": "Vakolatlarni administrator «Administratsiya» bo‘limida tayinlaydi. Ularsiz har bir qaroringiz eskalatsiya qilinadi.",
         "stream": "Yo‘nalish"
+      },
+      "auto": {
+        "subtitle": "Bayer ADTsi doirasida avtomatik hal qilingan barcha limitlar: qachon, qaysi bayer va polis bo‘yicha, qancha summaga va hozir ADTdan qancha qolgan.",
+        "empty": "Hozircha avtomatik qarorlar yo‘q",
+        "emptyHint": "Bayerda so‘rovni qamraydigan amaldagi ADT bo‘lsa, limit so‘rovi avtomatik hal qilinadi. ADT bayerning «Reyting va limit» yorlig‘ida belgilanadi.",
+        "emptyOffHint": "Avtomatik qarorlar o‘chirilgan. Ularni administrator «Boshqaruv › Vakolatlar» bo‘limida yoqadi.",
+        "allBuyers": "Barcha bayerlar",
+        "count": "Avtomatik qarorlar",
+        "buyers": "Bayerlar",
+        "switch": "Avtomatik qarorlar",
+        "on": "Yoqilgan",
+        "off": "O‘chirilgan",
+        "date": "Qaror sanasi",
+        "adtLeft": "Hozirgi ADT qoldig‘i",
+        "lifecycle": "Limit"
       }
     },
     "sectionSubtitle": "Kredit anderrayterining ish joyi: portfel, qarorlar, amaldagi limitlar, monitoring, reytinglar, guruhlar va sizning vakolatlaringiz.",
@@ -1672,6 +1688,114 @@
     },
     "errors": {
       "noRate": "Bu valyuta uchun UZS kursi yo‘q — summani vakolat bilan solishtirib bo‘lmaydi. Avval kursni kiriting."
+    },
+    "auto": {
+      "adt": "Avtomatik qaror (ADT)",
+      "markHint": "Bayerning avtomatik qarorlar chegarasi (ADT) doirasida avtomatik qabul qilingan: muallif-anderrayter yo‘q.",
+      "reasons": {
+        "no_adt": "Bayerda avtomatik qarorlar chegarasi (ADT) yo‘q",
+        "adt_suspended": "Bayerning ADTsi to‘xtatilgan",
+        "adt_exhausted": "Bayerning ADTsi tugagan",
+        "no_policy": "So‘rov polis bo‘yicha emas (sug‘urta arizasiga tegishli)",
+        "policy_not_active": "Polis amalda emas",
+        "fx_missing": "Summalarni solishtirish uchun UZS kursi yo‘q",
+        "above_adt_amount": "So‘ralgan limit ADT summasidan katta",
+        "no_rating": "Bayerda reyting yo‘q",
+        "above_recommended": "So‘ralgan limit tavsiya etilgan limitdan katta",
+        "open_noa": "Bayer bo‘yicha muddati o‘tgan qarz xabarnomasi ochiq",
+        "claims": "Bayer bo‘yicha sug‘urta da’volari bor",
+        "limit_revoked": "Bayerning limiti bekor qilingan (to‘xtatilgan)",
+        "manual_block": "Bayer bo‘yicha avtomatik qarorlar taqiqlangan",
+        "no_financials": "Bayerda moliyaviy hisobot yo‘q",
+        "stale_financials": "Bayerning moliyaviy hisoboti eskirgan",
+        "group_limit": "Guruh o‘z guruh limitidan oshib ketadi",
+        "downgrade": "Bayer reytingi ADT belgilangan reyting diapazonidan pastga tushdi"
+      },
+      "attempt": {
+        "decided": "Qaror avtomatik qabul qilindi (ADT)",
+        "decidedHint": "{{date}} so‘rov bayer ADTsining barcha shartlariga javob berdi va darhol tasdiqlandi — tijorat bosqichisiz va sotuv tasdig‘isiz. Qoida nimani hisobga oldi:",
+        "toUnderwriter": "Anderrayterga topshirildi",
+        "toUnderwriterHint": "{{date}} so‘rovni avtomatik hal qilib bo‘lmadi:",
+        "rating": "Reyting",
+        "recommended": "Tavsiya etilgan limit",
+        "requested": "So‘ralgan limit",
+        "adtAmount": "ADT summasi",
+        "adtBefore": "Qarordan oldin ADT qoldig‘i",
+        "adtAfter": "Qarordan keyin ADT qoldig‘i",
+        "leftOf": "{{total}} dan {{left}}",
+        "otherReason": "Boshqa sabab"
+      }
+    },
+    "adt": {
+      "title": "Avtomatik qarorlar chegarasi (ADT)",
+      "hint": "Bitta avtomatik qaror bu bayerga bera oladigan eng katta limit va nechta avtomatik qarorga ruxsat berilishi. Bayer qayta ko‘rib chiqilganda, uning oxirgi reytingi reyting diapazonidagi vakolatingiz doirasida belgilanadi.",
+      "switchedOffTitle": "Avtomatik qarorlar o‘chirilgan",
+      "switchedOffBody": "ADT saqlangan, lekin qo‘llanilmaydi: administrator avtomatik qarorlarni yoqmaguncha barcha limit so‘rovlari kredit anderrayteriga boradi.",
+      "statuses": {
+        "active": "Amalda",
+        "suspended": "To‘xtatilgan",
+        "replaced": "Almashtirilgan",
+        "disabled": "O‘chirilgan"
+      },
+      "fields": {
+        "maxAmount": "ADT summasi",
+        "currency": "Valyuta",
+        "count": "Avtomatik qarorlar soni",
+        "used": "Ishlatilgan",
+        "remaining": "Qolgan",
+        "band": "Reyting diapazoni",
+        "status": "Holat",
+        "setBy": "Belgiladi",
+        "setAt": "Belgilangan",
+        "ended": "Tugagan",
+        "comment": "Izoh",
+        "banReason": "Taqiq sababi"
+      },
+      "usedOf": "{{total}} dan {{used}}",
+      "suspendedTitle": "ADT to‘xtatilgan: {{reason}}",
+      "suspendedBody": "{{date}} dan beri. ADT qayta belgilanmaguncha bu bayer bo‘yicha avtomatik qaror qabul qilinmaydi.",
+      "none": "Bu bayerda ADT yo‘q",
+      "noneHint": "Bu bayer bo‘yicha barcha limit so‘rovlari kredit anderrayteriga boradi. Bayerni qayta ko‘rib chiqishda yuqoridagi tugma bilan ADTni belgilang.",
+      "bannedTitle": "Bu bayer bo‘yicha avtomatik qarorlar taqiqlangan",
+      "bannedBody": "{{reason}} — {{name}}, {{date}}",
+      "history": "Tarix",
+      "historyEmpty": "Bu bayer uchun hali ADT belgilanmagan.",
+      "loadFailed": "Bayerning ADTsini yuklab bo‘lmadi.",
+      "actions": {
+        "set": "ADTni belgilash",
+        "replace": "ADTni almashtirish",
+        "disable": "ADTni o‘chirish",
+        "ban": "Avtomatik qarorlarni taqiqlash",
+        "unban": "Taqiqni olib tashlash"
+      },
+      "setTitle": "ADTni belgilash",
+      "replaceTitle": "ADTni almashtirish",
+      "setHint": "Agar tavsiya etilgan limit uni qamrasa va to‘xtatuvchi omil bo‘lmasa, avtomatik qaror so‘ralgan limitni shu summagacha darhol tasdiqlaydi. Yangi ADT joriysini almashtiradi; har bir avtomatik qaror, summasidan qat’i nazar, bittasini sarflaydi.",
+      "latestRating": "Oxirgi reyting {{grade}} · {{band}} reyting diapazoni",
+      "recommended": "Tavsiya etilgan limit: {{amount}}",
+      "countHint": "{{min}} dan {{max}} gacha.",
+      "authorityIn": "«{{band}}» reyting diapazonidagi vakolatingiz: {{amount}}",
+      "unlimited": "cheklanmagan",
+      "beyondAuthority": "«{{band}}» reyting diapazonidagi vakolatingizdan yuqori — rad etiladi.",
+      "noRate": "{{currency}} uchun UZS kursi yo‘q: summani vakolatingiz bilan solishtirib bo‘lmaydi.",
+      "commentHint": "Ixtiyoriy.",
+      "disableTitle": "ADTni o‘chirish",
+      "disableConfirm": "Bu bayer bo‘yicha limit so‘rovlari kredit anderrayteriga boradi. ADT tarixda qoladi.",
+      "banTitle": "Avtomatik qarorlarni taqiqlash",
+      "banHint": "Bu bayer bo‘yicha avtomatik qaror qabul qilinmaydi, joriy ADT to‘xtatiladi. Taqiq olib tashlanmaguncha amal qiladi.",
+      "banReasonHint": "Majburiy: sababini yozing.",
+      "unbanTitle": "Taqiqni olib tashlash",
+      "unbanConfirm": "Avtomatik qarorlarga yana ruxsat beriladi. To‘xtatilgan ADT to‘xtatilganicha qoladi: undan foydalanish uchun uni qayta belgilang.",
+      "errors": {
+        "invalid": "ADT uchun musbat summa va kamida bitta avtomatik qaror kerak.",
+        "assessmentMismatch": "Bu reyting boshqa bayerga tegishli.",
+        "noRating": "ADT belgilashdan oldin bayer reytingini hisoblang.",
+        "fxMissing": "Bu valyutaning UZS kursi yo‘q, shuning uchun ADTni vakolatingiz bilan solishtirib bo‘lmaydi.",
+        "beyondAuthority": "ADT summasi bayer oxirgi reytingining reyting diapazonidagi vakolatingizdan yuqori.",
+        "none": "Bu bayerda ADT yo‘q.",
+        "blockReason": "Bu bayer bo‘yicha avtomatik qarorlar nima uchun taqiqlanganini yozing.",
+        "saveFailed": "ADTni saqlab bo‘lmadi."
+      }
     }
   },
   "entities": {
