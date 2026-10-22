@@ -12,13 +12,14 @@ import { Suspense, createContext, useContext, useEffect, useId, useRef } from 'r
 import { BADGE_TONES, BadgeSizeContext, badgeClassName } from './badgeStyles'
 import type { BadgeSize, BadgeTone } from './badgeStyles'
 import { buttonClassName } from './buttonStyles'
+import { FieldLabelIdContext } from './fieldContext'
 import type { ButtonVariant } from './buttonStyles'
 import { COL, tableMinWidth } from './columns'
 import type { ColumnWidth } from './columns'
 import type {
   ButtonHTMLAttributes,
+  ComponentProps,
   HTMLAttributes,
-  InputHTMLAttributes,
   MouseEvent,
   ReactNode,
   SelectHTMLAttributes,
@@ -77,20 +78,22 @@ interface FieldProps {
 }
 
 export function Field({ label, hint, children, className = '' }: FieldProps) {
+  const labelId = useId()
   return (
     <label className={`flex flex-col gap-1.5 ${className}`}>
       {label && (
-        <span className="text-[12px] font-semibold tracking-wide text-slate-600 uppercase">
+        <span id={labelId} className="text-[12px] font-semibold tracking-wide text-slate-600 uppercase">
           {label}
         </span>
       )}
-      {children}
+      <FieldLabelIdContext.Provider value={label ? labelId : undefined}>{children}</FieldLabelIdContext.Provider>
       {hint && <span className="text-xs text-slate-500">{hint}</span>}
     </label>
   )
 }
 
-export function Input({ className = '', ...rest }: InputHTMLAttributes<HTMLInputElement>) {
+/** React 19: `ref` is an ordinary prop and reaches the <input> through rest. */
+export function Input({ className = '', ...rest }: ComponentProps<'input'>) {
   return <input className={`h-9 ${CONTROL_CLASSES} ${className}`} {...rest} />
 }
 
