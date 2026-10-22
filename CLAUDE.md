@@ -435,7 +435,7 @@ is fine for internal test accounts and not fine for customers.
   hop, and caps the compute endpoints. **Canonical: 0046–0048 fully applied**
   (2026-10-20): sections 1–4, 6 and most of 5 of 0046 through the MCP
   tooling, the remainder of 0046 plus 0047 and 0048 by the owner running
-  `docs/deploy/canonical-apply-0046-0048.sql` in the SQL Editor; verified
+  `docs/deploy/canonical-apply-0046-0048.sql` (since removed — in git history) in the SQL Editor; verified
   afterwards (ledger, guard triggers, `anon` executes only `login_begin`,
   `login_gate_enforced` still off, data counts unchanged)
 - [x] National statement forms + policy wording (migrations 0049–0051):
@@ -540,7 +540,7 @@ is fine for internal test accounts and not fine for customers.
   fix: `tci.tasks` lost the column UPDATE grant that let a REST PATCH close
   any automatic task. J/K/Enter/O/C/E/S/T keyboard. See **Agenda rules**
   below. **Canonical: 0055 applied 2026-10-21** in chunks (the owner runs
-  `docs/deploy/canonical-apply-0055.sql` for the one held DROP POLICY),
+  `docs/deploy/canonical-apply-0055.sql`, since removed, for the one held DROP POLICY),
   function bodies md5-identical to a local replay, live smoke with role
   impersonation rolled back, counts unchanged
 - [x] Premium payments, instant UI, layout stability (Prompt 23, migration
@@ -581,7 +581,7 @@ is fine for internal test accounts and not fine for customers.
   drafts rules** below. **Canonical: 0057 applied 2026-10-22** — sections 1–9
   through the MCP tooling (fingerprints identical to a local replay), section
   10 (the three removal guards) by the owner with
-  `docs/deploy/canonical-apply-0057.sql`; acceptance smoke (generate → edit →
+  `docs/deploy/canonical-apply-0057.sql` (since removed); acceptance smoke (generate → edit →
   compare → restore → review → share → agree → sign → locked) with role
   impersonation rolled back, nothing left behind
 - [x] Commercial offers (КП) and the TCI brochure (Prompt 26, migration
@@ -642,11 +642,15 @@ is fine for internal test accounts and not fine for customers.
 * **Assignees are stored, not yet used.** `assigned_sales` / `assigned_commercial`
   / `assigned_credit` exist and are surfaced nowhere: the Agenda owns
   assignment, and inventing a second assignment UI now would compete with it.
-* **`buyer_resolution_status` beyond `ready` is still not advanced
-  automatically.** `rating_done` / `limit_done` are set by hand. The Agenda now
-  consumes `rating.created` and `limit.credit_decided` to CLOSE its own tasks,
-  but it does not write back to `insurance_request_buyers`; doing so is a small
-  follow-up in the same mapping.
+* ~~`buyer_resolution_status` beyond `ready` is not advanced
+  automatically~~ — **RESOLVED in 0059**. `tci.buyer_progress_status` derives
+  the status from facts (an effective credit-stage approved/partial decision
+  in the submission ⇒ `limit_done`, any rating ⇒ `rating_done`), and an
+  eighth trigger on `tci.workflow_events` (`rating.created`,
+  `limit.credit_decided`, `request.buyer_resolved`, `request.buyer_added`)
+  moves rows of LIVE submissions forward only. A declined limit stays at
+  `rating_done`. Canonical: applied 2026-10-22 after a rolled-back dry run
+  (8 of 11 rows moved forward, none back), fingerprints identical.
 
 ### Workflow event catalogue (`tci.workflow_events`, migration 0019)
 
@@ -1135,7 +1139,8 @@ body (a quoted string literal is fine). Split a migration at section
 boundaries, apply the clean sections with `execute_sql`, and hand the rest
 to the owner as one transactional SQL Editor script that ends with the
 closing assertions and the ledger insert
-(`docs/deploy/canonical-apply-0046-0048.sql` is the template). Do not
+(the template is `docs/deploy/canonical-apply-0057.sql` in git history,
+commit 05d4381; owner scripts are deleted once run and verified). Do not
 disguise the keywords to get past the check.
 
 *Update 2026-10-20:* the hold has moved. `alter … drop not null` and a
