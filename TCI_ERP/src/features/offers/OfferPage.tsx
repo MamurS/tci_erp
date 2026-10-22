@@ -355,7 +355,11 @@ export function OfferPage() {
           </dl>
         </Card>
 
-        <OfferPreview ref={preview} doc={doc} />
+        {/* The preview takes the row's height, set by the form beside it: out
+            of the flow, it cannot stretch the row to its thousands of pixels. */}
+        <div className="relative h-[calc(100vh-10rem)] min-h-[520px] min-w-0 lg:h-auto">
+          <OfferPreview ref={preview} doc={doc} className="absolute inset-0" />
+        </div>
       </div>
     </div>
   )

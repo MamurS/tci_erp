@@ -56,6 +56,14 @@ test('the offer screen: live preview of every page, the counter, the cover re-re
   await expect(page.getByText(`${total} страниц`)).toBeVisible()
   expect(await overflowingPages(page)).toEqual([])
 
+  // The two columns are one row: the preview is exactly as tall as the form
+  // beside it (and the form is not stretched to the document's length).
+  const form = await page.locator('main .grid > div').first().boundingBox()
+  const preview = await page.locator('section[aria-label="Предпросмотр предложения"]').boundingBox()
+  expect(Math.abs(form!.height - preview!.height)).toBeLessThanOrEqual(1)
+  expect(Math.abs(form!.y - preview!.y)).toBeLessThanOrEqual(1)
+  expect(form!.height).toBeLessThan(1500)
+
   // The cover is a parameter: choosing another re-renders the document.
   await page.getByRole('radio', { name: 'Синяя', exact: true }).click()
   await expect(frame(page).locator('[data-kp-cover="blue"]')).toBeAttached()
