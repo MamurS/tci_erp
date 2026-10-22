@@ -97,3 +97,57 @@ export function postCreditLimit(
 ): Promise<CreditLimitResponse> {
   return post<CreditLimitResponse>('/credit-limit', payload)
 }
+
+async function get<T>(path: string): Promise<T> {
+  let response: Response
+  try {
+    response = await fetch(`${BASE_URL}${path}`)
+  } catch (cause) {
+    throw new AnalyticsUnavailableError(cause)
+  }
+  if (!response.ok) throw new AnalyticsUnavailableError(`HTTP ${response.status}`)
+  return (await response.json()) as T
+}
+
+// ---------------------------------------------------------------------------
+// Official company registries (services/analytics app/registry.py)
+// ---------------------------------------------------------------------------
+
+export type RegistrySource = 'gleif' | 'companies_house'
+
+export interface RegistrySourceInfo {
+  source: RegistrySource
+  /** null = worldwide */
+  countries: string[] | null
+  available: boolean
+}
+
+/** One company as an official register describes it — a suggestion that the
+ * information manager confirms in the company form. */
+export interface RegistryRecord {
+  source: RegistrySource
+  source_id: string
+  name: string
+  country_code: string | null
+  registration_number: string | null
+  address: string | null
+  legal_form: string | null
+  status: string | null
+  founded_date: string | null
+  url: string | null
+}
+
+export function getRegistrySources(): Promise<RegistrySourceInfo[]> {
+  return get<RegistrySourceInfo[]>('/registry/sources')
+}
+
+export async function searchRegistry(
+  source: RegistrySource,
+  query: string,
+  country?: string | null,
+): Promise<RegistryRecord[]> {
+  const params = new URLSearchParams({ source, q: query })
+  if (country) params.set('country', country)
+  const body = await get<{ records: RegistryRecord[] }>(`/registry/search?${params}`)
+  return body.records
+}

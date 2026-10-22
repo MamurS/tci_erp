@@ -1,12 +1,13 @@
 /** "Request limit" modal on the policy page: buyer picker with search,
  * amount (policy currency), terms, justification → creates a draft. */
 
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Field, Input, Modal, Select } from '../../components/ui'
-import { useEntities } from '../entities/api'
+import { AmountInput, Button, Field, Modal, Textarea } from '../../components/ui'
+import { parseAmount } from '../../components/ui/amount'
+import { EntityPicker } from '../entities/EntityPicker'
 import type { PolicyWithRefs } from '../policies/types'
 import { useCreateLimitRequest } from './api'
 
@@ -24,30 +25,19 @@ export function RequestLimitModal({
 }) {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const { data: buyers } = useEntities()
   const createRequest = useCreateLimitRequest()
 
-  const [buyerSearch, setBuyerSearch] = useState('')
-  const [entityId, setBuyerId] = useState('')
+  const [entityId, setBuyerId] = useState<string | null>(null)
   const [amount, setAmount] = useState('')
   const [terms, setTerms] = useState('')
   const [justification, setJustification] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  const candidates = useMemo(() => {
-    const query = buyerSearch.trim().toLowerCase()
-    return (buyers ?? []).filter(
-      (b) =>
-        !excludedBuyerIds.includes(b.id) &&
-        (!query || b.name.toLowerCase().includes(query)),
-    )
-  }, [buyers, buyerSearch, excludedBuyerIds])
-
-  const parsedAmount = Number(amount.replace(/\s/g, '').replace(',', '.'))
+  const parsedAmount = parseAmount(amount) ?? Number.NaN
   const valid = entityId && Number.isFinite(parsedAmount) && parsedAmount > 0
 
   const handleCreate = async () => {
-    if (!valid) return
+    if (!valid || !entityId) return
     setError(null)
     try {
       const created = await createRequest.mutateAsync({
@@ -83,48 +73,26 @@ export function RequestLimitModal({
     >
       <div className="flex flex-col gap-3">
         <Field label={t('limits.fields.buyer')}>
-          <Input
-            value={buyerSearch}
-            onChange={(e) => setBuyerSearch(e.target.value)}
-            placeholder={t('buyers.searchPlaceholder')}
-          />
-          <Select
-            value={entityId}
-            onChange={(e) => setBuyerId(e.target.value)}
-            className="mt-1.5"
-            size={Math.min(6, Math.max(3, candidates.length))}
-          >
-            {candidates.map((b) => (
-              <option key={b.id} value={b.id}>
-                {b.name} · {b.registration_number}
-              </option>
-            ))}
-          </Select>
+          <EntityPicker value={entityId} onChange={setBuyerId} exclude={excludedBuyerIds} allowRequest autoFocus />
         </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label={`${t('limits.fields.requestedAmount')} (${policy.currency_code})`}>
-            <Input
-              inputMode="decimal"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="num"
-            />
+          <Field label={t('limits.fields.requestedAmount')}>
+            <AmountInput value={amount} onChange={setAmount} suffix={policy.currency_code} />
           </Field>
           <Field label={t('limits.fields.paymentTerms')}>
-            <Input
-              inputMode="numeric"
+            <AmountInput
+              decimals={0}
               value={terms}
-              onChange={(e) => setTerms(e.target.value)}
-              placeholder={t('policies.terms.daysSuffix')}
+              onChange={setTerms}
+              suffix={t('policies.terms.daysSuffix')}
             />
           </Field>
         </div>
         <Field label={t('limits.fields.justification')}>
-          <textarea
+          <Textarea
             value={justification}
             onChange={(e) => setJustification(e.target.value)}
             rows={3}
-            className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-900 focus:outline-2 focus:outline-accent-600"
           />
         </Field>
         {error && (

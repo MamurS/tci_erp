@@ -170,10 +170,45 @@ describe('buildNarrative', () => {
   })
 })
 
+describe('gross margin is compared as printed', () => {
+  // Revenue and cost chosen so the raw margins differ in the fourth decimal
+  // but both print as 56.0% — the sentence must say «unchanged», not «fell».
+  const year = (fiscal_year: number, revenue: number, gross_profit: number) =>
+    stmt({
+      fiscal_year,
+      period_end_date: `${fiscal_year}-12-31`,
+      income_statements: is({ revenue, gross_profit }),
+    })
+
+  it('reports an unchanged printed margin as flat', () => {
+    const a = year(2024, 10000, 5601) // 56.01%
+    const b = year(2025, 10000, 5598) // 55.98%
+    const bullet = narrativeFor([a, b], [a, b]).find((x) => x.key.startsWith('gross_margin'))
+    expect(bullet?.key).toBe('gross_margin_flat')
+    expect(bullet?.params).toEqual({ from: 56, to: 56 })
+  })
+
+  it('still reports a move that shows', () => {
+    const a = year(2024, 10000, 5600)
+    const b = year(2025, 10000, 5540)
+    const bullet = narrativeFor([a, b], [a, b]).find((x) => x.key.startsWith('gross_margin'))
+    expect(bullet?.key).toBe('gross_margin_down')
+    expect(bullet?.params).toEqual({ from: 56, to: 55.4 })
+  })
+
+  it('keeps the sign of a negative margin', () => {
+    const a = year(2024, 1000, -50)
+    const b = year(2025, 1000, -20)
+    const bullet = narrativeFor([a, b], [a, b]).find((x) => x.key.startsWith('gross_margin'))
+    expect(bullet?.key).toBe('gross_margin_up')
+    expect(bullet?.params).toEqual({ from: -5, to: -2 })
+  })
+})
+
 describe('narrative i18n coverage', () => {
   const INVENTORY = [
     'revenue_grew', 'revenue_fell', 'revenue_flat', 'revenue_level',
-    'gross_margin_up', 'gross_margin_down', 'net_profit_positive', 'net_loss',
+    'gross_margin_up', 'gross_margin_down', 'gross_margin_flat', 'net_profit_positive', 'net_loss',
     'leverage_low', 'leverage_moderate', 'leverage_high',
     'liquidity_ok', 'liquidity_breach',
     'cfo_positive', 'cfo_negative', 'cfo_negative_persistent',

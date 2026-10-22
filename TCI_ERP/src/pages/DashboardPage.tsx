@@ -25,20 +25,23 @@ import type { LucideIcon } from 'lucide-react'
 
 import { useAuth } from '../auth/AuthContext'
 import { Card, Skeleton } from '../components/ui'
-import { useAgendaTasks, useTaskSubjects, subjectFor } from '../features/agenda/api'
-import { compareTasks, isOverdue, taskLink } from '../features/agenda/catalogue'
+import { contextFor, useAgendaTasks, useTaskSubjects, subjectFor } from '../features/agenda/api'
+import { activeTasks, compareTasks, displayTaskType, formatTaskParams, isOverdue, taskLink, taskTitleKey } from '../features/agenda/catalogue'
 import type { Task } from '../features/agenda/types'
-import { useDeclarations } from '../features/declarations/api'
-import { declarationCompliance, premiumAccrual } from '../features/declarations/summary'
+import { useDeclarations, useUzsRates } from '../features/declarations/api'
+import { declarationCompliance, premiumAccrualUzs } from '../features/declarations/summary'
+import type { PremiumAccrualUzs } from '../features/declarations/summary'
 import { useEntities, useEntityRoles } from '../features/entities/api'
 import { useClaims } from '../features/claims'
 import { isOpen as claimIsOpen } from '../features/claims/machine'
 import { useEscalatedCount } from '../features/limits/api'
+import { latestUzsRate } from '../features/limits/authority'
 import { useOverdueNotifications } from '../features/overdue/api'
 import { usePolicies } from '../features/policies/api'
 import { useAllPolicyPremium } from '../features/policies/premiumApi'
 import { hasRole, isStaff } from '../lib/roles'
-import { EM_DASH, formatAmount, formatCompact, formatLongDate, formatMoment, formatPercent } from '../lib/format'
+import { EM_DASH, formatAmount, formatCompact, formatLongDate, formatPercent, formatDue } from '../lib/format'
+import { todayIso } from '../components/ui/dateEntry'
 import { buildSignals, dayPart } from './dashboard'
 import type { Signal } from './dashboard'
 
@@ -77,7 +80,8 @@ export function DashboardPage() {
   const { data: escalated } = useEscalatedCount(canDecide)
   const agenda = useAgendaTasks({ enabled: isStaff(roles) })
 
-  const tasks = [...(agenda.data ?? [])].sort(compareTasks)
+  // A snoozed task is out of sight everywhere until its moment passes (0055).
+  const tasks = activeTasks(agenda.data ?? [], new Date()).sort(compareTasks)
   const shownTasks = tasks.slice(0, TASKS_SHOWN)
   const subjects = useTaskSubjects(shownTasks)
 
@@ -88,7 +92,14 @@ export function DashboardPage() {
   const compliance = declarations ? declarationCompliance(declarations) : null
   const openOverdues = overdues?.filter((n) => n.status === 'open')
   const lateOverdues = openOverdues?.filter((n) => n.reported_late).length
-  const accrual = policyPremium ? premiumAccrual(policyPremium) : null
+  // Premium is booked in the policy's currency; the tile adds currencies only
+  // through the fx rule, never raw.
+  const { data: fxRates, isLoading: fxLoading } = useUzsRates(policyPremium?.map((p) => p.currency_code) ?? [])
+  const today = todayIso(now)
+  const accrual =
+    policyPremium && !fxLoading
+      ? premiumAccrualUzs(policyPremium, (ccy) => latestUzsRate(fxRates ?? [], ccy, today))
+      : null
   const openClaims = claims?.filter((c) => claimIsOpen(c.status)).length
   const awaitingInfo = claims?.filter((c) => c.status === 'info_requested').length
   // "This period" is the calendar month: what a monthly report asks for.
@@ -159,30 +170,7 @@ export function DashboardPage() {
               subTone="neg"
             />
           )}
-          {seesDeclarations && accrual && (
-            <Kpi
-              to="/declarations"
-              icon={ClipboardList}
-              label={t('dashboard.premiumEarned')}
-              value={formatCompact(accrual.earned, locale, 1)}
-              sub={
-                accrual.minimum > 0
-                  ? t('dashboard.premiumOfMinimum', {
-                      pct: formatPercent(accrual.earned / accrual.minimum, locale, 0),
-                    })
-                  : null
-              }
-            >
-              {accrual.minimum > 0 && (
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                  <div
-                    className="h-full rounded-full bg-accent-500"
-                    style={{ width: `${Math.min(100, (accrual.earned / accrual.minimum) * 100)}%` }}
-                  />
-                </div>
-              )}
-            </Kpi>
-          )}
+          {seesDeclarations && accrual && <PremiumKpi accrual={accrual} locale={locale} />}
         </div>
       </Card>
 
@@ -216,6 +204,7 @@ export function DashboardPage() {
                     key={task.id}
                     task={task}
                     subject={subjectFor(task, subjects.data)}
+                    context={contextFor(task, subjects.data)}
                     now={now}
                     locale={locale}
                   />
@@ -281,26 +270,37 @@ function Kpi({
   icon: Icon,
   label,
   value,
+  unit,
   sub,
   subTone,
+  title,
   children,
 }: {
   to: string
   icon: LucideIcon
   label: string
   value: string
+  /** A unit set small beside the value («UZS-экв.»). */
+  unit?: string
   sub?: string | null
   subTone?: 'neg'
+  /** The full figures behind a rounded value, on hover. */
+  title?: string
   children?: ReactNode
 }) {
   return (
-    <Link to={to} className="group block px-5 py-4 transition-colors hover:bg-accent-50/50">
+    <Link to={to} title={title} className="group block px-5 py-4 transition-colors hover:bg-accent-50/50">
       <div className="flex items-start gap-2 text-[12.5px] leading-snug font-medium text-slate-500">
         <Icon className="mt-px size-4 shrink-0 text-accent-500" />
         <span>{label}</span>
       </div>
-      <div className="num mt-1.5 text-left font-display text-[30px] leading-none font-bold text-accent-600 group-hover:text-accent-500">
-        {value}
+      {/* The unit drops under the figure when the column is narrow, instead
+          of being cut off at the card's edge. */}
+      <div className="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
+        <span className="num text-left font-display text-[30px] leading-none font-bold text-accent-600 group-hover:text-accent-500">
+          {value}
+        </span>
+        {unit && <span className="text-[12px] font-medium text-slate-500">{unit}</span>}
       </div>
       {sub && (
         <div className={`mt-1 text-[12px] ${subTone === 'neg' ? 'font-medium text-neg-500' : 'text-slate-500'}`}>
@@ -309,6 +309,57 @@ function Kpi({
       )}
       {children}
     </Link>
+  )
+}
+
+/**
+ * Earned premium across the book, in UZS. Each currency is converted by the
+ * fx rule; a currency with no rate is left out and named in amber, and the
+ * booked amounts per currency are listed under the figure (and in full on
+ * hover), so the converted total never hides what it is made of.
+ */
+function PremiumKpi({ accrual, locale }: { accrual: PremiumAccrualUzs; locale: string }) {
+  const { t } = useTranslation()
+  const { earnedUzs, minimumUzs, byCurrency, missingRates } = accrual
+  const converted = byCurrency.filter((row) => !missingRates.includes(row.currency))
+  const nothingConverted = converted.length === 0 && byCurrency.length > 0
+  const ratio = minimumUzs > 0 ? earnedUzs / minimumUzs : null
+  // What was earned, per currency as booked; a currency with nothing earned
+  // yet adds a «0 EUR» that says nothing. Each item is kept on one line.
+  const breakdown = byCurrency
+    .filter((row) => row.earned !== 0)
+    .map((row) => `${formatCompact(row.earned, locale, 1)} ${row.currency}`.replace(/ /g, '\u00a0'))
+    .join(' · ')
+  // Only worth listing when it is not simply «all of it is UZS».
+  const showBreakdown =
+    breakdown !== '' && (byCurrency.length > 1 || byCurrency.some((row) => row.currency !== 'UZS'))
+  const title = [
+    t('dashboard.premiumConverted'),
+    ...byCurrency.map((row) => `${formatAmount(row.earned, locale, 2)} ${row.currency}`),
+  ].join('\n')
+
+  return (
+    <Kpi
+      to="/declarations"
+      icon={ClipboardList}
+      label={t('dashboard.premiumEarned')}
+      value={nothingConverted ? EM_DASH : `≈ ${formatCompact(earnedUzs, locale, 1)}`}
+      unit={nothingConverted ? undefined : t('dashboard.premiumUzsUnit')}
+      title={title}
+      sub={ratio !== null ? t('dashboard.premiumOfMinimum', { pct: formatPercent(ratio, locale, 0) }) : null}
+    >
+      {ratio !== null && (
+        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
+          <div className="h-full rounded-full bg-accent-500" style={{ width: `${Math.min(100, ratio * 100)}%` }} />
+        </div>
+      )}
+      {showBreakdown && <div className="mt-2 text-[11.5px] leading-snug text-slate-500">{breakdown}</div>}
+      {missingRates.length > 0 && (
+        <div className="mt-1 text-[11.5px] leading-snug font-medium text-warn-500">
+          {t('dashboard.premiumNoRate', { currencies: missingRates.join(', ') })}
+        </div>
+      )}
+    </Kpi>
   )
 }
 
@@ -345,11 +396,13 @@ const PRIORITY_DOT: Record<Task['priority'], string> = {
 function TaskLine({
   task,
   subject,
+  context,
   now,
   locale,
 }: {
   task: Task
   subject: string | null
+  context: string | null
   now: Date
   locale: string
 }) {
@@ -361,13 +414,14 @@ function TaskLine({
       <span className={`mt-1.5 size-2 shrink-0 rounded-full ${overdue ? 'bg-neg-500' : PRIORITY_DOT[task.priority]}`} />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[13.5px] font-medium text-slate-800">
-          {t(task.title_key, { ...task.params, subject: subject ?? EM_DASH })}
+          {t(taskTitleKey(task, now), { ...formatTaskParams(task.params, locale), subject: subject ?? EM_DASH })}
         </span>
-        <span className="mt-0.5 flex flex-wrap gap-x-2 text-[12px] text-slate-500">
-          <span>{t(`agenda.taskTypes.${task.task_type}`)}</span>
+        <span className="mt-0.5 flex min-w-0 gap-x-2 text-[12px] text-slate-500">
+          {/* What the task is about; the kind of task only when nothing names it. */}
+          <span className="min-w-0 truncate">{context ?? t(`agenda.taskTypes.${displayTaskType(task, now)}`)}</span>
           {task.due_at && (
-            <span className={overdue ? 'font-medium text-neg-500' : undefined}>
-              · {t(overdue ? 'agenda.overdueSince' : 'agenda.dueBy', { moment: formatMoment(task.due_at, locale) })}
+            <span className={`shrink-0 ${overdue ? 'font-medium text-neg-500' : ''}`}>
+              · {t(overdue ? 'agenda.overdueSince' : 'agenda.dueBy', { moment: formatDue(task.due_at, locale) })}
             </span>
           )}
         </span>

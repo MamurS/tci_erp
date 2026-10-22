@@ -40,7 +40,7 @@ export interface PolicyDocument {
   storage_path: string
   file_name: string
   generated_at: string
-  wording_templates: { name: string } | null
+  wording_templates: { name: string; file_name: string } | null
 }
 
 export interface InsurerProfile {
@@ -182,7 +182,7 @@ export function usePolicyDocuments(target: WordingTarget) {
     queryFn: async (): Promise<PolicyDocument[]> => {
       const { data, error } = await tci()
         .from('policy_documents')
-        .select('id, policy_id, insurance_request_id, template_id, template_version, language, storage_path, file_name, generated_at, wording_templates(name)')
+        .select('id, policy_id, insurance_request_id, template_id, template_version, language, storage_path, file_name, generated_at, wording_templates(name, file_name)')
         .eq(column, targetId(target))
         .order('generated_at', { ascending: false })
       if (error) throw error
@@ -205,7 +205,7 @@ export function useAllPolicyDocuments() {
       const { data, error } = await tci()
         .from('policy_documents')
         .select(
-          'id, policy_id, insurance_request_id, template_id, template_version, language, storage_path, file_name, generated_at, generated_by, wording_templates(name), policies(policy_number), insurance_requests(request_number)',
+          'id, policy_id, insurance_request_id, template_id, template_version, language, storage_path, file_name, generated_at, generated_by, wording_templates(name, file_name), policies(policy_number), insurance_requests(request_number)',
         )
         .order('generated_at', { ascending: false })
         .limit(500)

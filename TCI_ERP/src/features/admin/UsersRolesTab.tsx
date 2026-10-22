@@ -3,9 +3,10 @@
 
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Plus } from 'lucide-react'
 
 import { Badge, Button, EmptyState, Modal, Spinner, Table } from '../../components/ui'
-import { EM_DASH } from '../../lib/format'
+import { EM_DASH, formatMoment } from '../../lib/format'
 import { STAFF_ROLES, USER_ROLES } from '../../lib/roles'
 import type { UserRole } from '../../lib/roles'
 import { useAuth } from '../../auth/AuthContext'
@@ -30,7 +31,7 @@ export function UsersRolesTab({
   selectedUserId: string
   onSelectUser: (id: string) => void
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { session, roles: callerRoles } = useAuth()
   const { data: users, isLoading } = useAdminUsers()
   const { data: provisioningUp } = useProvisioningAvailable()
@@ -68,7 +69,13 @@ export function UsersRolesTab({
         <span className="text-[13px] text-slate-500">
           {t('admin.usersCount', { count: users?.length ?? 0 })}
         </span>
-        <Button onClick={() => setCreateOpen(true)} disabled={provisioningUp === false}>
+        {/* Disabled says why: the notice below, and on the button itself. */}
+        <Button
+          onClick={() => setCreateOpen(true)}
+          disabled={provisioningUp === false}
+          title={provisioningUp === false ? t('provisioning.serviceUnavailable') : undefined}
+        >
+          <Plus />
           {t('provisioning.createUser')}
         </Button>
       </div>
@@ -129,7 +136,7 @@ export function UsersRolesTab({
                 </span>
               </td>
               <td className="text-slate-500">
-                {u.last_sign_in_at ? u.last_sign_in_at.slice(0, 16).replace('T', ' ') : EM_DASH}
+                {u.last_sign_in_at ? formatMoment(u.last_sign_in_at, i18n.language) : EM_DASH}
               </td>
               <td className="text-right">
                 <span className="inline-flex flex-wrap justify-end gap-1.5">

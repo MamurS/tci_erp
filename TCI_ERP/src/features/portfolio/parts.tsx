@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Card, SectionTitle, Table } from '../../components/ui'
+import { Panel, Table } from '../../components/ui'
 import { formatPercent } from '../../lib/format'
 
 /** A share of a whole, as a bar and a percentage (the percentage alone when
@@ -39,9 +39,7 @@ export function TableCard({
   children: ReactNode
 }) {
   return (
-    <Card className="p-5">
-      <SectionTitle>{title}</SectionTitle>
-      {hint && <p className="-mt-1 mb-3 text-[12px] leading-relaxed text-slate-500">{hint}</p>}
+    <Panel title={title} hint={hint}>
       {empty ? (
         <p className="py-4 text-[13px] text-slate-500">{empty}</p>
       ) : (
@@ -50,6 +48,6 @@ export function TableCard({
           <tbody>{children}</tbody>
         </Table>
       )}
-    </Card>
+    </Panel>
   )
 }

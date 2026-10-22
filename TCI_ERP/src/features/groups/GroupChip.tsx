@@ -5,6 +5,7 @@
  * that stands alone renders nothing: silence is the honest answer there.
  */
 
+import { Network } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -12,7 +13,9 @@ import { Badge } from '../../components/ui'
 import { formatAmount } from '../../lib/format'
 import { useEntityGroup, useGroupExposure } from './api'
 
-export function GroupChip({ entityId }: { entityId: string }) {
+/** `compact`: a one-line chip for a page header's meta line, the exposure
+ * sentence moved into its tooltip. */
+export function GroupChip({ entityId, compact = false }: { entityId: string; compact?: boolean }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
 
@@ -24,6 +27,23 @@ export function GroupChip({ entityId }: { entityId: string }) {
   if (members.length <= 1 || !parentId) return null
 
   const parentName = exposure.data?.ultimate_parent_name ?? ''
+  const body = t('groups.chip.body', {
+    parent: parentName,
+    count: members.length,
+    exposure: formatAmount(Number(exposure.data?.exposure_uzs ?? 0), locale),
+  })
+
+  if (compact)
+    return (
+      <Link
+        to={`/entities/${entityId}?tab=group`}
+        title={body}
+        className="inline-flex items-center gap-1.5 text-accent-600 hover:underline"
+      >
+        <Network className="size-3.5" aria-hidden />
+        {t('groups.chip.short', { parent: parentName })}
+      </Link>
+    )
 
   return (
     <Link
@@ -31,13 +51,7 @@ export function GroupChip({ entityId }: { entityId: string }) {
       className="inline-flex items-center gap-2 text-[13px] text-slate-600 hover:underline"
     >
       <Badge tone="accent">{t('groups.chip.label')}</Badge>
-      <span>
-        {t('groups.chip.body', {
-          parent: parentName,
-          count: members.length,
-          exposure: formatAmount(Number(exposure.data?.exposure_uzs ?? 0), locale),
-        })}
-      </span>
+      <span>{body}</span>
     </Link>
   )
 }

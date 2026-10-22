@@ -1,8 +1,9 @@
 /**
  * «Портфель лимитов» — the credit underwriting workspace's home: in-force
  * exposure in UZS by the buyer's current rating band, by country and by
- * currency, the largest buyers and groups, limits coming up for review and
- * buyers whose rating is stale. Figures come from tci.v_credit_portfolio
+ * currency, the largest buyers and groups, and what needs attention as a
+ * count that opens «Мониторинг» or «Рейтинги» — the lists themselves live
+ * there, once, not repeated here. Figures come from tci.v_credit_portfolio
  * (0052) and tci.v_group_exposure (0040); a limit in a currency with no UZS
  * rate is counted, never added as zero.
  */
@@ -11,24 +12,25 @@ import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, ViewBar, Spinner, StatCard } from '../../components/ui'
-import { formatAmount, formatCompact, formatDays, formatMoment } from '../../lib/format'
+import { ChevronRight } from 'lucide-react'
+
+import { Badge, Card, EmptyState, KeyFigures, Panel, PanelGrid, Skeleton, Spinner, Truncate, ViewBar } from '../../components/ui'
+import { formatAmount, formatCompact } from '../../lib/format'
 import {
   creditTotals,
   exposureByBand,
   exposureByCountry,
   limitsByCurrency,
-  num,
-  reviewsDue,
-  staleRatings,
   topBuyers,
 } from './aggregate'
+import type { CreditPortfolioRow } from './aggregate'
 import { useCreditPortfolio, useTopGroups } from './api'
 import { ShareBar, TableCard } from './parts'
 import { useCountryName } from './useCountryName'
-
-const REVIEW_WINDOW_DAYS = 30
-const STALE_RATING_DAYS = 365
+import { useOverdueNotifications } from '../overdue/api'
+import { useGroupLimitStatus, useRatingWorklist } from '../limits/workbench/api'
+import { REVIEW_WINDOW_DAYS, groupsAtRisk, ratingDeteriorated, reviewsDueOrOverdue } from '../limits/workbench/model'
+import { BandBadge, EntityLink } from '../limits/workbench/parts'
 
 const BAND_TONE = { A: 'pos', B: 'accent', C: 'warn', D: 'neg', unrated: 'neutral' } as const
 
@@ -45,8 +47,6 @@ export function CreditPortfolioPage() {
   const countries = exposureByCountry(rows).slice(0, 10)
   const currencies = limitsByCurrency(rows)
   const buyers = topBuyers(rows, 10)
-  const due = reviewsDue(rows, REVIEW_WINDOW_DAYS)
-  const stale = staleRatings(rows, STALE_RATING_DAYS, new Date())
 
   const band = (key: string) => (
     <Badge tone={BAND_TONE[key as keyof typeof BAND_TONE] ?? 'neutral'}>{t(`limits.bands.${key}`)}</Badge>
@@ -70,20 +70,26 @@ export function CreditPortfolioPage() {
         </Card>
       ) : (
         <div className="grid gap-5">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-            <StatCard label={t('portfolio.credit.exposure')} value={uzs(totals.exposureUzs)} />
-            <StatCard label={t('portfolio.credit.limits')} value={formatAmount(totals.limits, locale)} />
-            <StatCard label={t('portfolio.credit.buyers')} value={formatAmount(totals.buyers, locale)} />
-            <StatCard label={t('portfolio.credit.policies')} value={formatAmount(totals.policies, locale)} />
-            <StatCard
-              label={t('portfolio.missingRates')}
-              value={formatAmount(totals.missingRates, locale)}
-              meta={t('portfolio.missingRatesHint')}
-              tone={totals.missingRates > 0 ? 'warn' : 'default'}
-            />
-          </div>
+          <KeyFigures
+            className=""
+            items={[
+              {
+                label: t('portfolio.credit.exposure'),
+                value: uzs(totals.exposureUzs),
+                meta:
+                  totals.missingRates > 0
+                    ? t('portfolio.credit.exposureMissing', { count: totals.missingRates })
+                    : undefined,
+              },
+              { label: t('portfolio.credit.limits'), value: formatAmount(totals.limits, locale) },
+              { label: t('portfolio.credit.buyers'), value: formatAmount(totals.buyers, locale) },
+              { label: t('portfolio.credit.policies'), value: formatAmount(totals.policies, locale) },
+            ]}
+          />
 
-          <div className="grid gap-5 lg:grid-cols-2">
+          <AttentionPanel rows={rows} />
+
+          <PanelGrid>
             <TableCard
               title={t('portfolio.credit.byBand')}
               hint={t('portfolio.credit.byBandHint')}
@@ -114,56 +120,65 @@ export function CreditPortfolioPage() {
               empty={countries.length ? null : t('portfolio.none')}
               head={
                 <tr>
-                  <th>{t('portfolio.credit.country')}</th>
-                  <th className="text-right">{t('portfolio.credit.limits')}</th>
-                  <th className="text-right">{t('portfolio.credit.exposure')}</th>
-                  <th className="text-right">{t('portfolio.share')}</th>
+                  <th className="cell-fill w-full">{t('portfolio.credit.country')}</th>
+                  <th className="w-px text-right">{t('portfolio.credit.limits')}</th>
+                  <th className="w-px text-right">{t('portfolio.credit.exposure')}</th>
+                  <th className="w-px text-right">{t('portfolio.share')}</th>
                 </tr>
               }
             >
               {countries.map((c) => (
                 <tr key={c.key}>
-                  <td>{countryName(c.key || null)}</td>
+                  <td className="cell-fill">
+                    <Truncate text={countryName(c.key || null)} className="max-w-none" />
+                  </td>
                   <td className="num text-right">{c.limits}</td>
                   <td className="num text-right whitespace-nowrap">{uzs(c.exposureUzs)}</td>
                   <td>
-                    <ShareBar share={c.share} />
+                    <ShareBar compact share={c.share} />
                   </td>
                 </tr>
               ))}
             </TableCard>
-          </div>
+          </PanelGrid>
 
           <TableCard
             title={t('portfolio.credit.topBuyers')}
             empty={null}
             head={
               <tr>
-                <th>{t('portfolio.credit.buyer')}</th>
-                <th>{t('portfolio.credit.country')}</th>
-                <th>{t('portfolio.credit.rating')}</th>
-                <th className="text-right">{t('portfolio.credit.limits')}</th>
-                <th className="text-right">{t('portfolio.credit.policies')}</th>
-                <th className="text-right">{t('portfolio.credit.exposure')}</th>
-                <th className="text-right">{t('portfolio.share')}</th>
+                <th className="cell-fill w-[60%]">{t('portfolio.credit.buyer')}</th>
+                <th className="cell-fill w-[40%]">{t('portfolio.credit.country')}</th>
+                <th className="w-px">{t('portfolio.credit.rating')}</th>
+                <th className="w-px text-right">{t('portfolio.credit.limits')}</th>
+                <th className="w-px text-right">{t('portfolio.credit.policies')}</th>
+                <th className="w-px text-right">{t('portfolio.credit.exposure')}</th>
+                <th className="w-px text-right">{t('portfolio.share')}</th>
               </tr>
             }
           >
             {buyers.map((b) => (
               <tr key={b.buyerId}>
-                <td>{buyerLink(b.buyerId, b.buyerName)}</td>
-                <td className="text-slate-600">{countryName(b.country)}</td>
+                <td className="cell-fill">
+                  <Truncate text={b.buyerName} className="max-w-none">
+                    {buyerLink(b.buyerId, b.buyerName)}
+                  </Truncate>
+                </td>
+                <td className="cell-fill text-slate-600">
+                  <Truncate text={countryName(b.country)} className="max-w-none" />
+                </td>
                 <td>
-                  <span className="flex items-center gap-1.5">
-                    {band(b.band)}
-                    {b.grade && <span className="text-[12px] text-slate-500">{b.grade}</span>}
-                  </span>
+                  <BandBadge band={b.band} grade={b.grade} />
                 </td>
                 <td className="num text-right">{b.limits}</td>
                 <td className="num text-right">{b.policies}</td>
                 <td className="num text-right">
                   {uzs(b.exposureUzs)}
-                  {b.missingRates > 0 && <span className="ml-1 text-warn-500">*</span>}
+                  {b.missingRates > 0 && (
+                    <span className="ml-1 text-warn-500" title={t('portfolio.missingRatesHint')}>
+                      *
+                    </span>
+                  )}
                 </td>
                 <td>
                   <ShareBar share={totals.exposureUzs > 0 ? b.exposureUzs / totals.exposureUzs : null} />
@@ -172,58 +187,7 @@ export function CreditPortfolioPage() {
             ))}
           </TableCard>
 
-          <div className="grid gap-5 lg:grid-cols-2">
-            <TableCard
-              title={t('portfolio.credit.reviews', { days: REVIEW_WINDOW_DAYS })}
-              empty={due.length ? null : t('portfolio.credit.noReviews')}
-              head={
-                <tr>
-                  <th>{t('portfolio.credit.buyer')}</th>
-                  <th>{t('policies.fields.policyNumber')}</th>
-                  <th className="text-right">{t('portfolio.credit.amount')}</th>
-                  <th className="text-right">{t('portfolio.credit.daysLeft')}</th>
-                </tr>
-              }
-            >
-              {due.map((r) => (
-                <tr key={r.decision_id}>
-                  <td>
-                    <Link to={`/limits/${r.request_id}`} className="font-medium text-accent-600 hover:text-accent-500">
-                      {r.buyer_name}
-                    </Link>
-                  </td>
-                  <td className="whitespace-nowrap text-slate-600">{r.policy_number}</td>
-                  <td className="num text-right">
-                    {formatAmount(num(r.approved_amount), locale)} {r.currency_code}
-                  </td>
-                  <td className="num text-right">{formatDays(r.days_to_review, locale)}</td>
-                </tr>
-              ))}
-            </TableCard>
-
-            <TableCard
-              title={t('portfolio.credit.stale')}
-              hint={t('portfolio.credit.staleHint')}
-              empty={stale.length ? null : t('portfolio.credit.noStale')}
-              head={
-                <tr>
-                  <th>{t('portfolio.credit.buyer')}</th>
-                  <th>{t('portfolio.credit.rating')}</th>
-                  <th>{t('portfolio.credit.ratedAt')}</th>
-                </tr>
-              }
-            >
-              {stale.map((r) => (
-                <tr key={r.buyer_entity_id}>
-                  <td>{buyerLink(r.buyer_entity_id, r.buyer_name)}</td>
-                  <td>{r.current_grade ? `${r.current_grade}` : t('portfolio.credit.notRated')}</td>
-                  <td className="text-slate-500">{r.rated_at ? formatMoment(r.rated_at, locale) : '—'}</td>
-                </tr>
-              ))}
-            </TableCard>
-          </div>
-
-          <div className="grid gap-5 lg:grid-cols-2">
+          <PanelGrid>
             <TableCard
               title={t('portfolio.credit.byCurrency')}
               hint={t('portfolio.credit.byCurrencyHint')}
@@ -251,23 +215,90 @@ export function CreditPortfolioPage() {
               empty={groups?.length ? null : t('portfolio.credit.noGroups')}
               head={
                 <tr>
-                  <th>{t('portfolio.credit.group')}</th>
-                  <th className="text-right">{t('portfolio.credit.members')}</th>
-                  <th className="text-right">{t('portfolio.credit.exposure')}</th>
+                  {/* No cell-fill on this header: it is longer than the names
+                      below it and would spill over the next column. The member
+                      count sits under the name — a third column did not fit
+                      half the page. */}
+                  <th className="w-full">{t('portfolio.credit.group')}</th>
+                  <th className="w-px text-right">{t('portfolio.credit.exposure')}</th>
                 </tr>
               }
             >
               {(groups ?? []).map((g) => (
                 <tr key={g.ultimate_parent_id}>
-                  <td>{buyerLink(g.ultimate_parent_id, g.ultimate_parent_name)}</td>
-                  <td className="num text-right">{g.members_with_limits}</td>
+                  <td className="cell-fill">
+                    <Truncate text={g.ultimate_parent_name} className="max-w-none">
+                      <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} tab="group" />
+                    </Truncate>
+                    <span className="block text-[12px] text-slate-500">
+                      {t('portfolio.credit.membersWithLimits', { count: g.members_with_limits })}
+                    </span>
+                  </td>
                   <td className="num text-right">{uzs(Number(g.exposure_uzs))}</td>
                 </tr>
               ))}
             </TableCard>
-          </div>
+          </PanelGrid>
         </div>
       )}
     </div>
+  )
+}
+
+/** What needs a credit underwriter, as counts. Each row opens the workbench
+ * view that holds the list: the overview summarises, it does not repeat
+ * Monitoring's tables (they were shown twice, with different formatting). */
+function AttentionPanel({ rows }: { rows: readonly CreditPortfolioRow[] }) {
+  const { t } = useTranslation()
+  const ratings = useRatingWorklist()
+  const noas = useOverdueNotifications()
+  const groups = useGroupLimitStatus()
+
+  const items: { key: string; label: string; count: number | null; view: string }[] = [
+    {
+      key: 'reviews',
+      label: t('limits.workbench.monitoring.reviews', { days: REVIEW_WINDOW_DAYS }),
+      count: reviewsDueOrOverdue(rows, REVIEW_WINDOW_DAYS).length,
+      view: 'monitoring',
+    },
+    { key: 'worse', label: t('limits.workbench.monitoring.worse'), count: ratingDeteriorated(rows).length, view: 'monitoring' },
+    {
+      key: 'noas',
+      label: t('limits.workbench.monitoring.noas'),
+      count: noas.data ? noas.data.filter((n) => n.status === 'open').length : null,
+      view: 'monitoring',
+    },
+    {
+      key: 'groups',
+      label: t('limits.workbench.monitoring.groups'),
+      count: groups.data ? groupsAtRisk(groups.data).length : null,
+      view: 'monitoring',
+    },
+    { key: 'ratings', label: t('limits.workbench.ratings.title'), count: ratings.data ? ratings.data.length : null, view: 'ratings' },
+  ]
+
+  return (
+    <Panel title={t('portfolio.credit.attention')} hint={t('portfolio.credit.attentionHint')}>
+      <ul className="grid gap-x-6 sm:grid-cols-2">
+        {items.map((item) => (
+          <li key={item.key}>
+            <Link
+              to={`/limits?view=${item.view}`}
+              className="group flex items-center gap-3 rounded-md px-2 py-2 text-[13px] text-slate-700 hover:bg-accent-50"
+            >
+              <span className="min-w-0 flex-1 truncate" title={item.label}>
+                {item.label}
+              </span>
+              {item.count === null ? (
+                <Skeleton className="h-5 w-7 rounded-full" />
+              ) : (
+                <Badge tone={item.count > 0 ? 'warn' : 'neutral'}>{item.count}</Badge>
+              )}
+              <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-slate-400 group-hover:text-accent-600" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </Panel>
   )
 }

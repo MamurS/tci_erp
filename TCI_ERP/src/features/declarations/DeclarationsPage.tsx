@@ -7,23 +7,19 @@
  * to discuss, not an error in the data (DESIGN.md).
  */
 
-import { useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, EmptyState, Field, PageHeader, Select, Spinner, Table } from '../../components/ui'
-import { EM_DASH, formatAmount } from '../../lib/format'
-import { useDeclarations } from './api'
+import { Badge, Callout, EmptyState, Field, PageHeader, Select, Spinner, Table, Truncate } from '../../components/ui'
+import { EM_DASH, formatAmount, formatDate, formatPeriod } from '../../lib/format'
+import { useDeclarations, usePolicyDeclarationFrequency } from './api'
+import { periodEnd } from './period'
+import { resolvePeriodLink } from './periodLink'
 import { DECLARATION_STATUSES } from './types'
 import type { DeclarationStatus } from './types'
+import { STATUS_TONE } from './status'
 
-const STATUS_TONE: Record<DeclarationStatus, 'neutral' | 'accent' | 'pos' | 'warn'> = {
-  draft: 'neutral',
-  submitted: 'accent',
-  accepted: 'pos',
-  disputed: 'warn',
-  corrected: 'neutral',
-}
 
 export function DeclarationsPage() {
   const { t, i18n } = useTranslation()
@@ -39,8 +35,23 @@ export function DeclarationsPage() {
     [data, status],
   )
 
+  // ?period=<first day> with ?policy= (the Agenda's «declaration due» link):
+  // a declared period opens its declaration; one not declared yet is said
+  // above the policy's list, which stays as it is.
+  // Judged only once the list is in, so nothing flashes while it loads.
+  const periodLink = data
+    ? resolvePeriodLink(data, policyFilter, params.get('period'))
+    : ({ kind: 'none' } as const)
+  const { data: frequency, isLoading: frequencyLoading } = usePolicyDeclarationFrequency(
+    periodLink.kind === 'missing' ? policyFilter : undefined,
+  )
+  const openId = periodLink.kind === 'open' ? periodLink.id : null
+  useEffect(() => {
+    if (openId) void navigate(`/declarations/${openId}`, { replace: true })
+  }, [openId, navigate])
+
   return (
-    <div className="p-6">
+    <div>
       <PageHeader
         title={t('declarations.title')}
         subtitle={t('declarations.subtitle')}
@@ -50,10 +61,13 @@ export function DeclarationsPage() {
               value={status}
               onChange={(e) => setStatus(e.target.value as '' | DeclarationStatus)}
             >
-              <option value="">{t('common.all')}</option>
-              {DECLARATION_STATUSES.map((s) => (
+              <option value="">
+                {t('common.all')} ({(data ?? []).length})
+              </option>
+              {/* Only the statuses the list holds, with their counts. */}
+              {DECLARATION_STATUSES.filter((s) => s === status || (data ?? []).some((row) => row.status === s)).map((s) => (
                 <option key={s} value={s}>
-                  {t(`declarations.statuses.${s}`)}
+                  {t(`declarations.statuses.${s}`)} ({(data ?? []).filter((row) => row.status === s).length})
                 </option>
               ))}
             </Select>
@@ -61,9 +75,23 @@ export function DeclarationsPage() {
         }
       />
 
+      {/* Held until the policy's frequency is known, so the period is named
+          once («July 2026», «Q3 2026») instead of changing under the reader. */}
+      {periodLink.kind === 'missing' && !frequencyLoading && (
+        <Callout
+          tone="warn"
+          className="mb-5"
+          title={t('declarations.periodNotDeclared', {
+            period: frequency
+              ? formatPeriod(periodLink.period, periodEnd(periodLink.period, frequency), locale)
+              : formatDate(periodLink.period, locale),
+          })}
+        />
+      )}
+
       {isError ? (
         <EmptyState title={t('common.loadFailed')} hint={t('common.tryAgain')} />
-      ) : isLoading ? (
+      ) : isLoading || openId ? (
         <Spinner label={t('common.loading')} />
       ) : rows.length === 0 ? (
         <EmptyState title={t('declarations.empty')} hint={t('declarations.emptyHint')} />
@@ -73,7 +101,7 @@ export function DeclarationsPage() {
             <tr>
               <th>{t('declarations.fields.period')}</th>
               <th>{t('policies.fields.policyNumber')}</th>
-              <th>{t('policies.fields.policyholder')}</th>
+              <th className="cell-fill w-[34%]">{t('policies.fields.policyholder')}</th>
               <th className="text-right">{t('declarations.fields.totalTurnover')}</th>
               <th>{t('declarations.fields.status')}</th>
             </tr>
@@ -85,12 +113,15 @@ export function DeclarationsPage() {
                 onClick={() => void navigate(`/declarations/${d.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="font-medium text-slate-800">
-                  {d.period_start} {EM_DASH} {d.period_end}
+                <td className="font-medium whitespace-nowrap">
+                  {/* The row opens on click; the link is what a keyboard reaches. */}
+                  <Link to={`/declarations/${d.id}`} className="text-accent-700 hover:underline">
+                    {formatPeriod(d.period_start, d.period_end, i18n.language)}
+                  </Link>
                 </td>
-                <td className="text-slate-600">{d.policies?.policy_number ?? EM_DASH}</td>
-                <td className="text-slate-500">
-                  {d.policies?.legal_entities?.name ?? EM_DASH}
+                <td className="whitespace-nowrap text-slate-600">{d.policies?.policy_number ?? EM_DASH}</td>
+                <td className="cell-fill text-slate-500">
+                  <Truncate text={d.policies?.legal_entities?.name ?? EM_DASH} className="max-w-none" />
                 </td>
                 <td>
                   <span className="num block">

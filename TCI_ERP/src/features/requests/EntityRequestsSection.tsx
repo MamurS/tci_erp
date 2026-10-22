@@ -4,7 +4,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, EmptyState, Spinner, Table } from '../../components/ui'
+import { Badge, EmptyState, Spinner, Table, Truncate } from '../../components/ui'
 import { EM_DASH } from '../../lib/format'
 import { useRequestsForEntity } from './api'
 import { owningRole, requestAgeDays, statusTone } from './machine'
@@ -42,7 +42,7 @@ export function EntityRequestsSection({ entityId }: { entityId: string }) {
               onClick={() => void navigate(`/requests/${request.id}`)}
               className="cursor-pointer transition-colors hover:bg-slate-50"
             >
-              <td className="num font-medium text-slate-800">{request.request_number}</td>
+              <td className="font-medium whitespace-nowrap text-slate-800 tabular-nums">{request.request_number}</td>
               <td>
                 <span className="flex flex-wrap gap-1">
                   {asApplicant && (
@@ -51,7 +51,9 @@ export function EntityRequestsSection({ entityId }: { entityId: string }) {
                   {asBuyer && <Badge tone="neutral">{t('requests.roleBuyer')}</Badge>}
                 </span>
               </td>
-              <td className="text-slate-600">{request.legal_entities?.name ?? EM_DASH}</td>
+              <td className="text-slate-600">
+                <Truncate text={request.legal_entities?.name}>{request.legal_entities?.name ?? EM_DASH}</Truncate>
+              </td>
               <td>
                 <Badge tone={statusTone(request.status)}>
                   {t(`requests.statuses.${request.status}`)}

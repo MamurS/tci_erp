@@ -5,9 +5,22 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 
-import { Badge, Button, Card, EmptyState, Table } from '../../components/ui'
+import { Plus } from 'lucide-react'
+
+import {
+  Badge,
+  Button,
+  Callout,
+  Card,
+  EmptyState,
+  SectionTitle,
+  Skeleton,
+  Spinner,
+  Table,
+  Truncate,
+} from '../../components/ui'
 import { tci } from '../../lib/supabase'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { usePolicies } from '../policies/api'
 import { statusTone } from '../policies/statusMachine'
 import type { EffectiveLimit } from '../limits/types'
@@ -18,7 +31,7 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
   const locale = i18n.resolvedLanguage ?? 'en'
   const navigate = useNavigate()
 
-  const { data: allPolicies } = usePolicies()
+  const { data: allPolicies, isLoading } = usePolicies()
   const policies = (allPolicies ?? []).filter((p) => p.entity_id === entityId)
   const policyIds = policies.map((p) => p.id)
 
@@ -45,17 +58,28 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
     },
   })
 
+  // A disabled query (no policies) is not loading; an enabled one that has
+  // no answer yet is.
+  const limitsLoading = policyIds.length > 0 && limits.isPending
+
+  // Loading is not "no policies": the tab must not claim an empty book
+  // while the list is still on its way.
+  if (isLoading) return <Spinner label={t('common.loading')} />
+
   return (
     <div className="flex flex-col gap-5">
-      <div>
-        <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-slate-900">
-            {t('policyholders.policiesTitle')}
-          </h2>
-          <Button onClick={() => void navigate(`/policies/new?entity=${entityId}`)}>
-            {t('policies.newPolicy')}
-          </Button>
-        </div>
+      <Card className="p-5">
+        <SectionTitle
+          className="mb-3"
+          actions={
+            <Button size="sm" onClick={() => void navigate(`/policies/new?entity=${entityId}`)}>
+              <Plus />
+              {t('policies.newPolicy')}
+            </Button>
+          }
+        >
+          {t('policyholders.policiesTitle')}
+        </SectionTitle>
         {policies.length === 0 ? (
           <EmptyState title={t('policies.emptyForPolicyholder')} />
         ) : (
@@ -76,10 +100,10 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
                   onClick={() => void navigate(`/policies/${p.id}`)}
                   className="cursor-pointer transition-colors hover:bg-slate-50"
                 >
-                  <td className="font-medium text-slate-800">{p.policy_number}</td>
+                  <td className="font-medium whitespace-nowrap text-slate-800">{p.policy_number}</td>
                   <td className="text-slate-500">{t(`policies.structures.${p.product_structure}`)}</td>
-                  <td className="text-slate-500">
-                    {p.inception_date} — {p.expiry_date}
+                  <td className="whitespace-nowrap text-slate-500">
+                    {formatDate(p.inception_date, locale)} — {formatDate(p.expiry_date, locale)}
                   </td>
                   <td>{p.currency_code}</td>
                   <td>
@@ -90,19 +114,28 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
             </tbody>
           </Table>
         )}
-      </div>
+      </Card>
 
       <Card className="p-5">
-        <h2 className="mb-3 text-sm font-semibold text-slate-900">
-          {t('entities.portfolioLimitsTitle')}
-        </h2>
-        {!limits.data?.length ? (
-          <p className="text-[13px] text-slate-500">{t('limits.noneForPolicy')}</p>
+        <SectionTitle className="mb-3">{t('entities.portfolioLimitsTitle')}</SectionTitle>
+        {limitsLoading ? (
+          // Still on its way: never claim "no limits" before the answer is in.
+          <div className="flex flex-col gap-2" aria-busy="true" aria-label={t('common.loading')}>
+            <Skeleton className="h-8" />
+            <Skeleton className="h-8" />
+            <Skeleton className="h-8" />
+          </div>
+        ) : limits.isError ? (
+          <Callout tone="neg" title={t('common.loadFailed')}>
+            {t('common.tryAgain')}
+          </Callout>
+        ) : !limits.data?.length ? (
+          <EmptyState title={t('entities.portfolioLimitsEmpty')} />
         ) : (
           <Table dense>
             <thead>
               <tr>
-                <th>{t('limits.fields.buyer')}</th>
+                <th className="cell-fill w-[40%]">{t('limits.fields.buyer')}</th>
                 <th>{t('policies.fields.policyNumber')}</th>
                 <th className="text-right">{t('limits.fields.approvedAmount')}</th>
                 <th>{t('limits.fields.outcome')}</th>
@@ -112,23 +145,23 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
             <tbody>
               {limits.data.map((l) => (
                 <tr key={l.decision_id}>
-                  <td className="font-medium text-slate-800">
-                    {l.legal_entities?.name || EM_DASH}
+                  <td className="cell-fill font-medium text-slate-800">
+                    <Truncate text={l.legal_entities?.name || EM_DASH} className="max-w-none" />
                   </td>
-                  <td className="text-slate-500">
+                  <td className="whitespace-nowrap text-slate-500">
                     {policies.find((p) => p.id === l.policy_id)?.policy_number ?? EM_DASH}
                   </td>
-                  <td>
-                    <span className="num block">
-                      {l.approved_amount !== null
-                        ? `${formatAmount(Number(l.approved_amount), locale)} ${l.currency_code}`
-                        : EM_DASH}
-                    </span>
+                  <td className="num">
+                    {l.approved_amount !== null
+                      ? `${formatAmount(Number(l.approved_amount), locale)} ${l.currency_code}`
+                      : EM_DASH}
                   </td>
                   <td>
                     <Badge tone={outcomeTone(l.outcome)}>{t(`limits.outcomes.${l.outcome}`)}</Badge>
                   </td>
-                  <td className="text-slate-500">{l.valid_until ?? t('limits.untilReview')}</td>
+                  <td className="whitespace-nowrap text-slate-500">
+                    {l.valid_until ? formatDate(l.valid_until, locale) : t('limits.untilReview')}
+                  </td>
                 </tr>
               ))}
             </tbody>

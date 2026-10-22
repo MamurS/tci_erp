@@ -6,7 +6,7 @@
   "nav": {
     "dashboard": "Dashboard",
     "buyers": "Buyers",
-    "limits": "Credit Limits",
+    "limits": "Credit limits",
     "policyholders": "Policyholders",
     "policies": "Policies",
     "declarations": "Declarations",
@@ -46,8 +46,13 @@
       "admin": {
         "name": "Administration",
         "hint": "Users, roles, authorities and contract templates"
+      },
+      "data": {
+        "name": "Data management",
+        "hint": "Company and statement requests, data freshness, proposed buyers"
       }
-    }
+    },
+    "data": "Data management"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -123,7 +128,11 @@
     "tryAgain": "Try again in a moment.",
     "somethingWentWrong": "Something went wrong.",
     "notPermitted": "You are not permitted to do this.",
-    "recordNotFound": "The record was not found — it may have been removed. Refresh the page."
+    "recordNotFound": "The record was not found — it may have been removed. Refresh the page.",
+    "noMatches": "Nothing matches",
+    "noMatchesHint": "Change the search or reset the filters.",
+    "resetFilters": "Reset filters",
+    "actions": "Actions"
   },
   "dashboard": {
     "welcome": "Welcome, {{email}}",
@@ -167,7 +176,10 @@
     "paidSub": "paid this month: {{count}}",
     "premiumOfMinimum": "{{pct}} of the minimum premium",
     "premiumEarned": "Earned premium",
-    "tasksMore": "+{{count}} more"
+    "tasksMore": "+{{count}} more",
+    "premiumUzsUnit": "UZS equiv.",
+    "premiumConverted": "All currencies converted to UZS at the latest rate on record. Booked:",
+    "premiumNoRate": "No UZS rate, not included: {{currencies}}"
   },
   "buyers": {
     "subtitle": "Register of buyers (debtors) under credit assessment",
@@ -236,11 +248,11 @@
     "balanceSheetTitle": "Balance sheet",
     "incomeStatementTitle": "Profit & loss",
     "tabs": {
-      "balance": "Balance Sheet",
+      "balance": "Balance sheet",
       "pnl": "P&L",
       "ratios": "Ratios",
-      "cashflow": "Cash Flow",
-      "risk": "Risk Analysis"
+      "cashflow": "Cash flow",
+      "risk": "Risk analysis"
     },
     "fields": {
       "period": "Period",
@@ -500,25 +512,31 @@
         "cfo_interest_coverage": "Interest coverage (cash flow)"
       }
     },
-    "exportExcel": "Excel"
+    "exportExcel": "Excel",
+    "deleteStatement": {
+      "title": "Delete the statement?",
+      "message": "The {{period}} statement (period end {{end}}) and all its figures will be deleted. This cannot be undone.",
+      "confirm": "Delete statement",
+      "failed": "The statement could not be deleted. Try again."
+    }
   },
   "rating": {
-    "needStatements": "Enter at least one financial statement to calculate a rating.",
+    "needStatements": "The rating and the recommended limit are calculated from financial statements. Enter at least one statement for this company.",
     "statement": "Statement",
     "calculate": "Calculate",
     "calculating": "Calculating…",
     "serviceUnavailable": "Analytics service unavailable. Try again later.",
     "gradeTitle": "Credit rating",
     "scaleHint": "Scale 1–100, lower is better",
-    "coverage": "Data coverage: {{pct}} of factor weight",
+    "coverage": "Data covers factors carrying {{pct}} of the total weight; the rest have none",
     "limitTitle": "Suggested credit limit",
-    "model": "Model",
+    "model": "Method",
     "models": {
-      "benchmark": "Benchmark (Basel-style)",
-      "equity_based": "Equity-based",
-      "none": "None"
+      "benchmark": "capital and trade turnover",
+      "equity_based": "share of equity",
+      "none": "no limit recommended"
     },
-    "trace": "Calculation trace",
+    "trace": "How the limit was calculated",
     "componentsTitle": "Rating component",
     "value": "Value",
     "score": "Score",
@@ -528,7 +546,7 @@
     "historyDate": "Date",
     "engine": "Engine",
     "factors": {
-      "net_profitability": "Net profitability",
+      "net_profitability": "Net margin",
       "equity_ratio": "Equity ratio",
       "debt_to_assets": "Debt to assets",
       "total_assets_dynamic": "Total assets trend",
@@ -548,7 +566,8 @@
       "negative_equity_with_loss": "Negative equity with a net loss",
       "new_company": "Short operating history",
       "litigation_pressure": "Litigation exposure",
-      "insufficient_data": "Insufficient data"
+      "insufficient_data": "Insufficient data",
+      "other": "Rating adjustment"
     },
     "bands": {
       "deep_loss": "deep loss",
@@ -612,7 +631,8 @@
       "young": "young",
       "established": "established",
       "mature": "mature",
-      "veteran": "veteran"
+      "veteran": "veteran",
+      "unchanged": "unchanged"
     },
     "scale": {
       "gradeSteps": "{{count}} grade(s)",
@@ -643,6 +663,48 @@
       "distressed": "Distressed",
       "uninsurable": "Uninsurable",
       "insolvent": "Insolvent"
+    },
+    "needStatementsTitle": "No statements to rate on",
+    "notAssessedHint": "Choose a statement above and press “Calculate”.",
+    "noStrengths": "No strengths identified",
+    "noWeaknesses": "No weaknesses identified",
+    "coverageFull": "Data is available for every factor",
+    "engineFootnote": "Scoring model version: {{versions}}",
+    "historyChartEmpty": "The chart appears after the second assessment.",
+    "notRated": "Rating not calculated",
+    "traceComponents": {
+      "risk_coefficient": "Risk coefficient of the grade",
+      "material_capital": "Tangible equity (equity − intangibles)",
+      "working_capital_component": "Capital component",
+      "trade_component": "Trade turnover component",
+      "dso_days": "Days sales outstanding",
+      "equity_usd": "Equity",
+      "limit_usd": "Limit before rounding"
+    },
+    "scoreChange": {
+      "better": "{{delta}} points better than the previous rating",
+      "worse": "{{delta}} points worse than the previous rating",
+      "same": "Same as the previous rating"
+    },
+    "limitReasons": {
+      "noRating": "No rating could be calculated, so no limit can be recommended",
+      "ratingTooWeak": "Score {{rating}} is worse than the threshold of {{threshold}}: no limit is recommended",
+      "ratingOutside": "The score is outside the bands that qualify for a limit",
+      "equityNegative": "Equity is zero or negative",
+      "equityMissing": "Equity is zero, negative or unknown",
+      "equityRatioLow": "Equity is below 1% of the balance sheet",
+      "netLoss": "The net result is a loss or unknown",
+      "intangiblesUnknown": "Intangible assets not given: taken as zero",
+      "dsoDefault": "Days sales outstanding unknown: {{days}} days assumed",
+      "belowMinimum": "The calculated limit is below the minimum ({{amount}} USD equivalent)",
+      "other": "The calculation noted a reservation — see “How the limit was calculated”"
+    },
+    "units": {
+      "days": "days",
+      "years_one": "{{value}} year",
+      "years_few": "{{value}} years",
+      "years_many": "{{value}} years",
+      "years_other": "{{value}} years"
     }
   },
   "report": {
@@ -650,7 +712,7 @@
     "generatedBy": "Generated by TCI ERP",
     "reportDate": "Report date",
     "generalInfo": "General information",
-    "calculatedLimit": "Calculated limit (engine)",
+    "calculatedLimit": "Recommended limit",
     "limitDisclaimer": "Engine calculation only; not a requested or approved limit.",
     "print": "Print / Save as PDF",
     "backToBuyer": "Back to buyer",
@@ -699,7 +761,8 @@
       "z_safe": "The Altman Z''-score places the company in the safe zone.",
       "z_grey": "The Altman Z''-score places the company in the grey zone.",
       "z_distress": "The Altman Z''-score places the company in the distress zone.",
-      "norm_breaches": "{{count}} indicator(s) breach their norms: {{rows}}."
+      "norm_breaches": "{{count}} indicator(s) breach their norms: {{rows}}.",
+      "gross_margin_flat": "Gross margin was unchanged at {{to}}%."
     },
     "approvedAggregateLimit": "Approved aggregate limit",
     "rows": {
@@ -799,80 +862,80 @@
     "commentary": {
       "subjects": {
         "grossDebt": {
-          "company": "Gross debt of the company",
-          "group": "Gross debt of the Group"
+          "company": "The company’s gross debt",
+          "group": "The Group’s gross debt"
         },
         "longTermDebt": {
-          "company": "Long-term debt of the company",
-          "group": "Long-term debt of the Group"
+          "company": "The company’s long-term debt",
+          "group": "The Group’s long-term debt"
         },
         "shortTermDebt": {
-          "company": "Short-term debt of the company",
-          "group": "Short-term debt of the Group"
+          "company": "The company’s short-term debt",
+          "group": "The Group’s short-term debt"
         },
         "debtToEquity": {
-          "company": "Debt-to-equity ratio of the company",
-          "group": "Debt-to-equity ratio of the Group"
+          "company": "The company’s debt-to-equity ratio",
+          "group": "The Group’s debt-to-equity ratio"
         },
         "equity": {
-          "company": "Equity of the company",
-          "group": "Equity of the Group"
+          "company": "The company’s equity",
+          "group": "The Group’s equity"
         },
         "equityRatio": {
-          "company": "Equity ratio of the company",
-          "group": "Equity ratio of the Group"
+          "company": "The company’s equity ratio",
+          "group": "The Group’s equity ratio"
         },
         "currentRatio": {
-          "company": "Current ratio of the company",
-          "group": "Current ratio of the Group"
+          "company": "The company’s current ratio",
+          "group": "The Group’s current ratio"
         },
         "revenue": {
-          "company": "Revenue of the company",
-          "group": "Revenue of the Group"
+          "company": "The company’s revenue",
+          "group": "The Group’s revenue"
         },
         "grossProfit": {
-          "company": "Gross financial result of the company",
-          "group": "Gross financial result of the Group"
+          "company": "The company’s gross profit",
+          "group": "The Group’s gross profit"
         },
         "grossMargin": {
-          "company": "Gross margin of the company",
-          "group": "Gross margin of the Group"
+          "company": "The company’s gross margin",
+          "group": "The Group’s gross margin"
         },
         "ebit": {
-          "company": "EBIT of the company",
-          "group": "EBIT of the Group"
+          "company": "The company’s EBIT",
+          "group": "The Group’s EBIT"
         },
         "ebitMargin": {
-          "company": "EBIT margin of the company",
-          "group": "EBIT margin of the Group"
+          "company": "The company’s EBIT margin",
+          "group": "The Group’s EBIT margin"
         },
         "interestCoverage": {
-          "company": "Interest coverage of the company",
-          "group": "Interest coverage of the Group"
+          "company": "The company’s interest cover",
+          "group": "The Group’s interest cover"
         },
         "netProfit": {
-          "company": "Net financial result of the company",
-          "group": "Net financial result of the Group"
+          "company": "The company’s net result",
+          "group": "The Group’s net result"
         },
         "netMargin": {
-          "company": "Net profitability of the company",
-          "group": "Net profitability of the Group"
+          "company": "The company’s net margin",
+          "group": "The Group’s net margin"
         },
         "ccc": {
-          "company": "Cash conversion cycle of the company",
-          "group": "Cash conversion cycle of the Group"
+          "company": "The company’s cash conversion cycle",
+          "group": "The Group’s cash conversion cycle"
         },
         "dso": {
-          "company": "Days sales outstanding of the company",
-          "group": "Days sales outstanding of the Group"
+          "company": "The company’s days sales outstanding",
+          "group": "The Group’s days sales outstanding"
         },
         "dio": {
-          "company": "Days inventory outstanding of the company",
-          "group": "Days inventory outstanding of the Group"
+          "company": "The company’s days inventory outstanding",
+          "group": "The Group’s days inventory outstanding"
         },
         "dpo": {
-          "company": "Days payable outstanding of the company",
-          "group": "Days payable outstanding of the Group"
+          "company": "The company’s days payables outstanding",
+          "group": "The Group’s days payables outstanding"
         }
       },
       "change": "{{subject}} {{move}} by <hl>{{pct}}</hl>, from {{from}} to {{to}}.",
@@ -892,8 +955,8 @@
           "strong": "decreased substantially",
           "sharp": "decreased sharply"
         },
-        "lossNarrowed": "showed a reduction in loss",
-        "lossWidened": "showed a deepening of loss"
+        "lossNarrowed": "improved (the loss narrowed)",
+        "lossWidened": "worsened (the loss deepened)"
       }
     },
     "registrationId": "Registration identifier",
@@ -1010,7 +1073,8 @@
       "revRecPay": "Revenue, accounts receivable and payable ({{currency}})",
       "turnover": "Turnover ratios (days)",
       "note": "Company figures, annual statements."
-    }
+    },
+    "unchanged": "unchanged"
   },
   "policyholders": {
     "subtitle": "Insured clients (sellers) holding TCI policies",
@@ -1038,7 +1102,7 @@
     }
   },
   "policies": {
-    "subtitle": "TCI policies (existing contracts; quotations come later)",
+    "subtitle": "Every trade credit policy: who is insured, on what terms and for which period.",
     "newPolicy": "New policy",
     "editTitle": "Edit policy {{number}}",
     "searchPlaceholder": "Search by policy number…",
@@ -1111,7 +1175,7 @@
       "nql": "Non-qualifying loss (NQL)",
       "deductibleEachLoss": "Deductible each loss",
       "aggregateFirstLoss": "Aggregate first loss",
-      "premiumRate": "Premium rate (% of turnover)",
+      "premiumRate": "Premium rate (on turnover)",
       "minimumPremium": "Minimum premium",
       "estimatedTurnover": "Estimated annual turnover",
       "discretionaryLimit": "Discretionary limit",
@@ -1120,7 +1184,12 @@
       "maxPaymentTerms": "Maximum payment terms",
       "declarationFrequency": "Declaration frequency",
       "days": "{{count}} days",
-      "daysSuffix": "days"
+      "daysSuffix": "days",
+      "liabilityBasis": {
+        "label": "Basis of the maximum liability",
+        "amount": "Amount",
+        "multiple": "× premium"
+      }
     },
     "frequencies": {
       "monthly": "Monthly",
@@ -1150,7 +1219,19 @@
       "templates": "Contract templates",
       "overview": "Overview"
     },
-    "sectionSubtitle": "The commercial underwriter's tools: the portfolio, the policy register, draft contracts and the templates they are made from."
+    "sectionSubtitle": "The commercial underwriter's tools: the portfolio, the policy register, draft contracts and the templates they are made from.",
+    "eyebrow": "Trade credit policy",
+    "actionsMenu": "Actions",
+    "commentRequired": "A comment with the reason is required.",
+    "form": {
+      "backToPolicy": "Back to the policy",
+      "fixErrors": "Fix the fields marked in red to save."
+    },
+    "limitsTable": {
+      "revokedOn": "revoked {{date}}",
+      "declinedOn": "declined {{date}}",
+      "decidedOn": "Decided on {{date}}"
+    }
   },
   "limits": {
     "subtitle": "Credit limit requests and decisions",
@@ -1159,7 +1240,7 @@
       "review": "In review",
       "escalated": "Escalated",
       "decided": "Decided",
-      "proposals": "Bayer proposals"
+      "proposals": "Buyer proposals"
     },
     "statuses": {
       "draft": "Draft",
@@ -1199,7 +1280,8 @@
       "startReview": "Start review",
       "withdraw": "Withdraw",
       "decide": "Record decision",
-      "revoke": "Revoke limit"
+      "revoke": "Revoke limit",
+      "withdrawRequest": "Withdraw request"
     },
     "fields": {
       "buyer": "Buyer",
@@ -1216,12 +1298,14 @@
       "basedOnAssessment": "Based on assessment",
       "justification": "Justification",
       "paymentTerms": "Payment terms",
-      "withdrawComment": "Withdrawal comment"
+      "withdrawComment": "Withdrawal comment",
+      "policyAndPolicyholder": "Policy / policyholder",
+      "ageDaysUnit": "Age, days"
     },
     "preflight": {
-      "within": "Within your authority for grade {{band}} ({{authority}} UZS eq.)",
-      "exceeds": "Exceeds your authority for grade {{band}} ({{authority}} UZS eq.) — the decision will be escalated",
-      "missingRate": "No UZS rate for {{currency}} — add a rate for it in fx_rates first, otherwise the decision will be escalated"
+      "within": "Within your authority in grade band “{{band}}” ({{authority}} UZS eq.)",
+      "exceeds": "Exceeds your authority in grade band “{{band}}” ({{authority}} UZS eq.) — the decision will be escalated",
+      "missingRate": "No UZS rate for {{currency}}: your authority cannot be compared without it, so the decision will be escalated"
     },
     "searchPlaceholder": "Buyer, policy № or policyholder…",
     "queueEmpty": "No requests here",
@@ -1244,7 +1328,7 @@
     "conditionPlaceholder": "Condition description…",
     "conditionsTooltip": "Conditions: {{count}}",
     "awaitingSenior": "Escalated — awaiting a senior underwriter's decision",
-    "escalatedResult": "The amount exceeds your authority for grade {{band}} — the request has been escalated",
+    "escalatedResult": "The amount exceeds your authority in grade band “{{band}}” — the request has been escalated",
     "decideFailed": "Failed to record the decision",
     "withdrawConfirm": "Withdraw this limit request? The buyer's effective limit is not affected.",
     "requestLimit": "Request limit",
@@ -1295,15 +1379,20 @@
       "readOnly": "Only commercial underwriting can adjust a limit.",
       "newAmount": "Adjusted amount",
       "action": "Record adjustment",
-      "within": "Within your commercial authority for grade {{band}} ({{authority}} UZS eq.)",
-      "exceeds": "Exceeds your commercial authority for grade {{band}} ({{authority}} UZS eq.)",
+      "within": "Within your commercial authority in grade band “{{band}}” ({{authority}} UZS eq.)",
+      "exceeds": "Exceeds your commercial authority in grade band “{{band}}” ({{authority}} UZS eq.)",
       "reductionWarning": "A reduction is an emergency risk action: it reaches the client immediately, bypassing the sales window.",
       "adjusted": "Adjustment recorded — the sales window is running.",
       "adjustedImmediate": "Adjustment recorded and released to the client immediately (reduction).",
-      "adjustFailed": "The adjustment was refused"
+      "adjustFailed": "The adjustment was refused",
+      "currentAmount": "In force now: {{amount}}",
+      "currentTerms": "Now {{terms}}; leave empty to keep",
+      "termsUnchanged": "Leave empty to keep the terms as decided",
+      "enterAmount": "Enter the adjusted amount",
+      "overAuthority": "The amount is above your commercial authority (see above)"
     },
     "proposals": {
-      "empty": "No Bayers waiting to be identified",
+      "empty": "No buyers waiting to be identified",
       "emptyHint": "When a client asks for a limit on a company we do not have, it appears here.",
       "proposedName": "Named by the client",
       "registrationNumber": "Registration number",
@@ -1312,7 +1401,7 @@
       "asked": "Asked",
       "fromClient": "from the portal",
       "resolve": "Identify",
-      "resolveTitle": "Identify the Bayer",
+      "resolveTitle": "Identify the buyer",
       "intro": "{{policyholder}} asked for a limit under policy {{policy}} on a company we do not have in the registry.",
       "searchExisting": "Search the registry",
       "maybeExisting": "Possibly the same company:",
@@ -1320,8 +1409,8 @@
       "createAndRaise": "Add and raise the limit request",
       "reject": "Reject",
       "rejectedDefault": "Rejected during identification",
-      "refused": "Could not resolve: it may already be resolved, or an open limit request already exists for this Bayer.",
-      "notAllowed": "You are not allowed to identify Bayer proposals.",
+      "refused": "Could not resolve: it may already be resolved, or an open limit request already exists for this buyer.",
+      "notAllowed": "You are not allowed to identify buyer proposals.",
       "failed": "Something went wrong. Please try again."
     },
     "systemReason": {
@@ -1343,8 +1432,11 @@
         "mineOnly": "Only what I can decide alone",
         "decision": "Decision",
         "alone": "Mine to decide",
-        "beyond": "Beyond me",
-        "noRate": "No UZS rate"
+        "beyond": "Beyond my authority",
+        "noRate": "No UZS rate",
+        "authority": "Authority",
+        "beyondHint": "Above your authority in grade band “{{band}}”: the decision will be escalated, or taken by a colleague with more authority.",
+        "noRateHint": "No UZS rate for {{currency}}: your authority cannot be compared, so a decision would be escalated."
       },
       "inforce": {
         "title": "Limits in force",
@@ -1354,7 +1446,8 @@
         "allCurrencies": "All currencies",
         "noMatch": "No limit matches the filters",
         "noMatchHint": "Clear a filter or the search to see more.",
-        "review": "Days to review"
+        "review": "Days to review",
+        "terms": "terms: {{terms}}"
       },
       "monitoring": {
         "title": "Monitoring",
@@ -1422,14 +1515,22 @@
         "none": "No authority",
         "byBand": "Credit authority by band",
         "byBandHint": "The highest of your valid credit grants for the band, in UZS at the latest rate — the figure a decision is checked against.",
-        "creditUzs": "In UZS",
+        "creditUzs": "Equivalent, UZS",
         "grants": "My grants",
+        "grantsHint": "Every grant valid today, credit and commercial, in the currency it was given in. An administrator sets them.",
         "noGrants": "You hold no authority grant",
         "noGrantsHint": "An administrator grants authority on the administration screen. Without one every decision you take is escalated.",
         "stream": "Stream"
       }
     },
-    "sectionSubtitle": "The credit underwriter's workbench: portfolio, decisions, limits in force, monitoring, ratings, groups and your own authority."
+    "sectionSubtitle": "The credit underwriter's workbench: portfolio, decisions, limits in force, monitoring, ratings, groups and your own authority.",
+    "preBindScope": "Before a policy (submission)",
+    "noReviewDate": "No review date set",
+    "ageHint": "Days since the request was submitted. Over {{days}} days it is highlighted: it has waited longer than a decision usually takes.",
+    "withdrawTitle": "Withdraw the limit request",
+    "suggestedConverted": "≈ {{converted}} ({{original}})",
+    "suggestedNoRate": "— no rate to convert it into {{currency}}",
+    "amountRequired": "Enter the approved amount"
   },
   "entities": {
     "subtitle": "Unified registry — policyholders, buyers and analysis prospects",
@@ -1459,7 +1560,7 @@
     "tabs": {
       "overview": "Overview",
       "financials": "Financials",
-      "rating": "Rating & Limit",
+      "rating": "Rating & limit",
       "limits": "Limits",
       "policies": "Policies & portfolio",
       "requests": "Submissions",
@@ -1467,9 +1568,11 @@
       "claims": "Claims",
       "group": "Group"
     },
-    "portfolioLimitsTitle": "Buyer limits under their policies",
+    "portfolioLimitsTitle": "Credit limits under this policyholder’s policies",
     "portfolioSummary": "Policyholder portfolio:",
-    "portfolioLimits": "effective limits"
+    "portfolioLimits": "effective limits",
+    "portfolioLimitsEmpty": "No credit limits under this policyholder’s policies yet",
+    "filterCount": "Companies: {{count}}"
   },
   "access": {
     "denied": "No access",
@@ -1569,7 +1672,7 @@
         "agent": "Browser",
         "current": "(this session)",
         "revoke": "Sign out everywhere",
-        "confirmRevoke": "Sign {{email}} out of every device? Their current access tokens expire within the JWT lifetime."
+        "confirmRevoke": "Sign {{email}} out of every device? Sessions already open end within an hour at most."
       },
       "events": {
         "title": "Recent events",
@@ -1743,6 +1846,17 @@
         "refused": "The submission cannot be bound: it is already bound, is not accepted, or a term is missing.",
         "unknown": "The policy could not be issued."
       }
+    },
+    "buyerPackageHint": "The buyers this submission covers and where each limit stands.",
+    "resolve": {
+      "notAllowed": "Only sales, credit underwriting, an information manager or an administrator can link buyers.",
+      "pickFirst": "Find the company in the search field, or create it, then link it.",
+      "pickerLabel": "Company for «{{name}}»"
+    },
+    "package": {
+      "hint": "One row per buyer. The limit is the effective one: the commercial adjustment when there is one, otherwise the credit decision; when the two differ, both are shown under it.",
+      "state": "Status",
+      "limit": "Limit"
     }
   },
   "account": {
@@ -1835,7 +1949,7 @@
       "state": "State"
     },
     "serviceUnavailable": "The user provisioning service is unavailable",
-    "serviceUnavailableHint": "It runs locally for now. Start it (services/analytics) to create users or reset passwords; everything else in the application works as usual.",
+    "serviceUnavailableHint": "Until it is available, an administrator creates accounts and resets passwords; everything else in the application works as usual.",
     "errors": {
       "unavailable": "The user provisioning service is unavailable.",
       "clientOnly": "Sales and commercial underwriting may only create client users.",
@@ -1862,10 +1976,10 @@
   },
   "agenda": {
     "title": "My agenda",
-    "subtitle": "Everything waiting on you, whatever it hangs off. The queues under Submissions and Credit Limits stay the departmental view.",
+    "subtitle": "Everything waiting on you, whatever it hangs off. The queues under Submissions and Credit Limits remain each department's shared view.",
     "open": "Open",
     "openCount": "Open tasks",
-    "openSelected": "Open selected ({{count}})",
+    "openSelected": "Open in new tabs",
     "openSelectedHint": "Opens each selected task's object in a new tab.",
     "selectRow": "Select task",
     "markDone": "Mark done",
@@ -1890,7 +2004,14 @@
       "insurance_request": "Insurance submission",
       "legal_entity": "Company",
       "credit_limit_request": "Limit request",
-      "credit_limit_decision": "Limit decision"
+      "credit_limit_decision": "Limit decision",
+      "policy": "Policy",
+      "declaration": "Turnover declaration",
+      "premium_instalment": "Premium instalment",
+      "overdue_notification": "Overdue notification",
+      "claim": "Claim",
+      "entity_request": "Data request",
+      "client_buyer_proposal": "Proposed buyer"
     },
     "taskTypes": {
       "buyer_needs_entity": "Identify buyer",
@@ -1903,7 +2024,27 @@
       "submission_accepted": "Accepted — issue policy",
       "submission_declined": "Declined by client",
       "limit_review_due": "Limit review due",
-      "rating_stale": "Rating out of date"
+      "rating_stale": "Rating out of date",
+      "claim_awaiting_payment": "Claim awaiting payment",
+      "claim_declined_review": "Claim declined",
+      "claim_info_requested": "Information requested",
+      "claim_limit_reinstatement": "Limit after a claim",
+      "claim_ready_to_file": "Claim can be filed",
+      "claim_submitted": "New claim",
+      "declaration_awaiting_acceptance": "Declaration to accept",
+      "declaration_due": "Declaration due",
+      "declaration_overdue": "Declaration overdue",
+      "group_exposure_near_limit": "Group near its limit",
+      "group_limit_missing": "No group limit",
+      "instalment_due": "Premium due",
+      "instalment_overdue": "Premium overdue",
+      "noa_credit_review": "Overdue: credit review",
+      "noa_matured_to_claim": "Overdue became a claim",
+      "uncovered_excess_review": "Turnover outside cover",
+      "entity_requested": "Company requested",
+      "statements_requested": "Statements requested",
+      "entity_request_resolved": "Your request is done",
+      "rating_new_statements": "New statements — rating review"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -1932,13 +2073,544 @@
       "claim_limit_reinstatement": "Limit still suspended after claim {{claim_number}}",
       "claim_declined_review": "Claim declined — tell the policyholder: {{claim_number}}",
       "group_exposure_near_limit": "Group {{group_name}} is at {{utilisation_pct}}% of its group limit",
-      "group_limit_missing": "Group {{group_name}} holds limits with no group limit set"
+      "group_limit_missing": "Group {{group_name}} holds limits with no group limit set",
+      "buyer_proposed": "A client proposed the buyer «{{name}}» — find or register the company",
+      "entity_requested": "Register «{{name}}» ({{country}}) — request {{request_number}}",
+      "statements_requested": "Bring the statements of «{{name}}» up to date — request {{request_number}}",
+      "entity_request_resolved_created": "«{{name}}» is now in the registry ({{request_number}})",
+      "entity_request_resolved_linked": "«{{name}}» was already in the registry — see the company ({{request_number}})",
+      "entity_request_resolved_updated": "The statements of «{{name}}» are up to date ({{request_number}})",
+      "entity_request_resolved_rejected": "Request {{request_number}} for «{{name}}» was declined: {{note}}",
+      "rating_new_statements": "Review the rating of {{subject}}: new financial statements since it was calculated"
     },
     "empty": {
       "title": "Nothing is waiting on you",
       "hint": "Tasks appear here on their own as work moves through the pipeline, and close themselves when it moves on.",
       "filtered": "No task matches these filters",
-      "filteredHint": "Reset the filters to see the whole agenda."
+      "filteredHint": "Reset the filters to see the whole agenda.",
+      "refreshed": "Last refreshed {{moment}}. New work appears here by itself.",
+      "allSnoozed": "Everything is snoozed",
+      "allSnoozedHint_one": "{{count}} task is snoozed and comes back by itself. The dashed «Snoozed» chip shows it.",
+      "allSnoozedHint_other": "{{count}} tasks are snoozed and come back by themselves. The dashed «Snoozed» chip shows them.",
+      "allSnoozedHint_few": "{{count}} tasks are snoozed and come back by themselves. The dashed «Snoozed» chip shows them.",
+      "allSnoozedHint_many": "{{count}} tasks are snoozed and come back by themselves. The dashed «Snoozed» chip shows them."
+    },
+    "selected": "{{count}} selected",
+    "clearSelection": "Clear selection",
+    "auto": "Created automatically",
+    "autoLegend": "⚡ created automatically",
+    "more": "More actions",
+    "openObject": "Open the object",
+    "showAll": "Show all",
+    "hide": "Hide",
+    "expand": "Show the items",
+    "collapse": "Hide the items",
+    "noCompany": "No company",
+    "summary": {
+      "overdue_one": "{{count}} overdue",
+      "overdue_other": "{{count}} overdue",
+      "noneOverdue": "Nothing overdue",
+      "atStake": "UZS {{amount}} at stake",
+      "dueToday_one": "{{count}} due today",
+      "dueToday_other": "{{count}} due today",
+      "cleared_one": "{{count}} cleared today",
+      "cleared_other": "{{count}} cleared today",
+      "overdue_few": "{{count}} overdue",
+      "overdue_many": "{{count}} overdue",
+      "dueToday_few": "{{count}} due today",
+      "dueToday_many": "{{count}} due today",
+      "cleared_few": "{{count}} cleared today",
+      "cleared_many": "{{count}} cleared today"
+    },
+    "views": {
+      "label": "View",
+      "list": "List",
+      "triage": "Triage"
+    },
+    "groupBy": {
+      "button": "Group by: {{value}}",
+      "due": "due date",
+      "company": "company",
+      "type": "type"
+    },
+    "chips": {
+      "label": "Filter tasks",
+      "mine": "Assigned to me",
+      "snoozed": "Snoozed"
+    },
+    "families": {
+      "premium": "Premium",
+      "limits": "Credit limits",
+      "claims": "Claims",
+      "declarations": "Declarations",
+      "groups": "Groups",
+      "submissions": "Submissions",
+      "data": "Data"
+    },
+    "buckets": {
+      "overdue": "Overdue",
+      "today": "Today",
+      "week": "This week",
+      "later": "Later"
+    },
+    "groupMeta": {
+      "items_one": "{{count}} item",
+      "items_other": "{{count}} items",
+      "tasks_one": "{{count}} task",
+      "tasks_other": "{{count}} tasks",
+      "noRate_one": "{{count}} amount without a UZS rate not included",
+      "noRate_other": "{{count}} amounts without a UZS rate not included",
+      "items_few": "{{count}} items",
+      "items_many": "{{count}} items",
+      "tasks_few": "{{count}} tasks",
+      "tasks_many": "{{count}} tasks",
+      "noRate_few": "{{count}} amounts without a UZS rate not included",
+      "noRate_many": "{{count}} amounts without a UZS rate not included"
+    },
+    "tags": {
+      "premium": "Premium",
+      "limit": "Limit",
+      "escalated": "Escalated",
+      "groupLimit": "Group limit",
+      "rating": "Rating",
+      "claim": "Claim",
+      "declaration": "Declaration",
+      "group": "Group",
+      "submission": "Submission",
+      "data": "Data"
+    },
+    "due": {
+      "days_one": "{{count}} day",
+      "days_other": "{{count}} days",
+      "daysShort_one": "{{count}} d",
+      "daysShort_other": "{{count}} d",
+      "today": "today",
+      "inDays_one": "in {{count}} day",
+      "inDays_other": "in {{count}} days",
+      "days_few": "{{count}} days",
+      "days_many": "{{count}} days",
+      "daysShort_few": "{{count}} d",
+      "daysShort_many": "{{count}} d",
+      "inDays_few": "in {{count}} days",
+      "inDays_many": "in {{count}} days"
+    },
+    "owner": {
+      "person": "A colleague",
+      "department": "For the department: {{role}}"
+    },
+    "actions": {
+      "decide": "Decide",
+      "rate": "Rate",
+      "review": "Review",
+      "openClaim": "Open claim",
+      "assess": "Assess",
+      "confirm": "Confirm",
+      "issuePolicy": "Issue policy",
+      "resolve": "Resolve",
+      "chasePremium": "Open premium",
+      "open": "Open"
+    },
+    "goto": {
+      "decide": "Go to decision",
+      "rate": "Go to rating review",
+      "review": "Go to review",
+      "openClaim": "Go to open the claim",
+      "assess": "Go to assessment",
+      "confirm": "Go to confirmation",
+      "issuePolicy": "Go to issue the policy",
+      "resolve": "Go to the request",
+      "chasePremium": "Go to premium",
+      "open": "Go to the record"
+    },
+    "row": {
+      "buyer_needs_entity": "Identify the buyer «{{name}}»",
+      "buyer_proposed": "Buyer proposed by a client: «{{name}}»",
+      "buyer_needs_rating": "Buyer needs a rating",
+      "limit_needs_decision": "Credit limit to decide",
+      "limit_escalated": "Limit above the deciding underwriter’s authority",
+      "limit_escalated_group": "Limit above the group limit",
+      "submission_commercial_review": "Set the commercial terms",
+      "submission_sales_confirmation": "Confirm before the limits reach the client",
+      "limit_held": "Your decision is on hold",
+      "submission_accepted": "Accepted — issue the policy",
+      "submission_declined": "Declined by the client",
+      "limit_review_due": "Limit expires {{date}} — review it",
+      "rating_stale": "Rating over a year old",
+      "rating_new_statements": "Rating review — new financial statements",
+      "declaration_due": "Declaration due for {{period}}",
+      "declaration_overdue": "Declaration for {{period}} not received",
+      "declaration_awaiting_acceptance": "Declaration awaiting acceptance",
+      "instalment_due": "Premium instalment {{sequence}} due",
+      "instalment_overdue": "Premium instalment {{sequence}} overdue",
+      "noa_credit_review": "Overdue account — credit review",
+      "uncovered_excess_review": "Turnover declared outside cover",
+      "noa_matured_to_claim": "Claim can be filed",
+      "claim_ready_to_file": "Claim can be filed",
+      "claim_submitted": "New claim to assess",
+      "claim_info_requested": "Information requested on a claim",
+      "claim_awaiting_payment": "Approved claim awaiting payment",
+      "claim_limit_reinstatement": "Limit still suspended after a claim",
+      "claim_declined_review": "Claim declined — tell the policyholder",
+      "group_exposure_near_limit": "Group exposure at {{pct}}% of its limit",
+      "group_limit_missing": "Group without a group limit",
+      "entity_requested": "Register a company",
+      "statements_requested": "Bring statements up to date",
+      "entity_request_resolved": "Your data request is resolved",
+      "collapsed": {
+        "instalment_due_one": "{{count}} premium instalment due",
+        "instalment_due_other": "{{count}} premium instalments due",
+        "instalment_overdue_one": "{{count}} premium instalment overdue",
+        "instalment_overdue_other": "{{count}} premium instalments overdue",
+        "instalment_due_few": "{{count}} premium instalments due",
+        "instalment_due_many": "{{count}} premium instalments due",
+        "instalment_overdue_few": "{{count}} premium instalments overdue",
+        "instalment_overdue_many": "{{count}} premium instalments overdue"
+      }
+    },
+    "facts": {
+      "policies_one": "{{count}} policy",
+      "policies_other": "{{count}} policies",
+      "oldest": "oldest {{date}}",
+      "due": "due {{date}}",
+      "waitingOver": "waiting period over {{date}}",
+      "unpaid": "{{amount}} unpaid",
+      "requested": "{{amount}} requested",
+      "vsAuthority": "vs authority {{amount}} UZS",
+      "exposureOf": "{{exposure}} of {{limit}} UZS",
+      "membersWithLimits_one": "{{count}} member with limits",
+      "membersWithLimits_other": "{{count}} members with limits",
+      "policies_few": "{{count}} policies",
+      "policies_many": "{{count}} policies",
+      "membersWithLimits_few": "{{count}} members with limits",
+      "membersWithLimits_many": "{{count}} members with limits"
+    },
+    "sub": {
+      "instalment": "Instalment {{sequence}}"
+    },
+    "snooze": {
+      "action": "Snooze",
+      "oneDay": "For 1 day",
+      "threeDays": "For 3 days",
+      "nextMonday": "Until next Monday",
+      "pickDate": "Pick a date…",
+      "pickTitle": "Snooze until",
+      "until": "Comes back on",
+      "pickHint": "The task returns at the start of that day, Tashkent time.",
+      "undo": "Bring back now",
+      "untilOnly": "snoozed until {{moment}}",
+      "untilBy": "snoozed until {{moment}} by {{name}}"
+    },
+    "comments": {
+      "add": "Comment",
+      "title_one": "Comments · {{count}}",
+      "title_other": "Comments · {{count}}",
+      "count_one": "{{count}} comment",
+      "count_other": "{{count}} comments",
+      "placeholder": "Add a comment for whoever works this task…",
+      "hint": "Ctrl/⌘ Enter sends. Comments cannot be edited or deleted.",
+      "send": "Send",
+      "none": "No comments yet.",
+      "system": "System",
+      "systemNote": "System note",
+      "viaPortal": "policyholder, via portal",
+      "requester": "requested it",
+      "authors": {
+        "policyholder": "Policyholder",
+        "requester": "Requester",
+        "sales": "Sales",
+        "claims": "Claims",
+        "informationManager": "Information manager"
+      },
+      "title_few": "Comments · {{count}}",
+      "title_many": "Comments · {{count}}",
+      "count_few": "{{count}} comments",
+      "count_many": "{{count}} comments"
+    },
+    "note": {
+      "someone": "a colleague",
+      "periodAnnual": "FY{{year}}",
+      "periodQuarter": "Q{{quarter}} {{year}}",
+      "rating_new_statements_one": "{{period}} statements were added by {{user}} on {{date}}. The current assessment {{grade}} · {{score}} rests on statements to {{ratedPeriod}} and is now a period behind; {{count}} effective limit depends on it.",
+      "rating_new_statements_other": "{{period}} statements were added by {{user}} on {{date}}. The current assessment {{grade}} · {{score}} rests on statements to {{ratedPeriod}} and is now a period behind; {{count}} effective limits depend on it.",
+      "rating_stale": "The buyer carries an effective limit on an assessment more than twelve months old.",
+      "buyer_needs_rating": "The buyer is on a submission and carries no current assessment.",
+      "limit_review_due": "The limit of {{amount}} expires on {{date}}.",
+      "instalment": "Instalment {{sequence}} of {{amount}} was due on {{date}} and is unpaid.",
+      "declaration_due": "The turnover declaration for {{periodRange}} has not been received.",
+      "noa_matured": "The waiting period ended on {{date}}; {{amount}} is unpaid.",
+      "group_exposure_near_limit": "Group exposure is {{exposure}} UZS of a {{limit}} UZS group limit ({{pct}}%).",
+      "group_limit_missing_one": "{{count}} member carries limits ({{exposure}} UZS in all) and no group limit is set.",
+      "group_limit_missing_other": "{{count}} members carry limits ({{exposure}} UZS in all) and no group limit is set.",
+      "limit_escalated": "Escalated automatically: {{amount}} is above the band {{band}} authority of the deciding underwriter ({{authority}} UZS) — {{user}}.",
+      "limit_escalated_noAuthority": "Escalated automatically: {{amount}} ({{amountUzs}} UZS) is above the band {{band}} authority of the deciding underwriter.",
+      "limit_escalated_group": "Escalated automatically: the group’s exposure would reach {{exposure}} UZS against a group limit of {{cap}} UZS.",
+      "rating_new_statements_few": "{{period}} statements were added by {{user}} on {{date}}. The current assessment {{grade}} · {{score}} rests on statements to {{ratedPeriod}} and is now a period behind; {{count}} effective limits depend on it.",
+      "rating_new_statements_many": "{{period}} statements were added by {{user}} on {{date}}. The current assessment {{grade}} · {{score}} rests on statements to {{ratedPeriod}} and is now a period behind; {{count}} effective limits depend on it.",
+      "group_limit_missing_few": "{{count}} members carry limits ({{exposure}} UZS in all) and no group limit is set.",
+      "group_limit_missing_many": "{{count}} members carry limits ({{exposure}} UZS in all) and no group limit is set.",
+      "instalment_due": "Instalment {{sequence}} of {{amount}} is due on {{date}}.",
+      "rating_new_statements_zero": "{{period}} statements were added by {{user}} on {{date}}. The current assessment {{grade}} · {{score}} rests on statements to {{ratedPeriod}} and is now a period behind; no effective limit depends on it yet."
+    },
+    "dest": {
+      "opens": "Opens",
+      "request": "the request",
+      "company": "the company",
+      "submission": "the submission",
+      "policy": "the policy",
+      "declaration": "the declaration",
+      "notice": "the overdue notice",
+      "claim": "the claim",
+      "dataRequest": "the request",
+      "place": {
+        "decision": "Decision",
+        "commercial": "Commercial stage",
+        "rating": "Rating & limit",
+        "group": "Group",
+        "limits": "Limits",
+        "premium": "Premium",
+        "salesWindow": "Sales confirmation",
+        "buyers": "Buyers",
+        "openClaim": "Open a claim",
+        "proposals": "Proposed buyers"
+      },
+      "with": {
+        "task": "with this task’s context",
+        "statement": "with {{period}} preselected",
+        "instalments_one": "showing {{count}} instalment",
+        "instalments_other": "showing {{count}} instalments",
+        "notice": "with the claim form prefilled from the notice",
+        "instalments_few": "showing {{count}} instalments",
+        "instalments_many": "showing {{count}} instalments"
+      }
+    },
+    "triage": {
+      "position": "Item {{index}} of {{total}}",
+      "nothingSelected": "Pick a task on the left.",
+      "handled": "handled {{time}}",
+      "handledLabel": "Handled",
+      "overdueBy_one": "overdue by {{count}} day",
+      "overdueBy_other": "overdue by {{count}} days",
+      "dueToday": "due today",
+      "dueIn_one": "due in {{count}} day",
+      "dueIn_other": "due in {{count}} days",
+      "createdAuto": "created automatically {{moment}}",
+      "raisedBy": "raised by {{name}} {{moment}}",
+      "created": "created {{moment}}",
+      "assignedTo": "assigned to {{owner}}",
+      "facts": "What the task says",
+      "overdueBy_few": "overdue by {{count}} days",
+      "overdueBy_many": "overdue by {{count}} days",
+      "dueIn_few": "due in {{count}} days",
+      "dueIn_many": "due in {{count}} days",
+      "missingRates_one": "{{count}} without a UZS rate, not included",
+      "missingRates_few": "{{count}} without a UZS rate, not included",
+      "missingRates_many": "{{count}} without a UZS rate, not included",
+      "missingRates_other": "{{count}} without a UZS rate, not included",
+      "buyer": {
+        "title": "Buyer",
+        "assessed": "assessed {{date}}",
+        "other_one": "Other limits in force: {{count}} · {{amount}} UZS",
+        "other_few": "Other limits in force: {{count}} · {{amount}} UZS",
+        "other_many": "Other limits in force: {{count}} · {{amount}} UZS",
+        "other_other": "Other limits in force: {{count}} · {{amount}} UZS",
+        "otherNone": "No other limits in force",
+        "group": "Group: {{body}}",
+        "noGroup": "Group: no relationships recorded",
+        "factors": "Strengths and weaknesses",
+        "noFactors": "The latest rating has no factor breakdown."
+      },
+      "noa": {
+        "title_one": "This buyer has an open overdue notification",
+        "title_few": "This buyer has {{count}} open overdue notifications",
+        "title_many": "This buyer has {{count}} open overdue notifications",
+        "title_other": "This buyer has {{count}} open overdue notifications",
+        "line": "{{amount}} unpaid since {{date}}, policy {{policy}}",
+        "thisPolicy": "under this policy",
+        "otherPolicy": "under another policy",
+        "suspended": "the limit there is suspended"
+      },
+      "limit": {
+        "requested": "Requested",
+        "terms_one": "{{count}}-day terms",
+        "terms_few": "{{count}}-day terms",
+        "terms_many": "{{count}}-day terms",
+        "terms_other": "{{count}}-day terms",
+        "yourAuthority": "Your authority · band {{band}}",
+        "yourAuthorityPlain": "Your authority",
+        "unlimited": "Unlimited",
+        "adminNote": "administrator — no band limit",
+        "noRate": "no UZS rate for {{currency}} — cannot be compared",
+        "withinAuthority": "UZS · the request is within it",
+        "shortBy": "UZS · short by {{amount}}",
+        "groupAfter": "UZS · group exposure after the decision {{amount}}",
+        "heldDecision": "Your decision, on hold",
+        "engine": "Calculated limit (engine)",
+        "noAssessment": "no assessment yet",
+        "engineNoRate": "{{from}} · no rate to convert it into {{to}}",
+        "engineOriginal": "calculated as {{amount}}",
+        "requestWithin": "request within the calculation",
+        "requestAbove": "request above the calculation",
+        "limitWithin": "limit within the calculation",
+        "limitAbove": "limit above the calculation",
+        "inForce": "Limit in force",
+        "exposure": "Buyer’s limits in force"
+      },
+      "rating": {
+        "current": "Current assessment",
+        "onPeriod": "on {{period}}",
+        "ratedOn": "rated {{date}}",
+        "newStatements": "New statements",
+        "latestStatements": "Latest statements",
+        "noNewer": "nothing newer than the rated period",
+        "noStatements": "no statements on file — the information manager enters them first",
+        "added": "added {{date}}",
+        "depending": "Limits depending on it",
+        "dependsSub_one": "on {{count}} policy",
+        "dependsSub_few": "on {{count}} policies",
+        "dependsSub_many": "on {{count}} policies",
+        "dependsSub_other": "on {{count}} policies",
+        "noLimits": "no limits in force",
+        "moved": "What moved, {{from}} → {{to}}",
+        "notComparable": {
+          "kind": "The new statement covers a different kind of period (a quarter against a year), so the figures are not compared.",
+          "reportType": "The new statement is of another report type (statutory against management), so the figures are not compared.",
+          "currency": "The new statement is in another currency, so the figures are not compared."
+        },
+        "nothingMoved": "No material change in the key figures.",
+        "notHere": "The rating itself is recalculated on the rating page, not here."
+      },
+      "premium": {
+        "title": "Instalments",
+        "policy": "Policy",
+        "policyholder": "Policyholder",
+        "instalment": "No.",
+        "due": "Due date",
+        "amount": "Amount",
+        "late": "Late",
+        "dueIn": "Due",
+        "total": "Total:"
+      },
+      "notice": {
+        "title": "About the notification",
+        "limit": "Buyer’s limit",
+        "suspended": "Suspended",
+        "notSuspended": "Not suspended",
+        "waitingEnds": "Waiting period ends",
+        "waitingOver": "over — a claim can be filed",
+        "waitingRuns": "still running",
+        "pastDue_one": "{{count}} day past due",
+        "pastDue_few": "{{count}} days past due",
+        "pastDue_many": "{{count}} days past due",
+        "pastDue_other": "{{count}} days past due",
+        "claim": "Claim",
+        "noClaim": "Not filed yet"
+      },
+      "claim": {
+        "title": "About the claim",
+        "paid": "Paid",
+        "outstanding": "{{amount}} still to pay"
+      },
+      "declaration": {
+        "title": "About the declaration",
+        "notReceived": "Not received yet",
+        "lines": "Buyers declared"
+      },
+      "group": {
+        "limits_one": "{{count}} limit",
+        "limits_few": "{{count}} limits",
+        "limits_many": "{{count}} limits",
+        "limits_other": "{{count}} limits",
+        "noLimit": "no group limit set",
+        "setIn": "set as {{amount}}",
+        "over": "over the group limit",
+        "title": "About the group",
+        "parent": "Ultimate parent",
+        "members": "Companies in the group",
+        "membersWithLimits": "With limits in force",
+        "policyholders": "Policyholders exposed",
+        "missingTitle_one": "{{count}} limit without a UZS rate is not included",
+        "missingTitle_few": "{{count}} limits without a UZS rate are not included",
+        "missingTitle_many": "{{count}} limits without a UZS rate are not included",
+        "missingTitle_other": "{{count}} limits without a UZS rate are not included",
+        "missingExplain": "The exposure above is incomplete until the missing exchange rate is added."
+      },
+      "submission": {
+        "title": "About the submission",
+        "proposal": "Proposed buyer",
+        "proposedName": "Name as proposed",
+        "registration": "Registration number",
+        "number": "Submission",
+        "applicant": "Applicant",
+        "status": "Stage",
+        "buyers": "Buyers in the package",
+        "toResolve": "Buyer to identify",
+        "terms": "Proposed terms",
+        "noTerms": "No terms proposed yet."
+      },
+      "data": {
+        "title": "About the request",
+        "number": "Request",
+        "kind": "What is asked",
+        "company": "Company",
+        "openCompany": "Open the company",
+        "country": "Country",
+        "registration": "Registration number",
+        "requestedBy": "Requested by",
+        "holder": "Held by",
+        "nobody": "Nobody yet",
+        "state": "State"
+      },
+      "policy": "Policy",
+      "policyholder": "Policyholder"
+    },
+    "history": {
+      "title": "History",
+      "events": {
+        "other": "Recorded",
+        "request_created": "Submission created",
+        "request_status_changed": "Status: {{from}} → {{to}}",
+        "request_assigned": "Assigned",
+        "request_buyer_added": "Buyer added",
+        "request_buyer_resolved": "Buyer matched to a company",
+        "request_bound": "Bound into a policy",
+        "limit_request_submitted": "Limit request submitted",
+        "limit_request_escalated": "Escalated — above the deciding underwriter’s authority",
+        "limit_group_limit_breached": "Escalated — above the group limit",
+        "limit_credit_decided": "Credit decision taken",
+        "limit_commercial_adjusted": "Adjusted at the commercial stage",
+        "limit_held": "Put on hold by sales",
+        "limit_released": "Released to the client",
+        "rating_created": "Rating calculated",
+        "declaration_submitted": "Declaration submitted",
+        "declaration_accepted": "Declaration accepted",
+        "declaration_disputed": "Declaration disputed",
+        "declaration_corrected": "Declaration corrected",
+        "noa_filed": "Overdue account notified",
+        "noa_resolved": "Overdue notice resolved",
+        "claim_created": "Claim opened",
+        "claim_status_changed": "Claim status changed",
+        "claim_approved": "Claim approved",
+        "data_entity_requested": "Company requested",
+        "data_entity_request_assigned": "Request assigned",
+        "data_entity_request_resolved": "Request resolved"
+      }
+    },
+    "keys": {
+      "move": "move",
+      "go": "go to the task screen",
+      "object": "open the object",
+      "comment": "comment",
+      "done": "done",
+      "snooze": "snooze",
+      "triage": "triage view",
+      "list": "list view"
+    },
+    "errors": {
+      "snoozeInPast": "That moment has already passed — pick a later one.",
+      "snoozeTooFar": "A task can be snoozed for at most a year.",
+      "commentEmpty": "Write something before sending.",
+      "commentTooLong": "A comment can be at most 2,000 characters.",
+      "notYours": "This task is no longer yours, or it has closed."
     }
   },
   "portal": {
@@ -1964,7 +2636,28 @@
       "subtitle": "The cover you hold, and the terms it is written on.",
       "empty": "You have no policies yet",
       "emptyHint": "Once a submission is accepted and the policy is issued, it appears here.",
-      "premiumMultiple": "{{value}} × premium"
+      "premiumMultiple": "{{value}} × premium",
+      "terms": "Policy terms",
+      "period": "Policy period",
+      "next": {
+        "title": "What you can do",
+        "limits": {
+          "title": "Request a credit limit",
+          "hint": "For a new buyer, or for a higher amount."
+        },
+        "declarations": {
+          "title": "Declare your turnover",
+          "hint": "Insurable sales for the period just closed."
+        },
+        "overdues": {
+          "title": "Report an overdue account",
+          "hint": "When a buyer pays later than the maximum extension allows."
+        },
+        "claims": {
+          "title": "File a claim",
+          "hint": "Once the waiting period on an overdue account has run out."
+        }
+      }
     },
     "limits": {
       "title": "My credit limits",
@@ -1974,22 +2667,22 @@
       "request": "Request a limit",
       "requestTitle": "Request a credit limit",
       "needsActivePolicy": "A credit limit can only be requested under an active policy.",
-      "buyer": "Bayer",
+      "buyer": "Buyer",
       "buyerName": "Company name",
       "buyerNamePlaceholder": "Full legal name",
       "policy": "Policy",
       "approved": "Approved",
-      "requested": "Requested",
+      "requested": "Amount requested",
       "validity": "Valid",
       "paymentTerms": "Payment terms",
       "paymentTermsDays": "Payment terms, days",
       "conditions": "Conditions",
       "status": "Status",
-      "asked": "Asked",
+      "asked": "Requested on",
       "history": "History",
       "historyFor": "Limit history — {{buyer}}",
       "historyNote": "Only decisions that reached you are listed.",
-      "noHistory": "No earlier decisions for this Bayer.",
+      "noHistory": "No earlier decisions for this buyer.",
       "current": "Current",
       "superseded": "Superseded",
       "partialOf": "of {{requested}} requested",
@@ -2010,6 +2703,7 @@
       "backToSearch": "Back to search",
       "proposalNote": "We do not have this company yet. Your request goes to our team to identify it first, then to underwriting.",
       "registrationNumber": "Registration number",
+      "amount": "Amount",
       "amountIn": "Amount, {{currency}}",
       "amountInvalid": "Enter an amount greater than zero",
       "maxTerms": "Your policy allows up to {{days}} days",
@@ -2018,9 +2712,12 @@
       "send": "Send request",
       "sentRequest": "Sent. Underwriting will come back to you with a decision.",
       "sentProposal": "Sent. We will identify the company first, then underwrite the limit.",
-      "requestRefused": "We cannot accept this request: check the policy is active and that you have no open request for this Bayer.",
+      "requestRefused": "We cannot accept this request: check the policy is active and that you have no open request for this buyer.",
       "requestNotAllowed": "This account cannot raise limit requests.",
-      "requestFailed": "The request could not be sent. Please try again."
+      "requestFailed": "The request could not be sent. Please try again.",
+      "decided": "Decided on",
+      "limitsTitle": "Limits by buyer",
+      "revokedHint": "The limit was withdrawn by the insurer: new shipments to this buyer are not insured."
     },
     "submissions": {
       "title": "My submissions",
@@ -2029,8 +2726,8 @@
       "emptyHint": "When we prepare an offer for you, it appears here.",
       "terms": "Proposed terms",
       "termsNotYet": "The terms are still being prepared. They appear here as soon as the offer is ready for you.",
-      "buyers": "Bayers in the package",
-      "noBuyers": "No Bayers listed yet.",
+      "buyers": "Buyers in the package",
+      "noBuyers": "No buyers listed yet.",
       "progress": "Progress",
       "noHistory": "Nothing has happened yet.",
       "awaitingYou": "This offer is with you.",
@@ -2049,7 +2746,7 @@
       "statuses": {
         "draft": "Being prepared",
         "submitted": "Received",
-        "entity_resolution": "Checking your Bayers",
+        "entity_resolution": "Checking your buyers",
         "underwriting": "Underwriting",
         "commercial_review": "Pricing",
         "sales_confirmation": "Final check",
@@ -2077,9 +2774,9 @@
       "subtitle": "Declare your insurable turnover for each period.",
       "empty": "No declarations yet",
       "emptyHint": "Declare the period that has just closed.",
-      "lines": "Turnover by Bayer",
+      "lines": "Turnover by buyer",
       "noLines": "Nothing declared yet",
-      "pickBuyer": "Choose a Bayer",
+      "pickBuyer": "Choose a buyer",
       "premium": "Premium",
       "disputed": "We have a question about this declaration:",
       "uncoveredWarning": "{{amount}} of this turnover is above your discretionary limit of {{limit}} and is NOT insured.",
@@ -2090,7 +2787,7 @@
     },
     "overdues": {
       "title": "Overdue accounts",
-      "subtitle": "Tell us when a Bayer stops paying.",
+      "subtitle": "Tell us when a buyer stops paying.",
       "fileTitle": "Report an overdue account",
       "fileHint": "Report from the due date of the oldest unpaid invoice.",
       "empty": "Nothing reported",
@@ -2100,10 +2797,13 @@
       "noLimitAffected": "No approved limit",
       "lateWarning": "This is later than the deadline of {{date}}. A late notification can prejudice your cover.",
       "deadlineHint": "You have until {{date}} to notify this account.",
-      "suspensionWarning": "Reporting an overdue account suspends that Bayer’s credit limit at once. New shipments to them will not be covered until a credit underwriter reinstates it.",
+      "suspensionWarning": "Reporting an overdue account suspends that buyer’s credit limit at once. New shipments to them will not be covered until a credit underwriter reinstates it.",
       "actions": {
         "file": "Report"
-      }
+      },
+      "listTitle": "Reported overdue accounts",
+      "fillToFile": "Choose the buyer and enter the due date and the amount",
+      "suspensionTitle": "This buyer’s credit limit will be suspended"
     },
     "premium": {
       "title": "Premium",
@@ -2129,7 +2829,7 @@
       "recoveryHint": "Money collected from the buyer after the claim was paid is shared between you and the insurer in the ratio of the loss each of you bore.",
       "declinedNote": "A refusal can be discussed with your account manager.",
       "file": {
-        "title": "File a claim against {{buyer}}",
+        "title": "File a claim",
         "hint": "This opens a draft. Add the unpaid invoices and the required documents, then file it."
       },
       "respond": {
@@ -2164,7 +2864,9 @@
         "covered": "Covered",
         "verdict": "Coverage",
         "message": "Message"
-      }
+      },
+      "listTitle": "My claims",
+      "withdrawConfirm": "The draft claim {{number}} will be withdrawn. This cannot be undone."
     }
   },
   "declarations": {
@@ -2173,14 +2875,14 @@
     "empty": "No declarations yet",
     "emptyHint": "They appear here once a policyholder declares a period.",
     "notFound": "Declaration not found",
-    "lines": "Declared turnover by Bayer",
+    "lines": "Declared turnover by buyer",
     "noLines": "No lines",
     "noLinesHint": "A declaration cannot be submitted until it has at least one line.",
     "correctionOf": "This declaration corrects an earlier one for the same period.",
     "disputed": "Disputed",
     "disputeNotePlaceholder": "What the policyholder needs to fix",
     "premiumBaseHint": "Premium is earned on this figure.",
-    "uncoveredHint": "Turnover above the discretionary limit for Bayers without an approved limit. This part is not insured.",
+    "uncoveredHint": "Turnover above the discretionary limit for buyers without an approved limit. This part is not insured.",
     "splitFrozen": "The coverage split was frozen when this declaration was accepted; a later change to a limit does not move it.",
     "statuses": {
       "draft": "Draft",
@@ -2225,7 +2927,11 @@
       "policyNotActive": "Declarations are made only under an active policy.",
       "periodTaken": "A declaration for this period already exists.",
       "negativeTurnover": "Turnover cannot be negative."
-    }
+    },
+    "eyebrow": "Turnover declaration",
+    "disputeHint": "The declaration goes back to the policyholder with this note; they correct it and submit it again. It earns no premium until it is accepted.",
+    "disputeNoteRequired": "Say what needs correcting.",
+    "periodNotDeclared": "The declaration for {{period}} has not been submitted yet"
   },
   "premium": {
     "none": "No premium information for this policy",
@@ -2270,11 +2976,18 @@
     },
     "errors": {
       "scheduleLocked": "The schedule cannot be regenerated: some instalments are already invoiced or paid."
-    }
+    },
+    "overdue": "Overdue",
+    "paidSoFar": "{{amount}} paid so far",
+    "linkedInstalments_one": "Showing {{count}} instalment from the agenda",
+    "linkedInstalments_few": "Showing {{count}} instalments from the agenda",
+    "linkedInstalments_many": "Showing {{count}} instalments from the agenda",
+    "linkedInstalments_other": "Showing {{count}} instalments from the agenda",
+    "showAllInstalments": "Show all"
   },
   "overdues": {
     "title": "Overdue accounts",
-    "subtitle": "Bayers reported overdue by policyholders. Not claims.",
+    "subtitle": "Buyers reported overdue by policyholders. Not claims.",
     "empty": "No overdue accounts",
     "emptyHint": "Notifications appear here as policyholders report them.",
     "notFound": "Notification not found",
@@ -2282,9 +2995,9 @@
     "lateBy": "Late by {{days}} d",
     "lateTitle": "Reported {{days}} days late",
     "lateExplain": "This account should have been notified by {{date}}. A late notification can prejudice cover.",
-    "suspendedTitle": "Cover suspended for this Bayer",
+    "suspendedTitle": "Cover suspended for this buyer",
     "suspendedExplain": "Filing this notification revoked the approved limit immediately, so new shipments are not covered. A credit underwriter can reinstate it with a new decision.",
-    "openBuyer": "Open the Bayer",
+    "openBuyer": "Open the buyer",
     "windowHint": "Maximum extension {{extension}} d + notification window {{window}} d",
     "resolveHint": "Resolving does not reinstate the limit — that is a fresh credit decision.",
     "statuses": {
@@ -2294,7 +3007,7 @@
       "withdrawn": "Withdrawn"
     },
     "actions": {
-      "resolve": "Resolve"
+      "resolve": "Close the notification"
     },
     "fields": {
       "status": "Status",
@@ -2305,7 +3018,8 @@
       "notifyBy": "Notify by",
       "reportedAt": "Reported at",
       "resolution": "Outcome",
-      "resolutionNote": "Note"
+      "resolutionNote": "Note",
+      "pastDueColumn": "Past due"
     },
     "errors": {
       "amountPositive": "The overdue amount must be positive.",
@@ -2313,6 +3027,13 @@
       "dueInFuture": "The due date of the oldest invoice must be in the past.",
       "alreadyOpen": "This buyer already has an open overdue notification on this policy.",
       "alreadyResolved": "This notification has already been closed."
+    },
+    "eyebrow": "Overdue notification",
+    "resolveTitle": "Close the notification",
+    "pastDueHint": "Days since the due date of the oldest unpaid invoice.",
+    "openClaim": {
+      "hint": "This opens a draft claim for the policyholder, linked to this notification. Add the unpaid invoices and the required documents on the claim, then file it.",
+      "referenceHint": "Optional: the number the court or the administrator gave the insolvency case."
     }
   },
   "claims": {
@@ -2386,7 +3107,8 @@
       "override": "Change the verdict",
       "clearOverride": "Restore the system verdict",
       "recordPayment": "Record a payment",
-      "recordRecovery": "Record a recovery"
+      "recordRecovery": "Record a recovery",
+      "more": "Actions"
     },
     "causes": {
       "protracted_default": "Protracted default",
@@ -2439,7 +3161,7 @@
       "covered": "Covered",
       "uncovered": "Not covered",
       "indemnity": "Indemnity",
-      "age": "Days in assessment",
+      "age": "Days open",
       "status": "Status",
       "cause": "Cause of loss",
       "comment": "Comment",
@@ -2476,7 +3198,11 @@
       "net": "Net",
       "insurerShare": "Insurer's share",
       "policyholderShare": "Policyholder's share",
-      "note": "Note"
+      "note": "Note",
+      "maxPaymentTermsShort": "Maximum credit period",
+      "waitingPeriodShort": "Waiting period",
+      "ageColumn": "Open for",
+      "insolvencyReference": "Case reference"
     },
     "detail": {
       "basis": "Cover basis",
@@ -2491,7 +3217,9 @@
     },
     "invoices": {
       "emptyTitle": "No invoices on this claim",
-      "emptyHint": "Add the unpaid invoices the claim is made of; coverage is judged on each one."
+      "emptyHint": "Add the unpaid invoices the claim is made of; coverage is judged on each one.",
+      "hint": "Click an invoice to see the numbers its verdict stands on.",
+      "requiredHint": "Fill in the invoice number, all three dates and the amount."
     },
     "override": {
       "title": "Change the verdict on {{invoice}}",
@@ -2507,7 +3235,17 @@
       },
       "uploadHint": "PDF, images, Office files or plain text, up to 20 MB each.",
       "emptyTitle": "No documents yet",
-      "emptyHint": "The claim cannot be filed until every required type is attached."
+      "emptyHint": "The claim cannot be filed until every required type is attached.",
+      "filesTitle": "Files",
+      "upload": "Upload",
+      "missing": "missing",
+      "filesCount_one": "{{count}} file",
+      "filesCount_other": "{{count}} files",
+      "remove": "Remove {{name}}",
+      "filesHint": "Everything attached to this claim; click a file to open it.",
+      "removeTitle": "Remove the document",
+      "removeConfirm": "«{{name}}» will be removed from the claim. This cannot be undone.",
+      "removeAction": "Remove"
     },
     "indemnity": {
       "title": "How the indemnity is derived",
@@ -2541,7 +3279,8 @@
       "nqlMet": "At or above {{threshold}} — the full amount proceeds",
       "nqlNotMet": "Below {{threshold}} — nothing is payable",
       "nqlShortfall": "short by {{amount}}",
-      "belowNql": "The confirmed covered loss of {{covered}} is below the non-qualifying loss threshold of {{threshold}}, so this claim is not indemnifiable. The non-qualifying loss is a minimum size, not a deduction: nothing is payable at all."
+      "belowNql": "The confirmed covered loss of {{covered}} is below the non-qualifying loss threshold of {{threshold}}, so this claim is not indemnifiable. The non-qualifying loss is a minimum size, not a deduction: nothing is payable at all.",
+      "payableEstimate": "Estimated indemnity (not yet approved)"
     },
     "money": {
       "approved": "Approved",
@@ -2556,7 +3295,12 @@
       "paymentHint": "Cumulative payments may not exceed the approved indemnity; reaching it closes the claim as paid.",
       "recoveryHint": "The split is computed from what each side had borne when the money arrived, and stored as it was.",
       "emptyTitle": "Nothing has moved yet",
-      "emptyHint": "Payments appear here once the claim is approved."
+      "emptyHint": "Payments appear here once the claim is approved.",
+      "insurerNetHint": "Indemnity paid less the insurer’s share of recoveries.",
+      "paymentsHint": "Indemnity paid to the policyholder, capped by the approved amount.",
+      "grossLessCosts": "{{gross}} received less {{costs}} costs",
+      "paymentRequiredHint": "Enter the amount paid and the payment date.",
+      "recoveryRequiredHint": "Enter the gross amount recovered and the date it arrived."
     },
     "history": {
       "emptyTitle": "No history yet",
@@ -2627,7 +3371,9 @@
       "invoiceSplit": "Paid and disputed amounts cannot exceed the invoice.",
       "notFound": "Claim not found.",
       "belowNql": "The covered loss is below the non-qualifying loss threshold — this claim is not indemnifiable. Decline it with that reason."
-    }
+    },
+    "eyebrow": "Claim",
+    "indemnityPending": "Not decided yet"
   },
   "groups": {
     "ultimateParent": "Ultimate parent",
@@ -2695,7 +3441,10 @@
       "limits": "Limits",
       "policies": "Policies",
       "amountUzs": "UZS",
-      "rateMissingShort": "no rate"
+      "rateMissingShort": "no rate",
+      "overBy": "Over the limit by {{amount}}",
+      "headroom": "{{amount}} still available",
+      "limitNoRate": "No {{currency}} rate today, so utilisation cannot be computed"
     },
     "members": {
       "title": "Members",
@@ -2731,7 +3480,9 @@
       "accept": "Accept",
       "reject": "Dismiss",
       "confirmHint": "State the direction and the kind of relationship. The edge is recorded as accepted from a suggestion.",
-      "createEdge": "Record the relationship"
+      "createEdge": "Record the relationship",
+      "rejectTitle": "Dismiss this suggestion?",
+      "rejectMessage": "{{name}} will not be suggested for this company again. No relationship is recorded."
     },
     "signals": {
       "email_domain": "same email domain",
@@ -2750,7 +3501,8 @@
     },
     "chip": {
       "label": "Group",
-      "body": "{{parent}} — {{count}} companies, {{exposure}} UZS in force"
+      "body": "{{parent}} — {{count}} companies, {{exposure}} UZS in force",
+      "short": "Group: {{parent}}"
     },
     "errors": {
       "notPermitted": "Your role may not record corporate relationships.",
@@ -2768,7 +3520,16 @@
       "suggestionReviewed": "This suggestion has already been reviewed.",
       "suggestionParent": "The parent must be one of the two suggested companies.",
       "adjustmentOverLimit": "This adjustment would take the group past its group limit.",
-      "saveFailed": "Could not save. Please try again."
+      "saveFailed": "Could not save. Please try again.",
+      "amountRequired": "Enter the group limit amount",
+      "counterpartyRequired": "Choose the related company"
+    },
+    "confirm": {
+      "endRelationshipTitle": "End this relationship?",
+      "endRelationshipMessage": "The link between {{parent}} (parent) and {{child}} stops counting from today. Group membership and group exposure are recalculated; the record stays in the history.",
+      "endRelationshipAction": "End the relationship",
+      "endLimitTitle": "Remove the group limit?",
+      "endLimitMessage": "The group limit of {{name}} stops applying today: decisions on its members are no longer checked against it. The limit stays in the history."
     }
   },
   "mfaVerify": {
@@ -2786,7 +3547,13 @@
     "placeholder": "Organization name, registration number or section",
     "empty": "Nothing found",
     "hintNavigate": "navigate",
-    "hintOpen": "open"
+    "hintOpen": "open",
+    "searchRegistry": "Search the registry for “{{query}}”",
+    "groups": {
+      "recent": "Recent",
+      "companies": "Companies",
+      "sections": "Sections"
+    }
   },
   "security": {
     "notice": {
@@ -2825,7 +3592,9 @@
       "emptyHint": "Upload your policy wording as a .docx with {{braces}} placeholders, or install the standard templates and adapt them.",
       "download": "Download",
       "activate": "Activate",
-      "retire": "Retire"
+      "retire": "Retire",
+      "retireTitle": "Retire the template",
+      "retireConfirm": "«{{name}}» v{{version}} will no longer be offered for new contracts. Contracts already generated from it stay as they are. A retired template cannot be activated again; upload it as a new version instead."
     },
     "upload": {
       "open": "Upload template",
@@ -2834,7 +3603,11 @@
       "fileHint": "Write placeholders such as {{example}} in the document; see the reference below.",
       "found": "Placeholders found: {{count}}.",
       "unknown": "Not in the reference (the template cannot be activated until they are fixed):",
-      "submit": "Upload"
+      "submit": "Upload",
+      "choose": "Choose a .docx file",
+      "chooseOther": "Choose another file",
+      "noFile": "No file chosen yet",
+      "nameRequired": "Give the template a name."
     },
     "standard": {
       "install": "Install standard templates",
@@ -2863,7 +3636,9 @@
         "signatory_name": "Signatory",
         "signatory_title": "Signatory's position",
         "signatory_basis": "Acting on the basis of"
-      }
+      },
+      "emptyTitle": "The insurer's particulars are not filled in yet",
+      "emptyHint": "Contracts will print these fields empty. An administrator fills them in on this page."
     },
     "reference": {
       "title": "Placeholder reference",
@@ -2877,7 +3652,9 @@
         "policy": "Policy terms",
         "limits": "Credit limits (inside {{loopOpen}})",
         "document": "Document"
-      }
+      },
+      "show": "Show the field reference ({{count}})",
+      "hide": "Hide the reference"
     },
     "generate": {
       "title": "Draft contract",
@@ -2890,7 +3667,12 @@
       "draftNote": "The document is generated from the data as it stands now and downloaded as .docx for editing; what it said is recorded.",
       "submit": "Generate",
       "working": "Generating…",
-      "noTemplates": "There is no active contract template. Ask a commercial underwriter or an administrator to activate one under Policies → «Contract templates»."
+      "noTemplates": "There is no active contract template. Ask a commercial underwriter or an administrator to activate one under Policies → «Contract templates».",
+      "anyCountry": "any country",
+      "anyProduct": "any structure",
+      "pickSubject": "Choose the policy or submission first.",
+      "subject": "Policy or submission",
+      "subjectPlaceholder": "Policy or submission number, policyholder"
     },
     "errors": {
       "invalidTemplate": "The file is not a valid template:",
@@ -3034,11 +3816,26 @@
       "noRenewals": "No in-force policy ends in this window.",
       "daysLeft": "Days left",
       "worst": "Highest loss ratios",
-      "noLosses": "No policy has incurred a loss."
+      "noLosses": "No policy has incurred a loss.",
+      "policiesInForce": "Policies in force",
+      "policiesAll": "Policies",
+      "currencies_one": "in {{count}} currency",
+      "currencies_other": "in {{count}} currencies",
+      "openClaimsTotal": "Open claims",
+      "claimsTotal_one": "{{count}} claim in all",
+      "claimsTotal_other": "{{count}} claims in all",
+      "limitsUzsMissing": "{{amount}} UZS; {{count}} without a UZS rate",
+      "overduePolicies": "Policies with premium overdue",
+      "overduePoliciesHint": "an instalment past its due date",
+      "byCurrency": "The book by currency",
+      "byCurrencyHint": "Each currency on its own row — amounts in different currencies are never added together.",
+      "composition": "Make-up of the book",
+      "compositionHint": "Number of policies by product, status and the policyholder’s country.",
+      "claimsShort": "Claims"
     },
     "credit": {
       "title": "Limit portfolio",
-      "subtitle": "In-force credit limits on bound policies, in UZS: by the buyer's current rating band, by country and currency, the largest buyers and groups, reviews due and stale ratings.",
+      "subtitle": "In-force credit limits on bound policies, in UZS: what needs attention, then by the buyer's current rating band, by country and currency, and the largest buyers and groups.",
       "empty": "No credit limit in force",
       "emptyHint": "A limit appears here once it is approved (fully or partly) on a bound policy.",
       "exposure": "Exposure",
@@ -3068,7 +3865,209 @@
       "groupsHint": "Groups with limits on more than one member, by combined exposure.",
       "noGroups": "No group has limits on more than one member.",
       "group": "Group (ultimate parent)",
-      "members": "Members with limits"
+      "members": "Members with limits",
+      "exposureMissing_one": "+ {{count}} limit with no UZS rate, not added",
+      "exposureMissing_other": "+ {{count}} limits with no UZS rate, not added",
+      "attention": "Needs attention",
+      "attentionHint": "Counts only; each line opens the list on the Monitoring or Ratings tab.",
+      "membersWithLimits": "members with limits: {{count}}"
     }
+  },
+  "data": {
+    "sectionSubtitle": "The information manager’s desk: requests for companies and statements, data that has gone stale, and buyers clients proposed.",
+    "views": {
+      "queue": "Requests",
+      "freshness": "Data freshness",
+      "proposals": "Proposed buyers"
+    },
+    "queue": {
+      "hint": "A request goes to the information manager with the fewest open ones. Take one to start on it; hand it over if someone else should.",
+      "scope": "Which requests",
+      "mine": "Mine",
+      "open": "All open",
+      "closed": "Closed",
+      "empty": {
+        "mine": "Nothing assigned to you",
+        "open": "No open requests",
+        "closed": "No closed requests yet"
+      },
+      "emptyHint": "Requests arrive when someone searches for a company that is not in the registry, or asks for fresh statements on a company card.",
+      "buyersTitle": "Buyers in submissions without a company",
+      "buyersHint": "Named in an insurance submission and not yet matched to a company in the registry.",
+      "openSubmission": "Open the submission",
+      "emptyHints": {
+        "mine": "New requests assigned to you will appear here.",
+        "open": "Requests arrive when someone searches for a company that is not in the registry, or asks for fresh statements on a company card.",
+        "closed": "Completed and declined requests are kept here."
+      },
+      "submissionLink": "Submission {{number}}"
+    },
+    "fields": {
+      "kind": "Request",
+      "company": "Company",
+      "requestedBy": "Requested by",
+      "assignedTo": "Assigned to",
+      "createdAt": "Filed",
+      "status": "Status",
+      "role": "Role",
+      "country": "Country",
+      "registrationNumber": "Registration number",
+      "assignedAt": "Assigned on",
+      "note": "Note",
+      "reason": "Reason"
+    },
+    "kinds": {
+      "new_company": "New company",
+      "statements_update": "Fresh statements"
+    },
+    "statuses": {
+      "new": "New",
+      "in_progress": "In progress",
+      "created": "Company created",
+      "linked": "Matched to an existing company",
+      "updated": "Statements updated",
+      "rejected": "Declined"
+    },
+    "unassigned": "Not assigned",
+    "roles": {
+      "buyer": "Buyer",
+      "policyholder": "Policyholder"
+    },
+    "freshness": {
+      "hint": "Companies with live business — a limit, a policy, an open request or a live submission — whose data needs work.",
+      "filter": "Reason",
+      "all": "All",
+      "reasons": {
+        "no_statements": "No statements",
+        "stale_statements": "Statements older than 15 months",
+        "missing_registry": "Registry details missing"
+      },
+      "empty": "All data is current",
+      "emptyHint": "Every company with live business has statements from the last 15 months and complete registry details.",
+      "reason": "Why it is listed",
+      "latestPeriod": "Latest statement",
+      "gaps": "Missing",
+      "gap": {
+        "registration": "registration number",
+        "address": "address",
+        "industry": "industry"
+      },
+      "openRequest": "Open request"
+    },
+    "registry": {
+      "title": "Find in an official registry",
+      "hint": "Start from the registry’s record: name, registration number and address are filled in for you to check.",
+      "source": "Registry",
+      "sources": {
+        "gleif": "GLEIF (worldwide)",
+        "companies_house": "Companies House (UK)"
+      },
+      "unavailable": "The registry search is not available yet",
+      "unavailableHint": "It runs in the analytics service, which is not hosted yet. Enter the company by hand for now.",
+      "query": "Company name",
+      "search": "Search",
+      "failed": "The registry did not answer. Try again in a minute, or enter the company by hand.",
+      "none": "Nothing found in this registry.",
+      "openSource": "Open in the registry",
+      "use": "Use this record"
+    },
+    "link": {
+      "title": "Already in our registry?",
+      "hint": "The company may already be here under another spelling. Pick it to close the request without a duplicate.",
+      "query": "Search the registry",
+      "none": "No similar company in the registry.",
+      "use": "This is it"
+    },
+    "request": {
+      "eyebrow": "Data request",
+      "notFound": "Request not found",
+      "outcome": {
+        "created": "Company created {{when}} by {{who}}",
+        "linked": "Matched to an existing company {{when}} by {{who}}",
+        "updated": "Statements brought up to date {{when}} by {{who}}",
+        "rejected": "Declined {{when}} by {{who}}"
+      },
+      "openCompany": "Open the company",
+      "heldBy": "{{name}} is working on this request.",
+      "unassigned": "Nobody holds this request yet — take it to start.",
+      "what": "What was asked",
+      "statementsTitle": "Bring the statements up to date",
+      "statementsHint": "Enter the latest statements on the company’s financials tab, then mark the request done.",
+      "openFinancials": "Open financials",
+      "enterStatement": "Enter a statement",
+      "takeFirst": "Take the request to work on it.",
+      "resolveTitle": "Register the company",
+      "resolveHint": "From a registry record below, or by hand. Saving the company closes the request and tells the person who asked.",
+      "closed": "This request is closed.",
+      "rejectHint": "The person who asked will read this reason.",
+      "pickPerson": "Choose an information manager",
+      "noOtherManagers": "There is no other information manager to hand it to.",
+      "whatHint": "As filed by the person who asked — check it against the official source."
+    },
+    "actions": {
+      "take": "Take it",
+      "start": "Start",
+      "reassign": "Hand over",
+      "reject": "Decline the request",
+      "markUpdated": "Statements are up to date",
+      "createManually": "Enter the company by hand"
+    },
+    "requestModal": {
+      "title": "Request a company",
+      "submit": "Send the request",
+      "hint": "An information manager will find the company in an official source and register it. You will be told in your Agenda when it is done.",
+      "similarTitle": "Is it one of these?",
+      "registrationHint": "If you know it — it rules out a duplicate.",
+      "noteHint": "Why it is needed: a limit request, a submission, a client’s buyer.",
+      "exists": "This company is already in the registry.",
+      "requested": "Request {{number}} sent",
+      "alreadyRequested": "Already requested as {{number}}",
+      "assignedTo": "{{name}} has it.",
+      "toTeam": "It is with the information managers.",
+      "youWillBeTold": "You will be told in your Agenda when it is done."
+    },
+    "notFound": {
+      "title": "«{{query}}» is not in the registry",
+      "hint": "An information manager will register it from an official source; you will be told in your Agenda.",
+      "request": "Request it",
+      "paletteItem": "Request «{{query}}»",
+      "paletteSub": "Not in the registry — ask an information manager to register it",
+      "add": "Add «{{query}}»",
+      "hintDesk": "Look it up in an official registry or enter it from the documents you have."
+    },
+    "statementsRequest": {
+      "button": "Request fresh statements",
+      "title": "Request fresh statements",
+      "submit": "Send the request",
+      "open": "Open the request",
+      "hint": "An information manager will obtain this company’s latest statements and enter them.",
+      "noteHint": "Which period, and where it may come from — the client, the buyer, a registry."
+    },
+    "errors": {
+      "nameRequired": "Enter the company’s name.",
+      "unknownCountry": "Choose the company’s country.",
+      "alreadyClosed": "This request has already been closed.",
+      "notInformationManager": "A request can only be handed to an information manager.",
+      "reasonRequired": "Give a reason the person who asked can act on.",
+      "companyRequired": "Choose the company the request was resolved with."
+    }
+  },
+  "picker": {
+    "placeholder": "Type a company name or registration number",
+    "noMatches": "No matches",
+    "more": "{{n}} more — keep typing to narrow it down",
+    "clear": "Clear",
+    "request": "Request «{{query}}»",
+    "requestHint": "Not in the registry — an information manager will register it",
+    "notInRegistry": "Not in the registry",
+    "buyerPlaceholder": "A company from the registry, or a new name",
+    "countryPlaceholder": "Type a country or its code",
+    "industryPlaceholder": "Start typing an industry"
+  },
+  "date": {
+    "openCalendar": "Choose on the calendar",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "today": "Today"
   }
 }

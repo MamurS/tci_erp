@@ -5,8 +5,10 @@ import {
   CLAIM_TRANSITIONS,
   NOT_OFFERED_DIRECTLY,
   canTransition,
+  isDestructive,
   isOpen,
   mayTransition,
+  nextStep,
   offeredTransitions,
   requiresReason,
 } from './machine'
@@ -95,5 +97,35 @@ describe('claim status machine — contract with 0032', () => {
     expect(isOpen('paid')).toBe(false)
     expect(isOpen('declined')).toBe(false)
     expect(isOpen('withdrawn')).toBe(false)
+  })
+})
+
+describe('the header primary is the next step', () => {
+  it('is a move the machine allows, or the approval, from every status', () => {
+    for (const status of CLAIM_STATUSES) {
+      const step = nextStep(status)
+      if (step === null || step === 'approve') continue
+      expect(canTransition(status, step)).toBe(true)
+      // Never a move the UI refuses to offer as a button.
+      expect(NOT_OFFERED_DIRECTLY).not.toContain(`${status}->${step}`)
+    }
+  })
+
+  it('resumes the assessment after a request for information, rather than approving', () => {
+    expect(nextStep('info_requested')).toBe('under_assessment')
+    expect(nextStep('under_assessment')).toBe('approve')
+  })
+
+  it('is never destructive', () => {
+    for (const status of CLAIM_STATUSES) {
+      const step = nextStep(status)
+      if (step && step !== 'approve') expect(isDestructive(step)).toBe(false)
+    }
+  })
+
+  it('offers nothing once approved (the payment is recorded on its tab) or closed', () => {
+    expect(nextStep('approved')).toBeNull()
+    expect(nextStep('partially_approved')).toBeNull()
+    expect(nextStep('closed')).toBeNull()
   })
 })

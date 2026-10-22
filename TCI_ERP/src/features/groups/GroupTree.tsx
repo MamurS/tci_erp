@@ -8,8 +8,8 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge } from '../../components/ui'
-import { formatPercent } from '../../lib/format'
+import { Badge, Button } from '../../components/ui'
+import { formatOwnershipPct } from './group'
 import type { TreeNode } from './group'
 
 interface GroupTreeProps {
@@ -62,18 +62,18 @@ function TreeBranch({
         )}
         {node.ownershipPct !== null && (
           <span className="text-[12px] font-medium text-slate-700">
-            {formatPercent(Number(node.ownershipPct), locale)}
+            {formatOwnershipPct(node.ownershipPct, locale)}
           </span>
         )}
         {node.cyclic && <Badge tone="warn">{t('groups.cyclicEdge')}</Badge>}
         {onEndEdge && !isRoot && !node.cyclic && (
-          <button
-            type="button"
-            onClick={() => onEndEdge(node.entityId)}
-            className="text-[12px] text-slate-400 underline hover:text-neg-500"
-          >
-            {t('groups.actions.endRelationship')}
-          </button>
+          // Ending an edge changes the group and its exposure: a destructive
+          // action, styled as one and confirmed by the caller.
+          <span className="ml-auto">
+            <Button size="sm" variant="dangerOutline" onClick={() => onEndEdge(node.entityId)}>
+              {t('groups.actions.endRelationship')}
+            </Button>
+          </span>
         )}
       </div>
       {node.children.length > 0 && (

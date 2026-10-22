@@ -9,10 +9,14 @@
 
 import { describe, expect, it } from 'vitest'
 
+import { formatAmount } from '../../lib/format'
+import en from '../../i18n/locales/en.json'
 import MIGRATION from '../../../supabase/migrations/0024_agenda_tasks.sql?raw'
 import PHASE4 from '../../../supabase/migrations/0029_phase4_agenda_portal.sql?raw'
 import PHASE5 from '../../../supabase/migrations/0036_claims_agenda_portal.sql?raw'
 import PHASE6 from '../../../supabase/migrations/0041_group_agenda_financials.sql?raw'
+import DATA from '../../../supabase/migrations/0054_data_management.sql?raw'
+import AGENDA from '../../../supabase/migrations/0055_agenda_redesign.sql?raw'
 import {
   AGENDA_GROUPS,
   agendaCounts,
@@ -23,8 +27,15 @@ import {
   groupOf,
   groupTasks,
   isOverdue,
+  displayTaskType,
+  deadlinePassesAt,
   NO_FILTERS,
+  OBJECT_FILTERS,
+  presentValues,
+  SUBJECT_IN_TITLE,
+  taskTitleKey,
   taskLink,
+  formatTaskParams,
 } from './catalogue'
 import { TASK_PRIORITIES, TASK_TYPES } from './types'
 import type { Task, TaskPriority, TaskType } from './types'
@@ -48,6 +59,8 @@ function task(patch: Partial<Task> = {}): Task {
     completed_at: null,
     source_event_id: null,
     created_at: '2026-08-01T00:00:00Z',
+    snoozed_until: null,
+    snoozed_by: null,
     ...patch,
   }
 }
@@ -68,6 +81,8 @@ describe('task type enum', () => {
       ...PHASE4.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
       ...PHASE5.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
       ...PHASE6.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
+      ...DATA.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
+      ...AGENDA.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
     ].map((m) => m[1])
     expect([...created, ...appended]).toEqual([...TASK_TYPES])
   })
@@ -90,7 +105,13 @@ describe('task type enum', () => {
       l.startsWith('alter type tci.task_type add value '),
     )
     expect(addedP6).toHaveLength(2)
-    expect(TASK_TYPES).toHaveLength(27)
+    // 0054 adds the three data-request types.
+    const addedData = DATA.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
+    expect(addedData).toHaveLength(3)
+    // 0055 adds rating_new_statements.
+    const addedAgenda = AGENDA.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
+    expect(addedAgenda).toHaveLength(1)
+    expect(TASK_TYPES).toHaveLength(31)
   })
 
   it('lists exactly the values of tci.task_priority', () => {
@@ -106,23 +127,25 @@ describe('completion rules', () => {
     expect(Object.keys(COMPLETION_RULES).sort()).toEqual([...TASK_TYPES].sort())
   })
 
-  it('marks exactly the three types the migrations call manual', () => {
+  it('marks exactly the four types the migrations call manual', () => {
     const manual = TASK_TYPES.filter((type) => COMPLETION_RULES[type] === 'manual')
     expect([...manual].sort()).toEqual([
       'claim_declined_review',
+      'entity_request_resolved',
       'submission_declined',
       'uncovered_excess_review',
     ])
+    expect(DATA).toContain('entity_request_resolved  the requester (user)                         normal  MANUAL')
     expect(MIGRATION).toContain('submission_declined is manual because nothing downstream happens')
     expect(PHASE4).toContain('uncovered_excess_review is MANUAL because nothing downstream resolves it')
     expect(PHASE5).toContain('claim_declined_review is MANUAL for the same reason as submission_declined')
   })
 
-  it('mirrors the guard in tci.complete_task as 0036 restated it', () => {
-    expect(PHASE5).toContain(
-      "     ('submission_declined', 'uncovered_excess_review', 'claim_declined_review') then",
+  it('mirrors the guard in tci.complete_task as 0054 restated it', () => {
+    expect(DATA).toContain(
+      "     ('submission_declined', 'uncovered_excess_review', 'claim_declined_review',\n      'entity_request_resolved') then",
     )
-    const MANUAL = ['submission_declined', 'uncovered_excess_review', 'claim_declined_review']
+    const MANUAL = ['submission_declined', 'uncovered_excess_review', 'claim_declined_review', 'entity_request_resolved']
     for (const type of TASK_TYPES) {
       expect(canCompleteByHand(type)).toBe(MANUAL.includes(type))
     }
@@ -130,7 +153,7 @@ describe('completion rules', () => {
 
   it('agrees with the catalogue table in the migration headers', () => {
     // Each header row is "<type>  <target>  AUTO ..." or "... MANUAL - ...".
-    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}`.split('\n')
+    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}`.split('\n')
     for (const type of TASK_TYPES) {
       const row = headers.find(
         (line) => line.startsWith(`--   ${type}`) && /\b(AUTO|MANUAL)\b/.test(line),
@@ -138,6 +161,19 @@ describe('completion rules', () => {
       expect(row, `header row for ${type}`).toBeDefined()
       expect(COMPLETION_RULES[type]).toBe(row?.includes('MANUAL') ? 'manual' : 'auto')
     }
+  })
+
+  it('deep-links data requests: the worker to the request, the requester to the company', () => {
+    expect(taskLink({ object_type: 'entity_request', object_id: 'r1', params: {}, task_type: 'entity_requested' })).toBe(
+      '/data/requests/r1',
+    )
+    expect(
+      taskLink({ object_type: 'entity_request', object_id: 'r1', params: { entity_id: 'e1' }, task_type: 'entity_request_resolved' }),
+    ).toBe('/entities/e1')
+    expect(
+      taskLink({ object_type: 'entity_request', object_id: 'r1', params: { entity_id: null }, task_type: 'entity_request_resolved' }),
+    ).toBeNull()
+    expect(taskLink({ object_type: 'client_buyer_proposal', object_id: 'p1', params: {} })).toBe('/data?view=proposals')
   })
 
   it('deep-links the Phase 4 object kinds', () => {
@@ -260,6 +296,67 @@ describe('grouping', () => {
   })
 })
 
+describe('a deadline that is a calendar date (Tashkent, UTC+5)', () => {
+  // `due_date::timestamptz` stores 21 October as 2026-10-21T00:00:00+00:00.
+  const dueToday = task({ task_type: 'instalment_due', due_at: '2026-10-21T00:00:00+00:00' })
+
+  it('is on time for the whole of its day', () => {
+    // 21 Oct, 05:00 and 23:59 in Tashkent.
+    expect(isOverdue(dueToday, new Date('2026-10-21T00:00:00Z'))).toBe(false)
+    expect(isOverdue(dueToday, new Date('2026-10-21T18:59:59Z'))).toBe(false)
+  })
+
+  it('is overdue once the day has ended in Tashkent', () => {
+    expect(isOverdue(dueToday, new Date('2026-10-21T19:00:00Z'))).toBe(true)
+    expect(isOverdue(dueToday, new Date('2026-10-22T09:00:00Z'))).toBe(true)
+  })
+
+  it('reads a plain ISO date and the Z spelling the same way', () => {
+    const end = new Date('2026-10-21T19:00:00Z').getTime()
+    expect(deadlinePassesAt('2026-10-21')).toBe(end)
+    expect(deadlinePassesAt('2026-10-21T00:00:00Z')).toBe(end)
+    expect(deadlinePassesAt('2026-10-21T00:00:00.000+00:00')).toBe(end)
+  })
+
+  it('keeps a real timestamp to the minute', () => {
+    expect(deadlinePassesAt('2026-10-21T09:30:00Z')).toBe(new Date('2026-10-21T09:30:00Z').getTime())
+  })
+
+  it('shows the due title on the due day and the overdue one after it, whatever the row says', () => {
+    const onTheDay = new Date('2026-10-21T10:00:00Z')
+    const nextDay = new Date('2026-10-22T10:00:00Z')
+    // The database may have opened it as overdue already…
+    const openedLate = { ...dueToday, task_type: 'instalment_overdue' as const, title_key: 'agenda.tasks.instalment_overdue' }
+    expect(displayTaskType(openedLate, onTheDay)).toBe('instalment_due')
+    expect(taskTitleKey(openedLate, onTheDay)).toBe('agenda.tasks.instalment_due')
+    // …or as due the day before it lapsed.
+    expect(taskTitleKey({ ...dueToday, title_key: 'agenda.tasks.instalment_due' }, nextDay)).toBe(
+      'agenda.tasks.instalment_overdue',
+    )
+    const declaration = task({
+      task_type: 'declaration_due',
+      title_key: 'agenda.tasks.declaration_due',
+      due_at: '2026-10-21T00:00:00+00:00',
+    })
+    expect(taskTitleKey(declaration, nextDay)).toBe('agenda.tasks.declaration_overdue')
+  })
+
+  it('leaves every other title as the database wrote it', () => {
+    const other = task({ due_at: '2026-01-01T00:00:00Z', title_key: 'agenda.tasks.limit_needs_decision' })
+    expect(taskTitleKey(other, NOW)).toBe('agenda.tasks.limit_needs_decision')
+  })
+})
+
+describe('subject placement', () => {
+  it('SUBJECT_IN_TITLE is exactly the titles that interpolate {{subject}}', () => {
+    const fromLocale = Object.entries(en.agenda.tasks)
+      .filter(([, text]) => text.includes('{{subject}}'))
+      .map(([key]) => key)
+      .sort()
+    expect([...SUBJECT_IN_TITLE].sort()).toEqual(fromLocale)
+  })
+})
+
 describe('ordering inside a group', () => {
   it('puts the soonest due first and undated last', () => {
     const later = task({ id: 'later', due_at: '2026-09-02T00:00:00Z' })
@@ -305,6 +402,20 @@ describe('filters', () => {
   })
 })
 
+describe('filter options', () => {
+  it('offers only the values present, with counts, in display order', () => {
+    const rows = [
+      task({ id: 'a', object_type: 'claim' }),
+      task({ id: 'b', object_type: 'insurance_request' }),
+      task({ id: 'c', object_type: 'claim' }),
+    ]
+    expect(presentValues(OBJECT_FILTERS, rows, (t) => t.object_type)).toEqual([
+      { value: 'insurance_request', count: 1 },
+      { value: 'claim', count: 2 },
+    ])
+  })
+})
+
 describe('sidebar counts', () => {
   it('reports the open total and the overdue subset separately', () => {
     const counts = agendaCounts(
@@ -341,7 +452,8 @@ describe('the Phase 6 group tasks (0041)', () => {
         params: {},
       }),
     ).toBe('/entities/e1?tab=group')
-    // Every other legal_entity task keeps the plain card link.
+    // The rating tasks open Рейтинг и лимит (0055); every other
+    // legal_entity task keeps the plain card link.
     expect(
       taskLink({
         task_type: 'buyer_needs_rating',
@@ -349,6 +461,26 @@ describe('the Phase 6 group tasks (0041)', () => {
         object_id: 'e1',
         params: {},
       }),
+    ).toBe('/entities/e1?tab=rating')
+    expect(
+      taskLink({
+        task_type: 'limit_review_due',
+        object_type: 'legal_entity',
+        object_id: 'e1',
+        params: {},
+      }),
     ).toBe('/entities/e1')
+  })
+})
+
+describe('formatTaskParams', () => {
+  it('renders dates, percentages and amounts in the viewer’s notation', () => {
+    expect(formatTaskParams({ period_start: '2026-09-01', utilisation_pct: 106.25, amount: '65000', name: 'X' }, 'ru')).toEqual({
+      period_start: '01 сент. 2026',
+      utilisation_pct: '106.3',
+      amount: formatAmount(65000, 'ru'),
+      name: 'X',
+    })
+    expect(formatTaskParams(null, 'en')).toEqual({})
   })
 })

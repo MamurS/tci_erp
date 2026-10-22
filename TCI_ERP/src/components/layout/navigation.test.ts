@@ -47,7 +47,7 @@ describe('role → screen map', () => {
       'declarations',
       'overdues',
     ])
-    expect(keys(['information_manager'])).toEqual(['dashboard', 'agenda', 'entities'])
+    expect(keys(['information_manager'])).toEqual(['dashboard', 'agenda', 'entities', 'data'])
     expect(keys(['claims'])).toEqual([
       'dashboard',
       'agenda',
@@ -123,6 +123,8 @@ describe('route guard', () => {
     expect(canAccessPath(['information_manager'], '/requests')).toBe(false)
     expect(canAccessPath(['information_manager'], '/entities/abc')).toBe(true)
     expect(canAccessPath(['information_manager'], '/policies')).toBe(false)
+    expect(canAccessPath(['information_manager'], '/data/requests/abc')).toBe(true)
+    expect(canAccessPath(['sales', 'credit_underwriter'], '/data')).toBe(false)
     expect(canAccessPath(['sales'], '/admin')).toBe(false)
     expect(canAccessPath(['admin'], '/admin')).toBe(true)
   })

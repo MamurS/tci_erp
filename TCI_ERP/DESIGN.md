@@ -61,16 +61,21 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
 
 ## App shell
 
-* **Sidebar, Claude-style:** docked (w-64) or hidden — never an icon rail.
-  The toggle sits in the top-left corner in BOTH states (the docked panel's
-  header, the top bar when hidden — same coordinates). While hidden, resting
-  the pointer on that toggle slides the panel out from the left edge, full
-  height BELOW the top bar (as in the Claude desktop app), so the toggle
-  stays clickable and a click docks it; leaving the toggle and the panel
-  slides it away. Nothing else peeks it:
-  no left-edge strip, no pin button. Ctrl/⌘ B toggles. Below 1024px it is a
-  drawer with a backdrop that closes on navigation and on Escape. The state
-  is remembered per browser (`tci-erp-sidebar`). Logic: `layout/shell.ts`.
+* **Sidebar, as in the Claude app (owner-specified details):** docked
+  (w-64) or hidden — never an icon rail. Docked, its top row is the name on
+  the left and the hide toggle on the right. Hidden, only the toggle is
+  left, in the top-left corner of the top bar (20px in, centred 32px down).
+  Resting the pointer on it slides the panel out: the SAME square,
+  full-height panel as docked, flush with the left edge, over the top bar —
+  its rows exactly where the docked panel has them, the toggle NOT moving
+  (same coordinates, measured headlessly) and NO name beside it; the name
+  appears only once the panel is docked. A click on the toggle docks the
+  panel, leaving the panel puts it away. Both toggles are `SidebarToggle`:
+  an icon with a dark tooltip naming the action and the shortcut. Nothing
+  else peeks it: no left-edge strip, no pin button. Ctrl/⌘ B toggles. Below
+  1024px it is a drawer with a backdrop that closes on navigation and on
+  Escape. The state is remembered per browser (`tci-erp-sidebar`). Logic:
+  `layout/shell.ts`.
 * **Role workspaces:** the top of the sidebar is the workspace switcher
   (icon, «Рабочее пространство», the workspace name; a list when the person
   has several). Below it «Общее» (dashboard, agenda, companies), then the
@@ -90,6 +95,44 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
   sub-choice inside a view (the request queues) is a `Segmented` control, so
   two rows of tabs never stack. The tab rule is an inset shadow, so the strip
   never overflows vertically (no stray scrollbar).
+* **An object page** (a claim, a declaration, an overdue notification, a
+  policy) is composed from `components/ui/detail.tsx`, never hand-built:
+  `DetailHeader` (eyebrow naming the kind of object, the title, the status
+  badge beside it, a meta line of links joined by dots, the actions);
+  `KeyFigures` (the few numbers that matter, in ONE card divided by
+  hairlines, every cell left-aligned the same way; `text` for a word such as
+  a cause of loss; `muted` for "not yet"); `DescriptionList` (label → value
+  rows, tabular figures, `columns={2}` instead of stretching a label away
+  from its value); `Callout` (what needs attention, amber when it can wait,
+  red when it blocks, with the action as a link).
+* **Actions have a hierarchy.** One primary button (the next step), then
+  secondary ones, the edit, and destructive actions LAST as `dangerOutline`
+  (red outline; the filled `danger` is for the confirm button of their
+  modal). The orange `accent` is one call to action per screen at most —
+  never one per table row. An action inside a table row is a text button or
+  an icon, so rows with an action are as tall as rows without.
+* **Cards and tables.** A `Card` has no padding of its own: every Card states
+  one, or is a flush `overflow-hidden` frame whose rows pad themselves. A
+  `Table` draws its own frame and is never wrapped in a Card. Table heads do
+  not wrap; identifiers, dates and amounts do not wrap; numeric heads are
+  right-aligned over right-aligned numbers. `layoutContract.test.ts` checks
+  the first two on the source.
+* **One date format.** `formatDate` (05 Oct 2026 / 05 окт. 2026 /
+  05-okt 2026) and `formatMoment` (the same + time) everywhere; `formatDue`
+  shows a midnight-UTC deadline as a date (never "05:00"); `formatPeriod`
+  names a month or quarter («сентябрь 2026»); `formatRate` reads a premium
+  rate stored as a percentage (0.18 → 0.18%, never 18%). No ISO string is
+  sliced for display (`layoutContract.test.ts`). A change that rounds to zero
+  has no sign, arrow or colour.
+* **Nothing moves between views or sections.** `html` reserves the
+  scrollbar's gutter (`scrollbar-gutter: stable`): a short view (a 7-row
+  register) and a long one (an overview) would otherwise differ by the
+  scrollbar's width and every centred or right-aligned element would jump.
+  Every page, sections included, uses the shell's full content width — no
+  page narrows itself with its own `max-w-*` except a form (password,
+  statement entry). Verify headlessly with scrollbars SHOWN: Playwright passes
+  `--hide-scrollbars` by default, which is exactly what hides this shift
+  (`ignoreDefaultArgs: ['--hide-scrollbars']`).
 * **Top bar:** sidebar button (when hidden), the current section (icon +
   name), the command palette (Ctrl/⌘ K — companies by name or registration
   number, plus every destination the caller's roles allow; icon-only below
@@ -116,8 +159,53 @@ counts), Badge, Modal, EmptyState (with icon), PageHeader (eyebrow + display
 title), SectionTitle, StatCard (key figure with a coloured top rule and
 tone), Skeleton, Spinner, BrandMark, GradeScale (engine grade bands),
 RatingGauge (semicircle 0–100 with needle and change vs previous) and
-RatingLegend (the ten-band scale). Screens compose these — no ad-hoc
-one-off controls.
+RatingLegend (the ten-band scale), Combobox (typeahead), AmountInput,
+LinkButton, ConfirmDialog. Screens compose these — no ad-hoc one-off
+controls.
+
+### Interaction rules (owner review, October 2026)
+
+Each was found on a real screen; `layoutContract.test.ts` enforces the
+mechanical ones.
+
+* **One action, one place.** An action is offered once per view — never in a
+  section header AND in the empty state below it. A section with rows shows
+  it in its header; while empty, the empty state carries it. A page-level
+  action stays in the page header and the empty state only explains. A list
+  emptied by filters says so and offers «Сбросить фильтры», not «create».
+* **Pick from long lists by typing.** A company is chosen with `EntityPicker`
+  (suggestions appear as you type — name or registration number, matching
+  letters in bold, flag and country under each — and «Запросить
+  организацию» when it is not there); a country with `CountryPicker` (any
+  language or the ISO code). Never a listbox `<select size>`, never a native
+  dropdown of the whole registry or of 249 countries. A filter lists only
+  the values the data actually holds, with counts.
+* **No box in a box.** Inside a Card or Panel an EmptyState and a Table drop
+  their own frame (`FramedContext`).
+* **A section header is one `SectionTitle`** with `hint` and `actions` — one
+  height whether or not a button sits beside it, the button never hanging
+  over the content, the same spacing everywhere. Never a hand-made
+  `justify-between` row around it.
+* **Confirmations are `ConfirmDialog`** (styled, translated, the button names
+  the action) — never `window.confirm`. A button that navigates is a
+  `LinkButton` — never `<a>` around `<button>`. Add-buttons carry a `Plus`
+  icon, never a typed «+».
+* **Escape closes the top dialog only**; in a picker it closes the list,
+  not the dialog.
+* **Dates are typed day first in `DateInput`** — a mask (ДД.ММ.ГГГГ /
+  KK.OO.YYYY / DD/MM/YYYY) or a calendar in the interface language, Monday
+  first, today from the Tashkent calendar — never the browser's
+  `<input type="date">`, which showed «mm/dd/yyyy» in a Russian interface.
+  The value is ISO. A contract test refuses `type="date"` anywhere else.
+* **Lists fit a laptop.** At 1280px with the sidebar docked (≈960px of
+  content) a list does not scroll sideways: names sit on one line in
+  `Truncate` (full text on hover), the main text column is `cell-fill`
+  (takes the width left and cuts there), numeric cells are `num` and never
+  wrap.
+* **Dialogs space their fields evenly** — the Modal body is a `gap-4` column;
+  never `-mt-*` hacks; hints go in `Field`'s `hint`.
+* **Every literal translation key exists** (`i18n/keysExist.test.ts`) — a
+  missing one is printed raw on screen.
 
 ### The rating scale
 
@@ -128,6 +216,34 @@ limits. A score is "in" a band when it is less than 5 above the band's
 decade, otherwise "between" that band and the next (72 → Weak; 78 →
 between Weak and Distressed). Gauge, legend and report text all use that
 one rule.
+
+## The Agenda (`src/features/agenda`)
+
+A queue to work, not a report. The page title keeps the house heading; under
+it ONE live summary line (overdue in red, money at stake in UZS, today's
+desk, cleared today). Right: List | Triage (`Segmented tone="solid"`,
+remembered per person) and «Группировать: …».
+
+* **Chips**, not dropdowns: All, Assigned to me, then one per task family
+  present, with live counts; the dashed «Отложенные» chip at the far right.
+  State lives in the URL (`?family=&mine=1&snoozed=1`).
+* **Groups**: one white card each, rows separated by hairlines; the header
+  is the name (red for Overdue, an amber dot for Today), item and task
+  counts, and the UZS sum (amounts without a rate are left out and said so).
+  «Позже» starts collapsed.
+* **Row** (~56px): a 3px left stripe (red overdue / amber today / neutral) —
+  with the tag and the due label the only colour on the row — then the
+  type tag (⚡ when automatic), the title «what · company», the context line
+  (latest comment in italics with a count, or the system note, then the facts
+  in tabular numerals), the relative due label (date in the tooltip) and the
+  owner avatar. The whole row is a stretched link to the OBJECT; hover or
+  keyboard focus reveals the actions. A keyboard-focused row has an inset
+  navy ring.
+* **Triage**: queue (≤ 22rem) left, the task right — tag + due, title,
+  provenance, the «Перейти к …» button with the destination spelled out
+  under it, the comment thread (system note muted), the family panel, the
+  history card. Handled rows stay struck through until reload.
+* **Contrast**: every text ≥ 4.5:1. The amber token is not used for text.
 
 ## The risk report (`src/features/entities/report`)
 
@@ -173,10 +289,18 @@ Templates and the contract register are tabs of «Полисы» («Реестр
 ## Financial data display rules (apply everywhere)
 
 * Numbers **right-aligned** with `tabular-nums` — use the `num` utility class.
-* Thousands separator: space; decimal comma for ru/uz, standard `1,234.56`
-  for en (`src/lib/format.ts` is the only formatter — never `toLocaleString`
-  inline). Compact amounts (`formatCompact`: 261.37B / 261,37 млрд) for prose
-  and key figures; full amounts in statement tables. A value that rounds to
+* Separators (owner's decision, 2026-10-21): **comma between thousands,
+  point for decimals — `1,234,567.89` — in every UI language**, on screen,
+  in reports and while typing (`THOUSANDS_SEPARATOR` / `DECIMAL_SEPARATOR`
+  in `src/lib/format.ts`, the only formatter — never `toLocaleString`
+  inline). The one exception is a generated LEGAL document (policy
+  wording), written in its language's national notation
+  (`formatDocumentAmount`: `1 250 000,00` in ru/uz). Compact amounts
+  (`formatCompact`: 261.37B / 261.37 млрд) for prose and key figures; full
+  amounts in statement tables. A numeric table cell never wraps.
+* Amounts are TYPED in `AmountInput`: grouped as you type, caret kept,
+  right-aligned, the currency (or %, days) inside the field as a suffix —
+  never in the label as well. A value that rounds to
   zero never prints as "-0".
 * Negative values: red (`text-neg-500`) with a minus sign.
 * Percentages: 1 decimal place on screen, 2 in the report.

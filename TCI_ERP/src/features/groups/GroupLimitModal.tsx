@@ -9,7 +9,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Field, Input, Modal, Select } from '../../components/ui'
+import { AmountInput, Button, DateInput, Field, Input, Modal, Select } from '../../components/ui'
+import { amountToPlain, parseAmount } from '../../components/ui/amount'
 import { useCurrencies } from '../entities/api'
 import { useSetGroupLimit } from './api'
 import { groupErrorKey } from './errors'
@@ -35,13 +36,13 @@ export function GroupLimitModal({
   const setLimit = useSetGroupLimit()
   const { data: currencies } = useCurrencies()
 
-  const [amount, setAmount] = useState(currentAmount ? String(currentAmount) : '')
+  const [amount, setAmount] = useState(currentAmount ? amountToPlain(currentAmount) : '')
   const [currency, setCurrency] = useState(currentCurrency ?? 'UZS')
   const [validFrom, setValidFrom] = useState(new Date().toISOString().slice(0, 10))
   const [comment, setComment] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  const parsed = Number(amount.replace(/\s/g, '').replace(',', '.'))
+  const parsed = parseAmount(amount) ?? Number.NaN
   const valid = Number.isFinite(parsed) && parsed > 0
 
   const handleSave = async () => {
@@ -64,13 +65,17 @@ export function GroupLimitModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={t('groups.actions.setGroupLimit')}
+      title={currentAmount ? t('groups.actions.changeGroupLimit') : t('groups.actions.setGroupLimit')}
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button onClick={() => void handleSave()} disabled={!valid || setLimit.isPending}>
+          <Button
+            onClick={() => void handleSave()}
+            disabled={!valid || setLimit.isPending}
+            title={valid ? undefined : t('groups.errors.amountRequired')}
+          >
             {setLimit.isPending ? t('common.saving') : t('common.save')}
           </Button>
         </>
@@ -82,12 +87,7 @@ export function GroupLimitModal({
         </p>
         <div className="grid grid-cols-2 gap-3">
           <Field label={t('groups.fields.maxAmount')}>
-            <Input
-              inputMode="decimal"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-              className="num"
-            />
+            <AmountInput value={amount} onChange={setAmount} suffix={currency} />
           </Field>
           <Field label={t('groups.fields.currency')}>
             <Select value={currency} onChange={(e) => setCurrency(e.target.value)}>
@@ -101,7 +101,7 @@ export function GroupLimitModal({
           </Field>
         </div>
         <Field label={t('groups.fields.validFrom')}>
-          <Input type="date" value={validFrom} onChange={(e) => setValidFrom(e.target.value)} />
+          <DateInput value={validFrom} onChange={setValidFrom} />
         </Field>
         <Field label={t('policies.transitionComment')}>
           <Input value={comment} onChange={(e) => setComment(e.target.value)} />

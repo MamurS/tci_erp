@@ -31,7 +31,7 @@ const STAFF: readonly UserRole[] = [
  *                           policy portfolio, declarations, overdues, claims
  *   sales                   dashboard, agenda, companies, submissions, limits, policies,
  *                           declarations, overdues
- *   information_manager     dashboard, agenda, companies
+ *   information_manager     dashboard, agenda, companies, data management
  *   claims                  dashboard, agenda, companies, overdues, claims
  *   client                  the portal only
  *
@@ -78,6 +78,11 @@ export const NAV_ITEMS: readonly NavItem[] = [
     path: '/claims',
     roles: ['admin', 'claims', 'commercial_underwriter', 'credit_underwriter'],
   },
+  // «Управление данными» (0054): the information manager's desk — requests
+  // for companies and statements, data freshness, clients' proposed buyers.
+  // Anyone on staff FILES a request (from a search or a company card); only
+  // information managers and admins work them.
+  { key: 'data', path: '/data', roles: ['admin', 'information_manager'] },
   { key: 'admin', path: '/admin', roles: ['admin'] },
 ]
 

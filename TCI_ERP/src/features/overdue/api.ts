@@ -8,11 +8,38 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { tci } from '../../lib/supabase'
+import type { ClaimStatus } from '../claims/types'
 import type { NoaStatus, OverdueNotification } from './types'
+
+export interface ClaimSlot {
+  id: string
+  policy_id: string
+  buyer_entity_id: string
+  overdue_notification_id: string | null
+  status: ClaimStatus
+}
 
 const KEYS = {
   list: (policyId?: string) => ['overdues', 'list', policyId ?? 'all'] as const,
   one: (id: string) => ['overdues', 'one', id] as const,
+}
+
+/** The claims under a policy, reduced to what decides whether one more may be
+ * opened (openClaim.ts). Keyed under 'claims' so opening, withdrawing or
+ * closing a claim refreshes it; only fetched for someone who may open one. */
+export function useClaimSlots(policyId: string | undefined, enabled: boolean) {
+  return useQuery({
+    queryKey: ['claims', 'slots', policyId ?? ''] as const,
+    enabled: enabled && Boolean(policyId),
+    queryFn: async (): Promise<ClaimSlot[]> => {
+      const { data, error } = await tci()
+        .from('v_claims')
+        .select('id, policy_id, buyer_entity_id, overdue_notification_id, status')
+        .eq('policy_id', policyId!)
+      if (error) throw error
+      return (data ?? []) as unknown as ClaimSlot[]
+    },
+  })
 }
 
 export function useOverdueNotifications(policyId?: string) {

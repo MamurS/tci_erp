@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, EmptyState, Input, PageHeader, Spinner, Table, Tabs } from '../../components/ui'
+import { Badge, Button, EmptyState, Input, PageHeader, Spinner, Table, Tabs, Truncate } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH } from '../../lib/format'
 import { useInsuranceRequests } from './api'
@@ -60,10 +60,7 @@ export function RequestsPage() {
 
   const tabs = [
     { key: 'mine', label: t('requests.tabs.mine') },
-    {
-      key: 'open',
-      label: openCount ? `${t('requests.tabs.open')} (${openCount})` : t('requests.tabs.open'),
-    },
+    { key: 'open', label: t('requests.tabs.open'), count: openCount || undefined },
     { key: 'withClient', label: t('requests.tabs.withClient') },
     { key: 'closed', label: t('requests.tabs.closed') },
   ]
@@ -94,13 +91,26 @@ export function RequestsPage() {
       {isLoading ? (
         <Spinner label={t('common.loading')} />
       ) : filtered.length === 0 ? (
-        <EmptyState title={t('requests.queueEmpty')} hint={t('requests.queueEmptyHint')} />
+        // A search that found nothing says so, and offers to clear it.
+        search.trim() ? (
+          <EmptyState
+            title={t('common.noMatches')}
+            hint={t('common.noMatchesHint')}
+            action={
+              <Button variant="secondary" onClick={() => setSearch('')}>
+                {t('common.resetFilters')}
+              </Button>
+            }
+          />
+        ) : (
+          <EmptyState title={t('requests.queueEmpty')} hint={t('requests.queueEmptyHint')} />
+        )
       ) : (
         <Table>
           <thead>
             <tr>
               <th>{t('requests.fields.number')}</th>
-              <th>{t('requests.fields.applicant')}</th>
+              <th className="cell-fill w-[34%]">{t('requests.fields.applicant')}</th>
               <th className="text-right">{t('requests.fields.buyersCount')}</th>
               <th>{t('requests.fields.status')}</th>
               <th>{t('requests.fields.waitingOn')}</th>
@@ -114,8 +124,12 @@ export function RequestsPage() {
                 onClick={() => void navigate(`/requests/${r.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="num font-medium text-slate-800">{r.request_number}</td>
-                <td className="text-slate-700">{r.legal_entities?.name ?? EM_DASH}</td>
+                <td className="font-medium whitespace-nowrap text-slate-800 tabular-nums">{r.request_number}</td>
+                <td className="cell-fill text-slate-700">
+                  <Truncate text={r.legal_entities?.name} className="max-w-none">
+                    {r.legal_entities?.name ?? EM_DASH}
+                  </Truncate>
+                </td>
                 <td className="num">{r.insurance_request_buyers?.length ?? 0}</td>
                 <td>
                   <Badge tone={statusTone(r.status)}>{t(`requests.statuses.${r.status}`)}</Badge>

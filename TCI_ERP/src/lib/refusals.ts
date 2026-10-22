@@ -29,6 +29,20 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'the first due date must be in the past', key: 'overdues.errors.dueInFuture' },
   { fragment: 'this buyer already has an open overdue notification on this policy', key: 'overdues.errors.alreadyOpen' },
   { fragment: 'this notification is already', key: 'overdues.errors.alreadyResolved' },
+  // data requests (0054)
+  { fragment: 'a company name is required', key: 'data.errors.nameRequired' },
+  { fragment: 'unknown country', key: 'data.errors.unknownCountry' },
+  { fragment: 'this data request is already', key: 'data.errors.alreadyClosed' },
+  { fragment: 'the assignee must hold the information_manager role', key: 'data.errors.notInformationManager' },
+  { fragment: 'a rejected request needs a reason', key: 'data.errors.reasonRequired' },
+  { fragment: 'name the company the request was resolved with', key: 'data.errors.companyRequired' },
+  // the Agenda (0055)
+  { fragment: 'snooze_in_past', key: 'agenda.errors.snoozeInPast' },
+  { fragment: 'snooze_too_far', key: 'agenda.errors.snoozeTooFar' },
+  { fragment: 'comment_empty', key: 'agenda.errors.commentEmpty' },
+  { fragment: 'comment_too_long', key: 'agenda.errors.commentTooLong' },
+  { fragment: 'closes itself when its object moves on', key: 'agenda.completeFailed' },
+  { fragment: 'not found or not yours', key: 'agenda.errors.notYours' },
 ]
 
 /** The i18n key for a refused operation. Never returns raw server text. */

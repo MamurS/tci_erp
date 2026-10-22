@@ -2,16 +2,17 @@
  * available for EVERY entity (prospect analysis); the Limits tab appears
  * when the entity is a buyer, Policies & portfolio when a policyholder. */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 
 import { tci } from '../../lib/supabase'
 
-import { Badge, Button, CountryFlag, EmptyState, PageHeader, Spinner, Tabs } from '../../components/ui'
+import { Badge, Button, CountryFlag, EmptyState, LinkButton, PageHeader, Spinner, Tabs } from '../../components/ui'
 import { useEntity, useEntityRoles } from './api'
 import { BuyerLimitsTab } from '../limits/BuyerLimitsTab'
+import { RequestStatementsButton } from '../data/RequestStatementsButton'
 import { EntityFormModal } from './EntityFormModal'
 import { RoleBadges } from './EntitiesPage'
 import { FinancialsTab } from './financials/FinancialsTab'
@@ -26,6 +27,7 @@ import { useAuth } from '../../auth/AuthContext'
 import { hasRole } from '../../lib/roles'
 import { RatingTab } from './rating/RatingTab'
 import { formatAmount } from '../../lib/format'
+import { rememberEntity } from '../../components/layout/recentEntities'
 import { gradeTone } from '../../lib/grade'
 
 type TabKey =
@@ -75,6 +77,16 @@ export function EntityDetailPage() {
     ...(showClientAccess ? (['access'] as const) : []),
   ]
 
+  // The command palette offers the companies opened last.
+  useEffect(() => {
+    if (!entity) return
+    rememberEntity({
+      id: entity.id,
+      name: entity.name,
+      sub: [entity.registration_number, entity.country_code].filter(Boolean).join(' · '),
+    })
+  }, [entity])
+
   const requested = searchParams.get('tab') as TabKey | null
   const activeTab: TabKey =
     requested && availableTabs.includes(requested) ? requested : 'overview'
@@ -85,9 +97,9 @@ export function EntityDetailPage() {
       <EmptyState
         title={t('entities.notFound')}
         action={
-          <Link to="/entities" className="text-sm font-medium text-accent-700 hover:underline">
+          <LinkButton variant="secondary" to="/entities">
             {t('entities.backToList')}
-          </Link>
+          </LinkButton>
         }
       />
     )
@@ -119,9 +131,12 @@ export function EntityDetailPage() {
           </span>
         }
         actions={
-          <Button variant="secondary" onClick={() => setEditOpen(true)}>
-            {t('common.edit')}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <RequestStatementsButton entityId={entity.id} />
+            <Button variant="secondary" onClick={() => setEditOpen(true)}>
+              {t('common.edit')}
+            </Button>
+          </div>
         }
       />
 

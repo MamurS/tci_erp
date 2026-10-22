@@ -10,6 +10,7 @@ import {
   combineGroupSeries,
   debtToEquity,
   isStale,
+  isUnchangedShown,
   keyFigures,
   memberFigures,
   normalizeBundle,
@@ -183,6 +184,36 @@ describe('keyFigures', () => {
     expect(by.debtToEquity.value).toBeCloseTo(0.5)
     expect(by.debtToEquity.change?.kind).toBe('x')
     expect(by.debtToEquity.previousYear).toBe(2023)
+  })
+
+  it('shows a change that rounds to zero as «unchanged», with no arrow or colour', () => {
+    const figures = keyFigures([
+      stmt({
+        fiscal_year: 2023,
+        balance_sheets: bs({ total_assets: 3_596_000, total_equity: 3_236_400, short_term_borrowings: 79_112 }),
+        income_statements: is({ revenue: 100 }),
+      }),
+      stmt({
+        fiscal_year: 2024,
+        balance_sheets: bs({ total_assets: 4_387_120, total_equity: 3_948_408, short_term_borrowings: 96_517 }),
+        income_statements: is({ revenue: 100.01 }),
+      }),
+    ])
+    const by = Object.fromEntries(figures.map((f) => [f.key, f]))
+    for (const key of ['revenue', 'equityRatio', 'debtToEquity']) {
+      expect(by[key].unchanged, key).toBe(true)
+      expect(by[key].trend, key).toBeNull()
+      expect(by[key].tone, key).toBeNull()
+    }
+  })
+
+  it('reads «zero» at each change kind’s own precision', () => {
+    expect(isUnchangedShown({ kind: 'pct', value: 0.0004 })).toBe(true) // 0.0%
+    expect(isUnchangedShown({ kind: 'pct', value: 0.0006 })).toBe(false) // 0.1%
+    expect(isUnchangedShown({ kind: 'pp', value: 0.00004 })).toBe(true) // 0.00 pp
+    expect(isUnchangedShown({ kind: 'pp', value: 0.0001 })).toBe(false) // 0.01 pp
+    expect(isUnchangedShown({ kind: 'x', value: -0.004 })).toBe(true) // 0.00x
+    expect(isUnchangedShown({ kind: 'x', value: 0.01 })).toBe(false)
   })
 
   it('has no change with a single year', () => {

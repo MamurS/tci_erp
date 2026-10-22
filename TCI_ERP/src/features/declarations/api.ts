@@ -9,7 +9,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { tci } from '../../lib/supabase'
-import type { Declaration, DeclarationLine, DeclarationTotals } from './types'
+import type { FxRateRow } from '../limits/authority'
+import type { Declaration, DeclarationFrequency, DeclarationLine, DeclarationTotals } from './types'
 
 const KEYS = {
   list: (policyId?: string) => ['declarations', 'list', policyId ?? 'all'] as const,
@@ -20,6 +21,36 @@ const KEYS = {
 
 interface DeclarationRow extends Declaration {
   policies?: { policy_number: string; legal_entities?: { name: string } | null } | null
+}
+
+/** The stored rates for the given currencies, for the dashboard's premium
+ * total. The rule that picks one (latest on or before today, CBU over manual)
+ * is `latestUzsRate` in limits/authority.ts, the mirror of
+ * tci.latest_uzs_rate; this only fetches the candidates. */
+export function useUzsRates(currencies: readonly string[]) {
+  const needed = [...new Set(currencies)].filter((c) => c !== 'UZS').sort()
+  return useQuery({
+    queryKey: ['fx-latest', 'many', needed] as const,
+    enabled: needed.length > 0,
+    // Per currency, newest first: one currency's daily CBU rates must not
+    // crowd out another's older manual one.
+    queryFn: async (): Promise<FxRateRow[]> => {
+      const results = await Promise.all(
+        needed.map((ccy) =>
+          tci()
+            .from('fx_rates')
+            .select('currency_code, rate_to_uzs, rate_date, source')
+            .eq('currency_code', ccy)
+            .order('rate_date', { ascending: false })
+            .limit(20),
+        ),
+      )
+      return results.flatMap(({ data, error }) => {
+        if (error) throw error
+        return (data ?? []) as unknown as FxRateRow[]
+      })
+    },
+  })
 }
 
 export function useDeclarations(policyId?: string) {
@@ -34,6 +65,24 @@ export function useDeclarations(policyId?: string) {
       const { data, error } = await q
       if (error) throw error
       return (data ?? []) as unknown as DeclarationRow[]
+    },
+  })
+}
+
+/** How often a policy declares — what turns a period's first day into the
+ * period itself (period.ts). Only fetched when a link names a period. */
+export function usePolicyDeclarationFrequency(policyId: string | undefined) {
+  return useQuery({
+    queryKey: ['declarations', 'frequency', policyId ?? ''] as const,
+    enabled: Boolean(policyId),
+    queryFn: async (): Promise<DeclarationFrequency | null> => {
+      const { data, error } = await tci()
+        .from('policies')
+        .select('declaration_frequency')
+        .eq('id', policyId!)
+        .maybeSingle()
+      if (error) throw error
+      return ((data as { declaration_frequency: DeclarationFrequency } | null) ?? null)?.declaration_frequency ?? null
     },
   })
 }

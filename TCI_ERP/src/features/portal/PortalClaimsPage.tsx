@@ -8,18 +8,24 @@ import { useTranslation } from 'react-i18next'
 import {
   Badge,
   Button,
+  Callout,
   Card,
+  ConfirmDialog,
+  DescriptionList,
   EmptyState,
   Field,
   Input,
   Modal,
   PageHeader,
+  SectionTitle,
   Select,
   Spinner,
   Table,
+  Textarea,
+  Truncate,
 } from '../../components/ui'
 import { claimErrorKey } from '../claims/errors'
-import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
+import { EM_DASH, formatAmount, formatDate, formatMoment } from '../../lib/format'
 import {
   useClientOpenClaim,
   useClientRespondToInfoRequest,
@@ -52,6 +58,7 @@ export function PortalClaimsPage() {
   const [open, setOpen] = useState<string | null>(null)
   const [filing, setFiling] = useState<ClientClaimable | null>(null)
   const [responding, setResponding] = useState<ClientClaim | null>(null)
+  const [withdrawing, setWithdrawing] = useState<ClientClaim | null>(null)
   const [error, setError] = useState<string | null>(null)
   const submit = useClientSubmitClaim()
   const withdraw = useClientWithdrawClaim()
@@ -59,6 +66,7 @@ export function PortalClaimsPage() {
   if (isLoading) return <Spinner label={t('common.loading')} />
 
   const ready = (claimable ?? []).filter((c) => !c.claim_exists)
+  const openClaim = (claims ?? []).find((c) => c.id === open) ?? null
 
   function fail(e: unknown) {
     const k = claimErrorKey(e)
@@ -69,22 +77,19 @@ export function PortalClaimsPage() {
     <div className="space-y-6">
       <PageHeader title={t('portal.claims.title')} subtitle={t('portal.claims.subtitle')} />
 
-      {error && (
-        <p role="alert" className="rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">
-          {error}
-        </p>
-      )}
+      {error && <Callout tone="neg" title={error} />}
 
       {ready.length > 0 && (
-        <Card>
-          <h2 className="text-sm font-semibold">{t('portal.claims.claimableTitle')}</h2>
-          <p className="mt-1 text-[13px] text-slate-600">{t('portal.claims.claimableHint')}</p>
-          <Table dense>
+        <Card className="p-5">
+          <SectionTitle className="mb-3" hint={t('portal.claims.claimableHint')}>
+            {t('portal.claims.claimableTitle')}
+          </SectionTitle>
+          <Table>
             <thead>
               <tr>
-                <th>{t('portal.claims.fields.buyer')}</th>
+                <th className="cell-fill w-[35%]">{t('portal.claims.fields.buyer')}</th>
                 <th>{t('portal.claims.fields.policy')}</th>
-                <th className="num">{t('portal.claims.fields.overdueAmount')}</th>
+                <th className="text-right">{t('portal.claims.fields.overdueAmount')}</th>
                 <th>{t('portal.claims.fields.claimableFrom')}</th>
                 <th />
               </tr>
@@ -92,13 +97,15 @@ export function PortalClaimsPage() {
             <tbody>
               {ready.map((c) => (
                 <tr key={c.noa_id}>
-                  <td>{c.buyer_name}</td>
-                  <td className="text-slate-600">{c.policy_number}</td>
+                  <td className="cell-fill">
+                    <Truncate text={c.buyer_name} className="max-w-none" />
+                  </td>
+                  <td className="whitespace-nowrap text-slate-600 tabular-nums">{c.policy_number}</td>
                   <td className="num">
                     {formatAmount(Number(c.overdue_amount), locale)} {c.currency_code}
                   </td>
-                  <td>
-                    {c.claimable_from}
+                  <td className="whitespace-nowrap">
+                    {formatDate(c.claimable_from, locale)}
                     {!c.claimable_now && (
                       <span className="ml-2">
                         <Badge tone="warn">{t('portal.claims.waiting')}</Badge>
@@ -117,38 +124,42 @@ export function PortalClaimsPage() {
         </Card>
       )}
 
-      {(claims ?? []).length === 0 ? (
-        <EmptyState title={t('portal.claims.emptyTitle')} hint={t('portal.claims.emptyHint')} />
-      ) : (
-        <Card>
+      <Card className="p-5">
+        <SectionTitle className="mb-3">{t('portal.claims.listTitle')}</SectionTitle>
+        {(claims ?? []).length === 0 ? (
+          <EmptyState title={t('portal.claims.emptyTitle')} hint={t('portal.claims.emptyHint')} />
+        ) : (
           <Table>
             <thead>
               <tr>
                 <th>{t('portal.claims.fields.number')}</th>
-                <th>{t('portal.claims.fields.buyer')}</th>
-                <th className="num">{t('portal.claims.fields.claimed')}</th>
-                <th className="num">{t('portal.claims.fields.indemnity')}</th>
+                <th className="cell-fill w-[35%]">{t('portal.claims.fields.buyer')}</th>
+                <th className="text-right">{t('portal.claims.fields.claimed')}</th>
+                <th className="text-right">{t('portal.claims.fields.indemnity')}</th>
                 <th>{t('portal.claims.fields.status')}</th>
                 <th />
               </tr>
             </thead>
             <tbody>
               {(claims ?? []).map((c) => (
-                <tr key={c.id}>
-                  <td>
-                    <button
-                      type="button"
-                      className="text-accent-600 hover:underline"
-                      onClick={() => setOpen(open === c.id ? null : c.id)}
-                    >
-                      {c.claim_number}
-                    </button>
+                // The whole row opens the claim below, like every register in
+                // the application; the buttons in it stop the click.
+                <tr
+                  key={c.id}
+                  onClick={() => setOpen(open === c.id ? null : c.id)}
+                  aria-selected={open === c.id}
+                  className={`cursor-pointer transition-colors hover:bg-slate-50 ${
+                    open === c.id ? 'bg-accent-50' : ''
+                  }`}
+                >
+                  <td className="whitespace-nowrap font-medium text-accent-700 tabular-nums">{c.claim_number}</td>
+                  <td className="cell-fill">
+                    <Truncate text={c.buyer_name} className="max-w-none" />
                   </td>
-                  <td>{c.buyer_name}</td>
-                  <td className="num">
+                  <td className="num text-right">
                     {formatAmount(Number(c.claimed_amount), locale)} {c.currency_code}
                   </td>
-                  <td className="num">
+                  <td className="num text-right">
                     {c.approved_indemnity === null
                       ? EM_DASH
                       : `${formatAmount(Number(c.approved_indemnity), locale)} ${c.currency_code}`}
@@ -156,25 +167,16 @@ export function PortalClaimsPage() {
                   <td>
                     <Badge tone={TONE[c.status]}>{t(`claims.statuses.${c.status}`)}</Badge>
                   </td>
-                  <td className="space-x-2 text-right">
+                  <td className="text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                     {c.status === 'draft' && (
-                      <>
-                        <Button
-                          size="sm"
-                          onClick={() => submit.mutateAsync(c.id).catch(fail)}
-                        >
+                      <span className="inline-flex gap-2">
+                        <Button size="sm" onClick={() => submit.mutateAsync(c.id).catch(fail)}>
                           {t('portal.claims.actions.submit')}
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() =>
-                            withdraw.mutateAsync({ claim_id: c.id }).catch(fail)
-                          }
-                        >
+                        <Button size="sm" variant="dangerOutline" onClick={() => setWithdrawing(c)}>
                           {t('portal.claims.actions.withdraw')}
                         </Button>
-                      </>
+                      </span>
                     )}
                     {c.status === 'info_requested' && (
                       <Button size="sm" onClick={() => setResponding(c)}>
@@ -186,15 +188,37 @@ export function PortalClaimsPage() {
               ))}
             </tbody>
           </Table>
-        </Card>
-      )}
+        )}
+      </Card>
 
-      {open && <PortalClaimDetail claim={(claims ?? []).find((c) => c.id === open)!} />}
+      {openClaim && (
+        <section>
+          <SectionTitle className="mb-3">
+            {openClaim.claim_number} · {openClaim.buyer_name}
+          </SectionTitle>
+          <PortalClaimDetail claim={openClaim} />
+        </section>
+      )}
 
       {filing && <FileClaimModal source={filing} onClose={() => setFiling(null)} onError={fail} />}
       {responding && (
         <RespondModal claim={responding} onClose={() => setResponding(null)} onError={fail} />
       )}
+      <ConfirmDialog
+        open={withdrawing !== null}
+        title={t('claims.actions.withdrawn')}
+        message={t('portal.claims.withdrawConfirm', { number: withdrawing?.claim_number ?? '' })}
+        confirmLabel={t('claims.actions.withdrawn')}
+        pending={withdraw.isPending}
+        onCancel={() => setWithdrawing(null)}
+        onConfirm={() => {
+          if (!withdrawing) return
+          void withdraw
+            .mutateAsync({ claim_id: withdrawing.id })
+            .catch(fail)
+            .finally(() => setWithdrawing(null))
+        }}
+      />
 
       {(claims ?? []).some((c) => c.decision_reason && c.status === 'declined') && (
         <p className="text-xs text-slate-500">
@@ -214,7 +238,7 @@ function FileClaimModal({
   onClose: () => void
   onError: (e: unknown) => void
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const openClaim = useClientOpenClaim()
   const [cause, setCause] = useState<'protracted_default' | 'insolvency' | 'other'>(
     'protracted_default',
@@ -224,7 +248,7 @@ function FileClaimModal({
   return (
     <Modal
       open
-      title={t('portal.claims.file.title', { buyer: source.buyer_name })}
+      title={t('portal.claims.file.title')}
       onClose={onClose}
       footer={
         <>
@@ -232,6 +256,7 @@ function FileClaimModal({
             {t('common.cancel')}
           </Button>
           <Button
+            disabled={openClaim.isPending}
             onClick={() =>
               openClaim
                 .mutateAsync({
@@ -250,7 +275,19 @@ function FileClaimModal({
         </>
       }
     >
-      <p className="text-[13px] text-slate-600">{t('portal.claims.file.hint')}</p>
+      {/* The buyer is named here, not in the title: a company name in an
+          uppercase title wraps onto two lines. */}
+      <DescriptionList
+        items={[
+          { label: t('portal.claims.fields.buyer'), value: source.buyer_name },
+          { label: t('portal.claims.fields.policy'), value: source.policy_number },
+          {
+            label: t('portal.claims.fields.overdueAmount'),
+            value: `${formatAmount(Number(source.overdue_amount), i18n.language)} ${source.currency_code}`,
+          },
+        ]}
+      />
+      <p className="text-[13px] leading-relaxed text-slate-600">{t('portal.claims.file.hint')}</p>
       <Field label={t('portal.claims.fields.cause')}>
         <Select
           value={cause}
@@ -308,9 +345,9 @@ function RespondModal({
         </>
       }
     >
-      <p className="text-[13px] text-slate-600">{t('portal.claims.respond.hint')}</p>
+      <p className="text-[13px] leading-relaxed text-slate-600">{t('portal.claims.respond.hint')}</p>
       <Field label={t('portal.claims.fields.message')}>
-        <Input value={comment} onChange={(e) => setComment(e.target.value)} />
+        <Textarea rows={3} value={comment} onChange={(e) => setComment(e.target.value)} />
       </Field>
     </Modal>
   )

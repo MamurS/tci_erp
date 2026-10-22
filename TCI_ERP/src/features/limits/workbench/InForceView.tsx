@@ -9,8 +9,8 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Card, EmptyState, Input, ViewBar, Select, Spinner, StatCard, Table } from '../../../components/ui'
-import { formatAmount, formatCompact, formatDays } from '../../../lib/format'
+import { Card, EmptyState, Input, KeyFigures, ViewBar, Select, Spinner, Table, Truncate } from '../../../components/ui'
+import { EM_DASH, formatAmount, formatCompact, formatDays } from '../../../lib/format'
 import { GRADE_BANDS, num } from '../../portfolio/aggregate'
 import { useCreditPortfolio } from '../../portfolio/api'
 import { useCountryName } from '../../portfolio/useCountryName'
@@ -49,17 +49,18 @@ export function InForceView() {
         </Card>
       ) : (
         <div className="grid gap-4">
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-            <StatCard label={t('portfolio.credit.limits')} value={formatAmount(rows.length, locale)} />
-            <StatCard label={t('portfolio.credit.buyers')} value={formatAmount(buyers, locale)} />
-            <StatCard label={t('portfolio.credit.exposure')} value={`${formatCompact(total.uzs, locale)} UZS`} />
-            <StatCard
-              label={t('portfolio.missingRates')}
-              value={formatAmount(total.missing, locale)}
-              meta={t('portfolio.missingRatesHint')}
-              tone={total.missing > 0 ? 'warn' : 'default'}
-            />
-          </div>
+          <KeyFigures
+            className=""
+            items={[
+              { label: t('portfolio.credit.limits'), value: formatAmount(rows.length, locale) },
+              { label: t('portfolio.credit.buyers'), value: formatAmount(buyers, locale) },
+              {
+                label: t('portfolio.credit.exposure'),
+                value: `${formatCompact(total.uzs, locale)} UZS`,
+                meta: total.missing > 0 ? t('portfolio.credit.exposureMissing', { count: total.missing }) : undefined,
+              },
+            ]}
+          />
 
           <div className="flex flex-wrap gap-2">
             <Input
@@ -100,63 +101,78 @@ export function InForceView() {
               <EmptyState title={t('limits.workbench.inforce.noMatch')} hint={t('limits.workbench.inforce.noMatchHint')} />
             </Card>
           ) : (
-            <Card className="overflow-x-auto p-0">
-              <Table dense>
-                <thead>
-                  <tr>
-                    <th>{t('limits.fields.buyer')}</th>
-                    <th>{t('portfolio.credit.country')}</th>
-                    <th>{t('policies.fields.policyNumber')}</th>
-                    <th>{t('policies.fields.policyholder')}</th>
-                    <th className="text-right">{t('limits.fields.approvedAmount')}</th>
-                    <th className="text-right">{t('portfolio.credit.exposure')}</th>
-                    <th className="text-right">{t('limits.fields.paymentTerms')}</th>
-                    <th>{t('portfolio.credit.rating')}</th>
-                    <th className="text-right">{t('limits.workbench.inforce.review')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((r) => (
-                    <tr key={r.decision_id}>
-                      <td>
+            // Buyer + country and policy + policyholder share a cell each (a
+            // second, smaller line), the names cut with an ellipsis: eleven
+            // limits used to wrap onto three lines a row. Payment terms were
+            // «—» on almost every row, so they sit under the amount when set.
+            <Table dense>
+              <thead>
+                <tr>
+                  <th className="cell-fill w-[30%]">{t('limits.fields.buyer')}</th>
+                  <th className="cell-fill w-[28%]">{t('limits.fields.policyAndPolicyholder')}</th>
+                  <th className="w-px text-right">{t('limits.fields.approvedAmount')}</th>
+                  <th className="w-px text-right">{t('portfolio.credit.exposure')}</th>
+                  <th className="w-px">{t('portfolio.credit.rating')}</th>
+                  <th className="w-px text-right">{t('limits.workbench.inforce.review')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.decision_id}>
+                    <td className="cell-fill">
+                      <Truncate text={r.buyer_name} className="max-w-none">
                         <EntityLink id={r.buyer_entity_id} name={r.buyer_name} tab="limits" />
-                      </td>
-                      <td className="text-slate-600">{countryName(r.buyer_country)}</td>
-                      <td className="whitespace-nowrap">
-                        <Link to={`/limits/${r.request_id}`} className="text-accent-600 hover:text-accent-500">
-                          {r.policy_number}
-                        </Link>
-                      </td>
-                      <td className="text-slate-600">{r.policyholder_name}</td>
-                      <td className="num text-right whitespace-nowrap">
-                        {formatAmount(num(r.approved_amount), locale)} {r.currency_code}
-                      </td>
-                      <td className="num text-right">
-                        <Uzs value={r.amount_uzs} />
-                      </td>
-                      <td className="num text-right">
-                        {formatDays(r.payment_terms_days, locale)}
-                      </td>
-                      <td>
-                        <span className="flex items-center gap-1.5">
-                          <BandBadge band={r.current_band} />
-                          {r.current_grade && <span className="text-[12px] text-slate-500">{r.current_grade}</span>}
+                      </Truncate>
+                      <Truncate text={countryName(r.buyer_country)} className="max-w-none text-[12px] text-slate-500">
+                        {countryName(r.buyer_country)}
+                      </Truncate>
+                    </td>
+                    <td className="cell-fill">
+                      <Link to={`/limits/${r.request_id}`} className="block whitespace-nowrap text-accent-600 hover:text-accent-500">
+                        {r.policy_number}
+                      </Link>
+                      <Truncate text={r.policyholder_name} className="max-w-none text-[12px] text-slate-500">
+                        {r.policyholder_name}
+                      </Truncate>
+                    </td>
+                    <td className="num">
+                      {formatAmount(num(r.approved_amount), locale)} {r.currency_code}
+                      {r.payment_terms_days != null && (
+                        <span className="block text-[12px] text-slate-500" title={t('limits.fields.paymentTerms')}>
+                          {t('limits.workbench.inforce.terms', {
+                            terms: t('policies.terms.days', { count: r.payment_terms_days }),
+                          })}
                         </span>
-                      </td>
-                      <td
-                        className={`num text-right ${
-                          r.days_to_review !== null && r.days_to_review < 0 ? 'font-semibold text-neg-500' : ''
-                        }`}
-                      >
-                        {r.days_to_review === null
-                          ? t('limits.untilReview')
-                          : formatDays(r.days_to_review, locale)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Card>
+                      )}
+                    </td>
+                    <td className="num">
+                      <Uzs value={r.amount_uzs} />
+                    </td>
+                    <td>
+                      <BandBadge band={r.current_band} grade={r.current_grade} />
+                    </td>
+                    <td
+                      className={`num ${
+                        r.days_to_review !== null && r.days_to_review < 0 ? 'font-semibold text-neg-500' : ''
+                      }`}
+                      title={
+                        r.days_to_review !== null && r.days_to_review < 0
+                          ? t('limits.workbench.monitoring.overdueHint')
+                          : undefined
+                      }
+                    >
+                      {r.days_to_review === null ? (
+                        <span className="text-slate-400" title={t('limits.noReviewDate')}>
+                          {EM_DASH}
+                        </span>
+                      ) : (
+                        formatDays(r.days_to_review, locale)
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
           )}
         </div>
       )}

@@ -6,16 +6,15 @@
  * routine outcome.
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Field, Input, Modal, Select } from '../../components/ui'
+import { Button, Field, Input, Modal } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
-import { EM_DASH } from '../../lib/format'
 import { USER_ROLES } from '../../lib/roles'
 import type { UserRole } from '../../lib/roles'
 import { canProvisionAnyRole } from './provisioningAccess'
-import { useEntities } from '../entities/api'
+import { EntityPicker } from '../entities/EntityPicker'
 import { useCreateUser } from './provisioningApi'
 import { provisioningErrorKey } from './provisioningErrors'
 import { TempPasswordPanel } from './TempPasswordPanel'
@@ -38,7 +37,6 @@ export function CreateUserModal({
 }: CreateUserModalProps) {
   const { t } = useTranslation()
   const { roles: callerRoles } = useAuth()
-  const { data: entities } = useEntities()
   const createUser = useCreateUser()
 
   // Sales and commercial underwriting may create client users only, so the
@@ -49,7 +47,6 @@ export function CreateUserModal({
   const [fullName, setFullName] = useState('')
   const [selectedRoles, setSelectedRoles] = useState<UserRole[]>(['client'])
   const [entityId, setEntityId] = useState('')
-  const [entitySearch, setEntitySearch] = useState('')
   const [errorKey, setErrorKey] = useState<string | null>(null)
   const [result, setResult] = useState<ProvisionedUser | null>(null)
 
@@ -59,16 +56,11 @@ export function CreateUserModal({
     setFullName('')
     setSelectedRoles(clientOnly ? ['client'] : ['client'])
     setEntityId(lockedEntityId ?? '')
-    setEntitySearch('')
     setErrorKey(null)
     setResult(null)
   }, [open, clientOnly, lockedEntityId])
 
   const needsEntity = selectedRoles.includes('client')
-  const candidates = useMemo(() => {
-    const query = entitySearch.trim().toLowerCase()
-    return (entities ?? []).filter((e) => !query || e.name.toLowerCase().includes(query))
-  }, [entities, entitySearch])
 
   const valid =
     /.+@.+\..+/.test(email.trim()) &&
@@ -166,23 +158,7 @@ export function CreateUserModal({
             rejects the pair being wrong either way. */}
         {needsEntity && !lockedEntityId && (
           <Field label={t('provisioning.fields.company')}>
-            <Input
-              value={entitySearch}
-              onChange={(e) => setEntitySearch(e.target.value)}
-              placeholder={t('entities.searchPlaceholder')}
-            />
-            <Select
-              value={entityId}
-              onChange={(e) => setEntityId(e.target.value)}
-              className="mt-1.5"
-            >
-              <option value="">{t('common.notSelected')}</option>
-              {candidates.slice(0, 50).map((e) => (
-                <option key={e.id} value={e.id}>
-                  {e.name} · {e.registration_number ?? EM_DASH}
-                </option>
-              ))}
-            </Select>
+            <EntityPicker value={entityId || null} onChange={(id) => setEntityId(id ?? '')} />
           </Field>
         )}
 

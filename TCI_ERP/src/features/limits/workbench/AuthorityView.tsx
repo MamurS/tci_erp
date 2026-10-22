@@ -7,9 +7,9 @@
 
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, ViewBar, SectionTitle, Spinner, Table } from '../../../components/ui'
+import { Badge, Card, EmptyState, Panel, PanelGrid, Skeleton, Table, ViewBar } from '../../../components/ui'
 import { useAuth } from '../../../auth/AuthContext'
-import { formatAmount, formatCompact } from '../../../lib/format'
+import { formatAmount, formatCompact, formatDate } from '../../../lib/format'
 import { AUTHORITY_SCOPES, GRADE_BANDS, hasRole } from '../../../lib/roles'
 import type { GradeBand } from '../../../lib/roles'
 import { useMyAuthorityGrants, useMyAuthorityUzs } from '../api'
@@ -25,7 +25,7 @@ function BandAuthority({ band }: { band: GradeBand }) {
       </td>
       <td className="num text-right">
         {isLoading ? (
-          '…'
+          <Skeleton className="ml-auto h-4 w-24" />
         ) : isError ? (
           <span className="text-warn-500">{t('limits.workbench.authority.rateMissing')}</span>
         ) : data ? (
@@ -57,10 +57,8 @@ export function AuthorityView() {
         </Card>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
-        <Card className="p-5">
-          <SectionTitle>{t('limits.workbench.authority.byBand')}</SectionTitle>
-          <p className="-mt-1 mb-3 text-[12px] leading-relaxed text-slate-500">{t('limits.workbench.authority.byBandHint')}</p>
+      <PanelGrid cols="lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+        <Panel title={t('limits.workbench.authority.byBand')} hint={t('limits.workbench.authority.byBandHint')}>
           <Table dense>
             <thead>
               <tr>
@@ -74,12 +72,17 @@ export function AuthorityView() {
               ))}
             </tbody>
           </Table>
-        </Card>
+        </Panel>
 
-        <Card className="p-5">
-          <SectionTitle>{t('limits.workbench.authority.grants')}</SectionTitle>
+        <Panel title={t('limits.workbench.authority.grants')} hint={t('limits.workbench.authority.grantsHint')}>
           {isLoading ? (
-            <Spinner />
+            // The same placeholder as the band column beside it: rows, not a
+            // lone spinner in an empty card.
+            <div className="flex flex-col gap-2 py-1">
+              {[0, 1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-6 w-full" />
+              ))}
+            </div>
           ) : !live.length ? (
             <EmptyState title={t('limits.workbench.authority.noGrants')} hint={t('limits.workbench.authority.noGrantsHint')} />
           ) : (
@@ -109,16 +112,16 @@ export function AuthorityView() {
                         <td className="num text-right whitespace-nowrap">
                           {formatAmount(Number(g.max_amount), locale)} {g.currency_code}
                         </td>
-                        <td className="whitespace-nowrap text-slate-600">{g.valid_from}</td>
-                        <td className="whitespace-nowrap text-slate-600">{g.valid_to ?? t('admin.openEnded')}</td>
+                        <td className="whitespace-nowrap text-slate-600">{formatDate(g.valid_from, locale)}</td>
+                        <td className="whitespace-nowrap text-slate-600">{g.valid_to ? formatDate(g.valid_to, locale) : t('admin.openEnded')}</td>
                       </tr>
                     )),
                 )}
               </tbody>
             </Table>
           )}
-        </Card>
-      </div>
+        </Panel>
+      </PanelGrid>
     </div>
   )
 }

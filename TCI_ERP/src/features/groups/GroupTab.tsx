@@ -12,7 +12,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Card, Spinner } from '../../components/ui'
+import { Button, Card, ConfirmDialog, Spinner, SectionTitle } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { hasRole } from '../../lib/roles'
 import { useEntities, useLatestGrades } from '../entities/api'
@@ -26,6 +26,7 @@ import {
   useGroupExposure,
   useGroupExposureLines,
   useGroupFinancials,
+  useGroupLimitStatusFor,
   useGroupMemberFinancials,
   useGroupRelationships,
 } from './api'
@@ -61,6 +62,7 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
   const exposure = useGroupExposure(parentId)
   const lines = useGroupExposureLines(parentId)
   const groupLimit = useCurrentGroupLimit(parentId)
+  const limitStatus = useGroupLimitStatusFor(parentId)
   const suggestions = useEntitySuggestions(entityId)
   const financials = useGroupFinancials(parentId)
   const memberFinancials = useGroupMemberFinancials(parentId, memberIds)
@@ -73,6 +75,10 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
   const [relationshipOpen, setRelationshipOpen] = useState(false)
   const [limitOpen, setLimitOpen] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Both "end" actions change what the group may hold from today, so each
+  // is confirmed — the child whose edge is ending, or the limit.
+  const [endingChildId, setEndingChildId] = useState<string | null>(null)
+  const [endingLimit, setEndingLimit] = useState(false)
 
   const names = useMemo(
     () => new Map((entities ?? []).map((e) => [e.id, e.name])),
@@ -99,16 +105,19 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
     [claims.data, memberIds],
   )
 
-  const handleEndEdge = async (childId: string) => {
+  const endingEdge = endingChildId
+    ? ((relationships.data ?? []).find((r) => r.child_entity_id === endingChildId && r.is_live) ?? null)
+    : null
+
+  const handleEndEdge = async () => {
     setError(null)
-    const edge = (relationships.data ?? []).find(
-      (r) => r.child_entity_id === childId && r.is_live,
-    )
-    if (!edge) return
+    if (!endingEdge) return
     try {
-      await endRelationship.mutateAsync({ relationshipId: edge.id })
+      await endRelationship.mutateAsync({ relationshipId: endingEdge.id })
     } catch (e) {
       setError(t(groupErrorKey(e) ?? 'groups.errors.saveFailed'))
+    } finally {
+      setEndingChildId(null)
     }
   }
 
@@ -119,6 +128,8 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
       await endGroupLimit.mutateAsync({ ultimateParentId: parentId })
     } catch (e) {
       setError(t(groupErrorKey(e) ?? 'groups.errors.saveFailed'))
+    } finally {
+      setEndingLimit(false)
     }
   }
 
@@ -135,23 +146,20 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
       )}
 
       <Card className="flex flex-col gap-3 p-5">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <h3 className="text-sm font-semibold text-slate-900">{t('groups.tree.title')}</h3>
-            <p className="mt-1 text-[13px] text-slate-500">
-              {isAlone
-                ? t('groups.tree.alone')
-                : t('groups.tree.summary', { count: members.length, parent: parentName })}
-            </p>
-          </div>
-          {mayEdit && (
-            <Button size="sm" variant="secondary" onClick={() => setRelationshipOpen(true)}>
-              {t('groups.actions.addRelationship')}
-            </Button>
-          )}
-        </div>
+        <SectionTitle
+          hint={isAlone ? t('groups.tree.alone') : t('groups.tree.summary', { count: members.length, parent: parentName })}
+          actions={
+            mayEdit && (
+              <Button size="sm" variant="secondary" onClick={() => setRelationshipOpen(true)}>
+                {t('groups.actions.addRelationship')}
+              </Button>
+            )
+          }
+        >
+          {t('groups.tree.title')}
+        </SectionTitle>
 
-        {tree && !isAlone && <GroupTree tree={tree} focusId={entityId} onEndEdge={mayEdit ? (id) => void handleEndEdge(id) : undefined} />}
+        {tree && !isAlone && <GroupTree tree={tree} focusId={entityId} onEndEdge={mayEdit ? setEndingChildId : undefined} />}
 
         {outside.length > 0 && (
           <div>
@@ -174,13 +182,14 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
         exposure={exposure.data ?? null}
         lines={lines.data ?? []}
         groupLimit={groupLimit.data ?? null}
+        status={limitStatus.data ?? null}
         mayManageLimit={mayManageLimit && Boolean(parentId)}
         onSetLimit={() => setLimitOpen(true)}
-        onEndLimit={() => void handleEndLimit()}
+        onEndLimit={() => setEndingLimit(true)}
       />
 
       <Card className="flex flex-col gap-3 p-5">
-        <h3 className="text-sm font-semibold text-slate-900">{t('groups.members.title')}</h3>
+        <SectionTitle>{t('groups.members.title')}</SectionTitle>
         <GroupMembersTable
           members={members}
           focusId={entityId}
@@ -209,9 +218,11 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
         entityId={entityId}
         entityName={entityName}
       />
-      {parentId && (
+      {/* Mounted only while open, so it starts from the limit as it stands now
+          rather than from whatever was loaded when the tab first rendered. */}
+      {parentId && limitOpen && (
         <GroupLimitModal
-          open={limitOpen}
+          open
           onClose={() => setLimitOpen(false)}
           ultimateParentId={parentId}
           ultimateParentName={parentName}
@@ -219,6 +230,32 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
           currentCurrency={groupLimit.data?.currency_code ?? null}
         />
       )}
+
+      <ConfirmDialog
+        open={Boolean(endingEdge)}
+        title={t('groups.confirm.endRelationshipTitle')}
+        message={
+          endingEdge
+            ? t('groups.confirm.endRelationshipMessage', {
+                parent: endingEdge.parent_name,
+                child: endingEdge.child_name,
+              })
+            : ''
+        }
+        confirmLabel={t('groups.confirm.endRelationshipAction')}
+        pending={endRelationship.isPending}
+        onConfirm={() => void handleEndEdge()}
+        onCancel={() => setEndingChildId(null)}
+      />
+      <ConfirmDialog
+        open={endingLimit}
+        title={t('groups.confirm.endLimitTitle')}
+        message={t('groups.confirm.endLimitMessage', { name: parentName })}
+        confirmLabel={t('groups.actions.endGroupLimit')}
+        pending={endGroupLimit.isPending}
+        onConfirm={() => void handleEndLimit()}
+        onCancel={() => setEndingLimit(false)}
+      />
     </div>
   )
 }

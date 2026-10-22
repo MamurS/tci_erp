@@ -14,18 +14,23 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
+  AmountInput,
   Badge,
   Button,
+  Callout,
   Card,
+  DateInput,
   EmptyState,
   Field,
-  Input,
   PageHeader,
+  parseAmount,
+  SectionTitle,
   Select,
   Spinner,
   Table,
+  Truncate,
 } from '../../components/ui'
-import { formatAmount, formatMoment } from '../../lib/format'
+import { formatAmount, formatDate, formatMoment } from '../../lib/format'
 import { isReportedLate, noaDeadline } from '../overdue/noa'
 import {
   useClientDeclarableBuyers,
@@ -55,6 +60,7 @@ export function PortalOverduesPage() {
   const [error, setError] = useState<string | null>(null)
 
   const today = new Date().toISOString().slice(0, 10)
+  const ready = Boolean(buyerId && firstDue && (parseAmount(amount) ?? 0) > 0)
 
   // The deadline and the verdict, computed here so the warning appears while
   // they fill the form in. Mirrors tci.noa_deadline.
@@ -80,18 +86,17 @@ export function PortalOverduesPage() {
     <div className="space-y-6">
       <PageHeader title={t('portal.overdues.title')} subtitle={t('portal.overdues.subtitle')} />
 
-      {error && (
-        <p role="alert" className="rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">
-          {error}
-        </p>
-      )}
+      {error && <Callout tone="neg" title={error} />}
 
       {activePolicy && (
-        <Card>
-          <h2 className="text-sm font-semibold">{t('portal.overdues.fileTitle')}</h2>
-          <p className="mt-1 text-xs text-slate-500">{t('portal.overdues.fileHint')}</p>
+        <Card className="p-5">
+          <SectionTitle className="mb-4" hint={t('portal.overdues.fileHint')}>
+            {t('portal.overdues.fileTitle')}
+          </SectionTitle>
 
-          <div className="mt-3 flex flex-wrap items-end gap-3">
+          <div className="grid items-end gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
+            {/* A client's own buyers with a limit are a short list, so the
+                plain Select primitive is the right picker here. */}
             <Field label={t('limits.fields.buyer')}>
               <Select value={buyerId} onChange={(e) => setBuyerId(e.target.value)}>
                 <option value="">{t('portal.declarations.pickBuyer')}</option>
@@ -103,13 +108,14 @@ export function PortalOverduesPage() {
               </Select>
             </Field>
             <Field label={t('overdues.fields.firstDueDate')}>
-              <Input type="date" value={firstDue} max={today} onChange={(e) => setFirstDue(e.target.value)} />
+              <DateInput value={firstDue} max={today} onChange={setFirstDue} />
             </Field>
             <Field label={t('overdues.fields.overdueAmount')}>
-              <Input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
+              <AmountInput value={amount} onChange={setAmount} suffix={activePolicy.currency_code} />
             </Field>
             <Button
-              disabled={!buyerId || !firstDue || !Number(amount)}
+              disabled={!ready || file.isPending}
+              title={ready ? undefined : t('portal.overdues.fillToFile')}
               onClick={() => {
                 setError(null)
                 void file
@@ -117,52 +123,55 @@ export function PortalOverduesPage() {
                     policy_id: activePolicy.id,
                     entity_id: buyerId,
                     first_due_date: firstDue,
-                    overdue_amount: Number(amount),
+                    overdue_amount: parseAmount(amount) ?? 0,
                   })
                   .then(() => {
                     setBuyerId('')
                     setFirstDue('')
                     setAmount('')
                   })
-                  .catch((e: unknown) =>
-                    setError(t(refusalKey(e))),
-                  )
+                  .catch((e: unknown) => setError(t(refusalKey(e))))
               }}
             >
               {t('portal.overdues.actions.file')}
             </Button>
           </div>
 
-          {lateness && (
-            <p
-              className={`mt-3 rounded-md px-3 py-2 text-[13px] ${
-                lateness.late
-                  ? 'bg-neg-50 text-neg-500'
-                  : 'bg-slate-50 text-slate-600'
-              }`}
-            >
-              {lateness.late
-                ? t('portal.overdues.lateWarning', { date: lateness.deadline })
-                : t('portal.overdues.deadlineHint', { date: lateness.deadline })}
-            </p>
+          {/* What filing WILL do, said once the person is actually filing
+              against a buyer — not as a standing alarm on an empty form. */}
+          {(lateness || buyerId) && (
+            <div className="mt-4 flex flex-col gap-3">
+              {lateness && (
+                <Callout
+                  tone={lateness.late ? 'neg' : 'info'}
+                  title={
+                    lateness.late
+                      ? t('portal.overdues.lateWarning', { date: formatDate(lateness.deadline, locale) })
+                      : t('portal.overdues.deadlineHint', { date: formatDate(lateness.deadline, locale) })
+                  }
+                />
+              )}
+              {buyerId && (
+                <Callout tone="warn" title={t('portal.overdues.suspensionTitle')}>
+                  {t('portal.overdues.suspensionWarning')}
+                </Callout>
+              )}
+            </div>
           )}
-
-          <p className="mt-3 rounded-md border border-warn-500/40 bg-warn-50 px-3 py-2 text-[13px] text-slate-700">
-            {t('portal.overdues.suspensionWarning')}
-          </p>
         </Card>
       )}
 
-      {isLoading ? (
-        <Spinner label={t('common.loading')} />
-      ) : !overdues?.length ? (
-        <EmptyState title={t('portal.overdues.empty')} hint={t('portal.overdues.emptyHint')} />
-      ) : (
-        <Card>
-          <Table dense>
+      <Card className="p-5">
+        <SectionTitle className="mb-3">{t('portal.overdues.listTitle')}</SectionTitle>
+        {isLoading ? (
+          <Spinner label={t('common.loading')} />
+        ) : !overdues?.length ? (
+          <EmptyState title={t('portal.overdues.empty')} hint={t('portal.overdues.emptyHint')} />
+        ) : (
+          <Table>
             <thead>
               <tr>
-                <th>{t('limits.fields.buyer')}</th>
+                <th className="cell-fill w-[30%]">{t('limits.fields.buyer')}</th>
                 <th className="text-right">{t('overdues.fields.overdueAmount')}</th>
                 <th className="text-right">{t('overdues.fields.daysPastDue')}</th>
                 <th>{t('overdues.fields.reported')}</th>
@@ -173,16 +182,14 @@ export function PortalOverduesPage() {
             <tbody>
               {overdues.map((n) => (
                 <tr key={n.id}>
-                  <td className="font-medium">{n.buyer_name}</td>
-                  <td>
-                    <span className="num block">
-                      {formatAmount(Number(n.overdue_amount), locale)} {n.currency_code}
-                    </span>
+                  <td className="cell-fill font-medium">
+                    <Truncate text={n.buyer_name} className="max-w-none" />
                   </td>
-                  <td>
-                    <span className="num block">{n.days_past_due}</span>
+                  <td className="num text-right">
+                    {formatAmount(Number(n.overdue_amount), locale)} {n.currency_code}
                   </td>
-                  <td className="text-[13px]">
+                  <td className="num text-right">{n.days_past_due}</td>
+                  <td className="whitespace-nowrap text-[13px]">
                     {n.reported_late ? (
                       <Badge tone="negStrong">{t('overdues.lateBy', { days: n.days_late })}</Badge>
                     ) : (
@@ -209,8 +216,8 @@ export function PortalOverduesPage() {
               ))}
             </tbody>
           </Table>
-        </Card>
-      )}
+        )}
+      </Card>
     </div>
   )
 }

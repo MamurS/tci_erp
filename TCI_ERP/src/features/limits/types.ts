@@ -55,6 +55,13 @@ export interface LimitRequestWithRefs extends CreditLimitRequest {
     entity_id: string
     legal_entities: { name: string } | null
   } | null
+  /** The submission a pre-bind request belongs to (policy_id is null until
+   * bind adopts it): its number and its applicant stand in for the policy
+   * and the policyholder. */
+  insurance_requests: {
+    request_number: string
+    legal_entities: { name: string } | null
+  } | null
 }
 
 export interface DecisionCondition {
@@ -148,4 +155,16 @@ export interface AuthorityGrant {
 export interface ConditionInput {
   condition_type: ConditionType
   description: string
+}
+
+/** The filter that finds the effective limit THIS request would supersede:
+ * its own scope, tci.limit_scope(policy_id, insurance_request_id). A pre-bind
+ * request has no policy, and filtering by the buyer alone picked up the
+ * buyer's limit on some other policy — shown as «will be superseded» and
+ * offered for commercial adjustment although it is a different scope. */
+export function requestScopeFilter(
+  request: Pick<CreditLimitRequest, 'entity_id' | 'policy_id' | 'insurance_request_id'>,
+): { entityId: string; policyId?: string; insuranceRequestId?: string } {
+  if (request.policy_id) return { entityId: request.entity_id, policyId: request.policy_id }
+  return { entityId: request.entity_id, insuranceRequestId: request.insurance_request_id ?? '' }
 }

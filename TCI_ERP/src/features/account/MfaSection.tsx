@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
-import { Badge, Button, Card, Field, Input } from '../../components/ui'
+import { Badge, Button, Card, ConfirmDialog, Field, Input, SectionTitle } from '../../components/ui'
 import { supabase } from '../../lib/supabase'
 import { formatMoment } from '../../lib/format'
 
@@ -33,6 +33,7 @@ export function MfaSection() {
   const { authStatus, refreshAuthStatus } = useAuth()
 
   const [factors, setFactors] = useState<Factor[]>([])
+  const [removing, setRemoving] = useState<Factor | null>(null)
   const [loading, setLoading] = useState(true)
   const [enrolment, setEnrolment] = useState<Enrolment | null>(null)
   const [code, setCode] = useState('')
@@ -108,10 +109,7 @@ export function MfaSection() {
   }
 
   const removeFactor = async (factor: Factor) => {
-    const warning = authStatus?.mfaRequired
-      ? t('account.mfa.confirmDisableRequired')
-      : t('account.mfa.confirmDisable')
-    if (!window.confirm(warning)) return
+    setRemoving(null)
     setBusy(true)
     setError(null)
     const { error: unenrolError } = await supabase.auth.mfa.unenroll({ factorId: factor.id })
@@ -127,15 +125,19 @@ export function MfaSection() {
 
   return (
     <Card className="p-5">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold text-slate-700">{t('account.mfa.title')}</h2>
-        {!loading && (
-          <Badge tone={verified.length ? 'pos' : authStatus?.mfaRequired ? 'neg' : 'neutral'}>
-            {verified.length ? t('account.mfa.on') : t('account.mfa.off')}
-          </Badge>
-        )}
-      </div>
-      <p className="mb-3 text-[13px] text-slate-500">{t('account.mfa.hint')}</p>
+      <SectionTitle
+        className="mb-3"
+        hint={t('account.mfa.hint')}
+        actions={
+          !loading && (
+            <Badge tone={verified.length ? 'pos' : authStatus?.mfaRequired ? 'neg' : 'neutral'}>
+              {verified.length ? t('account.mfa.on') : t('account.mfa.off')}
+            </Badge>
+          )
+        }
+      >
+        {t('account.mfa.title')}
+      </SectionTitle>
 
       {authStatus?.mfaRequired && !verified.length && (
         <div className="mb-3 rounded-md border border-neg-500/30 bg-red-50 px-3 py-2 text-[13px] text-neg-500">
@@ -158,7 +160,7 @@ export function MfaSection() {
               className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2 text-[13px]"
             >
               <span className="text-slate-700">{f.friendly_name || t('account.mfa.factorName')}</span>
-              <Button variant="secondary" size="sm" disabled={busy} onClick={() => void removeFactor(f)}>
+              <Button variant="dangerOutline" size="sm" disabled={busy} onClick={() => setRemoving(f)}>
                 {t('account.mfa.disable')}
               </Button>
             </div>
@@ -214,6 +216,15 @@ export function MfaSection() {
           {error}
         </p>
       )}
+      <ConfirmDialog
+        open={removing !== null}
+        title={t('account.mfa.disable')}
+        message={t(authStatus?.mfaRequired ? 'account.mfa.confirmDisableRequired' : 'account.mfa.confirmDisable')}
+        confirmLabel={t('account.mfa.disable')}
+        pending={busy}
+        onCancel={() => setRemoving(null)}
+        onConfirm={() => removing && void removeFactor(removing)}
+      />
     </Card>
   )
 }

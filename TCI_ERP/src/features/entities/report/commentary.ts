@@ -228,6 +228,22 @@ export function describeMove(from: number | null, to: number, lossAware = true):
   return { kind: 'change', move, strength: strengthOf(pct), pct: Math.abs(pct) }
 }
 
+/**
+ * Decimals each format is printed with in the commentary (RiskReportDocument
+ * `formatValue`): a percentage as a fraction at two places of %, a ratio and
+ * a day count at two places. Amounts are printed compact, so their "no move"
+ * is the relative FLAT threshold of describeMove instead.
+ */
+const SHOWN_PLACES: Partial<Record<ValueFormat, number>> = { percent: 4, ratio: 2, days: 2 }
+
+/** True when two values print identically in the commentary. */
+export function sameAsShown(format: ValueFormat, a: number, b: number): boolean {
+  const places = SHOWN_PLACES[format]
+  if (places === undefined) return false
+  const k = 10 ** places
+  return Math.round(a * k) === Math.round(b * k)
+}
+
 function sentenceFor(
   def: MetricDef,
   subject: CommentarySentence['subject'],
@@ -243,6 +259,11 @@ function sentenceFor(
   const from = prior ? def.value(prior) : null
   const shownTo = def.value(display[n - 1] ?? series[n - 1])
   const shownFrom = prior ? def.value(display[n - 2] ?? prior) : null
+  // A percentage, ratio or day count that reads the same at its display
+  // precision (56.00% → 56.00%, 1.25x → 1.25x) did not move, whatever the raw
+  // digits say — compared ROUNDED, so neither «slight» nor a colour can fire.
+  if (from !== null && sameAsShown(def.format, from, to))
+    return { metric: def.metric, subject, format: def.format, from: shownFrom, to: shownTo ?? to, commentary: { kind: 'flat' }, tone: null }
   return {
     metric: def.metric,
     subject,

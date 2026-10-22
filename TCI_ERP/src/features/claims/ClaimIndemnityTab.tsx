@@ -2,9 +2,10 @@
  * computes and — once approved — freezes onto the claim, so the figure a
  * policyholder was paid can always be re-read exactly as it was derived. */
 
+import { ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Card, EmptyState, Spinner, Table } from '../../components/ui'
+import { Badge, Callout, Card, EmptyState, Panel, Spinner, Table } from '../../components/ui'
 import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
 import { useIndemnity } from './api'
 import type { Claim, IndemnityStep, IndemnityTrace } from './types'
@@ -16,31 +17,34 @@ export function ClaimIndemnityTab({ claim }: { claim: Claim }) {
   const frozen = claim.indemnity_trace
 
   if (isLoading) return <Spinner label={t('common.loading')} />
-  if (!live) return <EmptyState title={t('claims.indemnity.emptyTitle')} hint={t('claims.indemnity.emptyHint')} />
+  if (!live)
+    return (
+      <Card className="p-6">
+        <EmptyState title={t('claims.indemnity.emptyTitle')} hint={t('claims.indemnity.emptyHint')} />
+      </Card>
+    )
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {frozen && (
-        <Card className="border-accent-500/30 bg-accent-50">
-          <p className="text-sm font-semibold text-slate-800">{t('claims.indemnity.frozenTitle')}</p>
-          <p className="mt-1 text-[13px] text-slate-700">
-            {t('claims.indemnity.frozenExplain', {
-              amount: `${formatAmount(Number(claim.approved_indemnity ?? 0), locale)} ${claim.currency_code}`,
-              at: claim.assessed_at ? formatMoment(claim.assessed_at, locale) : EM_DASH,
-            })}
-          </p>
-        </Card>
+        <Callout tone="info" title={t('claims.indemnity.frozenTitle')}>
+          {t('claims.indemnity.frozenExplain', {
+            amount: `${formatAmount(Number(claim.approved_indemnity ?? 0), locale)} ${claim.currency_code}`,
+            at: claim.assessed_at ? formatMoment(claim.assessed_at, locale) : EM_DASH,
+          })}
+        </Callout>
       )}
 
       <TraceCard trace={frozen ?? live} claim={claim} locale={locale} live={!frozen} />
 
       {frozen && (
-        <details className="rounded-lg border border-slate-200 bg-white p-4">
-          <summary className="cursor-pointer text-sm font-semibold">
+        <details className="group rounded-lg border border-slate-200/90 bg-white shadow-card">
+          <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-3.5 text-sm font-semibold text-slate-700 hover:text-slate-900 [&::-webkit-details-marker]:hidden">
+            <ChevronRight className="size-4 text-slate-400 transition-transform group-open:rotate-90" aria-hidden />
             {t('claims.indemnity.liveTitle')}
           </summary>
-          <p className="mt-2 text-[13px] text-slate-600">{t('claims.indemnity.liveExplain')}</p>
-          <div className="mt-3">
+          <div className="border-t border-slate-100 px-5 pt-3 pb-5">
+            <p className="mb-4 text-[13px] text-slate-600">{t('claims.indemnity.liveExplain')}</p>
             <TraceCard trace={live} claim={claim} locale={locale} live />
           </div>
         </details>
@@ -61,52 +65,61 @@ function TraceCard({
   live: boolean
 }) {
   const { t } = useTranslation()
+  const currency = trace.currency || claim.currency_code
   return (
-    <Card>
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold">{t('claims.indemnity.title')}</h2>
+    <Panel
+      title={t('claims.indemnity.title')}
+      actions={
         <Badge tone={live ? 'neutral' : 'accent'}>
           {live ? t('claims.indemnity.live') : t('claims.indemnity.frozen')}
         </Badge>
-      </div>
-
+      }
+    >
       <Table dense>
         <thead>
           <tr>
             <th>{t('claims.indemnity.stepLabel')}</th>
             <th>{t('claims.indemnity.applied')}</th>
-            <th className="num">{t('claims.indemnity.running')}</th>
+            <th className="text-right">{t('claims.indemnity.running')}</th>
           </tr>
         </thead>
         <tbody>
           {trace.steps.map((step, i) => (
             <StepRow key={step.key} step={step} index={i} currency={claim.currency_code} locale={locale} />
           ))}
+          {/* The result closes the table it is derived in; before approval it
+              is an estimate and says so. */}
+          <tr className="!bg-accent-50 [&>td]:border-t [&>td]:border-accent-200 [&>td]:py-2.5">
+            <td colSpan={2} className="font-semibold text-slate-900">
+              {live ? t('claims.indemnity.payableEstimate') : t('claims.indemnity.payable')}
+            </td>
+            <td className="num text-[15px] font-bold text-accent-700">
+              {formatAmount(Number(trace.payable), locale)} {currency}
+            </td>
+          </tr>
         </tbody>
       </Table>
 
-      <div className="mt-4 flex items-baseline justify-between border-t border-slate-200 pt-3">
-        <span className="text-sm font-semibold">{t('claims.indemnity.payable')}</span>
-        <span className="num text-xl font-semibold">
-          {formatAmount(Number(trace.payable), locale)} {trace.currency || claim.currency_code}
-        </span>
-      </div>
       {trace.not_indemnifiable_reason && (
-        <p className="mt-2 rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">
-          {t(trace.not_indemnifiable_reason, {
+        <Callout
+          tone="neg"
+          className="mt-4"
+          title={t(trace.not_indemnifiable_reason, {
             covered: `${formatAmount(Number(trace.covered_amount), locale)} ${claim.currency_code}`,
             threshold: `${formatAmount(Number(trace.nql_amount), locale)} ${claim.currency_code}`,
           })}
-        </p>
+        />
       )}
       {!trace.not_indemnifiable_reason && !trace.fully_covered && (
-        <p className="mt-2 text-[13px] text-warn-600">
-          {t('claims.indemnity.partialNote', {
+        <Callout
+          tone="warn"
+          className="mt-4"
+          title={t('claims.indemnity.partialNote', {
             amount: `${formatAmount(Number(trace.uncovered_amount), locale)} ${claim.currency_code}`,
           })}
-        </p>
+        />
       )}
-    </Card>
+    </Panel>
   )
 }
 

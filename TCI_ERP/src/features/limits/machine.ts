@@ -89,6 +89,10 @@ export function outcomeTone(
   }
 }
 
+/** A request waiting longer than this many days since submission is
+ * highlighted in the queue: it has sat longer than a decision usually takes. */
+export const REQUEST_AGE_WARN_DAYS = 5
+
 /** Whole days since submission (queue "age" column); null before submit. */
 export function requestAgeDays(submittedAt: string | null, nowIso: string): number | null {
   if (!submittedAt) return null

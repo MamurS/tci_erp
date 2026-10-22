@@ -7,8 +7,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { Badge, Card, EmptyState, Segmented, Spinner } from '../../components/ui'
-import { EM_DASH, formatAmount } from '../../lib/format'
-import { usePolicies } from '../policies/api'
+import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { useBuyerDecisions, useBuyerExposure } from './api'
 import { buildLimitChains } from './exposure'
 import { outcomeTone } from './machine'
@@ -20,20 +19,31 @@ export function BuyerLimitsTab({ entityId }: { entityId: string }) {
 
   const decisions = useBuyerDecisions(entityId)
   const exposure = useBuyerExposure(entityId)
-  const { data: policies } = usePolicies()
   const [mode, setMode] = useState<'effective' | 'history'>('effective')
 
-  const policyLabel = useMemo(() => {
-    const map = new Map((policies ?? []).map((p) => [p.id, p]))
+  // The scope's label, from the decisions' own join: a policy number, or the
+  // submission a pre-bind limit belongs to. Never the bare id.
+  const scopeLabel = useMemo(() => {
+    const map = new Map<string, { title: string; holder: string | null; policy: boolean }>()
+    for (const d of decisions.data ?? []) {
+      const r = d.credit_limit_requests
+      const key = r.policy_id ?? 'pre-bind'
+      if (map.has(key)) continue
+      map.set(key, {
+        title: r.policies?.policy_number ?? r.insurance_requests?.request_number ?? t('limits.preBindScope'),
+        holder: r.policies?.legal_entities?.name ?? null,
+        policy: Boolean(r.policy_id),
+      })
+    }
     return (id: string) => map.get(id) ?? null
-  }, [policies])
+  }, [decisions.data, t])
 
   const chains = useMemo(
     () =>
       buildLimitChains(
         (decisions.data ?? []).map((d) => ({
           ...d,
-          policy_id: d.credit_limit_requests.policy_id,
+          policy_id: d.credit_limit_requests.policy_id ?? 'pre-bind',
         })),
       ),
     [decisions.data],
@@ -74,21 +84,21 @@ export function BuyerLimitsTab({ entityId }: { entityId: string }) {
       </div>
 
       {chains.map((chain) => {
-        const policy = policyLabel(chain.policyId)
+        const scope = scopeLabel(chain.policyId)
         const shown =
           mode === 'history' ? chain.decisions : chain.decisions.filter(isCurrent).slice(0, 1)
         if (!shown.length) return null
         return (
           <Card key={chain.policyId} className="p-5">
             <h3 className="mb-2 text-sm font-semibold text-slate-900">
-              <Link to={`/policies/${chain.policyId}`} className="text-accent-700 hover:underline">
-                {policy?.policy_number ?? chain.policyId}
-              </Link>
-              {policy?.legal_entities?.name && (
-                <span className="ml-2 font-normal text-slate-500">
-                  {policy.legal_entities.name}
-                </span>
+              {scope?.policy ? (
+                <Link to={`/policies/${chain.policyId}`} className="text-accent-700 hover:underline">
+                  {scope.title}
+                </Link>
+              ) : (
+                <span>{scope?.title ?? t('limits.preBindScope')}</span>
               )}
+              {scope?.holder && <span className="ml-2 font-normal text-slate-500">{scope.holder}</span>}
             </h3>
             <ol className="flex flex-col gap-2">
               {shown.map((d) => (
@@ -105,7 +115,7 @@ export function BuyerLimitsTab({ entityId }: { entityId: string }) {
                       : EM_DASH}
                   </span>
                   <span className="text-slate-500">
-                    {d.valid_from} — {d.valid_until ?? t('limits.untilReview')}
+                    {formatDate(d.valid_from, locale)} — {d.valid_until ? formatDate(d.valid_until, locale) : t('limits.untilReview')}
                   </span>
                   {mode === 'history' && (
                     <Badge tone={d.lifecycle === 'effective' ? 'pos' : 'neutral'}>
@@ -113,7 +123,7 @@ export function BuyerLimitsTab({ entityId }: { entityId: string }) {
                     </Badge>
                   )}
                   <span className="ml-auto text-xs text-slate-400">
-                    {d.decided_at.slice(0, 10)}
+                    {formatDate(d.decided_at, locale)}
                   </span>
                   {d.comment && <p className="w-full text-slate-500">{d.comment}</p>}
                 </li>

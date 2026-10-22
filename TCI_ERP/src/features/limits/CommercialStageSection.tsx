@@ -7,10 +7,11 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Field, Input } from '../../components/ui'
+import { AmountInput, Badge, Button, Card, Field, Input, SectionTitle } from '../../components/ui'
+import { parseAmount } from '../../components/ui/amount'
 import { useAuth } from '../../auth/AuthContext'
 import { bandForGrade, hasRole } from '../../lib/roles'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import { formatAmount, formatDate } from '../../lib/format'
 import { useAssessments } from '../entities/rating/assessmentsApi'
 import {
   useAdjustLimitCommercial,
@@ -25,16 +26,14 @@ import { outcomeTone } from './machine'
 import { GroupPreflightNotice, groupErrorKey, useGroupPreflight } from '../groups'
 import { ReleaseBadge } from './ReleaseBadge'
 import type { LimitRequestWithRefs } from './types'
+import { requestScopeFilter } from './types'
 
 export function CommercialStageSection({ request }: { request: LimitRequestWithRefs }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const { session, roles } = useAuth()
 
-  const { data: limits } = useEffectiveLimits({
-    policyId: request.policy_id,
-    entityId: request.entity_id,
-  })
+  const { data: limits } = useEffectiveLimits(requestScopeFilter(request))
   const { data: windowHours } = useSalesWindowHours()
   const assessments = useAssessments(request.entity_id)
   const adjust = useAdjustLimitCommercial()
@@ -58,7 +57,7 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
     assessments.data?.find((a) => a.id === limit?.based_on_assessment_id)?.rating_grade,
   )
 
-  const parsedAmount = Number(amount.replace(/\s/g, '').replace(',', '.'))
+  const parsedAmount = parseAmount(amount) ?? Number.NaN
   const amountValid = Number.isFinite(parsedAmount) && parsedAmount > 0
   const todayIso = new Date().toISOString().slice(0, 10)
   const nowIso = new Date().toISOString()
@@ -125,10 +124,9 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
 
   return (
     <Card className="flex flex-col gap-4 p-5">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-900">{t('limits.commercial.title')}</h2>
-        <ReleaseBadge facts={limit} salesWindowHours={windowHours ?? 24} nowIso={nowIso} />
-      </div>
+      <SectionTitle actions={<ReleaseBadge facts={limit} salesWindowHours={windowHours ?? 24} nowIso={nowIso} />}>
+        {t('limits.commercial.title')}
+      </SectionTitle>
 
       {/* The chain as decided: credit → commercial. Both rows stay visible. */}
       <div className="flex flex-col gap-1.5 text-[13px]">
@@ -138,7 +136,7 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
             {formatAmount(Number(limit.credit_amount), locale)} {limit.currency_code}
           </span>
           <span className="text-slate-500">
-            {limit.valid_from} — {limit.valid_until ?? t('limits.untilReview')}
+            {formatDate(limit.valid_from, locale)} — {limit.valid_until ? formatDate(limit.valid_until, locale) : t('limits.untilReview')}
           </span>
           {creditRow?.payment_terms_days != null && (
             <span className="text-slate-500">
@@ -172,25 +170,35 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
         <>
           <p className="text-[13px] text-slate-500">{t('limits.commercial.scopeHint')}</p>
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label={`${t('limits.commercial.newAmount')} (${limit.currency_code})`}>
-              <Input
-                inputMode="decimal"
-                className="num"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder={formatAmount(Number(limit.approved_amount), locale)}
-              />
+            {/* No placeholders: a grey «250,000» in the box read as a value
+                already entered. What stands today is said under the box. */}
+            <Field
+              label={t('limits.commercial.newAmount')}
+              hint={
+                limit.approved_amount !== null
+                  ? t('limits.commercial.currentAmount', {
+                      amount: `${formatAmount(Number(limit.approved_amount), locale)} ${limit.currency_code}`,
+                    })
+                  : undefined
+              }
+            >
+              <AmountInput value={amount} onChange={setAmount} suffix={limit.currency_code} />
             </Field>
-            <Field label={t('limits.fields.paymentTerms')}>
-              <Input
-                inputMode="numeric"
+            <Field
+              label={t('limits.fields.paymentTerms')}
+              hint={
+                limit.payment_terms_days != null
+                  ? t('limits.commercial.currentTerms', {
+                      terms: t('policies.terms.days', { count: limit.payment_terms_days }),
+                    })
+                  : t('limits.commercial.termsUnchanged')
+              }
+            >
+              <AmountInput
+                decimals={0}
                 value={terms}
-                onChange={(e) => setTerms(e.target.value)}
-                placeholder={
-                  limit.payment_terms_days != null
-                    ? String(limit.payment_terms_days)
-                    : t('policies.terms.daysSuffix')
-                }
+                onChange={setTerms}
+                suffix={t('policies.terms.daysSuffix')}
               />
             </Field>
           </div>
@@ -244,7 +252,7 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
             </p>
           )}
 
-          <div>
+          <div className="flex flex-wrap items-center gap-3">
             <Button
               onClick={() => void handleAdjust()}
               disabled={!amountValid || adjust.isPending || check?.withinAuthority === false}
@@ -252,8 +260,13 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
             >
               {adjust.isPending ? t('common.saving') : t('limits.commercial.action')}
             </Button>
-            {limit.approved_amount === null && (
-              <span className="ml-2 text-xs text-slate-400">{EM_DASH}</span>
+            {/* A disabled button says why. Over authority the banner above
+                already explains; this line only points at it. */}
+            {!adjust.isPending && !amountValid && (
+              <span className="text-[13px] text-slate-500">{t('limits.commercial.enterAmount')}</span>
+            )}
+            {!adjust.isPending && amountValid && check?.withinAuthority === false && (
+              <span className="text-[13px] text-slate-500">{t('limits.commercial.overAuthority')}</span>
             )}
           </div>
         </>

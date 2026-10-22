@@ -482,6 +482,58 @@ is fine for internal test accounts and not fine for customers.
   rules** below. **Canonical: 0053 applied 2026-10-20**, live smoke with role
   impersonation (two credit underwriters, admin, client) rolled back, counts
   unchanged, no new advisor finding
+- [x] UX/UI audit 2026-10 (`docs/UX-AUDIT-2026-10.md`): 82 screens across
+  six roles captured with scrollbars shown and reviewed; nothing moves
+  between views or sections (`scrollbar-gutter: stable`, one content width);
+  side-by-side panels line up (`PanelGrid`/`Panel`, CSS subgrid); object
+  pages composed from `DetailHeader` / `KeyFigures` / `DescriptionList` /
+  `Callout` (claim with all six tabs, declaration, overdue notification,
+  policy header and «Премия»); one date format (`formatDate` / `formatMoment`
+  / `formatDue` / `formatPeriod`) and `formatRate` (the premium rate was shown
+  100× too high); the policy overview's 19 cards became a per-currency table;
+  raw `agenda.taskTypes.*` keys fixed with a contract test against the
+  migrations; `layoutContract.test.ts` refuses a padding-less Card, a Table
+  inside a Card and a sliced ISO date. No migration. Backlog in the audit
+  document. See DESIGN.md
+- [x] Data management workspace (migration 0054): the information
+  manager's desk «Управление данными» (`/data`: «Запросы», «Свежесть
+  данных», «Предложенные байеры»). A company search that finds nothing —
+  the registry list or the Ctrl/⌘ K palette — offers «Запросить
+  организацию»; any staff member files `tci.request_entity` (fuzzy duplicate
+  warning first; a registration number we hold answers `exists`, an open
+  request for the same name answers `already_requested`). The request
+  (`tci.entity_requests`, DR-YYYY-NNNN) is routed to the LEAST-LOADED active
+  information manager and opens `entity_requested` in their Agenda; the
+  company card offers «Запросить отчётность» (`statements_requested`). The
+  information manager takes, hands over, resolves (created / linked /
+  updated) or rejects with a reason, and the requester gets
+  `entity_request_resolved`. Registry lookup — GLEIF and UK Companies House
+  through `services/analytics` (`/registry/search`) — prefills the company
+  form; it waits for the service to be hosted, and manual entry is the path
+  today. See **Data management rules** below. **Canonical: 0054 applied
+  2026-10-21**, live smoke with role impersonation (two information
+  managers + a banned one, credit, commercial, admin, client) rolled back,
+  counts unchanged, no new advisor finding
+- [x] Agenda redesign (Prompt 22, migration 0055): «Моя повестка» is a
+  queue you WORK, in two views — List (one row per piece of work: tasks on
+  one object merge, premium instalments collapse into one row with a
+  sub-table; grouped by due date / company / type; family chips with live
+  counts kept in the URL; hover or keyboard reveals «Решить / Отложить / ⋯»)
+  and Triage (queue left, the selected task right with its comments, a
+  three-figure strip, facts and history — a PREVIEW whose primary button
+  deep-links to the screen where the task is done, e.g.
+  `/limits/:id?focus=decision`, `/entities/:id?tab=rating&statement=…`,
+  `/policies/:id?tab=premium&instalments=…`, `/overdues/:id?action=open-claim`).
+  Snooze (`snooze_task` / `unsnooze_task`, per task), append-only
+  `tci.task_comments`, a new lazily generated `rating_new_statements`, a
+  fifth event trigger that records who escalated and their band authority and
+  opens a task for a group-limit breach (it opened none), and the security
+  fix: `tci.tasks` lost the column UPDATE grant that let a REST PATCH close
+  any automatic task. J/K/Enter/O/C/E/S/T keyboard. See **Agenda rules**
+  below. **Canonical: 0055 applied 2026-10-21** in chunks (the owner runs
+  `docs/deploy/canonical-apply-0055.sql` for the one held DROP POLICY),
+  function bodies md5-identical to a local replay, live smoke with role
+  impersonation rolled back, counts unchanged
 - [ ] Audit Phase B — operational floor (backups, ledger reconciliation, harness in CI)
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1097,8 +1149,8 @@ the shared set or to a workspace, and that every screen a role may open is
 reachable from that role's own workspaces. Opening a screen from elsewhere
 (a link, the palette) switches to a workspace that contains it
 (`resolveWorkspace`); the choice is remembered per browser
-(`tci-erp-workspace`). An information manager has no workspace of their own
-and sees the shared tools only.
+(`tci-erp-workspace`). Since 0054 the information manager has a workspace
+of their own, «Управление данными» (`/data`); a client has none.
 
 **The definitions live in the views.** premium base = greatest(earned,
 minimum premium); incurred = indemnity paid + approved-but-unpaid − the
@@ -1120,6 +1172,94 @@ a bookmark or a link inside a locale string still lands. Route access is
 submission except draft / declined / withdrawn (`wording/contracts.ts`).
 Generation needs an ACTIVE template; with none, the page says so and offers
 the standard templates to whoever may manage them.
+
+### Data management rules (migration 0054)
+
+**A search that finds nothing becomes work in a named person's Agenda.**
+`tci.request_entity` is open to every staff role and refuses clients
+(`42501`); a client's own path stays `client_request_limit` → proposal.
+Before anything is filed the modal shows `similar_entities` for what was
+typed, and the function itself answers `exists` for a registration number we
+hold and `already_requested` for an open request with the same (country,
+name) — one open request per company, enforced by a partial unique index.
+
+**Distribution is least-loaded, decided in SQL.** `tci.pick_information_manager`
+(closed to every API role; it reads other people's `user_roles` and
+`auth.users`) orders active information managers — role held, not banned,
+not deleted — by open requests, then by the oldest last assignment, then by
+id, so the choice is stable. Nobody active ⇒ the task goes to the ROLE and
+whoever takes it becomes its holder; it is never lost.
+
+**The request row is current state; history is the event stream.**
+`data.entity_requested`, `data.entity_request_assigned` and
+`data.entity_request_resolved` drive a FOURTH trigger on
+`tci.workflow_events` (`tci.handle_data_event`): a reassignment CANCELS the
+previous holder's task and opens one for the new holder; a resolution closes
+it as done and tells the requester (`entity_request_resolved`, the fourth
+manual type — skipped when the requester resolved it themselves). Its title
+key carries the outcome (`agenda.tasks.entity_request_resolved_<status>`);
+`taskKeys.test.ts` expands it to the four outcomes.
+
+**Outcomes are typed.** A company request ends `created` or `linked` (both
+NAME the company) or `rejected` (a reason the requester will read); a
+statements request ends `updated` or `rejected`. The screen saves the company
+through the ordinary `EntityFormModal` and only then resolves — the request
+never writes `legal_entities` itself, so dedup-on-entry still applies.
+
+**Registry connectors are prefill, never truth.** `/registry/search`
+normalises GLEIF and Companies House records into one shape; «Взять эту
+запись» opens the company form pre-filled for a human to check and save.
+Companies House needs `COMPANIES_HOUSE_API_KEY` (service env only, 503
+without it); upstream failures are opaque 502s. While the service is
+unhosted the panel says so and manual entry is the path.
+
+**Freshness is a view, not a job.** `tci.v_data_freshness`
+(security_invoker) lists companies with LIVE business — an open limit
+request, an in-force limit, a buyer in a live submission, an active or
+suspended policy — whose first problem is `no_statements`,
+`stale_statements` (latest period ends more than 15 months ago) or
+`missing_registry` (registration number, address or industry). No cron, no
+tasks generated from it: it is the information manager's worklist.
+
+### Agenda rules (migration 0055)
+
+**The Agenda never performs a task.** Its primary button goes to the screen
+where the task is done (`destinations.ts`, a Record over every task type,
+contract-tested), with the context in the URL; the destination screens
+honour it and render exactly as before without it (`src/lib/useDeepLinkFocus.ts`
+scrolls and rings the target). Triage shows, never edits.
+
+**One row per piece of work** (`board.ts`, tested): merge first — the same
+type on one object (per-person copies), and MERGE_SETS (an overdue notice
+seen by claims and by the policyholder; a request and its escalation; the
+three rating tasks), first type leads — then group, then collapse inside the
+group (premium instalments, across policies; the sub-table names the
+policy). Undated urgent/high work sits in «Сегодня», undated normal in «На
+этой неделе»; nothing undated hides in «Позже».
+
+**Snooze is per task and decided on read.** `snoozed_until` is never cleared
+by a job: `activeTasks()` (catalogue.ts) drops a task while the moment is in
+the future, and every list, chip, count, the sidebar badge and the dashboard
+read through it. A department task snoozed by one person is snoozed for the
+department (`snoozed_by` says who).
+
+**Comments are shown where they live.** `ORIGIN_SOURCES` (notes.ts) maps each
+task type to the human text on its source object (a limit request's
+justification — the policyholder's when it came from the portal — a hold
+comment, a decline reason, a data request's note); `tci.task_comments` holds
+only what people add on the task, append-only. The system note of an
+automatic task (no source event, ⚡) is an i18n key over params, rendered by
+`renderNote` — never stored text.
+
+**Every write on a task is a function.** `complete_task`, `snooze_task`,
+`unsnooze_task`, `add_task_comment` are SECURITY DEFINER with
+`require_staff()` and the `task_is_mine` predicate (the tasks read policies);
+`authenticated` holds no write grant on `tci.tasks` or `tci.task_comments`.
+`direct_writes.sql` and `agenda.sql` prove it.
+
+**Amber is not a text colour.** `--color-warn-500` is about 3.4:1 on white;
+the «Сегодня» label, the due label and the «Эскалация» tag carry amber as a
+stripe, a dot, a fill or a ring, with dark text.
 
 ### Credit workbench rules (migration 0053)
 

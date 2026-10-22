@@ -7,19 +7,24 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Field, Input, Modal, Select } from '../../components/ui'
+import { Button, DateInput, Field, Input, Modal } from '../../components/ui'
 import {
-  refName,
-  useCountries,
   useCreateEntity,
-  useIndustries,
   useRegNumberMatch,
   useSimilarEntities,
   useUpdateEntity,
 } from './api'
+import { CountryPicker } from './CountryPicker'
+import { IndustryPicker } from './IndustryPicker'
+import { countryFromLegalForm } from './legalForm'
 import type { EntityInput } from './api'
 import { dedupVerdict } from './dedup'
 import type { LegalEntity } from './types'
+
+/** The insurer's home market: a new company is Uzbek unless told otherwise. */
+const DEFAULT_COUNTRY = 'UZ'
+
+const todayIso = () => new Date().toISOString().slice(0, 10)
 
 interface EntityFormModalProps {
   open: boolean
@@ -32,6 +37,11 @@ interface EntityFormModalProps {
    * navigated to - the caller stays where it is (submission buyer
    * resolution). Without it the form keeps its registry behaviour. */
   onCreated?: (entity: LegalEntity) => void
+  /** Pre-fills a NEW company from a data request or an official registry
+   * record. Ignored when editing. The duplicate checks run on it as usual. */
+  prefill?: Partial<
+    Pick<LegalEntity, 'name' | 'country_code' | 'registration_number' | 'address' | 'founded_date' | 'legal_form'>
+  >
 }
 
 export function EntityFormModal({
@@ -40,18 +50,19 @@ export function EntityFormModal({
   initial,
   initialName,
   onCreated,
+  prefill,
 }: EntityFormModalProps) {
-  const { t, i18n } = useTranslation()
-  const locale = i18n.resolvedLanguage ?? 'en'
+  const { t } = useTranslation()
   const navigate = useNavigate()
-  const { data: countries } = useCountries()
-  const { data: industries } = useIndustries()
   const createEntity = useCreateEntity()
   const updateEntity = useUpdateEntity(initial?.id ?? '')
 
   const [name, setName] = useState('')
   const [legalForm, setLegalForm] = useState('')
-  const [countryCode, setCountryCode] = useState('UZ')
+  const [countryCode, setCountryCode] = useState(DEFAULT_COUNTRY)
+  // A new company's country follows the legal form in its name (ТОО → KZ,
+  // GmbH → DE) until someone picks a country by hand, or a prefill gave one.
+  const [countryChosen, setCountryChosen] = useState(false)
   const [industryId, setIndustryId] = useState('')
   const [registrationNumber, setRegistrationNumber] = useState('')
   const [foundedDate, setFoundedDate] = useState('')
@@ -64,15 +75,23 @@ export function EntityFormModal({
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // Compared by value: a caller may build the prefill object on every render,
+  // and a refetch in the page behind must not wipe what is being typed.
+  const prefillKey = JSON.stringify(initial ? null : (prefill ?? null))
+
   useEffect(() => {
     if (open) {
-      setName(initial?.name ?? initialName ?? '')
-      setLegalForm(initial?.legal_form ?? '')
-      setCountryCode(initial?.country_code ?? 'UZ')
+      const seed = JSON.parse(prefillKey) as EntityFormModalProps['prefill'] | null
+      setName(initial?.name ?? seed?.name ?? initialName ?? '')
+      setLegalForm(initial?.legal_form ?? seed?.legal_form ?? '')
+      const seedName = initial?.name ?? seed?.name ?? initialName ?? ''
+      const given = initial?.country_code ?? seed?.country_code ?? null
+      setCountryCode(given ?? countryFromLegalForm(seedName) ?? DEFAULT_COUNTRY)
+      setCountryChosen(given !== null)
       setIndustryId(initial?.industry_id ?? '')
-      setRegistrationNumber(initial?.registration_number ?? '')
-      setFoundedDate(initial?.founded_date ?? '')
-      setAddress(initial?.address ?? '')
+      setRegistrationNumber(initial?.registration_number ?? seed?.registration_number ?? '')
+      setFoundedDate(initial?.founded_date ?? seed?.founded_date ?? '')
+      setAddress(initial?.address ?? seed?.address ?? '')
       setWebsite(initial?.website ?? '')
       setContactPerson(initial?.contact_person ?? '')
       setContactEmail(initial?.contact_email ?? '')
@@ -80,7 +99,12 @@ export function EntityFormModal({
       setNotes(initial?.notes ?? '')
       setError(null)
     }
-  }, [open, initial, initialName])
+  }, [open, initial, initialName, prefillKey])
+
+  const onNameChange = (next: string) => {
+    setName(next)
+    if (!initial && !countryChosen) setCountryCode(countryFromLegalForm(next) ?? DEFAULT_COUNTRY)
+  }
 
   // Dedup-on-entry (both checks exclude the entity being edited).
   const regMatch = useRegNumberMatch(countryCode, registrationNumber, initial?.id)
@@ -127,6 +151,7 @@ export function EntityFormModal({
   return (
     <Modal
       open={open}
+      wide
       onClose={onClose}
       title={initial ? t('entities.edit') : t('entities.add')}
       footer={
@@ -141,9 +166,9 @@ export function EntityFormModal({
       }
     >
       <div className="flex flex-col gap-3">
-        <div className="grid grid-cols-[1fr_120px] gap-3">
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <Field label={t('buyers.fields.name')}>
-            <Input value={name} onChange={(e) => setName(e.target.value)} required />
+            <Input value={name} onChange={(e) => onNameChange(e.target.value)} required />
           </Field>
           <Field label={t('buyers.fields.legalForm')}>
             <Input value={legalForm} onChange={(e) => setLegalForm(e.target.value)} />
@@ -173,23 +198,16 @@ export function EntityFormModal({
 
         <div className="grid grid-cols-2 gap-3">
           <Field label={t('buyers.fields.country')}>
-            <Select value={countryCode} onChange={(e) => setCountryCode(e.target.value)}>
-              {(countries ?? []).map((c) => (
-                <option key={c.code} value={c.code}>
-                  {refName(c, locale)}
-                </option>
-              ))}
-            </Select>
+            <CountryPicker
+              value={countryCode || null}
+              onChange={(code) => {
+                setCountryCode(code ?? '')
+                setCountryChosen(true)
+              }}
+            />
           </Field>
           <Field label={t('buyers.fields.industry')}>
-            <Select value={industryId} onChange={(e) => setIndustryId(e.target.value)}>
-              <option value="">{t('common.notSelected')}</option>
-              {(industries ?? []).map((ind) => (
-                <option key={ind.code} value={ind.code}>
-                  {refName(ind, locale)}
-                </option>
-              ))}
-            </Select>
+            <IndustryPicker value={industryId || null} onChange={(code) => setIndustryId(code ?? '')} />
           </Field>
         </div>
 
@@ -219,7 +237,7 @@ export function EntityFormModal({
 
         <div className="grid grid-cols-2 gap-3">
           <Field label={t('buyers.fields.foundedDate')}>
-            <Input type="date" value={foundedDate} onChange={(e) => setFoundedDate(e.target.value)} />
+            <DateInput value={foundedDate} onChange={setFoundedDate} max={todayIso()} />
           </Field>
           <Field label={t('buyers.fields.website')}>
             <Input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://" />

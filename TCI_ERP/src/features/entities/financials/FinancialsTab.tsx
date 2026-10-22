@@ -1,11 +1,28 @@
 import { useMemo, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, EmptyState, Input, Modal, Segmented, Spinner, Table, Tabs } from '../../../components/ui'
-import { formatAmount } from '../../../lib/format'
+import { Check, Download, Plus } from 'lucide-react'
+
+import {
+  AmountInput,
+  Badge,
+  Button,
+  ConfirmDialog,
+  EmptyState,
+  LinkButton,
+  Modal,
+  Segmented,
+  Spinner,
+  Table,
+  Tabs,
+} from '../../../components/ui'
+import { parseAmount } from '../../../components/ui/amount'
+import { formatAmount, formatDate } from '../../../lib/format'
 import { exportFileName, exportTableToExcel } from '../../../lib/exportTable'
+import { useAuth } from '../../../auth/AuthContext'
 import { useEntity, useDeleteStatement, useStatements } from '../api'
+import { mayEnterStatements } from './access'
 import type { StatementBundle } from '../types'
 import { statementPeriodLabel } from '../types'
 import type { ReportType } from '../types'
@@ -41,6 +58,8 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
   const locale = i18n.resolvedLanguage ?? 'en'
   const { data: statements, isLoading } = useStatements(entityId)
   const { data: buyer } = useEntity(entityId)
+  const { roles: myRoles } = useAuth()
+  const mayEnter = mayEnterStatements(myRoles)
 
   // Sub-tab lives in the URL (?sub=) so dashboard bullets can deep-link.
   const [searchParams, setSearchParams] = useSearchParams()
@@ -109,9 +128,12 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
         title={t('fin.noStatements')}
         hint={t('fin.noStatementsHint')}
         action={
-          <Link to={`/buyers/${entityId}/statements/new`}>
-            <Button>{t('fin.addStatement')}</Button>
-          </Link>
+          mayEnter ? (
+            <LinkButton to={`/buyers/${entityId}/statements/new`}>
+              <Plus />
+              {t('fin.addStatement')}
+            </LinkButton>
+          ) : undefined
         }
       />
     )
@@ -126,26 +148,19 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
 
   return (
     <div>
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+      {/* Two aligned rows: what is shown (periods, report type, currency) with
+          its export; then the views of it, with the statements themselves on
+          the same line. Each wraps as a whole on a narrow screen. */}
+      <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-3">
         <PeriodSelector
           all={filteredAll}
           displayedIds={displayedIds}
           onChange={(ids) => setSelectedIds(ids)}
         />
-        <div className="flex gap-2">
-          <Button variant="secondary" size="sm" onClick={() => setManageOpen(true)}>
-            {t('fin.manageStatements')} ({all.length})
-          </Button>
-          <Link to={`/buyers/${entityId}/statements/new`}>
-            <Button size="sm">{t('fin.addStatement')}</Button>
-          </Link>
-        </div>
-      </div>
-
-      <div className="mb-4 flex flex-wrap items-center gap-4">
         {/* Report type filter (legacy: налоговые / управленческие / всё) */}
         <Segmented
           value={typeFilter}
+          ariaLabel={t('fin.fields.reportType')}
           options={[
             { key: 'statutory', label: t('fin.reportTypes.statutory') },
             { key: 'management', label: t('fin.reportTypes.management') },
@@ -161,6 +176,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
           <span className="text-[13px] text-slate-500">{t('fin.fx.displayCurrency')}:</span>
           <Segmented
             value={displayCurrency}
+            ariaLabel={t('fin.fx.displayCurrency')}
             options={[
               { key: 'original', label: t('fin.fx.original') },
               { key: 'UZS', label: 'UZS' },
@@ -170,11 +186,10 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
             onChange={(key) => setDisplayCurrency(key as DisplayCurrency)}
           />
         </div>
-        <div className="ml-auto">
-          <Button variant="secondary" size="sm" onClick={handleExport}>
-            {t('fin.exportExcel')}
-          </Button>
-        </div>
+        <Button variant="secondary" size="sm" className="ml-auto" onClick={handleExport}>
+          <Download />
+          {t('fin.exportExcel')}
+        </Button>
       </div>
 
       {displayCurrency === 'original' && hasMixedCurrencyOrUnit(displayedRaw) && (
@@ -197,7 +212,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
               onClick={() => setManualNeed(need)}
               className="font-medium underline underline-offset-2"
             >
-              {need.currency_code} · {need.rate_date}
+              {need.currency_code} · {formatDate(need.rate_date, locale)}
             </button>
           ))}
         </div>
@@ -223,18 +238,33 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
         </div>
       )}
 
-      <Tabs
-        size="sm"
-        tabs={[
-          { key: 'balance', label: t('fin.tabs.balance') },
-          { key: 'pnl', label: t('fin.tabs.pnl') },
-          { key: 'ratios', label: t('fin.tabs.ratios') },
-          { key: 'cashflow', label: t('fin.tabs.cashflow') },
-          { key: 'risk', label: t('fin.tabs.risk') },
-        ]}
-        active={subTab}
-        onChange={(key) => setSubTab(key as SubTab)}
-      />
+      <div className="flex flex-wrap items-end gap-x-4 gap-y-2 shadow-[inset_0_-1px_0_var(--color-slate-200)]">
+        <div className="min-w-0 flex-1">
+          <Tabs
+            size="sm"
+            tabs={[
+              { key: 'balance', label: t('fin.tabs.balance') },
+              { key: 'pnl', label: t('fin.tabs.pnl') },
+              { key: 'ratios', label: t('fin.tabs.ratios') },
+              { key: 'cashflow', label: t('fin.tabs.cashflow') },
+              { key: 'risk', label: t('fin.tabs.risk') },
+            ]}
+            active={subTab}
+            onChange={(key) => setSubTab(key as SubTab)}
+          />
+        </div>
+        <div className="flex items-center gap-2 pb-1">
+          <Button variant="secondary" size="sm" onClick={() => setManageOpen(true)}>
+            {t('fin.manageStatements')} ({all.length})
+          </Button>
+          {mayEnter && (
+            <LinkButton size="sm" to={`/buyers/${entityId}/statements/new`}>
+              <Plus />
+              {t('fin.addStatement')}
+            </LinkButton>
+          )}
+        </div>
+      </div>
 
       <div className="mt-4" ref={tableRef}>
         {subTab === 'balance' && (
@@ -272,7 +302,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
                 `${statementPeriodLabel(f.statement)}: ${f.rates
                   .map(
                     (r) =>
-                      `${r.currency_code} = ${formatAmount(r.rate_to_uzs, locale, 2)} UZS (${r.rate_date})`,
+                      `${r.currency_code} = ${formatAmount(r.rate_to_uzs, locale, 2)} UZS (${formatDate(r.rate_date, locale)})`,
                   )
                   .join(', ')}`,
             )
@@ -285,6 +315,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
         onClose={() => setManageOpen(false)}
         entityId={entityId}
         statements={all}
+        mayEdit={mayEnter}
       />
 
       {sourceStatement && (
@@ -307,17 +338,18 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
 // ---------------------------------------------------------------------------
 
 function ManualRateModal({ need, onClose }: { need: RateNeed; onClose: () => void }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const locale = i18n.resolvedLanguage ?? 'en'
   const [raw, setRaw] = useState('')
   const save = useSaveManualRate()
-  const rate = Number(raw.replace(/\s/g, '').replace(',', '.'))
+  const rate = parseAmount(raw) ?? Number.NaN
   const valid = Number.isFinite(rate) && rate > 0
 
   return (
     <Modal
       open
       onClose={onClose}
-      title={t('fin.fx.manualTitle', { ccy: need.currency_code, date: need.rate_date })}
+      title={t('fin.fx.manualTitle', { ccy: need.currency_code, date: formatDate(need.rate_date, locale) })}
       footer={
         <>
           <Button variant="secondary" onClick={onClose}>
@@ -335,10 +367,11 @@ function ManualRateModal({ need, onClose }: { need: RateNeed; onClose: () => voi
       }
     >
       <p className="mb-3 text-[13px] text-slate-500">{t('fin.fx.manualHint')}</p>
-      <Input
-        inputMode="decimal"
+      <AmountInput
+        decimals={6}
         value={raw}
-        onChange={(e) => setRaw(e.target.value)}
+        onChange={setRaw}
+        suffix="UZS"
         placeholder={t('fin.fx.manualPlaceholder', { ccy: need.currency_code })}
         autoFocus
       />
@@ -371,7 +404,7 @@ function PeriodSelector({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
+    <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={t('fin.periods')}>
       <span className="mr-1 text-[13px] text-slate-500">{t('fin.periods')}:</span>
       {ordered.map((s) => {
         const active = displayedIds.includes(s.id)
@@ -379,19 +412,30 @@ function PeriodSelector({
           <button
             key={s.id}
             type="button"
+            aria-pressed={active}
             onClick={() => toggle(s.id)}
             title={t(`fin.periodTooltip.${s.statement_kind}`, {
               year: s.fiscal_year,
               quarter: s.fiscal_quarter,
             })}
-            className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors ${
+            // Shown periods are filled, hidden ones are outlined: the state is
+            // readable at a glance, not only on hover.
+            className={`inline-flex h-7 items-center gap-1 rounded-md border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 ${
               active
-                ? 'border-accent-600 bg-accent-50 text-accent-700'
-                : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
+                ? 'border-accent-600 bg-accent-600 text-white hover:bg-accent-700'
+                : 'border-slate-300 bg-white text-slate-500 hover:border-slate-400 hover:text-slate-700'
             }`}
           >
+            {active && <Check className="size-3.5" aria-hidden />}
             {statementPeriodLabel(s)}
-            {s.report_type === 'management' && <span className="ml-1 text-warn-500">•</span>}
+            {s.report_type === 'management' && (
+              <span
+                className={active ? 'text-amber-300' : 'text-warn-500'}
+                title={t('fin.reportTypes.management')}
+              >
+                •
+              </span>
+            )}
           </button>
         )
       })}
@@ -408,11 +452,14 @@ function ManageStatementsModal({
   onClose,
   entityId,
   statements,
+  mayEdit,
 }: {
   open: boolean
   onClose: () => void
   entityId: string
   statements: StatementBundle[]
+  /** Read-only for those who may not enter statements (the policy refuses). */
+  mayEdit: boolean
 }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
@@ -425,80 +472,100 @@ function ManageStatementsModal({
     return framework ? frameworkShort(framework, locale) : t('fin.local.badgeLocal')
   }
   const deleteStatement = useDeleteStatement(entityId)
-  const [confirmingId, setConfirmingId] = useState<string | null>(null)
+  const [confirming, setConfirming] = useState<StatementBundle | null>(null)
+  const [deleteFailed, setDeleteFailed] = useState(false)
 
   const ordered = sortChronological(statements).reverse()
 
   return (
-    <Modal open={open} onClose={onClose} title={t('fin.manageStatements')} wide>
-      <Table dense>
-        <thead>
-          <tr>
-            <th>{t('fin.fields.period')}</th>
-            <th>{t('fin.fields.periodEnd')}</th>
-            <th>{t('fin.fields.kind')}</th>
-            <th>{t('fin.fields.currency')}</th>
-            <th>{t('fin.fields.unit')}</th>
-            <th>{t('fin.fields.audited')}</th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {ordered.map((s) => (
-            <tr key={s.id}>
-              <td className="font-medium">
-                {statementPeriodLabel(s)}
-                <span className="ml-2 inline-flex gap-1">
-                  <Badge tone={s.accounting_basis === 'local' ? 'accent' : 'neutral'}>
-                    {s.accounting_basis === 'local'
-                      ? localBadge(s.template_id)
-                      : t('fin.local.badgeIfrs')}
-                  </Badge>
-                  {s.report_type === 'management' && (
-                    <Badge tone="warn">{t('fin.reportTypes.management')}</Badge>
-                  )}
-                  {s.accounting_basis === 'local' && s.mapping_status !== 'n/a' && (
-                    <Badge tone={s.mapping_status === 'mapped' ? 'pos' : 'warn'}>
-                      {t(`fin.local.mappingStatus.${s.mapping_status}`)}
-                    </Badge>
-                  )}
-                </span>
-              </td>
-              <td>{s.period_end_date}</td>
-              <td>{t(`fin.kinds.${s.statement_kind}`)}</td>
-              <td>{s.currency_code}</td>
-              <td>{t(`fin.units.${s.unit}`)}</td>
-              <td>
-                {s.audited ? <Badge tone="pos">{t('common.yes')}</Badge> : <Badge>{t('common.no')}</Badge>}
-              </td>
-              <td>
-                <div className="flex justify-end gap-1.5">
-                  <Link to={`/buyers/${entityId}/statements/${s.id}/edit`}>
-                    <Button variant="ghost" size="sm">
-                      {t('common.edit')}
-                    </Button>
-                  </Link>
-                  {confirmingId === s.id ? (
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => {
-                        void deleteStatement.mutateAsync(s.id).then(() => setConfirmingId(null))
-                      }}
-                    >
-                      {t('common.confirmDelete')}
-                    </Button>
-                  ) : (
-                    <Button variant="ghost" size="sm" onClick={() => setConfirmingId(s.id)}>
-                      {t('common.delete')}
-                    </Button>
-                  )}
-                </div>
-              </td>
+    <>
+      <Modal open={open} onClose={onClose} title={t('fin.manageStatements')} wide>
+        {deleteFailed && (
+          <p className="mb-3 text-[13px] text-neg-500" role="alert">
+            {t('fin.deleteStatement.failed')}
+          </p>
+        )}
+        <Table dense>
+          <thead>
+            <tr>
+              <th>{t('fin.fields.period')}</th>
+              <th>{t('fin.fields.periodEnd')}</th>
+              <th>{t('fin.fields.currency')}</th>
+              <th>{t('fin.fields.audited')}</th>
+              <th />
             </tr>
-          ))}
-        </tbody>
-      </Table>
-    </Modal>
+          </thead>
+          <tbody>
+            {ordered.map((s) => (
+              <tr key={s.id}>
+                <td>
+                  <span className="font-medium whitespace-nowrap text-slate-800">{statementPeriodLabel(s)}</span>
+                  {/* What the statement is, under its period: kind, form, status. */}
+                  <span className="mt-1 flex flex-wrap items-center gap-1">
+                    <span className="mr-0.5 text-xs text-slate-500">{t(`fin.kinds.${s.statement_kind}`)}</span>
+                    <Badge tone={s.accounting_basis === 'local' ? 'accent' : 'neutral'}>
+                      {s.accounting_basis === 'local'
+                        ? localBadge(s.template_id)
+                        : t('fin.local.badgeIfrs')}
+                    </Badge>
+                    {s.report_type === 'management' && (
+                      <Badge tone="warn">{t('fin.reportTypes.management')}</Badge>
+                    )}
+                    {s.accounting_basis === 'local' && s.mapping_status !== 'n/a' && (
+                      <Badge tone={s.mapping_status === 'mapped' ? 'pos' : 'warn'}>
+                        {t(`fin.local.mappingStatus.${s.mapping_status}`)}
+                      </Badge>
+                    )}
+                  </span>
+                </td>
+                <td className="whitespace-nowrap">{formatDate(s.period_end_date, locale)}</td>
+                <td className="whitespace-nowrap">
+                  {s.currency_code} · {t(`fin.units.${s.unit}`)}
+                </td>
+                <td>
+                  {s.audited ? <Badge tone="pos">{t('common.yes')}</Badge> : <Badge>{t('common.no')}</Badge>}
+                </td>
+                <td>
+                  {mayEdit && (
+                    <div className="flex justify-end gap-1.5">
+                      <LinkButton variant="secondary" size="sm" to={`/buyers/${entityId}/statements/${s.id}/edit`}>
+                        {t('common.edit')}
+                      </LinkButton>
+                      <Button variant="dangerOutline" size="sm" onClick={() => setConfirming(s)}>
+                        {t('common.delete')}
+                      </Button>
+                    </div>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </Modal>
+      {/* A sibling, not a child: the confirmation stacks on top of the list. */}
+      <ConfirmDialog
+          open={confirming !== null}
+          title={t('fin.deleteStatement.title')}
+          message={
+            confirming
+              ? t('fin.deleteStatement.message', {
+                  period: statementPeriodLabel(confirming),
+                  end: formatDate(confirming.period_end_date, locale),
+                })
+              : ''
+          }
+          confirmLabel={t('fin.deleteStatement.confirm')}
+          pending={deleteStatement.isPending}
+          onCancel={() => setConfirming(null)}
+          onConfirm={() => {
+            if (!confirming) return
+            setDeleteFailed(false)
+            void deleteStatement
+              .mutateAsync(confirming.id)
+              .catch(() => setDeleteFailed(true))
+              .finally(() => setConfirming(null))
+          }}
+        />
+    </>
   )
 }

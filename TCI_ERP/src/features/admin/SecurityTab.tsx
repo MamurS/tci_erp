@@ -6,7 +6,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Spinner, Table } from '../../components/ui'
+import { Badge, Button, Card, ConfirmDialog, EmptyState, Spinner, Table, SectionTitle } from '../../components/ui'
 import { formatMoment } from '../../lib/format'
 import {
   useAdminSessions,
@@ -34,6 +34,7 @@ export function SecurityTab() {
   const unlock = useUnlockAccount()
   const revoke = useRevokeSessions()
   const [actionError, setActionError] = useState<string | null>(null)
+  const [revoking, setRevoking] = useState<{ userId: string; email: string } | null>(null)
 
   const when = (v: string | null | undefined) => (v ? formatMoment(v, locale) : '—')
 
@@ -44,7 +45,7 @@ export function SecurityTab() {
     <div className="flex flex-col gap-5">
       {/* --- policy + hook notice --------------------------------------- */}
       <Card className="p-4">
-        <h2 className="mb-2 text-sm font-semibold text-slate-700">{t('admin.security.policy.title')}</h2>
+        <SectionTitle className="mb-2">{t('admin.security.policy.title')}</SectionTitle>
         {policy.data ? (
           <ul className="grid gap-1 text-[13px] text-slate-600 sm:grid-cols-2">
             <li>
@@ -132,7 +133,7 @@ export function SecurityTab() {
 
       {/* --- lockouts --------------------------------------------------- */}
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-slate-700">{t('admin.security.lockouts.title')}</h2>
+        <SectionTitle className="mb-2">{t('admin.security.lockouts.title')}</SectionTitle>
         {lockouts.isLoading ? (
           <Spinner label={t('common.loading')} />
         ) : !activeLockouts.length && !pastLockouts.length ? (
@@ -199,7 +200,7 @@ export function SecurityTab() {
 
       {/* --- per-user state --------------------------------------------- */}
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-slate-700">{t('admin.security.users.title')}</h2>
+        <SectionTitle className="mb-2">{t('admin.security.users.title')}</SectionTitle>
         {users.isLoading ? (
           <Spinner label={t('common.loading')} />
         ) : (
@@ -241,14 +242,7 @@ export function SecurityTab() {
                         size="sm"
                         variant="secondary"
                         disabled={revoke.isPending}
-                        onClick={() => {
-                          if (!window.confirm(t('admin.security.sessions.confirmRevoke', { email: u.email }))) return
-                          setActionError(null)
-                          revoke.mutate(
-                            { userId: u.user_id, keepCurrent: true },
-                            { onError: () => setActionError(t('common.saveFailed')) },
-                          )
-                        }}
+                        onClick={() => setRevoking({ userId: u.user_id, email: u.email })}
                       >
                         {t('admin.security.sessions.revoke')}
                       </Button>
@@ -263,7 +257,7 @@ export function SecurityTab() {
 
       {/* --- sessions --------------------------------------------------- */}
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-slate-700">{t('admin.security.sessions.title')}</h2>
+        <SectionTitle className="mb-2">{t('admin.security.sessions.title')}</SectionTitle>
         <p className="mb-2 text-[13px] text-slate-500">{t('admin.security.sessions.hint')}</p>
         {sessions.isLoading ? (
           <Spinner label={t('common.loading')} />
@@ -308,7 +302,7 @@ export function SecurityTab() {
 
       {/* --- trail ------------------------------------------------------ */}
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-slate-700">{t('admin.security.events.title')}</h2>
+        <SectionTitle className="mb-2">{t('admin.security.events.title')}</SectionTitle>
         {events.isLoading ? (
           <Spinner label={t('common.loading')} />
         ) : !events.data?.length ? (
@@ -340,6 +334,22 @@ export function SecurityTab() {
           </Table>
         )}
       </section>
+      <ConfirmDialog
+        open={revoking !== null}
+        title={t('admin.security.sessions.revoke')}
+        message={revoking ? t('admin.security.sessions.confirmRevoke', { email: revoking.email }) : ''}
+        confirmLabel={t('admin.security.sessions.revoke')}
+        pending={revoke.isPending}
+        onCancel={() => setRevoking(null)}
+        onConfirm={() => {
+          if (!revoking) return
+          setActionError(null)
+          revoke.mutate(
+            { userId: revoking.userId, keepCurrent: true },
+            { onError: () => setActionError(t('common.saveFailed')), onSettled: () => setRevoking(null) },
+          )
+        }}
+      />
     </div>
   )
 }

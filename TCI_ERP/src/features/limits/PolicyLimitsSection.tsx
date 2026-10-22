@@ -5,8 +5,8 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, EmptyState, Table } from '../../components/ui'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import { Badge, Button, EmptyState, Table, SectionTitle, Truncate } from '../../components/ui'
+import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { useEntities } from '../entities/api'
 import type { PolicyWithRefs } from '../policies/types'
 import { useEffectiveLimits, useLimitRequests, useSalesWindowHours } from './api'
@@ -40,19 +40,26 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
   const effectiveBuyers = new Set(effectiveList.map((l) => l.entity_id))
   /** Open requests for buyers with no effective limit yet get their own rows. */
   const openOnly = openRequests.filter((r) => !effectiveBuyers.has(r.entity_id))
+  const empty = effectiveList.length === 0 && openOnly.length === 0
 
   return (
     <div>
-      <div className="mb-2 flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-900">
-          {t('policies.buyersLimitsTitle')}
-        </h2>
-        <Button size="sm" onClick={() => setModalOpen(true)}>
-          {t('limits.requestLimit')}
-        </Button>
-      </div>
+      {/* One place for the action: here once there are rows, in the empty
+          state while there are none. */}
+      <SectionTitle
+        className="mb-3"
+        actions={
+          !empty && (
+            <Button size="sm" onClick={() => setModalOpen(true)}>
+              {t('limits.requestLimit')}
+            </Button>
+          )
+        }
+      >
+        {t('policies.buyersLimitsTitle')}
+      </SectionTitle>
 
-      {effectiveList.length === 0 && openOnly.length === 0 ? (
+      {empty ? (
         <EmptyState
           title={t('limits.noneForPolicy')}
           action={
@@ -63,34 +70,41 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
         <Table dense>
           <thead>
             <tr>
-              <th>{t('limits.fields.buyer')}</th>
+              {/* The name takes what the figures leave and cuts with an
+                  ellipsis — never four lines per buyer. */}
+              <th className="cell-fill w-[30%]">{t('limits.fields.buyer')}</th>
               <th className="text-right">{t('limits.pairHeader')}</th>
               <th>{t('limits.fields.outcome')}</th>
               <th>{t('limits.fields.validUntil')}</th>
-              <th>{t('limits.fields.conditions')}</th>
               <th>{t('requests.columns.release')}</th>
-              <th>{t('limits.fields.decidedBy')}</th>
             </tr>
           </thead>
           <tbody>
             {effectiveList.map((limit) => {
               const open = requestByBuyer.get(limit.entity_id)
+              // A revoked or declined limit is no cover at all: «—», not
+              // «0 USD», and no «until review» on something that is gone.
+              const noCover = limit.outcome === 'revoked' || limit.outcome === 'declined'
               return (
                 <tr key={limit.decision_id}>
-                  <td>
-                    <Link
-                      to={`/entities/${limit.entity_id}`}
-                      className="font-medium text-accent-700 hover:underline"
-                    >
-                      {buyerName(limit.entity_id)}
-                    </Link>
-                    {open && (
-                      <Link to={`/limits/${open.id}`} className="ml-2">
-                        <Badge tone={statusTone(open.status)}>
-                          {t(`limits.statuses.${open.status}`)}
-                        </Badge>
-                      </Link>
-                    )}
+                  <td className="cell-fill">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <Truncate text={buyerName(limit.entity_id)} className="max-w-none min-w-0">
+                        <Link
+                          to={`/entities/${limit.entity_id}`}
+                          className="font-medium text-accent-700 hover:underline"
+                        >
+                          {buyerName(limit.entity_id)}
+                        </Link>
+                      </Truncate>
+                      {open && (
+                        <Link to={`/limits/${open.id}`} className="shrink-0">
+                          <Badge tone={statusTone(open.status)}>
+                            {t(`limits.statuses.${open.status}`)}
+                          </Badge>
+                        </Link>
+                      )}
+                    </div>
                   </td>
                   <td>
                     {/* requested → approved pair (DESIGN.md pair styling) */}
@@ -99,12 +113,23 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                         {formatAmount(Number(limit.requested_amount), locale)}
                       </span>
                       <span aria-hidden className="mx-1 text-slate-300">→</span>
-                      <span className="font-semibold">
-                        {limit.approved_amount !== null
-                          ? formatAmount(Number(limit.approved_amount), locale)
-                          : EM_DASH}
-                      </span>{' '}
+                      {noCover || limit.approved_amount === null ? (
+                        <span className="text-slate-400">{EM_DASH}</span>
+                      ) : (
+                        <span className="font-semibold">
+                          {formatAmount(Number(limit.approved_amount), locale)}
+                        </span>
+                      )}{' '}
                       {limit.currency_code}
+                      {/* Conditions flagged beside the amount they qualify. */}
+                      {limit.conditions_count > 0 && !noCover && (
+                        <span
+                          className="ml-1.5 text-warn-500"
+                          title={t('limits.conditionsTooltip', { count: limit.conditions_count })}
+                        >
+                          ⚑ {limit.conditions_count}
+                        </span>
+                      )}
                     </span>
                     {/* Stage pairing: what credit decided vs what commercial
                         made of it (migration 0020 keeps both rows). */}
@@ -118,23 +143,29 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                     )}
                   </td>
                   <td>
-                    <Badge tone={outcomeTone(limit.outcome)}>
-                      {t(`limits.outcomes.${limit.outcome}`)}
-                    </Badge>
+                    {/* When it was decided: on hover, so the row keeps to the
+                        width of the page (a revocation names its date in the
+                        next cell). */}
+                    <span
+                      className="inline-block whitespace-nowrap"
+                      title={t('policies.limitsTable.decidedOn', { date: formatDate(limit.decided_at, locale) })}
+                    >
+                      <Badge tone={outcomeTone(limit.outcome)}>
+                        {t(`limits.outcomes.${limit.outcome}`)}
+                      </Badge>
+                    </span>
                   </td>
-                  <td className="text-slate-500">
-                    {limit.valid_until ?? t('limits.untilReview')}
-                  </td>
-                  <td>
-                    {limit.conditions_count > 0 ? (
-                      <span
-                        className="text-[13px] text-warn-500"
-                        title={t('limits.conditionsTooltip', { count: limit.conditions_count })}
-                      >
-                        ⚑ {limit.conditions_count}
+                  <td className="whitespace-nowrap text-slate-500">
+                    {noCover ? (
+                      <span className="text-neg-500">
+                        {t(`policies.limitsTable.${limit.outcome === 'revoked' ? 'revokedOn' : 'declinedOn'}`, {
+                          date: formatDate(limit.decided_at, locale),
+                        })}
                       </span>
+                    ) : limit.valid_until ? (
+                      formatDate(limit.valid_until, locale)
                     ) : (
-                      <span className="text-slate-300">{EM_DASH}</span>
+                      t('limits.untilReview')
                     )}
                   </td>
                   <td>
@@ -144,7 +175,6 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                       nowIso={nowIso}
                     />
                   </td>
-                  <td className="text-slate-500">{limit.decided_at.slice(0, 10)}</td>
                 </tr>
               )
             })}
@@ -154,7 +184,11 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                 onClick={() => void navigate(`/limits/${r.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="font-medium text-slate-800">{buyerName(r.entity_id)}</td>
+                <td className="cell-fill">
+                  <Truncate text={buyerName(r.entity_id)} className="max-w-none font-medium text-slate-800">
+                    {buyerName(r.entity_id)}
+                  </Truncate>
+                </td>
                 <td>
                   <span className="num block">
                     <span className="text-slate-400">
@@ -168,8 +202,6 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                   <Badge tone={statusTone(r.status)}>{t(`limits.statuses.${r.status}`)}</Badge>
                 </td>
                 <td className="text-slate-400">{EM_DASH}</td>
-                <td className="text-slate-300">{EM_DASH}</td>
-                <td className="text-slate-300">{EM_DASH}</td>
                 <td className="text-slate-300">{EM_DASH}</td>
               </tr>
             ))}

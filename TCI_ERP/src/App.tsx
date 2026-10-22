@@ -28,6 +28,9 @@ const StatementFormPage = lazyPage(entities, 'StatementFormPage')
 const ReportPage = lazyPage(() => import('./features/entities/report/ReportPage'), 'ReportPage')
 const limits = () => import('./features/limits')
 const LimitsSection = lazyPage(limits, 'LimitsSection')
+const dataDesk = () => import('./features/data')
+const DataSection = lazyPage(dataDesk, 'DataSection')
+const DataRequestPage = lazyPage(dataDesk, 'RequestPage')
 const LimitRequestPage = lazyPage(limits, 'LimitRequestPage')
 const requests = () => import('./features/requests')
 const RequestsPage = lazyPage(requests, 'RequestsPage')
@@ -147,6 +150,8 @@ export default function App() {
                 {/* The portfolios are the overview views of «Полисы» and «Кредитные лимиты». */}
                 <Route path="portfolio/policies" element={<Navigate to={LEGACY_POLICY_VIEW_PATHS['/portfolio/policies']} replace />} />
                 <Route path="portfolio/credit" element={<Navigate to={LEGACY_LIMIT_VIEW_PATHS['/portfolio/credit']} replace />} />
+                <Route path="data" element={<DataSection />} />
+                <Route path="data/requests/:id" element={<DataRequestPage />} />
                 <Route path="admin" element={<AdminPage />} />
               </Route>
             </Route>

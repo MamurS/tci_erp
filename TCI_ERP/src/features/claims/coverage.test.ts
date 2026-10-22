@@ -1,15 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0033_coverage_verification.sql?raw'
-import {
-  BREACH_REASONS,
-  SHORTFALL_REASONS,
-  coverageTotals,
-  noaWarning,
-  reasonTone,
-  sortReasons,
-  verdictTone,
-} from './coverage'
+import { BREACH_REASONS, SHORTFALL_REASONS, coverageTotals, noaWarning, reasonTone, sortReasons, verdictTone, decidingReasons } from './coverage'
 import { COVERAGE_REASONS, COVERAGE_VERDICTS } from './types'
 
 describe('coverage reason catalogue — contract with 0033', () => {
@@ -117,5 +109,13 @@ describe('coverage reason catalogue — contract with 0033', () => {
     expect(MIGRATION).toContain(
       'effective_covered_amount numeric(18,2)\n    generated always as (coalesce(override_covered_amount, system_covered_amount)) stored,',
     )
+  })
+})
+
+describe('decidingReasons', () => {
+  it('shows only what failed when something failed, the positives otherwise', () => {
+    expect(decidingReasons(['covered_by_limit', 'shipment_before_inception'])).toEqual(['shipment_before_inception'])
+    expect(decidingReasons(['covered_by_limit'])).toEqual(['covered_by_limit'])
+    expect(decidingReasons([])).toEqual([])
   })
 })

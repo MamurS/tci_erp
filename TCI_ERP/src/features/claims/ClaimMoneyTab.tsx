@@ -6,16 +6,23 @@ import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
 import {
+  AmountInput,
   Button,
+  Callout,
   Card,
+  DateInput,
   EmptyState,
   Field,
   Input,
+  KeyFigures,
   Modal,
+  Panel,
+  PanelGrid,
   Spinner,
   Table,
 } from '../../components/ui'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import { todayIso } from '../../components/ui/dateEntry'
+import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import {
   useClaimPayments,
   useClaimPosition,
@@ -37,94 +44,132 @@ export function ClaimMoneyTab({ claim }: { claim: Claim }) {
   const [recovering, setRecovering] = useState(false)
 
   const isClaims = roles.includes('claims') || roles.includes('admin')
-  const canPay = isClaims && ['approved', 'partially_approved', 'paid'].includes(claim.status)
   const canRecover = isClaims && (payments ?? []).length > 0
 
   if (isLoading) return <Spinner label={t('common.loading')} />
+  // A payment is offered while something approved is still unpaid — the
+  // database caps payments at the indemnity, so a fully paid claim has
+  // nothing left to record.
+  const canPay =
+    isClaims &&
+    ['approved', 'partially_approved', 'paid'].includes(claim.status) &&
+    Number(position?.outstanding_indemnity ?? 0) > 0
   const cur = claim.currency_code
+  const decided = position?.approved_indemnity !== null && position?.approved_indemnity !== undefined
+  // Until the claim is decided nothing is owed, paid or recovered: every
+  // figure is "—", not a 0 that reads like a settled account.
+  const figure = (value: number | null | undefined) =>
+    !decided || value === null || value === undefined ? EM_DASH : `${formatAmount(Number(value), locale)} ${cur}`
+  const noMovement = (payments ?? []).length === 0 && (recoveries ?? []).length === 0
 
   return (
-    <div className="space-y-4">
-      <div className="grid gap-4 sm:grid-cols-4">
-        <Figure label={t('claims.money.approved')} value={position?.approved_indemnity ?? null} cur={cur} locale={locale} />
-        <Figure label={t('claims.money.paid')} value={position?.paid_total ?? 0} cur={cur} locale={locale} />
-        <Figure label={t('claims.money.outstanding')} value={position?.outstanding_indemnity ?? 0} cur={cur} locale={locale} />
-        <Figure label={t('claims.money.insurerNet')} value={position?.insurer_net_position ?? 0} cur={cur} locale={locale} />
-      </div>
+    <div>
+      <KeyFigures
+        items={[
+          { label: t('claims.money.approved'), value: figure(position?.approved_indemnity), tone: decided ? 'default' : 'muted' },
+          { label: t('claims.money.paid'), value: figure(position?.paid_total), tone: decided ? 'default' : 'muted' },
+          {
+            label: t('claims.money.outstanding'),
+            value: figure(position?.outstanding_indemnity),
+            tone: !decided ? 'muted' : Number(position?.outstanding_indemnity ?? 0) > 0 ? 'warn' : 'default',
+          },
+          {
+            label: t('claims.money.insurerNet'),
+            value: figure(position?.insurer_net_position),
+            meta: t('claims.money.insurerNetHint'),
+            tone: decided ? 'default' : 'muted',
+          },
+        ]}
+      />
 
-      <Card>
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold">{t('claims.money.payments')}</h2>
-          {canPay && <Button variant="secondary" onClick={() => setPaying(true)}>{t('claims.actions.recordPayment')}</Button>}
-        </div>
-        {(payments ?? []).length === 0 ? (
-          <p className="mt-3 text-[13px] text-slate-500">{t('claims.money.noPayments')}</p>
-        ) : (
-          <Table dense>
-            <thead>
-              <tr>
-                <th>{t('claims.fields.paidAt')}</th>
-                <th>{t('claims.fields.reference')}</th>
-                <th className="num">{t('claims.fields.amount')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(payments ?? []).map((p) => (
-                <tr key={p.id}>
-                  <td>{p.paid_at}</td>
-                  <td className="text-slate-600">{p.reference ?? EM_DASH}</td>
-                  <td className="num">
-                    {formatAmount(Number(p.amount), locale)} {p.currency_code}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        )}
-      </Card>
+      {noMovement && !canPay ? (
+        <Card className="p-6">
+          <EmptyState title={t('claims.money.emptyTitle')} hint={t('claims.money.emptyHint')} />
+        </Card>
+      ) : (
+        <PanelGrid>
+          <Panel
+            title={t('claims.money.payments')}
+            hint={t('claims.money.paymentsHint')}
+            actions={
+              canPay && (
+                <Button size="sm" variant="secondary" onClick={() => setPaying(true)}>
+                  {t('claims.actions.recordPayment')}
+                </Button>
+              )
+            }
+          >
+            {(payments ?? []).length === 0 ? (
+              <p className="py-2 text-[13px] text-slate-500">{t('claims.money.noPayments')}</p>
+            ) : (
+              <Table dense>
+                <thead>
+                  <tr>
+                    <th>{t('claims.fields.paidAt')}</th>
+                    <th>{t('claims.fields.reference')}</th>
+                    <th className="text-right">{t('claims.fields.amount')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(payments ?? []).map((p) => (
+                    <tr key={p.id}>
+                      <td className="whitespace-nowrap">{formatDate(p.paid_at, locale)}</td>
+                      <td className="text-slate-600">{p.reference ?? EM_DASH}</td>
+                      <td className="num">
+                        {formatAmount(Number(p.amount), locale)} {p.currency_code}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            )}
+          </Panel>
 
-      <Card>
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold">{t('claims.money.recoveries')}</h2>
-          {canRecover && (
-            <Button variant="secondary" onClick={() => setRecovering(true)}>
-              {t('claims.actions.recordRecovery')}
-            </Button>
-          )}
-        </div>
-        <p className="mt-1 text-[13px] text-slate-600">{t('claims.money.splitRule')}</p>
-        {(recoveries ?? []).length === 0 ? (
-          <p className="mt-3 text-[13px] text-slate-500">{t('claims.money.noRecoveries')}</p>
-        ) : (
-          <Table dense>
-            <thead>
-              <tr>
-                <th>{t('claims.fields.receivedAt')}</th>
-                <th className="num">{t('claims.fields.gross')}</th>
-                <th className="num">{t('claims.fields.recoveryCosts')}</th>
-                <th className="num">{t('claims.fields.net')}</th>
-                <th className="num">{t('claims.fields.insurerShare')}</th>
-                <th className="num">{t('claims.fields.policyholderShare')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(recoveries ?? []).map((r) => (
-                <tr key={r.id}>
-                  <td>{r.received_at}</td>
-                  <td className="num">{formatAmount(Number(r.gross_amount), locale)}</td>
-                  <td className="num">{formatAmount(Number(r.recovery_costs), locale)}</td>
-                  <td className="num">{formatAmount(Number(r.net_amount), locale)}</td>
-                  <td className="num">{formatAmount(Number(r.insurer_share), locale)}</td>
-                  <td className="num">{formatAmount(Number(r.policyholder_share), locale)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        )}
-      </Card>
-
-      {!canPay && !canRecover && (payments ?? []).length === 0 && (
-        <EmptyState title={t('claims.money.emptyTitle')} hint={t('claims.money.emptyHint')} />
+          <Panel
+            title={t('claims.money.recoveries')}
+            hint={t('claims.money.splitRule')}
+            actions={
+              canRecover && (
+                <Button size="sm" variant="secondary" onClick={() => setRecovering(true)}>
+                  {t('claims.actions.recordRecovery')}
+                </Button>
+              )
+            }
+          >
+            {(recoveries ?? []).length === 0 ? (
+              <p className="py-2 text-[13px] text-slate-500">{t('claims.money.noRecoveries')}</p>
+            ) : (
+              <Table dense>
+                <thead>
+                  <tr>
+                    <th>{t('claims.fields.receivedAt')}</th>
+                    <th className="text-right">{t('claims.fields.net')}</th>
+                    <th className="text-right">{t('claims.fields.insurerShare')}</th>
+                    <th className="text-right">{t('claims.fields.policyholderShare')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(recoveries ?? []).map((r) => (
+                    <tr key={r.id}>
+                      <td className="whitespace-nowrap">
+                        {formatDate(r.received_at, locale)}
+                        <span className="block text-[11.5px] text-slate-400">
+                          {t('claims.money.grossLessCosts', {
+                            gross: formatAmount(Number(r.gross_amount), locale),
+                            costs: formatAmount(Number(r.recovery_costs), locale),
+                          })}
+                        </span>
+                      </td>
+                      <td className="num">{formatAmount(Number(r.net_amount), locale)}</td>
+                      <td className="num">{formatAmount(Number(r.insurer_share), locale)}</td>
+                      <td className="num">{formatAmount(Number(r.policyholder_share), locale)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            )}
+          </Panel>
+        </PanelGrid>
       )}
 
       {paying && <PaymentModal claim={claim} onClose={() => setPaying(false)} />}
@@ -133,32 +178,11 @@ export function ClaimMoneyTab({ claim }: { claim: Claim }) {
   )
 }
 
-function Figure({
-  label,
-  value,
-  cur,
-  locale,
-}: {
-  label: string
-  value: number | null
-  cur: string
-  locale: string
-}) {
-  return (
-    <Card>
-      <p className="text-xs text-slate-500">{label}</p>
-      <p className="num mt-1 text-xl font-semibold">
-        {value === null ? EM_DASH : `${formatAmount(Number(value), locale)} ${cur}`}
-      </p>
-    </Card>
-  )
-}
-
 function PaymentModal({ claim, onClose }: { claim: Claim; onClose: () => void }) {
   const { t } = useTranslation()
   const record = useRecordPayment()
   const [amount, setAmount] = useState('')
-  const [paidAt, setPaidAt] = useState(new Date().toISOString().slice(0, 10))
+  const [paidAt, setPaidAt] = useState(todayIso())
   const [reference, setReference] = useState('')
   const [error, setError] = useState<string | null>(null)
   return (
@@ -172,6 +196,8 @@ function PaymentModal({ claim, onClose }: { claim: Claim; onClose: () => void })
             {t('common.cancel')}
           </Button>
           <Button
+            disabled={!(Number(amount) > 0) || paidAt === '' || record.isPending}
+            title={Number(amount) > 0 && paidAt !== '' ? undefined : t('claims.money.paymentRequiredHint')}
             onClick={() =>
               record
                 .mutateAsync({
@@ -192,17 +218,13 @@ function PaymentModal({ claim, onClose }: { claim: Claim; onClose: () => void })
         </>
       }
     >
-      {error && (
-        <p role="alert" className="mb-3 rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">
-          {error}
-        </p>
-      )}
-      <p className="text-[13px] text-slate-600">{t('claims.money.paymentHint')}</p>
-      <Field label={`${t('claims.fields.amount')} (${claim.currency_code})`}>
-        <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
+      {error && <Callout tone="neg" title={error} />}
+      <p className="text-[13px] leading-relaxed text-slate-600">{t('claims.money.paymentHint')}</p>
+      <Field label={t('claims.fields.amount')}>
+        <AmountInput value={amount} onChange={setAmount} suffix={claim.currency_code} />
       </Field>
       <Field label={t('claims.fields.paidAt')}>
-        <Input type="date" value={paidAt} onChange={(e) => setPaidAt(e.target.value)} />
+        <DateInput value={paidAt} max={todayIso()} onChange={setPaidAt} />
       </Field>
       <Field label={t('claims.fields.reference')}>
         <Input value={reference} onChange={(e) => setReference(e.target.value)} />
@@ -216,7 +238,7 @@ function RecoveryModal({ claim, onClose }: { claim: Claim; onClose: () => void }
   const record = useRecordRecovery()
   const [gross, setGross] = useState('')
   const [costs, setCosts] = useState('0')
-  const [receivedAt, setReceivedAt] = useState(new Date().toISOString().slice(0, 10))
+  const [receivedAt, setReceivedAt] = useState(todayIso())
   const [note, setNote] = useState('')
   const [error, setError] = useState<string | null>(null)
   return (
@@ -230,6 +252,8 @@ function RecoveryModal({ claim, onClose }: { claim: Claim; onClose: () => void }
             {t('common.cancel')}
           </Button>
           <Button
+            disabled={!(Number(gross) > 0) || receivedAt === '' || record.isPending}
+            title={Number(gross) > 0 && receivedAt !== '' ? undefined : t('claims.money.recoveryRequiredHint')}
             onClick={() =>
               record
                 .mutateAsync({
@@ -251,20 +275,16 @@ function RecoveryModal({ claim, onClose }: { claim: Claim; onClose: () => void }
         </>
       }
     >
-      {error && (
-        <p role="alert" className="mb-3 rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">
-          {error}
-        </p>
-      )}
-      <p className="text-[13px] text-slate-600">{t('claims.money.recoveryHint')}</p>
-      <Field label={`${t('claims.fields.gross')} (${claim.currency_code})`}>
-        <Input type="number" value={gross} onChange={(e) => setGross(e.target.value)} />
+      {error && <Callout tone="neg" title={error} />}
+      <p className="text-[13px] leading-relaxed text-slate-600">{t('claims.money.recoveryHint')}</p>
+      <Field label={t('claims.fields.gross')}>
+        <AmountInput value={gross} onChange={setGross} suffix={claim.currency_code} />
       </Field>
       <Field label={t('claims.fields.recoveryCosts')}>
-        <Input type="number" value={costs} onChange={(e) => setCosts(e.target.value)} />
+        <AmountInput value={costs} onChange={setCosts} suffix={claim.currency_code} />
       </Field>
       <Field label={t('claims.fields.receivedAt')}>
-        <Input type="date" value={receivedAt} onChange={(e) => setReceivedAt(e.target.value)} />
+        <DateInput value={receivedAt} max={todayIso()} onChange={setReceivedAt} />
       </Field>
       <Field label={t('claims.fields.note')}>
         <Input value={note} onChange={(e) => setNote(e.target.value)} />

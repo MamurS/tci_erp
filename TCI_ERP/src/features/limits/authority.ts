@@ -56,6 +56,24 @@ export function toUzs(
   return rate === null ? null : amount * rate
 }
 
+/** `amount` in `from` expressed in `to`, both through UZS at their latest
+ * rates (the same rule as latestUzsRate). Null when either rate is missing:
+ * the caller says so rather than showing the amount in a currency the reader
+ * did not ask for. Display only — no decision is taken on this figure. */
+export function convertAtLatest(
+  amount: number,
+  from: string,
+  to: string,
+  rates: readonly FxRateRow[],
+  todayIso: string,
+): number | null {
+  if (from === to) return amount
+  const fromRate = latestUzsRate(rates, from, todayIso)
+  const toRate = latestUzsRate(rates, to, todayIso)
+  if (fromRate === null || toRate === null || toRate === 0) return null
+  return (amount * fromRate) / toRate
+}
+
 /** MAX authority in UZS for ONE stream and ONE band over currently valid
  * grants; 0 when none. The 'credit' stream is tci.my_authority_uzs(band);
  * the 'commercial' stream is the identical aggregate inlined in

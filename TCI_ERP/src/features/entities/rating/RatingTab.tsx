@@ -6,12 +6,13 @@
  * when the analytics service is down.
  */
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   CartesianGrid,
+  LabelList,
   Line,
   LineChart,
   ResponsiveContainer,
@@ -20,17 +21,23 @@ import {
   YAxis,
 } from 'recharts'
 
+import { Plus } from 'lucide-react'
+
 import {
   Badge,
   Button,
   Card,
+  EmptyState,
   GradeScale,
+  LinkButton,
   RatingGauge,
   RatingLegend,
+  SectionTitle,
   Select,
   Spinner,
   Table,
 } from '../../../components/ui'
+import { useAuth } from '../../../auth/AuthContext'
 import {
   AnalyticsUnavailableError,
   postCreditLimit,
@@ -41,11 +48,12 @@ import type {
   RatingResponse,
   StatementPayload,
 } from '../../../lib/analytics'
-import { EM_DASH, formatAmount, formatPercent } from '../../../lib/format'
+import { EM_DASH, formatAmount, formatDate, formatMoment, formatPercent } from '../../../lib/format'
 import { gradeTone } from '../../../lib/grade'
 import { gradeChange, useGradeScale } from '../../../lib/gradeScale'
 import type { GradeBand } from '../../../lib/gradeScale'
 import { tci } from '../../../lib/supabase'
+import { DEEP_LINK_SCROLL_MARGIN, useDeepLinkFocus } from '../../../lib/useDeepLinkFocus'
 import { useEntity, useStatements } from '../api'
 import type { StatementBundle } from '../types'
 import { statementPeriodLabel } from '../types'
@@ -53,12 +61,20 @@ import { sortChronological } from '../financials/analysis'
 import { useFxRates, usdRateFor } from '../financials/fxApi'
 import { useAssessments } from './assessmentsApi'
 import type { AssessmentRow } from './assessmentsApi'
-import { buildFactorChips } from './chips'
+import { buildFactorChips, formatFactorValue, isUnchangedDynamic } from './chips'
+import type { FactorChip } from './chips'
 import { FactorChipList } from './FactorChips'
+import { limitReason } from './limitReasons'
+import { ScoreChangeNote } from './ScoreChangeNote'
+import { mayEnterStatements } from '../financials/access'
+import { CHART_COLORS } from '../report/DynamicCharts'
 import { ReportModal } from './ReportModal'
 
 /** id of the factor breakdown table — dashboard chips deep-link here. */
 export const FACTOR_TABLE_ANCHOR_ID = 'rating-factor-table'
+
+/** id of the statement selector + Calculate row — `?statement=` lands here. */
+const STATEMENT_ROW_ANCHOR_ID = 'rating-statement'
 
 /** Company age in years at the statement date (activates the age factor). */
 function ageAt(foundedDate: string | null | undefined, periodEnd: string): number | null {
@@ -74,6 +90,7 @@ export function RatingTab({ entityId }: { entityId: string }) {
   const queryClient = useQueryClient()
 
   const { data: buyer } = useEntity(entityId)
+  const { roles: myRoles } = useAuth()
   const { data: statements, isLoading } = useStatements(entityId)
   const { data: gradeBands } = useGradeScale()
   const ordered = useMemo(
@@ -81,9 +98,15 @@ export function RatingTab({ entityId }: { entityId: string }) {
     [statements],
   )
 
-  const [statementId, setStatementId] = useState<string | null>(null)
+  // ?statement=<id> (the Agenda's «rate this statement») pre-selects the
+  // statement and brings the Calculate row into view. An id this company does
+  // not hold falls back to the latest, as with no parameter at all.
+  const [searchParams] = useSearchParams()
+  const linkedStatement = searchParams.get('statement')
+  const [statementId, setStatementId] = useState<string | null>(linkedStatement)
   const selected: StatementBundle | null =
-    ordered.find((s) => s.id === (statementId ?? ordered[0]?.id)) ?? null
+    ordered.find((s) => s.id === statementId) ?? ordered[0] ?? null
+  useDeepLinkFocus(linkedStatement ? STATEMENT_ROW_ANCHOR_ID : null)
 
   const [result, setResult] = useState<{
     rating: RatingResponse
@@ -105,15 +128,12 @@ export function RatingTab({ entityId }: { entityId: string }) {
   const assessments = useAssessments(entityId)
 
   // ?anchor=factors (dashboard chip click) → scroll to the factor table.
-  const [searchParams] = useSearchParams()
   const anchor = searchParams.get('anchor')
   const hasResult = Boolean(result ?? assessments.data?.[0]?.calculation_trace)
-  useEffect(() => {
-    if (anchor !== 'factors' || !hasResult) return
-    document
-      .getElementById(FACTOR_TABLE_ANCHOR_ID)
-      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }, [anchor, hasResult])
+  useDeepLinkFocus(anchor === 'factors' ? FACTOR_TABLE_ANCHOR_ID : null, {
+    ready: hasResult,
+    highlight: false,
+  })
 
   const calculate = useMutation({
     mutationFn: async (statement: StatementBundle) => {
@@ -181,7 +201,22 @@ export function RatingTab({ entityId }: { entityId: string }) {
   if (isLoading) return <Spinner label={t('common.loading')} />
 
   if (!ordered.length) {
-    return <Card className="p-5 text-sm text-slate-500">{t('rating.needStatements')}</Card>
+    // Nothing to rate on yet: say what is needed, and offer the one step to
+    // whoever may take it (the data and credit desks enter statements).
+    return (
+      <EmptyState
+        title={t('rating.needStatementsTitle')}
+        hint={t('rating.needStatements')}
+        action={
+          mayEnterStatements(myRoles) ? (
+            <LinkButton to={`/entities/${entityId}/statements/new`}>
+              <Plus />
+              {t('fin.addStatement')}
+            </LinkButton>
+          ) : undefined
+        }
+      />
+    )
   }
 
   // Fresh result wins; otherwise the latest stored assessment.
@@ -199,41 +234,43 @@ export function RatingTab({ entityId }: { entityId: string }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <Card className="flex flex-wrap items-end gap-3 p-5">
-        <label className="flex flex-col gap-1">
-          <span className="text-[13px] font-medium text-slate-600">{t('rating.statement')}</span>
-          <Select
-            value={selected?.id ?? ''}
-            onChange={(e) => setStatementId(e.target.value)}
-            className="min-w-48"
+      <div id={STATEMENT_ROW_ANCHOR_ID} className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
+        <Card className="flex flex-wrap items-end gap-3 p-5">
+          <label className="flex flex-col gap-1">
+            <span className="text-[13px] font-medium text-slate-600">{t('rating.statement')}</span>
+            <Select
+              value={selected?.id ?? ''}
+              onChange={(e) => setStatementId(e.target.value)}
+              className="min-w-48"
+            >
+              {ordered.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {statementPeriodLabel(s)} · {s.currency_code}
+                </option>
+              ))}
+            </Select>
+          </label>
+          <Button
+            onClick={() => selected && calculate.mutate(selected)}
+            disabled={calculate.isPending || !selected}
           >
-            {ordered.map((s) => (
-              <option key={s.id} value={s.id}>
-                {statementPeriodLabel(s)} · {s.currency_code}
-              </option>
-            ))}
-          </Select>
-        </label>
-        <Button
-          onClick={() => selected && calculate.mutate(selected)}
-          disabled={calculate.isPending || !selected}
-        >
-          {calculate.isPending ? t('rating.calculating') : t('rating.calculate')}
-        </Button>
-        <Button variant="secondary" onClick={() => setReportModalOpen(true)}>
-          {t('rating.generateReport')}
-        </Button>
-        {serviceDown && (
-          <span className="text-[13px] text-neg-500" role="alert">
-            {t('rating.serviceUnavailable')}
-          </span>
-        )}
-        {calculate.isError && !serviceDown && (
-          <span className="text-[13px] text-neg-500" role="alert">
-            {t('common.saveFailed')}
-          </span>
-        )}
-      </Card>
+            {calculate.isPending ? t('rating.calculating') : t('rating.calculate')}
+          </Button>
+          <Button variant="secondary" onClick={() => setReportModalOpen(true)}>
+            {t('rating.generateReport')}
+          </Button>
+          {serviceDown && (
+            <span className="text-[13px] text-neg-500" role="alert">
+              {t('rating.serviceUnavailable')}
+            </span>
+          )}
+          {calculate.isError && !serviceDown && (
+            <span className="text-[13px] text-neg-500" role="alert">
+              {t('common.saveFailed')}
+            </span>
+          )}
+        </Card>
+      </div>
 
       {shown ? (
         <ResultView
@@ -244,7 +281,9 @@ export function RatingTab({ entityId }: { entityId: string }) {
           previousScore={previousRow ? Number(previousRow.rating_score) : null}
         />
       ) : (
-        <Card className="p-5 text-sm text-slate-500">{t('rating.notAssessed')}</Card>
+        <Card className="p-5">
+          <EmptyState title={t('rating.notAssessed')} hint={t('rating.notAssessedHint')} />
+        </Card>
       )}
 
       <ScoreHistoryChart
@@ -293,8 +332,11 @@ function ResultView({
     <>
       <Card className="flex flex-col gap-4 p-5">
         <div className="grid items-center gap-5 lg:grid-cols-[240px_1fr]">
-          <div className="flex justify-center rounded-lg bg-accent-50/60 px-3 pt-3 pb-2">
-            <RatingGauge score={rating.score} previousScore={previousScore} />
+          <div className="flex flex-col items-center rounded-lg bg-accent-50/60 px-3 pt-3 pb-2">
+            {/* The change is said in words below, not as an arrow on a
+                lower-is-better scale. */}
+            <RatingGauge score={rating.score} />
+            <ScoreChangeNote score={rating.score} previousScore={previousScore} />
           </div>
           <div className="flex min-w-0 flex-col gap-4">
             {rating.score !== null && rating.grade && (
@@ -308,28 +350,20 @@ function ResultView({
             <RatingLegend score={rating.score} />
           </div>
         </div>
-        <div className="grid gap-3 lg:grid-cols-2">
-          <div>
-            <h4 className="mb-1.5 text-[13px] font-semibold text-slate-600">
-              {t('rating.strengths')}
-            </h4>
-            <FactorChipList chips={chips.strengths} />
-          </div>
-          <div>
-            <h4 className="mb-1.5 text-[13px] font-semibold text-slate-600">
-              {t('rating.weaknesses')}
-            </h4>
-            <FactorChipList chips={chips.weaknesses} />
-          </div>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <FactorGroup title={t('rating.strengths')} chips={chips.strengths} none={t('rating.noStrengths')} />
+          <FactorGroup title={t('rating.weaknesses')} chips={chips.weaknesses} none={t('rating.noWeaknesses')} />
         </div>
         <p className="text-[13px] text-slate-500">
-          {t('rating.coverage', { pct: formatPercent(rating.data_coverage, locale, 0) })}
+          {rating.data_coverage >= 0.995
+            ? t('rating.coverageFull')
+            : t('rating.coverage', { pct: formatPercent(rating.data_coverage, locale, 0) })}
         </p>
         {rating.adjustments.length > 0 && (
           <div className="flex flex-col gap-1">
             {rating.adjustments.map((a) => (
               <span key={a.code} className="text-[13px] text-warn-500">
-                {t(`rating.adjustments.${a.code}`, { defaultValue: a.code })}:{' '}
+                {t(`rating.adjustments.${a.code}`, { defaultValue: t('rating.adjustments.other') })}:{' '}
                 {formatAmount(a.rating_before, locale, 1)} →{' '}
                 {formatAmount(a.rating_after, locale, 1)}
               </span>
@@ -340,19 +374,20 @@ function ResultView({
 
       {/* Limit card */}
       <Card className="flex flex-col items-start gap-2 p-5">
-        <h3 className="text-sm font-semibold text-slate-900">{t('rating.limitTitle')}</h3>
+        <SectionTitle>{t('rating.limitTitle')}</SectionTitle>
         <span className="num text-3xl font-bold text-slate-900">
           {formatAmount(limit.suggested_limit, locale)}{' '}
           <span className="text-lg font-medium text-slate-500">{limit.currency}</span>
         </span>
-        <Badge tone="neutral">
-          {t('rating.model')}: {t(`rating.models.${limit.model_used}`, { defaultValue: limit.model_used })}
-        </Badge>
+        <span className="text-[13px] text-slate-500">
+          {t('rating.model')}: {t(`rating.models.${limit.model_used}`, { defaultValue: t('rating.models.none') })}
+        </span>
         {limit.reasons.length > 0 && (
           <ul className="list-inside list-disc text-[13px] text-slate-500">
-            {limit.reasons.map((r) => (
-              <li key={r}>{r}</li>
-            ))}
+            {limit.reasons.map((r) => {
+              const reason = limitReason(r)
+              return <li key={r}>{t(`rating.limitReasons.${reason.key}`, reason.params)}</li>
+            })}
           </ul>
         )}
         <details className="mt-1 w-full text-[13px] text-slate-600">
@@ -364,13 +399,15 @@ function ResultView({
               <div key={m.model}>
                 <p className="font-medium">
                   {t(`rating.models.${m.model}`, { defaultValue: m.model })}:{' '}
-                  <span className="num">{formatAmount(m.limit, locale)}</span>
+                  <span className="num">
+                    {formatAmount(m.limit, locale)} {limit.currency}
+                  </span>
                 </p>
-                <ul className="mt-0.5 grid grid-cols-2 gap-x-4 text-slate-500">
+                <ul className="mt-0.5 grid gap-x-6 text-slate-500 sm:grid-cols-2">
                   {Object.entries(m.components).map(([k, v]) => (
                     <li key={k} className="flex justify-between gap-2">
-                      <span>{k}</span>
-                      <span className="num">{formatAmount(v, locale, 2)}</span>
+                      <span>{t(`rating.traceComponents.${k}`, { defaultValue: k })}</span>
+                      <span className="num">{traceValue(k, v, limit.currency, locale)}</span>
                     </li>
                   ))}
                 </ul>
@@ -383,27 +420,23 @@ function ResultView({
       {/* Component breakdown */}
       <div id={FACTOR_TABLE_ANCHOR_ID} className="scroll-mt-4">
         <Table dense>
-        <thead>
-          <tr>
-            <th>{t('rating.componentsTitle')}</th>
-            <th className="text-right">{t('rating.value')}</th>
-            <th className="text-right">{t('rating.score')}</th>
-            <th className="text-right">{t('rating.weight')}</th>
-            <th>{t('rating.band')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rating.components.map((c) => (
-            <tr key={c.factor} className={c.status !== 'scored' ? 'opacity-50' : ''}>
-              <td>{t(`rating.factors.${c.factor}`, { defaultValue: c.factor })}</td>
-              <td>
-                <span className="num block">
-                  {c.value === null ? EM_DASH : formatAmount(c.value, locale, 3)}
-                </span>
-              </td>
-              <td>
-                <span
-                  className={`num block ${
+          <thead>
+            <tr>
+              <th>{t('rating.componentsTitle')}</th>
+              <th className="text-right">{t('rating.value')}</th>
+              <th className="text-right">{t('rating.score')}</th>
+              <th className="text-right">{t('rating.weight')}</th>
+              <th>{t('rating.band')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rating.components.map((c) => (
+              <tr key={c.factor} className={c.status !== 'scored' ? 'opacity-50' : ''}>
+                <td>{t(`rating.factors.${c.factor}`, { defaultValue: c.factor })}</td>
+                {/* The same formatting as the chips above: 37.4%, 4.60x, −9 days. */}
+                <td className="num">{c.value === null ? EM_DASH : formatFactorValue(c.factor, c.value, t, locale)}</td>
+                <td
+                  className={`num ${
                     c.score === null
                       ? 'text-slate-400'
                       : c.score <= 40
@@ -414,21 +447,40 @@ function ResultView({
                   }`}
                 >
                   {c.score === null ? EM_DASH : formatAmount(c.score, locale, 0)}
-                </span>
-              </td>
-              <td>
-                <span className="num block">{formatAmount(c.weight, locale, 1)}</span>
-              </td>
-              <td className="text-slate-500">
-                {c.band ? t(`rating.bands.${c.band}`, { defaultValue: c.band }) : EM_DASH}
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td className="num">{formatAmount(c.weight, locale, 1)}</td>
+                <td className="text-slate-500">
+                  {c.value !== null && isUnchangedDynamic(c.factor, c.value)
+                    ? t('rating.bands.unchanged')
+                    : c.band
+                      ? t(`rating.bands.${c.band}`, { defaultValue: c.band })
+                      : EM_DASH}
+                </td>
+              </tr>
+            ))}
           </tbody>
         </Table>
       </div>
     </>
   )
+}
+
+/** A strengths / weaknesses column: the chips, or a calm line when none. */
+function FactorGroup({ title, chips, none }: { title: string; chips: FactorChip[]; none: string }) {
+  return (
+    <div>
+      <h4 className="mb-1.5 text-[13px] font-semibold text-slate-600">{title}</h4>
+      {chips.length > 0 ? <FactorChipList chips={chips} /> : <p className="text-[13px] text-slate-500">{none}</p>}
+    </div>
+  )
+}
+
+/** A limit-trace component, read as what it is: a coefficient, days, money. */
+function traceValue(key: string, value: number, currency: string, locale: string): string {
+  if (key === 'risk_coefficient') return formatAmount(value, locale, 2)
+  if (key === 'dso_days') return formatAmount(value, locale, 0)
+  if (key.endsWith('_usd')) return `${formatAmount(value, locale, 0)} USD`
+  return `${formatAmount(value, locale, 0)} ${currency}`
 }
 
 // ---------------------------------------------------------------------------
@@ -445,54 +497,76 @@ function ScoreHistoryChart({
   locale: string
 }) {
   const { t } = useTranslation()
-  if (assessments.length < 2) return null
+  // Nothing to draw before the first assessment (the result card says so).
+  if (assessments.length === 0) return null
+  if (assessments.length < 2) {
+    return (
+      <Card className="p-5">
+        <SectionTitle className="mb-2">{t('rating.historyChart')}</SectionTitle>
+        <p className="text-[13px] text-slate-500">{t('rating.historyChartEmpty')}</p>
+      </Card>
+    )
+  }
 
-  const data = [...assessments]
-    .reverse()
-    .map((a) => ({
-      date: a.created_at.slice(0, 10),
-      score: Number(a.rating_score),
-      grade: a.rating_grade,
-      statement: statements.find((s) => s.id === a.statement_id),
-      engine: a.engine_version,
-    }))
+  // A TIME axis: two assessments months apart sit months apart, and every
+  // point gets its own date under it (a category axis of formatted dates
+  // drops labels and cannot space them).
+  const data = [...assessments].reverse().map((a) => ({
+    at: new Date(a.created_at).getTime(),
+    score: Number(a.rating_score),
+    grade: a.rating_grade,
+    statement: statements.find((s) => s.id === a.statement_id),
+  }))
 
   return (
     <Card className="p-5">
-      <h3 className="mb-3 text-sm font-semibold text-slate-900">{t('rating.historyChart')}</h3>
-      <div className="h-52">
+      <SectionTitle className="mb-3" hint={t('rating.scaleHint')}>
+        {t('rating.historyChart')}
+      </SectionTitle>
+      <div className="h-56">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={data} margin={{ top: 12, right: 16, bottom: 0, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-            <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#64748b' }} />
+          <LineChart data={data} margin={{ top: 20, right: 28, bottom: 0, left: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e3ecf2" vertical={false} />
+            <XAxis
+              dataKey="at"
+              type="number"
+              scale="time"
+              domain={['dataMin', 'dataMax']}
+              ticks={data.map((d) => d.at)}
+              tickFormatter={(value: number) => formatDate(new Date(value), locale)}
+              padding={{ left: 28, right: 28 }}
+              minTickGap={16}
+              tick={{ fontSize: 11, fill: '#64748b' }}
+            />
             <YAxis
               reversed
               domain={[0, 100]}
+              ticks={[0, 25, 50, 75, 100]}
               tick={{ fontSize: 11, fill: '#64748b' }}
               width={32}
             />
             <Tooltip
               formatter={(value) => [formatAmount(Number(value), locale, 1), t('rating.score')]}
-              labelFormatter={(label, payload) => {
+              labelFormatter={(_label, payload) => {
                 const point = payload?.[0]?.payload as (typeof data)[number] | undefined
-                if (!point) return String(label)
-                const period = point.statement ? statementPeriodLabel(point.statement) : ''
-                return `${point.date} · ${period} · ${point.grade} · v${point.engine}`
+                if (!point) return ''
+                const period = point.statement ? ` · ${statementPeriodLabel(point.statement)}` : ''
+                return `${formatDate(new Date(point.at), locale)}${period} · ${point.grade}`
               }}
             />
             <Line
-              type="monotone"
+              type="linear"
               dataKey="score"
-              stroke="#4f46e5"
+              stroke={CHART_COLORS[0]}
               strokeWidth={2}
-              dot={{ r: 3 }}
-              label={{
-                dataKey: 'grade',
-                position: 'top',
-                fontSize: 10,
-                fill: '#64748b',
-              }}
-            />
+              // Drawn at once: an animation caught half-way reads as a broken
+              // line (and is what a screenshot or the PDF would capture).
+              isAnimationActive={false}
+              dot={{ r: 4, fill: '#fff', stroke: CHART_COLORS[0], strokeWidth: 2 }}
+              activeDot={{ r: 5 }}
+            >
+              <LabelList dataKey="grade" position="top" offset={10} fontSize={11} fill="#475569" />
+            </Line>
           </LineChart>
         </ResponsiveContainer>
       </div>
@@ -513,8 +587,10 @@ function HistoryCard({
   statements: StatementBundle[]
   locale: string
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   if (!assessments.length) return null
+
+  const versions = [...new Set(assessments.map((a) => a.engine_version).filter(Boolean))]
 
   const periodOf = (statementId: string): string => {
     const s = statements.find((x) => x.id === statementId)
@@ -523,7 +599,7 @@ function HistoryCard({
 
   return (
     <div>
-      <h3 className="mb-2 text-sm font-semibold text-slate-900">{t('rating.historyTitle')}</h3>
+      <SectionTitle className="mb-2">{t('rating.historyTitle')}</SectionTitle>
       <Table dense>
         <thead>
           <tr>
@@ -532,30 +608,29 @@ function HistoryCard({
             <th className="text-right">{t('rating.score')}</th>
             <th>{t('rating.gradeTitle')}</th>
             <th className="text-right">{t('rating.limitTitle')}</th>
-            <th>{t('rating.engine')}</th>
           </tr>
         </thead>
         <tbody>
           {assessments.map((a) => (
             <tr key={a.id}>
-              <td className="text-slate-500">{a.created_at.slice(0, 16).replace('T', ' ')}</td>
+              <td className="whitespace-nowrap text-slate-500">{formatMoment(a.created_at, i18n.language)}</td>
               <td>{periodOf(a.statement_id)}</td>
-              <td>
-                <span className="num block">{formatAmount(Number(a.rating_score), locale, 1)}</span>
-              </td>
+              <td className="num">{formatAmount(Number(a.rating_score), locale, 1)}</td>
               <td>
                 <Badge tone={gradeTone(a.rating_grade)}>{a.rating_grade}</Badge>
               </td>
-              <td>
-                <span className="num block">
-                  {formatAmount(Number(a.suggested_limit), locale)} {a.limit_currency}
-                </span>
+              <td className="num">
+                {formatAmount(Number(a.suggested_limit), locale)} {a.limit_currency}
               </td>
-              <td className="text-slate-400">{a.engine_version}</td>
             </tr>
           ))}
         </tbody>
       </Table>
+      {/* Which version of the scoring model produced these — an audit
+          detail, so a footnote rather than a column. */}
+      {versions.length > 0 && (
+        <p className="mt-2 text-xs text-slate-400">{t('rating.engineFootnote', { versions: versions.join(', ') })}</p>
+      )}
     </div>
   )
 }

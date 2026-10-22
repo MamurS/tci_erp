@@ -63,6 +63,16 @@ export function sortReasons(reasons: readonly CoverageReason[]): CoverageReason[
   )
 }
 
+/** The reasons that DECIDED a verdict. A line refused for shipping before
+ * inception also passed the limit check, but showing "covered by an approved
+ * limit" under "not covered" reads as a contradiction: the passing checks are
+ * shown only when nothing failed. */
+export function decidingReasons(reasons: readonly CoverageReason[]): CoverageReason[] {
+  const sorted = sortReasons(reasons)
+  const failed = sorted.filter((r) => !POSITIVE_REASONS.includes(r))
+  return failed.length ? failed : sorted
+}
+
 /** A claim-level warning: the notification duty was not met, which prejudices
  * cover on every line. Shown at the top of the claim, not buried per invoice. */
 export function noaWarning(claim: {

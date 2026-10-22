@@ -15,7 +15,7 @@ import type { UserRole } from '../../lib/roles'
 import { matchNavItem, navItemsForRoles } from './navigation'
 import type { NavItem } from './navigation'
 
-export type WorkspaceKey = 'commercial' | 'credit' | 'sales' | 'claims' | 'admin'
+export type WorkspaceKey = 'commercial' | 'credit' | 'sales' | 'claims' | 'data' | 'admin'
 
 export interface Workspace {
   key: WorkspaceKey
@@ -45,6 +45,7 @@ export const WORKSPACES: readonly Workspace[] = [
     items: ['requests', 'policies', 'limits', 'declarations', 'overdues'],
   },
   { key: 'claims', roles: ['claims'], items: ['claims', 'overdues'] },
+  { key: 'data', roles: ['information_manager'], items: ['data'] },
   { key: 'admin', roles: ['admin'], items: ['admin', 'policies'] },
 ]
 

@@ -41,6 +41,11 @@ function pct(change: number): number {
   return Math.abs(change * 100)
 }
 
+/** A margin (fraction) as the percentage the report prints: one decimal. */
+export function shownMarginPct(fraction: number): number {
+  return Math.round(fraction * 1000) / 10
+}
+
 export function buildNarrative(input: {
   /** Statements of ONE report_type, chronological; latest is assessed.
    * May be display-currency converted — used for LEVELS only. */
@@ -114,11 +119,21 @@ export function buildNarrative(input: {
   const grossMargin = ratios.gross_margin.value
   const prevGrossMargin = baseRatios?.gross_margin.value ?? null
   if (grossMargin !== null && prevGrossMargin !== null) {
-    const key = grossMargin >= prevGrossMargin ? 'gross_margin_up' : 'gross_margin_down'
+    // Compared as PRINTED (one decimal of %): «fell from 56.0% to 56.0%» is
+    // what comparing the raw floats says, and it is nonsense to a reader.
+    const shownFrom = shownMarginPct(prevGrossMargin)
+    const shownTo = shownMarginPct(grossMargin)
+    const key =
+      shownTo === shownFrom
+        ? 'gross_margin_flat'
+        : shownTo > shownFrom
+          ? 'gross_margin_up'
+          : 'gross_margin_down'
     bullets.push({
       theme: 'profitability',
       key,
-      params: { from: pct(prevGrossMargin) , to: pct(grossMargin) },
+      // Signed: a negative gross margin must not print as a positive one.
+      params: { from: shownFrom, to: shownTo },
     })
   }
   const netProfit = latest.income_statements?.net_profit ?? null

@@ -1,6 +1,7 @@
 /** Rows of the workbench views (migration 0053). Numerics may arrive as strings. */
 
 import type { GradeBand } from '../../../lib/roles'
+import type { GroupLimitStatus } from '../../groups/types'
 
 /** tci.v_limit_request_queue — open requests only. */
 export interface QueueRow {
@@ -44,23 +45,6 @@ export interface RatingWorkRow {
   reason: RatingReason
 }
 
-/** tci.v_group_limit_status — groups against their caps. */
-export interface GroupLimitRow {
-  ultimate_parent_id: string
-  ultimate_parent_name: string
-  ultimate_parent_country: string | null
-  members_count: number
-  members_with_limits: number
-  limits_count: number
-  policyholders_count: number
-  exposure_uzs: number | string
-  missing_rates: number
-  group_limit_id: string | null
-  limit_amount: number | string | null
-  limit_currency: string | null
-  limit_valid_from: string | null
-  limit_valid_to: string | null
-  limit_uzs: number | string | null
-  utilisation_pct: number | string | null
-  over_limit: boolean
-}
+/** tci.v_group_limit_status — groups against their caps. The group tab reads
+ * the same view, so the row type lives with the groups feature. */
+export type GroupLimitRow = GroupLimitStatus

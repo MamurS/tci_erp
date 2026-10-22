@@ -10,18 +10,24 @@ import { useAuth } from '../../auth/AuthContext'
 import {
   Badge,
   Button,
-  Card,
+  Callout,
+  DescriptionList,
+  DetailHeader,
   EmptyState,
   Field,
-  Input,
+  KeyFigures,
   Modal,
-  PageHeader,
+  Panel,
+  PanelGrid,
   Spinner,
   Tabs,
+  Textarea,
+  ActionsMenu,
 } from '../../components/ui'
+import type { MenuAction } from '../../components/ui'
 import type { TabDef } from '../../components/ui'
-import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
-import { CLAIM_STATUS_TONE } from './ClaimsPage'
+import { EM_DASH, formatAmount, formatDate, formatMoment } from '../../lib/format'
+import { CLAIM_STATUS_TONE } from './status'
 import { ClaimDocumentsTab } from './ClaimDocumentsTab'
 import { ClaimHistoryTab } from './ClaimHistoryTab'
 import { GroupChip } from '../groups'
@@ -31,7 +37,7 @@ import { ClaimMoneyTab } from './ClaimMoneyTab'
 import { useApproveClaim, useChangeClaimStatus, useClaim, useClaimReadiness } from './api'
 import { noaWarning } from './coverage'
 import { claimErrorKey } from './errors'
-import { offeredTransitions, requiresReason } from './machine'
+import { isDestructive, nextStep, offeredTransitions, requiresReason } from './machine'
 import type { ClaimStatus } from './types'
 
 const TAB_KEYS = ['overview', 'invoices', 'documents', 'indemnity', 'money', 'history'] as const
@@ -78,106 +84,128 @@ export function ClaimDetailPage() {
       })
   }
 
+  // ONE primary — the step the file is waiting for — and everything else in
+  // the «Действия» menu, the moves that end the file in its danger section.
+  const step = nextStep(claim.status)
+  const primary = step === 'approve' ? (canApprove ? step : null) : step && moves.includes(step) ? step : null
+  const menu: MenuAction[] = [
+    ...(canApprove && primary !== 'approve'
+      ? [{ key: 'approve', label: t('claims.actions.approve'), onSelect: () => setPending('approve') }]
+      : []),
+    ...moves
+      .filter((to) => to !== primary)
+      .sort((a, b) => Number(isDestructive(a)) - Number(isDestructive(b)))
+      .map((to) => ({
+        key: to,
+        label: t(`claims.actions.${to}`),
+        danger: isDestructive(to),
+        onSelect: () => setPending(to),
+      })),
+  ]
+  const pendingDestructive = pending !== null && pending !== 'approve' && isDestructive(pending)
+  const reasonMissing = pending !== null && pending !== 'approve' && requiresReason(pending) && comment.trim() === ''
+  const money = (value: number | null) =>
+    value === null ? EM_DASH : `${formatAmount(Number(value), locale)} ${claim.currency_code}`
+
   return (
-    <div className="space-y-6 p-6">
-      <PageHeader
-        title={`${claim.claim_number} · ${claim.buyer_name}`}
-        subtitle={`${claim.policy_number} · ${claim.policyholder_name}`}
+    <div>
+      <DetailHeader
+        eyebrow={`${t('claims.eyebrow')} · ${claim.claim_number}`}
+        title={claim.buyer_name}
+        status={
+          <>
+            <Badge tone={CLAIM_STATUS_TONE[claim.status]}>{t(`claims.statuses.${claim.status}`)}</Badge>
+          </>
+        }
+        meta={[
+          <Link key="p" to={`/policies/${claim.policy_id}`} className="text-accent-600 hover:underline">
+            {claim.policy_number}
+          </Link>,
+          <Link
+            key="h"
+            to={`/entities/${claim.policyholder_entity_id}`}
+            className="text-accent-600 hover:underline"
+          >
+            {claim.policyholder_name}
+          </Link>,
+          // An open claim on a sister company is exactly the thing a group
+          // view exists to surface, so the group is named where it is judged.
+          <GroupChip key="g" compact entityId={claim.buyer_entity_id} />,
+        ]}
         actions={
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge tone={CLAIM_STATUS_TONE[claim.status]}>
-              {t(`claims.statuses.${claim.status}`)}
-            </Badge>
-            {canApprove && (
-              <Button onClick={() => setPending('approve')}>{t('claims.actions.approve')}</Button>
-            )}
-            {moves.map((to) => (
-              <Button key={to} variant="secondary" onClick={() => setPending(to)}>
-                {t(`claims.actions.${to}`)}
-              </Button>
-            ))}
-          </div>
+          primary || menu.length > 0 ? (
+            <>
+              {primary && (
+                <Button onClick={() => setPending(primary)}>
+                  {t(`claims.actions.${primary}`)}
+                </Button>
+              )}
+              <ActionsMenu actions={menu} />
+            </>
+          ) : undefined
         }
       />
 
-      {/* An open claim on a sister company is exactly the thing a group view
-          exists to surface, so the group is named where the claim is judged. */}
-      <GroupChip entityId={claim.buyer_entity_id} />
+      <div className="space-y-3 empty:hidden [&:not(:empty)]:mb-6">
+        {/* While a dialog is open its failure is shown inside it. */}
+        {error && pending === null && <Callout tone="neg" title={error} />}
 
-      {error && (
-        <p role="alert" className="rounded-md bg-neg-50 px-3 py-2 text-[13px] text-neg-500">
-          {error}
-        </p>
-      )}
-
-      {warning && (
-        <Card className="border-neg-500/40 bg-neg-50">
-          <p className="text-sm font-semibold text-neg-500">
-            {warning.key === 'late'
-              ? t('claims.noaLateTitle', { days: warning.days })
-              : t('claims.noaMissingTitle')}
-          </p>
-          <p className="mt-1 text-[13px] text-slate-700">
+        {warning && (
+          <Callout
+            tone="neg"
+            title={
+              warning.key === 'late'
+                ? t('claims.noaLateTitle', { days: warning.days })
+                : t('claims.noaMissingTitle')
+            }
+            action={
+              claim.overdue_notification_id && (
+                <Link
+                  to={`/overdues/${claim.overdue_notification_id}`}
+                  className="font-medium text-accent-600 hover:underline"
+                >
+                  {t('claims.openNoa')}
+                </Link>
+              )
+            }
+          >
             {warning.key === 'late' ? t('claims.noaLateExplain') : t('claims.noaMissingExplain')}
-          </p>
-          {claim.overdue_notification_id && (
-            <Link
-              to={`/overdues/${claim.overdue_notification_id}`}
-              className="mt-2 inline-block text-[13px] text-accent-600 hover:underline"
-            >
-              {t('claims.openNoa')}
-            </Link>
-          )}
-        </Card>
-      )}
+          </Callout>
+        )}
 
-      {claim.status === 'draft' && blockers.length > 0 && (
-        <Card className="border-warn-500/40 bg-warn-50">
-          <p className="text-sm font-semibold text-slate-800">{t('claims.blockersTitle')}</p>
-          <ul className="mt-2 list-disc space-y-1 pl-5 text-[13px] text-slate-700">
-            {blockers.map((b) => (
-              <li key={b}>{t(b)}</li>
-            ))}
-          </ul>
-        </Card>
-      )}
-
-      <div className="grid gap-4 sm:grid-cols-4">
-        <Card>
-          <p className="text-xs text-slate-500">{t('claims.fields.claimed')}</p>
-          <p className="num mt-1 text-xl font-semibold">
-            {formatAmount(Number(claim.claimed_amount), locale)} {claim.currency_code}
-          </p>
-        </Card>
-        <Card>
-          <p className="text-xs text-slate-500">{t('claims.fields.indemnity')}</p>
-          <p className="num mt-1 text-xl font-semibold">
-            {claim.approved_indemnity === null
-              ? EM_DASH
-              : `${formatAmount(Number(claim.approved_indemnity), locale)} ${claim.currency_code}`}
-          </p>
-        </Card>
-        <Card>
-          <p className="text-xs text-slate-500">{t('claims.fields.cause')}</p>
-          <p className="mt-1 text-sm font-semibold">
-            {t(`claims.causes.${claim.cause_of_loss}`)}
-          </p>
-          {claim.insolvency_reference && (
-            <p className="mt-1 text-xs text-slate-500">{claim.insolvency_reference}</p>
-          )}
-        </Card>
-        <Card>
-          <p className="text-xs text-slate-500">{t('claims.fields.age')}</p>
-          <p className="num mt-1 text-xl font-semibold">
-            {claim.assessment_age_days === null
-              ? EM_DASH
-              : Math.round(Number(claim.assessment_age_days))}
-          </p>
-          <p className="mt-1 text-xs text-slate-500">{t('claims.ageHint')}</p>
-        </Card>
+        {claim.status === 'draft' && blockers.length > 0 && (
+          <Callout tone="warn" title={t('claims.blockersTitle')}>
+            <ul className="list-disc space-y-0.5 pl-5">
+              {blockers.map((b) => (
+                <li key={b}>{t(b)}</li>
+              ))}
+            </ul>
+          </Callout>
+        )}
       </div>
 
-      <Tabs tabs={tabs} active={active} onChange={(key) => setParams({ tab: key })} />
+      <KeyFigures
+        items={[
+          { label: t('claims.fields.claimed'), value: money(claim.claimed_amount) },
+          {
+            label: t('claims.fields.indemnity'),
+            value: claim.approved_indemnity === null ? t('claims.indemnityPending') : money(claim.approved_indemnity),
+            tone: claim.approved_indemnity === null ? 'muted' : 'default',
+          },
+          {
+            label: t('claims.fields.ageColumn'),
+            value:
+              claim.assessment_age_days === null
+                ? EM_DASH
+                : t('policies.terms.days', { count: Math.round(Number(claim.assessment_age_days)) }),
+            meta: t('claims.ageHint'),
+          },
+        ]}
+      />
+
+      <div className="mb-5">
+        <Tabs tabs={tabs} active={active} onChange={(key) => setParams({ tab: key })} />
+      </div>
 
       {active === 'overview' && <OverviewTab claimId={claim.id} />}
       {active === 'invoices' && <ClaimInvoicesTab claim={claim} />}
@@ -195,19 +223,25 @@ export function ClaimDetailPage() {
               ? t(`claims.actions.${pending}`)
               : ''
         }
-        onClose={() => setPending(null)}
+        onClose={() => {
+          setPending(null)
+          setError(null)
+        }}
         footer={
           <>
-            <Button variant="secondary" onClick={() => setPending(null)}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setPending(null)
+                setError(null)
+              }}
+            >
               {t('common.cancel')}
             </Button>
             <Button
-              disabled={
-                pending !== null &&
-                pending !== 'approve' &&
-                requiresReason(pending) &&
-                comment.trim() === ''
-              }
+              variant={pendingDestructive ? 'danger' : 'primary'}
+              disabled={reasonMissing || approve.isPending || changeStatus.isPending}
+              title={reasonMissing ? t('claims.reasonRequiredHint') : undefined}
               onClick={() => {
                 if (pending === 'approve') {
                   run(approve.mutateAsync({ id: claim.id, comment: comment || null }))
@@ -216,20 +250,21 @@ export function ClaimDetailPage() {
                 }
               }}
             >
-              {t('common.confirm')}
+              {pending ? t(`claims.actions.${pending}`) : t('common.confirm')}
             </Button>
           </>
         }
       >
-        <p className="text-[13px] text-slate-600">
+        {error && <Callout tone="neg" title={error} />}
+        <p className="text-[13px] leading-relaxed text-slate-600">
           {pending === 'approve' ? t('claims.approveHint') : t('claims.transitionHint')}
         </p>
-        <Field label={t('claims.fields.comment')}>
-          <Input value={comment} onChange={(e) => setComment(e.target.value)} />
+        <Field
+          label={t('claims.fields.comment')}
+          hint={pending !== null && pending !== 'approve' && requiresReason(pending) ? t('claims.reasonRequiredHint') : undefined}
+        >
+          <Textarea rows={3} value={comment} onChange={(e) => setComment(e.target.value)} />
         </Field>
-        {pending !== null && pending !== 'approve' && requiresReason(pending) && (
-          <p className="mt-1 text-xs text-slate-500">{t('claims.reasonRequiredHint')}</p>
-        )}
       </Modal>
     </div>
   )
@@ -240,66 +275,54 @@ function OverviewTab({ claimId }: { claimId: string }) {
   const locale = i18n.language
   const { data: claim } = useClaim(claimId)
   if (!claim) return null
+  const money = (value: number | null) =>
+    value === null ? EM_DASH : `${formatAmount(Number(value), locale)} ${claim.currency_code}`
+  const days = (value: number) => t('policies.terms.days', { count: value })
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <Card>
-        <h2 className="text-sm font-semibold">{t('claims.overview.file')}</h2>
-        <dl className="mt-3 space-y-2 text-[13px]">
-          <Row label={t('claims.fields.filedAt')} value={claim.filed_at ? formatMoment(claim.filed_at, locale) : EM_DASH} />
-          <Row label={t('claims.fields.assessedAt')} value={claim.assessed_at ? formatMoment(claim.assessed_at, locale) : EM_DASH} />
-          <Row label={t('claims.fields.invoices')} value={String(claim.invoice_count)} />
-          <Row
-            label={t('claims.fields.eligibleFrom')}
-            value={claim.eligible_from ?? t('claims.waitingPeriodWaived')}
-          />
-          <Row label={t('claims.fields.decisionReason')} value={claim.decision_reason ?? EM_DASH} />
-        </dl>
-      </Card>
-      <Card>
-        <h2 className="text-sm font-semibold">{t('claims.overview.terms')}</h2>
-        <dl className="mt-3 space-y-2 text-[13px]">
-          <Row label={t('claims.fields.insuredPercentage')} value={`${claim.insured_percentage}%`} />
-          <Row
-            label={t('claims.fields.nql')}
-            value={`${formatAmount(Number(claim.nql_amount), locale)} ${claim.currency_code}`}
-          />
-          <Row
-            label={t('claims.fields.deductible')}
-            value={
-              claim.deductible_each_loss === null
-                ? EM_DASH
-                : `${formatAmount(Number(claim.deductible_each_loss), locale)} ${claim.currency_code}`
-            }
-          />
-          <Row
-            label={t('claims.fields.aggregateFirstLoss')}
-            value={
-              claim.aggregate_first_loss === null
-                ? EM_DASH
-                : `${formatAmount(Number(claim.aggregate_first_loss), locale)} ${claim.currency_code}`
-            }
-          />
-          <Row
-            label={t('claims.fields.maxLiability')}
-            value={
-              claim.max_liability_amount === null
-                ? EM_DASH
-                : `${formatAmount(Number(claim.max_liability_amount), locale)} ${claim.currency_code}`
-            }
-          />
-          <Row label={t('claims.fields.maxPaymentTerms')} value={String(claim.max_payment_terms_days)} />
-          <Row label={t('claims.fields.waitingPeriod')} value={String(claim.waiting_period_days)} />
-        </dl>
-      </Card>
-    </div>
-  )
-}
-
-function Row({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-baseline justify-between gap-4">
-      <dt className="text-slate-500">{label}</dt>
-      <dd className="num text-right font-medium text-slate-800">{value}</dd>
-    </div>
+    <PanelGrid>
+      <Panel title={t('claims.overview.file')}>
+        <DescriptionList
+          items={[
+            // A word, not a figure: it belongs with the file's facts, not in
+            // the key-figure strip where it read as a headline link.
+            {
+              label: t('claims.fields.cause'),
+              value: (
+                <>
+                  {t(`claims.causes.${claim.cause_of_loss}`)}
+                  {claim.insolvency_reference && (
+                    <span className="block text-[12px] font-normal text-slate-500">{claim.insolvency_reference}</span>
+                  )}
+                </>
+              ),
+            },
+            { label: t('claims.fields.filedAt'), value: claim.filed_at ? formatMoment(claim.filed_at, locale) : EM_DASH },
+            {
+              label: t('claims.fields.eligibleFrom'),
+              value: claim.eligible_from ? formatDate(claim.eligible_from, locale) : t('claims.waitingPeriodWaived'),
+            },
+            { label: t('claims.fields.invoices'), value: formatAmount(claim.invoice_count, locale, 0) },
+            {
+              label: t('claims.fields.assessedAt'),
+              value: claim.assessed_at ? formatMoment(claim.assessed_at, locale) : EM_DASH,
+            },
+            { label: t('claims.fields.decisionReason'), value: claim.decision_reason ?? EM_DASH },
+          ]}
+        />
+      </Panel>
+      <Panel title={t('claims.overview.terms')}>
+        <DescriptionList
+          items={[
+            { label: t('claims.fields.insuredPercentage'), value: `${claim.insured_percentage}%` },
+            { label: t('claims.fields.nql'), value: money(claim.nql_amount) },
+            { label: t('claims.fields.deductible'), value: money(claim.deductible_each_loss) },
+            { label: t('claims.fields.aggregateFirstLoss'), value: money(claim.aggregate_first_loss) },
+            { label: t('claims.fields.maxLiability'), value: money(claim.max_liability_amount) },
+            { label: t('claims.fields.maxPaymentTermsShort'), value: days(claim.max_payment_terms_days) },
+            { label: t('claims.fields.waitingPeriodShort'), value: days(claim.waiting_period_days) },
+          ]}
+        />
+      </Panel>
+    </PanelGrid>
   )
 }

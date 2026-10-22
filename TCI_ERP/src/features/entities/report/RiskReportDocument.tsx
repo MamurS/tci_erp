@@ -19,6 +19,7 @@ import {
   formatPercent,
   formatRatio,
   formatSignedPercent,
+  formatDate,
 } from '../../../lib/format'
 import { SCALE_LABEL_KEYS, placeScore } from '../../../lib/ratingScale'
 import type { ScalePoint } from '../../../lib/ratingScale'
@@ -28,6 +29,7 @@ import type { StatementBundle } from '../types'
 import { hasPersistentNegativeCfo } from '../financials/cashflow'
 import { RISK_ROWS, buildRiskPeriods } from '../financials/risk'
 import { buildFactorBullets } from '../rating/chips'
+import { ScoreChangeNote } from '../rating/ScoreChangeNote'
 import type { FactorBullet } from '../rating/chips'
 import type { CommentaryParagraph, CommentarySentence, ValueFormat } from './commentary'
 import { DynamicCharts } from './DynamicCharts'
@@ -107,7 +109,7 @@ export function RiskReportBody({ report, t, locale, variant, onNarrative, onFact
                             <Kv label={t('report.general.legalForm')}>{entity.legal_form}</Kv>
                           )}
                           <Kv label={t('report.general.registrationDate')} strong>
-                            {entity.founded_date ?? EM_DASH}
+                            {entity.founded_date ? formatDate(entity.founded_date, locale) : EM_DASH}
                           </Kv>
                           <Kv label={t('report.general.country')}>
                             {refName(entity.countries, locale) || EM_DASH}
@@ -194,12 +196,15 @@ export function RiskReportBody({ report, t, locale, variant, onNarrative, onFact
 
                       <div className="rpt-gauge-card">
                         <div className="rpt-gauge">
-                          <RatingGauge
+                          {/* The change in words, not an arrow on a lower-is-better scale. */}
+                          <RatingGauge score={score} t={t} />
+                          <ScoreChangeNote
                             score={score}
                             previousScore={
                               previousAssessment ? Number(previousAssessment.rating_score) : null
                             }
                             t={t}
+                            locale={locale}
                           />
                         </div>
                         {bullets.length > 0 && <FactorBullets bullets={bullets} onClick={onFactor} />}
@@ -695,17 +700,21 @@ function KeyFigureCard({
           : `${formatRatio(v, locale)}x`
 
   const change = figure.change
-  const sign = (v: number) => (v >= 0 ? '+' : '−')
+  // No sign on a change that shows as zero (+0,00x / −0,00 pp is noise).
+  const sign = (v: number, places: number) =>
+    Math.round(Math.abs(v) * 10 ** places) === 0 ? '' : v > 0 ? '+' : '−'
   const changeText =
-    change === null
+    figure.unchanged
+      ? ''
+      : change === null
       ? figure.previous !== null
         ? t('report.nm')
         : ''
       : change.kind === 'pct'
         ? formatSignedPercent(change.value, locale)
         : change.kind === 'pp'
-          ? `${sign(change.value)}${formatAmount(Math.abs(change.value * 100), locale, 2)} ${t('report.pp')}`
-          : `${sign(change.value)}${formatRatio(Math.abs(change.value), locale)}x`
+          ? `${sign(change.value, 4)}${formatAmount(Math.abs(change.value * 100), locale, 2)} ${t('report.pp')}`
+          : `${sign(change.value, 2)}${formatRatio(Math.abs(change.value), locale)}x`
   const toneClass = figure.tone === 'pos' ? 'is-pos' : figure.tone === 'neg' ? 'is-neg' : ''
 
   return (
@@ -717,11 +726,16 @@ function KeyFigureCard({
       {figure.previousYear !== null && (
         <div className="rpt-kf-sub">
           {figure.previousYear}: {show(figure.previous)}
-          {changeText && (
-            <b className={toneClass}>
-              {changeText}
-              {figure.trend && ` ${figure.trend === 'up' ? '▲' : '▼'}`}
-            </b>
+          {figure.unchanged ? (
+            // Zero at the precision shown: words, neutral, no arrow.
+            <span className="rpt-muted rpt-kf-flat">{t('report.unchanged')}</span>
+          ) : (
+            changeText && (
+              <b className={toneClass}>
+                {changeText}
+                {figure.trend && ` ${figure.trend === 'up' ? '▲' : '▼'}`}
+              </b>
+            )
           )}
         </div>
       )}

@@ -7,16 +7,17 @@
  */
 
 import { useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
-import { Calculator, FilePlus2, FileText, Pencil } from 'lucide-react'
+import { Calculator, FilePlus2, FileText } from 'lucide-react'
 
 import { tci } from '../../../lib/supabase'
-import { Button } from '../../../components/ui'
+import { Button, LinkButton } from '../../../components/ui'
 import { formatAmount, formatLongDate } from '../../../lib/format'
-import { EntityFormModal } from '../EntityFormModal'
 import { ReportModal } from '../rating/ReportModal'
+import { useAuth } from '../../../auth/AuthContext'
+import { mayEnterStatements } from '../financials/access'
 import { ReportHeader, RiskReportBody } from '../report/RiskReportDocument'
 import { useRiskReport } from '../report/useRiskReport'
 import type { BuyerPageTarget } from '../report/targets'
@@ -33,8 +34,8 @@ export function OverviewTab({
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'ru'
   const [, setSearchParams] = useSearchParams()
-  const [editOpen, setEditOpen] = useState(false)
   const [reportOpen, setReportOpen] = useState(false)
+  const { roles: myRoles } = useAuth()
 
   const report = useRiskReport({ entityId, locale, reportType: 'auto', displayCurrency: 'original' })
   const entity = report.entity
@@ -47,17 +48,13 @@ export function OverviewTab({
       {isPolicyholder && <PolicyholderPortfolioLine entityId={entityId} />}
 
       <div className="flex flex-wrap items-center gap-2">
-        <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
-          <Pencil className="size-3.5" />
-          {t('common.edit')}
-        </Button>
         {!report.hasStatements ? (
-          <Link to={`/entities/${entityId}/statements/new`}>
-            <Button variant="secondary" size="sm">
+          mayEnterStatements(myRoles) && (
+            <LinkButton variant="secondary" size="sm" to={`/entities/${entityId}/statements/new`}>
               <FilePlus2 className="size-3.5" />
               {t('fin.addStatement')}
-            </Button>
-          </Link>
+            </LinkButton>
+          )
         ) : (
           !report.latestAssessment && (
             <Button variant="secondary" size="sm" onClick={() => goTo({ tab: 'rating' })}>
@@ -67,7 +64,9 @@ export function OverviewTab({
           )
         )}
         <div className="flex-1" />
-        <Button variant="accent" size="sm" onClick={() => setReportOpen(true)}>
+        {/* «Edit» is the page header's; the orange accent is not used here —
+            the report is this tab's one primary action. */}
+        <Button size="sm" onClick={() => setReportOpen(true)}>
           <FileText className="size-3.5" />
           {t('rating.generateReport')}
         </Button>
@@ -92,7 +91,6 @@ export function OverviewTab({
         </article>
       </div>
 
-      <EntityFormModal open={editOpen} onClose={() => setEditOpen(false)} initial={entity} />
       <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} entityId={entityId} />
     </div>
   )

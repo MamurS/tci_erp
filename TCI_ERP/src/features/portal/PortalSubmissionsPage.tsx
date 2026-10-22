@@ -11,15 +11,21 @@ import { useTranslation } from 'react-i18next'
 import {
   Badge,
   Button,
+  Callout,
   Card,
+  DescriptionList,
   EmptyState,
   Field,
   Modal,
   PageHeader,
+  SectionTitle,
   Spinner,
   Table,
+  Textarea,
+  Truncate,
 } from '../../components/ui'
-import { EM_DASH, formatAmount, formatMoment, formatPercent } from '../../lib/format'
+import type { Fact } from '../../components/ui'
+import { EM_DASH, formatAmount, formatMoment, formatPercent, formatRate } from '../../lib/format'
 import {
   useMySubmissionBuyers,
   useMySubmissionHistory,
@@ -86,43 +92,72 @@ function SubmissionCard({
 
   const withClient = submission.status === 'client_review'
   const showTerms = termsVisible(submission.status)
+  const ccy = submission.currency_code
+  const money = (v: number | null) =>
+    v === null ? EM_DASH : `${formatAmount(v, locale)}${ccy ? ` ${ccy}` : ''}`
+  const term = (key: string, value: string): Fact => ({ label: t(`requests.terms.${key}`), value })
+  const terms: Fact[] = [
+    term(
+      'product_structure',
+      submission.product_structure ? t(`policies.structures.${submission.product_structure}`) : EM_DASH,
+    ),
+    term('currency_code', ccy ?? EM_DASH),
+    term(
+      'insured_percentage',
+      submission.insured_percentage === null ? EM_DASH : formatPercent(submission.insured_percentage / 100, locale),
+    ),
+    term('premium_rate_pct', formatRate(submission.premium_rate_pct, locale)),
+    term('minimum_premium', money(submission.minimum_premium)),
+    term('discretionary_limit', money(submission.discretionary_limit)),
+    term('nql_amount', money(submission.nql_amount)),
+    term(
+      'max_payment_terms_days',
+      submission.max_payment_terms_days === null
+        ? EM_DASH
+        : t('portal.days', { count: submission.max_payment_terms_days, value: submission.max_payment_terms_days }),
+    ),
+    term(
+      'declaration_frequency',
+      submission.declaration_frequency ? t(`policies.frequencies.${submission.declaration_frequency}`) : EM_DASH,
+    ),
+  ]
 
   return (
     <Card className="p-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="flex flex-wrap items-center gap-3">
-          <span className="num text-base font-semibold text-slate-900">
-            {submission.request_number}
-          </span>
-          <Badge tone={withClient ? 'warn' : 'neutral'}>
-            {t(`portal.submissions.statuses.${submission.status}`)}
-          </Badge>
-        </span>
-        <button
-          type="button"
-          className="text-[13px] font-medium text-accent-700"
-          onClick={onToggle}
-          aria-expanded={expanded}
-        >
-          {expanded ? t('portal.hideDetails') : t('portal.showDetails')}
-        </button>
-      </div>
+      <SectionTitle
+        actions={
+          <>
+            <Badge tone={withClient ? 'warn' : 'neutral'}>
+              {t(`portal.submissions.statuses.${submission.status}`)}
+            </Badge>
+            <Button variant="ghost" size="sm" onClick={onToggle} aria-expanded={expanded}>
+              {expanded ? t('portal.hideDetails') : t('portal.showDetails')}
+            </Button>
+          </>
+        }
+      >
+        {submission.request_number}
+      </SectionTitle>
 
       {withClient && (
-        <div className="mt-3 flex flex-wrap items-center gap-2 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3">
-          <span className="flex-1 text-[13px] text-warn-500">
-            {t('portal.submissions.awaitingYou')}
-          </span>
-          <Button size="sm" onClick={() => setAction('accept')}>
-            {t('portal.submissions.accept')}
-          </Button>
-          <Button variant="secondary" size="sm" onClick={() => setAction('request_changes')}>
-            {t('portal.submissions.requestChanges')}
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => setAction('decline')}>
-            {t('portal.submissions.decline')}
-          </Button>
-        </div>
+        <Callout
+          tone="warn"
+          className="mt-3"
+          title={t('portal.submissions.awaitingYou')}
+          action={
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" onClick={() => setAction('accept')}>
+                {t('portal.submissions.accept')}
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => setAction('request_changes')}>
+                {t('portal.submissions.requestChanges')}
+              </Button>
+              <Button variant="dangerOutline" size="sm" onClick={() => setAction('decline')}>
+                {t('portal.submissions.decline')}
+              </Button>
+            </div>
+          }
+        />
       )}
 
       {expanded && (
@@ -132,43 +167,7 @@ function SubmissionCard({
               {t('portal.submissions.terms')}
             </h3>
             {showTerms ? (
-              <Table dense>
-                <tbody>
-                  <TermRow k="product_structure"
-                    v={submission.product_structure
-                      ? t(`policies.structures.${submission.product_structure}`)
-                      : EM_DASH} />
-                  <TermRow k="currency_code" v={submission.currency_code ?? EM_DASH} />
-                  <TermRow k="insured_percentage"
-                    v={submission.insured_percentage === null
-                      ? EM_DASH
-                      : formatPercent(submission.insured_percentage / 100, locale)} />
-                  <TermRow k="premium_rate_pct"
-                    v={submission.premium_rate_pct === null
-                      ? EM_DASH
-                      : formatPercent(submission.premium_rate_pct / 100, locale, 3)} />
-                  <TermRow k="minimum_premium"
-                    v={submission.minimum_premium === null
-                      ? EM_DASH
-                      : `${formatAmount(submission.minimum_premium, locale)} ${submission.currency_code ?? ''}`} />
-                  <TermRow k="discretionary_limit"
-                    v={submission.discretionary_limit === null
-                      ? EM_DASH
-                      : `${formatAmount(submission.discretionary_limit, locale)} ${submission.currency_code ?? ''}`} />
-                  <TermRow k="nql_amount"
-                    v={submission.nql_amount === null
-                      ? EM_DASH
-                      : `${formatAmount(submission.nql_amount, locale)} ${submission.currency_code ?? ''}`} />
-                  <TermRow k="max_payment_terms_days"
-                    v={submission.max_payment_terms_days === null
-                      ? EM_DASH
-                      : String(submission.max_payment_terms_days)} />
-                  <TermRow k="declaration_frequency"
-                    v={submission.declaration_frequency
-                      ? t(`policies.frequencies.${submission.declaration_frequency}`)
-                      : EM_DASH} />
-                </tbody>
-              </Table>
+              <DescriptionList items={terms} />
             ) : (
               <p className="text-[13px] text-slate-500">
                 {t('portal.submissions.termsNotYet')}
@@ -188,10 +187,12 @@ function SubmissionCard({
                   <tbody>
                     {buyers.map((b) => (
                       <tr key={b.id}>
-                        <td>{b.buyer_name ?? EM_DASH}</td>
-                        <td className="num text-right">
-                          {formatAmount(b.requested_amount, locale)}
+                        <td className="cell-fill">
+                          <Truncate text={b.buyer_name} className="max-w-none">
+                            {b.buyer_name ?? EM_DASH}
+                          </Truncate>
                         </td>
+                        <td className="num text-right">{money(b.requested_amount)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -230,16 +231,6 @@ function SubmissionCard({
         />
       )}
     </Card>
-  )
-}
-
-function TermRow({ k, v }: { k: string; v: string }) {
-  const { t } = useTranslation()
-  return (
-    <tr>
-      <td className="w-1/2 text-slate-500">{t(`requests.terms.${k}`)}</td>
-      <td className="num text-right font-medium text-slate-900">{v}</td>
-    </tr>
   )
 }
 
@@ -299,15 +290,8 @@ function RespondModal({
         </>
       }
     >
-      {error && (
-        <div
-          className="mb-3 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[13px] text-neg-500"
-          role="alert"
-        >
-          {error}
-        </div>
-      )}
-      <p className="mb-3 text-sm text-slate-600">
+      {error && <Callout tone="neg" title={error} />}
+      <p className="text-sm leading-relaxed text-slate-600">
         {t(`portal.submissions.confirm.${action}`, { number: submission.request_number })}
       </p>
       {needsComment && (
@@ -318,12 +302,7 @@ function RespondModal({
               : 'portal.submissions.changesWanted',
           )}
         >
-          <textarea
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-            rows={3}
-            className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-900 focus:outline-2 focus:outline-accent-600"
-          />
+          <Textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} />
         </Field>
       )}
     </Modal>

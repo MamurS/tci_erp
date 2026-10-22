@@ -12,7 +12,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Card, Segmented, Table } from '../../components/ui'
+import { Card, Segmented, Table, SectionTitle } from '../../components/ui'
 import { formatAmount } from '../../lib/format'
 import { rankMembers, type RankableFigure } from './group'
 import type { GroupFinancials, GroupMemberFinancials } from './types'
@@ -38,10 +38,7 @@ export function GroupFinancialsPanel({ totals, members }: GroupFinancialsPanelPr
 
   return (
     <Card className="flex flex-col gap-4 p-5">
-      <div>
-        <h3 className="text-sm font-semibold text-slate-900">{t('groups.financials.title')}</h3>
-        <p className="mt-1 text-[13px] text-slate-500">{t('groups.financials.simpleSum')}</p>
-      </div>
+      <SectionTitle hint={t('groups.financials.simpleSum')}>{t('groups.financials.title')}</SectionTitle>
 
       {!totals || totals.members_with_statements === 0 ? (
         <p className="text-[13px] text-slate-500">{t('groups.financials.empty')}</p>
@@ -150,7 +147,7 @@ function Figure({
     <div className="rounded-md border border-slate-200 bg-white px-3 py-2">
       <p className="text-[12px] text-slate-500">{label}</p>
       {/* Null is "—", never 0: absent is not nil (DESIGN.md). */}
-      <p className="num mt-0.5 text-sm font-semibold text-slate-900">
+      <p className="mt-0.5 text-sm font-semibold text-slate-900 tabular-nums">
         {value === null || value === undefined ? '—' : formatAmount(Number(value), locale)}
       </p>
     </div>

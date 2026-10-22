@@ -1,53 +1,66 @@
 /**
- * «Договоры»: where a draft contract is made. Pick a policy or a submission
- * and generate its contract from the insurer's active wording template (the
- * data — policyholder, terms, credit limits — comes from the database), and
- * find every contract generated so far in the register. When no template is
- * active yet, the page says so and offers the standard ones.
+ * «Договоры»: where a draft contract is made. One action in the bar —
+ * «Сформировать договор», which asks for the policy or submission in its
+ * dialog — and below it the policies, the live submissions and the register
+ * of every contract generated so far, switched by one control (no tabs inside
+ * the section's own tabs). A row opens its policy's «Договор» tab or its
+ * submission, where the contract history lives. When no template is active
+ * yet, the page says so and offers the standard ones.
  */
 
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, EmptyState, Input, ViewBar, Spinner, Table, Tabs } from '../../components/ui'
+import {
+  Badge,
+  Button,
+  Card,
+  EmptyState,
+  Input,
+  LinkButton,
+  Segmented,
+  Spinner,
+  Table,
+  Truncate,
+  ViewBar,
+} from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
-import { EM_DASH, formatMoment } from '../../lib/format'
+import { EM_DASH, formatMoment, formatDate } from '../../lib/format'
 import { usePolicies } from '../policies/api'
 import { statusTone } from '../policies/statusMachine'
 import { useInsuranceRequests } from '../requests/api'
-import type { ProductStructure, WordingTarget } from './api'
+import { statusTone as requestStatusTone } from '../requests/machine'
 import { useAllPolicyDocuments, useWordingTemplates, wordingDownloadUrl } from './api'
 import { contractSubmissions } from './contracts'
 import { wordingErrorKey } from './errors'
 import { GenerateContractModal } from './GenerateContractModal'
+import type { SubjectChoice } from './GenerateContractModal'
 import { languageName } from './labels'
-import { useInstallStandardTemplates } from './standardTemplates'
+import { useInstallStandardTemplates, useTemplateText } from './standardTemplates'
 
-type Tab = 'policies' | 'submissions' | 'register'
+type Segment = 'policies' | 'submissions' | 'register'
 
-interface Pick {
-  target: WordingTarget
-  reference: string
-  countryCode: string | null
-  product: ProductStructure | null
-}
+const rowLink = 'cursor-pointer transition-colors hover:bg-slate-50'
 
 export function ContractsPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
+  const navigate = useNavigate()
   const { roles } = useAuth()
   const canManageTemplates = roles.includes('admin') || roles.includes('commercial_underwriter')
+  const canGenerate = roles.some((r) => r === 'admin' || r === 'commercial_underwriter' || r === 'sales')
 
   const { data: templates, isLoading: templatesLoading } = useWordingTemplates()
   const { data: policies, isLoading: policiesLoading } = usePolicies()
   const { data: requests, isLoading: requestsLoading } = useInsuranceRequests()
   const { data: documents } = useAllPolicyDocuments()
   const { install, installing } = useInstallStandardTemplates()
+  const text = useTemplateText()
 
-  const [tab, setTab] = useState<Tab>('policies')
+  const [segment, setSegment] = useState<Segment>('policies')
   const [search, setSearch] = useState('')
-  const [pick, setPick] = useState<Pick | null>(null)
+  const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const activeCount = (templates ?? []).filter((x) => x.status === 'active').length
@@ -64,12 +77,36 @@ export function ContractsPage() {
     return counts
   }, [documents])
 
+  const liveSubmissions = useMemo(() => contractSubmissions(requests ?? []), [requests])
   const policyRows = (policies ?? []).filter((p) => matches(p.policy_number, p.legal_entities?.name))
-  const submissionRows = contractSubmissions(requests ?? []).filter((r) =>
-    matches(r.request_number, r.legal_entities?.name),
-  )
+  const submissionRows = liveSubmissions.filter((r) => matches(r.request_number, r.legal_entities?.name))
   const registerRows = (documents ?? []).filter((d) =>
-    matches(d.policies?.policy_number, d.insurance_requests?.request_number, d.wording_templates?.name, d.file_name),
+    matches(d.policies?.policy_number, d.insurance_requests?.request_number, text.name(d.wording_templates), d.file_name),
+  )
+
+  // What the dialog offers: every policy and every live submission.
+  const choices = useMemo<SubjectChoice[]>(
+    () => [
+      ...(policies ?? []).map((p) => ({
+        id: `p:${p.id}`,
+        label: t('contracts.forPolicy', { number: p.policy_number }),
+        meta: p.legal_entities?.name ?? undefined,
+        target: { policyId: p.id },
+        reference: p.policy_number,
+        countryCode: p.legal_entities?.country_code ?? null,
+        product: p.product_structure,
+      })),
+      ...liveSubmissions.map((r) => ({
+        id: `r:${r.id}`,
+        label: t('contracts.forSubmission', { number: r.request_number }),
+        meta: r.legal_entities?.name ?? undefined,
+        target: { requestId: r.id },
+        reference: r.request_number,
+        countryCode: r.legal_entities?.country_code ?? null,
+        product: r.product_structure ?? null,
+      })),
+    ],
+    [policies, liveSubmissions, t],
   )
 
   const installStandard = () => {
@@ -82,15 +119,27 @@ export function ContractsPage() {
       .then((url) => window.open(url, '_blank', 'noopener'))
       .catch((e: unknown) => setError(t(wordingErrorKey(e))))
 
-  const generateButton = (next: Pick) => (
-    <Button size="sm" variant="accent" disabled={activeCount === 0} onClick={() => setPick(next)}>
-      {t('contracts.generate')}
-    </Button>
-  )
+  const counts: Record<Segment, number> = {
+    policies: policyRows.length,
+    submissions: submissionRows.length,
+    register: registerRows.length,
+  }
 
   return (
     <div>
-      <ViewBar hint={t('contracts.subtitle')} />
+      <ViewBar
+        hint={t('contracts.subtitle')}
+        actions={
+          canGenerate && (
+            // While no template is active the notice below says why.
+            <span title={activeCount === 0 ? t('contracts.noTemplates.title') : undefined} className="inline-flex">
+              <Button disabled={activeCount === 0} onClick={() => setGenerating(true)}>
+                {t('contracts.generate')}
+              </Button>
+            </span>
+          )
+        }
+      />
 
       {error && (
         <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[13px] text-neg-500" role="alert">
@@ -112,200 +161,203 @@ export function ContractsPage() {
                 <Button variant="accent" disabled={installing} onClick={installStandard}>
                   {installing ? t('common.saving') : t('wording.standard.install')}
                 </Button>
-                <Link
-                  to="/policies?view=templates"
-                  className="inline-flex items-center rounded-md border border-slate-300 bg-white px-3 py-2 text-[13px] font-medium text-slate-700 hover:bg-slate-50"
-                >
+                <LinkButton to="/policies?view=templates" variant="secondary">
                   {t('wording.upload.open')}
-                </Link>
+                </LinkButton>
               </div>
             )}
           </div>
         </Card>
       )}
 
-      <Card className="p-0">
-        <div className="flex flex-wrap items-end justify-between gap-3 px-5 pt-3">
-          <Tabs
-            tabs={[
-              { key: 'policies', label: t('contracts.tabs.policies'), count: policyRows.length },
-              { key: 'submissions', label: t('contracts.tabs.submissions'), count: submissionRows.length },
-              { key: 'register', label: t('contracts.tabs.register'), count: registerRows.length },
-            ]}
-            active={tab}
-            onChange={(key) => setTab(key as Tab)}
-          />
-          <div className="w-full pb-2 sm:w-72">
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t('contracts.searchPlaceholder')}
-              aria-label={t('contracts.searchPlaceholder')}
-            />
-          </div>
-        </div>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <Segmented
+          value={segment}
+          ariaLabel={t('contracts.title')}
+          options={(['policies', 'submissions', 'register'] as const).map((key) => ({
+            key,
+            label: `${t(`contracts.tabs.${key}`)} (${counts[key]})`,
+          }))}
+          onChange={(key) => setSegment(key as Segment)}
+        />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder={t('contracts.searchPlaceholder')}
+          aria-label={t('contracts.searchPlaceholder')}
+          className="w-full sm:w-72"
+        />
+      </div>
 
-        <div className="px-5 pt-1 pb-5">
-          {tab === 'policies' &&
-            (policiesLoading ? (
-              <Spinner />
-            ) : !policyRows.length ? (
+      <Card className="p-5">
+        {segment === 'policies' &&
+          (policiesLoading ? (
+            <Spinner />
+          ) : !policyRows.length ? (
+            query ? (
+              <NoMatches onReset={() => setSearch('')} />
+            ) : (
               <EmptyState title={t('contracts.empty.policies')} hint={t('contracts.empty.policiesHint')} />
-            ) : (
-              <Table dense>
-                <thead>
-                  <tr>
-                    <th>{t('policies.fields.policyNumber')}</th>
-                    <th>{t('policies.fields.policyholder')}</th>
-                    <th>{t('policies.fields.productStructure')}</th>
-                    <th>{t('policies.fields.period')}</th>
-                    <th>{t('policies.fields.currency')}</th>
-                    <th>{t('policies.fields.status')}</th>
-                    <th className="text-right">{t('contracts.columns.documents')}</th>
-                    <th />
+            )
+          ) : (
+            <Table dense>
+              <thead>
+                <tr>
+                  <th>{t('policies.fields.policyNumber')}</th>
+                  <th className="cell-fill w-[32%]">{t('policies.fields.policyholder')}</th>
+                  <th>{t('policies.fields.productStructure')}</th>
+                  <th>{t('policies.fields.period')}</th>
+                  <th>{t('policies.fields.status')}</th>
+                  <th className="text-right">{t('contracts.columns.documents')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {policyRows.map((p) => (
+                  <tr key={p.id} className={rowLink} onClick={() => void navigate(`/policies/${p.id}?tab=contract`)}>
+                    <td className="font-medium whitespace-nowrap text-accent-700 tabular-nums">{p.policy_number}</td>
+                    <td className="cell-fill text-slate-600">
+                      <Truncate text={p.legal_entities?.name} className="max-w-none">
+                        {p.legal_entities?.name ?? EM_DASH}
+                      </Truncate>
+                    </td>
+                    <td className="whitespace-nowrap text-slate-500">{t(`policies.structures.${p.product_structure}`)}</td>
+                    <td className="whitespace-nowrap text-slate-500">
+                      {formatDate(p.inception_date, locale)} — {formatDate(p.expiry_date, locale)}
+                    </td>
+                    <td>
+                      <Badge tone={statusTone(p.status)}>{t(`policies.statuses.${p.status}`)}</Badge>
+                    </td>
+                    <td className="num">{docCount.get(p.id) ?? 0}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {policyRows.map((p) => (
-                    <tr key={p.id}>
-                      <td className="font-medium whitespace-nowrap">
-                        <Link to={`/policies/${p.id}?tab=contract`} className="text-accent-600 hover:text-accent-500">
-                          {p.policy_number}
-                        </Link>
-                      </td>
-                      <td className="text-slate-600">{p.legal_entities?.name ?? EM_DASH}</td>
-                      <td className="text-slate-500">{t(`policies.structures.${p.product_structure}`)}</td>
-                      <td className="whitespace-nowrap text-slate-500">
-                        {p.inception_date} — {p.expiry_date}
-                      </td>
-                      <td>{p.currency_code}</td>
-                      <td>
-                        <Badge tone={statusTone(p.status)}>{t(`policies.statuses.${p.status}`)}</Badge>
-                      </td>
-                      <td className="num text-right">{docCount.get(p.id) ?? 0}</td>
-                      <td className="text-right">
-                        {generateButton({
-                          target: { policyId: p.id },
-                          reference: p.policy_number,
-                          countryCode: p.legal_entities?.country_code ?? null,
-                          product: p.product_structure,
-                        })}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            ))}
+                ))}
+              </tbody>
+            </Table>
+          ))}
 
-          {tab === 'submissions' &&
-            (requestsLoading ? (
-              <Spinner />
-            ) : !submissionRows.length ? (
+        {segment === 'submissions' &&
+          (requestsLoading ? (
+            <Spinner />
+          ) : !submissionRows.length ? (
+            query ? (
+              <NoMatches onReset={() => setSearch('')} />
+            ) : (
               <EmptyState title={t('contracts.empty.submissions')} hint={t('contracts.empty.submissionsHint')} />
-            ) : (
-              <Table dense>
-                <thead>
-                  <tr>
-                    <th>{t('contracts.columns.submission')}</th>
-                    <th>{t('contracts.columns.applicant')}</th>
-                    <th>{t('policies.fields.productStructure')}</th>
-                    <th>{t('policies.fields.currency')}</th>
-                    <th>{t('policies.fields.status')}</th>
-                    <th className="text-right">{t('contracts.columns.documents')}</th>
-                    <th />
+            )
+          ) : (
+            <Table dense>
+              <thead>
+                <tr>
+                  <th>{t('contracts.columns.submission')}</th>
+                  <th className="cell-fill w-[32%]">{t('contracts.columns.applicant')}</th>
+                  <th>{t('policies.fields.productStructure')}</th>
+                  <th>{t('policies.fields.status')}</th>
+                  <th className="text-right">{t('contracts.columns.documents')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {submissionRows.map((r) => (
+                  <tr key={r.id} className={rowLink} onClick={() => void navigate(`/requests/${r.id}`)}>
+                    <td className="font-medium whitespace-nowrap text-accent-700 tabular-nums">{r.request_number}</td>
+                    <td className="cell-fill text-slate-600">
+                      <Truncate text={r.legal_entities?.name} className="max-w-none">
+                        {r.legal_entities?.name ?? EM_DASH}
+                      </Truncate>
+                    </td>
+                    <td className="whitespace-nowrap text-slate-500">
+                      {r.product_structure ? t(`policies.structures.${r.product_structure}`) : EM_DASH}
+                    </td>
+                    <td>
+                      <Badge tone={requestStatusTone(r.status)}>{t(`requests.statuses.${r.status}`)}</Badge>
+                    </td>
+                    <td className="num">{docCount.get(r.id) ?? 0}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {submissionRows.map((r) => (
-                    <tr key={r.id}>
-                      <td className="font-medium whitespace-nowrap">
-                        <Link to={`/requests/${r.id}`} className="text-accent-600 hover:text-accent-500">
-                          {r.request_number}
-                        </Link>
-                      </td>
-                      <td className="text-slate-600">{r.legal_entities?.name ?? EM_DASH}</td>
-                      <td className="text-slate-500">
-                        {r.product_structure ? t(`policies.structures.${r.product_structure}`) : EM_DASH}
-                      </td>
-                      <td>{r.currency_code ?? EM_DASH}</td>
-                      <td>
-                        <Badge tone="accent">{t(`requests.statuses.${r.status}`)}</Badge>
-                      </td>
-                      <td className="num text-right">{docCount.get(r.id) ?? 0}</td>
-                      <td className="text-right">
-                        {generateButton({
-                          target: { requestId: r.id },
-                          reference: r.request_number,
-                          countryCode: r.legal_entities?.country_code ?? null,
-                          product: r.product_structure ?? null,
-                        })}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            ))}
+                ))}
+              </tbody>
+            </Table>
+          ))}
 
-          {tab === 'register' &&
-            (!registerRows.length ? (
-              <EmptyState title={t('contracts.empty.register')} hint={t('contracts.empty.registerHint')} />
+        {segment === 'register' &&
+          (!registerRows.length ? (
+            query ? (
+              <NoMatches onReset={() => setSearch('')} />
             ) : (
-              <Table dense>
-                <thead>
-                  <tr>
-                    <th>{t('wording.generate.generatedAt')}</th>
-                    <th>{t('contracts.columns.for')}</th>
-                    <th>{t('wording.fields.name')}</th>
-                    <th>{t('wording.fields.language')}</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {registerRows.map((d) => (
-                    <tr key={d.id}>
-                      <td className="text-xs">{formatMoment(d.generated_at, locale)}</td>
-                      <td>
-                        {d.policy_id ? (
-                          <Link to={`/policies/${d.policy_id}?tab=contract`} className="text-accent-600 hover:text-accent-500">
-                            {t('contracts.forPolicy', { number: d.policies?.policy_number ?? EM_DASH })}
-                          </Link>
-                        ) : (
-                          <Link
-                            to={`/requests/${d.insurance_request_id ?? ''}`}
-                            className="text-accent-600 hover:text-accent-500"
-                          >
-                            {t('contracts.forSubmission', { number: d.insurance_requests?.request_number ?? EM_DASH })}
-                          </Link>
-                        )}
+              <EmptyState title={t('contracts.empty.register')} hint={t('contracts.empty.registerHint')} />
+            )
+          ) : (
+            <Table dense>
+              <thead>
+                <tr>
+                  <th>{t('wording.generate.generatedAt')}</th>
+                  <th>{t('contracts.columns.for')}</th>
+                  <th className="cell-fill w-[36%]">{t('wording.generate.template')}</th>
+                  <th>{t('wording.fields.language')}</th>
+                  <th className="w-px" />
+                </tr>
+              </thead>
+              <tbody>
+                {registerRows.map((d) => {
+                  const name = text.name(d.wording_templates)
+                  return (
+                    <tr
+                      key={d.id}
+                      className={rowLink}
+                      onClick={() =>
+                        void navigate(
+                          d.policy_id ? `/policies/${d.policy_id}?tab=contract` : `/requests/${d.insurance_request_id ?? ''}`,
+                        )
+                      }
+                    >
+                      <td className="whitespace-nowrap tabular-nums">{formatMoment(d.generated_at, locale)}</td>
+                      <td className="whitespace-nowrap text-accent-700">
+                        {d.policy_id
+                          ? t('contracts.forPolicy', { number: d.policies?.policy_number ?? EM_DASH })
+                          : t('contracts.forSubmission', { number: d.insurance_requests?.request_number ?? EM_DASH })}
                       </td>
-                      <td>
-                        {d.wording_templates?.name ?? EM_DASH}{' '}
-                        <span className="text-xs text-slate-400">v{d.template_version}</span>
+                      <td className="cell-fill">
+                        <Truncate text={`${name} v${d.template_version}`} className="max-w-none">
+                          {name} <span className="text-xs text-slate-400 tabular-nums">v{d.template_version}</span>
+                        </Truncate>
                       </td>
-                      <td>{languageName(d.language, locale)}</td>
+                      <td className="whitespace-nowrap">{languageName(d.language, locale)}</td>
                       <td className="text-right">
-                        <Button size="sm" variant="ghost" onClick={() => download(d.storage_path, d.file_name)}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => {
+                            // The row opens the policy; this button only downloads.
+                            e.stopPropagation()
+                            download(d.storage_path, d.file_name)
+                          }}
+                        >
                           {t('wording.templates.download')}
                         </Button>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </Table>
-            ))}
-        </div>
+                  )
+                })}
+              </tbody>
+            </Table>
+          ))}
       </Card>
 
-      {pick && (
-        <GenerateContractModal
-          open
-          onClose={() => setPick(null)}
-          target={pick.target}
-          reference={pick.reference}
-          countryCode={pick.countryCode}
-          product={pick.product}
-        />
+      {canGenerate && (
+        <GenerateContractModal open={generating} onClose={() => setGenerating(false)} choices={choices} />
       )}
     </div>
+  )
+}
+
+function NoMatches({ onReset }: { onReset: () => void }) {
+  const { t } = useTranslation()
+  return (
+    <EmptyState
+      title={t('common.noMatches')}
+      hint={t('common.noMatchesHint')}
+      action={
+        <Button variant="secondary" onClick={onReset}>
+          {t('common.resetFilters')}
+        </Button>
+      }
+    />
   )
 }

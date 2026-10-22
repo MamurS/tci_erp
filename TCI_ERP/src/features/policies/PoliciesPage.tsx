@@ -12,12 +12,13 @@ import {
   ViewBar, Select,
   Spinner,
   Table,
+  Truncate,
 } from '../../components/ui'
-import { EM_DASH, formatAmount } from '../../lib/format'
-import { useEntities } from '../entities/api'
+import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { usePolicies } from './api'
 import { statusTone } from './statusMachine'
 import { POLICY_STATUSES, PRODUCT_STRUCTURES } from './types'
+import type { PolicyStatus, ProductStructure } from './types'
 
 export function PoliciesPage() {
   const { t, i18n } = useTranslation()
@@ -25,17 +26,47 @@ export function PoliciesPage() {
   const navigate = useNavigate()
 
   const { data: policies, isLoading } = usePolicies()
-  const { data: policyholders } = useEntities()
 
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
   const [policyholderFilter, setPolicyholderFilter] = useState('')
   const [structureFilter, setStructureFilter] = useState('')
 
+  // The filter offers the companies that actually hold a policy, not the
+  // whole registry.
+  const policyholders = useMemo(() => {
+    const byId = new Map<string, string>()
+    for (const p of policies ?? []) if (p.legal_entities) byId.set(p.entity_id, p.legal_entities.name)
+    return [...byId].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name))
+  }, [policies])
+  // The filters offer only the statuses and structures the register holds,
+  // each with its count.
+  const counted = useMemo(() => {
+    const status = new Map<PolicyStatus, number>()
+    const structure = new Map<ProductStructure, number>()
+    for (const p of policies ?? []) {
+      status.set(p.status, (status.get(p.status) ?? 0) + 1)
+      structure.set(p.product_structure, (structure.get(p.product_structure) ?? 0) + 1)
+    }
+    return { status, structure }
+  }, [policies])
+  const filtering = Boolean(search.trim() || statusFilter || policyholderFilter || structureFilter)
+  const resetFilters = () => {
+    setSearch('')
+    setStatusFilter('')
+    setPolicyholderFilter('')
+    setStructureFilter('')
+  }
+
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
     return (policies ?? []).filter((p) => {
-      if (query && !p.policy_number.toLowerCase().includes(query)) return false
+      if (
+        query &&
+        !p.policy_number.toLowerCase().includes(query) &&
+        !(p.legal_entities?.name ?? '').toLowerCase().includes(query)
+      )
+        return false
       if (statusFilter && p.status !== statusFilter) return false
       if (policyholderFilter && p.entity_id !== policyholderFilter) return false
       if (structureFilter && p.product_structure !== structureFilter) return false
@@ -52,32 +83,33 @@ export function PoliciesPage() {
         }
       />
 
-      <div className="mb-4 flex flex-wrap gap-2">
+      {/* Fixed widths, so the four filters sit on one line at 1280px. */}
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t('policies.searchPlaceholder')}
-          className="max-w-xs"
+          className="sm:w-64"
         />
         <Select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="max-w-44"
+          className="sm:w-44"
         >
           <option value="">{t('policies.allStatuses')}</option>
-          {POLICY_STATUSES.map((s) => (
+          {POLICY_STATUSES.filter((s) => counted.status.has(s) || s === statusFilter).map((s) => (
             <option key={s} value={s}>
-              {t(`policies.statuses.${s}`)}
+              {t(`policies.statuses.${s}`)} ({counted.status.get(s) ?? 0})
             </option>
           ))}
         </Select>
         <Select
           value={policyholderFilter}
           onChange={(e) => setPolicyholderFilter(e.target.value)}
-          className="max-w-56"
+          className="sm:w-56"
         >
           <option value="">{t('policies.allPolicyholders')}</option>
-          {(policyholders ?? []).map((ph) => (
+          {policyholders.map((ph) => (
             <option key={ph.id} value={ph.id}>
               {ph.name}
             </option>
@@ -86,12 +118,12 @@ export function PoliciesPage() {
         <Select
           value={structureFilter}
           onChange={(e) => setStructureFilter(e.target.value)}
-          className="max-w-52"
+          className="sm:w-52"
         >
           <option value="">{t('policies.allStructures')}</option>
-          {PRODUCT_STRUCTURES.map((s) => (
+          {PRODUCT_STRUCTURES.filter((s) => counted.structure.has(s) || s === structureFilter).map((s) => (
             <option key={s} value={s}>
-              {t(`policies.structures.${s}`)}
+              {t(`policies.structures.${s}`)} ({counted.structure.get(s) ?? 0})
             </option>
           ))}
         </Select>
@@ -100,24 +132,28 @@ export function PoliciesPage() {
       {isLoading ? (
         <Spinner label={t('common.loading')} />
       ) : filtered.length === 0 ? (
-        <EmptyState
-          title={t('policies.empty')}
-          hint={t('policies.emptyHint')}
-          action={
-            <Button onClick={() => void navigate('/policies/new')}>
-              {t('policies.newPolicy')}
-            </Button>
-          }
-        />
+        // «New policy» lives in the bar above; the empty state never repeats it.
+        filtering ? (
+          <EmptyState
+            title={t('common.noMatches')}
+            hint={t('common.noMatchesHint')}
+            action={
+              <Button variant="secondary" onClick={resetFilters}>
+                {t('common.resetFilters')}
+              </Button>
+            }
+          />
+        ) : (
+          <EmptyState title={t('policies.empty')} hint={t('policies.emptyHint')} />
+        )
       ) : (
         <Table>
           <thead>
             <tr>
               <th>{t('policies.fields.policyNumber')}</th>
-              <th>{t('policies.fields.policyholder')}</th>
+              <th className="cell-fill w-[30%]">{t('policies.fields.policyholder')}</th>
               <th>{t('policies.fields.productStructure')}</th>
               <th>{t('policies.fields.period')}</th>
-              <th>{t('policies.fields.currency')}</th>
               <th>{t('policies.fields.status')}</th>
               <th className="text-right">{t('policies.terms.discretionaryLimit')}</th>
             </tr>
@@ -129,20 +165,23 @@ export function PoliciesPage() {
                 onClick={() => void navigate(`/policies/${p.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="font-medium text-slate-800">{p.policy_number}</td>
-                <td className="text-slate-600">{p.legal_entities?.name ?? EM_DASH}</td>
-                <td className="text-slate-500">{t(`policies.structures.${p.product_structure}`)}</td>
-                <td className="text-slate-500">
-                  {p.inception_date} — {p.expiry_date}
+                <td className="font-medium whitespace-nowrap text-slate-800">{p.policy_number}</td>
+                <td className="cell-fill text-slate-600">
+                  <Truncate text={p.legal_entities?.name} className="max-w-none">
+                    {p.legal_entities?.name ?? EM_DASH}
+                  </Truncate>
                 </td>
-                <td>{p.currency_code}</td>
+                <td className="whitespace-nowrap text-slate-500">{t(`policies.structures.${p.product_structure}`)}</td>
+                <td className="whitespace-nowrap text-slate-500">
+                  {formatDate(p.inception_date, locale)} — {formatDate(p.expiry_date, locale)}
+                </td>
                 <td>
                   <Badge tone={statusTone(p.status)}>{t(`policies.statuses.${p.status}`)}</Badge>
                 </td>
-                <td>
-                  <span className="num block">
-                    {formatAmount(Number(p.discretionary_limit), locale)}
-                  </span>
+                {/* The amount with its currency, as everywhere else. */}
+                <td className="num">
+                  {formatAmount(Number(p.discretionary_limit), locale)}{' '}
+                  <span className="text-slate-500">{p.currency_code}</span>
                 </td>
               </tr>
             ))}

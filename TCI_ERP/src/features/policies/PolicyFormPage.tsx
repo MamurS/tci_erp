@@ -8,22 +8,31 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Card, Field, Input, PageHeader, Select, Spinner } from '../../components/ui'
-import { useCurrencies, useEntities } from '../entities/api'
+import {
+  AmountInput,
+  Button,
+  Card,
+  DateInput,
+  Field,
+  Input,
+  PageHeader,
+  Segmented,
+  Select,
+  Spinner,
+  SectionTitle,
+} from '../../components/ui'
+import { amountToPlain, parseAmount } from '../../components/ui/amount'
+import { useCurrencies } from '../entities/api'
+import { EntityPicker } from '../entities/EntityPicker'
 import { useCreatePolicy, usePolicy, useUpdatePolicy } from './api'
 import type { PolicyInput } from './api'
+import { liabilityBasis, liabilityColumns } from './maxLiability'
+import type { LiabilityBasis } from './maxLiability'
+import { ChoiceField, MaxLiabilityField } from './termInputs'
 import { validatePolicy } from './validation'
 import type { PolicyFormValues } from './validation'
 import { DECLARATION_FREQUENCIES, PRODUCT_STRUCTURES } from './types'
 import type { DeclarationFrequency, ProductStructure } from './types'
-
-/** Tolerant numeric parsing: spaces as group separators, comma or dot decimals. */
-function parseNum(raw: string): number | null {
-  const cleaned = raw.replace(/\s/g, '').replace(',', '.')
-  if (!cleaned) return null
-  const value = Number(cleaned)
-  return Number.isFinite(value) ? value : null
-}
 
 interface FormState {
   entity_id: string
@@ -33,8 +42,9 @@ interface FormState {
   expiry_date: string
   currency_code: string
   insured_percentage: string
-  max_liability_amount: string
-  max_liability_premium_multiple: string
+  /** One figure on one basis: the other column is saved as NULL. */
+  max_liability_basis: LiabilityBasis
+  max_liability_value: string
   nql_amount: string
   deductible_each_loss: string
   aggregate_first_loss: string
@@ -57,8 +67,8 @@ const EMPTY: FormState = {
   expiry_date: '',
   currency_code: 'UZS',
   insured_percentage: '85',
-  max_liability_amount: '',
-  max_liability_premium_multiple: '',
+  max_liability_basis: 'amount',
+  max_liability_value: '',
   nql_amount: '',
   deductible_each_loss: '',
   aggregate_first_loss: '',
@@ -81,7 +91,6 @@ export function PolicyFormPage() {
   const isEdit = Boolean(id)
 
   const { data: existing, isLoading } = usePolicy(id ?? '')
-  const { data: policyholders } = useEntities()
   const { data: currencies } = useCurrencies()
   const createPolicy = useCreatePolicy()
   const updatePolicy = useUpdatePolicy(id ?? '')
@@ -95,7 +104,8 @@ export function PolicyFormPage() {
 
   useEffect(() => {
     if (isEdit && existing) {
-      const s = (v: number | null): string => (v === null ? '' : String(v))
+      const s = (v: number | null): string => amountToPlain(v)
+      const basis = liabilityBasis(existing.max_liability_amount, existing.max_liability_premium_multiple)
       setForm({
         entity_id: existing.entity_id,
         policy_number: existing.policy_number,
@@ -104,8 +114,10 @@ export function PolicyFormPage() {
         expiry_date: existing.expiry_date,
         currency_code: existing.currency_code,
         insured_percentage: s(existing.insured_percentage),
-        max_liability_amount: s(existing.max_liability_amount),
-        max_liability_premium_multiple: s(existing.max_liability_premium_multiple),
+        max_liability_basis: basis,
+        max_liability_value: s(
+          basis === 'amount' ? existing.max_liability_amount : existing.max_liability_premium_multiple,
+        ),
         nql_amount: s(existing.nql_amount),
         deductible_each_loss: s(existing.deductible_each_loss),
         aggregate_first_loss: s(existing.aggregate_first_loss),
@@ -129,19 +141,18 @@ export function PolicyFormPage() {
       status: isEdit ? (existing?.status ?? 'draft') : 'draft',
       inception_date: form.inception_date,
       expiry_date: form.expiry_date,
-      insured_percentage: parseNum(form.insured_percentage),
-      max_liability_amount: parseNum(form.max_liability_amount),
-      max_liability_premium_multiple: parseNum(form.max_liability_premium_multiple),
-      nql_amount: parseNum(form.nql_amount),
-      deductible_each_loss: parseNum(form.deductible_each_loss),
-      aggregate_first_loss: parseNum(form.aggregate_first_loss),
-      premium_rate_pct: parseNum(form.premium_rate_pct),
-      minimum_premium: parseNum(form.minimum_premium),
-      estimated_annual_turnover: parseNum(form.estimated_annual_turnover),
-      discretionary_limit: parseNum(form.discretionary_limit),
-      waiting_period_days: parseNum(form.waiting_period_days),
-      max_extension_period_days: parseNum(form.max_extension_period_days),
-      max_payment_terms_days: parseNum(form.max_payment_terms_days),
+      insured_percentage: parseAmount(form.insured_percentage),
+      ...liabilityColumns(form.max_liability_basis, parseAmount(form.max_liability_value)),
+      nql_amount: parseAmount(form.nql_amount),
+      deductible_each_loss: parseAmount(form.deductible_each_loss),
+      aggregate_first_loss: parseAmount(form.aggregate_first_loss),
+      premium_rate_pct: parseAmount(form.premium_rate_pct),
+      minimum_premium: parseAmount(form.minimum_premium),
+      estimated_annual_turnover: parseAmount(form.estimated_annual_turnover),
+      discretionary_limit: parseAmount(form.discretionary_limit),
+      waiting_period_days: parseAmount(form.waiting_period_days),
+      max_extension_period_days: parseAmount(form.max_extension_period_days),
+      max_payment_terms_days: parseAmount(form.max_payment_terms_days),
     }),
     [form, isEdit, existing],
   )
@@ -210,57 +221,37 @@ export function PolicyFormPage() {
 
   const ccy = form.currency_code
   const saving = createPolicy.isPending || updatePolicy.isPending
+  const backTo = isEdit && id ? `/policies/${id}` : '/policies?view=registry'
 
   return (
     <div>
+      {/* Save and Cancel live once, in the bar pinned to the bottom of the
+          window: the form is longer than a screen, and buttons only at its top
+          meant scrolling back up after the last field. */}
       <PageHeader
         title={isEdit ? t('policies.editTitle', { number: form.policy_number }) : t('policies.newPolicy')}
         subtitle={
-          <Link to={isEdit && id ? `/policies/${id}` : '/policies?view=registry'} className="text-accent-700 hover:underline">
-            {t('policies.backToList')}
+          <Link to={backTo} className="text-accent-700 hover:underline">
+            {isEdit ? t('policies.form.backToPolicy') : t('policies.backToList')}
           </Link>
         }
-        actions={
-          <div className="flex items-center gap-2">
-            <Button
-              variant="secondary"
-              onClick={() => void navigate(isEdit && id ? `/policies/${id}` : '/policies?view=registry')}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button onClick={() => void handleSave()} disabled={saving || (submitted && blocked)}>
-              {saving ? t('common.saving') : t('common.save')}
-            </Button>
-          </div>
-        }
       />
-
-      {saveError && (
-        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[13px] text-neg-500" role="alert">
-          {t('common.saveFailed')}
-        </div>
-      )}
 
       <div className="flex max-w-4xl flex-col gap-5">
         {/* Contract */}
         <Card className="p-5">
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          <SectionTitle className="mb-3">
             {t('policies.termGroups.contract')}
-          </h2>
+          </SectionTitle>
           <div className="grid gap-3 md:grid-cols-2">
             <Field label={t('policies.fields.policyholder')}>
-              <Select
-                value={form.entity_id}
-                onChange={(e) => set({ entity_id: e.target.value })}
+              <EntityPicker
+                value={form.entity_id || null}
+                onChange={(id) => set({ entity_id: id ?? '' })}
                 disabled={isEdit}
-              >
-                <option value="">{t('common.notSelected')}</option>
-                {(policyholders ?? []).map((ph) => (
-                  <option key={ph.id} value={ph.id}>
-                    {ph.name}
-                  </option>
-                ))}
-              </Select>
+                invalid={Boolean(submitted && validation.errors.entity_id)}
+                allowRequest
+              />
               {message('entity_id')}
             </Field>
             <Field label={t('policies.fields.policyNumber')}>
@@ -270,18 +261,14 @@ export function PolicyFormPage() {
               />
               {message('policy_number')}
             </Field>
-            <Field label={t('policies.fields.productStructure')}>
-              <Select
+            <ChoiceField label={t('policies.fields.productStructure')}>
+              <Segmented
                 value={form.product_structure}
-                onChange={(e) => set({ product_structure: e.target.value as ProductStructure })}
-              >
-                {PRODUCT_STRUCTURES.map((s) => (
-                  <option key={s} value={s}>
-                    {t(`policies.structures.${s}`)}
-                  </option>
-                ))}
-              </Select>
-            </Field>
+                ariaLabel={t('policies.fields.productStructure')}
+                options={PRODUCT_STRUCTURES.map((s) => ({ key: s, label: t(`policies.structures.${s}`) }))}
+                onChange={(key) => set({ product_structure: key as ProductStructure })}
+              />
+            </ChoiceField>
             <Field label={t('policies.fields.currency')}>
               <Select
                 value={form.currency_code}
@@ -295,18 +282,19 @@ export function PolicyFormPage() {
               </Select>
             </Field>
             <Field label={t('policies.fields.inceptionDate')}>
-              <Input
-                type="date"
+              <DateInput
                 value={form.inception_date}
-                onChange={(e) => set({ inception_date: e.target.value })}
+                onChange={(iso) => set({ inception_date: iso })}
+                invalid={Boolean(submitted && validation.errors.inception_date)}
               />
               {message('inception_date')}
             </Field>
             <Field label={t('policies.fields.expiryDate')}>
-              <Input
-                type="date"
+              <DateInput
                 value={form.expiry_date}
-                onChange={(e) => set({ expiry_date: e.target.value })}
+                min={form.inception_date || undefined}
+                onChange={(iso) => set({ expiry_date: iso })}
+                invalid={Boolean(submitted && validation.errors.expiry_date)}
               />
               {message('expiry_date')}
             </Field>
@@ -315,13 +303,14 @@ export function PolicyFormPage() {
 
         {/* Cover */}
         <Card className="p-5">
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          <SectionTitle className="mb-3">
             {t('policies.termGroups.cover')}
-          </h2>
+          </SectionTitle>
           <div className="grid gap-3 md:grid-cols-2">
             <NumField
               label={t('policies.terms.insuredPercentage')}
               suffix="%"
+              decimals={2}
               value={form.insured_percentage}
               onChange={(v) => set({ insured_percentage: v })}
               message={message('insured_percentage')}
@@ -333,19 +322,20 @@ export function PolicyFormPage() {
               onChange={(v) => set({ nql_amount: v })}
               message={message('nql_amount')}
             />
-            <NumField
-              label={t('policies.terms.maxLiabilityAmount')}
-              suffix={ccy}
-              value={form.max_liability_amount}
-              onChange={(v) => set({ max_liability_amount: v })}
-              message={message('max_liability_amount')}
-            />
-            <NumField
-              label={t('policies.terms.maxLiabilityMultiple')}
-              suffix={t('policies.terms.timesPremium')}
-              value={form.max_liability_premium_multiple}
-              onChange={(v) => set({ max_liability_premium_multiple: v })}
-              message={message('max_liability_premium_multiple')}
+            <MaxLiabilityField
+              basis={form.max_liability_basis}
+              onBasisChange={(basis) => set({ max_liability_basis: basis })}
+              value={form.max_liability_value}
+              onChange={(v) => set({ max_liability_value: v })}
+              currency={ccy}
+              invalid={Boolean(
+                submitted && (validation.errors.max_liability_amount || validation.errors.max_liability_premium_multiple),
+              )}
+              message={message(
+                form.max_liability_basis === 'multiple' && !validation.errors.max_liability_amount
+                  ? 'max_liability_premium_multiple'
+                  : 'max_liability_amount',
+              )}
             />
             <NumField
               label={t('policies.terms.deductibleEachLoss')}
@@ -366,13 +356,14 @@ export function PolicyFormPage() {
 
         {/* Premium */}
         <Card className="p-5">
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          <SectionTitle className="mb-3">
             {t('policies.termGroups.premium')}
-          </h2>
+          </SectionTitle>
           <div className="grid gap-3 md:grid-cols-2">
             <NumField
               label={t('policies.terms.premiumRate')}
               suffix="%"
+              decimals={5}
               value={form.premium_rate_pct}
               onChange={(v) => set({ premium_rate_pct: v })}
               message={message('premium_rate_pct')}
@@ -396,9 +387,9 @@ export function PolicyFormPage() {
 
         {/* Operation */}
         <Card className="p-5">
-          <h2 className="mb-3 text-sm font-semibold text-slate-900">
+          <SectionTitle className="mb-3">
             {t('policies.termGroups.operation')}
-          </h2>
+          </SectionTitle>
           <div className="grid gap-3 md:grid-cols-2">
             <NumField
               label={t('policies.terms.discretionaryLimit')}
@@ -410,6 +401,7 @@ export function PolicyFormPage() {
             <NumField
               label={t('policies.terms.waitingPeriod')}
               suffix={t('policies.terms.daysSuffix')}
+              decimals={0}
               value={form.waiting_period_days}
               onChange={(v) => set({ waiting_period_days: v })}
               message={message('waiting_period_days')}
@@ -417,6 +409,7 @@ export function PolicyFormPage() {
             <NumField
               label={t('policies.terms.maxExtensionPeriod')}
               suffix={t('policies.terms.daysSuffix')}
+              decimals={0}
               value={form.max_extension_period_days}
               onChange={(v) => set({ max_extension_period_days: v })}
               message={message('max_extension_period_days')}
@@ -424,61 +417,80 @@ export function PolicyFormPage() {
             <NumField
               label={t('policies.terms.maxPaymentTerms')}
               suffix={t('policies.terms.daysSuffix')}
+              decimals={0}
               value={form.max_payment_terms_days}
               onChange={(v) => set({ max_payment_terms_days: v })}
               message={message('max_payment_terms_days')}
             />
-            <Field label={t('policies.terms.declarationFrequency')}>
-              <Select
+            <ChoiceField label={t('policies.terms.declarationFrequency')}>
+              <Segmented
                 value={form.declaration_frequency}
-                onChange={(e) =>
-                  set({ declaration_frequency: e.target.value as DeclarationFrequency })
-                }
-              >
-                {DECLARATION_FREQUENCIES.map((f) => (
-                  <option key={f} value={f}>
-                    {t(`policies.frequencies.${f}`)}
-                  </option>
-                ))}
-              </Select>
-            </Field>
+                ariaLabel={t('policies.terms.declarationFrequency')}
+                options={DECLARATION_FREQUENCIES.map((f) => ({ key: f, label: t(`policies.frequencies.${f}`) }))}
+                onChange={(key) => set({ declaration_frequency: key as DeclarationFrequency })}
+              />
+            </ChoiceField>
             <Field label={t('policies.fields.notes')}>
               <Input value={form.notes} onChange={(e) => set({ notes: e.target.value })} />
             </Field>
           </div>
         </Card>
       </div>
+
+      <div className="sticky bottom-0 z-20 -mx-4 mt-6 -mb-6 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-4px_12px_-6px_rgb(0_36_60/0.12)] backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:-mb-7 lg:px-8">
+        {saveError ? (
+          <p className="mr-auto text-[13px] text-neg-500" role="alert">
+            {t('common.saveFailed')}
+          </p>
+        ) : (
+          submitted &&
+          blocked && (
+            // Why Save is greyed out: the red messages are above, possibly
+            // scrolled out of view.
+            <p className="mr-auto text-[13px] text-neg-500" role="alert">
+              {t('policies.form.fixErrors')}
+            </p>
+          )
+        )}
+        <Button variant="secondary" onClick={() => void navigate(backTo)}>
+          {t('common.cancel')}
+        </Button>
+        <Button onClick={() => void handleSave()} disabled={saving || (submitted && blocked)}>
+          {saving ? t('common.saving') : t('common.save')}
+        </Button>
+      </div>
     </div>
   )
 }
 
-/** Amount input with a currency/unit suffix; right-aligned numerals. */
+/** Amount input with a currency/unit suffix; right-aligned, grouped numerals.
+ * `decimals` defaults to money (2); `className` widens the room for a long suffix. */
 function NumField({
   label,
   suffix,
+  decimals = 2,
+  className,
   value,
   onChange,
   message,
 }: {
   label: string
   suffix: string
+  decimals?: number
+  className?: string
   value: string
   onChange: (value: string) => void
   message: React.ReactNode
 }) {
   return (
     <Field label={label}>
-      <div className="relative">
-        <Input
-          inputMode="decimal"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="num pr-16"
-        />
-        <span className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-[12px] text-slate-400">
-          {suffix}
-        </span>
-      </div>
+      <AmountInput
+        value={value}
+        onChange={onChange}
+        decimals={decimals}
+        suffix={suffix}
+        className={className}
+      />
       {message}
     </Field>
   )

@@ -36,3 +36,5 @@ services:
         value: "true"          # Render terminates TLS in front of us
       - key: LOG_LEVEL
         value: INFO
+      - key: COMPANIES_HOUSE_API_KEY
+        sync: false            # optional secret: set in the dashboard

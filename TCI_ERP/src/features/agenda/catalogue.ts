@@ -12,7 +12,8 @@
  *     on its own (a decision has no page), so the params carry what is.
  */
 
-import type { Task, TaskPriority, TaskType } from './types'
+import { formatAmount, formatDate } from '../../lib/format'
+import type { Task, TaskObjectType, TaskPriority, TaskType } from './types'
 
 /** How a task type stops being open. `auto` = the event mapping closes it. */
 export type CompletionRule = 'auto' | 'manual'
@@ -54,10 +55,19 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   // refresh_agenda, so neither needs a button.
   group_exposure_near_limit: 'auto', // refresh_agenda: exposure falls back, or the limit changes
   group_limit_missing: 'auto', // refresh_agenda: a group limit exists
+  // Data management (migration 0054). The information manager's two close
+  // when the request is resolved; the requester's notice is the fourth
+  // manual type — nothing downstream happens once they have been told.
+  entity_requested: 'auto', // data.entity_request_resolved (or moves on reassignment)
+  statements_requested: 'auto', // same
+  entity_request_resolved: 'manual',
+  // Agenda redesign (migration 0055): refresh_agenda retires it once the new
+  // period is rated, and so does rating.created at once.
+  rating_new_statements: 'auto',
 }
 
-/** Mirrors tci.complete_task's guard: it refuses every other type. Two are
- * manual — `submission_declined` and `uncovered_excess_review`. */
+/** Mirrors tci.complete_task's guard (as 0054 restates it): it refuses
+ * every type the COMPLETION_RULES do not call manual. */
 export function canCompleteByHand(taskType: TaskType): boolean {
   return COMPLETION_RULES[taskType] === 'manual'
 }
@@ -72,10 +82,16 @@ export function taskLink(
     case 'legal_entity':
       // The two group tasks hang off the ULTIMATE PARENT company, and the work
       // they ask for is on its Группа tab, not on the card's default tab.
-      return task.task_type === 'group_exposure_near_limit' ||
-        task.task_type === 'group_limit_missing'
-        ? `/entities/${task.object_id}?tab=group`
-        : `/entities/${task.object_id}`
+      // The rating tasks belong on Рейтинг и лимит.
+      if (task.task_type === 'group_exposure_near_limit' || task.task_type === 'group_limit_missing')
+        return `/entities/${task.object_id}?tab=group`
+      if (
+        task.task_type === 'buyer_needs_rating' ||
+        task.task_type === 'rating_stale' ||
+        task.task_type === 'rating_new_statements'
+      )
+        return `/entities/${task.object_id}?tab=rating`
+      return `/entities/${task.object_id}`
     case 'credit_limit_request':
       return `/limits/${task.object_id}`
     case 'credit_limit_decision': {
@@ -102,6 +118,17 @@ export function taskLink(
       return `/overdues/${task.object_id}`
     case 'claim':
       return `/claims/${task.object_id}`
+    case 'entity_request':
+      // The information manager works the request; the requester is told the
+      // outcome and is sent to the company it produced (a rejection has none).
+      if (task.task_type === 'entity_request_resolved') {
+        const entityId = task.params?.entity_id
+        return typeof entityId === 'string' ? `/entities/${entityId}` : null
+      }
+      return `/data/requests/${task.object_id}`
+    case 'client_buyer_proposal':
+      // A buyer a client proposed from the portal: resolved on the data desk.
+      return '/data?view=proposals'
     default:
       return null
   }
@@ -116,9 +143,68 @@ export function taskLink(
 export const AGENDA_GROUPS = ['overdue', 'urgent', 'high', 'normal'] as const
 export type AgendaGroup = (typeof AGENDA_GROUPS)[number]
 
-export function isOverdue(task: Pick<Task, 'due_at'>, now: Date): boolean {
-  return task.due_at !== null && new Date(task.due_at).getTime() <= now.getTime()
+/** A deadline stored as a calendar DATE: a plain ISO date, or the UTC midnight
+ * timestamp `due_date::timestamptz` turns one into (instalments, declarations).
+ * Same reading as formatDue, which shows these without a time. */
+const DATE_DEADLINE = /^(\d{4}-\d{2}-\d{2})(?:T00:00(?::00(?:\.0+)?)?(?:Z|\+00(?::00)?))?$/
+
+/** Tashkent is UTC+5 all year (no DST), as every date in the product. */
+const TASHKENT_OFFSET = '+05:00'
+
+/**
+ * The moment a deadline has passed. A date is due for the WHOLE of that day
+ * in Tashkent — a payment due on 21 October is on time until midnight, not
+ * late from 05:00 — which is also the SQL's reading (`due_date < current_date`
+ * is what turns an instalment overdue). A real timestamp passes at itself.
+ */
+export function deadlinePassesAt(due: string): number {
+  const date = DATE_DEADLINE.exec(due)
+  if (date) return new Date(`${date[1]}T00:00:00${TASHKENT_OFFSET}`).getTime() + 86_400_000
+  return new Date(due).getTime()
 }
+
+export function isOverdue(task: Pick<Task, 'due_at'>, now: Date): boolean {
+  return task.due_at !== null && deadlinePassesAt(task.due_at) <= now.getTime()
+}
+
+/** The task types that come as a due / overdue pair. The database picks one
+ * when it opens the row, but the row is generated lazily and can be read a
+ * day later, so the screen re-derives the pair from the same clock the due
+ * chip and the «Просроченные» group use — the title, the chip and the group
+ * can then never disagree. */
+const DUE_PAIRS: Partial<Record<TaskType, readonly [TaskType, TaskType]>> = {
+  instalment_due: ['instalment_due', 'instalment_overdue'],
+  instalment_overdue: ['instalment_due', 'instalment_overdue'],
+  declaration_due: ['declaration_due', 'declaration_overdue'],
+  declaration_overdue: ['declaration_due', 'declaration_overdue'],
+}
+
+/** The task type to show (badge, title) as of `now`. */
+export function displayTaskType(task: Pick<Task, 'task_type' | 'due_at'>, now: Date): TaskType {
+  const pair = DUE_PAIRS[task.task_type]
+  if (!pair) return task.task_type
+  return isOverdue(task, now) ? pair[1] : pair[0]
+}
+
+/** The i18n key of the row's title as of `now` (see displayTaskType). */
+export function taskTitleKey(task: Pick<Task, 'task_type' | 'due_at' | 'title_key'>, now: Date): string {
+  const shown = displayTaskType(task, now)
+  return shown === task.task_type ? task.title_key : `agenda.tasks.${shown}`
+}
+
+/** Titles that already name the task's subject through `{{subject}}`. Every
+ * other row names it on the line under the title instead, so a row never
+ * says the same name twice and never says none. Mirrors the en locale
+ * (asserted in catalogue.test.ts). */
+export const SUBJECT_IN_TITLE: ReadonlySet<TaskType> = new Set<TaskType>([
+  'buyer_needs_entity',
+  'buyer_needs_rating',
+  'limit_needs_decision',
+  'limit_escalated',
+  'limit_review_due',
+  'rating_stale',
+  'rating_new_statements',
+])
 
 export function groupOf(task: Pick<Task, 'due_at' | 'priority'>, now: Date): AgendaGroup {
   if (isOverdue(task, now)) return 'overdue'
@@ -156,22 +242,42 @@ export function groupTasks(tasks: readonly Task[], now: Date): AgendaSection[] {
 // Filters
 // ---------------------------------------------------------------------------
 
-/** The object kinds a row can be filtered down to, in display order. */
+/** The object kinds a row can be filtered down to, in display order. The
+ * filter offers only the kinds the board actually holds, with counts. */
 export const OBJECT_FILTERS = [
   'insurance_request',
   'credit_limit_request',
   'credit_limit_decision',
   'legal_entity',
-] as const
+  'policy',
+  'declaration',
+  'premium_instalment',
+  'overdue_notification',
+  'claim',
+  'entity_request',
+  'client_buyer_proposal',
+] as const satisfies readonly TaskObjectType[]
 
 export interface AgendaFilters {
   /** Empty = every type. */
   taskType: TaskType | ''
   /** Empty = every object kind. */
-  objectType: (typeof OBJECT_FILTERS)[number] | ''
+  objectType: TaskObjectType | ''
 }
 
 export const NO_FILTERS: AgendaFilters = { taskType: '', objectType: '' }
+
+/** The values a filter can offer: only those present, with their counts, in
+ * the given order. */
+export function presentValues<K extends string>(
+  order: readonly K[],
+  tasks: readonly Task[],
+  pick: (task: Task) => string,
+): { value: K; count: number }[] {
+  const counts = new Map<string, number>()
+  for (const task of tasks) counts.set(pick(task), (counts.get(pick(task)) ?? 0) + 1)
+  return order.filter((value) => counts.has(value)).map((value) => ({ value, count: counts.get(value) ?? 0 }))
+}
 
 export function applyFilters(tasks: readonly Task[], filters: AgendaFilters): Task[] {
   return tasks.filter(
@@ -181,13 +287,49 @@ export function applyFilters(tasks: readonly Task[], filters: AgendaFilters): Ta
   )
 }
 
-/** Badge counts for the sidebar: everything open, and the overdue subset. */
+/** A snoozed task is out of sight until its moment passes (0055); it then
+ * comes back by itself, because this is decided on read. */
+export function isSnoozed(task: Pick<Task, 'snoozed_until'>, now: Date): boolean {
+  return task.snoozed_until !== null && new Date(task.snoozed_until).getTime() > now.getTime()
+}
+
+/** The tasks that count: open and not snoozed. Every list, count and badge
+ * reads through this, so a snoozed task disappears everywhere at once. */
+export function activeTasks<T extends Pick<Task, 'snoozed_until'>>(tasks: readonly T[], now: Date): T[] {
+  return tasks.filter((task) => !isSnoozed(task, now))
+}
+
+/** Badge counts for the sidebar: everything open and not snoozed, and the
+ * overdue subset. */
 export function agendaCounts(
   tasks: readonly Task[],
   now: Date,
 ): { open: number; overdue: number } {
+  const active = activeTasks(tasks, now)
   return {
-    open: tasks.length,
-    overdue: tasks.filter((task) => isOverdue(task, now)).length,
+    open: active.length,
+    overdue: active.filter((task) => isOverdue(task, now)).length,
   }
+}
+
+/**
+ * A task's params are raw data (ISO dates, numbers) written by the database;
+ * the title is rendered in the viewer's language, so the values must be too.
+ * Dates → formatDate, `*_pct` → one decimal in the locale's notation, amounts
+ * → grouped digits. Anything else passes through untouched.
+ */
+export function formatTaskParams(
+  params: Record<string, unknown> | null | undefined,
+  locale: string,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(params ?? {})) {
+    if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}(T|$)/.test(value)) out[key] = formatDate(value, locale)
+    else if (key.endsWith('_pct') && value !== null && value !== '' && Number.isFinite(Number(value)))
+      out[key] = formatAmount(Number(value), locale, 1)
+    else if (key === 'amount' && value !== null && value !== '' && Number.isFinite(Number(value)))
+      out[key] = formatAmount(Number(value), locale)
+    else out[key] = value
+  }
+  return out
 }

@@ -29,6 +29,7 @@ from credit_engine.scoring.tables import GRADE_BANDS
 
 from app.adapter import build_company
 from app.fx import router as fx_router
+from app.registry import router as registry_router
 from app.hardening import (
     AccessLogMiddleware,
     RequestSizeLimitMiddleware,
@@ -101,6 +102,8 @@ async def unhandled_exception(request: Request, exc: Exception) -> JSONResponse:
     )
 
 app.include_router(fx_router)
+# Official company registries (GLEIF, Companies House) — app/registry.py.
+app.include_router(registry_router)
 # User provisioning. Holds the service_role key - see app/users.py.
 app.include_router(users_router)
 

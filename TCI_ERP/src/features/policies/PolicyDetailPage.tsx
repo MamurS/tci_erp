@@ -12,16 +12,23 @@ import { useTranslation } from 'react-i18next'
 import {
   Badge,
   Button,
+  Callout,
   Card,
+  DetailHeader,
   EmptyState,
+  Field,
+  LinkButton,
   Modal,
-  PageHeader,
+  SectionTitle,
   Spinner,
   Tabs,
+  Textarea,
+  ActionsMenu,
 } from '../../components/ui'
+import type { MenuAction } from '../../components/ui'
 import type { TabDef } from '../../components/ui'
 import { ClaimsSection } from '../claims'
-import { EM_DASH, formatAmount, formatPercent } from '../../lib/format'
+import { EM_DASH, formatAmount, formatMoment, formatPercent, formatRate, formatDate } from '../../lib/format'
 import { PolicyLimitsSection } from '../limits/PolicyLimitsSection'
 import { usePolicyOriginRequest } from '../requests/api'
 import { DraftContractSection } from '../wording'
@@ -37,7 +44,7 @@ import {
 import type { PolicyStatus, PolicyWithRefs } from './types'
 
 export function PolicyDetailPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { id = '' } = useParams()
   const navigate = useNavigate()
 
@@ -49,9 +56,9 @@ export function PolicyDetailPage() {
       <EmptyState
         title={t('policies.notFound')}
         action={
-          <Link to="/policies?view=registry" className="text-sm font-medium text-accent-700 hover:underline">
+          <LinkButton to="/policies?view=registry" variant="secondary">
             {t('policies.backToList')}
-          </Link>
+          </LinkButton>
         }
       />
     )
@@ -59,45 +66,30 @@ export function PolicyDetailPage() {
 
   return (
     <div>
-      <PageHeader
-        title={
-          <span className="inline-flex items-center gap-3">
-            <span>{policy.policy_number}</span>
-            <Badge tone={statusTone(policy.status)} size="lg">
-              {t(`policies.statuses.${policy.status}`)}
-            </Badge>
-          </span>
+      <DetailHeader
+        eyebrow={t('policies.eyebrow')}
+        title={policy.policy_number}
+        status={
+          <Badge tone={statusTone(policy.status)}>{t(`policies.statuses.${policy.status}`)}</Badge>
         }
-        subtitle={
-          <span>
-            <Link to="/policies?view=registry" className="text-accent-700 hover:underline">
-              {t('nav.policies')}
-            </Link>
-            {' / '}
-            <Link
-              to={`/entities/${policy.entity_id}`}
-              className="text-accent-700 hover:underline"
-            >
-              {policy.legal_entities?.name ?? EM_DASH}
-            </Link>
-          </span>
-        }
-        actions={
-          <div className="flex items-center gap-2">
-            <Button variant="secondary" onClick={() => void navigate(`/policies/${id}/edit`)}>
-              {t('common.edit')}
-            </Button>
-            <StatusActions policy={policy} />
-          </div>
-        }
+        meta={[
+          <Link key="h" to={`/entities/${policy.entity_id}`} className="text-accent-600 hover:underline">
+            {policy.legal_entities?.name ?? EM_DASH}
+          </Link>,
+          t(`policies.structures.${policy.product_structure}`),
+          `${formatDate(policy.inception_date, i18n.language)} — ${formatDate(policy.expiry_date, i18n.language)}`,
+        ]}
+        actions={<StatusActions policy={policy} onEdit={() => void navigate(`/policies/${id}/edit`)} />}
       />
 
       <PolicyOrigin policyId={id} />
 
       {isExpiryDue(policy, new Date().toISOString().slice(0, 10)) && (
-        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
-          {t('policies.expiryDueHint', { date: policy.expiry_date })}
-        </div>
+        <Callout
+          tone="warn"
+          className="mb-5"
+          title={t('policies.expiryDueHint', { date: formatDate(policy.expiry_date, i18n.language) })}
+        />
       )}
 
       <PolicyBody policy={policy} policyId={id} />
@@ -152,14 +144,15 @@ function PolicyBody({ policy, policyId }: { policy: PolicyWithRefs; policyId: st
       ) : active === 'premium' ? (
         <PolicyPremiumTab policyId={policyId} />
       ) : (
-        <div className="grid items-start gap-5 xl:grid-cols-[2fr_1fr]">
-          <div className="flex flex-col gap-5">
+        // The terms with their history beside them; the buyers and limits
+        // below at the full width — a table of seven columns squeezed into
+        // two thirds broke every name over four lines.
+        <div className="flex flex-col gap-6">
+          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <TermsCard policy={policy} />
-
-            <PolicyLimitsSection policy={policy} />
+            <HistoryTimeline policyId={policyId} />
           </div>
-
-          <HistoryTimeline policyId={policyId} />
+          <PolicyLimitsSection policy={policy} />
         </div>
       )}
     </>
@@ -190,7 +183,7 @@ function PolicyOrigin({ policyId }: { policyId: string }) {
 // Status transition actions + confirmation modal
 // ---------------------------------------------------------------------------
 
-function StatusActions({ policy }: { policy: PolicyWithRefs }) {
+function StatusActions({ policy, onEdit }: { policy: PolicyWithRefs; onEdit: () => void }) {
   const { t } = useTranslation()
   const changeStatus = useChangePolicyStatus(policy.id)
   const [pending, setPending] = useState<PolicyStatus | null>(null)
@@ -198,7 +191,6 @@ function StatusActions({ policy }: { policy: PolicyWithRefs }) {
   const [error, setError] = useState<string | null>(null)
 
   const targets = allowedTargets(policy.status)
-  if (!targets.length) return null
 
   const run = async (to: PolicyStatus, withComment: string) => {
     setError(null)
@@ -211,29 +203,45 @@ function StatusActions({ policy }: { policy: PolicyWithRefs }) {
     }
   }
 
+  const start = (to: PolicyStatus) => {
+    setComment('')
+    setError(null)
+    if (requiresComment(to)) setPending(to)
+    else void run(to, '')
+  }
+
+  // In the header: the edit and the NEXT STEP only — activating a draft or
+  // resuming a suspended policy, or marking it expired once its date has
+  // passed. Every other move is in «Действия ▾», the destructive ones
+  // (cancel, annul) in its red section, each confirmed in a modal.
+  const destructive = (to: PolicyStatus) => to === 'cancelled' || to === 'annulled'
+  const today = new Date().toISOString().slice(0, 10)
+  const next: PolicyStatus | null = targets.includes('active')
+    ? 'active'
+    : targets.includes('expired') && isExpiryDue(policy, today)
+      ? 'expired'
+      : null
+  const menu: MenuAction[] = targets
+    .filter((to) => to !== next)
+    .sort((a, b) => Number(destructive(a)) - Number(destructive(b)))
+    .map((to) => ({
+      key: to,
+      label: t(`policies.transitions.${to}`),
+      danger: destructive(to),
+      onSelect: () => start(to),
+    }))
+
   return (
     <>
-      {targets.map((to) => (
-        <Button
-          key={to}
-          variant={
-            to === 'cancelled' || to === 'annulled'
-              ? 'danger'
-              : to === 'active'
-                ? 'primary'
-                : 'secondary'
-          }
-          onClick={() => {
-            setComment('')
-            setError(null)
-            if (requiresComment(to)) setPending(to)
-            else void run(to, '')
-          }}
-          disabled={changeStatus.isPending}
-        >
-          {t(`policies.transitions.${to}`)}
+      {next && (
+        <Button onClick={() => start(next)} disabled={changeStatus.isPending}>
+          {t(`policies.transitions.${next}`)}
         </Button>
-      ))}
+      )}
+      <Button variant="secondary" onClick={onEdit}>
+        {t('common.edit')}
+      </Button>
+      <ActionsMenu actions={menu} disabled={changeStatus.isPending} />
       {error && !pending && (
         <span className="text-[13px] text-neg-500" role="alert">
           {error}
@@ -251,32 +259,29 @@ function StatusActions({ policy }: { policy: PolicyWithRefs }) {
                 {t('common.cancel')}
               </Button>
               <Button
-                variant={pending === 'cancelled' || pending === 'annulled' ? 'danger' : 'primary'}
+                variant={destructive(pending) ? 'danger' : 'primary'}
                 onClick={() => void run(pending, comment)}
                 disabled={changeStatus.isPending || (commentMandatory(pending) && !comment.trim())}
+                title={
+                  commentMandatory(pending) && !comment.trim() ? t('policies.commentRequired') : undefined
+                }
               >
-                {changeStatus.isPending ? t('common.saving') : t('common.confirm')}
+                {changeStatus.isPending ? t('common.saving') : t(`policies.transitions.${pending}`)}
               </Button>
             </>
           }
         >
-          <p className="mb-3 text-sm text-slate-600">
+          <p className="text-sm text-slate-600">
             {t(`policies.transitionConfirm.${pending}`, { number: policy.policy_number })}
           </p>
-          <label className="flex flex-col gap-1">
-            <span className="text-[13px] font-medium text-slate-600">
-              {t('policies.transitionComment')}
-              {commentMandatory(pending) && <span className="text-neg-500"> *</span>}
-            </span>
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              rows={3}
-              className="w-full rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm text-slate-900 focus:outline-2 focus:outline-accent-600"
-            />
-          </label>
+          <Field
+            label={`${t('policies.transitionComment')}${commentMandatory(pending) ? ' *' : ''}`}
+            hint={commentMandatory(pending) ? t('policies.commentRequired') : undefined}
+          >
+            <Textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} />
+          </Field>
           {error && (
-            <p className="mt-2 text-[13px] text-neg-500" role="alert">
+            <p className="text-[13px] text-neg-500" role="alert">
               {error}
             </p>
           )}
@@ -302,6 +307,8 @@ function TermsCard({ policy }: { policy: PolicyWithRefs }) {
       <span className="num">{formatAmount(Number(v), locale)} {ccy}</span>
     )
 
+  // One basis is stated (the form saves the other as NULL); a policy that
+  // still carries both from before shows both, rather than hide a term.
   const maxLiability = [
     policy.max_liability_amount !== null
       ? `${formatAmount(Number(policy.max_liability_amount), locale)} ${ccy}`
@@ -349,7 +356,7 @@ function TermsCard({ policy }: { policy: PolicyWithRefs }) {
           labelKey: 'policies.terms.premiumRate',
           value: (
             <span className="num">
-              {formatPercent(Number(policy.premium_rate_pct) / 100, locale, 3)}
+              {formatRate(policy.premium_rate_pct, locale)}
             </span>
           ),
         },
@@ -389,13 +396,7 @@ function TermsCard({ policy }: { policy: PolicyWithRefs }) {
 
   return (
     <Card className="p-5">
-      <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-sm font-semibold text-slate-900">{t('policies.termsTitle')}</h2>
-        <span className="text-[13px] text-slate-500">
-          {t(`policies.structures.${policy.product_structure}`)} · {policy.inception_date} —{' '}
-          {policy.expiry_date}
-        </span>
-      </div>
+      <SectionTitle className="mb-4">{t('policies.termsTitle')}</SectionTitle>
       <div className="grid gap-x-10 gap-y-5 md:grid-cols-2">
         {groups.map((group) => (
           <div key={group.titleKey}>
@@ -404,12 +405,14 @@ function TermsCard({ policy }: { policy: PolicyWithRefs }) {
             </h3>
             <dl className="flex flex-col text-[13px]">
               {group.rows.map((row) => (
+                // A long label wraps in its own column; the value stays on one
+                // line at the right, never pushed under the label.
                 <div
                   key={row.labelKey}
-                  className="flex flex-wrap items-baseline justify-between gap-x-3 border-b border-slate-100 py-1 last:border-b-0"
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 border-b border-slate-100 py-1.5 last:border-b-0"
                 >
                   <dt className="text-slate-500">{t(row.labelKey)}</dt>
-                  <dd className="ml-auto text-right font-medium text-slate-800">{row.value}</dd>
+                  <dd className="text-right font-medium whitespace-nowrap text-slate-800">{row.value}</dd>
                 </div>
               ))}
             </dl>
@@ -430,12 +433,12 @@ function TermsCard({ policy }: { policy: PolicyWithRefs }) {
 // ---------------------------------------------------------------------------
 
 function HistoryTimeline({ policyId }: { policyId: string }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { data: history } = usePolicyStatusHistory(policyId)
 
   return (
     <Card className="p-5">
-      <h2 className="mb-3 text-sm font-semibold text-slate-900">{t('policies.historyTitle')}</h2>
+      <SectionTitle className="mb-3">{t('policies.historyTitle')}</SectionTitle>
       {!history?.length ? (
         <p className="text-[13px] text-slate-500">{t('policies.historyEmpty')}</p>
       ) : (
@@ -452,7 +455,7 @@ function HistoryTimeline({ policyId }: { policyId: string }) {
                   </Badge>
                 </p>
                 <p className="text-xs text-slate-400">
-                  {row.changed_at.slice(0, 16).replace('T', ' ')}
+                  {formatMoment(row.changed_at, i18n.language)}
                 </p>
                 {row.comment && <p className="mt-0.5 text-[13px] text-slate-500">{row.comment}</p>}
               </div>

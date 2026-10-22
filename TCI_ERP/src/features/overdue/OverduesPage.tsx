@@ -8,10 +8,10 @@
  */
 
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, EmptyState, Field, PageHeader, Select, Spinner, Table } from '../../components/ui'
+import { Badge, EmptyState, Field, PageHeader, Select, Spinner, Table, Truncate } from '../../components/ui'
 import { formatAmount } from '../../lib/format'
 import { useOverdueNotifications } from './api'
 import { NOA_STATUSES } from './types'
@@ -37,17 +37,20 @@ export function OverduesPage() {
   )
 
   return (
-    <div className="p-6">
+    <div>
       <PageHeader
         title={t('overdues.title')}
         subtitle={t('overdues.subtitle')}
         actions={
           <Field label={t('overdues.fields.status')}>
             <Select value={status} onChange={(e) => setStatus(e.target.value as '' | NoaStatus)}>
-              <option value="">{t('common.all')}</option>
-              {NOA_STATUSES.map((s) => (
+              <option value="">
+                {t('common.all')} ({(data ?? []).length})
+              </option>
+              {/* Only the statuses the list holds, with their counts. */}
+              {NOA_STATUSES.filter((s) => s === status || (data ?? []).some((row) => row.status === s)).map((s) => (
                 <option key={s} value={s}>
-                  {t(`overdues.statuses.${s}`)}
+                  {t(`overdues.statuses.${s}`)} ({(data ?? []).filter((row) => row.status === s).length})
                 </option>
               ))}
             </Select>
@@ -65,10 +68,13 @@ export function OverduesPage() {
         <Table>
           <thead>
             <tr>
-              <th>{t('limits.fields.buyer')}</th>
-              <th>{t('policies.fields.policyholder')}</th>
+              <th className="cell-fill w-[30%]">{t('limits.fields.buyer')}</th>
+              <th className="cell-fill w-[30%]">{t('policies.fields.policyholder')}</th>
               <th className="text-right">{t('overdues.fields.overdueAmount')}</th>
-              <th className="text-right">{t('overdues.fields.daysPastDue')}</th>
+              {/* The unit is in each cell; what the count runs from on hover. */}
+              <th className="text-right" title={t('overdues.pastDueHint')}>
+                {t('overdues.fields.pastDueColumn')}
+              </th>
               <th>{t('overdues.fields.reported')}</th>
               <th>{t('overdues.fields.status')}</th>
             </tr>
@@ -80,15 +86,24 @@ export function OverduesPage() {
                 onClick={() => void navigate(`/overdues/${n.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="font-medium text-slate-800">{n.buyer_name}</td>
-                <td className="text-slate-500">{n.policyholder_name}</td>
+                <td className="cell-fill font-medium">
+                  {/* The row opens on click; the link is what a keyboard reaches. */}
+                  <Truncate text={n.buyer_name} className="max-w-none">
+                    <Link to={`/overdues/${n.id}`} className="text-accent-700 hover:underline">
+                      {n.buyer_name}
+                    </Link>
+                  </Truncate>
+                </td>
+                <td className="cell-fill text-slate-500">
+                  <Truncate text={n.policyholder_name} className="max-w-none" />
+                </td>
                 <td>
                   <span className="num block">
                     {formatAmount(Number(n.overdue_amount), locale)} {n.currency_code}
                   </span>
                 </td>
-                <td>
-                  <span className="num block font-medium">{n.days_past_due}</span>
+                <td className="num font-medium" title={t('overdues.pastDueHint')}>
+                  {t('policies.terms.days', { count: Number(n.days_past_due) })}
                 </td>
                 <td>
                   {n.reported_late ? (

@@ -15,6 +15,7 @@ import type {
   GroupExposureLine,
   GroupFinancials,
   GroupLimit,
+  GroupLimitStatus,
   GroupMemberFinancials,
   GroupMembership,
   GroupPreflight,
@@ -28,6 +29,7 @@ const KEYS = {
   exposure: (parentId: string) => ['groups', 'exposure', parentId] as const,
   lines: (parentId: string) => ['groups', 'lines', parentId] as const,
   limit: (parentId: string) => ['groups', 'limit', parentId] as const,
+  status: (parentId: string) => ['groups', 'status', parentId] as const,
   preflight: (key: string) => ['groups', 'preflight', key] as const,
   suggestions: (entityId: string) => ['groups', 'suggestions', entityId] as const,
   financials: (parentId: string) => ['groups', 'financials', parentId] as const,
@@ -130,6 +132,27 @@ export function useCurrentGroupLimit(parentId: string | undefined) {
       const row = (Array.isArray(data) ? data[0] : data) as GroupLimit | null
       // The function returns a row of NULLs when the group has no limit.
       return row && row.id ? row : null
+    },
+  })
+}
+
+/** The group against its live cap, from tci.v_group_limit_status — the same
+ * row the credit workbench shows, so the group tab and «Группы» can never
+ * disagree. The view converts a cap in any currency at the latest rate and
+ * computes utilisation and over_limit itself. No row: a standalone company
+ * with no group limit. */
+export function useGroupLimitStatusFor(parentId: string | undefined) {
+  return useQuery({
+    queryKey: KEYS.status(parentId ?? ''),
+    enabled: Boolean(parentId),
+    queryFn: async (): Promise<GroupLimitStatus | null> => {
+      const { data, error } = await tci()
+        .from('v_group_limit_status')
+        .select('*')
+        .eq('ultimate_parent_id', parentId!)
+        .maybeSingle()
+      if (error) throw error
+      return (data ?? null) as unknown as GroupLimitStatus | null
     },
   })
 }
