@@ -118,7 +118,9 @@ export function RequestsPage() {
           <EmptyState title={t('requests.queueEmpty')} hint={t('requests.queueEmptyHint')} />
         )
       ) : (
-        <Table columns={[COL.code, COL.fill, COL.count, labelCol('requestStatus'), '12rem', COL.count]}>
+        /* The buyers count is sized for its header, not its digits: «BAYERLAR» is
+           one word that cannot wrap. */
+        <Table columns={[COL.code, COL.fill, '7.5rem', labelCol('requestStatus'), '12rem', COL.count]}>
           <thead>
             <tr>
               <th>{t('requests.fields.number')}</th>

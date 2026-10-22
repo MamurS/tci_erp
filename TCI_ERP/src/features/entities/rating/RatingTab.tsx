@@ -604,7 +604,9 @@ function HistoryCard({
   return (
     <div>
       <SectionTitle className="mb-2">{t('rating.historyTitle')}</SectionTitle>
-      <Table dense columns={[COL.moment, COL.fill, COL.count, COL.grade, COL.money]}>
+      {/* The grade column is sized for its header («Кредитный рейтинг» wraps to
+          two lines; one word must still fit with the CI runner's wider fonts). */}
+      <Table dense columns={[COL.moment, COL.fill, COL.count, '7.5rem', COL.money]}>
         <thead>
           <tr>
             <th>{t('rating.historyDate')}</th>

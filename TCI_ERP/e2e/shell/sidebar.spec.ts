@@ -100,7 +100,11 @@ test.describe('peek', () => {
 
   test.beforeEach(async ({ page, context }) => {
     await stubBackend(context, { lang: 'ru', sidebar: 'closed' })
+    // A fresh page puts the pointer at (0, 0) — inside the 8px peek edge — and
+    // the first layout can then open the peek. Start with it over the content.
+    await page.mouse.move(700, 450)
     await page.goto(PAGE)
+    await page.mouse.move(700, 450)
     await expect(toggle(page)).toBeVisible()
     await expect(panel(page)).toHaveCount(0)
   })
