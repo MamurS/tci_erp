@@ -1,15 +1,17 @@
 /**
- * The DEFAULT DRAFT of the TCI brochure, in Russian, English and Uzbek.
+ * The APPROVED texts of the TCI brochure, in Russian, English and Uzbek — the
+ * source the commercial offer's fixed template quotes
+ * (src/features/offers/kp/templates/tciTexts.ts; tciTexts.test.ts proves every
+ * statement there is a verbatim quote of this file in the same language).
  *
- * It is offered in the editor as the starting point while no version exists,
- * and is never published by itself: someone saves it as a version, reviews
- * every statement and publishes it. The texts describe how trade credit
- * insurance works in general (the Allianz Trade / Coface / Atradius practice
- * this system follows) and say "as your policy sets" wherever a term is the
- * policy's to decide. They deliberately contain NO statistics, market
- * figures, percentages, partner names, ratings, awards or guarantees —
- * defaultContent.test.ts refuses them — and no invented names or phone
- * numbers: contacts point to the sales manager and the portal.
+ * The texts describe how trade credit insurance works in general (the
+ * Allianz Trade / Coface / Atradius practice this system follows) and say "as
+ * your policy sets" wherever a term is the policy's to decide. They
+ * deliberately contain NO statistics, market figures, percentages, partner
+ * names, ratings, awards or guarantees — defaultContent.test.ts refuses them
+ * — and no invented names or phone numbers: contacts point to the sales
+ * manager and the portal; the insurer's own particulars come from the offer's
+ * data when it is printed.
  *
  * Terminology follows the glossary in CLAUDE.md: Байер / Bayer (never
  * «покупатель» / «xaridor» for the debtor), Страхователь / Sug‘urtalanuvchi,
@@ -19,7 +21,9 @@
  * stop with U+2019 as in the uz locale.
  *
  * BROCHURE_CLAIMS lists every factual or marketing statement the Russian
- * text makes, for the owner's review before the first publication.
+ * text makes (docs/BROCHURE-CLAIMS.md). The two marked `pending` (⚠) are not
+ * modelled by the system and not confirmed by the owner: the template leaves
+ * them out.
  */
 
 import type { BrochureContent, BrochureLang, BrochureSectionKey, Localized } from './model'
@@ -371,7 +375,7 @@ const TEXTS: Texts = {
   },
 }
 
-/** The default draft, as a fresh object (the editor may change it freely). */
+/** The texts as a fresh object (sections in print order). */
 export function defaultBrochureContent(): BrochureContent {
   return {
     sections: (Object.keys(TEXTS) as BrochureSectionKey[]).map((key) => ({
@@ -393,6 +397,8 @@ export interface BrochureClaim {
   text: string
   /** factual: must be true of OUR product and wording; marketing: a selling point. */
   kind: 'factual' | 'marketing'
+  /** ⚠ not modelled by the system and not confirmed: never printed. */
+  pending?: true
 }
 
 /**
@@ -484,6 +490,7 @@ export const BROCHURE_CLAIMS: readonly BrochureClaim[] = [
     section: 'covered',
     lang: 'ru',
     kind: 'factual',
+    pending: true,
     text: 'Проверить по wording: суммы, оспариваемые байером по существу поставки, не покрываются до разрешения спора (система этого исключения не моделирует).',
   },
   {
@@ -508,6 +515,7 @@ export const BROCHURE_CLAIMS: readonly BrochureClaim[] = [
     section: 'benefits',
     lang: 'ru',
     kind: 'factual',
+    pending: true,
     text: 'Проверить: при просрочке страхователь может рассчитывать на содействие во взыскании долга (услуга взыскания в системе не моделируется).',
   },
   {
