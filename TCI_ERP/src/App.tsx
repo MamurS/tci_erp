@@ -48,6 +48,12 @@ const OverdueDetailPage = lazyPage(overdue, 'OverdueDetailPage')
 const claims = () => import('./features/claims')
 const ClaimsPage = lazyPage(claims, 'ClaimsPage')
 const ClaimDetailPage = lazyPage(claims, 'ClaimDetailPage')
+const contractDrafts = () => import('./features/contracts')
+const ContractViewPage = lazyPage(contractDrafts, 'ContractViewPage')
+const ContractEditPage = lazyPage(contractDrafts, 'ContractEditPage')
+const ContractComparePage = lazyPage(contractDrafts, 'ContractComparePage')
+const ContractPrintPage = lazyPage(contractDrafts, 'ContractPrintPage')
+const PortalContractsPage = lazyPage(() => import('./features/contracts/portal'), 'PortalContractsPage')
 const AdminPage = lazyPage(() => import('./features/admin'), 'AdminPage')
 const AgendaPage = lazyPage(() => import('./features/agenda'), 'AgendaPage')
 const account = () => import('./features/account')
@@ -79,6 +85,8 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route path="entities/:id/report" element={<ReportPage />} />
         <Route path="buyers/:id/report" element={<LegacyRedirect />} />
+        {/* A contract draft on paper: the browser's «Save as PDF» (0057). */}
+        <Route path="policies/contracts/:draftId/print" element={<ContractPrintPage />} />
         {/* The portal: its own shell, its own navigation, no staff sections.
             Still behind the password gate — a provisioned client must rotate
             their temporary password before reaching any of it. */}
@@ -95,6 +103,7 @@ export default function App() {
               <Route path="overdues" element={<PortalOverduesPage />} />
               <Route path="claims" element={<PortalClaimsPage />} />
               <Route path="submissions" element={<PortalSubmissionsPage />} />
+              <Route path="contracts" element={<PortalContractsPage />} />
               <Route path="account" element={<PortalAccountPage />} />
             </Route>
           </Route>
@@ -138,6 +147,10 @@ export default function App() {
                 <Route path="policies/new" element={<PolicyFormPage />} />
                 <Route path="policies/:id" element={<PolicyDetailPage />} />
                 <Route path="policies/:id/edit" element={<PolicyFormPage />} />
+                {/* Contract drafts (0057): viewer, editor, comparison. */}
+                <Route path="policies/contracts/:draftId" element={<ContractViewPage />} />
+                <Route path="policies/contracts/:draftId/edit" element={<ContractEditPage />} />
+                <Route path="policies/contracts/:draftId/compare" element={<ContractComparePage />} />
                 <Route path="declarations" element={<DeclarationsPage />} />
                 <Route path="declarations/:id" element={<DeclarationDetailPage />} />
                 <Route path="overdues" element={<OverduesPage />} />

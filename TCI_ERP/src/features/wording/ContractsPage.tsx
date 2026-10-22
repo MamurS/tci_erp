@@ -13,12 +13,16 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
+  actionsCol,
   Badge,
   Button,
   Card,
+  COL,
   EmptyState,
   Input,
+  labelCol,
   LinkButton,
+  RowActions,
   Segmented,
   Spinner,
   Table,
@@ -31,6 +35,10 @@ import { usePolicies } from '../policies/api'
 import { statusTone } from '../policies/statusMachine'
 import { useInsuranceRequests } from '../requests/api'
 import { statusTone as requestStatusTone } from '../requests/machine'
+import { useAllDrafts } from '../contracts/api'
+import { CONTRACT_STATUS_COL } from '../contracts/columns'
+import { statusTone as draftStatusTone } from '../contracts/machine'
+import { draftPath } from '../contracts/paths'
 import { useAllPolicyDocuments, useWordingTemplates, wordingDownloadUrl } from './api'
 import { contractSubmissions } from './contracts'
 import { wordingErrorKey } from './errors'
@@ -39,7 +47,7 @@ import type { SubjectChoice } from './GenerateContractModal'
 import { languageName } from './labels'
 import { useInstallStandardTemplates, useTemplateText } from './standardTemplates'
 
-type Segment = 'policies' | 'submissions' | 'register'
+type Segment = 'policies' | 'submissions' | 'drafts' | 'register'
 
 const rowLink = 'cursor-pointer transition-colors hover:bg-slate-50'
 
@@ -55,6 +63,7 @@ export function ContractsPage() {
   const { data: policies, isLoading: policiesLoading } = usePolicies()
   const { data: requests, isLoading: requestsLoading } = useInsuranceRequests()
   const { data: documents } = useAllPolicyDocuments()
+  const { data: drafts } = useAllDrafts()
   const { install, installing } = useInstallStandardTemplates()
   const text = useTemplateText()
 
@@ -119,7 +128,13 @@ export function ContractsPage() {
       .then((url) => window.open(url, '_blank', 'noopener'))
       .catch((e: unknown) => setError(t(wordingErrorKey(e))))
 
+  const draftRows = (drafts ?? []).filter((d) =>
+    matches(d.draft_number, d.policies?.policy_number, d.insurance_requests?.request_number,
+      d.policies?.legal_entities?.name, d.insurance_requests?.legal_entities?.name),
+  )
+
   const counts: Record<Segment, number> = {
+    drafts: draftRows.length,
     policies: policyRows.length,
     submissions: submissionRows.length,
     register: registerRows.length,
@@ -174,7 +189,7 @@ export function ContractsPage() {
         <Segmented
           value={segment}
           ariaLabel={t('contracts.title')}
-          options={(['policies', 'submissions', 'register'] as const).map((key) => ({
+          options={(['policies', 'submissions', 'drafts', 'register'] as const).map((key) => ({
             key,
             label: `${t(`contracts.tabs.${key}`)} (${counts[key]})`,
           }))}
@@ -200,27 +215,26 @@ export function ContractsPage() {
               <EmptyState title={t('contracts.empty.policies')} hint={t('contracts.empty.policiesHint')} />
             )
           ) : (
-            <Table dense>
+            <Table dense columns={[COL.code, COL.fill, COL.period, labelCol('policyStatus'), COL.count]}>
               <thead>
                 <tr>
                   <th>{t('policies.fields.policyNumber')}</th>
-                  <th className="cell-fill w-[32%]">{t('policies.fields.policyholder')}</th>
-                  <th>{t('policies.fields.productStructure')}</th>
+                  <th>{t('policies.fields.policyholder')}</th>
                   <th>{t('policies.fields.period')}</th>
                   <th>{t('policies.fields.status')}</th>
-                  <th className="text-right">{t('contracts.columns.documents')}</th>
+                  <th className="num">{t('contracts.columns.documents')}</th>
                 </tr>
               </thead>
               <tbody>
                 {policyRows.map((p) => (
                   <tr key={p.id} className={rowLink} onClick={() => void navigate(`/policies/${p.id}?tab=contract`)}>
                     <td className="font-medium whitespace-nowrap text-accent-700 tabular-nums">{p.policy_number}</td>
-                    <td className="cell-fill text-slate-600">
+                    <td className="text-slate-600">
                       <Truncate text={p.legal_entities?.name} className="max-w-none">
                         {p.legal_entities?.name ?? EM_DASH}
                       </Truncate>
+                      <span className="block text-[12px] text-slate-500">{t(`policies.structures.${p.product_structure}`)}</span>
                     </td>
-                    <td className="whitespace-nowrap text-slate-500">{t(`policies.structures.${p.product_structure}`)}</td>
                     <td className="whitespace-nowrap text-slate-500">
                       {formatDate(p.inception_date, locale)} — {formatDate(p.expiry_date, locale)}
                     </td>
@@ -244,21 +258,21 @@ export function ContractsPage() {
               <EmptyState title={t('contracts.empty.submissions')} hint={t('contracts.empty.submissionsHint')} />
             )
           ) : (
-            <Table dense>
+            <Table dense columns={[COL.code, COL.fill, labelCol('policyStructure'), labelCol('requestStatus'), COL.count]}>
               <thead>
                 <tr>
                   <th>{t('contracts.columns.submission')}</th>
-                  <th className="cell-fill w-[32%]">{t('contracts.columns.applicant')}</th>
+                  <th>{t('contracts.columns.applicant')}</th>
                   <th>{t('policies.fields.productStructure')}</th>
                   <th>{t('policies.fields.status')}</th>
-                  <th className="text-right">{t('contracts.columns.documents')}</th>
+                  <th className="num">{t('contracts.columns.documents')}</th>
                 </tr>
               </thead>
               <tbody>
                 {submissionRows.map((r) => (
                   <tr key={r.id} className={rowLink} onClick={() => void navigate(`/requests/${r.id}`)}>
                     <td className="font-medium whitespace-nowrap text-accent-700 tabular-nums">{r.request_number}</td>
-                    <td className="cell-fill text-slate-600">
+                    <td className="text-slate-600">
                       <Truncate text={r.legal_entities?.name} className="max-w-none">
                         {r.legal_entities?.name ?? EM_DASH}
                       </Truncate>
@@ -276,6 +290,53 @@ export function ContractsPage() {
             </Table>
           ))}
 
+        {segment === 'drafts' &&
+          (!draftRows.length ? (
+            query ? (
+              <NoMatches onReset={() => setSearch('')} />
+            ) : (
+              <EmptyState title={t('contractDrafts.register.empty')} hint={t('contractDrafts.register.emptyHint')} />
+            )
+          ) : (
+            <Table dense columns={[COL.code, '13rem', COL.fill, CONTRACT_STATUS_COL, '5rem', COL.moment]}>
+              <thead>
+                <tr>
+                  <th>{t('contractDrafts.register.number')}</th>
+                  <th>{t('contracts.columns.for')}</th>
+                  <th>{t('contracts.columns.applicant')}</th>
+                  <th>{t('contractDrafts.columns.status')}</th>
+                  <th>{t('contractDrafts.columns.version')}</th>
+                  <th>{t('contractDrafts.columns.saved')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {draftRows.map((d) => {
+                  const holder = d.policies?.legal_entities?.name ?? d.insurance_requests?.legal_entities?.name ?? EM_DASH
+                  return (
+                    <tr key={d.id} className={rowLink} onClick={() => void navigate(draftPath(d.id))}>
+                      <td className="font-mono text-accent-700">{d.draft_number}</td>
+                      <td>
+                        {d.policy_id
+                          ? t('contracts.forPolicy', { number: d.policies?.policy_number ?? EM_DASH })
+                          : t('contracts.forSubmission', { number: d.insurance_requests?.request_number ?? EM_DASH })}
+                      </td>
+                      <td className="text-slate-600">
+                        <Truncate text={holder} className="max-w-none">
+                          {holder}
+                        </Truncate>
+                      </td>
+                      <td>
+                        <Badge tone={draftStatusTone(d.status)}>{t(`contractDrafts.statuses.${d.status}`)}</Badge>
+                      </td>
+                      <td className="tabular-nums">v{d.current_version_no}</td>
+                      <td className="tabular-nums">{formatMoment(d.updated_at, locale)}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </Table>
+          ))}
+
         {segment === 'register' &&
           (!registerRows.length ? (
             query ? (
@@ -284,14 +345,14 @@ export function ContractsPage() {
               <EmptyState title={t('contracts.empty.register')} hint={t('contracts.empty.registerHint')} />
             )
           ) : (
-            <Table dense>
+            <Table dense columns={[COL.moment, '13rem', COL.fill, '8rem', actionsCol(['download'])]}>
               <thead>
                 <tr>
                   <th>{t('wording.generate.generatedAt')}</th>
                   <th>{t('contracts.columns.for')}</th>
-                  <th className="cell-fill w-[36%]">{t('wording.generate.template')}</th>
+                  <th>{t('wording.generate.template')}</th>
                   <th>{t('wording.fields.language')}</th>
-                  <th className="w-px" />
+                  <th />
                 </tr>
               </thead>
               <tbody>
@@ -313,13 +374,13 @@ export function ContractsPage() {
                           ? t('contracts.forPolicy', { number: d.policies?.policy_number ?? EM_DASH })
                           : t('contracts.forSubmission', { number: d.insurance_requests?.request_number ?? EM_DASH })}
                       </td>
-                      <td className="cell-fill">
+                      <td>
                         <Truncate text={`${name} v${d.template_version}`} className="max-w-none">
                           {name} <span className="text-xs text-slate-400 tabular-nums">v{d.template_version}</span>
                         </Truncate>
                       </td>
                       <td className="whitespace-nowrap">{languageName(d.language, locale)}</td>
-                      <td className="text-right">
+                      <RowActions>
                         <Button
                           size="sm"
                           variant="ghost"
@@ -331,7 +392,7 @@ export function ContractsPage() {
                         >
                           {t('wording.templates.download')}
                         </Button>
-                      </td>
+                      </RowActions>
                     </tr>
                   )
                 })}
