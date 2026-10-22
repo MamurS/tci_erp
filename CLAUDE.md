@@ -543,6 +543,47 @@ is fine for internal test accounts and not fine for customers.
   `docs/deploy/canonical-apply-0055.sql` for the one held DROP POLICY),
   function bodies md5-identical to a local replay, live smoke with role
   impersonation rolled back, counts unchanged
+- [x] Premium payments, instant UI, layout stability (Prompt 23, migration
+  0056): instalments are PAYMENT RECORDS — append-only `tci.premium_payments`
+  (payments and reversals, never edited), allocated OLDEST FIRST and DERIVED in
+  `tci.v_premium_instalments` (paid / outstanding / derived status, nothing
+  stored), an invoice step (`invoice_premium_instalment`), overpayment
+  REFUSED, a bank-statement import (per-bank profiles, matching on policy /
+  invoice number + amount + date, one-click confirm, the
+  `premium_payment_unmatched` Agenda type) and a service-role
+  `record_premium_payment_import(jsonb)` for a future accounting feed; a
+  payment closes the instalment tasks it settles. Schedule bug D fixed (an
+  anniversary policy counted «1 year 1 day» and got 13 monthly / 5 quarterly
+  instalments; the mock schedules regenerated, money preserved). Optimistic
+  writes with rollback across the app and a dev-only mutation timing log; a
+  Playwright LAYOUT GUARD (`e2e/layout/`) over every list screen in en/ru/uz
+  at 1280 and 1440, in CI, with the network to Supabase SEALED. See **Premium
+  payments rules**, **Tools never write to canonical** below and DESIGN.md
+  «No layout shift on interaction». **Canonical: 0056 applied 2026-10-22**
+  (dry run of the schedule regeneration first), live smoke with role
+  impersonation rolled back
+- [x] Contract drafts in the app (Prompt 25, migration 0057) — «Проект договора» is an editable document with immutable
+  versions. Generation turns the active wording template (the TEMPLATE, not a
+  rendered file) into the editor document — headings, numbered sections and
+  clauses, tables, lists, page breaks — in which every placeholder is a
+  merge-field chip (path, row, printed value); TipTap (open source, lazy chunk
+  on the editor route only) edits it; every save is a new
+  `tci.contract_versions` row (author, note, source generated / manual /
+  restored / refreshed, server-made merge-data snapshot); compare any two
+  versions inline or side by side; restore = a new version; a field refresh
+  changes field values only (DB-checked); regeneration over manual edits needs
+  confirmation (DB-checked); draft → under review (Agenda `contract_review` for
+  commercial underwriting, a SIXTH event trigger) → agreed → signed with the
+  scan in the private `contract-scans` bucket, then locked forever; DOCX export
+  in the browser (`docx`, lazy) and PDF through the print route; the portal
+  reads the SHARED version and comments while under review
+  (`v_client_contract_*`, `client_comment_contract_draft`). See **Contract
+  drafts rules** below. **Canonical: 0057 applied 2026-10-22** — sections 1–9
+  through the MCP tooling (fingerprints identical to a local replay), section
+  10 (the three removal guards) by the owner with
+  `docs/deploy/canonical-apply-0057.sql`; acceptance smoke (generate → edit →
+  compare → restore → review → share → agree → sign → locked) with role
+  impersonation rolled back, nothing left behind
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1269,6 +1310,131 @@ automatic task (no source event, ⚡) is an i18n key over params, rendered by
 **Amber is not a text colour.** `--color-warn-500` is about 3.4:1 on white;
 the «Сегодня» label, the due label and the «Эскалация» tag carry amber as a
 stripe, a dot, a fill or a ring, with dark text.
+
+### Premium payments rules (migration 0056)
+
+**Money is a list of payments; everything else is derived.** An instalment
+stores only its BILLING state (`pending` / `invoiced` / `cancelled`; a check
+forbids `paid`). `tci.v_premium_instalments` lets the policy's net payments
+(payments − reversals) fill the instalments OLDEST FIRST — by `due_date`, then
+`sequence`; a cancelled instalment takes nothing — and derives `paid_amount`,
+`outstanding` and the status, in this precedence: cancelled > paid > overdue
+(outstanding and past due) > partially_paid > invoiced > pending. `premium.ts`
+mirrors the allocation cent-exact and the precedence order, contract-tested
+against the migration text, so a payment paints before the server answers.
+
+**Corrections are reversals, never edits.** `tci.premium_payments` has no
+UPDATE or DELETE for any API role; `reverse_premium_payment` writes a
+`reversal` row pointing at the payment (`reverses_id` is unique: a payment is
+reversed once, a reversal never). **An overpayment is refused**
+(`payment_exceeds_outstanding`, P0001): money beyond what the schedule owes is
+not premium, and a credit balance has no home until accounting exists.
+
+**Every write answers with the schedule.** `record_premium_payment`,
+`reverse_premium_payment` and `invoice_premium_instalment` return `setof
+v_premium_instalments` for the policy, so the screen takes the answer instead
+of refetching. A payment that settles an instalment closes its
+`instalment_due` / `instalment_overdue` tasks; a reversal reopens them through
+`refresh_agenda`, which reads the view.
+
+**The bank import matches, a person confirms.** Lines are matched on a policy
+or invoice number found in the payment text (`payment_text_key`), the amount
+and the date; a matched line still needs one click (`confirm_bank_lines`), an
+unmatched one is assigned or ignored by hand, and while any line is unmatched
+the import carries one `premium_payment_unmatched` task.
+`record_premium_payment_import(jsonb)` is `require_service_role()` only — the
+door for a future accounting feed; no connector exists.
+
+**The instalment count steps from inception** (bug D). 0027 measured
+`age(expiry + 1, inception)`, so an anniversary policy read as one year and
+one day and got 13 monthly / 5 quarterly instalments, the last two clamped
+onto the expiry date. Periods now start at inception + k months and count
+while the start is before the last day of cover; 0056 asserts the invariants
+on every schedule (the count, sum = minimum premium, no two instalments on
+one date) and the anniversary cases on fixtures.
+
+### Tools never write to canonical (incident 2026-10-22)
+
+A latency harness measured clicks against the canonical project with
+Playwright route stubs, and `unrouteAll()` released stubbed writes that were
+still inside their injected delay: a premium payment, three snoozes, eight
+escalating decisions and a declaration acceptance reached the owner's data
+and were undone by hand. The rules since:
+
+* **E2E, layout and latency runs never touch `*.supabase.co`.**
+  `e2e/support/network.ts` `sealNetwork(context)` aborts every request no stub
+  answers — never `continue()`, never `fetch()` — and fails the test on any
+  response from a real host. Slow networks are SIMULATED with an injected
+  delay.
+* **The only reader of canonical is `tools/layout-fixtures/record.mjs`**, run
+  by hand: GET/HEAD and STABLE functions only, writes answered locally,
+  output sanitised (`@demo.invalid` e-mails, no names or phones).
+* **A canonical smoke is one transaction ending in a forced rollback**, as
+  before. Anything else that writes is a bug.
+
+### Contract drafts rules (migration 0057)
+
+**The template is converted, not the rendered file.** `contracts/fromDocx.ts`
+reads the wording template's own .docx parts with its `{{placeholders}}`,
+evaluates the sections against the printable context of `wording/context.ts`
+(a list repeats — in a paragraph, over paragraphs, over table rows; a value
+shows or hides; a paragraph emptied by a hidden section disappears) and emits
+the editor document, in which each placeholder is a `mergeField` chip carrying
+its catalogue path, its row index inside `limits`, and the value it printed.
+The mapping table is the file header; what is not carried (images, text
+boxes, headers/footers, run fonts and spacing, multi-level lists, column
+widths) comes back as conversion warnings shown on the viewer once.
+
+**Numbers are derived, never text.** A numbered section heading carries
+`numbered: true`, a clause paragraph `clause: true`; `numbering.ts` is the
+one rule (N. / N.M., a clause before any section is M.) used by the viewer,
+the editor (ProseMirror decorations), the print route, the comparison and
+the DOCX export. The template's typed «2.1.» is stripped at conversion, so a
+hidden conditional clause closes its gap.
+
+**Versions are never changed.** No INSERT/UPDATE grant for `authenticated`
+on the four tables, SELECT + INSERT only for `service_role`, a BEFORE UPDATE
+trigger for everyone, and (section 10, an owner step) a BEFORE DELETE
+trigger. Every write is a gated SECURITY DEFINER function;
+`save_contract_version` takes the BASE version number and refuses a save on
+top of a newer one (`contract_version_conflict`), refuses an identical
+document (`contract_version_unchanged`), refuses `generated` over manual
+edits without `p_confirm_replace` (`contract_has_manual_edits`, mirrored by
+`machine.ts hasManualEdits`), and refuses a `refreshed` version whose
+`tci.contract_skeleton` (the document with every merge-field VALUE removed)
+differs from its base — a field refresh cannot touch the words. A restore is
+copied server-side from the old version, never taken from the browser.
+
+**The machine** (`contract_transition_allowed`, mirrored and contract-tested
+in `machine.ts`): draft → under_review → agreed → signed; under_review and
+agreed go back to draft, agreed only with a reason and only by commercial
+underwriting or admin, who alone agree; writers are admin, commercial
+underwriting and sales; editing in draft and under_review only; signed is
+reached only by `sign_contract_draft` with the signer's own PDF at
+`contract-scans/<draft>/<file>.pdf`, and a trigger keeps a signed row final.
+A change to a signed contract will be an endorsement (not built).
+
+**The client sees what was shared, never more.** `share_contract_draft` pins
+the CURRENT version; a later save does not move what the client sees. The
+portal reads `v_client_contract_drafts` (definer view over base tables,
+`has_role('client')` + `my_client_entities()`, status under review / agreed
+/ signed) and its own side of the comments; staff comments, authors and the
+merge-data snapshot never reach it. The client comments only while the draft
+is under review, and the comment rides on the open review task as
+`client_comment` (shown by the Agenda as the policyholder's origin comment).
+
+**Nothing leaves our infrastructure.** No viewer or editor service: the
+editor is TipTap in a lazy chunk; .docx is built in the browser with `docx`
+(lazy); PDF is the print route (`/policies/contracts/:id/print`, @page from
+the template's page size and margins, «page x of y» in the document's
+language) and the browser's own «Save as PDF».
+
+**The local working copy is not a version.** The editor writes
+`tci-contract-wc:<draft>:<user>` to localStorage on change (guarded; the page
+works without it), offers it back on return, and asks before leaving with
+unsaved changes (beforeunload + in-app link capture — the BrowserRouter has
+no blocker). Only «Сохранить версию» (⌘S, with an optional change note)
+makes a version.
 
 ### Credit workbench rules (migration 0053)
 
