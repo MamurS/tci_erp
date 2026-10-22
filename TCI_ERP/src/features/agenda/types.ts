@@ -51,6 +51,8 @@ export const TASK_TYPES = [
   // Limit validation (migration 0060)
   'limit_validation',
   'limit_validation_result',
+  // Auto decisions (migration 0061)
+  'adt_review',
 ] as const
 
 export type TaskType = (typeof TASK_TYPES)[number]

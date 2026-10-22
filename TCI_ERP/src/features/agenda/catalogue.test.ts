@@ -21,6 +21,7 @@ import PAYMENTS from '../../../supabase/migrations/0056_premium_payments.sql?raw
 import CONTRACTS from '../../../supabase/migrations/0057_contract_drafts.sql?raw'
 import OFFERS from '../../../supabase/migrations/0058_commercial_offers.sql?raw'
 import VALIDATION from '../../../supabase/migrations/0060_limit_validation.sql?raw'
+import ADT from '../../../supabase/migrations/0061_auto_decisions.sql?raw'
 import {
   AGENDA_GROUPS,
   agendaCounts,
@@ -91,6 +92,7 @@ describe('task type enum', () => {
       ...CONTRACTS.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
       ...OFFERS.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
       ...VALIDATION.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
+      ...ADT.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
     ].map((m) => m[1])
     expect([...created, ...appended]).toEqual([...TASK_TYPES])
   })
@@ -131,7 +133,10 @@ describe('task type enum', () => {
     // 0060 adds the two validation types.
     const addedValidation = VALIDATION.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
     expect(addedValidation).toHaveLength(2)
-    expect(TASK_TYPES).toHaveLength(38)
+    // 0061 adds adt_review.
+    const addedAdt = ADT.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
+    expect(addedAdt).toHaveLength(1)
+    expect(TASK_TYPES).toHaveLength(39)
   })
 
   it('lists exactly the values of tci.task_priority', () => {
@@ -185,7 +190,9 @@ describe('completion rules', () => {
     // A row may continue on the next comment lines (0060 wraps
     // limit_validation's), so the rule is read up to the next type's row.
     const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}\n${PAYMENTS}\n${CONTRACTS}\n${OFFERS}\n${VALIDATION}`.split('\n')
-    for (const type of TASK_TYPES) {
+    // 0061 has no catalogue table in its header: adt_review's rule is read
+    // from its mapping instead (the next test).
+    for (const type of TASK_TYPES.filter((t) => t !== 'adt_review')) {
       let row: string | undefined
       headers.forEach((line, i) => {
         if (row || !new RegExp(`^--   ${type}(\\s|$)`).test(line)) return
@@ -197,6 +204,21 @@ describe('completion rules', () => {
       expect(row, `header row for ${type}`).toBeDefined()
       expect(COMPLETION_RULES[type]).toBe(row?.includes('MANUAL') ? 'manual' : 'auto')
     }
+  })
+
+  it('adt_review closes itself (0061): a new ADT or disabling it closes the task', () => {
+    expect(ADT).toContain("elsif new.event_type in ('adt.set', 'adt.disabled') then")
+    expect(ADT).toContain("perform tci.close_tasks(array['adt_review']::tci.task_type[], new.object_id);")
+    // 0061 does not touch tci.complete_task: the 0060 manual list stands
+    expect(ADT).not.toContain('function tci.complete_task')
+    expect(COMPLETION_RULES.adt_review).toBe('auto')
+    expect(canCompleteByHand('adt_review')).toBe(false)
+  })
+
+  it('opens the ADT review on the ADT block of the rating tab', () => {
+    expect(taskLink({ object_type: 'legal_entity', object_id: 'e1', params: {}, task_type: 'adt_review' })).toBe(
+      '/entities/e1?tab=rating&focus=adt',
+    )
   })
 
   it('deep-links data requests: the worker to the request, the requester to the company', () => {

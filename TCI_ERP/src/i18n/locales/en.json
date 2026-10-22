@@ -2334,7 +2334,8 @@
       "offer_expiring": "Offer expiring",
       "offer_expired": "Offer expired",
       "limit_validation": "Limit validation",
-      "limit_validation_result": "Validation result"
+      "limit_validation_result": "Validation result",
+      "adt_review": "ADT review"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -2381,7 +2382,15 @@
       "limit_validation_result_approved": "Your limit decision for {{entity_name}} was approved — {{validator_name}}",
       "limit_validation_result_approved_modified": "Your limit decision for {{entity_name}} was approved with changes — {{validator_name}}",
       "limit_validation_result_returned": "Your limit decision for {{entity_name}} was returned to you — {{validator_name}}",
-      "limit_validation_result_rejected": "Your limit decision for {{entity_name}} was rejected — {{validator_name}}"
+      "limit_validation_result_rejected": "Your limit decision for {{entity_name}} was rejected — {{validator_name}}",
+      "adt_review_exhausted": "The ADT of {{entity_name}} is used up — review the buyer and renew the ADT",
+      "adt_review_downgrade": "The ADT of {{entity_name}} is suspended: the buyer was downgraded — review the buyer and renew the ADT",
+      "adt_review_open_noa": "The ADT of {{entity_name}} is suspended: an overdue notification is open — review the buyer",
+      "adt_review_claims": "The ADT of {{entity_name}} is suspended: the buyer has claims — review the buyer",
+      "adt_review_limit_revoked": "The ADT of {{entity_name}} is suspended: a limit was revoked — review the buyer",
+      "adt_review_manual_block": "The ADT of {{entity_name}} is suspended: auto decisions are banned — review the buyer",
+      "adt_review_no_financials": "The ADT of {{entity_name}} is suspended: no financial statements — review the buyer",
+      "adt_review_stale_financials": "The ADT of {{entity_name}} is suspended: the financials are too old — review the buyer"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -2480,7 +2489,8 @@
       "submission": "Submission",
       "data": "Data",
       "contract": "Contract",
-      "validation": "Validation"
+      "validation": "Validation",
+      "adt": "ADT"
     },
     "due": {
       "days_one": "{{count}} day",
@@ -2582,7 +2592,16 @@
       "limit_validation_result_approved": "Your limit decision approved",
       "limit_validation_result_approved_modified": "Your limit decision approved with changes",
       "limit_validation_result_returned": "Your limit decision returned to you",
-      "limit_validation_result_rejected": "Your limit decision rejected"
+      "limit_validation_result_rejected": "Your limit decision rejected",
+      "adt_review": "Buyer review / renew the ADT",
+      "adt_review_exhausted": "ADT used up — review the buyer, renew the ADT",
+      "adt_review_downgrade": "ADT suspended: rating downgraded — review the buyer",
+      "adt_review_open_noa": "ADT suspended: overdue notification — review the buyer",
+      "adt_review_claims": "ADT suspended: claims — review the buyer",
+      "adt_review_limit_revoked": "ADT suspended: limit revoked — review the buyer",
+      "adt_review_manual_block": "ADT suspended: auto decisions banned — review the buyer",
+      "adt_review_no_financials": "ADT suspended: no financials — review the buyer",
+      "adt_review_stale_financials": "ADT suspended: financials too old — review the buyer"
     },
     "facts": {
       "policies_one": "{{count}} policy",
@@ -2698,7 +2717,8 @@
         "proposals": "Proposed buyers",
         "payments": "Payments",
         "offer": "Commercial offer",
-        "validation": "Validation"
+        "validation": "Validation",
+        "adt": "ADT"
       },
       "with": {
         "task": "with this task’s context",
@@ -2931,7 +2951,14 @@
         "data_entity_request_assigned": "Request assigned",
         "data_entity_request_resolved": "Request resolved",
         "limit_validation_requested": "Sent for validation",
-        "limit_validation_resolved": "Validation answered"
+        "limit_validation_resolved": "Validation answered",
+        "adt_set": "ADT set",
+        "adt_disabled": "ADT disabled",
+        "adt_blocked": "Auto decisions banned",
+        "adt_unblocked": "Ban on auto decisions lifted",
+        "adt_suspended": "ADT suspended",
+        "adt_exhausted": "ADT used up",
+        "limit_auto_decided": "Limit decided automatically (ADT)"
       }
     },
     "keys": {

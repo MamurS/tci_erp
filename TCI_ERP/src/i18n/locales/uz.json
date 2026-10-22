@@ -2334,7 +2334,8 @@
       "offer_expiring": "Taklif muddati tugamoqda",
       "offer_expired": "Taklif muddati o‘tdi",
       "limit_validation": "Limitni tasdiqlash",
-      "limit_validation_result": "Tasdiqlash natijasi"
+      "limit_validation_result": "Tasdiqlash natijasi",
+      "adt_review": "Bayerni qayta ko‘rib chiqish / ADTni yangilash"
     },
     "tasks": {
       "buyer_needs_entity": "{{subject}} arizasidagi «{{name}}» ortidagi tashkilotni aniqlang",
@@ -2381,7 +2382,15 @@
       "limit_validation_result_approved": "{{entity_name}} uchun limit qaroringiz tasdiqlandi — {{validator_name}}",
       "limit_validation_result_approved_modified": "{{entity_name}} uchun limit qaroringiz o‘zgartirib tasdiqlandi — {{validator_name}}",
       "limit_validation_result_returned": "{{entity_name}} uchun limit qaroringiz qayta ishlashga qaytarildi — {{validator_name}}",
-      "limit_validation_result_rejected": "{{entity_name}} uchun limit qaroringiz rad etildi — {{validator_name}}"
+      "limit_validation_result_rejected": "{{entity_name}} uchun limit qaroringiz rad etildi — {{validator_name}}",
+      "adt_review_exhausted": "{{entity_name}} bayerining ADTsi tugadi — bayerni qayta ko‘rib chiqing va ADTni yangilang",
+      "adt_review_downgrade": "{{entity_name}} bayerining ADTsi to‘xtatildi: reyting pasaydi — bayerni qayta ko‘rib chiqing va ADTni yangilang",
+      "adt_review_open_noa": "{{entity_name}} bayerining ADTsi to‘xtatildi: muddati o‘tgan qarz xabarnomasi ochiq — bayerni qayta ko‘rib chiqing",
+      "adt_review_claims": "{{entity_name}} bayerining ADTsi to‘xtatildi: bayer bo‘yicha sug‘urta da’volari bor — bayerni qayta ko‘rib chiqing",
+      "adt_review_limit_revoked": "{{entity_name}} bayerining ADTsi to‘xtatildi: limit bekor qilingan — bayerni qayta ko‘rib chiqing",
+      "adt_review_manual_block": "{{entity_name}} bayerining ADTsi to‘xtatildi: avtomatik qarorlar taqiqlangan — bayerni qayta ko‘rib chiqing",
+      "adt_review_no_financials": "{{entity_name}} bayerining ADTsi to‘xtatildi: moliyaviy hisobot yo‘q — bayerni qayta ko‘rib chiqing",
+      "adt_review_stale_financials": "{{entity_name}} bayerining ADTsi to‘xtatildi: hisobot eskirgan — bayerni qayta ko‘rib chiqing"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
@@ -2480,7 +2489,8 @@
       "submission": "Ariza",
       "data": "Ma’lumot",
       "contract": "Shartnoma",
-      "validation": "Tasdiqlash"
+      "validation": "Tasdiqlash",
+      "adt": "ADT"
     },
     "due": {
       "days_one": "{{count}} kun",
@@ -2582,7 +2592,16 @@
       "limit_validation_result_approved": "Limit qaroringiz tasdiqlandi",
       "limit_validation_result_approved_modified": "Limit qaroringiz o‘zgartirib tasdiqlandi",
       "limit_validation_result_returned": "Limit qaroringiz qayta ishlashga qaytarildi",
-      "limit_validation_result_rejected": "Limit qaroringiz rad etildi"
+      "limit_validation_result_rejected": "Limit qaroringiz rad etildi",
+      "adt_review": "Bayerni qayta ko‘rib chiqish / ADTni yangilash",
+      "adt_review_exhausted": "ADT tugadi — bayerni qayta ko‘rib chiqish, ADTni yangilash",
+      "adt_review_downgrade": "ADT to‘xtatildi: reyting pasaydi — bayerni qayta ko‘rib chiqish",
+      "adt_review_open_noa": "ADT to‘xtatildi: xabarnoma ochiq — bayerni qayta ko‘rib chiqish",
+      "adt_review_claims": "ADT to‘xtatildi: sug‘urta da’volari — bayerni qayta ko‘rib chiqish",
+      "adt_review_limit_revoked": "ADT to‘xtatildi: limit bekor qilingan — bayerni qayta ko‘rib chiqish",
+      "adt_review_manual_block": "ADT to‘xtatildi: avtomatik qarorlar taqiqlangan — bayerni qayta ko‘rib chiqish",
+      "adt_review_no_financials": "ADT to‘xtatildi: hisobot yo‘q — bayerni qayta ko‘rib chiqish",
+      "adt_review_stale_financials": "ADT to‘xtatildi: hisobot eskirgan — bayerni qayta ko‘rib chiqish"
     },
     "facts": {
       "policies_one": "{{count}} ta polis",
@@ -2698,7 +2717,8 @@
         "proposals": "Taklif qilingan bayerlar",
         "payments": "To‘lovlar",
         "offer": "Tijorat taklifi",
-        "validation": "Tasdiqlash"
+        "validation": "Tasdiqlash",
+        "adt": "ADT"
       },
       "with": {
         "task": "shu vazifa konteksti bilan",
@@ -2931,7 +2951,14 @@
         "data_entity_request_assigned": "So‘rov ijrochiga berildi",
         "data_entity_request_resolved": "So‘rov bajarildi",
         "limit_validation_requested": "Tasdiqlash uchun yuborildi",
-        "limit_validation_resolved": "Tasdiqlash yakunlandi"
+        "limit_validation_resolved": "Tasdiqlash yakunlandi",
+        "adt_set": "ADT belgilandi",
+        "adt_disabled": "ADT o‘chirildi",
+        "adt_blocked": "Avtomatik qarorlar taqiqlandi",
+        "adt_unblocked": "Avtomatik qarorlar taqig‘i olib tashlandi",
+        "adt_suspended": "ADT to‘xtatildi",
+        "adt_exhausted": "ADT tugadi",
+        "limit_auto_decided": "Limit avtomatik hal qilindi (ADT)"
       }
     },
     "keys": {

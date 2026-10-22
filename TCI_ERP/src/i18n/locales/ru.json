@@ -2340,7 +2340,8 @@
       "offer_expiring": "Истекает срок КП",
       "offer_expired": "Срок КП истёк",
       "limit_validation": "Валидация лимита",
-      "limit_validation_result": "Результат валидации"
+      "limit_validation_result": "Результат валидации",
+      "adt_review": "Пересмотр байера / обновить ADT"
     },
     "tasks": {
       "buyer_needs_entity": "Определить организацию за «{{name}}» в заявке {{subject}}",
@@ -2387,7 +2388,15 @@
       "limit_validation_result_approved": "Ваше решение по лимиту для {{entity_name}} утверждено — {{validator_name}}",
       "limit_validation_result_approved_modified": "Ваше решение по лимиту для {{entity_name}} утверждено с изменениями — {{validator_name}}",
       "limit_validation_result_returned": "Ваше решение по лимиту для {{entity_name}} возвращено на доработку — {{validator_name}}",
-      "limit_validation_result_rejected": "Ваше решение по лимиту для {{entity_name}} отклонено — {{validator_name}}"
+      "limit_validation_result_rejected": "Ваше решение по лимиту для {{entity_name}} отклонено — {{validator_name}}",
+      "adt_review_exhausted": "ADT байера {{entity_name}} исчерпан — пересмотрите байера и обновите ADT",
+      "adt_review_downgrade": "ADT байера {{entity_name}} приостановлен: рейтинг понижен — пересмотрите байера и обновите ADT",
+      "adt_review_open_noa": "ADT байера {{entity_name}} приостановлен: открыто уведомление о просрочке — пересмотрите байера",
+      "adt_review_claims": "ADT байера {{entity_name}} приостановлен: по байеру есть претензии — пересмотрите байера",
+      "adt_review_limit_revoked": "ADT байера {{entity_name}} приостановлен: лимит отозван — пересмотрите байера",
+      "adt_review_manual_block": "ADT байера {{entity_name}} приостановлен: авторешения запрещены — пересмотрите байера",
+      "adt_review_no_financials": "ADT байера {{entity_name}} приостановлен: нет финансовой отчётности — пересмотрите байера",
+      "adt_review_stale_financials": "ADT байера {{entity_name}} приостановлен: отчётность устарела — пересмотрите байера"
     },
     "empty": {
       "title": "Вас ничего не ждёт",
@@ -2486,7 +2495,8 @@
       "submission": "Заявка",
       "data": "Данные",
       "contract": "Договор",
-      "validation": "Валидация"
+      "validation": "Валидация",
+      "adt": "ADT"
     },
     "due": {
       "days_one": "{{count}} день",
@@ -2588,7 +2598,16 @@
       "limit_validation_result_approved": "Ваше решение по лимиту утверждено",
       "limit_validation_result_approved_modified": "Ваше решение по лимиту утверждено с изменениями",
       "limit_validation_result_returned": "Ваше решение по лимиту возвращено на доработку",
-      "limit_validation_result_rejected": "Ваше решение по лимиту отклонено"
+      "limit_validation_result_rejected": "Ваше решение по лимиту отклонено",
+      "adt_review": "Пересмотр байера / обновить ADT",
+      "adt_review_exhausted": "ADT исчерпан — пересмотр байера, обновить ADT",
+      "adt_review_downgrade": "ADT приостановлен: рейтинг понижен — пересмотр байера",
+      "adt_review_open_noa": "ADT приостановлен: уведомление о просрочке — пересмотр байера",
+      "adt_review_claims": "ADT приостановлен: претензии — пересмотр байера",
+      "adt_review_limit_revoked": "ADT приостановлен: лимит отозван — пересмотр байера",
+      "adt_review_manual_block": "ADT приостановлен: авторешения запрещены — пересмотр байера",
+      "adt_review_no_financials": "ADT приостановлен: нет отчётности — пересмотр байера",
+      "adt_review_stale_financials": "ADT приостановлен: отчётность устарела — пересмотр байера"
     },
     "facts": {
       "policies_one": "{{count}} полис",
@@ -2704,7 +2723,8 @@
         "proposals": "Предложенные байеры",
         "payments": "Платежи",
         "offer": "Коммерческое предложение",
-        "validation": "Валидация"
+        "validation": "Валидация",
+        "adt": "ADT"
       },
       "with": {
         "task": "с контекстом этой задачи",
@@ -2937,7 +2957,14 @@
         "data_entity_request_assigned": "Запрос передан исполнителю",
         "data_entity_request_resolved": "Запрос выполнен",
         "limit_validation_requested": "Отправлено на валидацию",
-        "limit_validation_resolved": "Валидация завершена"
+        "limit_validation_resolved": "Валидация завершена",
+        "adt_set": "Установлен ADT",
+        "adt_disabled": "ADT отключён",
+        "adt_blocked": "Авторешения запрещены",
+        "adt_unblocked": "Запрет авторешений снят",
+        "adt_suspended": "ADT приостановлен",
+        "adt_exhausted": "ADT исчерпан",
+        "limit_auto_decided": "Лимит решён автоматически (ADT)"
       }
     },
     "keys": {

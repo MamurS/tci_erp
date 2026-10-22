@@ -11,6 +11,7 @@
  *   /limits/:id?focus=decision|commercial         the decision / commercial form
  *   /limits/:id?focus=validation                  the validator's panel (0060)
  *   /entities/:id?tab=rating&statement=<id>       Rating & limit, statement preselected
+ *   /entities/:id?tab=rating&focus=adt            the buyer's ADT block (0061)
  *   /entities/:id?tab=group|limits                the group / limits tab
  *   /policies/:id?tab=premium&instalments=a,b     the Premium tab, those instalments only
  *   /overdues/:id?action=open-claim               the notice, the open-claim dialog open
@@ -116,6 +117,18 @@ const rating: Builder = (_row, lead, names) => {
         : undefined,
   }
 }
+
+/** «Пересмотр байера / обновить ADT» (0061): the ADT block on the rating
+ * tab, where the ADT is set again or disabled — either closes the task. */
+const adtReview: Builder = (_row, lead, names) => ({
+  path: `/entities/${str(lead.params?.entity_id) ?? lead.object_id}?tab=rating&focus=adt`,
+  action: 'review',
+  crumbs: [
+    { key: 'nav.entities' },
+    named({ subject: names.subject ?? str(lead.params?.entity_name) }, 'agenda.dest.company'),
+    { key: 'agenda.dest.place.adt' },
+  ],
+})
 
 const entityTab =
   (tab: 'group' | 'limits', action: ActionKey): Builder =>
@@ -282,6 +295,7 @@ export const DESTINATIONS: Readonly<Record<TaskType, Builder>> = {
   offer_expired: offer('review'),
   limit_validation: validation,
   limit_validation_result: validation,
+  adt_review: adtReview,
   entity_request_resolved: (row, lead, names) => {
     const entityId = str(lead.params?.entity_id)
     return entityId
