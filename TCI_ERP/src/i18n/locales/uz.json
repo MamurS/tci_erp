@@ -2510,7 +2510,11 @@
           "currency": "Yangi hisobot boshqa valyutada, shuning uchun ko‘rsatkichlar solishtirilmaydi."
         },
         "nothingMoved": "Asosiy ko‘rsatkichlarda sezilarli o‘zgarish yo‘q.",
-        "notHere": "Reyting bu yerda emas, reyting sahifasida qayta hisoblanadi."
+        "notHere": "Reyting bu yerda emas, reyting sahifasida qayta hisoblanadi.",
+        "cfoNegative_one": "CFO ketma-ket {{count}} davr manfiy",
+        "cfoNegative_other": "CFO ketma-ket {{count}} davr manfiy",
+        "cfoNegative_few": "CFO ketma-ket {{count}} davr manfiy",
+        "cfoNegative_many": "CFO ketma-ket {{count}} davr manfiy"
       },
       "premium": {
         "title": "Mukofot to‘lovlari",

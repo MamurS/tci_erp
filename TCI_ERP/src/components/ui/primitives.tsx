@@ -359,7 +359,7 @@ export function Segmented({ value, options, onChange, ariaLabel, tone = 'default
           className={`rounded-[5px] px-2.5 py-1 text-xs font-semibold transition-colors ${
             option.key === value
               ? 'bg-white text-accent-600 shadow-sm ring-1 ring-slate-200'
-              : 'text-slate-500 hover:text-slate-800'
+              : 'text-slate-600 hover:text-slate-900'
           } ${option.disabled ? 'cursor-not-allowed opacity-50' : ''}`}
         >
           {option.label}

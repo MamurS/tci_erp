@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { BalanceSheetValues, IncomeStatementValues, StatementBundle } from '../../entities/types'
 import { emptyBalanceSheet, emptyIncomeStatement } from '../../entities/types'
-import { authorityState, movedChipText, num, otherLimitsInForce, whatMoved } from './figures'
+import { authorityState, movedChipText, negativeCfoStreak, num, otherLimitsInForce, whatMoved } from './figures'
 import type { LimitLike } from './figures'
 
 describe('authorityState', () => {
@@ -146,5 +146,29 @@ describe('whatMoved', () => {
       comparable: false,
       reason: 'currency',
     })
+  })
+})
+
+describe('negativeCfoStreak', () => {
+  // With no balance-sheet movements the derived operating cash flow follows
+  // net profit, so a loss year is a negative-CFO year.
+  const series = (profits: number[]) => profits.map((p, i) => stmt(2021 + i, { net_profit: p }))
+
+  it('counts the consecutive negative years up to the latest statement', () => {
+    const all = series([10, -5, -5, -5])
+    expect(negativeCfoStreak(all[3]!, all)).toBe(3)
+    expect(negativeCfoStreak(all[2]!, all)).toBe(2)
+  })
+
+  it('is 0 when the latest year is positive or cannot be derived', () => {
+    const all = series([-5, -5, 10])
+    expect(negativeCfoStreak(all[2]!, all)).toBe(0)
+    // the first year has no year before it: no derived CFO
+    expect(negativeCfoStreak(all[0]!, all)).toBe(0)
+  })
+
+  it('ignores statements of another kind', () => {
+    const all = [...series([-5, -5]), stmt(2022, { net_profit: 50 }, {}, { statement_kind: 'quarterly', fiscal_quarter: 2 })]
+    expect(negativeCfoStreak(all[1]!, all)).toBe(1)
   })
 })

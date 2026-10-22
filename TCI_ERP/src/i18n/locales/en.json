@@ -2510,7 +2510,11 @@
           "currency": "The new statement is in another currency, so the figures are not compared."
         },
         "nothingMoved": "No material change in the key figures.",
-        "notHere": "The rating itself is recalculated on the rating page, not here."
+        "notHere": "The rating itself is recalculated on the rating page, not here.",
+        "cfoNegative_one": "CFO negative {{count}} period running",
+        "cfoNegative_other": "CFO negative {{count}} periods running",
+        "cfoNegative_few": "CFO negative {{count}} periods running",
+        "cfoNegative_many": "CFO negative {{count}} periods running"
       },
       "premium": {
         "title": "Instalments",

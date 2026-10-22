@@ -80,7 +80,7 @@ export function Header({ onOpenPalette, toggleSlot, onShowSidebar, sidebarId }: 
         type="button"
         onClick={onOpenPalette}
         aria-label={t('palette.trigger')}
-        className="flex h-9 shrink-0 items-center gap-2.5 rounded-md border border-slate-200 bg-slate-50 px-2.5 text-left text-sm text-slate-400 transition-colors hover:border-slate-300 hover:bg-white sm:w-full sm:max-w-md sm:shrink sm:px-3"
+        className="flex h-9 shrink-0 items-center gap-2.5 rounded-md border border-slate-200 bg-slate-50 px-2.5 text-left text-sm text-slate-600 transition-colors hover:border-slate-300 hover:bg-white sm:w-full sm:max-w-md sm:shrink sm:px-3"
       >
         <Search className="size-4" />
         <span className="hidden flex-1 truncate sm:inline">{t('palette.trigger')}</span>
@@ -105,7 +105,7 @@ export function Header({ onOpenPalette, toggleSlot, onShowSidebar, sidebarId }: 
           </span>
           <span className="hidden max-w-[220px] flex-col items-start leading-tight md:flex">
             <span className="w-full truncate text-[13px] font-semibold text-slate-800">{email}</span>
-            <span className="w-full truncate text-[11px] text-slate-400">
+            <span className="w-full truncate text-[11px] text-slate-500">
               {roles.length ? roles.map((r) => t(`roles.${r}`)).join(' · ') : t('roles.unassigned')}
             </span>
           </span>
