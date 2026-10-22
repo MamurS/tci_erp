@@ -633,6 +633,33 @@ is fine for internal test accounts and not fine for customers.
   trigger fingerprint-identical to a local replay; the whole
   `tests/db/limit_validation.sql` run on canonical with role impersonation
   and rolled back, counts unchanged
+- [x] Auto decisions — ADT (migration 0061, Euler Hermes / Allianz Trade
+  practice): a credit underwriter sets, at a buyer's review and within their
+  own authority for the buyer's rating band, the buyer's AUTO DECISION
+  THRESHOLD — the largest single auto decision and how many
+  (`tci.buyer_adt`, one live row per buyer, replaced never edited; the
+  counter is the BUYER's, shared across policyholders, one charged per
+  decision whatever the amount). A SUBMITTED limit request is decided
+  automatically only when ALL hold: the global switch
+  (`workflow_settings.auto_decisions_enabled`, **OFF**) is on, the ADT is
+  active with decisions left, the policy is active, the amount ≤ the ADT
+  amount and ≤ the recommended limit, and no stop factor (open NOA, claim,
+  revoked limit, manual ban, stale/missing financials, group limit). The
+  auto decision is approved for the requested amount on the policy's maximum
+  payment terms, released AT ONCE (no commercial stage, no sales window),
+  system-made (`limits.auto.adt`, «Авторешение (ADT)»); anything else goes
+  to an underwriter with the reasons recorded (`tci.auto_decision_attempts`).
+  Used up, a downgrade below the ADT's band, a stop factor or stale
+  financials suspend it and open `adt_review` («Пересмотр байера / обновить
+  ADT») through a tenth trigger. Buyer card ADT block, «Авторешения» view
+  of the credit workbench, the switch on Admin › Полномочия; credit desk and
+  admin only — sales, commercial underwriting and clients never see an ADT.
+  **Canonical: 0061 applied 2026-10-22** in four `execute_sql` parts
+  (`refresh_agenda` rebuilt server-side from its 0058 body plus one call,
+  md5-checked), every 0061 function, grant, column, constraint, index,
+  policy, view and trigger fingerprint-identical to a local replay; the
+  whole `tests/db/auto_decisions.sql` run on canonical with role
+  impersonation and rolled back, counts unchanged, switch still OFF
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1583,6 +1610,48 @@ untouched.
 request is on validation and with whom (`limit_request_validation_state`).
 No API role writes the table; a BEFORE UPDATE trigger lets only the
 resolution columns of a pending step change, once.
+
+### Auto decision (ADT) rules (migration 0061)
+
+**Off until the owner switches it on.** `try_auto_decision` returns
+`disabled` and records nothing while `auto_decisions_enabled` is false;
+switch it on (`set_auto_decision_settings`, admin) only after the rating
+engine is calibrated and the analytics service is hosted. Every save sends
+the switch explicitly: the function reads a missing value as OFF.
+
+**All conditions or nothing.** The rule (`tci.try_auto_decision`, called by
+`handle_adt_event` on `limit.request_submitted`, a trigger named to fire
+AFTER the Agenda mapping) collects EVERY failing reason
+(`limits.auto.reasons.*`) instead of stopping at the first, writes them to
+`auto_decision_attempts`, and leaves the request `submitted` for an
+underwriter. There is no partial auto decision: above the ADT amount or the
+recommended limit is a reason, never a reduction. Amounts are compared in
+UZS; a missing rate is `fx_missing`, never a pass.
+
+**The ADT is set within authority and replaced, never edited.**
+`set_buyer_adt` takes the band from the buyer's latest rating and refuses
+`adt_beyond_authority` above the setter's `my_authority_uzs(band)` (admin
+unlimited); the previous live row becomes `replaced`. `disable_buyer_adt`
+ends it; `set_buyer_adt_block` bans auto decisions with a reason and
+suspends the live ADT. Used = decisions with that `adt_id`, counted, never
+a stored counter.
+
+**Suspension is decided from facts.** `recheck_buyer_adt` runs on
+`rating.created`, `noa.filed`, `claim.created`, before every evaluation,
+and lazily from `refresh_agenda` (stale financials are a matter of time —
+no cron); a band WORSE than the one it was set at, or any stop factor,
+suspends it with the first reason and opens `adt_review`, which closes on
+`adt.set` / `adt.disabled`.
+
+**The auto decision is an ordinary decision row.** Approved, the policy's
+`max_payment_terms_days`, valid `adt_limit_validity_months`,
+`decided_by = null`, `system_generated`, `system_reason_key =
+'limits.auto.adt'`, `released_at = now()`, `release_kind = 'immediate'`,
+`adt_id`; it supersedes the scope's effective decisions like
+`decide_limit_request` and closes the request's Agenda tasks. Staff see the
+mark «Авторешение (ADT)»; the parameters, attempts and report
+(`v_auto_decisions`, security invoker) are RLS-limited to admin and credit
+underwriting, and every ADT function refuses other roles with `42501`.
 
 ### Credit workbench rules (migration 0053)
 
