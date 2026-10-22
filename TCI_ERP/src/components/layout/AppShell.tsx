@@ -4,8 +4,9 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { CommandPalette } from './CommandPalette'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
+import { SidebarToggle } from './SidebarToggle'
 import { isPaletteShortcut } from './commandPalette'
-import { SIDEBAR_KEY, isSidebarShortcut, parseSidebarState } from './shell'
+import { PEEK_CLOSE_MS, PEEK_OPEN_MS, SIDEBAR_KEY, isSidebarShortcut, parseSidebarState } from './shell'
 import type { SidebarState } from './shell'
 import { PageLoading } from './PageLoading'
 import { SignInNotice } from '../../auth/SignInNotice'
@@ -84,30 +85,52 @@ function useIsDesktop(): boolean {
   return matches
 }
 
+/** id of the navigation panel, for the toggle's aria-controls. */
+const SIDEBAR_ID = 'app-sidebar'
+
 /**
- * The staff frame, with the sidebar of the Claude app. On a desktop the
- * sidebar is docked or hidden (remembered per browser). Hidden, only its
- * toggle is left, in the top-left corner; resting the pointer on it slides
- * the panel out — square and full height exactly as when docked, over the
- * top bar — with the toggle not moving at all and no name beside it.
- * Clicking the toggle docks the panel; leaving it puts the panel away.
- * Nothing else opens it — no edge strip, no pin.
- * Below 1024px it is a drawer. Ctrl/⌘ B toggles it, Ctrl/⌘ K opens the
+ * The staff frame, with the sidebar of the Claude app. On a desktop the panel
+ * is pinned or hidden (remembered per browser), and its toggle is ONE button
+ * in a fixed layer above everything, 20px in and centred in the 64px top row,
+ * in every state — it never moves and never changes size; only its colours
+ * follow what is behind it (navy panel or white top bar).
+ *
+ * Hidden, resting the pointer on the toggle or on the 8px strip at the left
+ * window edge for PEEK_OPEN_MS shows the whole panel over the content (the
+ * page does not move); it goes away PEEK_CLOSE_MS after the pointer has left
+ * both, on Esc, and on a click outside. Clicking the toggle while peeking pins
+ * the panel where it is. Nothing is animated: pin, unpin and peek are instant.
+ * Below 1024px the panel is a drawer. Ctrl/⌘ B toggles it, Ctrl/⌘ K opens the
  * command palette.
  */
 export function AppShell() {
   const isDesktop = useIsDesktop()
   const [docked, setDocked] = useState<SidebarState>(readSidebar)
-  const [overlayOpen, setOverlayOpen] = useState(false)
+  const [peeking, setPeeking] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const [paletteOpen, setPaletteOpen] = useState(false)
-  const leaveTimer = useRef<number | undefined>(undefined)
+  const openTimer = useRef<number | undefined>(undefined)
+  const closeTimer = useRef<number | undefined>(undefined)
+  const peekRef = useRef<HTMLDivElement>(null)
+  const toggleRef = useRef<HTMLDivElement>(null)
   const { pathname } = useLocation()
   const { workspace, switchTo } = useWorkspace(pathname)
   const workspaceProps = { workspace, onSwitchWorkspace: switchTo }
 
+  const pinned = isDesktop && docked === 'open'
+  const collapsed = isDesktop && docked === 'closed'
+  const showPeek = collapsed && peeking
+
+  const clearTimers = () => {
+    window.clearTimeout(openTimer.current)
+    window.clearTimeout(closeTimer.current)
+  }
+
   const dock = useCallback((next: SidebarState) => {
+    window.clearTimeout(openTimer.current)
+    window.clearTimeout(closeTimer.current)
     setDocked(next)
-    setOverlayOpen(false)
+    setPeeking(false)
     try {
       window.localStorage.setItem(SIDEBAR_KEY, next)
     } catch {
@@ -115,15 +138,44 @@ export function AppShell() {
     }
   }, [])
 
-  const showDocked = isDesktop && docked === 'open'
-
   const toggle = useCallback(() => {
     if (isDesktop) dock(docked === 'open' ? 'closed' : 'open')
-    else setOverlayOpen((v) => !v)
+    else setDrawerOpen((v) => !v)
   }, [isDesktop, docked, dock])
 
-  // A drawer never outlives the page it was opened on.
-  useEffect(() => setOverlayOpen(false), [pathname])
+  // Hover intent: open after a short rest, so passing over the corner does
+  // not flash the panel; close a little after the pointer has left.
+  const schedulePeek = () => {
+    if (!collapsed) return
+    window.clearTimeout(closeTimer.current)
+    if (peeking) return
+    window.clearTimeout(openTimer.current)
+    openTimer.current = window.setTimeout(() => setPeeking(true), PEEK_OPEN_MS)
+  }
+  const scheduleUnpeek = () => {
+    clearTimers()
+    closeTimer.current = window.setTimeout(() => setPeeking(false), PEEK_CLOSE_MS)
+  }
+
+  useEffect(() => () => clearTimers(), [])
+
+  // A peek or a drawer never outlives the page it was opened on.
+  useEffect(() => {
+    setPeeking(false)
+    setDrawerOpen(false)
+  }, [pathname])
+
+  // A click anywhere but the panel and its toggle puts the peek away.
+  useEffect(() => {
+    if (!showPeek) return
+    const onDown = (e: MouseEvent) => {
+      const target = e.target as Node
+      if (peekRef.current?.contains(target) || toggleRef.current?.contains(target)) return
+      setPeeking(false)
+    }
+    window.addEventListener('mousedown', onDown)
+    return () => window.removeEventListener('mousedown', onDown)
+  }, [showPeek])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -134,66 +186,76 @@ export function AppShell() {
         e.preventDefault()
         toggle()
       } else if (e.key === 'Escape') {
-        setOverlayOpen(false)
+        setPeeking(false)
+        setDrawerOpen(false)
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [toggle])
 
-  const peek = () => {
-    window.clearTimeout(leaveTimer.current)
-    if (isDesktop && !showDocked) setOverlayOpen(true)
-  }
-  const unpeek = () => {
-    if (!isDesktop) return
-    window.clearTimeout(leaveTimer.current)
-    leaveTimer.current = window.setTimeout(() => setOverlayOpen(false), 220)
-  }
-
   return (
     <div className="flex min-h-screen">
-      {showDocked && (
-        <div className="sticky top-0 z-40 h-screen shrink-0 animate-[slide-in_160ms_ease-out]">
-          <Sidebar variant="docked" onToggle={() => dock('closed')} {...workspaceProps} />
-        </div>
-      )}
-
-      {!showDocked && isDesktop && (
-        // The peek: the same square, full-height panel as docked, flush with
-        // the left edge and over the top bar, its toggle exactly under the
-        // pointer. It is inert while put away.
+      {isDesktop && (
+        // The one toggle. It comes BEFORE the panel in the document, so Tab
+        // goes from it straight into the menu while the panel is shown.
         <div
-          className={`fixed inset-y-0 left-0 z-50 transition-transform duration-200 ease-out ${
-            overlayOpen ? 'translate-x-0 shadow-2xl shadow-accent-900/40' : 'pointer-events-none -translate-x-full'
-          }`}
-          onMouseEnter={peek}
-          onMouseLeave={unpeek}
-          inert={!overlayOpen}
+          ref={toggleRef}
+          className="fixed top-3.5 left-5 z-[60]"
+          onMouseEnter={schedulePeek}
+          onMouseLeave={collapsed ? scheduleUnpeek : undefined}
         >
-          <Sidebar variant="peek" onToggle={() => dock('open')} onToggleEnter={peek} {...workspaceProps} />
+          <SidebarToggle
+            action={pinned ? 'hide' : 'show'}
+            tone={pinned || showPeek ? 'inverse' : 'plain'}
+            expanded={pinned || showPeek}
+            controls={SIDEBAR_ID}
+            onClick={() => dock(pinned ? 'closed' : 'open')}
+          />
         </div>
       )}
 
-      {!showDocked && !isDesktop && (
+      {pinned && (
+        <div className="sticky top-0 z-40 h-screen shrink-0">
+          <Sidebar id={SIDEBAR_ID} variant="docked" {...workspaceProps} />
+        </div>
+      )}
+
+      {collapsed && !showPeek && (
+        // The hot strip along the left window edge.
+        <div aria-hidden className="fixed inset-y-0 left-0 z-[45] w-2" onMouseEnter={schedulePeek} onMouseLeave={scheduleUnpeek} />
+      )}
+
+      {showPeek && (
+        // The same panel as pinned, flush with the left edge and over the
+        // top bar and the content, which do not move.
+        <div
+          ref={peekRef}
+          className="fixed inset-y-0 left-0 z-50 shadow-2xl shadow-accent-900/40"
+          onMouseEnter={schedulePeek}
+          onMouseLeave={scheduleUnpeek}
+          onBlur={(e) => {
+            const next = e.relatedTarget as Node | null
+            if (next && !peekRef.current?.contains(next) && !toggleRef.current?.contains(next)) setPeeking(false)
+          }}
+        >
+          <Sidebar id={SIDEBAR_ID} variant="peek" {...workspaceProps} />
+        </div>
+      )}
+
+      {!isDesktop && drawerOpen && (
         <>
-          {overlayOpen && (
-            <div
-              className="animate-fade-in fixed inset-0 z-40 bg-accent-900/40 backdrop-blur-[2px]"
-              onClick={() => setOverlayOpen(false)}
-              aria-hidden="true"
-            />
-          )}
           <div
-            className={`fixed inset-y-0 left-0 z-50 transition-transform duration-200 ease-out ${
-              overlayOpen ? 'translate-x-0 shadow-2xl shadow-accent-900/40' : '-translate-x-full'
-            }`}
-            inert={!overlayOpen}
-          >
+            className="fixed inset-0 z-40 bg-accent-900/40 backdrop-blur-[2px]"
+            onClick={() => setDrawerOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="fixed inset-y-0 left-0 z-50 shadow-2xl shadow-accent-900/40">
             <Sidebar
+              id={SIDEBAR_ID}
               variant="drawer"
-              onToggle={() => setOverlayOpen(false)}
-              onNavigate={() => setOverlayOpen(false)}
+              onToggle={() => setDrawerOpen(false)}
+              onNavigate={() => setDrawerOpen(false)}
               {...workspaceProps}
             />
           </div>
@@ -203,10 +265,9 @@ export function AppShell() {
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
           onOpenPalette={() => setPaletteOpen(true)}
-          sidebarHidden={!showDocked}
-          onShowSidebar={() => (isDesktop ? dock('open') : setOverlayOpen(true))}
-          onPeekSidebar={isDesktop ? peek : undefined}
-          onUnpeekSidebar={isDesktop ? unpeek : undefined}
+          toggleSlot={pinned ? 'none' : isDesktop ? 'spacer' : 'button'}
+          onShowSidebar={() => setDrawerOpen(true)}
+          sidebarId={SIDEBAR_ID}
         />
         <main className="mx-auto w-full max-w-[1480px] flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-7">
           <SignInNotice accountPath="/account" />

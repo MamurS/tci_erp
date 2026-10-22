@@ -414,7 +414,7 @@ is fine for internal test accounts and not fine for customers.
   ratio tables with % change, commentary, glossary, group structure, page
   x of y). The NAME on every screen and report is the neutral "TCI ERP"
   from `src/lib/brand.ts`, never an insurer's or Delcreda's. Second pass:
-  Claude-style hideable sidebar (docked / hidden / hover-peek / drawer,
+  Claude-style hideable sidebar (docked / hidden / hover-peek / drawer — since Prompt 24 one fixed toggle that never moves and no animation, `e2e/shell/sidebar.spec.ts`;
   Ctrl/⌘ B), lazily loaded pages and en/uz strings, SVG flags, a work-first
   dashboard (KPI strip + own Agenda + non-zero signals), and the company
   card's **Overview tab is the online risk report** (same `RiskReportBody`

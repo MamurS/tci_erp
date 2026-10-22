@@ -1,13 +1,12 @@
 /**
  * The navigation panel: the role-workspace switcher, the shared tools, then
  * the current workspace's own tools (workspaces.ts). As in the Claude app it
- * is either there or gone. Docked, its top row carries the name on the left
- * and the hide toggle on the right. Hidden, only the toggle is left, in the
- * top-left corner of the top bar; resting the pointer on it slides the panel
- * out (the peek) — the same square, full-height panel as docked, flush with
- * the left edge — with the toggle staying exactly where it is and no name
- * beside it; clicking the toggle docks the panel. On small screens it is a
- * drawer.
+ * is either there or gone, never animated. Its top row reads
+ * [toggle] [TCI ERP]: on a desktop the toggle is NOT part of the panel — it
+ * lives in a fixed layer above it (AppShell) so it never moves — and the row
+ * keeps a blank of the toggle's exact size where it sits. Pinned, the panel
+ * is in the page flow; peeking, the same panel floats over the content. On
+ * small screens it is a drawer carrying its own toggle in that same spot.
  */
 
 import { NavLink } from 'react-router-dom'
@@ -28,16 +27,14 @@ import type { WorkspaceKey } from './workspaces'
 
 interface SidebarProps {
   /**
-   * docked: in the page flow; peek: the floating card shown while the
-   * pointer rests on the top-left toggle of a hidden panel; drawer: the
-   * small-screen overlay.
+   * docked: pinned, in the page flow; peek: the same panel over the content
+   * while a hidden panel is hovered; drawer: the small-screen overlay.
    */
   variant: 'docked' | 'peek' | 'drawer'
-  /** The top-row toggle: hide (docked), dismiss (drawer), dock (peek). */
-  onToggle: () => void
-  /** Pointer handlers of the peek's toggle, so the card stays while it is rested on. */
-  onToggleEnter?: () => void
-  onToggleLeave?: () => void
+  /** id the fixed toggle points at (aria-controls). */
+  id?: string
+  /** The drawer's own toggle: dismisses it. */
+  onToggle?: () => void
   /** Called after a destination is chosen (closes a drawer). */
   onNavigate?: () => void
   /** The role workspace shown (null: the person has none — shared tools only). */
@@ -47,9 +44,8 @@ interface SidebarProps {
 
 export function Sidebar({
   variant,
+  id,
   onToggle,
-  onToggleEnter,
-  onToggleLeave,
   onNavigate,
   workspace,
   onSwitchWorkspace,
@@ -121,30 +117,21 @@ export function Sidebar({
 
   return (
     <aside
+      id={id}
       className="flex h-full w-64 flex-col bg-gradient-to-b from-accent-700 via-accent-800 to-accent-900 text-white"
       aria-label={t('nav.title')}
     >
-      {variant === 'peek' ? (
-        // Only the toggle, at the very spot of the top bar's (20px in,
-        // centred 32px down), so it does not move when the panel slides out
-        // under the pointer. The name appears once the panel is docked.
-        <div className="flex h-16 shrink-0 items-center border-b border-white/10 pr-3 pl-5">
-          <SidebarToggle
-            action="show"
-            tone="inverse"
-            onClick={onToggle}
-            onMouseEnter={onToggleEnter}
-            onMouseLeave={onToggleLeave}
-          />
+      <div className="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 pr-3 pl-5">
+        {variant === 'drawer' && onToggle ? (
+          <SidebarToggle action="hide" tone="inverse" expanded controls={id ?? ''} onClick={onToggle} />
+        ) : (
+          // The fixed toggle of AppShell sits exactly here (20px in, centred).
+          <span aria-hidden className="size-9 shrink-0" />
+        )}
+        <div className="flex min-w-0 flex-1 flex-col">
+          <BrandMark size="sm" inverse />
         </div>
-      ) : (
-        <div className="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 pr-3 pl-5">
-          <div className="flex min-w-0 flex-1 flex-col">
-            <BrandMark size="sm" inverse />
-          </div>
-          <SidebarToggle action="hide" tone="inverse" onClick={onToggle} />
-        </div>
-      )}
+      </div>
 
       {current && (
         <div className="shrink-0 border-b border-white/10 px-3 py-2.5">

@@ -61,21 +61,35 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
 
 ## App shell
 
-* **Sidebar, as in the Claude app (owner-specified details):** docked
-  (w-64) or hidden — never an icon rail. Docked, its top row is the name on
-  the left and the hide toggle on the right. Hidden, only the toggle is
-  left, in the top-left corner of the top bar (20px in, centred 32px down).
-  Resting the pointer on it slides the panel out: the SAME square,
-  full-height panel as docked, flush with the left edge, over the top bar —
-  its rows exactly where the docked panel has them, the toggle NOT moving
-  (same coordinates, measured headlessly) and NO name beside it; the name
-  appears only once the panel is docked. A click on the toggle docks the
-  panel, leaving the panel puts it away. Both toggles are `SidebarToggle`:
-  an icon with a dark tooltip naming the action and the shortcut. Nothing
-  else peeks it: no left-edge strip, no pin button. Ctrl/⌘ B toggles. Below
-  1024px it is a drawer with a backdrop that closes on navigation and on
-  Escape. The state is remembered per browser (`tci-erp-sidebar`). Logic:
-  `layout/shell.ts`.
+* **Sidebar, as in the Claude app (owner-specified details, Prompt 24):**
+  pinned (w-64) or hidden — never an icon rail, and NEVER animated: pin,
+  unpin and peek are instant (no slide, fade or width transition; the e2e
+  test asserts `transition-duration: 0s` and no animation on the panel and
+  its container).
+  * **One toggle that never moves.** On a desktop the toggle is a single
+    `SidebarToggle` in a fixed layer above everything (`AppShell`), 20px
+    in and centred in the 64px top row, in every state — pinned, hidden,
+    peeking. Only its colours follow what is behind it (light icon on the
+    navy panel, navy icon on the white top bar); same icon, hit area and
+    position. The panel's top row reads `[toggle] [TCI ERP]` and keeps a
+    blank of the toggle's size where the fixed button sits; hidden, the top
+    bar keeps the same blank.
+  * **Peek.** Hidden, resting the pointer on the toggle or on the 8px strip
+    along the left window edge for 100 ms (`PEEK_OPEN_MS`) shows the whole
+    panel — logo, workspace switcher, items, badges — over the content,
+    which does not move. It goes 300 ms (`PEEK_CLOSE_MS`) after the pointer
+    has left both the panel and the toggle, on Esc, and on a click outside.
+    A click on the toggle while peeking pins it in place.
+  * **Keyboard and a11y.** The toggle carries `aria-expanded` and
+    `aria-controls="app-sidebar"`, and comes before the panel in the
+    document, so Tab goes from it into the menu; Enter on it pins; focus is
+    never trapped. Ctrl/⌘ B pins and unpins. The tooltip («Показать меню» /
+    «Скрыть меню» + the shortcut) opens below the button, never over the
+    name.
+  * Below 1024px it is a drawer (no animation either) with a backdrop that
+    closes on navigation and on Escape, carrying its own toggle in the same
+    spot. The pinned state is remembered per browser (`tci-erp-sidebar`).
+    Logic: `layout/shell.ts`; acceptance: `e2e/shell/sidebar.spec.ts`.
 * **Role workspaces:** the top of the sidebar is the workspace switcher
   (icon, «Рабочее пространство», the workspace name; a list when the person
   has several). Below it «Общее» (dashboard, agenda, companies), then the
