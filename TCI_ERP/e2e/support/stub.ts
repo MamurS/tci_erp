@@ -27,6 +27,8 @@ export interface StubOptions {
   rows?: Record<string, unknown>
   /** The signed-in user; a stub id and e2e.user@demo.invalid by default. */
   user?: { id: string; email: string }
+  /** false: no session is seeded, so the app starts signed out (/login). */
+  signedIn?: boolean
   /** Answers a REST call before `rows` and the defaults (undefined: fall
    * through) — e.g. replaying recorded fixtures (e2e/layout/fixtures.ts). */
   respond?: (request: StubRequest) => StubReply | undefined
@@ -72,7 +74,15 @@ function fakeSession(id = STUB_USER_ID, email = 'e2e.user@demo.invalid') {
 }
 
 export async function stubBackend(context: BrowserContext, options: StubOptions = {}): Promise<void> {
-  const { lang = 'ru', roles = ['commercial_underwriter'], sidebar = 'open', rows = {}, user, respond } = options
+  const {
+    lang = 'ru',
+    roles = ['commercial_underwriter'],
+    sidebar = 'open',
+    rows = {},
+    user,
+    respond,
+    signedIn = true,
+  } = options
   const session = fakeSession(user?.id, user?.email)
 
   await context.addInitScript(
@@ -81,12 +91,12 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
       // and reloads must see what it chose.
       if (sessionStorage.getItem('e2e-seeded')) return
       sessionStorage.setItem('e2e-seeded', '1')
-      localStorage.setItem(key, value)
+      if (value) localStorage.setItem(key, value)
       localStorage.setItem('i18nextLng', language)
       localStorage.setItem('tci-erp-lang', language)
       localStorage.setItem('tci-erp-sidebar', side)
     },
-    [STORAGE_KEY, JSON.stringify(session), lang, sidebar] as const,
+    [STORAGE_KEY, signedIn ? JSON.stringify(session) : '', lang, sidebar] as const,
   )
 
   await context.route(`${STUB_URL}/auth/v1/**`, async (route) => {
