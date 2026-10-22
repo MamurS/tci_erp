@@ -12,7 +12,7 @@
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Card, ConfirmDialog, Spinner, SectionTitle } from '../../components/ui'
+import { Badge, Button, Card, ConfirmDialog, Spinner, SectionTitle } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { hasRole } from '../../lib/roles'
 import { useEntities, useLatestGrades } from '../entities/api'
@@ -169,8 +169,8 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
             <p className="mb-1.5 text-[12px] text-slate-500">{t('groups.tree.outsideHint')}</p>
             <ul className="flex flex-wrap gap-2">
               {outside.map((id) => (
-                <li key={id} className="rounded-full bg-slate-100 px-2.5 py-0.5 text-[13px] text-slate-700">
-                  {names.get(id) ?? id}
+                <li key={id}>
+                  <Badge>{names.get(id) ?? id}</Badge>
                 </li>
               ))}
             </ul>

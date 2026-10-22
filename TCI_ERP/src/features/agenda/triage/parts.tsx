@@ -7,7 +7,7 @@
 
 import type { ReactNode } from 'react'
 
-import { Skeleton } from '../../../components/ui'
+import { Skeleton, badgeClassName } from '../../../components/ui'
 
 export interface Figure {
   label: ReactNode
@@ -52,7 +52,7 @@ export function Dot({ tone }: { tone: 'pos' | 'neg' | 'warn' }) {
 export function StatusBadge({ tone, children }: { tone?: string; children: ReactNode }) {
   const dot = tone === 'warn' || tone === 'pos' || tone === 'neg' || tone === 'negStrong' ? tone : null
   return (
-    <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-slate-700 ring-1 ring-slate-200 ring-inset">
+    <span data-badge="sm" className={badgeClassName('sm', 'bg-slate-100 text-slate-700 ring-slate-200')}>
       {dot && <Dot tone={dot === 'negStrong' ? 'neg' : dot} />}
       {children}
     </span>
@@ -109,12 +109,9 @@ export function ChipList({ chips }: { chips: ChipItem[] }) {
   return (
     <ul className="flex flex-wrap gap-1.5">
       {chips.map((chip) => (
-        <li
-          key={chip.key}
-          className={`inline-flex items-center rounded-md px-2 py-1 text-[12.5px] font-medium ring-1 ring-inset tabular-nums ${CHIP_TONE[chip.tone ?? 'none']}`}
-        >
+        <li key={chip.key} data-badge="sm" title={chip.text} className={`${badgeClassName('sm', CHIP_TONE[chip.tone ?? 'none'])} tabular-nums`}>
           {chip.tone === 'pos' && <Dot tone="pos" />}
-          {chip.text}
+          <span className="min-w-0 truncate">{chip.text}</span>
         </li>
       ))}
     </ul>

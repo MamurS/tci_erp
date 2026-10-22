@@ -125,14 +125,8 @@ export function RequestDetailPage() {
   return (
     <div>
       <PageHeader
-        title={
-          <span className="inline-flex items-center gap-3">
-            <span className="num">{request.request_number}</span>
-            <Badge tone={statusTone(request.status)} size="lg">
-              {t(`requests.statuses.${request.status}`)}
-            </Badge>
-          </span>
-        }
+        title={<span className="num">{request.request_number}</span>}
+        status={<Badge tone={statusTone(request.status)}>{t(`requests.statuses.${request.status}`)}</Badge>}
         subtitle={
           <span>
             <Link to="/requests" className="text-accent-700 hover:underline">

@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Users, Zap } from 'lucide-react'
 
-import { ActionsMenu, Button, DateInput, Field, Modal, Textarea } from '../../components/ui'
+import { ActionsMenu, Button, DateInput, Field, Modal, Textarea, badgeClassName } from '../../components/ui'
 import { todayIso } from '../../components/ui/dateEntry'
 import { formatDue } from '../../lib/format'
 import { refusalKey } from '../../lib/refusals'
@@ -20,12 +20,13 @@ import { TAG_TONE, TASK_TAG } from './families'
 import { nextMonday, TASHKENT } from './snooze'
 import type { Task, TaskType } from './types'
 
-// Text stays ≥ 4.5:1: the amber token is too light for text on white, so
-// amber is the tag's fill and ring, never its letters.
+// The `sm` badge (DESIGN.md «Badges») in the Agenda's own tones. Text stays
+// ≥ 4.5:1: the amber token is too light for text on white, so amber is the
+// tag's fill and ring, never its letters.
 const TAG_CLASSES = {
-  neutral: 'bg-slate-100 text-slate-700',
-  warn: 'bg-warn-50 text-slate-800 ring-1 ring-inset ring-warn-500/45',
-  neg: 'bg-neg-50 text-neg-600',
+  neutral: 'bg-slate-100 text-slate-700 ring-slate-200',
+  warn: 'bg-warn-50 text-slate-800 ring-warn-500/45',
+  neg: 'bg-neg-50 text-neg-600 ring-neg-500/20',
 } as const
 
 /** The small type tag; ⚡ when the task was generated automatically. In
@@ -39,7 +40,8 @@ export function TypeTag({ type, automatic, groupLimit }: { type: TaskType; autom
   return (
     <span
       data-agenda-tag
-      className={`inline-flex max-w-full min-w-0 items-center gap-1 rounded px-1.5 py-0.5 text-[11.5px] font-semibold whitespace-nowrap ${TAG_CLASSES[TAG_TONE[tag]]}`}
+      data-badge="sm"
+      className={badgeClassName('sm', TAG_CLASSES[TAG_TONE[tag]])}
       title={automatic ? `${label} · ${t('agenda.auto')}` : label}
     >
       {automatic && <Zap aria-label={t('agenda.auto')} className="size-3 shrink-0" strokeWidth={2.4} />}

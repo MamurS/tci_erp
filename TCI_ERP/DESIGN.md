@@ -221,6 +221,43 @@ mechanical ones.
 * **Every literal translation key exists** (`i18n/keysExist.test.ts`) — a
   missing one is printed raw on screen.
 
+### Badges (owner rule, October 2026)
+
+Grade, role, status, the Agenda's type tags, counters and chips are ONE
+object (`src/components/ui/badgeStyles.ts`); only the colour tone varies.
+
+| size | where | height | padding | text | weight |
+|---|---|---|---|---|---|
+| `sm` | tables, rows, running text, tab and sidebar counts, chips | 20 px (`h-5`) | `px-2` | 12 px (`text-xs`, leading 16 px) | medium |
+| `md` | beside a page title (`PageHeader` / `DetailHeader` `status`) | 24 px (`h-6`) | `px-2.5` | 13 px (leading 20 px) | semibold |
+
+* **One font: the body face (Inter)**, set on the badge itself
+  (`font-sans`), so a badge never inherits the condensed display face of a
+  heading it sits near.
+* **One case: as translated, never capitals** (`normal-case`, set on the
+  badge, so an uppercase heading cannot impose it). The labels are
+  translated words in three languages; capitals make Cyrillic and Uzbek
+  Latin with its ‘ wider and harder to read, the column reservations
+  (`LABEL_SETS`) are measured in mixed case, and codes that are capitals
+  (A1, ADT, NQL) stay capitals because they are written so.
+* **One radius: the pill** (`rounded-full`), with an inset 1 px ring in the
+  tone.
+* **Counters** (`Count`: tab, sidebar and section counts) are the `sm`
+  badge in counter form — its height, font, text size and weight, with the
+  narrower counter padding (`px-1.5`) and a minimum width of two numerals,
+  so 9 → 10 moves nothing.
+* **Header badges sit beside the title, never inside the heading**: the
+  `status` slot of `PageHeader` / `DetailHeader` centres them on the title
+  (`items-center`) and makes them `md` through `BadgeSizeContext`.
+* **Not a badge**: an avatar, the ISO code in place of a missing flag, and
+  the Agenda's filter chips — toggle buttons, sized as a small Button.
+* Anything that must be a button or a list item and look like a badge wears
+  `badgeClassName(size, tone)` with `data-badge={size}`. `badges.test.ts`
+  refuses `size="lg"` and hand-made pills; `e2e/layout/badges.spec.ts`
+  checks on every guarded screen, in en / ru / uz, that badges of one size
+  share one height (the spec's), that neighbours share a centre (±1 px), and
+  that header badges are centred on the title.
+
 ### Side-by-side cards (owner rule, October 2026)
 
 Cards placed next to each other end on one line. **A row of cards is a

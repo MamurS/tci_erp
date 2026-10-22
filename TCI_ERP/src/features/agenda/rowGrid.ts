@@ -15,12 +15,12 @@
  * Widths, measured in the browser on the app's Inter (October 2026):
  *
  * - TAG: the widest label of `agenda.tags.*` in en / ru / uz is ru
- *   «Групповой лимит» — 112 px as a tag (11.5 px semibold, px-1.5), 128 px
- *   with the ⚡ of an automatic task (12 px icon + 4 px gap). Every tag is
- *   reserved WITH the icon, so no combination can overflow; 8.25rem = 132 px
- *   leaves 4 px for font rendering. A label that would still not fit is cut
- *   with an ellipsis and names itself in its tooltip (TypeTag) — the column
- *   is never widened by a row. `rowGrid.test.ts` keeps TAG_LABEL_CHARS
+ *   «Групповой лимит» — 119 px as an `sm` badge (12 px medium, px-2;
+ *   DESIGN.md «Badges»), 135 px with the ⚡ of an automatic task (12 px
+ *   icon + 4 px gap). Every tag is reserved WITH the icon, so no combination
+ *   can overflow; 8.75rem = 140 px leaves 5 px for font rendering. A
+ *   label that would still not fit is cut with an ellipsis and names itself
+ *   in its tooltip (TypeTag) — the column is never widened by a row. `rowGrid.test.ts` keeps TAG_LABEL_CHARS
  *   honest against the three locale files.
  * - DUE: the widest due label is uz «365 kundan keyin» — 113 px (13 px
  *   semibold, tabular digits) → 7.25rem = 116 px. Right-aligned.
@@ -32,7 +32,7 @@
 export const TAG_LABEL_CHARS = 15
 
 /** The tag track: the widest label (TAG_LABEL_CHARS) with the ⚡ icon. */
-export const TAG_TRACK = '8.25rem'
+export const TAG_TRACK = '8.75rem'
 
 /** The due track: «365 kundan keyin», the widest due label. */
 export const DUE_TRACK = '7.25rem'
@@ -42,7 +42,7 @@ export const DUE_TRACK = '7.25rem'
  * in the source), restating the two tracks above — `rowGrid.test.ts` checks
  * that it does. Gaps are gap-x-3; the right edge is pr-4, as before.
  */
-export const ROW_GRID = 'grid grid-cols-[3px_1.5rem_8.25rem_minmax(0,1fr)_7.25rem_1.75rem] gap-x-3 pr-4'
+export const ROW_GRID = 'grid grid-cols-[3px_1.5rem_8.75rem_minmax(0,1fr)_7.25rem_1.75rem] gap-x-3 pr-4'
 
 /** The tracks by name, for placing a cell that spans more than one. */
 export const TRACK = {

@@ -129,12 +129,8 @@ function SuggestionRow({
 
       <ul className="mt-1.5 flex flex-wrap gap-1.5">
         {signals.map((sig) => (
-          <li
-            key={sig.signal}
-            className="rounded-full bg-slate-100 px-2 py-0.5 text-[12px] text-slate-600"
-            title={sig.value}
-          >
-            {t(`groups.signals.${sig.signal}`)}
+          <li key={sig.signal}>
+            <Badge title={sig.value}>{t(`groups.signals.${sig.signal}`)}</Badge>
           </li>
         ))}
       </ul>

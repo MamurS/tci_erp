@@ -9,6 +9,8 @@
  */
 import { Suspense, createContext, useContext, useEffect, useId, useRef } from 'react'
 
+import { BADGE_TONES, BadgeSizeContext, badgeClassName } from './badgeStyles'
+import type { BadgeSize, BadgeTone } from './badgeStyles'
 import { buttonClassName } from './buttonStyles'
 import type { ButtonVariant } from './buttonStyles'
 import { COL, tableMinWidth } from './columns'
@@ -295,36 +297,25 @@ export function StatCard({
 // Badge
 // ---------------------------------------------------------------------------
 
-type BadgeTone = 'neutral' | 'accent' | 'pos' | 'neg' | 'negStrong' | 'warn'
-
-const BADGE_TONES: Record<BadgeTone, string> = {
-  neutral: 'bg-slate-100 text-slate-600 ring-slate-200',
-  accent: 'bg-accent-50 text-accent-700 ring-accent-200',
-  pos: 'bg-pos-50 text-pos-500 ring-pos-500/20',
-  neg: 'bg-neg-50 text-neg-500 ring-neg-500/20',
-  // Solid danger for statuses that must not be mistaken for ordinary
-  // termination (e.g. policy annulment vs cancellation).
-  negStrong: 'bg-neg-500 text-white ring-neg-500',
-  warn: 'bg-warn-50 text-warn-500 ring-warn-500/25',
-}
-
 interface BadgeProps {
   tone?: BadgeTone
-  /** lg: prominent badge (e.g. the grade badge in the buyer header). */
-  size?: 'md' | 'lg'
+  /** `sm` (tables, rows) or `md` (beside a page title); by default the size
+   * of the slot it sits in (BadgeSizeContext), `sm` anywhere else. */
+  size?: BadgeSize
+  title?: string
   children: ReactNode
 }
 
-export function Badge({ tone = 'neutral', size = 'md', children }: BadgeProps) {
-  const sizing = size === 'lg' ? 'px-3 py-1 text-sm font-bold' : 'px-2 py-0.5 text-xs font-medium'
+/** A badge (DESIGN.md «Badges», badgeStyles.ts). */
+export function Badge({ tone = 'neutral', size, title, children }: BadgeProps) {
+  const slot = useContext(BadgeSizeContext)
+  const resolved = size ?? slot
   // Never wider than its cell: a label longer than the column reserved for it
   // is cut with an ellipsis (a fixed Table names it in full on hover) instead
   // of widening the column or wrapping the row.
   const text = typeof children === 'string' ? children : undefined
   return (
-    <span
-      className={`inline-flex max-w-full min-w-0 items-center gap-1 rounded-full whitespace-nowrap ring-1 ring-inset ${sizing} ${BADGE_TONES[tone]}`}
-    >
+    <span data-badge={resolved} title={title} className={badgeClassName(resolved, BADGE_TONES[tone])}>
       {text !== undefined ? <span className="min-w-0 truncate">{text}</span> : children}
     </span>
   )
@@ -404,13 +395,16 @@ export function Segmented({ value, options, onChange, ariaLabel, tone = 'default
 
 interface PageHeaderProps {
   title: ReactNode
+  /** Badges beside the title (a status, a grade, roles): `md`, centred on
+   * the title, in the body font — never inside the heading itself. */
+  status?: ReactNode
   subtitle?: ReactNode
   actions?: ReactNode
   /** Small line above the title (section / breadcrumb). */
   eyebrow?: ReactNode
 }
 
-export function PageHeader({ title, subtitle, actions, eyebrow }: PageHeaderProps) {
+export function PageHeader({ title, status, subtitle, actions, eyebrow }: PageHeaderProps) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
@@ -419,9 +413,16 @@ export function PageHeader({ title, subtitle, actions, eyebrow }: PageHeaderProp
             {eyebrow}
           </div>
         )}
-        <h1 className="font-display text-[28px] leading-tight font-bold tracking-wide text-accent-600 uppercase">
-          {title}
-        </h1>
+        <div data-badge-row className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+          <h1 className="font-display text-[28px] leading-tight font-bold tracking-wide text-accent-600 uppercase">
+            {title}
+          </h1>
+          {status && (
+            <BadgeSizeContext.Provider value="md">
+              <span className="inline-flex flex-wrap items-center gap-2">{status}</span>
+            </BadgeSizeContext.Provider>
+          )}
+        </div>
         {subtitle && <p className="mt-1 max-w-3xl text-sm text-slate-500">{subtitle}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
@@ -534,7 +535,7 @@ export function EmptyState({ title, hint, action, icon }: EmptyStateProps) {
  * A number in a pill — a tab's count, a sidebar badge, a filter chip's count.
  * Tabular digits, centred in a box at least `digits` wide, so a count going
  * from 9 to 10 (or a refetch) never pushes the label or the pill beside it.
- * The tone (background, text colour, weight) is the caller's.
+ * The tone (background and text colour) is the caller's.
  */
 export function Count({
   value,
@@ -547,11 +548,16 @@ export function Count({
   className?: string
   title?: string
 }) {
+  // The counter form of the `sm` badge (DESIGN.md «Badges»): its height,
+  // font, text size and weight, with the narrower counter padding (px-1.5)
+  // and a minimum width of `digits` numerals; only the tone (the caller's)
+  // varies.
   return (
     <span
+      data-badge="sm"
       title={title}
       style={{ minWidth: `calc(${digits}ch + 0.75rem)` }}
-      className={`inline-block rounded-full px-1.5 text-center text-[11px] tabular-nums ${className}`}
+      className={`inline-flex h-5 shrink-0 items-center justify-center rounded-full px-1.5 font-sans text-xs leading-4 font-medium tabular-nums normal-case ${className}`}
     >
       {value}
     </span>
@@ -615,7 +621,7 @@ export function Tabs({ tabs, active, onChange, size = 'md' }: TabsProps) {
             {tab.count !== undefined && (
               <Count
                 value={tab.count ?? ''}
-                className={`font-semibold ${tab.count === null ? 'invisible' : ''} ${
+                className={`${tab.count === null ? 'invisible' : ''} ${
                   selected ? 'bg-accent-100 text-accent-700' : 'bg-slate-100 text-slate-500'
                 }`}
               />

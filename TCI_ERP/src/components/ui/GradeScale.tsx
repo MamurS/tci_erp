@@ -40,18 +40,18 @@ export function GradeScale({ score, grade, bands, change, size = 'full' }: Grade
 
   return (
     <div className={compact ? 'w-60' : 'w-full'}>
-      <div className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 ${compact ? 'mb-1.5' : 'mb-2.5'}`}>
+      <div className={`flex flex-wrap items-center gap-x-3 gap-y-1 ${compact ? 'mb-1.5' : 'mb-2.5'}`}>
         <span
           className={`font-display leading-none font-bold text-accent-600 ${compact ? 'text-[26px]' : 'text-[44px]'}`}
         >
           {formatAmount(score, locale, 0)}
         </span>
-        <Badge tone={gradeTone(grade)} size={compact ? 'md' : 'lg'}>
+        <Badge tone={gradeTone(grade)} size={compact ? 'sm' : 'md'}>
           {grade}
         </Badge>
         <span className={`text-slate-500 ${compact ? 'text-xs' : 'text-sm'}`}>{bandText}</span>
         {change && (
-          <Badge tone={change.improved ? 'pos' : 'neg'}>
+          <Badge tone={change.improved ? 'pos' : 'neg'} size={compact ? 'sm' : 'md'}>
             <span aria-hidden="true">{change.improved ? '▼' : '▲'}</span>
             {change.gradeSteps !== 0
               ? t('rating.scale.gradeSteps', { count: Math.abs(change.gradeSteps) })
