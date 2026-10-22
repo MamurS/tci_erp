@@ -1,5 +1,7 @@
-/** Admin > Users & roles: every auth user with their role chips, last
- * sign-in, and a multi-select role editor. Writes are admin-only in RLS. */
+/** Admin > Users & roles: every auth user with their role chips, their
+ * direct manager (0060: offered first as the validator of their limit
+ * decisions), last sign-in, and a multi-select role editor. Writes are
+ * admin-only in RLS and in the functions. */
 
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -10,7 +12,9 @@ import {
   Badge,
   Button,
   COL,
+  Combobox,
   EmptyState,
+  Field,
   Modal,
   RowActions,
   Spinner,
@@ -22,7 +26,7 @@ import { STAFF_ROLES, USER_ROLES } from '../../lib/roles'
 import type { UserRole } from '../../lib/roles'
 import { useAuth } from '../../auth/AuthContext'
 import { canDisableUser, canManageUser } from './provisioningAccess'
-import { useAdminUsers, useSetUserRoles } from './api'
+import { useAdminUsers, useSetUserManager, useSetUserRoles, useUserManagers } from './api'
 import type { AdminUser } from './api'
 import { CreateUserModal } from './CreateUserModal'
 import { ServiceUnavailableNotice } from './ServiceUnavailableNotice'
@@ -45,6 +49,9 @@ export function UsersRolesTab({
   const { t, i18n } = useTranslation()
   const { session, roles: callerRoles } = useAuth()
   const { data: users, isLoading } = useAdminUsers()
+  const { data: managers } = useUserManagers()
+  const [managerFor, setManagerFor] = useState<AdminUser | null>(null)
+  const [managerError, setManagerError] = useState<string | null>(null)
   const { data: provisioningUp } = useProvisioningAvailable()
   const resetPassword = useResetUserPassword()
   const setDisabled = useSetUserDisabled()
@@ -117,15 +124,21 @@ export function UsersRolesTab({
           {rolesError}
         </p>
       )}
+      {managerError && (
+        <p className="mb-3 text-[13px] text-neg-500" role="alert">
+          {managerError}
+        </p>
+      )}
 
       {!users?.length ? (
         <EmptyState title={t('admin.noUsers')} />
       ) : (
-      <Table columns={[COL.fill, '22rem', COL.moment, actionsCol(['editRoles', 'resetPassword', 'disableEnable'])]}>
+      <Table columns={[COL.fill, '22rem', COL.person, COL.moment, actionsCol(['editRoles', 'resetPassword', 'disableEnable'])]}>
         <thead>
           <tr>
             <th>{t('admin.fields.email')}</th>
             <th>{t('admin.fields.roles')}</th>
+            <th>{t('admin.fields.manager')}</th>
             <th>{t('admin.fields.lastSignIn')}</th>
             <th />
           </tr>
@@ -153,6 +166,25 @@ export function UsersRolesTab({
                     <Badge tone="warn">{t('provisioning.awaitingPasswordChange')}</Badge>
                   )}
                 </span>
+              </td>
+              <td>
+                {/* Staff only: a client has no limit decisions to validate. */}
+                {u.roles.some((r) => STAFF_ROLES.includes(r)) ? (
+                  <button
+                    type="button"
+                    className="block max-w-full truncate text-left text-accent-700 hover:underline"
+                    title={t('admin.manager.set')}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setManagerError(null)
+                      setManagerFor(u)
+                    }}
+                  >
+                    {managerName(users, managers?.[u.user_id]) ?? t('admin.manager.none')}
+                  </button>
+                ) : (
+                  <span className="text-slate-400">{EM_DASH}</span>
+                )}
               </td>
               <td className="text-slate-500">
                 {u.last_sign_in_at ? formatMoment(u.last_sign_in_at, i18n.language) : EM_DASH}
@@ -207,6 +239,15 @@ export function UsersRolesTab({
       </Table>
       )}
 
+      {managerFor && (
+        <ManagerModal
+          user={managerFor}
+          users={users ?? []}
+          current={managers?.[managerFor.user_id] ?? null}
+          onClose={() => setManagerFor(null)}
+          onFailed={setManagerError}
+        />
+      )}
       {editing && (
         <RolesModal
           user={editing}
@@ -221,6 +262,77 @@ export function UsersRolesTab({
         onCreated={(user) => setCredentials(user)}
       />
     </>
+  )
+}
+
+/** A colleague as the column names them. */
+function managerName(users: readonly AdminUser[], id: string | undefined | null): string | null {
+  if (!id) return null
+  const user = users.find((u) => u.user_id === id)
+  return user ? user.full_name?.trim() || user.email : null
+}
+
+/** The direct manager of one person: any other staff member, or nobody. */
+function ManagerModal({
+  user,
+  users,
+  current,
+  onClose,
+  onFailed,
+}: {
+  user: AdminUser
+  users: readonly AdminUser[]
+  current: string | null
+  onClose: () => void
+  onFailed: (message: string) => void
+}) {
+  const { t } = useTranslation()
+  const setManager = useSetUserManager()
+  const [picked, setPicked] = useState<string | null>(current)
+
+  const options = users
+    .filter((u) => u.user_id !== user.user_id && !u.disabled && u.roles.some((r) => STAFF_ROLES.includes(r)))
+    .map((u) => ({
+      id: u.user_id,
+      label: u.full_name?.trim() || u.email,
+      keywords: [u.email],
+      meta: u.roles.map((r) => t(`roles.${r}`)).join(' · '),
+    }))
+
+  // The column repaints at once (optimistic); a refusal is said in the list.
+  const save = (managerId: string | null) => {
+    onClose()
+    setManager
+      .mutateAsync({ userId: user.user_id, managerId })
+      .catch((failure: unknown) => onFailed(t(refusalOr(failure, 'common.saveFailed'))))
+  }
+
+  return (
+    <Modal
+      open
+      onClose={onClose}
+      title={t('admin.manager.title', { email: user.full_name?.trim() || user.email })}
+      footer={
+        <>
+          {current && (
+            <Button variant="ghost" onClick={() => save(null)}>
+              {t('admin.manager.clear')}
+            </Button>
+          )}
+          <Button variant="secondary" onClick={onClose}>
+            {t('common.cancel')}
+          </Button>
+          <Button onClick={() => save(picked)} disabled={!picked || picked === current}>
+            {t('common.save')}
+          </Button>
+        </>
+      }
+    >
+      <p className="text-[13px] text-slate-500">{t('admin.manager.hint')}</p>
+      <Field label={t('admin.fields.manager')}>
+        <Combobox value={picked} onChange={setPicked} options={options} openOnFocus autoFocus placeholder={t('admin.manager.placeholder')} />
+      </Field>
+    </Modal>
   )
 }
 

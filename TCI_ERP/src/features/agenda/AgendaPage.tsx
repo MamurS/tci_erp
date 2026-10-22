@@ -37,6 +37,8 @@ import {
   useTaskComments,
   useTaskSubjects,
   useUnsnoozeTask,
+  useValidationComments,
+  validationOrigin,
 } from './api'
 import { amountOf, assignedToMe, bucketOf, buildBoard, readFilter, sumUzs, writeFilter, GROUPINGS } from './board'
 import type { AgendaRow, BoardFilter, Grouping } from './board'
@@ -145,6 +147,11 @@ export function AgendaPage() {
     [visible],
   )
   const { data: justifications } = useLimitJustifications(requestIds)
+  const validationIds = useMemo(
+    () => visible.filter((task) => task.object_type === 'limit_validation').map((task) => task.object_id),
+    [visible],
+  )
+  const { data: validationComments } = useValidationComments(validationIds)
 
   const snippetOf = useCallback(
     (row: AgendaRow): RowSnippet | null => {
@@ -155,6 +162,7 @@ export function AgendaPage() {
         ...(row.lead.object_type === 'credit_limit_request' && justifications?.get(row.lead.object_id)?.justification
           ? [justifications.get(row.lead.object_id)?.justification as string]
           : []),
+        ...row.tasks.flatMap((task) => validationOrigin(task, validationComments)?.body ?? []),
       ]
       const count = own.length + origin.length
       const latest = own[own.length - 1]?.body ?? origin[origin.length - 1]
@@ -166,7 +174,7 @@ export function AgendaPage() {
       }
       return null
     },
-    [comments, justifications, t, locale, staff],
+    [comments, justifications, validationComments, t, locale, staff],
   )
 
   // Interaction state.

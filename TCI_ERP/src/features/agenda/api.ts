@@ -25,6 +25,7 @@ const KEYS = {
   events: ['agenda', 'events'] as const,
   cleared: ['agenda', 'cleared'] as const,
   justifications: (ids: readonly string[]) => ['agenda', 'justifications', ids] as const,
+  validationComments: (ids: readonly string[]) => ['agenda', 'validation-comments', ids] as const,
 }
 
 async function refreshAgenda(): Promise<void> {
@@ -262,6 +263,53 @@ export function useLimitJustifications(requestIds: readonly string[]) {
   })
 }
 
+/** The two comments of a validation step (0060): what the author asked and
+ * what the validator answered. Read from tci.limit_validations, which shows a
+ * step to admin and to the people of its chain — exactly who holds these
+ * tasks. */
+export interface ValidationComments {
+  id: string
+  comment: string | null
+  resolution_comment: string | null
+  proposed_by: string
+  resolved_by: string | null
+  created_at: string
+  resolved_at: string | null
+}
+
+export function useValidationComments(validationIds: readonly string[]) {
+  const ids = [...new Set(validationIds)].sort()
+  return useQuery({
+    queryKey: KEYS.validationComments(ids),
+    enabled: ids.length > 0,
+    staleTime: 60_000,
+    queryFn: async (): Promise<Map<string, ValidationComments>> => {
+      const { data, error } = await tci()
+        .from('limit_validations')
+        .select('id, comment, resolution_comment, proposed_by, resolved_by, created_at, resolved_at')
+        .in('id', ids)
+      if (error) throw error
+      return new Map(((data ?? []) as ValidationComments[]).map((r) => [r.id, r]))
+    },
+  })
+}
+
+/** The origin comment a validation task shows, from its step. */
+export function validationOrigin(
+  task: Pick<Task, 'task_type' | 'object_type' | 'object_id'>,
+  comments: Map<string, ValidationComments> | undefined,
+): { body: string; author: string | null; at: string; side: 'validationAuthor' | 'validator' } | null {
+  if (task.object_type !== 'limit_validation') return null
+  const step = comments?.get(task.object_id)
+  if (!step) return null
+  if (task.task_type === 'limit_validation_result') {
+    const body = step.resolution_comment?.trim()
+    return body ? { body, author: step.resolved_by, at: step.resolved_at ?? step.created_at, side: 'validator' } : null
+  }
+  const body = step.comment?.trim()
+  return body ? { body, author: step.proposed_by, at: step.created_at, side: 'validationAuthor' } : null
+}
+
 // ---------------------------------------------------------------------------
 // Subjects: the human name behind each task's object
 // ---------------------------------------------------------------------------
@@ -411,6 +459,9 @@ export function subjectFor(task: Task, subjects: TaskSubjects | undefined): stri
       const requestId = task.params?.request_id
       return typeof requestId === 'string' ? (subjects.limitRequests[requestId] ?? null) : null
     }
+    case 'limit_validation':
+      // The buyer's name rides on the task (0060's mapping copies it).
+      return typeof task.params?.entity_name === 'string' ? task.params.entity_name : null
     default:
       return null
   }
@@ -454,6 +505,7 @@ export function contextFor(task: Task, subjects: TaskSubjects | undefined): stri
       return subjects.requestApplicants[task.object_id] ?? null
     case 'credit_limit_request':
     case 'credit_limit_decision':
+    case 'limit_validation':
       return subjectFor(task, subjects)
     default:
       return null

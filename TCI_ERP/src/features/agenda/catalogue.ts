@@ -75,9 +75,14 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   offer_viewed: 'auto',
   offer_expiring: 'auto',
   offer_expired: 'auto',
+  // Limit validation (migration 0060): the validator's task closes when they
+  // answer (or the request is withdrawn); the author's notice of the result
+  // is the fifth manual type — nothing downstream happens once they know.
+  limit_validation: 'auto',
+  limit_validation_result: 'manual',
 }
 
-/** Mirrors tci.complete_task's guard (as 0054 restates it): it refuses
+/** Mirrors tci.complete_task's guard (as 0060 restates it): it refuses
  * every type the COMPLETION_RULES do not call manual. */
 export function canCompleteByHand(taskType: TaskType): boolean {
   return COMPLETION_RULES[taskType] === 'manual'
@@ -149,6 +154,13 @@ export function taskLink(
       // The offer is worked from its submission's «Коммерческое предложение».
       const requestId = task.params?.request_id
       return typeof requestId === 'string' ? `/requests/${requestId}?focus=offer` : null
+    }
+    case 'limit_validation': {
+      // A validation step has no page; its limit request does — the validator
+      // lands on their panel, the author on the request.
+      const requestId = task.params?.request_id
+      if (typeof requestId !== 'string') return null
+      return task.task_type === 'limit_validation' ? `/limits/${requestId}?focus=validation` : `/limits/${requestId}`
     }
     default:
       return null
@@ -280,6 +292,7 @@ export const OBJECT_FILTERS = [
   'bank_statement_import',
   'contract_draft',
   'commercial_offer',
+  'limit_validation',
 ] as const satisfies readonly TaskObjectType[]
 
 export interface AgendaFilters {
