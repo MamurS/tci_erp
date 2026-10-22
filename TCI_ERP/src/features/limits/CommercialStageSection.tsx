@@ -2,12 +2,18 @@
  * an adjustment form for AMOUNT and PAYMENT TERMS only. Rating, validity
  * and conditions are not shown as inputs because commercial underwriting
  * cannot touch them — the column grants of migration 0020/0021 enforce it,
- * and this form deliberately offers nothing it would be refused. */
+ * and this form deliberately offers nothing it would be refused.
+ *
+ * 0060: an INCREASE beyond the caller's commercial authority is not recorded;
+ * it is sent to a commercial colleague whose authority covers it («Отправить
+ * на валидацию»), and the credit decision is held meanwhile. A reduction is
+ * the emergency path: never validated, never authority-checked. */
 
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AmountInput, Badge, Button, Card, Field, Input, SectionTitle } from '../../components/ui'
+import { refusalOr } from '../../lib/optimistic'
 import { parseAmount } from '../../components/ui/amount'
 import { useAuth } from '../../auth/AuthContext'
 import { bandForGrade, hasRole } from '../../lib/roles'
@@ -27,8 +33,21 @@ import { GroupPreflightNotice, groupErrorKey, useGroupPreflight } from '../group
 import { ReleaseBadge } from './ReleaseBadge'
 import type { LimitRequestWithRefs } from './types'
 import { requestScopeFilter } from './types'
+import { SendForValidationModal } from './ValidationDialogs'
+import { adjustmentCanBeValidated, validationKind } from './validation'
+import type { NeedsValidation, ValidationState } from './validation'
+import { useSubmitAdjustmentForValidation } from './validationApi'
 
-export function CommercialStageSection({ request }: { request: LimitRequestWithRefs }) {
+export function CommercialStageSection({
+  request,
+  validation,
+  onNotice,
+}: {
+  request: LimitRequestWithRefs
+  /** The request's pending validation step, credit or commercial (0060). */
+  validation: ValidationState | null
+  onNotice: (message: string) => void
+}) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const { session, roles } = useAuth()
@@ -37,6 +56,8 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
   const { data: windowHours } = useSalesWindowHours()
   const assessments = useAssessments(request.entity_id)
   const adjust = useAdjustLimitCommercial()
+  const sendForValidation = useSubmitAdjustmentForValidation()
+  const [validationOpen, setValidationOpen] = useState<{ needs: NeedsValidation | null } | null>(null)
 
   const limit = limits?.[0] ?? null
   const { data: chain } = useDecisionChain(limit?.credit_decision_id ?? '')
@@ -96,6 +117,12 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
 
   if (!limit) return null
 
+  // Beyond authority an increase can only go to a validator; a reduction
+  // never needs one (submit_adjustment_for_validation refuses it).
+  const validatable =
+    amountValid && limit.credit_amount !== null && adjustmentCanBeValidated(parsedAmount, Number(limit.credit_amount))
+  const overAuthority = !isReduction && check?.withinAuthority === false && !hasRole(roles, 'admin')
+
   const handleAdjust = async () => {
     if (!amountValid) return
     setError(null)
@@ -107,6 +134,11 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
         paymentTermsDays: terms ? Number(terms) : null,
         comment: comment.trim() || null,
       })
+      if (outcome.result === 'needs_validation') {
+        // Nothing recorded: the dialog opens with this very proposal.
+        setValidationOpen({ needs: outcome })
+        return
+      }
       setResult(
         outcome.released_immediately
           ? t('limits.commercial.adjustedImmediate')
@@ -118,7 +150,7 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
       // The group control refuses an INCREASE outright here — there is no
       // escalated state for a commercial adjustment — so it gets its own
       // message rather than the generic failure.
-      setError(t(groupErrorKey(e) ?? 'limits.commercial.adjustFailed'))
+      setError(t(groupErrorKey(e) ?? refusalOr(e, 'limits.commercial.adjustFailed')))
     }
   }
 
@@ -166,6 +198,10 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
 
       {!mayAdjust ? (
         <p className="text-[13px] text-slate-400">{t('limits.commercial.readOnly')}</p>
+      ) : validation ? (
+        // adjust_limit_commercial refuses while anything on this request is on
+        // validation; the line at the top of the page says with whom.
+        <p className="text-[13px] text-slate-500">{t(`limits.validation.adjustLocked.${validation.stream}`)}</p>
       ) : (
         <>
           <p className="text-[13px] text-slate-500">{t('limits.commercial.scopeHint')}</p>
@@ -213,7 +249,8 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
           )}
 
           {/* Commercial authority preflight — same rule as the SQL function. */}
-          {check && !hasRole(roles, 'admin') && (
+          {/* 0060: a reduction is never authority-checked. */}
+          {check && !hasRole(roles, 'admin') && !isReduction && (
             check.withinAuthority === null ? (
               <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
                 {t('limits.preflight.missingRate', { currency: limit.currency_code })}
@@ -226,7 +263,8 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
                 })}
               </div>
             ) : (
-              <div className="rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[13px] text-neg-500">
+              // Amber, not red: not a refusal — the way on is a validator.
+              <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
                 {t('limits.commercial.exceeds', {
                   band: t(`limits.bands.${check.band}`),
                   authority: formatAmount(check.authorityUzs ?? 0, locale),
@@ -253,24 +291,87 @@ export function CommercialStageSection({ request }: { request: LimitRequestWithR
           )}
 
           <div className="flex flex-wrap items-center gap-3">
-            <Button
-              onClick={() => void handleAdjust()}
-              disabled={!amountValid || check?.withinAuthority === false}
-              loading={adjust.isPending}
-              variant={isReduction ? 'danger' : 'primary'}
-            >
-              {t('limits.commercial.action')}
-            </Button>
-            {/* A disabled button says why. Over authority the banner above
-                already explains; this line only points at it. */}
+            {overAuthority ? (
+              // Beyond authority the only way on is a validator.
+              <Button onClick={() => setValidationOpen({ needs: null })}>{t('limits.validation.send')}</Button>
+            ) : (
+              <>
+                <Button
+                  onClick={() => void handleAdjust()}
+                  disabled={!amountValid}
+                  loading={adjust.isPending}
+                  variant={isReduction ? 'danger' : 'primary'}
+                >
+                  {t('limits.commercial.action')}
+                </Button>
+                {/* A second opinion on an increase; a reduction works at once. */}
+                {!isReduction && (
+                  <Button variant="secondary" disabled={!validatable} onClick={() => setValidationOpen({ needs: null })}>
+                    {t('limits.validation.send')}
+                  </Button>
+                )}
+              </>
+            )}
+            {/* A disabled button says why. */}
             {!adjust.isPending && !amountValid && (
               <span className="text-[13px] text-slate-500">{t('limits.commercial.enterAmount')}</span>
             )}
-            {!adjust.isPending && amountValid && check?.withinAuthority === false && (
+            {!adjust.isPending && overAuthority && (
               <span className="text-[13px] text-slate-500">{t('limits.commercial.overAuthority')}</span>
             )}
           </div>
         </>
+      )}
+
+      {validationOpen && amountValid && (
+        <SendForValidationModal
+          stream="commercial"
+          band={validationOpen.needs?.grade_band ?? band}
+          amount={parsedAmount}
+          currency={limit.currency_code}
+          kind={
+            validationOpen.needs
+              ? 'required'
+              : validationKind({
+                  amountUzs: check?.amountUzs ?? null,
+                  authorityUzs: check?.authorityUzs ?? null,
+                  isAdmin: hasRole(roles, 'admin'),
+                })
+          }
+          figures={
+            validationOpen.needs
+              ? {
+                  amountUzs: Number(validationOpen.needs.amount_uzs),
+                  authorityUzs: Number(validationOpen.needs.authority_uzs),
+                }
+              : null
+          }
+          proposal={
+            <span className="num font-semibold">
+              {formatAmount(parsedAmount, locale)} {limit.currency_code}
+              {terms !== '' && (
+                <span className="ml-2 font-normal text-slate-500">
+                  {t('policies.terms.days', { count: Number(terms) })}
+                </span>
+              )}
+            </span>
+          }
+          pending={sendForValidation.isPending}
+          onClose={() => setValidationOpen(null)}
+          onSubmit={async (validatorId, validationComment, validatorName) => {
+            await sendForValidation.mutateAsync({
+              decisionId: limit.credit_decision_id,
+              validatorId,
+              amount: parsedAmount,
+              paymentTermsDays: terms ? Number(terms) : null,
+              comment: validationComment ?? (comment.trim() || null),
+            })
+            setValidationOpen(null)
+            setAmount('')
+            setComment('')
+            onNotice(t('limits.validation.sent', { name: validatorName }))
+          }}
+        />
       )}
     </Card>
   )

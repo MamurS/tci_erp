@@ -1306,8 +1306,8 @@
     },
     "preflight": {
       "within": "«{{band}}» reyting diapazoni uchun vakolatingiz doirasida ({{authority}} UZS ekv.)",
-      "exceeds": "«{{band}}» reyting diapazoni uchun vakolatingizdan oshadi ({{authority}} UZS ekv.) — qaror eskalatsiya qilinadi",
-      "missingRate": "{{currency}} uchun UZS kursi yo‘q: usiz vakolatni solishtirib bo‘lmaydi, shuning uchun qaror eskalatsiya qilinadi"
+      "exceeds": "«{{band}}» reyting diapazoni uchun vakolatingizdan oshadi ({{authority}} UZS ekv.) — qarorni tasdiqlash uchun yuboring",
+      "missingRate": "{{currency}} uchun UZS kursi yo‘q: usiz vakolatni solishtirib bo‘lmaydi — qaror qabul qilishdan oldin kursni kiriting"
     },
     "searchPlaceholder": "Bayer, polis № yoki sug‘urtalanuvchi…",
     "queueEmpty": "So‘rovlar yo‘q",
@@ -1329,8 +1329,7 @@
     "noConditions": "Shartlarsiz",
     "conditionPlaceholder": "Shart tavsifi…",
     "conditionsTooltip": "Shartlar: {{count}}",
-    "awaitingSenior": "Eskalatsiya — katta anderrayter qarori kutilmoqda",
-    "escalatedResult": "Summa «{{band}}» reyting diapazoni uchun vakolatingizdan oshadi — so‘rov eskalatsiya qilindi",
+    "awaitingSenior": "Eskalatsiya — vakolati yetarli bo‘lgan kredit anderrayterining qarori kutilmoqda",
     "decideFailed": "Qarorni qayd etib bo‘lmadi",
     "withdrawConfirm": "Limit so‘rovi qaytarib olinsinmi? Bayerning amaldagi limiti o‘zgarmaydi.",
     "requestLimit": "Limit so‘rash",
@@ -1383,7 +1382,7 @@
       "newAmount": "Tuzatilgan summa",
       "action": "Tuzatishni yozish",
       "within": "«{{band}}» reyting diapazoni uchun tijorat vakolatingiz doirasida ({{authority}} UZS ekv.)",
-      "exceeds": "«{{band}}» reyting diapazoni uchun tijorat vakolatingizdan oshadi ({{authority}} UZS ekv.)",
+      "exceeds": "«{{band}}» reyting diapazoni uchun tijorat vakolatingizdan oshadi ({{authority}} UZS ekv.) — tasdiqlash uchun yuboring",
       "reductionWarning": "Kamaytirish — favqulodda qaltislik amali: u sotuv oynasini chetlab o‘tib, mijozga darhol yetadi.",
       "adjusted": "Tuzatish yozildi — sotuv oynasi davom etmoqda.",
       "adjustedImmediate": "Tuzatish yozildi va darhol mijozga uzatildi (kamaytirish).",
@@ -1392,7 +1391,7 @@
       "currentTerms": "Hozir {{terms}}; o‘zgartirmaslik uchun bo‘sh qoldiring",
       "termsUnchanged": "To‘lov shartlarini o‘zgartirmaslik uchun bo‘sh qoldiring",
       "enterAmount": "Tuzatilgan summani kiriting",
-      "overAuthority": "Summa tijorat vakolatingizdan yuqori (yuqoriga qarang)"
+      "overAuthority": "Tijorat vakolatingizdan yuqori: faqat tasdiqlovchi tasdiqlay oladi"
     },
     "proposals": {
       "empty": "Aniqlanishi kerak bo‘lgan bayerlar yo‘q",
@@ -1533,7 +1532,147 @@
     "withdrawTitle": "Limit so‘rovini qaytarib olish",
     "suggestedConverted": "≈ {{converted}} ({{original}})",
     "suggestedNoRate": "— {{currency}} ga o‘tkazish uchun kurs yo‘q",
-    "amountRequired": "Tasdiqlangan summani kiriting"
+    "amountRequired": "Tasdiqlangan summani kiriting",
+    "validation": {
+      "title": "Tasdiqlash",
+      "send": "Tasdiqlash uchun yuborish",
+      "badge": "Tasdiqlashda",
+      "onValidationWith": "Tasdiqlashda: {{name}}, {{date}} dan beri",
+      "stateNote": {
+        "credit": "Qaror tasdiqlanmaguncha mavjud emas: u amalda emas va mijoz uni ko‘rmaydi.",
+        "commercial": "Tijorat tuzatishi tasdiqlashda; shu vaqt ichida kredit qarori ushlab turiladi va mijozga hech narsa yetmaydi."
+      },
+      "kinds": {
+        "required": "Majburiy — vakolatdan tashqari",
+        "voluntary": "Ixtiyoriy — ikkinchi fikr"
+      },
+      "kindUnknownTitle": "Majburiy yoki ixtiyoriy — yuborilganda aniqlanadi",
+      "kindUnknown": "Bu yerda vakolatni solishtirib bo‘lmaydi (kurs yo‘q). Tasdiqlovchi nimaga e’tibor berishi kerakligini yozing.",
+      "requiredNote": "{{amount}} UZS ekv. «{{band}}» reyting diapazoni uchun vakolatingizdan ({{authority}} UZS ekv.) yuqori. Bu qarorni o‘zingiz qayd eta olmaysiz — vakolati uni qamraydigan hamkasbni tanlang.",
+      "requiredNoteShort": "Qaror «{{band}}» reyting diapazoni uchun vakolatingizdan yuqori. Uni o‘zingiz qayd eta olmaysiz — vakolati uni qamraydigan hamkasbni tanlang.",
+      "voluntaryNote": "Qaror vakolatingiz doirasida. Ikkinchi fikr ixtiyoriy — nimani tekshirish kerakligini yozing.",
+      "proposal": "Taklif",
+      "bandOf": "«{{band}}» reyting diapazoni",
+      "validator": "Tasdiqlovchi",
+      "validatorHint": {
+        "credit": "«{{band}}» reyting diapazonidagi vakolati qarorni qamraydigan kredit anderrayterlari — rahbaringiz birinchi.",
+        "commercial": "«{{band}}» reyting diapazonidagi vakolati tuzatishni qamraydigan tijorat anderrayterlari — rahbaringiz birinchi."
+      },
+      "manager": "Rahbaringiz",
+      "authorityIn": "«{{band}}» reyting diapazonidagi vakolat: {{amount}}",
+      "unlimited": "cheklanmagan",
+      "candidatesFailed": "Tasdiqlay oladigan hamkasblar ro‘yxatini yuklab bo‘lmadi.",
+      "noCandidatesTitle": "Yetarli vakolatga ega hamkasb yo‘q",
+      "noCandidates": {
+        "credit": "«{{band}}» reyting diapazonida {{amount}} uchun vakolatga ega boshqa kredit anderrayteri yo‘q. Administratorga murojaat qiling: u vakolat berishi yoki qarorni o‘zi qabul qilishi mumkin.",
+        "commercial": "«{{band}}» reyting diapazonida {{amount}} uchun vakolatga ega boshqa tijorat anderrayteri yo‘q. Administratorga murojaat qiling: u vakolat berishi yoki qarorni o‘zi qabul qilishi mumkin."
+      },
+      "noCandidatesDecline": {
+        "credit": "Tasdiqlay oladigan boshqa kredit anderrayteri yo‘q. Administratorga murojaat qiling.",
+        "commercial": "Tasdiqlay oladigan boshqa tijorat anderrayteri yo‘q. Administratorga murojaat qiling."
+      },
+      "commentLabel": "Tasdiqlovchi uchun izoh",
+      "commentRequiredHint": "Ikkinchi fikr uchun majburiy: nimani tekshirish kerakligini yozing.",
+      "commentOptionalHint": "Ixtiyoriy.",
+      "submitFailed": "Qarorni tasdiqlash uchun yuborib bo‘lmadi.",
+      "sent": "Tasdiqlash uchun yuborildi: {{name}}. Qaror tasdiqlangandan keyin paydo bo‘ladi.",
+      "adjustLocked": {
+        "credit": "Ushbu ariza bo‘yicha kredit qarori tasdiqlashda; u yakunlanguncha tuzatish mumkin emas.",
+        "commercial": "Bu limitning tuzatishi tasdiqlashda; tasdiqlovchi javob bergandan keyin yangisini kiritish mumkin."
+      },
+      "statuses": {
+        "pending": "Tasdiqlashda",
+        "approved": "Tasdiqlandi",
+        "approved_modified": "O‘zgartirib tasdiqlandi",
+        "returned": "Qaytarildi",
+        "rejected": "Rad etildi",
+        "forwarded": "Yo‘naltirildi",
+        "cancelled": "To‘xtatildi"
+      },
+      "historyTitle": "Tasdiqlash",
+      "historyHint": "Kim qaror qildi, kim tasdiqladi, nima o‘zgardi — har bir qadam.",
+      "history": {
+        "when": "Qachon",
+        "who": "Kim",
+        "proposal": "Taklif",
+        "status": "Holat",
+        "resolvedAt": "javob: {{date}}",
+        "sent": "Muallif: {{from}} · tasdiqlovchi: {{to}}",
+        "forwarded": "Yo‘naltirildi: {{from}} → {{to}}",
+        "authorComment": "Muallif",
+        "validatorComment": "Tasdiqlovchi"
+      },
+      "panel": {
+        "title": "Qarorni tasdiqlash",
+        "intro": "Sizga tasdiqlash uchun yuborildi: {{author}}, {{date}}.",
+        "forwardedIntro": "Sizga yo‘naltirildi: {{from}}, {{date}}. Qaror muallifi — {{author}}.",
+        "authorComment": "Muallif izohi ({{author}})",
+        "outcome": "Taklif qilingan qaror",
+        "requested": "so‘ralgan: {{amount}}",
+        "basedOn": "{{date}} dagi {{grade}} reytingi",
+        "noAssessment": "reyting tanlanmagan — qaror «reytingsiz» deb baholanadi",
+        "validity": "Amal qilish muddati",
+        "financials": "Asosiy ko‘rsatkichlar, {{year}}",
+        "previous": "{{year}}: {{value}}",
+        "noFinancials": "Bayerning yillik hisobotlari yo‘q."
+      },
+      "actions": {
+        "approve": "Tasdiqlash",
+        "approve_modified": "O‘zgartirib tasdiqlash",
+        "return": "Qayta ishlashga qaytarish",
+        "reject": "Rad etish",
+        "forward": "Boshqasiga yo‘naltirish"
+      },
+      "confirm": {
+        "approve": "Qaror taklif qilinganidek ({{amount}}) sizning nomingizdan qayd etiladi.",
+        "approve_modified": "Taklif qilingan ({{amount}}) o‘rniga boshqa summani tasdiqlang — o‘z vakolatingiz doirasida.",
+        "return": "Taklif ({{amount}}) izohingiz bilan muallifga qaytadi; hech narsa qayd etilmaydi.",
+        "reject": "Taklifni ({{amount}}) rad etish.",
+        "rejectEffect": {
+          "credit": "Limit rad etiladi, sabab sifatida izohingiz ko‘rsatiladi.",
+          "commercial": "Tuzatish kiritilmaydi; kredit qarori o‘z kuchida qoladi."
+        },
+        "forward": "Taklifni ({{amount}}) o‘zgarishsiz yuqoriroq hamkasbga yo‘naltirish."
+      },
+      "modifiedAmount": "Tasdiqlanadigan summa",
+      "modifyScope": {
+        "credit": "Reyting, amal qilish muddati va shartlar taklif qilinganidek qoladi; qaror natijasi summaga bog‘liq.",
+        "commercial": "Faqat summa va to‘lov muddatini o‘zgartirish mumkin — reyting o‘zgarmaydi."
+      },
+      "recordsAs": "Qayd etiladi:",
+      "beyondMine": "«{{band}}» reyting diapazoni uchun vakolatingizdan yuqori",
+      "beyondMineHint": "Vakolatingiz — {{authority}} UZS ekv. Qarorni yuqoriroq hamkasbga yo‘naltiring yoki kichikroq summani tasdiqlang.",
+      "forwardTo": "Kimga yo‘naltirish",
+      "forwardHint": "Ushbu zanjirda ishtirok etgan hamkasblar taklif qilinmaydi.",
+      "resolutionComment": "Izohingiz",
+      "commentRequiredWhy": "Majburiy: muallif sababini ko‘radi.",
+      "resolveFailed": "Javobingiz qayd etilmadi.",
+      "done": {
+        "approved": "Tasdiqlandi — qaror qayd etildi.",
+        "approved_modified": "O‘zgartirib tasdiqlandi — qaror qayd etildi.",
+        "returned": "Muallifga qayta ishlashga qaytarildi.",
+        "rejected": "Rad etildi.",
+        "cancelled": "Ariza shu orada qaytarib olindi; tasdiqlash to‘xtatildi.",
+        "forwarded": "Yo‘naltirildi: {{name}}."
+      },
+      "errors": {
+        "validatorRequired": "Tasdiqlovchini tanlang.",
+        "fourEyes": "To‘rt ko‘z tamoyili: o‘zingiz taklif qilgan yoki allaqachon tasdiqlagan qarorni tasdiqlay olmaysiz.",
+        "wrongDepartment": "Tasdiqlovchi o‘sha bo‘limning faol xodimi bo‘lishi kerak (kredit → kredit, tijorat → tijorat).",
+        "lacksAuthority": "Tasdiqlovchining vakolati ushbu reyting diapazonida bu summani qamramaydi. Yuqoriroq hamkasbni tanlang.",
+        "commentRequired": "Izoh kerak: nimani tekshirish kerak — yoki qaror nega qaytarilmoqda yoxud rad etilmoqda.",
+        "pending": "Qaror tasdiqlashda; hozir faqat tasdiqlovchi javob bera oladi.",
+        "beyondAuthority": "Summa ushbu reyting diapazonida vakolatingizdan yuqori — qarorni yuqoriroq hamkasbga yo‘naltiring.",
+        "groupLimit": "Bu summa guruh limitidan oshadi, shuning uchun uni tasdiqlab bo‘lmaydi.",
+        "closed": "Bu tasdiqlash allaqachon yakunlangan.",
+        "notForReduction": "Kamaytirish darhol kuchga kiradi va tasdiqlashni talab qilmaydi.",
+        "notRecorded": "Qarorni tasdiqlashda qayd etib bo‘lmadi (masalan, guruh limiti sababli). Hech narsa o‘zgarmadi.",
+        "notYours": "Bu tasdiqlashga faqat tayinlangan tasdiqlovchi javob bera oladi."
+      }
+    },
+    "errors": {
+      "noRate": "Bu valyuta uchun UZS kursi yo‘q — summani vakolat bilan solishtirib bo‘lmaydi. Avval kursni kiriting."
+    }
   },
   "entities": {
     "subtitle": "Yagona reyestr — sug‘urtalanuvchilar, bayerlar va tahlildagi tashkilotlar",
@@ -1616,7 +1755,8 @@
       "maxAmount": "Maks. summa",
       "currency": "Valyuta",
       "validFrom": "Amal qilish boshlanishi",
-      "validTo": "Amal qilish tugashi"
+      "validTo": "Amal qilish tugashi",
+      "manager": "Rahbar"
     },
     "errors": {
       "amountPositive": "Summa noldan katta bo‘lishi kerak",
@@ -1706,6 +1846,18 @@
         "hookSteps": "Supabase Auth «Customize Access Token» → Postgres → tci.custom_access_token_hook ilgagi kerak (Authentication → Hooks). Yangi kirish sahifasi ishlay boshlagach yoqing: kirish shaklini chetlab o‘tib kiritilgan to‘g‘ri parol hisobni parol tiklanguncha bloklaydi.",
         "enable": "Yoqish",
         "disable": "O‘chirish"
+      }
+    },
+    "manager": {
+      "none": "Belgilanmagan",
+      "set": "Rahbarni belgilash",
+      "title": "Rahbar: {{email}}",
+      "hint": "Agar vakolati qarorni qamrasa, ushbu xodimning limit qarorlari uchun birinchi tasdiqlovchi sifatida taklif qilinadi.",
+      "placeholder": "Hamkasbni toping…",
+      "clear": "Rahbarni olib tashlash",
+      "errors": {
+        "self": "Xodim o‘zining rahbari bo‘la olmaydi.",
+        "notStaff": "Rahbar mijoz emas, xodim bo‘lishi kerak."
       }
     }
   },
@@ -2017,7 +2169,8 @@
       "client_buyer_proposal": "Taklif qilingan bayer",
       "contract_draft": "Shartnoma loyihasi",
       "bank_statement_import": "Bank ko‘chirmasi",
-      "commercial_offer": "Tijorat taklifi"
+      "commercial_offer": "Tijorat taklifi",
+      "limit_validation": "Limitni tasdiqlash"
     },
     "taskTypes": {
       "buyer_needs_entity": "Bayerni aniqlash",
@@ -2055,7 +2208,9 @@
       "premium_payment_unmatched": "To‘lovlarni taqsimlash",
       "offer_viewed": "Taklif mijoz tomonidan ko‘rildi",
       "offer_expiring": "Taklif muddati tugamoqda",
-      "offer_expired": "Taklif muddati o‘tdi"
+      "offer_expired": "Taklif muddati o‘tdi",
+      "limit_validation": "Limitni tasdiqlash",
+      "limit_validation_result": "Tasdiqlash natijasi"
     },
     "tasks": {
       "buyer_needs_entity": "{{subject}} arizasidagi «{{name}}» ortidagi tashkilotni aniqlang",
@@ -2097,7 +2252,12 @@
       "premium_payment_unmatched": "Ko‘chirmadagi to‘lovlarni polislarga taqsimlash kerak",
       "offer_viewed": "Mijoz {{request_number}} arizasi bo‘yicha {{offer_number}} tijorat taklifini ochdi",
       "offer_expiring": "{{offer_number}} tijorat taklifi {{valid_until}} gacha amal qiladi",
-      "offer_expired": "{{offer_number}} tijorat taklifining muddati o‘tdi"
+      "offer_expired": "{{offer_number}} tijorat taklifining muddati o‘tdi",
+      "limit_validation": "{{entity_name}} uchun limit qarorini tasdiqlang (muallif: {{proposed_by_name}})",
+      "limit_validation_result_approved": "{{entity_name}} uchun limit qaroringiz tasdiqlandi — {{validator_name}}",
+      "limit_validation_result_approved_modified": "{{entity_name}} uchun limit qaroringiz o‘zgartirib tasdiqlandi — {{validator_name}}",
+      "limit_validation_result_returned": "{{entity_name}} uchun limit qaroringiz qayta ishlashga qaytarildi — {{validator_name}}",
+      "limit_validation_result_rejected": "{{entity_name}} uchun limit qaroringiz rad etildi — {{validator_name}}"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
@@ -2195,7 +2355,8 @@
       "group": "Guruh",
       "submission": "Ariza",
       "data": "Ma’lumot",
-      "contract": "Shartnoma"
+      "contract": "Shartnoma",
+      "validation": "Tasdiqlash"
     },
     "due": {
       "days_one": "{{count}} kun",
@@ -2291,7 +2452,13 @@
       "premium_payment_unmatched_other": "Ko‘chirmadagi {{count}} ta to‘lovni taqsimlash kerak",
       "offer_viewed": "Mijoz taklifni ochdi",
       "offer_expiring": "Taklif muddati tugamoqda",
-      "offer_expired": "Taklif muddati o‘tdi"
+      "offer_expired": "Taklif muddati o‘tdi",
+      "limit_validation": "Tasdiqlanadigan limit qarori",
+      "limit_validation_result": "Tasdiqlash natijasi",
+      "limit_validation_result_approved": "Limit qaroringiz tasdiqlandi",
+      "limit_validation_result_approved_modified": "Limit qaroringiz o‘zgartirib tasdiqlandi",
+      "limit_validation_result_returned": "Limit qaroringiz qayta ishlashga qaytarildi",
+      "limit_validation_result_rejected": "Limit qaroringiz rad etildi"
     },
     "facts": {
       "policies_one": "{{count}} ta polis",
@@ -2308,7 +2475,9 @@
       "policies_few": "{{count}} ta polis",
       "policies_many": "{{count}} ta polis",
       "membersWithLimits_few": "limitli {{count}} ta ishtirokchi",
-      "membersWithLimits_many": "limitli {{count}} ta ishtirokchi"
+      "membersWithLimits_many": "limitli {{count}} ta ishtirokchi",
+      "from": "muallif: {{name}}",
+      "validatedBy": "tasdiqlovchi: {{name}}"
     },
     "sub": {
       "instalment": "{{sequence}}-to‘lov"
@@ -2345,7 +2514,9 @@
         "requester": "Ariza muallifi",
         "sales": "Sotuv",
         "claims": "Sug‘urta da’volari",
-        "informationManager": "Axborot menejeri"
+        "informationManager": "Axborot menejeri",
+        "validationAuthor": "Qaror muallifi",
+        "validator": "Tasdiqlovchi"
       },
       "title_few": "Izohlar · {{count}}",
       "title_many": "Izohlar · {{count}}",
@@ -2402,7 +2573,8 @@
         "openClaim": "Ish ochish",
         "proposals": "Taklif qilingan bayerlar",
         "payments": "To‘lovlar",
-        "offer": "Tijorat taklifi"
+        "offer": "Tijorat taklifi",
+        "validation": "Tasdiqlash"
       },
       "with": {
         "task": "shu vazifa konteksti bilan",
@@ -2598,7 +2770,11 @@
         "state": "Holat"
       },
       "policy": "Polis",
-      "policyholder": "Sug‘urtalanuvchi"
+      "policyholder": "Sug‘urtalanuvchi",
+      "validation": {
+        "proposal": "Taklif qilingan",
+        "result": "Tasdiqlash natijasi"
+      }
     },
     "history": {
       "title": "Tarix",
@@ -2629,7 +2805,9 @@
         "claim_approved": "Da’vo tan olindi",
         "data_entity_requested": "Tashkilot so‘raldi",
         "data_entity_request_assigned": "So‘rov ijrochiga berildi",
-        "data_entity_request_resolved": "So‘rov bajarildi"
+        "data_entity_request_resolved": "So‘rov bajarildi",
+        "limit_validation_requested": "Tasdiqlash uchun yuborildi",
+        "limit_validation_resolved": "Tasdiqlash yakunlandi"
       }
     },
     "keys": {

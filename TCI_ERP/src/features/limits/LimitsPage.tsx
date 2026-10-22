@@ -20,7 +20,7 @@ import {
 } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { hasRole } from '../../lib/roles'
-import { EM_DASH, formatAmount } from '../../lib/format'
+import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
 import { gradeTone } from '../../lib/grade'
 import { useLatestGrades } from '../entities/api'
 import { useLimitRequests } from './api'
@@ -29,6 +29,7 @@ import { BuyerProposalsSection } from './BuyerProposalsSection'
 import { useLimitQueue } from './workbench/api'
 import { queueIndex } from './workbench/model'
 import type { LimitRequestWithRefs } from './types'
+import { useValidationState } from './validationApi'
 import type { QueueRow } from './workbench/types'
 
 type QueueTab = 'drafts' | 'review' | 'escalated' | 'decided' | 'proposals'
@@ -89,6 +90,10 @@ export function LimitsPage() {
   }, [requests, tab, search, statusFilter, mineOnly, annotated, session?.user.id])
 
   const escalatedCount = (requests ?? []).filter((r) => r.status === 'escalated').length
+  // 0060: an escalated request may be on validation with a named colleague.
+  const escalatedIds = useMemo(() => filtered.filter((r) => r.status === 'escalated').map((r) => r.id), [filtered])
+  const { data: validations } = useValidationState(escalatedIds)
+  const onValidation = useMemo(() => new Map((validations ?? []).map((v) => [v.request_id, v])), [validations])
   const nowIso = new Date().toISOString()
 
   const tabs = [
@@ -203,7 +208,16 @@ export function LimitsPage() {
                 {/* The authority exception sits under the status: a column of
                     its own left the buyer's name a few letters on a laptop. */}
                 <td>
-                  <Badge tone={statusTone(r.status)}>{t(`limits.statuses.${r.status}`)}</Badge>
+                  {onValidation.has(r.id) ? (
+                    <span title={t('limits.validation.onValidationWith', {
+                      name: onValidation.get(r.id)?.validator_name ?? EM_DASH,
+                      date: formatMoment(onValidation.get(r.id)?.since ?? r.created_at, locale),
+                    })}>
+                      <Badge tone="warn">{t('limits.validation.badge')}</Badge>
+                    </span>
+                  ) : (
+                    <Badge tone={statusTone(r.status)}>{t(`limits.statuses.${r.status}`)}</Badge>
+                  )}
                   {showDecision && (
                     <span className="mt-1 block">
                       <AuthorityCell row={annotated.get(r.id)} />

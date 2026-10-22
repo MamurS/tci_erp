@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest'
 import MIGRATION from '../../../supabase/migrations/0013_credit_limit_workflow.sql?raw'
 import MIGRATION_0017 from '../../../supabase/migrations/0017_authority_matrix.sql?raw'
 import MIGRATION_0020 from '../../../supabase/migrations/0020_two_stage_decisions.sql?raw'
+import MIGRATION_0060 from '../../../supabase/migrations/0060_limit_validation.sql?raw'
 import {
   authorityUzs,
   commercialPreflight,
@@ -143,7 +144,7 @@ describe('preflight (mirror of the underwriter branch of tci.decide_limit_reques
     })
   })
 
-  it('over band authority escalates (strict >, boundary passes)', () => {
+  it('over band authority needs validation (strict >, boundary passes)', () => {
     const at = preflight(100_000_000, 'UZS', ['credit_underwriter'], 'B', 100_000_000, [], TODAY)
     expect(at.withinAuthority).toBe(true)
     const over = preflight(100_000_001, 'UZS', ['credit_underwriter'], 'B', 100_000_000, [], TODAY)
@@ -183,14 +184,27 @@ describe('migration 0013 defines the same rule (contract lock)', () => {
     expect(MIGRATION_0017).toContain('(g.valid_to is null or g.valid_to >= current_date)')
   })
 
-  it('0017: admin is unlimited; over-band-authority escalates with the band', () => {
+  it('0017 → 0060: admin is unlimited; the comparison is the same, the answer is validation', () => {
     expect(MIGRATION_0017).toContain("if not tci.has_role('admin') then")
-    expect(MIGRATION_0017).toContain('v_authority_uzs := tci.my_authority_uzs(v_band);')
-    expect(MIGRATION_0017).toContain('if v_amount_uzs > v_authority_uzs then')
-    expect(MIGRATION_0017).toContain(
-      "update tci.credit_limit_requests set status = 'escalated' where id = p_request_id;",
-    )
-    expect(MIGRATION_0017).toContain("'grade_band', v_band")
+    // 0060 restates decide_limit_request with the same rule …
+    expect(MIGRATION_0060).toContain("    if not tci.has_role('admin') then")
+    expect(MIGRATION_0060).toContain('      v_authority_uzs := tci.my_authority_uzs(v_band);')
+    expect(MIGRATION_0060).toContain('      if v_amount_uzs > v_authority_uzs then')
+    // … but beyond authority nothing is recorded and nothing escalates: the
+    // author is told to send it to a named validator (preflight's `false`).
+    expect(MIGRATION_0060).toContain("        'result', 'needs_validation',")
+    expect(MIGRATION_0060).toContain("        'authority_uzs', v_authority_uzs")
+    expect(MIGRATION_0060).toContain('decide_limit_request still escalates an over-authority amount to the pool')
+    // only the group control still escalates (0040, unchanged)
+    expect(MIGRATION_0060).toContain("'result', 'group_limit_exceeded',")
+  })
+
+  it('0060: the commercial stream answers needs_validation on an increase only', () => {
+    expect(MIGRATION_0060).toContain("if not tci.has_role('admin') and not v_is_reduction then")
+    const adjust = MIGRATION_0060.slice(MIGRATION_0060.indexOf('create or replace function tci.adjust_limit_commercial'))
+    expect(adjust.slice(0, adjust.indexOf('$function$;'))).toContain("'result', 'needs_validation',")
+    // a reduction is never authority-checked any more: the screen shows no
+    // authority banner for it (CommercialStageSection)
   })
 
   it('0017: the band is the FAMILY of the assessment grade, unrated by default', () => {

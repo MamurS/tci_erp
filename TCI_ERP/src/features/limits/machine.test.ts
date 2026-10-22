@@ -61,7 +61,9 @@ describe('transitions (mirror of the SQL functions)', () => {
 
   it('credit underwriting decides; there is no senior role any more', () => {
     // Phase 3b: an escalated request is decidable by ANY credit underwriter
-    // whose band authority covers the amount (enforced in SQL), or an admin.
+    // whose band authority covers the amount (enforced in SQL), or an admin —
+    // unless it is on validation (0060), which the page checks separately:
+    // decide_limit_request refuses everyone but the step's validator.
     expect(canDecideAs('escalated', ['credit_underwriter'])).toBe(true)
     expect(canDecideAs('escalated', ['admin'])).toBe(true)
     expect(canDecideAs('under_review', ['credit_underwriter'])).toBe(true)
