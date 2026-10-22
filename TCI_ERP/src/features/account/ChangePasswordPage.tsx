@@ -9,7 +9,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Card, Field, Input, PageHeader } from '../../components/ui'
+import { Button, Card, Field, PageHeader, PasswordInput } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { supabase, tci } from '../../lib/supabase'
 import { MIN_PASSWORD_LENGTH, checkPassword, passwordStrength } from './password'
@@ -25,6 +25,9 @@ export function ChangePasswordPage() {
   const [touched, setTouched] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Bumped on a successful change: both fields go back to hidden before the
+  // page navigates away (and stay hidden should it ever stay on screen).
+  const [savedCount, setSavedCount] = useState(0)
 
   const email = session?.user.email ?? ''
   const verdict = checkPassword(password, confirmation, email)
@@ -53,6 +56,7 @@ export function ChangePasswordPage() {
         }
         console.error('Failed to clear the password-change flag', flagError)
       }
+      setSavedCount((n) => n + 1)
       clearPasswordChangeFlag()
       void navigate('/', { replace: true })
     } catch {
@@ -79,9 +83,9 @@ export function ChangePasswordPage() {
         <p className="text-[13px] text-slate-500">{email}</p>
 
         <Field label={t('account.newPassword')}>
-          <Input
-            type="password"
+          <PasswordInput
             autoComplete="new-password"
+            revealResetKey={savedCount}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             onBlur={() => setTouched(true)}
@@ -105,9 +109,9 @@ export function ChangePasswordPage() {
         </Field>
 
         <Field label={t('account.confirmPassword')}>
-          <Input
-            type="password"
+          <PasswordInput
             autoComplete="new-password"
+            revealResetKey={savedCount}
             value={confirmation}
             onChange={(e) => setConfirmation(e.target.value)}
             onBlur={() => setTouched(true)}

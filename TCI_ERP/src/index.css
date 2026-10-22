@@ -88,6 +88,12 @@
   ::selection {
     background-color: var(--color-accent-100);
   }
+  /* Edge / old IE draw their own eye and clear buttons inside an input;
+     PasswordInput has its own toggle, and two eyes in one field confuse. */
+  input::-ms-reveal,
+  input::-ms-clear {
+    display: none;
+  }
 }
 
 /* Financial figures: right-aligned, fixed-width digits (DESIGN.md §Numbers) */

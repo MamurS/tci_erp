@@ -81,7 +81,9 @@
     "lastAttemptWarning": "Yana bitta muvaffaqiyatsiz urinish — va kirish qisqa vaqtga to‘xtatiladi.",
     "retryIn": "{{time}} dan keyin qayta urinish",
     "forgotPassword": "Parolni unutdingizmi?",
-    "forgotPasswordHelp": "Parolni tizim administratori tiklaydi. Unga murojaat qiling: siz vaqtinchalik parol olasiz va kirishda uni yangisiga almashtirishingiz kerak bo‘ladi."
+    "forgotPasswordHelp": "Parolni tizim administratori tiklaydi. Unga murojaat qiling: siz vaqtinchalik parol olasiz va kirishda uni yangisiga almashtirishingiz kerak bo‘ladi.",
+    "showPassword": "Parolni ko‘rsatish",
+    "hidePassword": "Parolni yashirish"
   },
   "roles": {
     "admin": "Administrator",
