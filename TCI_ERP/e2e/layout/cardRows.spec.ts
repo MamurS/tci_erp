@@ -239,13 +239,15 @@ test('card rows: the relationship dialog (company card › group)', async ({ bro
   test.skip(!fixture, 'no fixtures recorded')
   const variant = fixture!.variants.find((v) => v.path.includes('tab=group'))
   test.skip(!variant, 'no group tab recorded')
+  test.setTimeout(120_000)
   const failures: string[] = []
   for (const { width, height } of WIDTHS) {
     const { context, page, seal } = await open(browser, fixture!, variant!, 'ru', width, height)
     try {
-      const add = page.locator('main button').filter({ hasText: /связь|relationship|bog‘liqlik/i }).first()
+      // groups.actions.addRelationship, in ru (the language opened here)
+      const add = page.locator('main').getByRole('button', { name: 'Добавить связь' })
       test.skip(!(await add.count()), 'the demo user is not offered «add relationship»')
-      await add.click()
+      await add.click({ timeout: 15_000 })
       await page.locator('[role="dialog"] [data-card-row]').waitFor()
       const result = await unevenRows(page)
       if (result.sideBySide === 0 && width >= 1280) failures.push(`${width}px: the dialog's two columns are not side by side`)

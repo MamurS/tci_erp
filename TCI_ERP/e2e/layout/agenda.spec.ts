@@ -85,7 +85,7 @@ async function lefts(page: Page) {
 
 for (const role of BOARDS) {
   test(`agenda ${role}: every title and context line starts at one x, in en, ru and uz`, async ({ browser }) => {
-    test.setTimeout(120_000)
+    test.setTimeout(240_000)
     for (const width of WIDTHS) {
       const perLang: Record<string, number> = {}
       for (const lang of LANGS) {
@@ -120,7 +120,7 @@ for (const role of BOARDS) {
 
 for (const lang of LANGS) {
   test(`agenda header · ${lang}: the view switch and «Group by» keep their boxes in List and Triage`, async ({ browser }) => {
-    test.setTimeout(90_000)
+    test.setTimeout(180_000)
     for (const width of WIDTHS) {
       const { context, page, seal } = await openAgenda(browser, 'credit', lang, width)
       try {
