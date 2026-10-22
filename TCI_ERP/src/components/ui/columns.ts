@@ -95,8 +95,11 @@ const MIN_CHARS = 8
 export const LABEL_SETS = {
   policyStatus: { keys: ['policies.statuses.*'], chars: 21, kind: 'badge' },
   limitOutcome: { keys: ['limits.outcomes.*'], chars: 19, kind: 'badge' },
-  limitStatus: { keys: ['limits.statuses.*'], chars: 20, kind: 'badge' },
+  /** A request's status — or «На валидации» while a step is pending (0060). */
+  limitStatus: { keys: ['limits.statuses.*', 'limits.validation.badge'], chars: 20, kind: 'badge' },
   limitBand: { keys: ['limits.bands.*'], chars: 12, kind: 'badge' },
+  /** A step of a limit-decision validation chain (0060). */
+  validationStatus: { keys: ['limits.validation.statuses.*'], chars: 24, kind: 'badge' },
   requestStatus: { keys: ['requests.statuses.*'], chars: 25, kind: 'badge' },
   claimStatus: { keys: ['claims.statuses.*'], chars: 21, kind: 'badge' },
   claimVerdict: { keys: ['claims.verdicts.*'], chars: 16, kind: 'badge' },

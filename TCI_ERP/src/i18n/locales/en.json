@@ -1306,8 +1306,8 @@
     },
     "preflight": {
       "within": "Within your authority in rating band “{{band}}” ({{authority}} UZS eq.)",
-      "exceeds": "Exceeds your authority in rating band “{{band}}” ({{authority}} UZS eq.) — the decision will be escalated",
-      "missingRate": "No UZS rate for {{currency}}: your authority cannot be compared without it, so the decision will be escalated"
+      "exceeds": "Exceeds your authority in rating band “{{band}}” ({{authority}} UZS eq.) — send the decision for validation",
+      "missingRate": "No UZS rate for {{currency}}: your authority cannot be compared without it — add the rate before deciding"
     },
     "searchPlaceholder": "Buyer, policy № or policyholder…",
     "queueEmpty": "No requests here",
@@ -1329,8 +1329,7 @@
     "noConditions": "No conditions",
     "conditionPlaceholder": "Condition description…",
     "conditionsTooltip": "Conditions: {{count}}",
-    "awaitingSenior": "Escalated — awaiting a senior underwriter's decision",
-    "escalatedResult": "The amount exceeds your authority in rating band “{{band}}” — the request has been escalated",
+    "awaitingSenior": "Escalated — awaiting a credit underwriter whose authority covers it",
     "decideFailed": "Failed to record the decision",
     "withdrawConfirm": "Withdraw this limit request? The buyer's effective limit is not affected.",
     "requestLimit": "Request limit",
@@ -1383,7 +1382,7 @@
       "newAmount": "Adjusted amount",
       "action": "Record adjustment",
       "within": "Within your commercial authority in rating band “{{band}}” ({{authority}} UZS eq.)",
-      "exceeds": "Exceeds your commercial authority in rating band “{{band}}” ({{authority}} UZS eq.)",
+      "exceeds": "Exceeds your commercial authority in rating band “{{band}}” ({{authority}} UZS eq.) — send it for validation",
       "reductionWarning": "A reduction is an emergency risk action: it reaches the client immediately, bypassing the sales window.",
       "adjusted": "Adjustment recorded — the sales window is running.",
       "adjustedImmediate": "Adjustment recorded and released to the client immediately (reduction).",
@@ -1392,7 +1391,7 @@
       "currentTerms": "Now {{terms}}; leave empty to keep",
       "termsUnchanged": "Leave empty to keep the terms as decided",
       "enterAmount": "Enter the adjusted amount",
-      "overAuthority": "The amount is above your commercial authority (see above)"
+      "overAuthority": "Above your commercial authority: only a validator can approve it"
     },
     "proposals": {
       "empty": "No buyers waiting to be identified",
@@ -1533,7 +1532,147 @@
     "withdrawTitle": "Withdraw the limit request",
     "suggestedConverted": "≈ {{converted}} ({{original}})",
     "suggestedNoRate": "— no rate to convert it into {{currency}}",
-    "amountRequired": "Enter the approved amount"
+    "amountRequired": "Enter the approved amount",
+    "validation": {
+      "title": "Validation",
+      "send": "Send for validation",
+      "badge": "On validation",
+      "onValidationWith": "On validation with {{name}} since {{date}}",
+      "stateNote": {
+        "credit": "The decision does not exist until it is validated: it is not in force and the client does not see it.",
+        "commercial": "The commercial adjustment is on validation; the credit decision is held meanwhile, so nothing reaches the client."
+      },
+      "kinds": {
+        "required": "Required — beyond authority",
+        "voluntary": "Voluntary — second opinion"
+      },
+      "kindUnknownTitle": "Required or voluntary — decided when it is sent",
+      "kindUnknown": "Your authority cannot be compared here (there is no rate). Say what the validator should look at.",
+      "requiredNote": "{{amount}} UZS eq. is above your authority in rating band “{{band}}” ({{authority}} UZS eq.). You cannot finalise this decision: choose a colleague whose authority covers it.",
+      "requiredNoteShort": "The decision is above your authority in rating band “{{band}}”. You cannot finalise it: choose a colleague whose authority covers it.",
+      "voluntaryNote": "The decision is within your authority. A second opinion is voluntary — say what you want checked.",
+      "proposal": "Proposal",
+      "bandOf": "rating band “{{band}}”",
+      "validator": "Validator",
+      "validatorHint": {
+        "credit": "Credit underwriters whose authority in rating band “{{band}}” covers the decision — your manager first.",
+        "commercial": "Commercial underwriters whose authority in rating band “{{band}}” covers the adjustment — your manager first."
+      },
+      "manager": "Your manager",
+      "authorityIn": "Authority in rating band “{{band}}”: {{amount}}",
+      "unlimited": "unlimited",
+      "candidatesFailed": "Could not load the colleagues who may validate.",
+      "noCandidatesTitle": "No colleague has enough authority",
+      "noCandidates": {
+        "credit": "No other credit underwriter has authority for {{amount}} in rating band “{{band}}”. Ask an administrator to grant it, or to decide.",
+        "commercial": "No other commercial underwriter has authority for {{amount}} in rating band “{{band}}”. Ask an administrator to grant it, or to decide."
+      },
+      "noCandidatesDecline": {
+        "credit": "No other credit underwriter can validate it. Ask an administrator.",
+        "commercial": "No other commercial underwriter can validate it. Ask an administrator."
+      },
+      "commentLabel": "Comment for the validator",
+      "commentRequiredHint": "Required for a second opinion: say what you want checked.",
+      "commentOptionalHint": "Optional.",
+      "submitFailed": "Could not send the decision for validation.",
+      "sent": "Sent for validation to {{name}}. The decision will exist once it is validated.",
+      "adjustLocked": {
+        "credit": "The credit decision of this request is on validation; it cannot be adjusted until then.",
+        "commercial": "An adjustment of this limit is on validation; another can be made once the validator answers."
+      },
+      "statuses": {
+        "pending": "On validation",
+        "approved": "Approved",
+        "approved_modified": "Approved with changes",
+        "returned": "Returned",
+        "rejected": "Rejected",
+        "forwarded": "Forwarded",
+        "cancelled": "Withdrawn"
+      },
+      "historyTitle": "Validation",
+      "historyHint": "Who decided, who validated, what changed — every step as it happened.",
+      "history": {
+        "when": "When",
+        "who": "Who",
+        "proposal": "Proposal",
+        "status": "Status",
+        "resolvedAt": "answered {{date}}",
+        "sent": "Author: {{from}} · validator: {{to}}",
+        "forwarded": "Forwarded by {{from}} to {{to}}",
+        "authorComment": "Author",
+        "validatorComment": "Validator"
+      },
+      "panel": {
+        "title": "Validation of the decision",
+        "intro": "Sent to you for validation by {{author}}, {{date}}.",
+        "forwardedIntro": "Forwarded to you by {{from}}, {{date}}. The decision is by {{author}}.",
+        "authorComment": "Comment from {{author}}",
+        "outcome": "Proposed decision",
+        "requested": "requested {{amount}}",
+        "basedOn": "rating {{grade}} of {{date}}",
+        "noAssessment": "no rating chosen — judged as unrated",
+        "validity": "Valid",
+        "financials": "Key figures, {{year}}",
+        "previous": "{{year}}: {{value}}",
+        "noFinancials": "There are no annual statements on file for this buyer."
+      },
+      "actions": {
+        "approve": "Approve",
+        "approve_modified": "Modify and approve",
+        "return": "Return to the author",
+        "reject": "Reject",
+        "forward": "Forward"
+      },
+      "confirm": {
+        "approve": "The decision is recorded as proposed ({{amount}}), as your decision.",
+        "approve_modified": "Approve a different amount than proposed ({{amount}}) — within your own authority.",
+        "return": "The proposal ({{amount}}) goes back to its author with your comment; nothing is recorded.",
+        "reject": "Rejecting the proposal ({{amount}}).",
+        "rejectEffect": {
+          "credit": "The limit is declined, with your comment as the reason.",
+          "commercial": "The adjustment is dropped; the credit decision stands."
+        },
+        "forward": "Pass the proposal ({{amount}}) to a more senior colleague, unchanged."
+      },
+      "modifiedAmount": "Amount you approve",
+      "modifyScope": {
+        "credit": "The rating, the validity and the conditions stay as proposed; the outcome follows the amount.",
+        "commercial": "Only the amount and the payment terms can change — never the rating."
+      },
+      "recordsAs": "Recorded as",
+      "beyondMine": "Above your authority in rating band “{{band}}”",
+      "beyondMineHint": "Your authority is {{authority}} UZS eq. Forward it to a more senior colleague, or approve a smaller amount.",
+      "forwardTo": "Forward to",
+      "forwardHint": "Colleagues already in this chain are not offered.",
+      "resolutionComment": "Your comment",
+      "commentRequiredWhy": "Required: the author will read why.",
+      "resolveFailed": "Your answer was not recorded.",
+      "done": {
+        "approved": "Approved — the decision is recorded.",
+        "approved_modified": "Approved with changes — the decision is recorded.",
+        "returned": "Returned to the author.",
+        "rejected": "Rejected.",
+        "cancelled": "The request was withdrawn meanwhile; the validation is closed.",
+        "forwarded": "Forwarded to {{name}}."
+      },
+      "errors": {
+        "validatorRequired": "Choose who validates the decision.",
+        "fourEyes": "Four eyes: nobody validates a decision they proposed or already validated.",
+        "wrongDepartment": "The validator must be an active colleague of the same department (credit → credit, commercial → commercial).",
+        "lacksAuthority": "The validator’s authority does not cover this amount in this rating band. Choose someone more senior.",
+        "commentRequired": "A comment is required: say what you want checked, or why the decision is returned or rejected.",
+        "pending": "This decision is on validation; only its validator can answer it now.",
+        "beyondAuthority": "The amount is beyond your authority in this rating band — forward it to a more senior colleague.",
+        "groupLimit": "This amount would take the group over its group limit, so it cannot be approved.",
+        "closed": "This validation has already been answered.",
+        "notForReduction": "A reduction takes effect at once and needs no validation.",
+        "notRecorded": "The decision could not be recorded on validation (for example, because of the group limit). Nothing was changed.",
+        "notYours": "Only the assigned validator may answer this validation."
+      }
+    },
+    "errors": {
+      "noRate": "There is no UZS rate for this currency, so the amount cannot be weighed against an authority. Add the rate first."
+    }
   },
   "entities": {
     "subtitle": "Unified registry — policyholders, buyers and analysis prospects",
@@ -1616,7 +1755,8 @@
       "maxAmount": "Max amount",
       "currency": "Currency",
       "validFrom": "Valid from",
-      "validTo": "Valid to"
+      "validTo": "Valid to",
+      "manager": "Manager"
     },
     "errors": {
       "amountPositive": "Amount must be greater than zero",
@@ -1706,6 +1846,18 @@
         "hookSteps": "it needs the Supabase Auth hook «Customize Access Token» → Postgres → tci.custom_access_token_hook (Authentication → Hooks). Enforce it once the new sign-in page is live: a correct password presented outside the sign-in form will then lock the account until its password is reset.",
         "enable": "Enforce",
         "disable": "Stop enforcing"
+      }
+    },
+    "manager": {
+      "none": "Not set",
+      "set": "Set the direct manager",
+      "title": "Manager of {{email}}",
+      "hint": "Offered first as the validator of this person’s limit decisions, whenever their own authority covers the decision.",
+      "placeholder": "Find a colleague…",
+      "clear": "Remove the manager",
+      "errors": {
+        "self": "A person cannot be their own manager.",
+        "notStaff": "The manager must be a staff member, not a client."
       }
     }
   },
@@ -2017,7 +2169,8 @@
       "client_buyer_proposal": "Proposed buyer",
       "contract_draft": "Draft contract",
       "bank_statement_import": "Bank statement",
-      "commercial_offer": "Commercial offer"
+      "commercial_offer": "Commercial offer",
+      "limit_validation": "Limit validation"
     },
     "taskTypes": {
       "buyer_needs_entity": "Identify buyer",
@@ -2055,7 +2208,9 @@
       "premium_payment_unmatched": "Payments to match",
       "offer_viewed": "Offer viewed by the client",
       "offer_expiring": "Offer expiring",
-      "offer_expired": "Offer expired"
+      "offer_expired": "Offer expired",
+      "limit_validation": "Limit validation",
+      "limit_validation_result": "Validation result"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -2097,7 +2252,12 @@
       "premium_payment_unmatched": "Bank payments need matching to policies",
       "offer_viewed": "The client opened commercial offer {{offer_number}} on submission {{request_number}}",
       "offer_expiring": "Commercial offer {{offer_number}} is valid until {{valid_until}}",
-      "offer_expired": "Commercial offer {{offer_number}} has expired"
+      "offer_expired": "Commercial offer {{offer_number}} has expired",
+      "limit_validation": "Validate the limit decision for {{entity_name}} (author: {{proposed_by_name}})",
+      "limit_validation_result_approved": "Your limit decision for {{entity_name}} was approved — {{validator_name}}",
+      "limit_validation_result_approved_modified": "Your limit decision for {{entity_name}} was approved with changes — {{validator_name}}",
+      "limit_validation_result_returned": "Your limit decision for {{entity_name}} was returned to you — {{validator_name}}",
+      "limit_validation_result_rejected": "Your limit decision for {{entity_name}} was rejected — {{validator_name}}"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -2195,7 +2355,8 @@
       "group": "Group",
       "submission": "Submission",
       "data": "Data",
-      "contract": "Contract"
+      "contract": "Contract",
+      "validation": "Validation"
     },
     "due": {
       "days_one": "{{count}} day",
@@ -2291,7 +2452,13 @@
       "premium_payment_unmatched_other": "{{count}} bank payments to match",
       "offer_viewed": "The client opened the offer",
       "offer_expiring": "Offer expiring",
-      "offer_expired": "Offer expired"
+      "offer_expired": "Offer expired",
+      "limit_validation": "Limit decision to validate",
+      "limit_validation_result": "Validation result",
+      "limit_validation_result_approved": "Your limit decision approved",
+      "limit_validation_result_approved_modified": "Your limit decision approved with changes",
+      "limit_validation_result_returned": "Your limit decision returned to you",
+      "limit_validation_result_rejected": "Your limit decision rejected"
     },
     "facts": {
       "policies_one": "{{count}} policy",
@@ -2308,7 +2475,9 @@
       "policies_few": "{{count}} policies",
       "policies_many": "{{count}} policies",
       "membersWithLimits_few": "{{count}} members with limits",
-      "membersWithLimits_many": "{{count}} members with limits"
+      "membersWithLimits_many": "{{count}} members with limits",
+      "from": "from {{name}}",
+      "validatedBy": "validator: {{name}}"
     },
     "sub": {
       "instalment": "Instalment {{sequence}}"
@@ -2345,7 +2514,9 @@
         "requester": "Requester",
         "sales": "Sales",
         "claims": "Claims",
-        "informationManager": "Information manager"
+        "informationManager": "Information manager",
+        "validationAuthor": "Author of the decision",
+        "validator": "Validator"
       },
       "title_few": "Comments · {{count}}",
       "title_many": "Comments · {{count}}",
@@ -2402,7 +2573,8 @@
         "openClaim": "Open a claim",
         "proposals": "Proposed buyers",
         "payments": "Payments",
-        "offer": "Commercial offer"
+        "offer": "Commercial offer",
+        "validation": "Validation"
       },
       "with": {
         "task": "with this task’s context",
@@ -2598,7 +2770,11 @@
         "state": "State"
       },
       "policy": "Policy",
-      "policyholder": "Policyholder"
+      "policyholder": "Policyholder",
+      "validation": {
+        "proposal": "Proposed",
+        "result": "Validated"
+      }
     },
     "history": {
       "title": "History",
@@ -2629,7 +2805,9 @@
         "claim_approved": "Claim approved",
         "data_entity_requested": "Company requested",
         "data_entity_request_assigned": "Request assigned",
-        "data_entity_request_resolved": "Request resolved"
+        "data_entity_request_resolved": "Request resolved",
+        "limit_validation_requested": "Sent for validation",
+        "limit_validation_resolved": "Validation answered"
       }
     },
     "keys": {

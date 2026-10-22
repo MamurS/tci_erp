@@ -7,6 +7,7 @@
  */
 
 import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 
 import { useAuth } from '../../../auth/AuthContext'
 import { Skeleton } from '../../../components/ui'
@@ -39,7 +40,60 @@ interface BodyProps {
 export function LimitBody(props: BodyProps) {
   const lead = props.row.lead
   if (lead.task_type === 'limit_review_due') return <ReviewBody {...props} />
+  if (lead.object_type === 'limit_validation') return <ValidationBody {...props} />
   return <RequestBody {...props} />
+}
+
+// ---------------------------------------------------------------------------
+// A decision on validation, or its result (0060)
+// ---------------------------------------------------------------------------
+
+function ValidationBody(props: BodyProps) {
+  const request = useLimitRequest(str(props.row.lead.params?.request_id) ?? '')
+  if (request.isLoading) return <BodySkeleton />
+  if (request.isError || !request.data) return <GenericBody {...props} />
+  return <ValidationLoaded {...props} request={request.data} />
+}
+
+function ValidationLoaded(props: BodyProps & { request: LimitRequestWithRefs }) {
+  const { t, i18n } = useTranslation()
+  const locale = i18n.language
+  const lead = props.row.lead
+  const p = lead.params ?? {}
+  const r = props.request
+  const assessments = useAssessments(r.entity_id)
+  const engine = useEngineFigure(r.entity_id, r.currency_code, num(p.amount), 'request')
+  if (assessments.isLoading) return <BodySkeleton />
+
+  const amount = num(p.amount)
+  const status = str(p.status)
+  const proposal: Figure = {
+    label: t(lead.task_type === 'limit_validation' ? 'agenda.triage.validation.proposal' : 'agenda.triage.validation.result'),
+    value: amount === null ? (str(p.outcome) ? t(`limits.outcomes.${p.outcome as string}`) : EM_DASH) : formatAmount(amount, locale),
+    sub: [
+      amount === null ? null : str(p.currency),
+      status ? t(`limits.validation.statuses.${status}`) : str(p.kind) ? t(`limits.validation.kinds.${p.kind as string}`) : null,
+      str(p.grade_band) ? t('limits.validation.bandOf', { band: t(`limits.bands.${p.grade_band as string}`) }) : null,
+    ]
+      .filter(Boolean)
+      .join(' · '),
+    tone: lead.task_type === 'limit_validation' && p.kind === 'required' ? 'warn' : 'default',
+  }
+  return (
+    <>
+      <FigureStrip figures={[proposal, requestedFigure(r, t, locale), engine]} />
+      <BuyerBlock entityId={r.entity_id} excludeScope={r.policy_id ?? r.insurance_request_id} />
+      <OverdueWarning entityId={r.entity_id} policyId={r.policy_id} />
+    </>
+  )
+}
+
+function requestedFigure(request: LimitRequestWithRefs, t: TFunction, locale: string): Figure {
+  return {
+    label: t('agenda.triage.limit.requested'),
+    value: formatAmount(num(request.requested_amount), locale),
+    sub: request.currency_code,
+  }
 }
 
 // ---------------------------------------------------------------------------

@@ -19,6 +19,7 @@ import type {
   LimitRequestWithRefs,
 } from './types'
 import { held, released, REQUEST_ACTION_STATUS, withStatus } from './optimistic'
+import type { NeedsValidation } from './validation'
 
 /** The stored request row tci's request functions answer with (no refs). */
 type LimitRequestRow = Omit<LimitRequestWithRefs, 'legal_entities' | 'policies' | 'insurance_requests'>
@@ -76,7 +77,15 @@ function requestStatusPatches(requestId: string, status: LimitRequestWithRefs['s
   ]
 }
 
-function invalidateWorkflow(queryClient: ReturnType<typeof useQueryClient>) {
+/** Everything a decision or a validation step moves (exported for the
+ * validation hooks, validationApi.ts). */
+export function invalidateLimitWorkflow(queryClient: QueryClient) {
+  invalidateWorkflow(queryClient)
+  void queryClient.invalidateQueries({ queryKey: ['agenda', 'tasks'] })
+  void queryClient.invalidateQueries({ queryKey: ['limit-validations'] })
+}
+
+function invalidateWorkflow(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: KEYS.requests })
   void queryClient.invalidateQueries({ queryKey: KEYS.effective })
   void queryClient.invalidateQueries({ queryKey: ['buyer-exposure'] })
@@ -205,15 +214,12 @@ export interface DecideInput {
 
 export type DecideResult =
   | { result: 'decided'; decision_id: string; grade_band: GradeBand }
-  | {
-      result: 'escalated'
-      grade_band: GradeBand
-      amount_uzs: number
-      authority_uzs: number
-    }
-  // Phase 6: the group control is BLOCKING. Like a personal-authority breach
-  // it escalates rather than simply failing, so the request reaches someone
-  // who can weigh the whole group.
+  // 0060: beyond the decider's authority in the band nothing is recorded —
+  // the decision is sent to a named validator (SendForValidationModal).
+  | NeedsValidation
+  // Phase 6: the group control is BLOCKING. It still escalates rather than
+  // simply failing, so the request reaches someone who can weigh the whole
+  // group.
   | { result: 'group_limit_exceeded'; grade_band: GradeBand; group: GroupPreflight }
 
 export function useDecideLimitRequest() {
@@ -235,12 +241,10 @@ export function useDecideLimitRequest() {
       if (error) throw error
       return data as DecideResult
     },
-    // Not optimistic: decided, escalated or stopped at the group limit is the
-    // database's answer. The form shows its pending state in place.
-    onSuccess: () => {
-      invalidateWorkflow(queryClient)
-      void queryClient.invalidateQueries({ queryKey: ['agenda', 'tasks'] })
-    },
+    // Not optimistic: decided, sent back for validation or stopped at the
+    // group limit is the database's answer. The form shows its pending state
+    // in place.
+    onSuccess: () => invalidateLimitWorkflow(queryClient),
   })
 }
 
@@ -274,13 +278,17 @@ export interface AdjustCommercialInput {
   comment: string | null
 }
 
-export interface AdjustCommercialResult {
-  result: 'adjusted'
-  decision_id: string
-  grade_band: GradeBand
-  is_reduction: boolean
-  released_immediately: boolean
-}
+export type AdjustCommercialResult =
+  | {
+      result: 'adjusted'
+      decision_id: string
+      grade_band: GradeBand
+      is_reduction: boolean
+      released_immediately: boolean
+    }
+  // 0060: an INCREASE beyond the caller's commercial authority is not
+  // recorded; it is sent for validation. A reduction is never checked.
+  | NeedsValidation
 
 /** Commercial stage: amount and payment terms only, either direction,
  * within the caller's 'commercial' authority for the SAME grade band. */
@@ -297,7 +305,7 @@ export function useAdjustLimitCommercial() {
       if (error) throw error
       return data as AdjustCommercialResult
     },
-    onSuccess: () => invalidateWorkflow(queryClient),
+    onSuccess: () => invalidateLimitWorkflow(queryClient),
   })
 }
 

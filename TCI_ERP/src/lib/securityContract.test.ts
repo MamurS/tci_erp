@@ -41,6 +41,7 @@ const M43 = migration('0043_security_closure.sql')
 const M44 = migration('0044_auth_hardening.sql')
 const M46 = migration('0046_login_gate.sql')
 const M48 = migration('0048_rotation_and_claim_documents.sql')
+const M60 = migration('0060_limit_validation.sql')
 
 /** The LATEST migration that (re)defines tci.definer_gate_allowlist(). */
 const ALLOWLIST_SOURCE = Object.entries(MIGRATIONS)
@@ -74,6 +75,11 @@ export const DEFINER_GATE_ALLOWLIST: readonly { name: string; why: string }[] = 
     name: 'may_remove_claim_object',
     why: "a storage-policy predicate: true only for the caller's own unregistered upload to a claim they may upload to",
   },
+  // 0060: the RLS predicate of tci.limit_validations
+  {
+    name: 'is_validation_participant',
+    why: 'an RLS predicate of tci.limit_validations: answers only whether the CALLER is in a validation chain',
+  },
 ]
 
 describe('no migration after 0042 raises P0004', () => {
@@ -106,8 +112,10 @@ describe('the allow-list in tci.definer_gate_allowlist()', () => {
     why: m[2].replace(/''/g, "'"),
   }))
 
-  it('is defined last by 0048', () => {
-    expect(ALLOWLIST_SOURCE).toBe(M48)
+  it('is defined last by 0060 (0048 plus the validation RLS predicate)', () => {
+    expect(ALLOWLIST_SOURCE).toBe(M60)
+    // 0060 restates 0048's list unchanged and appends one entry.
+    expect(M48).toContain("('may_remove_claim_object',  'a storage-policy predicate")
   })
 
   it('matches this mirror exactly, name for name, reason for reason', () => {

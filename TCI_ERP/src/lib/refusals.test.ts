@@ -8,9 +8,11 @@ import M54 from '../../supabase/migrations/0054_data_management.sql?raw'
 import M55 from '../../supabase/migrations/0055_agenda_redesign.sql?raw'
 import M56 from '../../supabase/migrations/0056_premium_payments.sql?raw'
 import M58 from '../../supabase/migrations/0058_commercial_offers.sql?raw'
+import M13 from '../../supabase/migrations/0013_credit_limit_workflow.sql?raw'
+import M60 from '../../supabase/migrations/0060_limit_validation.sql?raw'
 import { OPERATIONS_REFUSALS, refusalKey } from './refusals'
 
-const ALL = [M26, M27, M28, M29, M54, M55, M56, M58].join('\n')
+const ALL = [M13, M26, M27, M28, M29, M54, M55, M56, M58, M60].join('\n')
 
 describe('operations refusal mapping — contract with 0026-0029', () => {
   it('maps only refusals the database actually raises', () => {
@@ -36,6 +38,19 @@ describe('operations refusal mapping — contract with 0026-0029', () => {
     )
     expect(refusalKey({ message: 'media_not_uploaded: the file is not in the media library bucket', code: 'P0002' })).toBe(
       'media.errors.notUploaded',
+    )
+    // 0060: every refusal of the validation chain is named
+    expect(
+      refusalKey({ message: 'validator_lacks_authority: the validator\'s authority does not cover this amount in rating band B', code: 'P0001' }),
+    ).toBe('limits.validation.errors.lacksAuthority')
+    expect(refusalKey({ message: 'validation_comment_required: say why', code: 'P0001' })).toBe(
+      'limits.validation.errors.commentRequired',
+    )
+    expect(refusalKey({ message: 'limit_validation_pending: this request is on validation', code: 'P0001' })).toBe(
+      'limits.validation.errors.pending',
+    )
+    expect(refusalKey({ message: 'manager_is_self: a person cannot be their own manager', code: 'P0001' })).toBe(
+      'admin.manager.errors.self',
     )
   })
 

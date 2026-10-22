@@ -3,7 +3,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import { optimistic, rowInList, rowOutOfList } from '../../lib/optimistic'
+import { optimistic, patch, rowInList, rowOutOfList } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
 import { isUserRole, USER_ROLES } from '../../lib/roles'
 import type { AuthorityScope, GradeBand, UserRole } from '../../lib/roles'
@@ -11,6 +11,7 @@ import type { AuthorityGrant } from '../limits/types'
 
 const KEYS = {
   users: ['admin', 'users'] as const,
+  managers: ['admin', 'managers'] as const,
   grants: (userId: string) => ['admin', 'grants', userId] as const,
 }
 
@@ -97,6 +98,65 @@ export function useSetUserRoles() {
           (user) => user.user_id,
         ),
       ],
+    }),
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Direct managers (0060): offered first as the validator of a person's limit
+// decisions. Set by admin through tci.set_user_manager only.
+// ---------------------------------------------------------------------------
+
+/** Everyone's direct manager: user id -> manager id (absent = none). */
+export function useUserManagers() {
+  return useQuery({
+    queryKey: KEYS.managers,
+    queryFn: async (): Promise<Record<string, string>> => {
+      const { data, error } = await tci().rpc('user_managers')
+      if (error) throw error
+      const out: Record<string, string> = {}
+      for (const row of (data ?? []) as { user_id: string; manager_id: string | null }[]) {
+        if (row.manager_id) out[row.user_id] = row.manager_id
+      }
+      return out
+    },
+  })
+}
+
+/** With `manager` as `user`'s manager (null clears it). Pure; the patch. */
+export function withManager(
+  managers: Record<string, string>,
+  user: string,
+  manager: string | null,
+): Record<string, string> {
+  const next = { ...managers }
+  if (manager) next[user] = manager
+  else delete next[user]
+  return next
+}
+
+/** Certain once the function accepts it (admin only; never oneself; staff
+ * only — refused by name otherwise), so the column repaints at once. */
+export function useSetUserManager() {
+  const queryClient = useQueryClient()
+  type Vars = { userId: string; managerId: string | null }
+  return useMutation({
+    mutationKey: ['admin', 'manager'],
+    mutationFn: async (input: Vars): Promise<void> => {
+      const { error } = await tci().rpc('set_user_manager', {
+        p_user: input.userId,
+        p_manager: input.managerId,
+      })
+      if (error) throw error
+    },
+    ...optimistic<Vars, void>(queryClient, {
+      patches: () => [
+        patch<Record<string, string>, Vars>(KEYS.managers, (old, v) => withManager(old, v.userId, v.managerId), {
+          exact: true,
+        }),
+      ],
+      // the validator picker lists the manager first
+      invalidate: () => [['limit-validations']],
     }),
   })
 }

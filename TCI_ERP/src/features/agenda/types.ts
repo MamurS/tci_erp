@@ -48,6 +48,9 @@ export const TASK_TYPES = [
   'offer_viewed',
   'offer_expiring',
   'offer_expired',
+  // Limit validation (migration 0060)
+  'limit_validation',
+  'limit_validation_result',
 ] as const
 
 export type TaskType = (typeof TASK_TYPES)[number]
@@ -78,6 +81,8 @@ export type TaskObjectType =
   | 'contract_draft'
   // a commercial offer out with the client (0058)
   | 'commercial_offer'
+  // a limit decision waiting for (or answered by) a validator (0060)
+  | 'limit_validation'
 
 export interface Task {
   id: string
