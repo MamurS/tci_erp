@@ -15,7 +15,14 @@
 import type { Task, TaskType } from './types'
 
 /** Who wrote an origin comment, as the thread labels them. */
-export type OriginAuthor = 'policyholder' | 'requester' | 'sales' | 'claims' | 'informationManager'
+export type OriginAuthor =
+  | 'policyholder'
+  | 'requester'
+  | 'sales'
+  | 'claims'
+  | 'informationManager'
+  | 'validationAuthor'
+  | 'validator'
 
 export type OriginSource =
   /** Carried in the task's own params (copied there by the event mapping). */
@@ -27,6 +34,11 @@ export type OriginSource =
   | { kind: 'proposalJustification' }
   /** entity_requests.note — what the requester wrote. */
   | { kind: 'entityRequestNote' }
+  /** limit_validations.comment — what the decision's author asked the
+   * validator (0060). */
+  | { kind: 'validationComment' }
+  /** limit_validations.resolution_comment — the validator's answer (0060). */
+  | { kind: 'validationResolution' }
 
 export const ORIGIN_SOURCES: Readonly<Partial<Record<TaskType, readonly OriginSource[]>>> = {
   limit_needs_decision: [{ kind: 'limitJustification' }],
@@ -40,6 +52,9 @@ export const ORIGIN_SOURCES: Readonly<Partial<Record<TaskType, readonly OriginSo
   entity_requested: [{ kind: 'entityRequestNote' }],
   statements_requested: [{ kind: 'entityRequestNote' }],
   buyer_needs_entity: [{ kind: 'proposalJustification' }],
+  // 0060: the task carries neither comment; both live on the step
+  limit_validation: [{ kind: 'validationComment' }],
+  limit_validation_result: [{ kind: 'validationResolution' }],
   // 0057: the policyholder's latest portal comment and the note the draft
   // was sent for review with, both carried on the task by the mapping
   contract_review: [

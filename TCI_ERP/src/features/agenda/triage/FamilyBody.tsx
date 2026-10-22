@@ -41,6 +41,8 @@ const BODIES: Readonly<Partial<Record<TaskType, Body>>> = {
   limit_escalated: LimitBody,
   limit_held: LimitBody,
   limit_review_due: LimitBody,
+  limit_validation: LimitBody,
+  limit_validation_result: LimitBody,
 
   rating_new_statements: RatingBody,
   rating_stale: RatingBody,

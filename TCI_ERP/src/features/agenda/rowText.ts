@@ -53,6 +53,8 @@ export function companyOf(task: Task, subjects: TaskSubjects | undefined): strin
     case 'entity_request':
     case 'client_buyer_proposal':
       return str(p.name)
+    case 'limit_validation':
+      return str(p.entity_name) ?? (str(p.entity_id) ? (s?.entities[p.entity_id as string] ?? null) : null)
     default: {
       const policyId = policyIdOf(task)
       return policyId ? (s?.policies[policyId]?.holder ?? null) : null
@@ -98,7 +100,10 @@ export function rowTitle(
       ? 'agenda.row.limit_escalated_group'
       : lead.object_type === 'client_buyer_proposal'
         ? 'agenda.row.buyer_proposed'
-        : `agenda.row.${row.displayType}`
+        : lead.task_type === 'limit_validation_result' && str(p.status)
+          ? // how it ended (0060): approved / approved_modified / returned / rejected
+            `agenda.row.limit_validation_result_${p.status as string}`
+          : `agenda.row.${row.displayType}`
   const what = t(key, {
     sequence: p.sequence ?? '',
     period,
@@ -167,6 +172,20 @@ export function rowFacts(
       break
     case 'limit_review_due':
       facts.push(ref, money(p.amount, p.currency, locale))
+      break
+    case 'limit_validation':
+      facts.push(
+        money(p.amount, p.currency, locale) ?? (str(p.outcome) ? t(`limits.outcomes.${p.outcome as string}`) : null),
+        str(p.grade_band) ? t('limits.validation.bandOf', { band: t(`limits.bands.${p.grade_band as string}`) }) : null,
+        str(p.kind) ? t(`limits.validation.kinds.${p.kind as string}`) : null,
+        str(p.proposed_by_name) ? t('agenda.facts.from', { name: p.proposed_by_name }) : null,
+      )
+      break
+    case 'limit_validation_result':
+      facts.push(
+        money(p.amount, p.currency, locale),
+        str(p.validator_name) ? t('agenda.facts.validatedBy', { name: p.validator_name }) : null,
+      )
       break
     case 'group_exposure_near_limit':
     case 'group_limit_missing':
