@@ -22,6 +22,8 @@ export interface QueueRow {
   rate_missing: boolean
   my_authority_uzs: number | string
   decide_alone: boolean
+  /** The caller raised it: four eyes, never theirs to review or decide (0063). */
+  own_request: boolean
 }
 
 export const RATING_REASONS = ['no_statements', 'no_rating', 'new_statement', 'stale'] as const

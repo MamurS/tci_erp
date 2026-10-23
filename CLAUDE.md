@@ -29,9 +29,9 @@ Benchmark for domain logic: Allianz Trade / Coface / Atradius practices.
 
 ## Roles & access model
 
-Department roles (stored in `tci.user_roles`, enforced via RLS). **A user may hold SEVERAL roles** — one row per (user, role); access is the union:
+Department roles (stored in `tci.user_roles`, enforced via RLS). **A user may hold SEVERAL roles** — one row per (user, role) — but since 0063 **acts in ONE at a time**: the acting role (the role of the active workspace, kept per sign-in session in `tci.acting_roles`) is what every gate answers for; access is NOT the union. See **Acting role and four-eyes rules** below.
 
-- `admin` — full access, manages users, roles and authorities
+- `admin` — **technical**: users, roles, authorities and settings; read-only oversight of the business screens; makes **no business decisions** on limits (0063 — no decide, adjust, hold, release, revoke, validate, ADT or group limit, no authority)
 - `sales` — companies and policies (read), raises limit requests
 - `commercial_underwriter` — policy terms; the commercial stage of decisions (Phase 3c)
 - `credit_underwriter` — ratings, limits and credit decisions within band authority
@@ -39,9 +39,9 @@ Department roles (stored in `tci.user_roles`, enforced via RLS). **A user may ho
 - `information_manager` — fills in company data and financial statements
 - `client` — external portal user: sees ONLY own policies, own limit requests, own declarations. Design every policy with this role in mind even before the portal exists. **`client` is held alone** — a trigger on `tci.user_roles` refuses it next to any other role (`client_role_exclusive`, 0062), and the admin role editor greys the combination out.
 
-SQL helpers: `tci.current_user_roles()` (setof), `tci.has_role(variadic)`, `tci.is_staff()` (= any role except `client`). There is **no `senior_underwriter`** any more — seniority is expressed by the authority matrix.
+SQL helpers: `tci.current_user_roles()` (setof — the ACTING role only since 0063), `tci.has_role(variadic)` and `tci.is_staff()` (= acting role is not `client`) answer for the acting role; `tci.held_roles()` lists every role held (the workspace switcher); `tci.acting_role()` / `tci.set_acting_role(role)`. There is **no `senior_underwriter`** any more — seniority is expressed by the authority matrix.
 
-Underwriting authority is a **2D matrix** (`tci.authority_grants`): user × stream (`credit` | `commercial`) × grade band (`A`/`B`/`C`/`D`/`unrated`) × amount × currency × validity. `tci.my_authority_uzs(band)` = MAX over the caller's currently valid `credit` grants for that band, converted to UZS by the Phase 2b fx rule. **Admin is unlimited.** A decision above the deciding user's band authority is not recorded: since 0060 `decide_limit_request` answers `needs_validation`, and the author sends the PROPOSED decision to a NAMED validator of the same department whose band authority covers it (`submit_limit_for_validation`; the author's manager is offered first). The request sits as `escalated` (a workflow status, not just UI hiding) «на валидации» with that person, who approves, approves modified within their own authority, returns, rejects or forwards — see **Limit validation rules** below. A group-limit breach (0040) still escalates to the credit pool. The band comes from the grade FAMILY of the assessment the decision is based on (A1/A2→A …); no assessment ⇒ `unrated`. Band families are served by the analytics service (`GET /grade-scale` → `family`), never hardcoded outside the band names.
+Underwriting authority is a **2D matrix** (`tci.authority_grants`): user × stream (`credit` | `commercial`) × grade band (`A`/`B`/`C`/`D`/`unrated`) × amount × currency × validity. `tci.my_authority_uzs(band)` = MAX over the caller's currently valid `credit` grants for that band, converted to UZS by the Phase 2b fx rule. **Nobody is unlimited** — since 0063 admin holds no authority and makes no limit decision. A decision above the deciding user's band authority is not recorded: since 0060 `decide_limit_request` answers `needs_validation`, and the author sends the PROPOSED decision to a NAMED validator of the same department whose band authority covers it (`submit_limit_for_validation`; the author's manager is offered first). The request sits as `escalated` (a workflow status, not just UI hiding) «на валидации» with that person, who approves, approves modified within their own authority, returns, rejects or forwards — see **Limit validation rules** below. A group-limit breach (0040) still escalates to the credit pool. The band comes from the grade FAMILY of the assessment the decision is based on (A1/A2→A …); no assessment ⇒ `unrated`. Band families are served by the analytics service (`GET /grade-scale` → `family`), never hardcoded outside the band names.
 
 ## i18n
 
@@ -691,6 +691,16 @@ is fine for internal test accounts and not fine for customers.
   the staff screen (form + live preview), the print route, «Скачать PDF», the
   company card and the portal; the document is shown only in the sandboxed
   `OfferFrame`. See **Commercial offer rules** below and DESIGN.md
+- [x] Acting role, four eyes, admin without business rights (Prompt 29 PR 1,
+  migration 0063): a multi-role person acts in ONE role at a time — the
+  workspace's — stored per sign-in session (`tci.acting_roles`) and answered
+  by `has_role` / `is_staff` / `current_user_roles`; the header shows the
+  acting role, the «no access» page offers to open the section in another
+  held role. Four eyes on limits: the requester never reviews, decides,
+  proposes, validates or adjusts; the credit decider never adjusts
+  commercially. Admin is technical: no decide / adjust / hold / release /
+  revoke / validate / ADT / group limit and no authority. See **Acting role
+  and four-eyes rules** below. **Canonical: 0063 is applied AT MERGE, not before** — with it live and the old frontend still deployed, a multi-role account (two exist) acts in no role and every gate closes; the 21 replaced objects were verified fingerprint-identical to a local replay of 0062 first
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1353,10 +1363,14 @@ instead; docxtemplater lives in its own lazy chunk.
 database is still what refuses. `workspaces.ts` only decides where a screen
 sits in the sidebar; `workspaces.test.ts` asserts every screen belongs to
 the shared set or to a workspace, and that every screen a role may open is
-reachable from that role's own workspaces. Opening a screen from elsewhere
-(a link, the palette) switches to a workspace that contains it
-(`resolveWorkspace`); the choice is remembered per browser
-(`tci-erp-workspace`). Since 0054 the information manager has a workspace
+reachable from that role's own workspaces. Since 0063 a workspace IS a
+role: switching it switches the acting role (`set_acting_role`), and
+opening a screen the acting role does not cover shows «no access» with an
+offer to open it in another role the person holds (`rolesOpening`) — it
+never switches by itself. The choice is remembered per browser
+(`tci-erp-workspace`) and only seeds the acting role of a new sign-in.
+Admin's workspace is admin's own (users, authorities, settings, plus
+read-only oversight screens), no longer every workspace. Since 0054 the information manager has a workspace
 of their own, «Управление данными» (`/data`); a client has none.
 
 **The definitions live in the views.** premium base = greatest(earned,
@@ -1699,6 +1713,46 @@ untouched.
 request is on validation and with whom (`limit_request_validation_state`).
 No API role writes the table; a BEFORE UPDATE trigger lets only the
 resolution columns of a pending step change, once.
+
+### Acting role and four-eyes rules (migration 0063)
+
+**One role at a time, decided by the server.** `tci.acting_role()` = the
+row of `tci.acting_roles` for (`auth.uid()`, the JWT `session_id` claim) if
+that role is still held; otherwise the ONLY role held; otherwise NULL — and
+NULL closes every gate. `has_role`, `is_staff` and `current_user_roles`
+answer for it, so reads are as strict as writes: a person acting as sales
+sees what a sales-only user sees. Department tasks follow the acting role;
+tasks addressed to the PERSON stay visible in every workspace. A single-role
+user never sets anything. `set_acting_role` refuses a role not held
+(`acting_role_not_held`, 42501) and a token with no session
+(`acting_role_no_session`); the switch is logged `session.acting_role`.
+Rows are per session and are not cleaned up (one small row per sign-in of a
+multi-role person).
+
+**The browser asks, the server decides.** `AuthContext` loads `held_roles`
+and `acting_role`, picks with `chooseActingRole` (server's choice while
+held, else the remembered workspace's role) and calls `set_acting_role`
+before the screen renders; `roles` in the context is `[actingRole]`,
+`heldRoles` feeds the switcher. A switch resets the query cache and is
+announced to other tabs (`tci-erp-acting-role`), which share the session.
+
+**Four eyes** (`tci.limit_four_eyes_refusal(request, user, stream)`, mirrored
+by `src/features/limits/fourEyes.ts`): whoever RAISED a limit request never
+takes it into review, decides it, proposes a decision on it, validates it or
+adjusts it; on the commercial stage whoever made a CREDIT decision on it
+does not adjust it. Callers raise the returned text (`four_eyes_own_request`
+/ `four_eyes_own_credit_decision`, 42501); for a named validator or
+forward-to it comes back as `validator_four_eyes_…` (P0001). The queue view
+carries `own_request`, and the request page shows a notice instead of the
+form.
+
+**Admin decides nothing.** The 16 limit functions of 0063 contain no
+`'admin'` (asserted in the migration); `user_authority_uzs` is no longer
+Infinity for admin; `start_limit_review` requires credit underwriting. Admin
+keeps READ oversight (queue, ADT report, validation chains) and the
+technical settings (`set_auto_decision_settings`, authority grants, users).
+Business powers of admin OUTSIDE limits (claims, declarations, policy
+status, bind) are not yet removed — a follow-up.
 
 ### Auto decision (ADT) rules (migration 0061)
 

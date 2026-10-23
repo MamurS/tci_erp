@@ -7,19 +7,19 @@ import { authorityState, movedChipText, negativeCfoStreak, num, otherLimitsInFor
 import type { LimitLike } from './figures'
 
 describe('authorityState', () => {
-  const row = { amount_uzs: '900', rate_missing: false, my_authority_uzs: '600', decide_alone: false }
+  const row = { amount_uzs: '900', rate_missing: false, my_authority_uzs: '600', decide_alone: false, own_request: false }
 
-  it('admin is unlimited whatever the view says', () => {
-    expect(authorityState(row, true)).toEqual({ kind: 'admin' })
+  it('one’s own request is a colleague’s whatever the authority (four eyes, 0063)', () => {
+    expect(authorityState({ ...row, decide_alone: true, own_request: true })).toEqual({ kind: 'ownRequest' })
   })
 
   it('takes within / short from decide_alone and only derives the shortfall', () => {
-    expect(authorityState(row, false)).toEqual({ kind: 'short', authorityUzs: 600, shortfallUzs: 300 })
-    expect(authorityState({ ...row, decide_alone: true }, false)).toEqual({ kind: 'within', authorityUzs: 600 })
+    expect(authorityState(row)).toEqual({ kind: 'short', authorityUzs: 600, shortfallUzs: 300 })
+    expect(authorityState({ ...row, decide_alone: true })).toEqual({ kind: 'within', authorityUzs: 600 })
   })
 
   it('says it cannot tell when the currency has no rate', () => {
-    expect(authorityState({ ...row, rate_missing: true, amount_uzs: null }, false)).toEqual({ kind: 'noRate' })
+    expect(authorityState({ ...row, rate_missing: true, amount_uzs: null })).toEqual({ kind: 'noRate' })
   })
 })
 

@@ -22,13 +22,10 @@ const TONE_CLASS: Record<string, string> = {
 
 interface GroupPreflightNoticeProps {
   preflight: GroupPreflight | null | undefined
-  /** Admin is exempt from the group block (documented in 0040): the numbers
-   * still show, but the wording must not promise a refusal that will not
-   * happen. */
-  isAdmin?: boolean
 }
 
-export function GroupPreflightNotice({ preflight, isAdmin = false }: GroupPreflightNoticeProps) {
+/** Nobody is exempt from the group block since 0063 (admin decides nothing). */
+export function GroupPreflightNotice({ preflight }: GroupPreflightNoticeProps) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
 
@@ -52,7 +49,7 @@ export function GroupPreflightNotice({ preflight, isAdmin = false }: GroupPrefli
     state.kind === 'no_limit'
       ? t('groups.preflight.noLimit', numbers)
       : state.kind === 'over'
-        ? t(isAdmin ? 'groups.preflight.overAdmin' : 'groups.preflight.over', numbers)
+        ? t('groups.preflight.over', numbers)
         : state.kind === 'warn'
           ? t('groups.preflight.warn', {
               ...numbers,

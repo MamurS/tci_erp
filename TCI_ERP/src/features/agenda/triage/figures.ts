@@ -32,10 +32,12 @@ export interface QueueAuthority {
   rate_missing: boolean
   my_authority_uzs: number | string
   decide_alone: boolean
+  own_request: boolean
 }
 
 export type AuthorityState =
-  | { kind: 'admin' }
+  /** The caller raised it: four eyes (0063), a colleague decides. */
+  | { kind: 'ownRequest' }
   /** The request's currency has no rate: nobody can tell, the SQL raises. */
   | { kind: 'noRate' }
   | { kind: 'within'; authorityUzs: number }
@@ -45,8 +47,8 @@ export type AuthorityState =
  * Within or short is `decide_alone`, computed by the view with the rule of
  * decide_limit_request; the shortfall is only the difference it implies.
  */
-export function authorityState(row: QueueAuthority, isAdmin: boolean): AuthorityState {
-  if (isAdmin) return { kind: 'admin' }
+export function authorityState(row: QueueAuthority): AuthorityState {
+  if (row.own_request) return { kind: 'ownRequest' }
   const amount = num(row.amount_uzs)
   if (row.rate_missing || amount === null) return { kind: 'noRate' }
   const authority = num(row.my_authority_uzs) ?? 0

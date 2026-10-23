@@ -13,7 +13,7 @@ import { SignInNotice } from '../../auth/SignInNotice'
 import { NewVersionNotice } from './NewVersionNotice'
 import { useNewVersion } from '../../lib/useNewVersion'
 import { useAuth } from '../../auth/AuthContext'
-import { WORKSPACE_KEY, availableWorkspaces, resolveWorkspace, workspaceHome } from './workspaces'
+import { availableWorkspaces, rememberWorkspace, workspaceForRole, workspaceHome } from './workspaces'
 import type { WorkspaceKey } from './workspaces'
 
 const DESKTOP = '(min-width: 1024px)'
@@ -26,49 +26,27 @@ function readSidebar(): SidebarState {
   }
 }
 
-function readWorkspace(): string | null {
-  try {
-    return window.localStorage.getItem(WORKSPACE_KEY)
-  } catch {
-    return null
-  }
-}
-
-function rememberWorkspace(key: WorkspaceKey) {
-  try {
-    window.localStorage.setItem(WORKSPACE_KEY, key)
-  } catch {
-    // a per-browser convenience; nothing to do when storage is blocked
-  }
-}
-
 /**
- * The role workspace on screen: the remembered one while it contains the
- * page, else one that does (workspaces.ts). Switching lands on the chosen
- * workspace's first tool.
+ * The role workspace on screen IS the acting role's (0063): opening a page
+ * never switches it. Switching acts in the chosen workspace's role (the
+ * server is told, every query refetched) and lands on its first tool.
  */
-function useWorkspace(pathname: string) {
-  const { roles } = useAuth()
+function useWorkspace() {
+  const { heldRoles, actingRole, switchActingRole } = useAuth()
   const navigate = useNavigate()
-  const [stored, setStored] = useState<string | null>(readWorkspace)
-  const workspace = resolveWorkspace(roles, stored, pathname)
-
-  useEffect(() => {
-    if (workspace && workspace !== stored) {
-      setStored(workspace)
-      rememberWorkspace(workspace)
-    }
-  }, [workspace, stored])
+  const workspace = workspaceForRole(actingRole)?.key ?? null
 
   const switchTo = useCallback(
     (key: WorkspaceKey) => {
-      const target = availableWorkspaces(roles).find((w) => w.key === key)
+      const target = availableWorkspaces(heldRoles).find((w) => w.key === key)
       if (!target) return
-      setStored(key)
       rememberWorkspace(key)
-      navigate(workspaceHome(roles, target))
+      navigate(workspaceHome([target.role], target))
+      switchActingRole(target.role).catch((error: unknown) => {
+        console.error('Failed to switch the acting role', error)
+      })
     },
-    [roles, navigate],
+    [heldRoles, navigate, switchActingRole],
   )
 
   return { workspace, switchTo }
@@ -117,7 +95,7 @@ export function AppShell() {
   const peekRef = useRef<HTMLDivElement>(null)
   const toggleRef = useRef<HTMLDivElement>(null)
   const { pathname } = useLocation()
-  const { workspace, switchTo } = useWorkspace(pathname)
+  const { workspace, switchTo } = useWorkspace()
   const workspaceProps = { workspace, onSwitchWorkspace: switchTo }
 
   const pinned = isDesktop && docked === 'open'

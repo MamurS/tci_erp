@@ -8,6 +8,7 @@ import MIGRATION from '../../../supabase/migrations/0013_credit_limit_workflow.s
 import MIGRATION_0017 from '../../../supabase/migrations/0017_authority_matrix.sql?raw'
 import MIGRATION_0020 from '../../../supabase/migrations/0020_two_stage_decisions.sql?raw'
 import MIGRATION_0060 from '../../../supabase/migrations/0060_limit_validation.sql?raw'
+import MIGRATION_0063 from '../../../supabase/migrations/0063_acting_role.sql?raw'
 import {
   authorityUzs,
   commercialPreflight,
@@ -18,6 +19,14 @@ import {
   toUzs,
 } from './authority'
 import type { FxRateRow } from './authority'
+
+/** One function's body in a migration, up to its closing $function$. */
+function fn(migration: string, name: string): string {
+  const start = migration.indexOf(`FUNCTION tci.${name}(`)
+  expect(start, `${name} is not redefined`).toBeGreaterThan(-1)
+  const body = migration.slice(start)
+  return body.slice(0, body.indexOf('$function$\n;'))
+}
 import type { AuthorityGrant } from './types'
 
 const TODAY = '2026-08-26'
@@ -128,14 +137,18 @@ describe('toUzs / authorityUzs (mirror of tci.to_uzs / tci.my_authority_uzs)', (
 })
 
 describe('preflight (mirror of the underwriter branch of tci.decide_limit_request)', () => {
-  it('admin decides regardless of amount and band', () => {
-    expect(preflight(1e15, 'USD', ['admin'], 'D', null, [], TODAY).withinAuthority).toBe(true)
-    expect(preflight(1e15, 'USD', ['admin', 'sales'], 'unrated', null, [], TODAY).withinAuthority)
-      .toBe(true)
+  it('0063: nobody is exempt — the admin branch is gone from decide_limit_request', () => {
+    const decide = fn(MIGRATION_0063, 'decide_limit_request')
+    expect(decide).toContain("if not tci.has_role('credit_underwriter') then")
+    expect(decide).not.toContain("'admin'")
+    expect(decide).toContain('    v_authority_uzs := tci.my_authority_uzs(v_band);')
+    expect(decide).toContain('    if v_amount_uzs > v_authority_uzs then')
+    // no authority, no decision
+    expect(preflight(1_000, 'UZS', 'D', 0, [], TODAY).withinAuthority).toBe(false)
   })
 
   it('credit underwriter within band authority', () => {
-    const r = preflight(5_000, 'USD', ['credit_underwriter'], 'B', 100_000_000, [rate({})], TODAY)
+    const r = preflight(5_000, 'USD', 'B', 100_000_000, [rate({})], TODAY)
     expect(r).toEqual({
       band: 'B',
       amountUzs: 60_000_000,
@@ -145,20 +158,20 @@ describe('preflight (mirror of the underwriter branch of tci.decide_limit_reques
   })
 
   it('over band authority needs validation (strict >, boundary passes)', () => {
-    const at = preflight(100_000_000, 'UZS', ['credit_underwriter'], 'B', 100_000_000, [], TODAY)
+    const at = preflight(100_000_000, 'UZS', 'B', 100_000_000, [], TODAY)
     expect(at.withinAuthority).toBe(true)
-    const over = preflight(100_000_001, 'UZS', ['credit_underwriter'], 'B', 100_000_000, [], TODAY)
+    const over = preflight(100_000_001, 'UZS', 'B', 100_000_000, [], TODAY)
     expect(over.withinAuthority).toBe(false)
   })
 
   it('unrated decisions carry the band through the verdict', () => {
-    const r = preflight(1_000, 'UZS', ['credit_underwriter'], 'unrated', 0, [], TODAY)
+    const r = preflight(1_000, 'UZS', 'unrated', 0, [], TODAY)
     expect(r.band).toBe('unrated')
     expect(r.withinAuthority).toBe(false)
   })
 
   it('missing rate -> unknown (SQL raises P0003 before deciding)', () => {
-    const r = preflight(1_000, 'EUR', ['credit_underwriter'], 'B', 100_000_000, [], TODAY)
+    const r = preflight(1_000, 'EUR', 'B', 100_000_000, [], TODAY)
     expect(r.withinAuthority).toBeNull()
     expect(r.amountUzs).toBeNull()
   })
@@ -240,10 +253,13 @@ describe('commercial authority (mirror of tci.adjust_limit_commercial, 0020)', (
     expect(scopedAuthorityUzs(rows, 'commercial', 'unrated', [], TODAY)).toBe(0)
   })
 
-  it('admin adjusts any amount without consulting the matrix', () => {
-    const r = commercialPreflight(1e15, 'USD', ['admin'], 'D', [], [], TODAY)
-    expect(r.withinAuthority).toBe(true)
-    expect(MIGRATION_0020).toContain("if not tci.has_role('admin') then")
+  it('0063: nobody adjusts beyond the matrix — admin included', () => {
+    const r = commercialPreflight(1_000, 'UZS', 'D', [], [], TODAY)
+    expect(r.withinAuthority).toBe(false)
+    const adjust = fn(MIGRATION_0063, 'adjust_limit_commercial')
+    expect(adjust).toContain("if not tci.has_role('commercial_underwriter') then")
+    expect(adjust).toContain('  if not v_is_reduction then')
+    expect(adjust).not.toContain("'admin'")
   })
 
   it('a commercial underwriter is bound by the band of the CREDIT decision', () => {
@@ -251,7 +267,7 @@ describe('commercial authority (mirror of tci.adjust_limit_commercial, 0020)', (
       auth({ applies_to: 'commercial', grade_band: 'B', max_amount: 300_000_000 }),
     ]
     const within = commercialPreflight(
-      300_000_000, 'UZS', ['commercial_underwriter'], 'B', grants, [], TODAY,
+      300_000_000, 'UZS', 'B', grants, [], TODAY,
     )
     expect(within).toEqual({
       band: 'B',
@@ -260,12 +276,12 @@ describe('commercial authority (mirror of tci.adjust_limit_commercial, 0020)', (
       withinAuthority: true, // boundary passes: SQL raises on strict >
     })
     const over = commercialPreflight(
-      300_000_001, 'UZS', ['commercial_underwriter'], 'B', grants, [], TODAY,
+      300_000_001, 'UZS', 'B', grants, [], TODAY,
     )
     expect(over.withinAuthority).toBe(false)
     // a grant in a DIFFERENT band does not help
     const wrongBand = commercialPreflight(
-      1_000, 'UZS', ['commercial_underwriter'], 'C', grants, [], TODAY,
+      1_000, 'UZS', 'C', grants, [], TODAY,
     )
     expect(wrongBand.authorityUzs).toBe(0)
     expect(wrongBand.withinAuthority).toBe(false)
@@ -274,7 +290,7 @@ describe('commercial authority (mirror of tci.adjust_limit_commercial, 0020)', (
   it('a credit grant never funds a commercial adjustment', () => {
     const creditOnly = [auth({ applies_to: 'credit', grade_band: 'B', max_amount: 1e12 })]
     const r = commercialPreflight(
-      1_000, 'UZS', ['commercial_underwriter'], 'B', creditOnly, [], TODAY,
+      1_000, 'UZS', 'B', creditOnly, [], TODAY,
     )
     expect(r.authorityUzs).toBe(0)
     expect(r.withinAuthority).toBe(false)
@@ -283,12 +299,12 @@ describe('commercial authority (mirror of tci.adjust_limit_commercial, 0020)', (
   it('conversion uses the same fx rule; a missing rate is unknown', () => {
     const grants = [auth({ applies_to: 'commercial', grade_band: 'B', max_amount: 100_000_000 })]
     const usd = commercialPreflight(
-      5_000, 'USD', ['commercial_underwriter'], 'B', grants, [rate({})], TODAY,
+      5_000, 'USD', 'B', grants, [rate({})], TODAY,
     )
     expect(usd.amountUzs).toBe(60_000_000)
     expect(usd.withinAuthority).toBe(true)
     const noRate = commercialPreflight(
-      5_000, 'EUR', ['commercial_underwriter'], 'B', grants, [rate({})], TODAY,
+      5_000, 'EUR', 'B', grants, [rate({})], TODAY,
     )
     expect(noRate.withinAuthority).toBeNull()
   })

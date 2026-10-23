@@ -40,7 +40,6 @@ import { amountToPlain, parseAmount } from '../../components/ui/amount'
 import { todayIso } from '../../components/ui/dateEntry'
 import { EM_DASH, formatAmount, formatCompact, formatDate, formatMoment, formatPercent, formatRatio } from '../../lib/format'
 import { refusalOr } from '../../lib/optimistic'
-import { hasRole } from '../../lib/roles'
 import { BuyerBlock } from '../agenda/triage/BuyerBlock'
 import { useStatements } from '../entities/api'
 import { useAssessments } from '../entities/rating/assessmentsApi'
@@ -394,7 +393,7 @@ function ResolveModal({
 }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.language
-  const { session, roles } = useAuth()
+  const { session } = useAuth()
   const resolve = useResolveLimitValidation()
   const [amount, setAmount] = useState(step.amount === null ? '' : amountToPlain(step.amount))
   const [terms, setTerms] = useState(step.payment_terms_days === null ? '' : String(step.payment_terms_days))
@@ -416,9 +415,9 @@ function ResolveModal({
     checkedAmount === null
       ? null
       : step.stream === 'credit'
-        ? preflight(checkedAmount, step.currency_code, roles, step.grade_band, creditAuthority ?? null, rates ?? [], todayIso())
-        : commercialPreflight(checkedAmount, step.currency_code, roles, step.grade_band, grants ?? [], rates ?? [], todayIso())
-  const beyond = check !== null && check.withinAuthority === false && !hasRole(roles, 'admin')
+        ? preflight(checkedAmount, step.currency_code, step.grade_band, creditAuthority ?? null, rates ?? [], todayIso())
+        : commercialPreflight(checkedAmount, step.currency_code, step.grade_band, grants ?? [], rates ?? [], todayIso())
+  const beyond = check !== null && check.withinAuthority === false
 
   const commentMissing = actionNeedsComment(action) && comment.trim() === ''
   const blocked =

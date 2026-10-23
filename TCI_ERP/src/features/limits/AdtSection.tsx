@@ -2,9 +2,10 @@
  * «Порог автоматических решений (ADT)» on the buyer card (migration 0061):
  * the global switch, the buyer's live ADT (amount, used / total, what is
  * left, the band it was set at, suspended and why), the manual ban, and every
- * ADT the buyer ever had. The credit desk (admin, credit underwriting) sets,
- * replaces and disables it and bans auto decisions; nobody else sees the
- * block or even asks for it (`canSeeAdt`) — the database would refuse them.
+ * ADT the buyer ever had. Credit underwriting sets, replaces and disables it
+ * and bans auto decisions (`canSetAdt`); admin reads the block without the
+ * actions (since 0063 admin decides nothing); nobody else sees the block or
+ * even asks for it (`canSeeAdt`) — the database would refuse them.
  *
  * Every rule is the database's: the set form only HINTS at the authority
  * test of tci.set_buyer_adt, and each refusal comes back named (refusals.ts).
@@ -36,7 +37,7 @@ import { amountToPlain, parseAmount } from '../../components/ui/amount'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH, formatAmount, formatDate, formatMoment } from '../../lib/format'
 import { refusalOr } from '../../lib/optimistic'
-import { bandForGrade, hasRole } from '../../lib/roles'
+import { bandForGrade } from '../../lib/roles'
 import { DEEP_LINK_SCROLL_MARGIN } from '../../lib/useDeepLinkFocus'
 import { useCurrencies } from '../entities/api'
 import { useAssessments } from '../entities/rating/assessmentsApi'
@@ -48,6 +49,7 @@ import {
   adtWithinAuthority,
   banNeedsReason,
   canSeeAdt,
+  canSetAdt,
   isKnownReason,
 } from './adt'
 import type { AdtLive, AdtState } from './adt'
@@ -65,12 +67,12 @@ export function AdtSection({ entityId }: { entityId: string }) {
   if (!canSeeAdt(roles)) return null
   return (
     <div id={ADT_FOCUS} className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
-      <AdtCard entityId={entityId} />
+      <AdtCard entityId={entityId} canAct={canSetAdt(roles)} />
     </div>
   )
 }
 
-function AdtCard({ entityId }: { entityId: string }) {
+function AdtCard({ entityId, canAct }: { entityId: string; canAct: boolean }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const { data: state, isLoading, isError } = useBuyerAdtState(entityId, true)
@@ -85,7 +87,7 @@ function AdtCard({ entityId }: { entityId: string }) {
       <SectionTitle
         hint={t('limits.adt.hint')}
         actions={
-          state ? (
+          state && canAct ? (
             <>
               <Button size="sm" onClick={() => setDialog('set')}>
                 {t(live ? 'limits.adt.actions.replace' : 'limits.adt.actions.set')}
@@ -257,8 +259,6 @@ function LiveAdt({ live, locale, reason }: { live: AdtLive; locale: string; reas
 function SetAdtModal({ entityId, live, onClose }: { entityId: string; live: AdtLive | null; onClose: () => void }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const { roles } = useAuth()
-  const isAdmin = hasRole(roles, 'admin')
   const assessments = useAssessments(entityId)
   const latest = assessments.data?.[0] ?? null
   const band = bandForGrade(latest?.rating_grade)
@@ -278,7 +278,7 @@ function SetAdtModal({ entityId, live, onClose }: { entityId: string; live: AdtL
   const valid = adtFormValid({ amount: parsedAmount, count: parsedCount, currency })
   const todayIso = new Date().toISOString().slice(0, 10)
   const amountUzs = parsedAmount === null ? null : toUzs(parsedAmount, currency, rates ?? [], todayIso)
-  const within = adtWithinAuthority({ amountUzs, authorityUzs: authority ?? null, isAdmin })
+  const within = adtWithinAuthority({ amountUzs, authorityUzs: authority ?? null })
   const bandLabel = t(`limits.bands.${band}`)
 
   const submit = async () => {
@@ -356,11 +356,7 @@ function SetAdtModal({ entityId, live, onClose }: { entityId: string; live: AdtL
           <p className="text-[13px] text-slate-500 tabular-nums">
             {t('limits.adt.authorityIn', {
               band: bandLabel,
-              amount: isAdmin
-                ? t('limits.adt.unlimited')
-                : authority === undefined
-                  ? EM_DASH
-                  : `${formatAmount(authority, locale)} UZS`,
+              amount: authority === undefined ? EM_DASH : `${formatAmount(authority, locale)} UZS`,
             })}
           </p>
         )}
