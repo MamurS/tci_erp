@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0013_credit_limit_workflow.sql?raw'
 import MIGRATION_0063 from '../../../supabase/migrations/0063_acting_role.sql?raw'
+import M65 from '../../../supabase/migrations/0065_admin_technical_only.sql?raw'
 import {
   OPEN_STATUSES,
   canDecide,
@@ -79,10 +80,10 @@ describe('transitions (mirror of the SQL functions)', () => {
   })
 
   it('sales, commercial and credit underwriting may raise requests', () => {
-    for (const role of ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter'] as const) {
+    for (const role of ['sales', 'commercial_underwriter', 'credit_underwriter'] as const) {
       expect(canCreateRequest([role])).toBe(true)
     }
-    for (const role of ['claims', 'information_manager', 'client'] as const) {
+    for (const role of ['admin', 'claims', 'information_manager', 'client'] as const) {
       expect(canCreateRequest([role])).toBe(false)
     }
   })
@@ -91,9 +92,10 @@ describe('transitions (mirror of the SQL functions)', () => {
     expect(canWithdraw('submitted', ['sales'], true)).toBe(true)
     expect(canWithdraw('submitted', ['sales'], false)).toBe(false)
     expect(canWithdraw('escalated', ['credit_underwriter'], false)).toBe(true)
-    expect(canWithdraw('escalated', ['admin'], false)).toBe(true)
-    expect(canWithdraw('decided', ['admin'], true)).toBe(false)
-    expect(canWithdraw('withdrawn', ['admin'], true)).toBe(false)
+    expect(canWithdraw('escalated', ['admin'], false)).toBe(false)
+    expect(canWithdraw('decided', ['sales'], true)).toBe(false)
+    expect(canWithdraw('withdrawn', ['sales'], true)).toBe(false)
+    expect(M65).toContain("        or tci.has_role('credit_underwriter')) then")
   })
 })
 

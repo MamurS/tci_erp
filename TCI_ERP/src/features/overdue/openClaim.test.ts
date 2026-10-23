@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import M32 from '../../../supabase/migrations/0032_claims.sql?raw'
-import M43 from '../../../supabase/migrations/0043_security_closure.sql?raw'
+import M65 from '../../../supabase/migrations/0065_admin_technical_only.sql?raw'
 import type { ClaimStatus } from '../claims/types'
 import { blockingClaim, mayOpenClaimFromNoa, openClaimErrorKey } from './openClaim'
 
@@ -16,10 +16,11 @@ const claim = (over: Partial<{ id: string; policy_id: string; buyer_entity_id: s
 })
 
 describe('opening a claim from an overdue notification', () => {
-  it('is offered to claims, sales and admin on an open notification with no claim', () => {
-    for (const role of ['claims', 'sales', 'admin'] as const) {
+  it('is offered to claims and sales on an open notification with no claim', () => {
+    for (const role of ['claims', 'sales'] as const) {
       expect(mayOpenClaimFromNoa([role], noa, [])).toBe(true)
     }
+    expect(mayOpenClaimFromNoa(['admin'], noa, [])).toBe(false)
   })
 
   it('is not offered to other roles, or the client (the portal is theirs)', () => {
@@ -50,7 +51,7 @@ describe('opening a claim from an overdue notification', () => {
   })
 
   it('mirrors the rules the database enforces', () => {
-    expect(M43).toContain("if not (tci.has_role('claims', 'sales', 'admin') or tci.has_role('client')) then")
+    expect(M65).toContain("if not (tci.has_role('claims', 'sales') or tci.has_role('client')) then")
     expect(M32).toContain("create unique index claims_live_uq\n  on tci.claims (policy_id, entity_id)\n  where status not in ('declined', 'closed', 'withdrawn');")
     expect(M32).toContain("on tci.claims (overdue_notification_id)\n  where overdue_notification_id is not null and status <> 'withdrawn';")
   })

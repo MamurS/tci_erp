@@ -31,9 +31,9 @@ export const TRANSITIONS = [
 ] as const
 
 /** Who writes versions, generates, shares, submits for review and signs. */
-export const WRITER_ROLES: readonly UserRole[] = ['admin', 'commercial_underwriter', 'sales']
+export const WRITER_ROLES: readonly UserRole[] = ['commercial_underwriter', 'sales']
 /** Who agrees a draft and reopens an agreed one. */
-export const AGREE_ROLES: readonly UserRole[] = ['admin', 'commercial_underwriter']
+export const AGREE_ROLES: readonly UserRole[] = ['commercial_underwriter']
 /** A draft can be shared with the policyholder in these statuses. */
 export const SHAREABLE_STATUSES: readonly ContractStatus[] = ['under_review', 'agreed']
 /** The client may comment on a shared draft in this status only. */

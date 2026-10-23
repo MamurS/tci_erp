@@ -1137,6 +1137,7 @@
     "historyTitle": "Status history",
     "historyEmpty": "No status changes yet.",
     "transitionFailed": "Status change was rejected",
+    "statusCommercialOnly": "Only a commercial underwriter can change a policy's status.",
     "transitionComment": "Comment",
     "expiryDueHint": "The policy period ended on {{date}} — mark it as expired.",
     "fields": {

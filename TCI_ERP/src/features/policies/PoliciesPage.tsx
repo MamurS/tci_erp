@@ -19,7 +19,8 @@ import {
 } from '../../components/ui'
 import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { usePolicies } from './api'
-import { statusTone } from './statusMachine'
+import { useAuth } from '../../auth/AuthContext'
+import { mayWritePolicies, statusTone } from './statusMachine'
 import { POLICY_STATUSES, PRODUCT_STRUCTURES } from './types'
 import type { PolicyStatus, ProductStructure } from './types'
 
@@ -27,6 +28,7 @@ export function PoliciesPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const navigate = useNavigate()
+  const { roles } = useAuth()
 
   const { data: policies, isLoading } = usePolicies()
 
@@ -82,7 +84,9 @@ export function PoliciesPage() {
       <ViewBar
         hint={t('policies.subtitle')}
         actions={
-          <Button onClick={() => void navigate('/policies/new')}>{t('policies.newPolicy')}</Button>
+          mayWritePolicies(roles) ? (
+            <Button onClick={() => void navigate('/policies/new')}>{t('policies.newPolicy')}</Button>
+          ) : undefined
         }
       />
 

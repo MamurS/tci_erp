@@ -35,9 +35,11 @@ import { PolicyLimitsSection } from '../limits/PolicyLimitsSection'
 import { usePolicyOriginRequest } from '../requests/api'
 import { DraftContractSection } from '../wording'
 import { PolicyPremiumTab } from './PolicyPremiumTab'
+import { useAuth } from '../../auth/AuthContext'
 import { useChangePolicyStatus, usePolicy, usePolicyStatusHistory } from './api'
 import {
   allowedTargets,
+  mayWritePolicies,
   commentMandatory,
   isExpiryDue,
   requiresComment,
@@ -49,6 +51,7 @@ export function PolicyDetailPage() {
   const { t, i18n } = useTranslation()
   const { id = '' } = useParams()
   const navigate = useNavigate()
+  const { roles } = useAuth()
 
   const { data: policy, isLoading } = usePolicy(id)
 
@@ -81,7 +84,11 @@ export function PolicyDetailPage() {
           t(`policies.structures.${policy.product_structure}`),
           `${formatDate(policy.inception_date, i18n.language)} — ${formatDate(policy.expiry_date, i18n.language)}`,
         ]}
-        actions={<StatusActions policy={policy} onEdit={() => void navigate(`/policies/${id}/edit`)} />}
+        actions={
+          mayWritePolicies(roles) ? (
+            <StatusActions policy={policy} onEdit={() => void navigate(`/policies/${id}/edit`)} />
+          ) : undefined
+        }
       />
 
       <PolicyOrigin policyId={id} />

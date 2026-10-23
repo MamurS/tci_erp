@@ -7,9 +7,11 @@ import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0012_policyholders_policies.sql?raw'
 import MIGRATION_0014 from '../../../supabase/migrations/0014_policy_annulled_status.sql?raw'
+import M65 from '../../../supabase/migrations/0065_admin_technical_only.sql?raw'
 import {
   ALLOWED_TRANSITIONS,
   allowedTargets,
+  mayWritePolicies,
   canTransition,
   commentMandatory,
   isExpiryDue,
@@ -120,5 +122,17 @@ describe('migration 0012 RLS contract (portal-ready policies)', () => {
     expect(MIGRATION).toContain(`status = 'draft'`)
     expect(MIGRATION).toContain('or max_liability_amount is not null')
     expect(MIGRATION).toContain('or max_liability_premium_multiple is not null')
+  })
+})
+
+describe('who writes policies (0065)', () => {
+  it('is commercial underwriting, as the policy and the named rule say', () => {
+    expect(M65).toContain(`alter policy "policies: commercial write" on tci.policies
+  using (tci.has_role(VARIADIC ARRAY['commercial_underwriter'::tci.user_role]))`)
+    expect(M65).toContain("raise exception 'policy_status_commercial_only:")
+    expect(mayWritePolicies(['commercial_underwriter'])).toBe(true)
+    for (const r of ['admin', 'sales', 'credit_underwriter', 'claims', 'information_manager', 'client'] as const) {
+      expect(mayWritePolicies([r])).toBe(false)
+    }
   })
 })

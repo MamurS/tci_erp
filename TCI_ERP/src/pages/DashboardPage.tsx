@@ -68,7 +68,7 @@ export function DashboardPage() {
   const seesDeclarations = hasRole(roles, 'admin', 'sales', 'commercial_underwriter')
   const seesOverdues = hasRole(roles, 'admin', 'credit_underwriter', 'commercial_underwriter')
   const seesClaims = hasRole(roles, 'admin', 'claims', 'credit_underwriter', 'commercial_underwriter')
-  const canDecide = hasRole(roles, 'admin', 'credit_underwriter')
+  const canDecide = hasRole(roles, 'credit_underwriter')
 
   const { data: policies } = usePolicies()
   const { data: entities } = useEntities()

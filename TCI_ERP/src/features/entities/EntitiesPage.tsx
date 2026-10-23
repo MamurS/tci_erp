@@ -35,6 +35,7 @@ import {
 import { useAuth } from '../../auth/AuthContext'
 import { RequestEntityModal } from '../data/RequestEntityModal'
 import { canWorkRequests } from '../data/requests'
+import { mayWriteEntities } from './access'
 import { EntityFormModal } from './EntityFormModal'
 import { gradeTone } from '../../lib/grade'
 import { EM_DASH, formatDate } from '../../lib/format'
@@ -161,7 +162,7 @@ export function EntitiesPage() {
         // its height so the title does not move.
         actions={
           <div className="flex h-9 items-center">
-            {!notFound && (
+            {!notFound && mayWriteEntities(myRoles) && (
               <Button onClick={() => setModalOpen(true)}>
                 <Plus />
                 {t('entities.add')}

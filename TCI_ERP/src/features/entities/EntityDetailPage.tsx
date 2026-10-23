@@ -13,6 +13,7 @@ import { Badge, Button, CountryFlag, EmptyState, LinkButton, PageHeader, Spinner
 import { useEntity, useEntityRoles } from './api'
 import { BuyerLimitsTab } from '../limits/BuyerLimitsTab'
 import { RequestStatementsButton } from '../data/RequestStatementsButton'
+import { mayWriteEntities } from './access'
 import { EntityFormModal } from './EntityFormModal'
 import { RoleBadges } from './EntitiesPage'
 import { FinancialsTab } from './financials/FinancialsTab'
@@ -138,9 +139,11 @@ export function EntityDetailPage() {
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <RequestStatementsButton entityId={entity.id} />
-            <Button variant="secondary" onClick={() => setEditOpen(true)}>
-              {t('common.edit')}
-            </Button>
+            {mayWriteEntities(callerRoles) && (
+              <Button variant="secondary" onClick={() => setEditOpen(true)}>
+                {t('common.edit')}
+              </Button>
+            )}
           </div>
         }
       />

@@ -39,7 +39,8 @@ import {
   useDisputeDeclaration,
   useSubmitDeclaration,
 } from './api'
-import { canCorrect, canTransition } from './machine'
+import { useAuth } from '../../auth/AuthContext'
+import { canCorrect, canTransition, mayMoveAs } from './machine'
 import type { CoverageBasis } from './types'
 import { refusalKey } from '../../lib/refusals'
 
@@ -54,6 +55,7 @@ export function DeclarationDetailPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.language
 
+  const { roles } = useAuth()
   const { data: declaration, isLoading } = useDeclaration(id)
   const { data: lines } = useDeclarationLines(id)
   const { data: totals } = useDeclarationTotals(id)
@@ -100,24 +102,24 @@ export function DeclarationDetailPage() {
         ]}
         actions={
           <>
-            {canTransition(declaration.status, 'submitted') && (
+            {canTransition(declaration.status, 'submitted') && mayMoveAs('submitted', roles) && (
               <Button loading={submit.isPending} onClick={() => run(submit.mutateAsync(declaration.id))}>
                 {t('declarations.actions.submit')}
               </Button>
             )}
-            {canTransition(declaration.status, 'accepted') && (
+            {canTransition(declaration.status, 'accepted') && mayMoveAs('accepted', roles) && (
               <Button loading={accept.isPending} onClick={() => run(accept.mutateAsync(declaration.id))}>
                 {t('declarations.actions.accept')}
               </Button>
             )}
             {/* Sending it back is the alternative to accepting, not a peer of
                 it: a secondary button, and the note is asked for in a dialog. */}
-            {canTransition(declaration.status, 'disputed') && (
+            {canTransition(declaration.status, 'disputed') && mayMoveAs('disputed', roles) && (
               <Button variant="secondary" onClick={() => setDisputing(true)}>
                 {t('declarations.actions.dispute')}
               </Button>
             )}
-            {canCorrect(declaration.status) && (
+            {canCorrect(declaration.status) && mayMoveAs('corrected', roles) && (
               <Button
                 variant="secondary"
                 loading={correct.isPending}

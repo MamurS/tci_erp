@@ -31,7 +31,7 @@ Benchmark for domain logic: Allianz Trade / Coface / Atradius practices.
 
 Department roles (stored in `tci.user_roles`, enforced via RLS). **A user may hold SEVERAL roles** — one row per (user, role) — but since 0063 **acts in ONE at a time**: the acting role (the role of the active workspace, kept per sign-in session in `tci.acting_roles`) is what every gate answers for; access is NOT the union. See **Acting role and four-eyes rules** below.
 
-- `admin` — **technical**: users, roles, authorities and settings; read-only oversight of the business screens; makes **no business decisions** on limits (0063 — no decide, adjust, hold, release, revoke, validate, ADT or group limit, no authority)
+- `admin` — **technical**: users, roles, authorities, reference data, contract templates and settings; read-only oversight of the business screens; makes **no business decisions** — on limits since 0063 (no decide, adjust, hold, release, revoke, validate, ADT or group limit, no authority), everywhere else since 0065 (no claims, declarations, premium, policy status or edits, submissions, bind, offers, contract drafts, companies, statements, ratings, data requests, relationships, nor another department's Agenda task)
 - `sales` — companies and policies (read), raises limit requests
 - `commercial_underwriter` — policy terms; the commercial stage of decisions (Phase 3c)
 - `credit_underwriter` — ratings, limits and credit decisions within band authority
@@ -723,6 +723,25 @@ is fine for internal test accounts and not fine for customers.
   whole `tests/db/sign_in_interruptions.sql` run on canonical with role
   impersonation (forced rollback, nothing left behind); the advisor's only
   new entry is `login_interrupted` executable by `anon`, which is intended
+- [x] Admin is technical everywhere (migration 0065): every admin branch
+  left in the business functions outside limits (claims, declarations,
+  premium and bank import, submissions and bind, offers, contract drafts and
+  generated documents, data requests, buyer proposals, relationships, limit
+  withdrawal, other departments' tasks) and admin in every write policy on
+  the business tables and the claim / contract storage buckets are gone;
+  admin keeps users, authority, reference data, templates, settings and READ
+  oversight. The screens stop offering admin those actions, and the Agenda
+  lists only what the person may work. See **Acting role and four-eyes
+  rules** below. **Canonical: 0065 applied 2026-10-23** BEFORE merge
+  (backward-compatible: the old screens only see admin's business actions
+  refused): the 44 functions and 39 policies it replaces verified identical
+  to a local replay of 0064 first; `delete_claim_document` as written, the
+  other 42 functions rebuilt server-side from their own bodies by the same
+  textual change (a local run of that procedure is fingerprint-identical to
+  a replay of the file), sections 2–4 with the closing assertions and the
+  ledger row; all 44 functions and every tci policy fingerprint-identical
+  afterwards; `tests/db/admin_technical.sql` run on canonical with role
+  impersonation (forced rollback, nothing left behind, counts unchanged)
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1786,8 +1805,24 @@ form.
 Infinity for admin; `start_limit_review` requires credit underwriting. Admin
 keeps READ oversight (queue, ADT report, validation chains) and the
 technical settings (`set_auto_decision_settings`, authority grants, users).
-Business powers of admin OUTSIDE limits (claims, declarations, policy
-status, bind) are not yet removed — a follow-up.
+
+**Admin is technical everywhere (0065).** No business function names
+`'admin'` any more, and no WRITE policy on a business table lets admin in;
+the assertion at the end of 0065 lists exactly the tci functions and the
+write policies that still may (users and sign-in, the ADT switch and two
+read-only oversight functions, contract templates, bank-statement profiles,
+the retired brochure/media functions; reference data, authority grants,
+settings, the insurer's particulars) — a new one must be added there on
+purpose. Every SELECT policy is untouched: admin still READS everything.
+`change_policy_status` names its rule (`policy_status_commercial_only`,
+42501) instead of answering "not found". An admin refusal may arrive as
+P0002 rather than 42501 where a function locks its row before its own role
+check (the write policy no longer lets admin lock it). The Agenda shows a
+person only what they may work (`isMine`, the mirror of `task_is_mine`), so
+admin's «Моя повестка» holds admin's own tasks; the UI mirrors the rest
+(`entities/access.ts`, `policies/statusMachine.ts mayWritePolicies`,
+`declarations/machine.ts mayMoveAs`, and the role lists of every feature
+machine). `tests/db/admin_technical.sql` proves it.
 
 ### Auto decision (ADT) rules (migration 0061)
 

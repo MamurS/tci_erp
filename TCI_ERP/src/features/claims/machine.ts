@@ -62,7 +62,7 @@ export function mayTransition(
   isOwningPolicyholder = false,
 ): boolean {
   if (!canTransition(from, to)) return false
-  const isClaims = roles.includes('claims') || roles.includes('admin')
+  const isClaims = roles.includes('claims')
   if (to === 'submitted' || to === 'withdrawn') {
     return isClaims || roles.includes('sales') || isOwningPolicyholder
   }

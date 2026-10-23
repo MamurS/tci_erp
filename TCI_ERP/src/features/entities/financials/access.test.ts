@@ -1,14 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import MIGRATION from '../../../../supabase/migrations/0016_department_roles.sql?raw'
+import M65 from '../../../../supabase/migrations/0065_admin_technical_only.sql?raw'
 import { STATEMENT_WRITERS, mayEnterStatements } from './access'
 
 describe('statement entry access', () => {
   it('mirrors the data-write policy on financial statements', () => {
-    const quoted = STATEMENT_WRITERS.map((r) => `'${r}'`).join(', ')
-    expect(MIGRATION).toContain(`create policy "financial_statements: data write"
-  on tci.financial_statements for all to authenticated
-  using (tci.has_role(${quoted}))`)
+    const quoted = STATEMENT_WRITERS.map((r) => `'${r}'::tci.user_role`).join(', ')
+    expect(M65).toContain(`alter policy "financial_statements: data write" on tci.financial_statements
+  using (tci.has_role(VARIADIC ARRAY[${quoted}]))`)
   })
 
   it('offers entry to the data and credit desks only', () => {
@@ -16,5 +15,6 @@ describe('statement entry access', () => {
     expect(mayEnterStatements(['credit_underwriter', 'sales'])).toBe(true)
     expect(mayEnterStatements(['sales'])).toBe(false)
     expect(mayEnterStatements(['commercial_underwriter'])).toBe(false)
+    expect(mayEnterStatements(['admin'])).toBe(false)
   })
 })

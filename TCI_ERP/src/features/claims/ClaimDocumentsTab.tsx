@@ -47,7 +47,7 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
   const [removing, setRemoving] = useState<ClaimDocument | null>(null)
 
   const canUpload =
-    (roles.includes('claims') || roles.includes('sales') || roles.includes('admin')) &&
+    (roles.includes('claims') || roles.includes('sales')) &&
     !['paid', 'closed', 'withdrawn'].includes(claim.status)
   const required = requiredDocuments(claim.cause_of_loss)
   const missing = readiness?.missing ?? []

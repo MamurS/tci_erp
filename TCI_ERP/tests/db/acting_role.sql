@@ -81,7 +81,7 @@ begin
     execute p_sql;
   exception when others then
     get stacked diagnostics v_state = returned_sqlstate, v_msg = message_text;
-    if v_state = p_state and (p_fragment is null or position(p_fragment in v_msg) > 0) then return; end if;
+    if v_state = any (string_to_array(p_state, '|')) and (p_fragment is null or position(p_fragment in v_msg) > 0) then return; end if;
     raise exception 'acting_role: % refused with % (%) instead of % %', p_label, v_state, v_msg, p_state, coalesce(p_fragment, '');
   end;
   raise exception 'acting_role: % was NOT refused', p_label;
@@ -188,14 +188,17 @@ begin
     raise exception 'acting_role: a colleague''s commercial adjustment answered %', v;
   end if;
 
-  -- 9. Admin: technical role only. No decision, no hold, no authority.
+  -- 9. Admin: technical role only. No decision, no hold, no authority. Since
+  --    0065 admin holds no write policy on the limit tables either, so the
+  --    refusal may come from the row lock (P0002, "not accessible") before
+  --    the function's own role check (42501) is reached.
   perform pg_temp.act(c_admin);
   perform pg_temp.refused(format('select tci.decide_limit_request(%L, ''approved'', 100000, ''UZS'')', c_radmin),
-                          '42501', 'an admin credit decision', 'only credit underwriting');
+                          '42501|P0002', 'an admin credit decision');
   perform pg_temp.refused(format('select tci.adjust_limit_commercial(%L, 300000)', v_dec_other),
-                          '42501', 'an admin commercial adjustment', 'only commercial underwriting');
+                          '42501|P0002', 'an admin commercial adjustment');
   perform pg_temp.refused(format('select tci.hold_decision(%L, ''why'')', v_dec_own),
-                          '42501', 'an admin hold', 'only sales');
+                          '42501|P0002', 'an admin hold');
   perform set_config('role', 'postgres', true);
   if tci.user_authority_uzs(c_admin, 'credit', 'unrated') <> 0 then
     raise exception 'acting_role: admin still has unlimited authority';

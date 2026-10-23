@@ -116,6 +116,8 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'four_eyes_own_credit_decision', key: 'limits.errors.fourEyesOwnCredit' },
   { fragment: 'only credit underwriting may take a request into review', key: 'limits.errors.reviewCreditOnly' },
   { fragment: 'only credit underwriting may decide', key: 'limits.errors.decideCreditOnly' },
+  // admin is a technical role (0065)
+  { fragment: 'policy_status_commercial_only', key: 'policies.statusCommercialOnly' },
   { fragment: 'acting_role_not_held', key: 'roles.errors.notHeld' },
   { fragment: 'acting_role_no_session', key: 'roles.errors.noSession' },
   // a portal client holds no other role (0062)

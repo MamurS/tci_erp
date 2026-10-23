@@ -86,7 +86,7 @@ export function PolicyPremiumTab({ policyId }: { policyId: string }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.language
   const { roles } = useAuth()
-  const canWrite = hasRole(roles, 'commercial_underwriter', 'admin')
+  const canWrite = hasRole(roles, 'commercial_underwriter')
   const { data: premium, isLoading } = usePolicyPremium(policyId)
   const { data: instalments } = usePremiumInstalments(policyId)
   const { data: payments } = usePremiumPayments(policyId)

@@ -6,6 +6,7 @@
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0023_nullable_policy_bind.sql?raw'
+import M65 from '../../../supabase/migrations/0065_admin_technical_only.sql?raw'
 import {
   bindBlocker,
   canBindAs,
@@ -52,9 +53,10 @@ describe('required terms', () => {
 
 describe('who may bind', () => {
   it('mirrors the function role gate', () => {
-    expect(MIGRATION).toContain("if not tci.has_role('admin', 'commercial_underwriter') then")
+    expect(MIGRATION).toContain('create function tci.bind_insurance_request(')
+    expect(M65).toContain("if not tci.has_role('commercial_underwriter') then")
     expect(canBindAs(['commercial_underwriter'])).toBe(true)
-    expect(canBindAs(['admin'])).toBe(true)
+    expect(canBindAs(['admin'])).toBe(false)
     expect(canBindAs(['sales'])).toBe(false)
     expect(canBindAs(['credit_underwriter'])).toBe(false)
     expect(canBindAs([])).toBe(false)

@@ -66,7 +66,7 @@ export function ClaimDetailPage() {
   const tabs: TabDef[] = TAB_KEYS.map((key) => ({ key, label: t(`claims.tabs.${key}`) }))
   const moves = offeredTransitions(roles, claim.status)
   const canApprove =
-    (roles.includes('claims') || roles.includes('admin')) &&
+    roles.includes('claims') &&
     ['submitted', 'under_assessment', 'info_requested'].includes(claim.status)
   const warning = noaWarning(claim)
   const blockers = readiness?.blockers ?? []
