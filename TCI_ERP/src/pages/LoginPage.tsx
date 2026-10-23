@@ -11,6 +11,9 @@ import type { TurnstileHandle } from '../auth/turnstile'
 import { BrandMark, Button, Field, Input, PasswordInput } from '../components/ui'
 import { LanguageSwitcher } from '../components/layout/LanguageSwitcher'
 import { landingPath } from '../features/portal/navigation'
+import { NewVersionNotice } from '../components/layout/NewVersionNotice'
+import { useNewVersion } from '../lib/useNewVersion'
+import { reloadIntoNewBuild } from '../lib/appVersion'
 
 export function LoginPage() {
   const { t } = useTranslation()
@@ -24,6 +27,22 @@ export function LoginPage() {
   const [waitUntil, setWaitUntil] = useState<number | null>(null)
   const [now, setNow] = useState(() => Date.now())
   const [helpOpen, setHelpOpen] = useState(false)
+
+  // A sign-in page left open across a deploy would sign in with the old
+  // code. While nothing has been typed a reload loses nothing, so it
+  // reloads by itself; with a half-typed form it asks instead.
+  const newVersion = useNewVersion()
+  const pristine = email === '' && password === '' && !submitting
+  const [reloadDeclined, setReloadDeclined] = useState(false)
+  useEffect(() => {
+    if (!newVersion || !pristine) return
+    void reloadIntoNewBuild().then((reloading) => {
+      if (!reloading) setReloadDeclined(true)
+    })
+  }, [newVersion, pristine])
+  // The notice only where the page does not reload by itself: no flash of
+  // it while the reload is on its way.
+  const offerReload = newVersion && (!pristine || reloadDeclined)
 
   useEffect(() => {
     if (waitUntil === null) return
@@ -217,6 +236,7 @@ export function LoginPage() {
           <p className="text-center text-xs text-slate-400">{t('auth.noSelfSignup')}</p>
         </form>
       </div>
+      <NewVersionNotice stale={offerReload} />
     </div>
   )
 }

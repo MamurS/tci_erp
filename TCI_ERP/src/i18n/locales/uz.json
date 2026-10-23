@@ -1,7 +1,13 @@
 {
   "app": {
     "title": "TCI ERP",
-    "company": "Savdo kreditlarini sug‘urtalash"
+    "company": "Savdo kreditlarini sug‘urtalash",
+    "newVersion": {
+      "title": "TCI ERP ning yangi versiyasi mavjud",
+      "body": "So‘nggi tuzatishlarni olish uchun sahifani yangilang. Ushbu sahifadagi saqlanmagan o‘zgarishlar yo‘qoladi.",
+      "reload": "Sahifani yangilash",
+      "later": "Keyinroq"
+    }
   },
   "nav": {
     "dashboard": "Boshqaruv paneli",

@@ -34,3 +34,8 @@
 # The built assets are content-hashed: cache them for a year.
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Which build is deployed (vite.config.ts → src/lib/appVersion.ts): an open
+# tab re-reads it to learn that it runs old code, so it must never be cached.
+/version.json
+  Cache-Control: no-store

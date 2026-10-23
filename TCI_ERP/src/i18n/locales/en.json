@@ -1,7 +1,13 @@
 {
   "app": {
     "title": "TCI ERP",
-    "company": "Trade credit insurance"
+    "company": "Trade credit insurance",
+    "newVersion": {
+      "title": "A new version of TCI ERP is available",
+      "body": "Reload the page to get the latest fixes. Unsaved changes on this page will be lost.",
+      "reload": "Reload page",
+      "later": "Later"
+    }
   },
   "nav": {
     "dashboard": "Dashboard",
