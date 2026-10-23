@@ -8,8 +8,11 @@ import {
   attemptsLeft,
   formatCountdown,
   lockSeconds,
+  interruptionReason,
   parseLoginBegin,
 } from './loginGate'
+import M64 from '../../supabase/migrations/0064_sign_in_interruptions.sql?raw'
+import AUTH_CONTEXT from './AuthContext.tsx?raw'
 
 describe('the schedule mirrors migration 0046', () => {
   it('uses the same defaults', () => {
@@ -36,6 +39,7 @@ describe('parseLoginBegin', () => {
       allowed: true,
       failures: 2,
       retryAfterSeconds: null,
+      ticket: null,
     })
     expect(parseLoginBegin({ allowed: false, retry_after_seconds: 44.2 })).toMatchObject({
       allowed: false,
@@ -59,3 +63,31 @@ describe('helpers', () => {
     expect(formatCountdown(0)).toBe('00:00')
   })
 })
+
+describe('the attempt ticket and the interruption label (0064)', () => {
+  const ticket = 'a'.repeat(64)
+
+  it('keeps a well-formed ticket and nothing else', () => {
+    expect(parseLoginBegin({ allowed: true, failures: 0, ticket }).ticket).toBe(ticket)
+    expect(parseLoginBegin({ allowed: true, failures: 0, ticket: 'short' }).ticket).toBeNull()
+    expect(parseLoginBegin({ allowed: false, retry_after_seconds: 5, ticket }).ticket).toBeNull()
+    // the database hands out 64 hex characters
+    expect(M64).toContain("v_ticket   text := replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '');")
+    expect(M64).toContain("return jsonb_build_object('allowed', true, 'failures', v_failures, 'ticket', v_ticket);")
+  })
+
+  it('labels only what never reached the password check', () => {
+    expect(interruptionReason('captcha')).toBe('captcha')
+    expect(interruptionReason('rateLimited')).toBe('rate_limited')
+    expect(interruptionReason('network')).toBe('network')
+    for (const kind of ['invalidCredentials', 'locked', 'userBanned', 'emailNotConfirmed', 'generic', 'throttled']) {
+      expect(interruptionReason(kind), kind).toBeNull()
+    }
+  })
+
+  it('the sign-in reports it with the attempt\'s own ticket', () => {
+    expect(AUTH_CONTEXT).toContain("rpc('login_interrupted', { p_ticket: gate.ticket, p_reason: reason })")
+    expect(M64).toContain('create function tci.login_interrupted(p_ticket text, p_reason text)')
+  })
+})
+

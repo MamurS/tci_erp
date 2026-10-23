@@ -20,6 +20,8 @@ export type SignInErrorKind =
   | 'captcha'
   | 'emailNotConfirmed'
   | 'userBanned'
+  /** The request never got an answer (offline, DNS, a dropped connection). */
+  | 'network'
   | 'generic'
 
 export interface SignInFailure {
@@ -39,6 +41,8 @@ export interface RawAuthError {
   /** HTTP status (supabase-js `AuthApiError.status`). */
   status?: number | null
   message?: string | null
+  /** supabase-js error class name (`AuthRetryableFetchError` = no answer). */
+  name?: string | null
 }
 
 /** The machine token the lockout hook puts in front of its message. */
@@ -63,6 +67,17 @@ export function classifySignInError(error: RawAuthError): SignInFailure {
   }
   if (code === 'invalid_credentials' || lower.includes('invalid login credentials')) {
     return { kind: 'invalidCredentials' }
+  }
+  // No answer at all: supabase-js reports a failed fetch as a retryable
+  // error with status 0 (0064 — reported as an interrupted attempt).
+  if (
+    error.name === 'AuthRetryableFetchError' ||
+    error.status === 0 ||
+    lower.includes('failed to fetch') ||
+    lower.includes('networkerror') ||
+    lower.includes('load failed')
+  ) {
+    return { kind: 'network' }
   }
   // A hook may reject with a message of its own; GoTrue relays it verbatim.
   // Anything we cannot classify is shown as a generic failure, never raw.

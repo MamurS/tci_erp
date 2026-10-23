@@ -19,7 +19,7 @@ import { ShieldAlert, X } from 'lucide-react'
 import { formatMoment } from '../lib/format'
 import { tci } from '../lib/supabase'
 import { useAuth } from './AuthContext'
-import { describeUserAgent, parseFailedSignIns, parseSignInNotice } from './signInNotice'
+import { describeUserAgent, parseFailedSignIns, parseInterruptedSignIns, parseSignInNotice } from './signInNotice'
 
 function sessionId(token: string | undefined): string {
   try {
@@ -61,7 +61,18 @@ export function SignInNotice({ accountPath }: { accountPath: string }) {
     },
   })
 
-  if (dismissed || !data || data.count === 0) return null
+  // Stopped before the password check (0064): listed apart, never hidden.
+  const interrupted = useQuery({
+    queryKey: ['auth', 'interrupted-sign-ins', id],
+    enabled: showList && Boolean(id) && (data?.interrupted ?? 0) > 0,
+    staleTime: Infinity,
+    queryFn: async () => {
+      const { data: rows, error } = await tci().rpc('my_interrupted_sign_ins')
+      return error ? [] : parseInterruptedSignIns(rows)
+    },
+  })
+
+  if (dismissed || !data || (data.count === 0 && data.interrupted === 0)) return null
 
   // The banner goes at once; the watermark is written behind it. If that
   // write fails the notice simply comes back at the next sign-in.
@@ -78,8 +89,10 @@ export function SignInNotice({ accountPath }: { accountPath: string }) {
     >
       <ShieldAlert className="mt-0.5 size-5 shrink-0 text-warn-500" aria-hidden />
       <div className="min-w-0 flex-1">
-        <p className="font-semibold text-slate-800">{t('security.notice.title')}</p>
-        <p className="mt-0.5">{t('security.notice.body', { count: data.count })}</p>
+        <p className="font-semibold text-slate-800">
+          {t(data.count > 0 ? 'security.notice.title' : 'security.notice.titleInterrupted')}
+        </p>
+        {data.count > 0 && <p className="mt-0.5">{t('security.notice.body', { count: data.count })}</p>}
         {data.firstAt && data.lastAt && (
           <p className="mt-0.5 text-slate-600">
             {data.firstAt === data.lastAt
@@ -90,13 +103,16 @@ export function SignInNotice({ accountPath }: { accountPath: string }) {
                 })}
           </p>
         )}
+        {data.interrupted > 0 && (
+          <p className="mt-0.5 text-slate-600">{t('security.notice.interrupted', { count: data.interrupted })}</p>
+        )}
         <p className="mt-0.5 text-slate-500">
           {t('security.notice.hint')}{' '}
           <Link to={accountPath} className="font-medium text-accent-600 hover:underline">
             {t('security.notice.changePassword')}
           </Link>
         </p>
-        {showList && (
+        {showList && data.count > 0 && (
           <table className="mt-2 w-full table-fixed text-[12.5px]">
             <colgroup>
               <col className="w-[34%]" />
@@ -117,6 +133,36 @@ export function SignInNotice({ accountPath }: { accountPath: string }) {
                   <td className="num truncate py-1 pr-2">{a.ipMasked ?? '—'}</td>
                   <td className="truncate py-1" title={a.userAgent ?? undefined}>
                     {describeUserAgent(a.userAgent) ?? '—'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {showList && data.interrupted > 0 && (
+          <table className="mt-2 w-full table-fixed text-[12.5px]">
+            <caption className="py-1 text-left font-medium text-slate-600">
+              {t('security.notice.interruptedTitle')}
+            </caption>
+            <colgroup>
+              <col className="w-[34%]" />
+              <col className="w-[26%]" />
+              <col />
+            </colgroup>
+            <thead>
+              <tr className="text-left text-slate-500">
+                <th className="py-1 pr-2 font-medium">{t('security.notice.columns.time')}</th>
+                <th className="py-1 pr-2 font-medium">{t('security.notice.columns.network')}</th>
+                <th className="py-1 font-medium">{t('security.notice.columns.reason')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(interrupted.data ?? []).map((a) => (
+                <tr key={a.at} className="border-t border-warn-500/20 align-top">
+                  <td className="num py-1 pr-2">{formatMoment(a.at, locale)}</td>
+                  <td className="num truncate py-1 pr-2">{a.ipMasked ?? '—'}</td>
+                  <td className="truncate py-1" title={describeUserAgent(a.userAgent) ?? undefined}>
+                    {t(`security.notice.reasons.${a.reason}`)}
                   </td>
                 </tr>
               ))}

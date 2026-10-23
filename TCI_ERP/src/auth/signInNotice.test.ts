@@ -5,8 +5,15 @@
 import { describe, expect, it } from 'vitest'
 
 import M62 from '../../supabase/migrations/0062_sign_in_notice.sql?raw'
+import M64 from '../../supabase/migrations/0064_sign_in_interruptions.sql?raw'
 import SIGN_IN_NOTICE from './SignInNotice.tsx?raw'
-import { describeUserAgent, parseFailedSignIns, parseSignInNotice } from './signInNotice'
+import {
+  INTERRUPTION_REASONS,
+  describeUserAgent,
+  parseFailedSignIns,
+  parseInterruptedSignIns,
+  parseSignInNotice,
+} from './signInNotice'
 
 describe('parseSignInNotice', () => {
   it('nothing to say for zero, null or junk', () => {
@@ -23,7 +30,54 @@ describe('parseSignInNotice', () => {
         first_failed_at: '2026-10-22T08:59:43Z',
         last_failed_at: '2026-10-22T16:42:04Z',
       }),
-    ).toEqual({ count: 3, firstAt: '2026-10-22T08:59:43Z', lastAt: '2026-10-22T16:42:04Z' })
+    ).toEqual({ count: 3, firstAt: '2026-10-22T08:59:43Z', lastAt: '2026-10-22T16:42:04Z', interrupted: 0 })
+  })
+
+  it('counts interruptions apart, and has something to say with interruptions only (0064)', () => {
+    expect(parseSignInNotice({ failed_since_previous_sign_in: 2, interrupted_since_previous_sign_in: 1 })).toMatchObject({
+      count: 2,
+      interrupted: 1,
+    })
+    expect(
+      parseSignInNotice({ failed_since_previous_sign_in: 0, interrupted_since_previous_sign_in: 3, first_failed_at: 'x' }),
+    ).toEqual({ count: 0, firstAt: null, lastAt: null, interrupted: 3 })
+  })
+})
+
+describe('parseInterruptedSignIns (0064)', () => {
+  it('keeps rows with a time and a known reason', () => {
+    expect(
+      parseInterruptedSignIns([
+        { at: '2026-10-23T09:00:00Z', ip_masked: '10.0.0.0/24', user_agent: null, reason: 'captcha' },
+        { at: '2026-10-23T09:01:00Z', ip_masked: null, user_agent: null, reason: 'wrong_password' },
+        { ip_masked: 'no time', reason: 'network' },
+      ]),
+    ).toEqual([{ at: '2026-10-23T09:00:00Z', ipMasked: '10.0.0.0/24', userAgent: null, reason: 'captcha' }])
+    expect(parseInterruptedSignIns(null)).toEqual([])
+  })
+
+  it('the reasons are the database\'s', () => {
+    expect(M64).toContain("check (interrupted_reason in ('captcha', 'rate_limited', 'network'))")
+    expect(INTERRUPTION_REASONS).toEqual(['captcha', 'rate_limited', 'network'])
+  })
+})
+
+describe('the label never weakens the throttle (0064)', () => {
+  it('the notice drops labelled attempts, the throttle does not', () => {
+    expect(M64).toContain('select w.* from tci.my_sign_in_window_attempts() w where w.interrupted_reason is null')
+    expect(M64).not.toContain('FUNCTION tci.login_locked_until')
+    expect(M64).not.toContain('function tci.login_locked_until')
+  })
+
+  it('only the attempt whose ticket the caller holds, pending, inside its 90 seconds, once', () => {
+    expect(M64).toContain('where ticket_hash = tci.security_hash(p_ticket)')
+    expect(M64).toContain("and status = 'pending'")
+    expect(M64).toContain('and interrupted_reason is null')
+    expect(M64).toContain('and expires_at > clock_timestamp();')
+  })
+
+  it('the banner lists interruptions in their own table', () => {
+    expect(SIGN_IN_NOTICE).toContain("rpc('my_interrupted_sign_ins')")
   })
 })
 

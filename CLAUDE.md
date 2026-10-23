@@ -426,7 +426,8 @@ is fine for internal test accounts and not fine for customers.
   credential-stuffing locks; a ticketless correct password hard-locks once
   `login_gate_enforced` is on), countdown + last-attempt warning +
   «Забыли пароль?» on the sign-in page, the «было N неудачных попыток»
-  notice after sign-in; `anon` executes ONLY `tci.login_begin`; direct REST
+  notice after sign-in; `anon` executes ONLY `tci.login_begin` (since 0064
+  also `tci.login_interrupted` — the registry is `tci.pre_auth_entry_points`); direct REST
   writes around the workflow functions closed (guard triggers + revoked
   grants, 0047); a temporary password must actually change (0048); claim
   documents registered from what Storage holds; CSP host narrowed; the
@@ -700,7 +701,28 @@ is fine for internal test accounts and not fine for customers.
   proposes, validates or adjusts; the credit decider never adjusts
   commercially. Admin is technical: no decide / adjust / hold / release /
   revoke / validate / ADT / group limit and no authority. See **Acting role
-  and four-eyes rules** below. **Canonical: 0063 is applied AT MERGE, not before** — with it live and the old frontend still deployed, a multi-role account (two exist) acts in no role and every gate closes; the 21 replaced objects were verified fingerprint-identical to a local replay of 0062 first
+  and four-eyes rules** below. **Canonical: 0063 applied 2026-10-23 AT
+  MERGE** (with it live and the old frontend still deployed, a multi-role
+  account acts in no role and every gate closes): the 21 objects it replaces
+  were first verified fingerprint-identical to a local replay of 0062, the
+  whole file then went in one atomic `execute_sql` call with its ledger row,
+  PR #48 was merged right after, all 27 objects verified identical to a
+  local replay, the whole `tests/db/acting_role.sql` run on canonical with
+  role impersonation (forced rollback, nothing left behind), no new advisor
+  finding
+- [x] Sign-in interruptions (migration 0064): an attempt stopped before the
+  password check — anti-bot check, rate limit, network — is reported by the
+  sign-in page with the attempt's own ticket (`tci.login_interrupted`, the
+  second pre-sign-in entry point) and listed APART in the after-sign-in
+  notice, never as a wrong password; the throttle still counts it. See
+  **Sign-in notice rules** below. **Canonical: 0064 applied 2026-10-23**
+  BEFORE merge (backward-compatible: the old page ignores the ticket and
+  the new count): the 7 objects it replaces verified identical to a local
+  replay of 0063 first, the whole file in one atomic `execute_sql` call
+  with its ledger row, all 10 objects fingerprint-identical afterwards, the
+  whole `tests/db/sign_in_interruptions.sql` run on canonical with role
+  impersonation (forced rollback, nothing left behind); the advisor's only
+  new entry is `login_interrupted` executable by `anon`, which is intended
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1167,7 +1189,7 @@ same user twice.
 ### Sign-in gate rules (migrations 0046–0048, security audit 2026-10)
 
 **The Free plan has no failure hook, so failures are counted up front.**
-`tci.login_begin(email)` (the only function `anon` may execute) refuses
+`tci.login_begin(email)` (with 0064's `login_interrupted`, the only functions `anon` may execute — `tci.pre_auth_entry_points`) refuses
 while locked and otherwise inserts a `pending` ticket that COUNTS AS A
 FAILURE. `tci.custom_access_token_hook` — GoTrue's own token issuance, on
 the Free plan — marks the latest pending ticket `succeeded` and forgives
@@ -1280,9 +1302,22 @@ chunk that fails to load reloads once into the new build. An unknown answer
 "stale". The real closure is the access-token hook, which marks a success
 on the server whatever code the tab runs.
 
-**What the server cannot see.** Without the Teams-plan verification hook, a
-ticket followed by a captcha refusal, a rate-limit refusal or a network error
-looks exactly like a wrong password and is counted as one.
+**What the server cannot see, and what the page says instead (0064).**
+Without the Teams-plan verification hook the server cannot tell why GoTrue
+refused, so the sign-in page REPORTS an attempt that never reached the
+password check — a captcha refusal, a rate-limit refusal, no answer at all
+(`signInErrors.ts` kind `network`) — with that attempt's ticket:
+`tci.login_begin` hands out a 64-character token (stored only as a salted
+hash), and `tci.login_interrupted(ticket, reason)` labels THAT attempt, only
+while it is pending and inside its 90 seconds, only once, and answers the
+same whatever happened. The notice then counts wrong passwords
+(`my_counted_failures`, now unlabelled attempts only) and interruptions
+(`my_interrupted_sign_ins`, `interrupted_since_previous_sign_in`) APART —
+a labelled attempt is never hidden, only named. **The throttle ignores the
+label** (`login_locked_until` is untouched, asserted in 0064): the label is
+the browser's word, and trusting it would let anyone reset their guessing
+allowance by reporting "network error". A wrong password is never reported
+(`interruptionReason` returns null for it).
 
 ### Statement framework rules (migrations 0049, 0051)
 

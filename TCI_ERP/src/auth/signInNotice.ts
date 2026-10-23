@@ -11,9 +11,13 @@
  */
 
 export interface SignInNotice {
+  /** Wrong passwords (attempts that may have reached the password check). */
   count: number
   firstAt: string | null
   lastAt: string | null
+  /** Attempts the browser reported as stopped before the password check
+   * (0064: captcha, rate limit, network) — listed apart, never hidden. */
+  interrupted: number
 }
 
 export interface FailedSignIn {
@@ -22,20 +26,48 @@ export interface FailedSignIn {
   userAgent: string | null
 }
 
-const NONE: SignInNotice = { count: 0, firstAt: null, lastAt: null }
+export type InterruptionReason = 'captcha' | 'rate_limited' | 'network'
+export const INTERRUPTION_REASONS: readonly InterruptionReason[] = ['captcha', 'rate_limited', 'network']
+
+export interface InterruptedSignIn extends FailedSignIn {
+  reason: InterruptionReason
+}
+
+const NONE: SignInNotice = { count: 0, firstAt: null, lastAt: null, interrupted: 0 }
 
 /** `tci.my_sign_in_notice()` → the banner's data; anything malformed is "nothing to say". */
 export function parseSignInNotice(raw: unknown): SignInNotice {
   if (!raw || typeof raw !== 'object') return NONE
   const r = raw as Record<string, unknown>
-  const count = Number(r.failed_since_previous_sign_in ?? 0)
-  if (!Number.isFinite(count) || count <= 0) return NONE
+  const whole = (v: unknown) => {
+    const n = Number(v ?? 0)
+    return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0
+  }
+  const count = whole(r.failed_since_previous_sign_in)
+  const interrupted = whole(r.interrupted_since_previous_sign_in)
+  if (count === 0 && interrupted === 0) return NONE
   const str = (v: unknown) => (typeof v === 'string' && v ? v : null)
   return {
-    count: Math.floor(count),
-    firstAt: str(r.first_failed_at),
-    lastAt: str(r.last_failed_at),
+    count,
+    firstAt: count > 0 ? str(r.first_failed_at) : null,
+    lastAt: count > 0 ? str(r.last_failed_at) : null,
+    interrupted,
   }
+}
+
+/** `tci.my_interrupted_sign_ins()` rows, newest first; unknown reasons dropped. */
+export function parseInterruptedSignIns(raw: unknown): InterruptedSignIn[] {
+  if (!Array.isArray(raw)) return []
+  const out: InterruptedSignIn[] = []
+  for (const r of raw) {
+    if (!r || typeof r !== 'object') continue
+    const row = r as Record<string, unknown>
+    const reason = row.reason
+    if (typeof reason !== 'string' || !(INTERRUPTION_REASONS as readonly string[]).includes(reason)) continue
+    const [parsed] = parseFailedSignIns([row])
+    if (parsed) out.push({ ...parsed, reason: reason as InterruptionReason })
+  }
+  return out
 }
 
 /** `tci.my_failed_sign_ins()` rows, newest first. */

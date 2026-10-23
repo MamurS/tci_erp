@@ -79,7 +79,8 @@
       "captchaUnavailable": "Tekshiruvni yuklab bo‘lmadi — internet aloqasi yoki reklama bloklagichni tekshiring.",
       "emailNotConfirmed": "Bu elektron pochta manzili hali tasdiqlanmagan.",
       "userBanned": "Hisob o‘chirilgan. Administratorga murojaat qiling.",
-      "throttled": "Kirish uchun muvaffaqiyatsiz urinishlar juda ko‘p. {{time}} dan keyin qayta urinib ko‘ring."
+      "throttled": "Kirish uchun muvaffaqiyatsiz urinishlar juda ko‘p. {{time}} dan keyin qayta urinib ko‘ring.",
+      "network": "Server bilan bog‘lanib bo‘lmadi. Ulanishni tekshirib, qayta urinib ko‘ring."
     },
     "heroTitle": "Savdo kreditlarini sug‘urtalash — tahlildan to‘lovgacha",
     "heroText": "Bayerlar tahlili va reytingi, kredit limitlari, polislar, deklaratsiyalar va sug‘urta da’volari — yagona ish maydonida.",
@@ -4284,8 +4285,18 @@
       "columns": {
         "time": "Vaqt",
         "network": "Tarmoq",
-        "device": "Brauzer va tizim"
-      }
+        "device": "Brauzer va tizim",
+        "reason": "Sabab"
+      },
+      "titleInterrupted": "Hisobingizga kirishning to‘xtatilgan urinishlari",
+      "interruptedTitle": "Parol tekshirilishidan oldin to‘xtatilgan",
+      "reasons": {
+        "captcha": "Robot emasligini tekshirish",
+        "rate_limited": "So‘rovlar juda ko‘p",
+        "network": "Tarmoq xatosi"
+      },
+      "interrupted_one": "{{count}} ta urinish parol tekshirilishidan oldin to‘xtatildi (robot emasligini tekshirish, so‘rovlar juda ko‘p yoki tarmoq xatosi — brauzer xabariga ko‘ra). U noto‘g‘ri parol sifatida hisoblanmaydi.",
+      "interrupted_other": "{{count}} ta urinish parol tekshirilishidan oldin to‘xtatildi (robot emasligini tekshirish, so‘rovlar juda ko‘p yoki tarmoq xatosi — brauzer xabariga ko‘ra). Ular noto‘g‘ri parol sifatida hisoblanmaydi."
     }
   },
   "wording": {

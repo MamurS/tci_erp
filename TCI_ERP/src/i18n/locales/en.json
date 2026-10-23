@@ -79,7 +79,8 @@
       "captchaUnavailable": "The check could not be loaded — check your connection or ad blocker.",
       "emailNotConfirmed": "This email address has not been confirmed yet.",
       "userBanned": "This account is disabled. Contact your administrator.",
-      "throttled": "Too many failed sign-in attempts. Try again in {{time}}."
+      "throttled": "Too many failed sign-in attempts. Try again in {{time}}.",
+      "network": "Could not reach the server. Check your connection and try again."
     },
     "heroTitle": "Trade credit insurance, end to end",
     "heroText": "Buyer analysis and rating, credit limits, policies, declarations and claims — in one workspace.",
@@ -4284,8 +4285,18 @@
       "columns": {
         "time": "Time",
         "network": "Network",
-        "device": "Browser and system"
-      }
+        "device": "Browser and system",
+        "reason": "Reason"
+      },
+      "titleInterrupted": "Interrupted sign-in attempts on your account",
+      "interruptedTitle": "Stopped before the password was checked",
+      "reasons": {
+        "captcha": "Anti-bot check",
+        "rate_limited": "Too many requests",
+        "network": "Network error"
+      },
+      "interrupted_one": "{{count}} attempt stopped before the password was checked (anti-bot check, too many requests or a network error, as the browser reported it). It is not counted as a wrong password.",
+      "interrupted_other": "{{count}} attempts stopped before the password was checked (anti-bot check, too many requests or a network error, as the browser reported it). They are not counted as wrong passwords."
     }
   },
   "wording": {
