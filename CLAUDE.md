@@ -1256,6 +1256,24 @@ characters) next to the salted hashes; `my_failed_sign_ins` lists at most 50.
 `/auth/v1/token` directly and never `login_begin`, so it leaves no ticket:
 a wrong password counted by the notice always came through the sign-in page.
 
+**A tab opened before a deploy runs the old code** — a single-page app never
+reloads by itself — and on 2026-10-23 two correct sign-ins from such a tab
+were left `pending` because the old code never called `record_sign_in`. The
+build stamps its id (Cloudflare's `CF_PAGES_COMMIT_SHA`, else git) into the
+bundle and into `/version.json` (`vite.config.ts`, never cached:
+`public/_headers`); `src/lib/appVersion.ts` compares. A stale staff or
+portal tab gets the corner notice «Доступна новая версия TCI ERP» with a
+reload button (never an automatic reload — the page may hold unsaved
+input); the sign-in page reloads itself while its form is untouched; a page
+chunk that fails to load reloads once into the new build. An unknown answer
+(dev server, network down, an old deploy without the file) is never
+"stale". The real closure is the access-token hook, which marks a success
+on the server whatever code the tab runs.
+
+**What the server cannot see.** Without the Teams-plan verification hook, a
+ticket followed by a captcha refusal, a rate-limit refusal or a network error
+looks exactly like a wrong password and is counted as one.
+
 ### Statement framework rules (migrations 0049, 0051)
 
 **The country chooses the form, the statement keeps it.** A new statement

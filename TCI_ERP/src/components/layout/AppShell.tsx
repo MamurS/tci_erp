@@ -10,6 +10,8 @@ import { PEEK_CLOSE_MS, PEEK_OPEN_MS, SIDEBAR_KEY, isSidebarShortcut, parseSideb
 import type { SidebarState } from './shell'
 import { PageLoading } from './PageLoading'
 import { SignInNotice } from '../../auth/SignInNotice'
+import { NewVersionNotice } from './NewVersionNotice'
+import { useNewVersion } from '../../lib/useNewVersion'
 import { useAuth } from '../../auth/AuthContext'
 import { WORKSPACE_KEY, availableWorkspaces, resolveWorkspace, workspaceHome } from './workspaces'
 import type { WorkspaceKey } from './workspaces'
@@ -104,6 +106,7 @@ const SIDEBAR_ID = 'app-sidebar'
  * command palette.
  */
 export function AppShell() {
+  const newVersion = useNewVersion()
   const isDesktop = useIsDesktop()
   const [docked, setDocked] = useState<SidebarState>(readSidebar)
   const [peeking, setPeeking] = useState(false)
@@ -277,6 +280,7 @@ export function AppShell() {
         </main>
       </div>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+      <NewVersionNotice stale={newVersion} />
     </div>
   )
 }

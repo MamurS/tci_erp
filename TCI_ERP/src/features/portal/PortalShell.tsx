@@ -9,6 +9,8 @@ import { Suspense, useEffect, useRef } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { PageLoading } from '../../components/layout/PageLoading'
 import { SignInNotice } from '../../auth/SignInNotice'
+import { NewVersionNotice } from '../../components/layout/NewVersionNotice'
+import { useNewVersion } from '../../lib/useNewVersion'
 import { useTranslation } from 'react-i18next'
 import { LogOut } from 'lucide-react'
 
@@ -19,6 +21,7 @@ import { PORTAL_NAV_ITEMS } from './navigation'
 import { useMyEntity } from './api'
 
 export function PortalShell() {
+  const newVersion = useNewVersion()
   const { t } = useTranslation()
   const { session, signOut } = useAuth()
   const { data: entity } = useMyEntity()
@@ -98,6 +101,7 @@ export function PortalShell() {
           <Outlet />
         </Suspense>
       </main>
+      <NewVersionNotice stale={newVersion} />
     </div>
   )
 }
