@@ -22,7 +22,7 @@ import {
 } from '../../components/ui'
 import { refusalOr } from '../../lib/optimistic'
 import { EM_DASH, formatMoment } from '../../lib/format'
-import { STAFF_ROLES, USER_ROLES } from '../../lib/roles'
+import { STAFF_ROLES, USER_ROLES, clientRoleBlocked } from '../../lib/roles'
 import type { UserRole } from '../../lib/roles'
 import { useAuth } from '../../auth/AuthContext'
 import { canDisableUser, canManageUser } from './provisioningAccess'
@@ -372,6 +372,10 @@ function RolesModal({
     setSelected((prev) =>
       prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role],
     )
+  // A portal client holds no other role (0062 refuses it): with the client
+  // role ticked the staff roles are off, and with any staff role ticked the
+  // client role is.
+  const blocked = (role: UserRole) => clientRoleBlocked(selected, role)
 
   // The user's role chips change at once (optimistic, api.ts): the dialog
   // closes on the click and a refusal is reported in the list.
@@ -405,11 +409,14 @@ function RolesModal({
         {USER_ROLES.map((role) => (
           <label
             key={role}
-            className="flex items-start gap-2.5 rounded-md border border-slate-200 px-3 py-2 hover:bg-slate-50"
+            className={`flex items-start gap-2.5 rounded-md border border-slate-200 px-3 py-2 ${
+              blocked(role) ? 'cursor-not-allowed opacity-60' : 'hover:bg-slate-50'
+            }`}
           >
             <input
               type="checkbox"
               checked={selected.includes(role)}
+              disabled={blocked(role)}
               onChange={() => toggle(role)}
               className="mt-0.5"
             />
@@ -424,11 +431,7 @@ function RolesModal({
           </label>
         ))}
       </div>
-      {selected.includes('client') && selected.some((r) => STAFF_ROLES.includes(r)) && (
-        <p className="mt-3 rounded-md border border-warn-500/30 bg-warn-50 px-3 py-2 text-[13px] text-warn-500">
-          {t('admin.clientAndStaffWarning')}
-        </p>
-      )}
+      <p className="mt-3 text-[13px] text-slate-500">{t('admin.clientAloneHint')}</p>
       {error && (
         <p className="mt-2 text-[13px] text-neg-500" role="alert">
           {error}

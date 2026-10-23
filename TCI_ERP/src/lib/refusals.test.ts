@@ -11,9 +11,10 @@ import M58 from '../../supabase/migrations/0058_commercial_offers.sql?raw'
 import M13 from '../../supabase/migrations/0013_credit_limit_workflow.sql?raw'
 import M60 from '../../supabase/migrations/0060_limit_validation.sql?raw'
 import M61 from '../../supabase/migrations/0061_auto_decisions.sql?raw'
+import M62 from '../../supabase/migrations/0062_sign_in_notice.sql?raw'
 import { OPERATIONS_REFUSALS, refusalKey } from './refusals'
 
-const ALL = [M13, M26, M27, M28, M29, M54, M55, M56, M58, M60, M61].join('\n')
+const ALL = [M13, M26, M27, M28, M29, M54, M55, M56, M58, M60, M61, M62].join('\n')
 
 describe('operations refusal mapping — contract with 0026-0029', () => {
   it('maps only refusals the database actually raises', () => {

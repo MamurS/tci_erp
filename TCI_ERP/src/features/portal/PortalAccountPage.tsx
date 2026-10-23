@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { useAuth } from '../../auth/AuthContext'
-import { Button, Card, Field, Input, LinkButton, PageHeader, Spinner, SectionTitle } from '../../components/ui'
+import { Button, Field, Input, LinkButton, PageHeader, Panel, PanelGrid, Spinner } from '../../components/ui'
 import { tci } from '../../lib/supabase'
 import { useMyEntity } from './api'
 import { MfaSection, SessionsSection } from '../account'
@@ -74,11 +74,25 @@ export function PortalAccountPage() {
     <div>
       <PageHeader title={t('portal.account.title')} subtitle={t('portal.account.subtitle')} />
 
-      <div className="grid items-start gap-5 lg:grid-cols-2">
-        <Card className="p-5">
-          <SectionTitle className="mb-4">
-            {t('portal.account.contact')}
-          </SectionTitle>
+      <PanelGrid>
+        <Panel
+          title={t('portal.account.contact')}
+          footer={
+            <>
+              {error && (
+                <p className="mb-3 text-[13px] text-neg-500" role="alert">
+                  {error}
+                </p>
+              )}
+              <div className="flex items-center gap-3">
+                <Button loading={save.isPending} onClick={() => save.mutate()}>
+                  {t('common.save')}
+                </Button>
+                {saved && <span className="text-[13px] text-pos-500">{t('portal.account.saved')}</span>}
+              </div>
+            </>
+          }
+        >
           <div className="flex flex-col gap-3">
             <Field label={t('portal.account.company')}>
               <Input value={entity?.name ?? ''} disabled readOnly />
@@ -108,32 +122,17 @@ export function PortalAccountPage() {
               />
             </Field>
           </div>
+        </Panel>
 
-          {error && (
-            <p className="mt-3 text-[13px] text-neg-500" role="alert">
-              {error}
-            </p>
-          )}
-          <div className="mt-4 flex items-center gap-3">
-            <Button loading={save.isPending} onClick={() => save.mutate()}>
-              {t('common.save')}
-            </Button>
-            {saved && <span className="text-[13px] text-pos-500">{t('portal.account.saved')}</span>}
-          </div>
-        </Card>
-
-        <Card className="p-5">
-          <SectionTitle className="mb-4" hint={t('portal.account.securityHint')}>
-            {t('portal.account.security')}
-          </SectionTitle>
+        <Panel title={t('portal.account.security')} hint={t('portal.account.securityHint')}>
           <LinkButton to="/change-password" variant="secondary">
             {t('account.changePassword')}
           </LinkButton>
-        </Card>
+        </Panel>
 
         <MfaSection />
         <SessionsSection />
-      </div>
+      </PanelGrid>
     </div>
   )
 }

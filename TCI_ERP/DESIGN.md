@@ -174,8 +174,16 @@ title), SectionTitle, StatCard (key figure with a coloured top rule and
 tone), Skeleton, Spinner, BrandMark, GradeScale (engine grade bands),
 RatingGauge (semicircle 0–100 with needle and change vs previous) and
 RatingLegend (the ten-band scale), Combobox (typeahead), AmountInput,
-LinkButton, ConfirmDialog. Screens compose these — no ad-hoc one-off
-controls.
+LinkButton, ConfirmDialog, PasswordInput. Screens compose these — no ad-hoc
+one-off controls.
+
+**Every password field is a `PasswordInput`** — the `Input` with an eye
+button laid over its right edge («Показать пароль» / «Скрыть пароль»,
+`aria-pressed`, `aria-controls`, a `title`). The button is absolutely
+positioned at a fixed size and the input reserves `pr-10`, so toggling moves
+nothing; a form that stays on screen after a successful submit changes
+`revealResetKey` to hide the password again. `passwordReveal.test.ts` refuses
+a bare `type="password"` anywhere else.
 
 ### Interaction rules (owner review, October 2026)
 
@@ -220,6 +228,76 @@ mechanical ones.
   never `-mt-*` hacks; hints go in `Field`'s `hint`.
 * **Every literal translation key exists** (`i18n/keysExist.test.ts`) — a
   missing one is printed raw on screen.
+
+### Badges (owner rule, October 2026)
+
+Grade, role, status, the Agenda's type tags, counters and chips are ONE
+object (`src/components/ui/badgeStyles.ts`); only the colour tone varies.
+
+| size | where | height | padding | text | weight |
+|---|---|---|---|---|---|
+| `sm` | tables, rows, running text, tab and sidebar counts, chips | 20 px (`h-5`) | `px-2` | 12 px (`text-xs`, leading 16 px) | medium |
+| `md` | beside a page title (`PageHeader` / `DetailHeader` `status`) | 24 px (`h-6`) | `px-2.5` | 13 px (leading 20 px) | semibold |
+
+* **One font: the body face (Inter)**, set on the badge itself
+  (`font-sans`), so a badge never inherits the condensed display face of a
+  heading it sits near.
+* **One case: as translated, never capitals** (`normal-case`, set on the
+  badge, so an uppercase heading cannot impose it). The labels are
+  translated words in three languages; capitals make Cyrillic and Uzbek
+  Latin with its ‘ wider and harder to read, the column reservations
+  (`LABEL_SETS`) are measured in mixed case, and codes that are capitals
+  (A1, ADT, NQL) stay capitals because they are written so.
+* **One radius: the pill** (`rounded-full`), with an inset 1 px ring in the
+  tone.
+* **Counters** (`Count`: tab, sidebar and section counts) are the `sm`
+  badge in counter form — its height, font, text size and weight, with the
+  narrower counter padding (`px-1.5`) and a minimum width of two numerals,
+  so 9 → 10 moves nothing.
+* **Header badges sit beside the title, never inside the heading**: the
+  `status` slot of `PageHeader` / `DetailHeader` centres them on the title
+  (`items-center`) and makes them `md` through `BadgeSizeContext`.
+* **Not a badge**: an avatar, the ISO code in place of a missing flag, and
+  the Agenda's filter chips — toggle buttons, sized as a small Button.
+* Anything that must be a button or a list item and look like a badge wears
+  `badgeClassName(size, tone)` with `data-badge={size}`. `badges.test.ts`
+  refuses `size="lg"` and hand-made pills; `e2e/layout/badges.spec.ts`
+  checks on every guarded screen, in en / ru / uz, that badges of one size
+  share one height (the spec's), that neighbours share a centre (±1 px), and
+  that header badges are centred on the title.
+
+### Side-by-side cards (owner rule, October 2026)
+
+Cards placed next to each other end on one line. **A row of cards is a
+`PanelGrid`** — never a hand-made `grid items-start lg:grid-cols-…`
+(`layoutContract.test.ts` refuses one outside a short list of rows that are
+not card rows, each with its reason).
+
+* **Equal height.** The grid stretches its children: every card in a line is
+  as tall as the tallest, its content stays top-aligned and the spare space
+  stays at the bottom of the shorter card. Any child spans the row
+  (`*:row-span-2`), so a plain `Card` (or a component whose root is one)
+  stretches as a `Panel` does.
+* **Bodies start on one line.** A `Panel` is a two-row subgrid (head, body):
+  a two-line hint beside a bare title does not push one body down.
+* **Footers on one baseline.** A Panel's `footer` (an action bar) is pinned
+  to the bottom of its body, so the action bars of a row sit on one line at
+  the bottom of the cards. A growable element in a body (a list, a preview, a
+  textarea) may take the spare height with `h-full` instead.
+* **Guarded.** `PanelGrid` marks itself `data-card-row`;
+  `e2e/layout/cardRows.spec.ts` checks, on every screen the layout guard
+  visits, at 1280 and 1920 and in en / ru / uz, that the cards sharing a top
+  edge share their bottom edge (±1 px).
+
+**Two panes** (Agenda → Triage) are the full-height variant: both panes
+take the viewport's height below the header (`useFillViewport`), so their
+bottoms always align; each scrolls inside itself under a pinned header, the
+page never does, and the selected queue item is kept in view (J/K too).
+
+Not card rows, and left as they are: a column of stacked sections beside a
+card (the limit request), a document beside its side column (contract
+draft, portal contract), the portal's policy list beside its next-steps
+aside, and sections inside one card.
 
 ### No layout shift on interaction (owner rule, October 2026 — zero tolerance)
 
@@ -366,27 +444,36 @@ one rule.
 A queue to work, not a report. The page title keeps the house heading; under
 it ONE live summary line (overdue in red, money at stake in UZS, today's
 desk, cleared today). Right: List | Triage (`Segmented tone="solid"`,
-remembered per person) and «Группировать: …».
+remembered per person) and «Группировать: …» — in BOTH views (the triage
+queue is grouped the same way), as wide as its widest choice, so neither
+switching views nor picking a grouping moves the switch.
 
 * **Chips**, not dropdowns: All, Assigned to me, then one per task family
   present, with live counts; the dashed «Отложенные» chip at the far right.
   State lives in the URL (`?family=&mine=1&snoozed=1`).
 * **Groups**: one white card each, rows separated by hairlines; the header
-  is the name (red for Overdue, an amber dot for Today), item and task
-  counts, and the UZS sum (amounts without a rate are left out and said so).
+  is a dot in the group's colour (red Overdue, amber Today, grey otherwise —
+  every group has one), the name (red for Overdue), item and task counts, and the UZS sum (amounts without a rate are left out and said so).
   «Позже» starts collapsed.
-* **Row** (~56px): a 3px left stripe (red overdue / amber today / neutral) —
-  with the tag and the due label the only colour on the row — then the
-  type tag (⚡ when automatic), the title «what · company», the context line
+* **Row** (~56px), on ONE grid shared by every row, sub-row and composer
+  (`rowGrid.ts`: stripe · chevron slot · tag column · title + context · due
+  · owner, every track fixed but the title's), so all titles start at one x
+  in every group and language: a 3px left stripe (red overdue / amber today
+  / neutral) — with the tag and the due label the only colour on the row —
+  then the type tag in a column sized for the widest label with ⚡ (cut with
+  a tooltip, never widened; ⚡ when automatic), the title «what · company», the context line
   (latest comment in italics with a count, or the system note, then the facts
   in tabular numerals), the relative due label (date in the tooltip) and the
   owner avatar. The whole row is a stretched link to the OBJECT; hover or
   keyboard focus reveals the actions. A keyboard-focused row has an inset
   navy ring.
-* **Triage**: queue (≤ 22rem) left, the task right — tag + due, title,
-  provenance, the «Перейти к …» button with the destination spelled out
-  under it, the comment thread (system note muted), the family panel, the
-  history card. Handled rows stay struck through until reload.
+* **Triage**: two panes as tall as the viewport below the header, ending on
+  one line, each scrolling inside itself under a pinned header (the page
+  never scrolls; the selected queue item is kept in view): the queue
+  (≤ 22rem, sticky group headers) left, the task right — pinned: tag + due,
+  title, provenance, the «Перейти к …» button with the destination spelled
+  out under it; scrolling: the comment thread (system note muted), the
+  family panel, the history. Handled rows stay struck through until reload.
 * **Contrast**: every text ≥ 4.5:1. The amber token is not used for text.
 
 ## The risk report (`src/features/entities/report`)

@@ -11,6 +11,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, Check, CornerDownRight, Zap } from 'lucide-react'
@@ -21,7 +22,7 @@ import type { StaffMember } from '../data/types'
 import { useObjectEvents, useValidationComments, validationOrigin } from './api'
 import type { LimitJustification, TaskSubjects } from './api'
 import { dueState, rowBucket } from './board'
-import type { AgendaRow, Bucket, RowGroup } from './board'
+import type { AgendaRow, Bucket, Grouping, RowGroup } from './board'
 import { canCompleteByHand, isSnoozed, taskLink } from './catalogue'
 import { destinationFor } from './destinations'
 import type { Crumb } from './destinations'
@@ -32,9 +33,12 @@ import { snoozedText } from './snooze'
 import { companyOf, personName, referenceOf, renderNote, rowTitle } from './rowText'
 import { FamilyBody } from './triage/FamilyBody'
 import type { TaskComment } from './types'
+import { useFillViewport } from './useFillViewport'
 
 interface TriageProps {
   groups: RowGroup[]
+  /** How `groups` were built; a new grouping rebuilds the queue in its order. */
+  grouping: Grouping
   now: Date
   subjects: TaskSubjects | undefined
   staff: Map<string, StaffMember> | undefined
@@ -64,16 +68,23 @@ const STRIPE: Record<Bucket, string> = {
 }
 
 export function TriageView(props: TriageProps) {
-  const { groups, now, subjects, staff, handled, registerMove } = props
+  const { groups, grouping, now, subjects, staff, handled, registerMove } = props
   const { t, i18n } = useTranslation()
   const locale = i18n.language
 
   // The queue keeps every row it has shown until reload; rows that left the
   // board are marked gone (struck through), new rows join their group.
   const [entries, setEntries] = useState<QueueEntry[]>([])
+  const groupedBy = useRef(grouping)
   useEffect(() => {
+    // A new grouping (the header's «Group by», kept across both views)
+    // starts the queue afresh in the new groups' order: a row that left the
+    // board has no group under the new key.
+    const regrouped = groupedBy.current !== grouping
+    groupedBy.current = grouping
     setEntries((previous) => {
       const current = groups.flatMap((g) => g.rows.map((row) => ({ row, group: g.key, gone: false })))
+      if (regrouped) return current
       const live = new Map(current.map((e) => [e.row.key, e]))
       const kept = previous.map((e) => live.get(e.row.key) ?? { ...e, gone: true })
       const known = new Set(kept.map((e) => e.row.key))
@@ -87,7 +98,7 @@ export function TriageView(props: TriageProps) {
       }
       return out
     })
-  }, [groups])
+  }, [groups, grouping])
 
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const live = entries.filter((e) => !e.gone)
@@ -107,19 +118,38 @@ export function TriageView(props: TriageProps) {
   // Keep the selected queue item in view as J/K moves.
   useEffect(() => {
     if (!selected) return
-    document.querySelector(`[data-queue-key="${CSS.escape(selected.row.key)}"]`)?.scrollIntoView({ block: 'nearest' })
+    // Inside the queue pane only, clear of its sticky group header (the
+    // item's scroll margin); the page itself never scrolls for it.
+    const item = document.querySelector<HTMLElement>(`[data-queue-key="${CSS.escape(selected.row.key)}"]`)
+    const pane = item?.closest<HTMLElement>('[data-triage-scroll]')
+    if (!item || !pane) return
+    const margin = parseFloat(getComputedStyle(item).scrollMarginTop || '0')
+    const top = item.getBoundingClientRect().top - pane.getBoundingClientRect().top
+    const bottom = top + item.offsetHeight
+    if (top < margin) pane.scrollTop += top - margin
+    else if (bottom > pane.clientHeight) pane.scrollTop += bottom - pane.clientHeight
   }, [selected])
 
   const position = selected ? live.findIndex((e) => e.row.key === selected.row.key) + 1 : 0
   const groupOrder = [...new Set(entries.map((e) => e.group))]
 
+  // Two panes as tall as the viewport allows, ending on one line; each
+  // scrolls inside itself under its pinned header, never the page.
+  const frame = useRef<HTMLDivElement>(null)
+  const height = useFillViewport(frame)
+
   return (
-    <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)]">
-      <Card className="overflow-hidden lg:sticky lg:top-20">
-        <p className="border-b border-slate-100 px-4 py-2.5 text-[12.5px] text-slate-600">
+    <div
+      ref={frame}
+      data-card-row
+      style={height === null ? undefined : ({ '--triage-h': `${height}px` } as CSSProperties)}
+      className="grid gap-5 lg:h-[var(--triage-h,36rem)] lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]"
+    >
+      <Card className="flex min-h-0 flex-col overflow-hidden" data-triage-pane="queue">
+        <p data-triage-pane-head className="shrink-0 border-b border-slate-100 px-4 py-2.5 text-[12.5px] text-slate-600">
           {t('agenda.triage.position', { index: position, total: live.length })}
         </p>
-        <div className="max-h-[calc(100vh-14rem)] overflow-y-auto">
+        <div data-triage-scroll className="max-h-[60vh] min-h-0 flex-1 overflow-y-auto lg:max-h-none">
           {groupOrder.map((group) => {
             const inGroup = entries.filter((e) => e.group === group)
             const kind = groups.find((g) => g.key === group)?.kind ?? 'due'
@@ -132,7 +162,7 @@ export function TriageView(props: TriageProps) {
             return (
               <div key={group}>
                 <div
-                  className={`border-b border-slate-100 bg-slate-50/70 px-4 py-1.5 text-[11.5px] font-bold tracking-[0.08em] uppercase ${
+                  className={`sticky top-0 z-10 border-b border-slate-100 bg-slate-50 px-4 py-1.5 text-[11.5px] font-bold tracking-[0.08em] uppercase ${
                     kind === 'due' && group === 'overdue' ? 'text-neg-600' : 'text-slate-700'
                   }`}
                 >
@@ -161,7 +191,9 @@ export function TriageView(props: TriageProps) {
       {selected ? (
         <DetailPanel key={selected.row.key} row={selected.row} {...props} staff={staff} />
       ) : (
-        <Card className="p-8 text-center text-sm text-slate-600">{t('agenda.triage.nothingSelected')}</Card>
+        <Card className="p-8 text-center text-sm text-slate-600" data-triage-pane="task">
+          {t('agenda.triage.nothingSelected')}
+        </Card>
       )}
     </div>
   )
@@ -195,7 +227,7 @@ function QueueItem({
   const company = companyOf(row.lead, subjects)
   const ref = referenceOf(row.lead, subjects)
   return (
-    <li data-queue-key={row.key}>
+    <li data-queue-key={row.key} className="scroll-mt-8">
       <button
         type="button"
         disabled={gone}
@@ -383,8 +415,8 @@ function DetailPanel({
       : null
 
   return (
-    <div className="flex min-w-0 flex-col gap-5">
-      <Card className="p-6">
+    <Card className="flex min-h-0 min-w-0 flex-col overflow-hidden" data-triage-pane="task">
+      <div data-triage-pane-head className="shrink-0 border-b border-slate-100 p-6 pb-5">
         <div className="flex flex-wrap items-center gap-2.5">
           <TypeTag
             type={row.displayType}
@@ -457,8 +489,10 @@ function DetailPanel({
           <span className="font-semibold text-accent-700">{dest.crumbs.map((c) => crumbText(c, t)).join(' › ')}</span>
           {dest.context && <span>{t(dest.context.key, dest.context.params)}</span>}
         </p>
+      </div>
 
-        <section className="mt-6" aria-label={t('agenda.comments.title', { count: humanCount })}>
+      <div data-triage-scroll className="min-h-0 flex-1 p-6 pt-5 lg:overflow-y-auto">
+        <section aria-label={t('agenda.comments.title', { count: humanCount })}>
           <h3 className="mb-3 text-[11.5px] font-bold tracking-[0.08em] text-slate-600 uppercase">
             {t('agenda.comments.title', { count: humanCount })}
           </h3>
@@ -498,10 +532,10 @@ function DetailPanel({
         </section>
 
         <FamilyBody row={row} now={now} subjects={subjects} />
-      </Card>
 
-      <History events={events ?? []} staff={staff} />
-    </div>
+        <History events={events ?? []} staff={staff} />
+      </div>
+    </Card>
   )
 }
 
@@ -516,7 +550,7 @@ function History({
   const shown = events.filter((e) => !e.event_type.startsWith('task.')).slice(-8).reverse()
   if (shown.length === 0) return null
   return (
-    <Card className="p-6">
+    <section className="mt-6 border-t border-slate-100 pt-5">
       <h3 className="mb-3 text-[11.5px] font-bold tracking-[0.08em] text-slate-600 uppercase">{t('agenda.history.title')}</h3>
       <ol className="flex flex-col gap-2">
         {shown.map((e) => (
@@ -533,6 +567,6 @@ function History({
           </li>
         ))}
       </ol>
-    </Card>
+    </section>
   )
 }

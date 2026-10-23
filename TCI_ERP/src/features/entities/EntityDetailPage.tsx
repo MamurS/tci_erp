@@ -110,17 +110,21 @@ export function EntityDetailPage() {
     <div>
       <PageHeader
         title={
-          <span className="inline-flex items-center gap-3">
-            <span>
-              <CountryFlag code={entity.country_code} className="mr-2.5" />
-              {entity.name}
-            </span>
+          <>
+            <CountryFlag code={entity.country_code} className="mr-2.5" />
+            {entity.name}
+          </>
+        }
+        // Beside the title, not inside the heading: `md` badges in the body
+        // font, centred on the title (DESIGN.md «Badges»).
+        status={
+          <>
             <GradeHeaderBadge
               entityId={id}
               onClick={() => setSearchParams({ tab: 'rating' }, { replace: true })}
             />
             <RoleBadges roles={roles} />
-          </span>
+          </>
         }
         subtitle={
           <span>
@@ -191,8 +195,8 @@ function GradeHeaderBadge({ entityId, onClick }: { entityId: string; onClick: ()
 
   if (!data) return null
   return (
-    <button type="button" onClick={onClick} title={t('rating.gradeTitle')}>
-      <Badge tone={gradeTone(data.rating_grade)} size="lg">
+    <button type="button" onClick={onClick} title={t('rating.gradeTitle')} className="inline-flex rounded-full">
+      <Badge tone={gradeTone(data.rating_grade)}>
         {data.rating_grade} · {formatAmount(Number(data.rating_score), locale, 0)}
       </Badge>
     </button>

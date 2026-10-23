@@ -8,7 +8,7 @@ import { formatCountdown } from '../auth/loginGate'
 import type { SignInFailure } from '../auth/signInErrors'
 import { isTurnstileEnabled, mountTurnstile, turnstileSiteKey } from '../auth/turnstile'
 import type { TurnstileHandle } from '../auth/turnstile'
-import { BrandMark, Button, Field, Input } from '../components/ui'
+import { BrandMark, Button, Field, Input, PasswordInput } from '../components/ui'
 import { LanguageSwitcher } from '../components/layout/LanguageSwitcher'
 import { landingPath } from '../features/portal/navigation'
 
@@ -147,8 +147,8 @@ export function LoginPage() {
           </Field>
 
           <Field label={t('auth.password')}>
-            <Input
-              type="password"
+            {/* No revealResetKey: a successful sign-in leaves this page. */}
+            <PasswordInput
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"

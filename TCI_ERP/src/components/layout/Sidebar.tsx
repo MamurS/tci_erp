@@ -18,6 +18,7 @@ import { useEscalatedCount } from '../../features/limits/api'
 import { useAgendaTasks } from '../../features/agenda/api'
 import { agendaCounts } from '../../features/agenda/catalogue'
 import { BrandMark } from '../ui/BrandMark'
+import { Count } from '../ui'
 import type { NavItem } from './navigation'
 import { navIcon } from './navIcons'
 import { SidebarToggle } from './SidebarToggle'
@@ -84,31 +85,16 @@ export function Sidebar({
         <Icon className="size-[18px] shrink-0" strokeWidth={1.8} />
         <span className="flex-1 truncate">{t(`nav.${item.key}`)}</span>
         {showEscalated && (
-          <span
-            className="rounded-full bg-brand-amber px-1.5 text-[11px] font-bold text-accent-900"
-            title={t('limits.tabs.escalated')}
-          >
-            {escalatedCount}
-          </span>
+          <Count value={escalatedCount} digits={1} className="bg-brand-amber text-accent-900" title={t('limits.tabs.escalated')} />
         )}
         {/* Overdue gets its own tone: an overdue count is a different
             statement from a busy one. */}
         {showAgenda && (
           <span className="flex items-center gap-1">
             {agenda.overdue > 0 && (
-              <span
-                className="rounded-full bg-neg-500 px-1.5 text-[11px] font-bold text-white"
-                title={t('agenda.groups.overdue')}
-              >
-                {agenda.overdue}
-              </span>
+              <Count value={agenda.overdue} digits={1} className="bg-neg-500 text-white" title={t('agenda.groups.overdue')} />
             )}
-            <span
-              className="rounded-full bg-white/15 px-1.5 text-[11px] font-semibold text-white"
-              title={t('agenda.openCount')}
-            >
-              {agenda.open}
-            </span>
+            <Count value={agenda.open} digits={1} className="bg-white/15 text-white" title={t('agenda.openCount')} />
           </span>
         )}
       </NavLink>

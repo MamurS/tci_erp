@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { AmountInput, Button, Card, DateInput, Field, Input, PageHeader, Segmented, Select, Spinner, LinkButton } from '../../../components/ui'
+import { AmountInput, Button, Card, DateInput, Field, Input, PageHeader, PanelGrid, Segmented, Select, Spinner, LinkButton } from '../../../components/ui'
 import { amountToPlain, parseAmount } from '../../../components/ui/amount'
 import { formatAmount } from '../../../lib/format'
 import {
@@ -330,7 +330,7 @@ export function StatementFormPage() {
           onStateChange={setLocalState}
         />
       ) : (
-        <div className="grid gap-5 xl:grid-cols-2">
+        <PanelGrid cols="xl:grid-cols-2">
           <StatementSectionGrid
             title={t('fin.balanceSheetTitle')}
             sections={BALANCE_SHEET_SECTIONS}
@@ -346,7 +346,7 @@ export function StatementFormPage() {
             onChange={(key, value) => setPnl((prev) => ({ ...prev, [key]: value }))}
             hint={t('fin.form.expensesPositiveHint')}
           />
-        </div>
+        </PanelGrid>
       )}
     </div>
   )

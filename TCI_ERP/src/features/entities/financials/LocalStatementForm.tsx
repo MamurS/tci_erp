@@ -11,7 +11,7 @@
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AmountInput, Card } from '../../../components/ui'
+import { AmountInput, Card, PanelGrid } from '../../../components/ui'
 import { amountToPlain, parseAmount } from '../../../components/ui/amount'
 import { formatAmount } from '../../../lib/format'
 import type { StatementBundle } from '../types'
@@ -105,7 +105,7 @@ export function LocalStatementForm({ frameworkCode, existing, onStateChange }: L
   }
 
   return (
-    <div className="grid gap-5 xl:grid-cols-2">
+    <PanelGrid cols="xl:grid-cols-2">
       {perTemplate.map(({ template, subtotalWarnings, crossChecks }) => (
         <Card key={template.id} className="overflow-hidden">
           <div className="border-b border-slate-200 bg-slate-50 px-4 py-2.5">
@@ -190,7 +190,7 @@ export function LocalStatementForm({ frameworkCode, existing, onStateChange }: L
           )}
         </Card>
       ))}
-    </div>
+    </PanelGrid>
   )
 }
 

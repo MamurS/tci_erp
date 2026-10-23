@@ -8,6 +8,7 @@
 import { AlertTriangle, CheckCircle2, Info, OctagonAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
 
+import { BadgeSizeContext } from './badgeStyles'
 import { Card } from './primitives'
 
 // ---------------------------------------------------------------------------
@@ -36,11 +37,16 @@ export function DetailHeader({ eyebrow, title, status, meta, actions }: DetailHe
             {eyebrow}
           </div>
         )}
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        <div data-badge-row className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
           <h1 className="font-display text-[28px] leading-tight font-bold tracking-wide text-accent-600 uppercase">
             {title}
           </h1>
-          {status}
+          {status && (
+            // Header badges are `md` (DESIGN.md «Badges»).
+            <BadgeSizeContext.Provider value="md">
+              <span className="inline-flex flex-wrap items-center gap-2">{status}</span>
+            </BadgeSizeContext.Provider>
+          )}
         </div>
         {parts.length > 0 && (
           // A part that renders nothing (a chip with no group) leaves an empty

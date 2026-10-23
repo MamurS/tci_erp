@@ -106,6 +106,8 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'adt_beyond_authority', key: 'limits.adt.errors.beyondAuthority' },
   { fragment: 'adt_none', key: 'limits.adt.errors.none' },
   { fragment: 'adt_block_reason', key: 'limits.adt.errors.blockReason' },
+  // a portal client holds no other role (0062)
+  { fragment: 'client_role_exclusive', key: 'admin.errors.clientRoleExclusive' },
   // a currency with no rate cannot be weighed against an authority (0013)
   { fragment: 'no UZS rate for', key: 'limits.errors.noRate' },
 ]

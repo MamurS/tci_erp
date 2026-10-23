@@ -80,7 +80,10 @@
     "lastAttemptWarning": "One more failed attempt and sign-in will be paused for a short time.",
     "retryIn": "Try again in {{time}}",
     "forgotPassword": "Forgot your password?",
-    "forgotPasswordHelp": "Passwords are reset by the system administrator. Contact them: you will receive a temporary password and will be asked to set a new one when you sign in."
+    "forgotPasswordHelp": "Passwords are reset by the system administrator. Contact them: you will receive a temporary password and will be asked to set a new one when you sign in.",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "capsLockOn": "Caps Lock is on"
   },
   "roles": {
     "admin": "Administrator",
@@ -1856,7 +1859,6 @@
     "editRoles": "Roles",
     "rolesFor": "Roles — {{email}}",
     "rolesHint": "A user may hold several roles; access is the union of them.",
-    "clientAndStaffWarning": "This user would be both a portal client and staff. Keep the client role for external users only.",
     "selectUser": "Select a user",
     "selectUserHint": "Pick a user on the “Users & roles” tab to edit their authority.",
     "authoritiesFor": "Authority — {{email}}",
@@ -1884,7 +1886,8 @@
     "errors": {
       "amountPositive": "Amount must be greater than zero",
       "periodOrder": "“Valid to” must not precede “valid from”",
-      "validFromRequired": "“Valid from” is required"
+      "validFromRequired": "“Valid from” is required",
+      "clientRoleExclusive": "A portal client cannot hold any other role. Remove the client role first, or create a separate portal user."
     },
     "usersCount": "{{count}} users",
     "security": {
@@ -2003,7 +2006,8 @@
       "saved": "Saved.",
       "saveFailed": "The auto-decision settings could not be saved.",
       "loadFailed": "Could not load the auto-decision settings."
-    }
+    },
+    "clientAloneHint": "A portal client holds no other role: the client role and the staff roles exclude each other."
   },
   "requests": {
     "subtitle": "Insurance submissions: from request to bound policy",
@@ -4249,7 +4253,17 @@
       "body_other": "Since your previous sign-in there were {{count}} failed attempts to sign in to your account.",
       "hint": "If this was not you, change your password and tell the administrator.",
       "changePassword": "Change password",
-      "dismiss": "Dismiss"
+      "dismiss": "Dismiss",
+      "at": "On {{at}}.",
+      "range": "Between {{from}} and {{to}}.",
+      "thisWasMe": "This was me",
+      "showAttempts": "Show attempts",
+      "hideAttempts": "Hide attempts",
+      "columns": {
+        "time": "Time",
+        "network": "Network",
+        "device": "Browser and system"
+      }
     }
   },
   "wording": {

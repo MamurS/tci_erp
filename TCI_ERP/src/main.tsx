@@ -11,6 +11,10 @@ import { i18nReady } from './i18n'
 import './index.css'
 import App from './App'
 import { AuthProvider } from './auth/AuthContext'
+import { trackFocusSource } from './lib/focusSource'
+
+// Focus rings for keyboard focus only (lib/focusSource.ts, index.css).
+trackFocusSource()
 
 const mutationCache = new MutationCache()
 // Dev only: `[mutation] <key> <ms>` per write (lib/mutationTiming.ts). The

@@ -22,6 +22,7 @@ import { destinationFor, instalmentDestination } from './destinations'
 import { isAutomatic } from './notes'
 import { CommentComposer, DueLabel, OwnerAvatar, SnoozeMenu, TypeTag } from './parts'
 import { rowActions } from './rowActions'
+import { ROW_GRID, TRACK } from './rowGrid'
 import { snoozedText } from './snooze'
 import { companyOf, itemMoney, referenceOf, rowFacts, rowTitle } from './rowText'
 import type { Task } from './types'
@@ -49,11 +50,31 @@ export interface ListContext {
   onHandled: (row: AgendaRow) => void
 }
 
+// The left stripe is the grid's first track (rowGrid.ts), painted on every
+// row of the item — task row, sub-rows, composer — so it runs unbroken.
 const STRIPE: Record<Bucket, string> = {
-  overdue: 'border-l-neg-500',
-  today: 'border-l-warn-500',
-  week: 'border-l-slate-300',
-  later: 'border-l-slate-300',
+  overdue: 'bg-neg-500',
+  today: 'bg-warn-500',
+  week: 'bg-slate-300',
+  later: 'bg-slate-300',
+}
+
+// Every group header carries a dot: a due group in its stripe's colour
+// (amber is a dot, never text — CLAUDE.md «Amber is not a text colour»), a
+// company or type group in neutral grey.
+const DOT: Record<Bucket, string> = {
+  overdue: 'bg-neg-500',
+  today: 'bg-warn-500',
+  week: 'bg-slate-400',
+  later: 'bg-slate-400',
+}
+
+/** A hairline above a row that is not the first of its list, drawn as an
+ * inset shadow so the stripe cell paints over it and stays unbroken. */
+const HAIRLINE = 'shadow-[inset_0_1px_0_var(--color-slate-100)]'
+
+function Stripe({ bucket }: { bucket: Bucket }) {
+  return <span aria-hidden className={`${TRACK.stripe} self-stretch ${STRIPE[bucket]}`} />
 }
 
 export function AgendaList({ groups, ctx }: { groups: RowGroup[]; ctx: ListContext }) {
@@ -85,9 +106,12 @@ function GroupSection({ group, ctx }: { group: RowGroup; ctx: ListContext }) {
   return (
     <section aria-label={label}>
       <h2 className="mb-2 flex items-baseline gap-3">
-        {group.kind === 'due' && group.key === 'today' && (
-          <span aria-hidden className="size-2 shrink-0 self-center rounded-full bg-warn-500" />
-        )}
+        <span
+          aria-hidden
+          className={`size-2 shrink-0 self-center rounded-full ${
+            group.kind === 'due' ? DOT[group.key as Bucket] : 'bg-slate-400'
+          }`}
+        />
         <span className={`text-[12px] font-bold tracking-[0.08em] uppercase ${tone}`}>{label}</span>
         <span className="text-[12.5px] text-slate-600 tabular-nums">
           {[
@@ -112,7 +136,7 @@ function GroupSection({ group, ctx }: { group: RowGroup; ctx: ListContext }) {
       </h2>
       {open && (
         <Card className="overflow-hidden">
-          <ul className="divide-y divide-slate-100">
+          <ul>
             {group.rows.map((row) => (
               <RowView key={row.key} row={row} ctx={ctx} />
             ))}
@@ -145,111 +169,125 @@ function RowView({ row, ctx }: { row: AgendaRow; ctx: ListContext }) {
   return (
     <li
       data-row-key={row.key}
-      className={`group/row border-l-[3px] ${STRIPE[bucket]} transition-colors hover:bg-slate-50/80 has-[[data-row-link]:focus-visible]:bg-accent-50/50 has-[[data-row-link]:focus-visible]:ring-2 has-[[data-row-link]:focus-visible]:ring-accent-500 has-[[data-row-link]:focus-visible]:ring-inset ${
+      className={`group/row transition-colors not-first:shadow-[inset_0_1px_0_var(--color-slate-100)] hover:bg-slate-50/80 has-[[data-row-link]:focus-visible]:bg-accent-50/50 has-[[data-row-link]:focus-visible]:outline-2 has-[[data-row-link]:focus-visible]:-outline-offset-2 has-[[data-row-link]:focus-visible]:outline-accent-500 ${
         focused ? 'bg-accent-50/40' : ''
       }`}
     >
-      <div data-layout-row className="relative flex min-h-14 items-center gap-3 py-2 pr-4 pl-3">
+      <div data-layout-row className={`relative ${ROW_GRID} min-h-14 items-center`}>
+        <Stripe bucket={bucket} />
         {row.kind === 'collapsed' ? (
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
             aria-expanded={expanded}
             aria-label={expanded ? t('agenda.collapse') : t('agenda.expand')}
-            className="relative z-10 flex size-6 shrink-0 items-center justify-center rounded border border-slate-200 bg-white text-slate-500 hover:text-slate-800 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none"
+            className={`${TRACK.chevron} relative z-10 flex size-6 items-center justify-center rounded border border-slate-200 bg-white text-slate-500 hover:text-slate-800 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none`}
           >
             {expanded ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}
           </button>
         ) : (
-          <span className="w-6 shrink-0" />
+          <span aria-hidden className={TRACK.chevron} />
         )}
-        <TypeTag
-          type={row.displayType}
-          automatic={isAutomatic(row.lead)}
-          groupLimit={row.lead.task_type === 'limit_escalated' && row.lead.params?.reason === 'group_limit'}
-        />
-        <div className="min-w-0 flex-1">
-          <Link
-            to={object}
-            data-row-link={row.key}
-            onFocus={() => ctx.onFocusRow(row.key)}
-            className="block truncate text-[14px] font-semibold text-slate-900 after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
+        <span className={`${TRACK.tag} flex min-w-0`}>
+          <TypeTag
+            type={row.displayType}
+            automatic={isAutomatic(row.lead)}
+            groupLimit={row.lead.task_type === 'limit_escalated' && row.lead.params?.reason === 'group_limit'}
+          />
+        </span>
+        <div className={`${TRACK.main} flex min-w-0 items-center gap-3`}>
+          <div className="min-w-0 flex-1 py-2">
+            <Link
+              to={object}
+              data-row-link={row.key}
+              data-agenda-title
+              onFocus={() => ctx.onFocusRow(row.key)}
+              className="block truncate text-[14px] font-semibold text-slate-900 after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
+            >
+              {title}
+            </Link>
+            <p data-agenda-context className="mt-0.5 truncate text-[12.5px] text-slate-600 tabular-nums">
+              {snoozed && (
+                <span className="text-slate-600">{snoozedText(row.lead, t, locale, ctx.staff)} · </span>
+              )}
+              {snippet && (
+                <span className="text-slate-600">
+                  {snippet.kind === 'comment' && (
+                    <span className="mr-1 inline-flex items-center gap-1 font-medium text-accent-600 not-italic">
+                      <MessageSquare aria-hidden className="size-3" />
+                      {t('agenda.comments.count', { count: snippet.count })}
+                    </span>
+                  )}
+                  <i>{snippet.kind === 'comment' ? `«${snippet.text}»` : snippet.text}</i>
+                  {(snippet.kind === 'note' ? Boolean(referenceOf(row.lead, ctx.subjects)) : facts.length > 0) && ' · '}
+                </span>
+              )}
+              {/* A system note already states the facts; only the number stays. */}
+              {(snippet?.kind === 'note' ? facts.filter((f) => f === referenceOf(row.lead, ctx.subjects)) : facts).join(' · ')}
+            </p>
+          </div>
+          {/* Revealed by OPACITY, never display: the buttons' space is always
+              taken, so hovering a row never moves its title, due date or owner. */}
+          <div
+            className={`relative z-10 flex shrink-0 items-center gap-2 transition-opacity ${
+              focused || commenting
+                ? ''
+                : 'pointer-events-none opacity-0 group-focus-within/row:pointer-events-auto group-focus-within/row:opacity-100 group-hover/row:pointer-events-auto group-hover/row:opacity-100'
+            }`}
           >
-            {title}
-          </Link>
-          <p className="mt-0.5 truncate text-[12.5px] text-slate-600 tabular-nums">
-            {snoozed && (
-              <span className="text-slate-600">{snoozedText(row.lead, t, locale, ctx.staff)} · </span>
+            <LinkButton to={dest.path} size="sm" onClick={() => ctx.onHandled(row)}>
+              {t(`agenda.actions.${dest.action}`)}
+            </LinkButton>
+            {!snoozed && (
+              <SnoozeMenu
+                compact
+                taskIds={row.tasks.map((task) => task.id)}
+                onDone={() => ctx.onHandled(row)}
+                onError={ctx.onError}
+              />
             )}
-            {snippet && (
-              <span className="text-slate-600">
-                {snippet.kind === 'comment' && (
-                  <span className="mr-1 inline-flex items-center gap-1 font-medium text-accent-600 not-italic">
-                    <MessageSquare aria-hidden className="size-3" />
-                    {t('agenda.comments.count', { count: snippet.count })}
-                  </span>
-                )}
-                <i>{snippet.kind === 'comment' ? `«${snippet.text}»` : snippet.text}</i>
-                {(snippet.kind === 'note' ? Boolean(referenceOf(row.lead, ctx.subjects)) : facts.length > 0) && ' · '}
-              </span>
-            )}
-            {/* A system note already states the facts; only the number stays. */}
-            {(snippet?.kind === 'note' ? facts.filter((f) => f === referenceOf(row.lead, ctx.subjects)) : facts).join(' · ')}
-          </p>
+            <ActionsMenu trigger="icon" size="sm" label={t('agenda.more')} actions={rowActions(row, ctx, t, navigate)} />
+          </div>
         </div>
-        {/* Revealed by OPACITY, never display: the buttons' space is always
-            taken, so hovering a row never moves its title, due date or owner. */}
-        <div
-          className={`relative z-10 flex shrink-0 items-center gap-2 transition-opacity ${
-            focused || commenting
-              ? ''
-              : 'pointer-events-none opacity-0 group-focus-within/row:pointer-events-auto group-focus-within/row:opacity-100 group-hover/row:pointer-events-auto group-hover/row:opacity-100'
-          }`}
-        >
-          <LinkButton to={dest.path} size="sm" onClick={() => ctx.onHandled(row)}>
-            {t(`agenda.actions.${dest.action}`)}
-          </LinkButton>
-          {!snoozed && (
-            <SnoozeMenu
-              compact
-              taskIds={row.tasks.map((task) => task.id)}
-              onDone={() => ctx.onHandled(row)}
-              onError={ctx.onError}
-            />
-          )}
-          <ActionsMenu trigger="icon" size="sm" label={t('agenda.more')} actions={rowActions(row, ctx, t, navigate)} />
-        </div>
-        <span className="relative z-10 flex shrink-0 items-center gap-3">
+        <span className={`${TRACK.due} relative z-10 flex min-w-0 justify-end`}>
           <DueLabel dueAt={row.dueAt} bucket={bucket} now={ctx.now} />
+        </span>
+        <span className={`${TRACK.owner} relative z-10 flex`}>
           <OwnerAvatar task={row.lead} staff={ctx.staff} />
         </span>
       </div>
 
-      {row.kind === 'collapsed' && expanded && <SubTable row={row} now={ctx.now} />}
+      {row.kind === 'collapsed' && expanded && <SubRows row={row} bucket={bucket} now={ctx.now} />}
 
       {commenting && (
-        <div className="border-t border-slate-100 bg-slate-50/60 px-4 py-3 pl-[3.25rem]">
-          <CommentComposer taskId={row.lead.id} onClose={() => ctx.setCommentingKey(null)} onError={ctx.onError} />
+        <div className={`${ROW_GRID} ${HAIRLINE} bg-slate-50/60`}>
+          <Stripe bucket={bucket} />
+          <div className={`${TRACK.tagToEnd} py-3`}>
+            <CommentComposer taskId={row.lead.id} onClose={() => ctx.setCommentingKey(null)} onError={ctx.onError} />
+          </div>
         </div>
       )}
     </li>
   )
 }
 
-/** The items behind a collapsed row: what, due, amount, days, Open. */
-function SubTable({ row, now }: { row: AgendaRow; now: Date }) {
+/** The items behind a collapsed row, on the rows' own grid: what (where
+ * the parent titles start), amount and «Open» at the end of the title track,
+ * the days in the due track. */
+function SubRows({ row, bucket, now }: { row: AgendaRow; bucket: Bucket; now: Date }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.language
   const multiplePolicies = new Set(row.items.map((i) => i.params?.policy_id)).size > 1
   return (
-    <table className="w-full border-t border-slate-100 bg-slate-50/50 text-[13px]">
-      <tbody className="divide-y divide-slate-100">
-        {row.items.map((item: Task) => {
-          const state = dueState(item.due_at, now)
-          const href = instalmentDestination(item)
-          return (
-            <tr key={item.id}>
-              <td className="py-2 pr-3 pl-[3.25rem] text-slate-700">
+    <ul className="bg-slate-50/50 text-[13px]">
+      {row.items.map((item: Task) => {
+        const state = dueState(item.due_at, now)
+        const href = instalmentDestination(item)
+        return (
+          <li key={item.id} data-agenda-subrow className={`${ROW_GRID} ${HAIRLINE} min-h-9 items-center`}>
+            <Stripe bucket={bucket} />
+            <div className={`${TRACK.main} flex min-w-0 items-center gap-3 py-2`}>
+              <span data-agenda-title className="min-w-0 flex-1 truncate text-slate-700">
                 {[
                   multiplePolicies && typeof item.params?.policy_number === 'string' ? item.params.policy_number : null,
                   t('agenda.sub.instalment', { sequence: item.params?.sequence ?? '' }),
@@ -259,32 +297,33 @@ function SubTable({ row, now }: { row: AgendaRow; now: Date }) {
                 ]
                   .filter(Boolean)
                   .join(' · ')}
-              </td>
-              <td className="num px-3 py-2 text-right whitespace-nowrap text-slate-800 tabular-nums">{itemMoney(item, locale)}</td>
-              <td
-                className={`num w-24 px-3 py-2 text-right font-semibold whitespace-nowrap tabular-nums ${
-                  state.kind === 'overdue' ? 'text-neg-600' : 'text-slate-700'
-                }`}
-              >
-                {state.kind === 'overdue'
-                  ? t('agenda.due.days', { count: state.days })
-                  : state.kind === 'today'
-                    ? t('agenda.due.today')
-                    : state.kind === 'future'
-                      ? t('agenda.due.inDays', { count: state.days })
-                      : ''}
-              </td>
-              <td className="w-20 py-2 pr-4 pl-3 text-right">
+              </span>
+              <span className="num shrink-0 text-right whitespace-nowrap text-slate-800 tabular-nums">{itemMoney(item, locale)}</span>
+              {/* Always there, so the amounts of a sub-list line up. */}
+              <span className="w-16 shrink-0 text-right">
                 {href && (
                   <Link to={href} className="font-semibold text-accent-600 hover:underline">
                     {t('agenda.open')}
                   </Link>
                 )}
-              </td>
-            </tr>
-          )
-        })}
-      </tbody>
-    </table>
+              </span>
+            </div>
+            <span
+              className={`${TRACK.due} num min-w-0 truncate text-right font-semibold whitespace-nowrap tabular-nums ${
+                state.kind === 'overdue' ? 'text-neg-600' : 'text-slate-700'
+              }`}
+            >
+              {state.kind === 'overdue'
+                ? t('agenda.due.days', { count: state.days })
+                : state.kind === 'today'
+                  ? t('agenda.due.today')
+                  : state.kind === 'future'
+                    ? t('agenda.due.inDays', { count: state.days })
+                    : ''}
+            </span>
+          </li>
+        )
+      })}
+    </ul>
   )
 }

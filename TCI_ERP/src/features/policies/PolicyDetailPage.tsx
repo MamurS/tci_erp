@@ -19,6 +19,7 @@ import {
   Field,
   LinkButton,
   Modal,
+  PanelGrid,
   SectionTitle,
   Spinner,
   Tabs,
@@ -149,10 +150,10 @@ function PolicyBody({ policy, policyId }: { policy: PolicyWithRefs; policyId: st
         // below at the full width — a table of seven columns squeezed into
         // two thirds broke every name over four lines.
         <div className="flex flex-col gap-6">
-          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <PanelGrid cols="xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             <TermsCard policy={policy} />
             <HistoryTimeline policyId={policyId} />
-          </div>
+          </PanelGrid>
           <PolicyLimitsSection policy={policy} />
         </div>
       )}

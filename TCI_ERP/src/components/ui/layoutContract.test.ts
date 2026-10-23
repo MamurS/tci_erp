@@ -187,4 +187,30 @@ describe('layout contract', () => {
       .map(([path]) => path)
     expect(offenders).toEqual([])
   })
+
+  it('puts cards side by side only in a PanelGrid (equal height), or says why not', () => {
+    // A responsive grid with `items-start` is the ad-hoc card row the owner
+    // rejected: its cards end at different heights. Rows of cards are a
+    // PanelGrid (DESIGN.md «Side-by-side cards»); what is left here is not a
+    // row of cards, and says so.
+    const NOT_A_CARD_ROW: Record<string, string> = {
+      'LimitRequestPage.tsx': 'a column of stacked sections (request, decision form, …) beside the buyer snapshot',
+      'DraftPage.tsx': 'the contract document beside a stacked, sticky contents / comments column',
+      'PortalContractsPage.tsx': 'the contract document beside a stacked comments column',
+      'PortalPoliciesPage.tsx': 'a list of policies beside the next-steps aside',
+      'PortalSubmissionsPage.tsx': 'two text sections inside one card, not cards',
+      // Excluded from the October 2026 card pass: rebuilt separately.
+      'OfferEditPage.tsx': 'excluded — rebuilt separately',
+      'BrochureView.tsx': 'excluded — rebuilt separately',
+      'BrochureBody.tsx': 'excluded — rebuilt separately',
+    }
+    const offenders: string[] = []
+    for (const [path, text] of files) {
+      if (Object.keys(NOT_A_CARD_ROW).some((name) => path.endsWith(`/${name}`))) continue
+      for (const line of text.split('\n'))
+        if (/["'`][^"'`]*\bgrid\b[^"'`]*\bitems-start\b[^"'`]*\b(sm|md|lg|xl|2xl):grid-cols-/.test(line))
+          offenders.push(`${path}: ${line.trim()}`)
+    }
+    expect(offenders).toEqual([])
+  })
 })

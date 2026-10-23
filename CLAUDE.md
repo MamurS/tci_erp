@@ -37,7 +37,7 @@ Department roles (stored in `tci.user_roles`, enforced via RLS). **A user may ho
 - `credit_underwriter` — ratings, limits and credit decisions within band authority
 - `claims` — claims and recoveries
 - `information_manager` — fills in company data and financial statements
-- `client` — external portal user: sees ONLY own policies, own limit requests, own declarations. Design every policy with this role in mind even before the portal exists.
+- `client` — external portal user: sees ONLY own policies, own limit requests, own declarations. Design every policy with this role in mind even before the portal exists. **`client` is held alone** — a trigger on `tci.user_roles` refuses it next to any other role (`client_role_exclusive`, 0062), and the admin role editor greys the combination out.
 
 SQL helpers: `tci.current_user_roles()` (setof), `tci.has_role(variadic)`, `tci.is_staff()` (= any role except `client`). There is **no `senior_underwriter`** any more — seniority is expressed by the authority matrix.
 
@@ -660,6 +660,22 @@ is fine for internal test accounts and not fine for customers.
   policy, view and trigger fingerprint-identical to a local replay; the
   whole `tests/db/auto_decisions.sql` run on canonical with role
   impersonation and rolled back, counts unchanged, switch still OFF
+- [x] Sign-in notice fix + `client` held alone (migration 0062): the
+  «failed sign-in attempts» banner showed «11 failed attempts» on every
+  login because the access-token hook is not enabled on canonical, so no
+  sign-in ticket ever became 'succeeded' — the owner's five successful
+  sign-ins counted with six real wrong passwords, and the throttle counted
+  them too. The app now records its own sign-in (`tci.record_sign_in`: the
+  caller's fresh ticket, same network, issued before the token), «Это я» /
+  × and a password change write a server-side watermark
+  (`user_profiles.sign_in_ack_at`), the banner shows the time range and a
+  list (time, /24 network, browser and system), and a trigger keeps
+  `client` alone. **Canonical: 0062 applied 2026-10-22** — everything but
+  the one role cleanup through `execute_sql` (fingerprint-identical to a
+  local replay, the whole `tests/db/sign_in_notice.sql` run with role
+  impersonation and rolled back, counts unchanged); the cleanup of the
+  owner's `client` role and the ledger row by the owner with
+  `docs/deploy/canonical-apply-0062.sql`
 - [x] Commercial offer «как в ДМС» (Prompt 27, NO migration): the offer is a
   FIXED, approved document — the TCI brochure (9 A4 pages in the app's
   colours and faces, three covers white / navy / blue, a geometric mosaic
@@ -1209,6 +1225,33 @@ runs). Write every UPDATE in a canonical script or smoke with an explicit
 `WHERE` — `tests/db/wording.sql` does — and when a call times out, first
 check that nothing reached the database (it never does), then find the
 statement the check objects to; still never disguise it.
+
+### Sign-in notice rules (migration 0062)
+
+**A success must be recorded, or every success is a failure.** `login_begin`
+writes a ticket that counts as a failure until something marks it
+'succeeded'. That is the access-token hook's job, and the hook is a
+dashboard toggle; where it is off, nothing did, so the notice and the
+throttle both counted the owner's own sign-ins. The notice now calls
+`tci.record_sign_in()` FIRST (idempotent, and a no-op on a restored session):
+it marks the caller's latest pending ticket from the same network, within
+its 90 seconds and written before the token was issued. With the hook on,
+the hook gets there first and the call finds nothing to do.
+
+**What counts** (`tci.my_counted_failures`, internal): pending and forgiven
+tickets of the caller's e-mail after BOTH the previous successful sign-in
+and `user_profiles.sign_in_ack_at`, and before this sign-in. The watermark is
+written only by `acknowledge_sign_in_failures` («Это я» and ×) and
+`complete_password_change`; no API role may update the column, and the
+browser stores nothing.
+
+**Where an attempt came from, but never the address.** `login_attempts`
+keeps `ip_masked` (/24 for IPv4, /48 for IPv6) and the user agent (≤ 200
+characters) next to the salted hashes; `my_failed_sign_ins` lists at most 50.
+
+**The probe never shows here.** `docs/security/auth-probe.sh` calls
+`/auth/v1/token` directly and never `login_begin`, so it leaves no ticket:
+a wrong password counted by the notice always came through the sign-in page.
 
 ### Statement framework rules (migrations 0049, 0051)
 
