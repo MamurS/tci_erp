@@ -36,3 +36,13 @@ describe('classifySignInError', () => {
     expect(classifySignInError({}).kind).toBe('generic')
   })
 })
+
+describe('no answer at all (0064)', () => {
+  it('is a network failure, not a wrong password', () => {
+    expect(classifySignInError({ name: 'AuthRetryableFetchError', status: 0, message: '{}' }).kind).toBe('network')
+    expect(classifySignInError({ message: 'Failed to fetch' }).kind).toBe('network')
+    expect(classifySignInError({ message: 'Load failed' }).kind).toBe('network')
+    // a real wrong password stays one
+    expect(classifySignInError({ code: 'invalid_credentials', status: 400 }).kind).toBe('invalidCredentials')
+  })
+})

@@ -10,6 +10,8 @@
  * migration text.
  */
 
+import type { InterruptionReason } from './signInNotice'
+
 export const LOGIN_FREE_ATTEMPTS = 3
 export const LOGIN_BASE_LOCK_SECONDS = 30
 export const LOGIN_MAX_LOCK_SECONDS = 3600
@@ -31,6 +33,9 @@ export interface LoginBeginResult {
   failures: number
   /** Present when refused. */
   retryAfterSeconds: number | null
+  /** The attempt's ticket (0064): lets this page, and only it, report the
+   * attempt as interrupted (tci.login_interrupted). Null on an older backend. */
+  ticket: string | null
 }
 
 /** Defensive parse of the RPC answer; anything unexpected means "go ahead"
@@ -39,14 +44,20 @@ export function parseLoginBegin(raw: unknown): LoginBeginResult {
   if (raw && typeof raw === 'object') {
     const r = raw as Record<string, unknown>
     if (r.allowed === true) {
-      return { allowed: true, failures: Number(r.failures) || 0, retryAfterSeconds: null }
+      const ticket = typeof r.ticket === 'string' && /^[0-9a-f]{64}$/.test(r.ticket) ? r.ticket : null
+      return { allowed: true, failures: Number(r.failures) || 0, retryAfterSeconds: null, ticket }
     }
     if (r.allowed === false) {
       const s = Number(r.retry_after_seconds)
-      return { allowed: false, failures: 0, retryAfterSeconds: Number.isFinite(s) && s > 0 ? Math.ceil(s) : 30 }
+      return {
+        allowed: false,
+        failures: 0,
+        retryAfterSeconds: Number.isFinite(s) && s > 0 ? Math.ceil(s) : 30,
+        ticket: null,
+      }
     }
   }
-  return { allowed: false, failures: 0, retryAfterSeconds: 5 }
+  return { allowed: false, failures: 0, retryAfterSeconds: 5, ticket: null }
 }
 
 /** Tries left before the first wait, after this attempt failed. */
@@ -59,4 +70,22 @@ export function formatCountdown(seconds: number): string {
   const s = Math.max(0, Math.ceil(seconds))
   const m = Math.floor(s / 60)
   return `${String(m).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
+}
+
+/** The label for a failed sign-in (0064): why the attempt never reached the
+ * password check, as the page saw it — or null when it was (or may have
+ * been) a password check; a wrong password is never reported. The server
+ * stores the label and lists such attempts apart from wrong passwords; the
+ * throttle still counts them. */
+export function interruptionReason(kind: string): InterruptionReason | null {
+  switch (kind) {
+    case 'captcha':
+      return 'captcha'
+    case 'rateLimited':
+      return 'rate_limited'
+    case 'network':
+      return 'network'
+    default:
+      return null
+  }
 }

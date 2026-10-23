@@ -29,6 +29,10 @@ export interface StubOptions {
   user?: { id: string; email: string }
   /** false: no session is seeded, so the app starts signed out (/login). */
   signedIn?: boolean
+  /** A JWT-shaped access token carrying this `session_id` claim (unsigned —
+   * the stub never checks it). Off by default: screens keyed on the session
+   * (the sign-in notice) then stay quiet. */
+  sessionId?: string
   /** Answers a REST call before `rows` and the defaults (undefined: fall
    * through) — e.g. replaying recorded fixtures (e2e/layout/fixtures.ts). */
   respond?: (request: StubRequest) => StubReply | undefined
@@ -52,7 +56,7 @@ export interface StubReply {
   headers?: Record<string, string>
 }
 
-function fakeSession(id = STUB_USER_ID, email = 'e2e.user@demo.invalid') {
+function fakeSession(id = STUB_USER_ID, email = 'e2e.user@demo.invalid', sessionId?: string) {
   const now = Math.floor(Date.now() / 1000)
   const user = {
     id,
@@ -64,7 +68,13 @@ function fakeSession(id = STUB_USER_ID, email = 'e2e.user@demo.invalid') {
     created_at: '2026-01-01T00:00:00Z',
   }
   return {
-    access_token: 'stub-access-token',
+    access_token: sessionId
+      ? [
+          Buffer.from(JSON.stringify({ alg: 'none', typ: 'JWT' })).toString('base64'),
+          Buffer.from(JSON.stringify({ sub: id, role: 'authenticated', session_id: sessionId })).toString('base64'),
+          'stub-signature',
+        ].join('.')
+      : 'stub-access-token',
     refresh_token: 'stub-refresh-token',
     token_type: 'bearer',
     expires_in: 3600 * 24 * 365,
@@ -82,8 +92,9 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
     user,
     respond,
     signedIn = true,
+    sessionId,
   } = options
-  const session = fakeSession(user?.id, user?.email)
+  const session = fakeSession(user?.id, user?.email, sessionId)
 
   await context.addInitScript(
     ([key, value, language, side]) => {

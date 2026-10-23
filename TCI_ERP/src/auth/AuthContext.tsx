@@ -7,7 +7,7 @@ import { supabase, tci } from '../lib/supabase'
 import { isUserRole } from '../lib/roles'
 import type { UserRole } from '../lib/roles'
 import { classifySignInError } from './signInErrors'
-import { attemptsLeft, lockSeconds, parseLoginBegin } from './loginGate'
+import { attemptsLeft, interruptionReason, lockSeconds, parseLoginBegin } from './loginGate'
 import type { SignInFailure } from './signInErrors'
 import { parseAuthStatus } from './mfaGate'
 import type { AuthStatus } from './mfaGate'
@@ -236,7 +236,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: { kind: 'generic' as const } }
     }
     const gate = gateMissing
-      ? { allowed: true, failures: 0, retryAfterSeconds: null }
+      ? { allowed: true, failures: 0, retryAfterSeconds: null, ticket: null }
       : parseLoginBegin(begin.data)
     if (!gate.allowed) {
       return { error: { kind: 'throttled' as const, seconds: gate.retryAfterSeconds ?? 30 } }
@@ -249,7 +249,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
     if (!error) return { error: null }
     const status = 'status' in error ? (error as { status?: number }).status : undefined
-    const failure = classifySignInError({ code: error.code, status, message: error.message })
+    const failure = classifySignInError({ code: error.code, status, message: error.message, name: error.name })
+    // Stopped before the password check (0064): say so, with this attempt's
+    // ticket, so the after-sign-in notice does not call it a wrong password.
+    // Best effort — the throttle counts the attempt either way.
+    const reason = interruptionReason(failure.kind)
+    if (reason && gate.ticket) {
+      try {
+        await tci().rpc('login_interrupted', { p_ticket: gate.ticket, p_reason: reason })
+      } catch {
+        // offline: nothing to report to, and nothing lost but the label
+      }
+    }
     if (failure.kind === 'invalidCredentials' && !gateMissing) {
       const left = attemptsLeft(gate.failures)
       const wait = lockSeconds(gate.failures + 1)
