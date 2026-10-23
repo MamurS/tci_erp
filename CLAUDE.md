@@ -675,7 +675,10 @@ is fine for internal test accounts and not fine for customers.
   local replay, the whole `tests/db/sign_in_notice.sql` run with role
   impersonation and rolled back, counts unchanged); the cleanup of the
   owner's `client` role and the ledger row by the owner with
-  `docs/deploy/canonical-apply-0062.sql`
+  `docs/deploy/canonical-apply-0062.sql` (2026-10-23, since removed — in
+  git history); verified afterwards: the owner holds no `client` role, no
+  account mixes `client` with another role, the ledger row and the trigger
+  are present
 - [x] Commercial offer «как в ДМС» (Prompt 27, NO migration): the offer is a
   FIXED, approved document — the TCI brochure (9 A4 pages in the app's
   colours and faces, three covers white / navy / blue, a geometric mosaic
