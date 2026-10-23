@@ -37,7 +37,7 @@ export function Header({ onOpenPalette, toggleSlot, onShowSidebar, sidebarId }: 
   const section = sectionFor(pathname)
   const SectionIcon = section ? navIcon(section.key) : null
   const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
-  const { session, roles, signOut } = useAuth()
+  const { session, actingRole, heldRoles, signOut } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const email = session?.user.email
@@ -105,8 +105,13 @@ export function Header({ onOpenPalette, toggleSlot, onShowSidebar, sidebarId }: 
           </span>
           <span className="hidden max-w-[220px] flex-col items-start leading-tight md:flex">
             <span className="w-full truncate text-[13px] font-semibold text-slate-800">{email}</span>
-            <span className="w-full truncate text-[11px] text-slate-500">
-              {roles.length ? roles.map((r) => t(`roles.${r}`)).join(' · ') : t('roles.unassigned')}
+            {/* The acting role (0063): what the database answers for now. */}
+            <span className="w-full truncate text-[11px] text-slate-500" data-testid="acting-role">
+              {actingRole
+                ? heldRoles.length > 1
+                  ? t('roles.actingAs', { role: t(`roles.${actingRole}`) })
+                  : t(`roles.${actingRole}`)
+                : t('roles.unassigned')}
             </span>
           </span>
           <ChevronDown className="size-4 text-slate-400" />
@@ -120,8 +125,13 @@ export function Header({ onOpenPalette, toggleSlot, onShowSidebar, sidebarId }: 
             <div className="border-b border-slate-100 px-3.5 py-2.5">
               <div className="truncate text-[13px] font-semibold text-slate-800">{email}</div>
               <div className="mt-0.5 text-[11px] leading-snug text-slate-500">
-                {roles.length ? roles.map((r) => t(`roles.${r}`)).join(', ') : t('roles.unassigned')}
+                {actingRole ? t('roles.actingAs', { role: t(`roles.${actingRole}`) }) : t('roles.unassigned')}
               </div>
+              {heldRoles.length > 1 && (
+                <div className="mt-1 text-[11px] leading-snug text-slate-400">
+                  {t('roles.held', { roles: heldRoles.map((r) => t(`roles.${r}`)).join(', ') })}
+                </div>
+              )}
             </div>
             {/* Password, second factor and sessions live on the account page. */}
             <Link

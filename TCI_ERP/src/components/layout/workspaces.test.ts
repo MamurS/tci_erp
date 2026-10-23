@@ -8,7 +8,8 @@ import {
   COMMON_ITEMS,
   WORKSPACES,
   availableWorkspaces,
-  resolveWorkspace,
+  initialActingRole,
+  workspaceForRole,
   workspaceHome,
   workspaceNav,
 } from './workspaces'
@@ -40,10 +41,10 @@ describe('workspaces', () => {
     }
   })
 
-  it('shows only the workspaces of the roles held; admin gets all of them', () => {
+  it('shows only the workspaces of the roles held — admin included, no longer all of them (0063)', () => {
     expect(availableWorkspaces(['commercial_underwriter']).map((w) => w.key)).toEqual(['commercial'])
     expect(availableWorkspaces(['credit_underwriter', 'sales']).map((w) => w.key)).toEqual(['credit', 'sales'])
-    expect(availableWorkspaces(['admin']).map((w) => w.key)).toEqual(WORKSPACES.map((w) => w.key))
+    expect(availableWorkspaces(['admin']).map((w) => w.key)).toEqual(['admin'])
     expect(availableWorkspaces(['information_manager']).map((w) => w.key)).toEqual(['data'])
     expect(availableWorkspaces(['client'])).toEqual([])
   })
@@ -66,25 +67,23 @@ describe('workspaces', () => {
     expect(workspaceHome(['information_manager'], byKey.data)).toBe('/data')
   })
 
-  it('keeps the remembered workspace while it contains the page', () => {
-    const all: UserRole[] = ['admin']
-    expect(resolveWorkspace(all, 'credit', '/limits/abc')).toBe('credit')
-    expect(resolveWorkspace(all, 'sales', '/limits')).toBe('sales')
-    // shared tools never move you
-    expect(resolveWorkspace(all, 'claims', '/entities/e1')).toBe('claims')
-    expect(resolveWorkspace(all, 'claims', '/')).toBe('claims')
+  it('each workspace is exactly one role to act in', () => {
+    const roles = WORKSPACES.map((w) => w.role)
+    expect(new Set(roles).size).toBe(roles.length)
+    for (const w of WORKSPACES) expect(workspaceForRole(w.role)).toBe(w)
+    expect(workspaceForRole('client')).toBeNull()
+    expect(workspaceForRole(null)).toBeNull()
   })
 
-  it('moves to a workspace that contains a page opened from elsewhere', () => {
-    expect(resolveWorkspace(['admin'], 'claims', '/policies/p1')).toBe('commercial')
-    expect(resolveWorkspace(['admin'], 'admin', '/limits/r1')).toBe('commercial')
-    expect(resolveWorkspace(['credit_underwriter', 'sales'], 'credit', '/policies/p1')).toBe('sales')
-  })
-
-  it('falls back to the first available workspace and to none without one', () => {
-    expect(resolveWorkspace(['sales', 'credit_underwriter'], null, '/')).toBe('credit')
-    expect(resolveWorkspace(['sales'], 'admin', '/')).toBe('sales')
-    expect(resolveWorkspace(['information_manager'], null, '/entities')).toBe('data')
-    expect(resolveWorkspace(['client'], null, '/')).toBeNull()
+  it('starts a session in the remembered workspace while its role is held', () => {
+    const owner: UserRole[] = ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter']
+    expect(initialActingRole(owner, 'credit')).toBe('credit_underwriter')
+    expect(initialActingRole(owner, 'admin')).toBe('admin')
+    // remembered but not held: the first workspace in display order
+    expect(initialActingRole(['sales', 'credit_underwriter'], 'claims')).toBe('credit_underwriter')
+    expect(initialActingRole(['sales', 'credit_underwriter'], null)).toBe('credit_underwriter')
+    // no workspace at all: the only role (a client), or none
+    expect(initialActingRole(['client'], null)).toBe('client')
+    expect(initialActingRole([], null)).toBeNull()
   })
 })

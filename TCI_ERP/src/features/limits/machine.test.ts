@@ -5,7 +5,7 @@
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0013_credit_limit_workflow.sql?raw'
-import MIGRATION_0017 from '../../../supabase/migrations/0017_authority_matrix.sql?raw'
+import MIGRATION_0063 from '../../../supabase/migrations/0063_acting_role.sql?raw'
 import {
   OPEN_STATUSES,
   canDecide,
@@ -59,13 +59,13 @@ describe('transitions (mirror of the SQL functions)', () => {
     )
   })
 
-  it('credit underwriting decides; there is no senior role any more', () => {
+  it('credit underwriting decides; there is no senior role, and admin decides nothing (0063)', () => {
     // Phase 3b: an escalated request is decidable by ANY credit underwriter
-    // whose band authority covers the amount (enforced in SQL), or an admin —
-    // unless it is on validation (0060), which the page checks separately:
+    // whose band authority covers the amount (enforced in SQL) — unless it is
+    // on validation (0060), which the page checks separately:
     // decide_limit_request refuses everyone but the step's validator.
     expect(canDecideAs('escalated', ['credit_underwriter'])).toBe(true)
-    expect(canDecideAs('escalated', ['admin'])).toBe(true)
+    expect(canDecideAs('escalated', ['admin'])).toBe(false)
     expect(canDecideAs('under_review', ['credit_underwriter'])).toBe(true)
     expect(canDecideAs('under_review', ['sales'])).toBe(false)
     expect(canDecideAs('under_review', ['commercial_underwriter'])).toBe(false)
@@ -74,7 +74,8 @@ describe('transitions (mirror of the SQL functions)', () => {
     expect(canDecideAs('submitted', [])).toBe(false)
     // multi-role: any qualifying role grants it
     expect(canDecideAs('submitted', ['sales', 'credit_underwriter'])).toBe(true)
-    expect(MIGRATION_0017).toContain("if not tci.has_role('admin', 'credit_underwriter') then")
+    expect(MIGRATION_0063).toContain("  if not tci.has_role('credit_underwriter') then\n    raise exception 'only credit underwriting may decide'")
+    expect(MIGRATION_0063).toContain("  if not tci.has_role('credit_underwriter') then\n    raise exception 'only credit underwriting may take a request into review'")
   })
 
   it('sales, commercial and credit underwriting may raise requests', () => {

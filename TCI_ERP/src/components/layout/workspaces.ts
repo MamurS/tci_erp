@@ -1,26 +1,27 @@
 /**
  * Role workspaces («рабочие пространства»): how the sidebar groups the
- * screens. Each department role has its own set of tools; a person sees the
- * workspaces of the roles they hold (an admin sees all of them) and switches
- * between them at the top of the sidebar. The shared tools — dashboard,
- * agenda, the company registry — are in every workspace.
+ * screens. Each department role has its own workspace; a person sees the
+ * workspaces of the roles they hold and switches between them at the top of
+ * the sidebar. The shared tools — dashboard, agenda, the company registry —
+ * are in every workspace.
  *
- * This is presentation only. What a person may OPEN is decided by
- * navigation.ts (the route guard) and, behind it, by the database; a screen
- * from another workspace is never hidden from someone allowed to use it —
- * opening it switches to a workspace that contains it.
+ * Since 0063 a workspace IS a role: the person ACTS in the role of the active
+ * workspace (tci.set_acting_role), and the database answers every gate for
+ * that role only. Switching the workspace switches the acting role; opening a
+ * page never switches it silently. What the acting role may OPEN is still
+ * navigation.ts (the route guard) and, behind it, the database.
  */
 
 import type { UserRole } from '../../lib/roles'
-import { matchNavItem, navItemsForRoles } from './navigation'
+import { navItemsForRoles } from './navigation'
 import type { NavItem } from './navigation'
 
 export type WorkspaceKey = 'commercial' | 'credit' | 'sales' | 'claims' | 'data' | 'admin'
 
 export interface Workspace {
   key: WorkspaceKey
-  /** Holding ANY of these roles grants the workspace (admin holds all). */
-  roles: readonly UserRole[]
+  /** The role a person acts in while this workspace is active. */
+  role: UserRole
   /** Navigation keys in display order; the first allowed one is its home. */
   items: readonly string[]
 }
@@ -31,30 +32,52 @@ export const COMMON_ITEMS: readonly string[] = ['dashboard', 'agenda', 'entities
 export const WORKSPACES: readonly Workspace[] = [
   {
     key: 'commercial',
-    roles: ['commercial_underwriter'],
+    role: 'commercial_underwriter',
     items: ['policies', 'requests', 'limits', 'declarations', 'overdues', 'claims'],
   },
   {
     key: 'credit',
-    roles: ['credit_underwriter'],
+    role: 'credit_underwriter',
     items: ['limits', 'requests', 'overdues', 'declarations', 'claims'],
   },
   {
     key: 'sales',
-    roles: ['sales'],
+    role: 'sales',
     items: ['requests', 'policies', 'limits', 'declarations', 'overdues'],
   },
-  { key: 'claims', roles: ['claims'], items: ['claims', 'overdues'] },
-  { key: 'data', roles: ['information_manager'], items: ['data'] },
-  { key: 'admin', roles: ['admin'], items: ['admin', 'policies'] },
+  { key: 'claims', role: 'claims', items: ['claims', 'overdues'] },
+  { key: 'data', role: 'information_manager', items: ['data'] },
+  // Admin is a technical role since 0063 — it decides nothing — but still
+  // opens the business registers to look after the data, read-only there.
+  {
+    key: 'admin',
+    role: 'admin',
+    items: ['admin', 'policies', 'requests', 'limits', 'declarations', 'overdues', 'claims', 'data'],
+  },
 ]
 
 export const WORKSPACE_KEY = 'tci-erp-workspace'
 
-/** The workspaces a person can switch between, in display order. */
-export function availableWorkspaces(roles: readonly UserRole[]): readonly Workspace[] {
-  if (roles.includes('admin')) return WORKSPACES
-  return WORKSPACES.filter((w) => w.roles.some((r) => roles.includes(r)))
+/** Remember the workspace chosen in this browser (a convenience: the acting
+ * role at the next sign-in starts from it). */
+export function rememberWorkspace(key: WorkspaceKey): void {
+  try {
+    window.localStorage.setItem(WORKSPACE_KEY, key)
+  } catch {
+    // a per-browser convenience; nothing to do when storage is blocked
+  }
+}
+
+/** The workspaces a person can switch between — one per role held — in
+ * display order. Admin no longer opens every workspace: it is a technical
+ * role with a workspace of its own. */
+export function availableWorkspaces(heldRoles: readonly UserRole[]): readonly Workspace[] {
+  return WORKSPACES.filter((w) => heldRoles.includes(w.role))
+}
+
+/** The workspace of an acting role (null for a client, or no role). */
+export function workspaceForRole(role: UserRole | null): Workspace | null {
+  return WORKSPACES.find((w) => w.role === role) ?? null
 }
 
 /** The shared items and the workspace's own, each limited to what the roles may open. */
@@ -74,26 +97,16 @@ export function workspaceHome(roles: readonly UserRole[], workspace: Workspace):
   return workspaceNav(roles, workspace).own[0]?.path ?? '/'
 }
 
-function contains(workspace: Workspace, pathname: string): boolean {
-  const item = matchNavItem(pathname)
-  return !item || COMMON_ITEMS.includes(item.key) || workspace.items.includes(item.key)
-}
-
 /**
- * The workspace to show: the remembered one while it contains the current
- * page, otherwise the first available workspace that does (opening a screen
- * from elsewhere — a link, the palette — moves there), otherwise the
- * remembered one, otherwise the first. NULL for someone with no workspace.
+ * The role to act in when a session starts and the server has none for it:
+ * the remembered workspace's role while it is still held, otherwise the first
+ * workspace's, otherwise the only role (a client). Null without a role.
  */
-export function resolveWorkspace(
-  roles: readonly UserRole[],
-  stored: string | null | undefined,
-  pathname: string,
-): WorkspaceKey | null {
-  const available = availableWorkspaces(roles)
-  if (!available.length) return null
-  const current = available.find((w) => w.key === stored)
-  if (current && contains(current, pathname)) return current.key
-  const owner = available.find((w) => contains(w, pathname))
-  return (owner ?? current ?? available[0]).key
+export function initialActingRole(
+  heldRoles: readonly UserRole[],
+  storedWorkspace: string | null | undefined,
+): UserRole | null {
+  const available = availableWorkspaces(heldRoles)
+  const remembered = available.find((w) => w.key === storedWorkspace)
+  return (remembered ?? available[0])?.role ?? heldRoles[0] ?? null
 }

@@ -95,13 +95,19 @@
     "information_manager": "Information manager",
     "client": "Client",
     "descriptions": {
-      "admin": "Full access; manages users, roles and authorities",
+      "admin": "Technical: users, roles, authorities and settings; makes no business decisions",
       "sales": "Companies and policies (read), raises limit requests",
       "commercial_underwriter": "Policy terms and the commercial stage of decisions",
       "credit_underwriter": "Ratings, limits and credit decisions within authority",
       "claims": "Claims and recoveries",
       "information_manager": "Fills in company data and financial statements",
       "client": "Portal user: own policies and limits only"
+    },
+    "actingAs": "Acting as: {{role}}",
+    "held": "Your roles: {{roles}}",
+    "errors": {
+      "notHeld": "You do not hold this role.",
+      "noSession": "Your sign-in session was not found. Sign in again."
     }
   },
   "common": {
@@ -1441,7 +1447,8 @@
         "noRate": "No UZS rate",
         "authority": "Authority",
         "beyondHint": "Above your authority in rating band “{{band}}”: the decision will be escalated, or taken by a colleague with more authority.",
-        "noRateHint": "No UZS rate for {{currency}}: your authority cannot be compared, so a decision would be escalated."
+        "noRateHint": "No UZS rate for {{currency}}: your authority cannot be compared, so a decision would be escalated.",
+        "ownRequest": "Your request"
       },
       "inforce": {
         "title": "Limits in force",
@@ -1685,11 +1692,17 @@
         "closed": "This validation has already been answered.",
         "notForReduction": "A reduction takes effect at once and needs no validation.",
         "notRecorded": "The decision could not be recorded on validation (for example, because of the group limit). Nothing was changed.",
-        "notYours": "Only the assigned validator may answer this validation."
+        "notYours": "Only the assigned validator may answer this validation.",
+        "fourEyesOwnRequest": "Four eyes: the colleague you named raised this limit request and cannot validate it.",
+        "fourEyesOwnCredit": "Four eyes: the colleague you named made the credit decision on this request and cannot validate its commercial adjustment."
       }
     },
     "errors": {
-      "noRate": "There is no UZS rate for this currency, so the amount cannot be weighed against an authority. Add the rate first."
+      "noRate": "There is no UZS rate for this currency, so the amount cannot be weighed against an authority. Add the rate first.",
+      "fourEyesOwnRequest": "Four eyes: you raised this limit request, so you cannot take it into review, decide it or change the decision.",
+      "fourEyesOwnCredit": "Four eyes: you made the credit decision on this request, so you cannot adjust it commercially.",
+      "reviewCreditOnly": "Only credit underwriting takes a limit request into review.",
+      "decideCreditOnly": "Only credit underwriting decides limit requests."
     },
     "auto": {
       "adt": "Auto decision (ADT)",
@@ -1777,7 +1790,6 @@
       "recommended": "Recommended limit: {{amount}}",
       "countHint": "From {{min}} to {{max}}.",
       "authorityIn": "Your authority in rating band {{band}}: {{amount}}",
-      "unlimited": "unlimited",
       "beyondAuthority": "Above your authority in rating band {{band}} — it will be refused.",
       "noRate": "No UZS rate for {{currency}}: the amount cannot be weighed against your authority.",
       "commentHint": "Optional.",
@@ -1798,6 +1810,11 @@
         "blockReason": "Say why auto decisions are banned for this buyer.",
         "saveFailed": "The ADT could not be saved."
       }
+    },
+    "fourEyes": {
+      "ownRequest": "You raised this request. Under the four-eyes rule another credit underwriter takes it into review and decides it.",
+      "ownRequestCommercial": "You raised this request. Under the four-eyes rule another commercial underwriter adjusts the limit.",
+      "ownCreditDecision": "You made the credit decision on this request. Under the four-eyes rule another commercial underwriter adjusts the limit."
     }
   },
   "entities": {
@@ -1846,7 +1863,9 @@
     "denied": "No access",
     "deniedHint": "This section is not part of your role. Ask an administrator if you need it.",
     "yourRoles": "Your roles",
-    "backToDashboard": "Back to the dashboard"
+    "backToDashboard": "Back to the dashboard",
+    "otherRoleOpens": "Your current role does not open this section, but another of your roles does.",
+    "openAs": "Open as {{role}}"
   },
   "admin": {
     "subtitle": "Users, department roles and underwriting authority",
@@ -1864,7 +1883,6 @@
     "authoritiesFor": "Authority — {{email}}",
     "authoritiesHint": "Maximum amount this user may approve per rating band. Amounts are compared in UZS at the latest rate.",
     "commercialDormant": "Commercial authority is stored now and starts being used in Phase 3c.",
-    "adminUnlimited": "Administrators decide any amount — the matrix does not apply to them.",
     "scopes": {
       "credit": "Credit",
       "commercial": "Commercial"
@@ -2007,7 +2025,8 @@
       "saveFailed": "The auto-decision settings could not be saved.",
       "loadFailed": "Could not load the auto-decision settings."
     },
-    "clientAloneHint": "A portal client holds no other role: the client role and the staff roles exclude each other."
+    "clientAloneHint": "A portal client holds no other role: the client role and the staff roles exclude each other.",
+    "adminDecidesNothing": "Administrators make no limit decisions: the role is technical. Someone who also decides limits does so in their credit or commercial underwriting role, within the grants below."
   },
   "requests": {
     "subtitle": "Insurance submissions: from request to bound policy",
@@ -2810,8 +2829,6 @@
         "terms_other": "{{count}}-day terms",
         "yourAuthority": "Your authority · rating band {{band}}",
         "yourAuthorityPlain": "Your authority",
-        "unlimited": "Unlimited",
-        "adminNote": "administrator — no rating band limit",
         "noRate": "no UZS rate for {{currency}} — cannot be compared",
         "withinAuthority": "UZS · the request is within it",
         "shortBy": "UZS · short by {{amount}}",
@@ -4186,7 +4203,6 @@
       "within": "Group exposure: {{exposure}} UZS across {{members}} companies; this decision would take it to {{after}} of {{limit}} UZS.",
       "warn": "Group exposure would reach {{after}} of {{limit}} UZS ({{pct}}% of the group limit).",
       "over": "This decision would take group exposure to {{after}} UZS against a group limit of {{limit}} UZS. It cannot be taken on your authority and will be escalated.",
-      "overAdmin": "This decision would take group exposure to {{after}} UZS against a group limit of {{limit}} UZS. As an administrator you may proceed.",
       "noLimit": "Group exposure: {{exposure}} UZS across {{members}} companies; this decision would take it to {{after}} UZS. No group limit is set.",
       "missingRates": "({{count}} limit(s) in a currency with no rate are not counted.)"
     },

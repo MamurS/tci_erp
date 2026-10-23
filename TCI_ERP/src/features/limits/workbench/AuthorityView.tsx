@@ -64,7 +64,7 @@ export function AuthorityView() {
 
       {isAdmin && (
         <Card className="mb-5 border-accent-200 bg-accent-50/50 p-4 text-[13px] text-accent-700">
-          {t('admin.adminUnlimited')}
+          {t('admin.adminDecidesNothing')}
         </Card>
       )}
 

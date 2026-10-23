@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest'
 import M28 from '../../../supabase/migrations/0028_overdue_notifications.sql?raw'
 import M34 from '../../../supabase/migrations/0034_indemnity_recoveries.sql?raw'
 import M61 from '../../../supabase/migrations/0061_auto_decisions.sql?raw'
+import M63 from '../../../supabase/migrations/0063_acting_role.sql?raw'
 import en from '../../i18n/locales/en.json'
 import ru from '../../i18n/locales/ru.json'
 import uz from '../../i18n/locales/uz.json'
@@ -28,6 +29,7 @@ import {
   banNeedsReason,
   canManageAutoDecisions,
   canSeeAdt,
+  canSetAdt,
   decisionMarkKey,
   filterReport,
   isAutoDecision,
@@ -43,11 +45,15 @@ import type { AdtState } from './adt'
 import { limitViewsFor } from './workbench/views'
 
 /** The body of one function in 0061, from its create statement to its end. */
+/** The LATEST definition of a function: 0063 restated the ADT writers. */
 function fn(name: string): string {
-  const start = M61.search(new RegExp(`create (or replace )?function tci\\.${name}\\(`))
-  expect(start, name).toBeGreaterThanOrEqual(0)
-  const rest = M61.slice(start)
-  return rest.slice(0, rest.search(/\n\$(function)?\$;/))
+  for (const migration of [M63, M61]) {
+    const start = migration.search(new RegExp(`create (or replace )?function tci\\.${name}\\(`, 'i'))
+    if (start < 0) continue
+    const rest = migration.slice(start)
+    return rest.slice(0, rest.search(/\n\$(function)?\$\n?;/))
+  }
+  throw new Error(`${name} is defined in neither 0061 nor 0063`)
 }
 
 /** The i18n keys a body appends to its reasons, in order of first use. */
@@ -166,11 +172,14 @@ describe('the auto decision itself', () => {
 })
 
 describe('who (the gates the screens assume)', () => {
-  it('the credit desk sets, disables, bans and reads; admin alone switches', () => {
+  it('credit underwriting sets, disables and bans; admin reads and alone switches (0063)', () => {
+    for (const f of ['set_buyer_adt', 'disable_buyer_adt', 'set_buyer_adt_block'])
+      expect(fn(f), f).toContain("perform tci.require_role('credit_underwriter');")
     const desk = "perform tci.require_role('admin', 'credit_underwriter');"
-    for (const f of ['set_buyer_adt', 'disable_buyer_adt', 'set_buyer_adt_block', 'auto_decision_settings', 'buyer_adt_state'])
-      expect(fn(f), f).toContain(desk)
+    for (const f of ['auto_decision_settings', 'buyer_adt_state']) expect(fn(f), f).toContain(desk)
     expect(fn('set_auto_decision_settings')).toContain("perform tci.require_role('admin');")
+    expect(canSetAdt(['credit_underwriter'])).toBe(true)
+    expect(canSetAdt(['admin'])).toBe(false)
     expect(canSeeAdt(['credit_underwriter'])).toBe(true)
     expect(canSeeAdt(['admin'])).toBe(true)
     for (const role of ['sales', 'commercial_underwriter', 'information_manager', 'claims', 'client'] as const)
@@ -225,14 +234,12 @@ describe('settings', () => {
 })
 
 describe('setting an ADT', () => {
-  it('mirrors the authority test of set_buyer_adt (admin unlimited, strict >)', () => {
-    expect(fn('set_buyer_adt')).toContain(
-      "if not tci.has_role('admin') and v_amount_uzs > tci.my_authority_uzs(v_band) then",
-    )
-    expect(adtWithinAuthority({ amountUzs: 100, authorityUzs: 100, isAdmin: false })).toBe(true)
-    expect(adtWithinAuthority({ amountUzs: 101, authorityUzs: 100, isAdmin: false })).toBe(false)
-    expect(adtWithinAuthority({ amountUzs: 1e15, authorityUzs: 0, isAdmin: true })).toBe(true)
-    expect(adtWithinAuthority({ amountUzs: null, authorityUzs: 100, isAdmin: false })).toBeNull()
+  it('mirrors the authority test of set_buyer_adt (nobody exempt since 0063, strict >)', () => {
+    expect(fn('set_buyer_adt')).toContain('  if v_amount_uzs > tci.my_authority_uzs(v_band) then')
+    expect(adtWithinAuthority({ amountUzs: 100, authorityUzs: 100 })).toBe(true)
+    expect(adtWithinAuthority({ amountUzs: 101, authorityUzs: 100 })).toBe(false)
+    expect(adtWithinAuthority({ amountUzs: 1e15, authorityUzs: 0 })).toBe(false)
+    expect(adtWithinAuthority({ amountUzs: null, authorityUzs: 100 })).toBeNull()
   })
 
   it('the band is the latest rating’s, and without one there is no ADT', () => {

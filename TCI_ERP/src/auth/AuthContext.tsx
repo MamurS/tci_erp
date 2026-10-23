@@ -1,7 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import type { Session } from '@supabase/supabase-js'
+import { useQueryClient } from '@tanstack/react-query'
 import { supabase, tci } from '../lib/supabase'
 import { isUserRole } from '../lib/roles'
 import type { UserRole } from '../lib/roles'
@@ -10,12 +11,26 @@ import { attemptsLeft, lockSeconds, parseLoginBegin } from './loginGate'
 import type { SignInFailure } from './signInErrors'
 import { parseAuthStatus } from './mfaGate'
 import type { AuthStatus } from './mfaGate'
+import { ACTING_ROLE_KEY, chooseActingRole } from './actingRole'
+import { WORKSPACE_KEY } from '../components/layout/workspaces'
 
 interface AuthContextValue {
   session: Session | null
-  /** All roles held by the user (tci.user_roles has one row per role);
-   * empty when not signed in or none assigned yet. */
+  /** The role the user ACTS in now, as a one-element list (empty when not
+   * signed in or none assigned yet). Every permission check in the screens
+   * reads this: since 0063 the database answers for the acting role only, so
+   * a person with several roles is, in each workspace, exactly a single-role
+   * user of that workspace's role. */
   roles: UserRole[]
+  /** Every role the user holds (tci.user_roles has one row per role): what
+   * the workspace switcher offers. Never a permission. */
+  heldRoles: UserRole[]
+  /** The acting role itself (null: none). */
+  actingRole: UserRole | null
+  /** Act in another held role: the screen switches at once, the server is
+   * told (tci.set_acting_role), and every query is refetched for the new
+   * role. Reverts and rethrows when the server refuses. */
+  switchActingRole: (role: UserRole) => Promise<void>
   /** True while the initial session, roles and profile are being resolved. */
   loading: boolean
   /** The user still holds the temporary password issued at provisioning
@@ -36,6 +51,32 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null)
+
+function readStorage(key: string): string | null {
+  try {
+    return window.localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+function writeStorage(key: string, value: string) {
+  try {
+    window.localStorage.setItem(key, value)
+  } catch {
+    // storage may be unavailable; the server still holds the acting role
+  }
+}
+
+/** The acting role the server holds for this session, or null. */
+async function fetchActingRole(): Promise<unknown> {
+  const { data, error } = await tci().rpc('acting_role')
+  if (error) {
+    console.error('Failed to load the acting role', error)
+    return null
+  }
+  return data
+}
 
 async function fetchRoles(userId: string): Promise<UserRole[]> {
   const { data, error } = await tci().from('user_roles').select('role').eq('user_id', userId)
@@ -77,8 +118,12 @@ async function fetchAuthStatus(): Promise<AuthStatus | null> {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient()
   const [session, setSession] = useState<Session | null>(null)
-  const [roles, setRoles] = useState<UserRole[]>([])
+  const [heldRoles, setHeldRoles] = useState<UserRole[]>([])
+  const [actingRole, setActingRole] = useState<UserRole | null>(null)
+  const actingRef = useRef<UserRole | null>(null)
+  actingRef.current = actingRole
   const [mustChangePassword, setMustChangePassword] = useState(false)
   const [authStatus, setAuthStatus] = useState<AuthStatus | null>(null)
   const [loading, setLoading] = useState(true)
@@ -96,7 +141,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (cancelled) return
       setSession(newSession)
       if (!newSession) {
-        setRoles([])
+        setHeldRoles([])
+        setActingRole(null)
         setMustChangePassword(false)
         setAuthStatus(null)
         setLoading(false)
@@ -119,10 +165,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!userId) return
 
     setLoading(true)
-    Promise.all([fetchRoles(userId), fetchMustChangePassword(userId), fetchAuthStatus()]).then(
-      ([nextRoles, mustChange, status]) => {
+    Promise.all([fetchRoles(userId), fetchMustChangePassword(userId), fetchAuthStatus(), fetchActingRole()]).then(
+      async ([nextRoles, mustChange, status, serverRole]) => {
+        // The acting role is settled BEFORE the screens load: with several
+        // roles and none chosen, every gate is closed (0063).
+        const choice = chooseActingRole(nextRoles, serverRole, readStorage(WORKSPACE_KEY))
+        let acting = choice.role
+        if (choice.mustSet && acting) {
+          const { error } = await tci().rpc('set_acting_role', { p_role: acting })
+          if (error) {
+            console.error('Failed to set the acting role', error)
+            acting = null
+          }
+        }
         if (cancelled) return
-        setRoles(nextRoles)
+        setHeldRoles(nextRoles)
+        setActingRole(acting)
         setMustChangePassword(mustChange)
         setAuthStatus(status)
         setLoading(false)
@@ -133,6 +191,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       cancelled = true
     }
   }, [userId, accessToken])
+
+  const switchActingRole = useCallback(
+    async (role: UserRole) => {
+      const previous = actingRef.current
+      if (role === previous) return
+      setActingRole(role)
+      const { error } = await tci().rpc('set_acting_role', { p_role: role })
+      if (error) {
+        setActingRole(previous)
+        throw error
+      }
+      writeStorage(ACTING_ROLE_KEY, role)
+      // Nothing fetched for the previous role may stay on screen.
+      await queryClient.resetQueries()
+    },
+    [queryClient],
+  )
+
+  // Other tabs of this browser share the session and its acting role: follow
+  // a switch made in one of them.
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== ACTING_ROLE_KEY || !event.newValue) return
+      const next = heldRoles.find((r) => r === event.newValue)
+      if (next && next !== actingRef.current) {
+        setActingRole(next)
+        void queryClient.resetQueries()
+      }
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [heldRoles, queryClient])
 
   const signIn = useCallback(async (email: string, password: string, captchaToken?: string) => {
     // Every sign-in starts at the gate (migration 0046): it refuses while this
@@ -178,10 +268,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthStatus(await fetchAuthStatus())
   }, [])
 
+  const roles = useMemo(() => (actingRole ? [actingRole] : []), [actingRole])
   const value = useMemo(
     () => ({
       session,
       roles,
+      heldRoles,
+      actingRole,
+      switchActingRole,
       loading,
       mustChangePassword,
       authStatus,
@@ -190,7 +284,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       clearPasswordChangeFlag,
       refreshAuthStatus,
     }),
-    [session, roles, loading, mustChangePassword, authStatus, signIn, signOut, clearPasswordChangeFlag, refreshAuthStatus],
+    [
+      session,
+      roles,
+      heldRoles,
+      actingRole,
+      switchActingRole,
+      loading,
+      mustChangePassword,
+      authStatus,
+      signIn,
+      signOut,
+      clearPasswordChangeFlag,
+      refreshAuthStatus,
+    ],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

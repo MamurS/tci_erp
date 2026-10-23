@@ -57,6 +57,7 @@ import {
   statusTone,
 } from './machine'
 import type { ConditionInput, LimitRequestWithRefs } from './types'
+import { fourEyesNoticeKey, fourEyesRefusal } from './fourEyes'
 import { CONDITION_TYPES, requestScopeFilter } from './types'
 
 /** The sections `?focus=` may name; each is the `id` of its card. */
@@ -114,11 +115,18 @@ export function LimitRequestPage() {
   // page knows, so it never shows for a moment and goes.
   const validationKnown = !validationState.isLoading
   const onValidation = pendingValidation !== null
-  const showDecisionForm = validationKnown && !onValidation && canDecideAs(request.status, roles)
+  // Four eyes (0063): whoever raised the request never reviews or decides it.
+  const ownRefusal = fourEyesRefusal({
+    userId: session?.user.id,
+    requestedBy: request.requested_by,
+    stream: 'credit',
+  })
+  const mayDecideByRole = validationKnown && !onValidation && canDecideAs(request.status, roles)
+  const showDecisionForm = mayDecideByRole && ownRefusal === null
   // Escalated with no named validator: the group control (0040), or an
   // escalation from before 0060.
   const awaitingSenior =
-    validationKnown && !onValidation && request.status === 'escalated' && !hasRole(roles, 'admin', 'credit_underwriter')
+    validationKnown && !onValidation && request.status === 'escalated' && !hasRole(roles, 'credit_underwriter')
 
   const act = async (action: Promise<unknown>) => {
     setActionError(null)
@@ -220,6 +228,11 @@ export function LimitRequestPage() {
             <div id="validation" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
               <ValidationPanel request={request} step={myStep} onResolved={setNotice} />
             </div>
+          )}
+          {mayDecideByRole && ownRefusal !== null && (
+            <Card className="border-warn-500/30 bg-warn-50 p-5 text-sm text-slate-800" role="note">
+              {t(fourEyesNoticeKey(ownRefusal, 'credit'))}
+            </Card>
           )}
           {awaitingSenior && (
             <Card className="border-warn-500/30 bg-warn-50 p-5 text-sm text-warn-500">
@@ -485,7 +498,6 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
 function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; onNotice: (message: string) => void }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const { roles } = useAuth()
   const decide = useDecideLimitRequest()
   const sendForValidation = useSubmitLimitForValidation()
   // The send-to-validation dialog: opened by the author, or by the database
@@ -531,12 +543,12 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
   const check = useMemo(
     () =>
       needsAmount && amountValid
-        ? preflight(parsedAmount, currency, roles, band, myAuthority ?? 0, rates ?? [], todayIso)
+        ? preflight(parsedAmount, currency, band, myAuthority ?? 0, rates ?? [], todayIso)
         : null,
-    [needsAmount, amountValid, parsedAmount, currency, roles, band, myAuthority, rates, todayIso],
+    [needsAmount, amountValid, parsedAmount, currency, band, myAuthority, rates, todayIso],
   )
 
-  const overAuthority = check !== null && check.withinAuthority === false && !hasRole(roles, 'admin')
+  const overAuthority = check !== null && check.withinAuthority === false
 
   const handleDecide = async () => {
     setError(null)
@@ -635,7 +647,7 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
       </Field>
 
       {/* Authority preflight — same conversion rule as the SQL function. */}
-      {check && !hasRole(roles, 'admin') && (
+      {check && (
         check.withinAuthority === null ? (
           <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
             {t('limits.preflight.missingRate', { currency })}
@@ -657,7 +669,7 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
         )
       )}
 
-      <GroupPreflightNotice preflight={groupCheck} isAdmin={hasRole(roles, 'admin')} />
+      <GroupPreflightNotice preflight={groupCheck} />
 
       {escalatedInfo && (
         <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500" role="status">
@@ -713,7 +725,6 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
               : validationKind({
                   amountUzs: needsAmount ? (check?.amountUzs ?? null) : null,
                   authorityUzs: check?.authorityUzs ?? null,
-                  isAdmin: hasRole(roles, 'admin'),
                 })
           }
           figures={

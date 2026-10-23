@@ -84,6 +84,10 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'not found or not yours', key: 'agenda.errors.notYours' },
   // limit-decision validation and direct managers (0060)
   { fragment: 'validator_required', key: 'limits.validation.errors.validatorRequired' },
+  // 0063: the named validator raised the request or made its credit decision —
+  // before the generic 0060 entry, which their text also contains.
+  { fragment: 'validator_four_eyes_own_request', key: 'limits.validation.errors.fourEyesOwnRequest' },
+  { fragment: 'validator_four_eyes_own_credit_decision', key: 'limits.validation.errors.fourEyesOwnCredit' },
   { fragment: 'validator_four_eyes', key: 'limits.validation.errors.fourEyes' },
   { fragment: 'validator_wrong_department', key: 'limits.validation.errors.wrongDepartment' },
   { fragment: 'validator_lacks_authority', key: 'limits.validation.errors.lacksAuthority' },
@@ -106,6 +110,14 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'adt_beyond_authority', key: 'limits.adt.errors.beyondAuthority' },
   { fragment: 'adt_none', key: 'limits.adt.errors.none' },
   { fragment: 'adt_block_reason', key: 'limits.adt.errors.blockReason' },
+  // four eyes and the acting role (0063). The four-eyes texts come from
+  // tci.limit_four_eyes_refusal, raised as '%' by each function that asks it.
+  { fragment: 'four_eyes_own_request', key: 'limits.errors.fourEyesOwnRequest' },
+  { fragment: 'four_eyes_own_credit_decision', key: 'limits.errors.fourEyesOwnCredit' },
+  { fragment: 'only credit underwriting may take a request into review', key: 'limits.errors.reviewCreditOnly' },
+  { fragment: 'only credit underwriting may decide', key: 'limits.errors.decideCreditOnly' },
+  { fragment: 'acting_role_not_held', key: 'roles.errors.notHeld' },
+  { fragment: 'acting_role_no_session', key: 'roles.errors.noSession' },
   // a portal client holds no other role (0062)
   { fragment: 'client_role_exclusive', key: 'admin.errors.clientRoleExclusive' },
   // a currency with no rate cannot be weighed against an authority (0013)

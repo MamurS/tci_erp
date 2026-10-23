@@ -52,12 +52,12 @@ export function Sidebar({
   onSwitchWorkspace,
 }: SidebarProps) {
   const { t } = useTranslation()
-  const { roles } = useAuth()
-  const workspaces = availableWorkspaces(roles)
+  const { roles, heldRoles } = useAuth()
+  const workspaces = availableWorkspaces(heldRoles)
   const current = workspaces.find((w) => w.key === workspace) ?? null
   const { common, own } = workspaceNav(roles, current)
   // Anyone who may decide sees the escalated queue size.
-  const canDecide = hasRole(roles, 'admin', 'credit_underwriter')
+  const canDecide = hasRole(roles, 'credit_underwriter')
   const { data: escalatedCount } = useEscalatedCount(canDecide)
   // Exactly the query /agenda uses — one key, one queryFn, so the badge and
   // the board can never disagree.

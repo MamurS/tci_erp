@@ -28,6 +28,7 @@ import {
   useSalesWindowHours,
 } from './api'
 import { commercialPreflight } from './authority'
+import { fourEyesNoticeKey, fourEyesRefusal } from './fourEyes'
 import { outcomeTone } from './machine'
 import { GroupPreflightNotice, groupErrorKey, useGroupPreflight } from '../groups'
 import { DecisionMark } from './DecisionMark'
@@ -71,8 +72,16 @@ export function CommercialStageSection({
   const [error, setError] = useState<string | null>(null)
   const [result, setResult] = useState<string | null>(null)
 
-  const mayAdjust = hasRole(roles, 'admin', 'commercial_underwriter')
+  const mayAdjustByRole = hasRole(roles, 'commercial_underwriter')
   const creditRow = chain?.find((d) => d.stage === 'credit') ?? null
+  // Four eyes (0063): neither the requester nor the credit decider adjusts.
+  const ownRefusal = fourEyesRefusal({
+    userId: session?.user.id,
+    requestedBy: request.requested_by,
+    stream: 'commercial',
+    creditDeciders: (chain ?? []).filter((d) => d.stage === 'credit').map((d) => d.decided_by),
+  })
+  const mayAdjust = mayAdjustByRole && ownRefusal === null
   // The band is that of the CREDIT decision's assessment — the commercial
   // authority is looked up in the same band (migration 0020).
   const band = bandForGrade(
@@ -90,14 +99,13 @@ export function CommercialStageSection({
         ? commercialPreflight(
             parsedAmount,
             limit.currency_code,
-            roles,
             band,
             grants ?? [],
             rates ?? [],
             todayIso,
           )
         : null,
-    [amountValid, limit, parsedAmount, roles, band, grants, rates, todayIso],
+    [amountValid, limit, parsedAmount, band, grants, rates, todayIso],
   )
 
   // Where the adjusted amount would leave the group. The scope being
@@ -122,7 +130,7 @@ export function CommercialStageSection({
   // never needs one (submit_adjustment_for_validation refuses it).
   const validatable =
     amountValid && limit.credit_amount !== null && adjustmentCanBeValidated(parsedAmount, Number(limit.credit_amount))
-  const overAuthority = !isReduction && check?.withinAuthority === false && !hasRole(roles, 'admin')
+  const overAuthority = !isReduction && check?.withinAuthority === false
 
   const handleAdjust = async () => {
     if (!amountValid) return
@@ -202,7 +210,11 @@ export function CommercialStageSection({
         )}
       </div>
 
-      {!mayAdjust ? (
+      {mayAdjustByRole && ownRefusal !== null ? (
+        <p className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-slate-800" role="note">
+          {t(fourEyesNoticeKey(ownRefusal, 'commercial'))}
+        </p>
+      ) : !mayAdjust ? (
         <p className="text-[13px] text-slate-400">{t('limits.commercial.readOnly')}</p>
       ) : validation ? (
         // adjust_limit_commercial refuses while anything on this request is on
@@ -256,7 +268,7 @@ export function CommercialStageSection({
 
           {/* Commercial authority preflight — same rule as the SQL function. */}
           {/* 0060: a reduction is never authority-checked. */}
-          {check && !hasRole(roles, 'admin') && !isReduction && (
+          {check && !isReduction && (
             check.withinAuthority === null ? (
               <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
                 {t('limits.preflight.missingRate', { currency: limit.currency_code })}
@@ -282,7 +294,7 @@ export function CommercialStageSection({
           {/* The group control applies to INCREASES only: a reduction lowers
               the group's exposure and is never blocked. */}
           {!isReduction && (
-            <GroupPreflightNotice preflight={groupCheck} isAdmin={hasRole(roles, 'admin')} />
+            <GroupPreflightNotice preflight={groupCheck} />
           )}
 
           {result && (
@@ -341,7 +353,6 @@ export function CommercialStageSection({
               : validationKind({
                   amountUzs: check?.amountUzs ?? null,
                   authorityUzs: check?.authorityUzs ?? null,
-                  isAdmin: hasRole(roles, 'admin'),
                 })
           }
           figures={

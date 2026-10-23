@@ -18,8 +18,7 @@
  * валидацию» instead of the decision button (validation.ts).
  */
 
-import { hasRole } from '../../lib/roles'
-import type { AuthorityScope, GradeBand, UserRole } from '../../lib/roles'
+import type { AuthorityScope, GradeBand } from '../../lib/roles'
 import type { AuthorityGrant } from './types'
 
 export interface FxRateRow {
@@ -110,21 +109,17 @@ export function authorityUzs(
   return scopedAuthorityUzs(grants, 'credit', band, rates, todayIso)
 }
 
-/** Mirror of the authority branch of tci.adjust_limit_commercial: admin is
- * unlimited, everyone else is bounded by their COMMERCIAL authority for the
- * band of the credit decision being adjusted. */
+/** Mirror of the authority branch of tci.adjust_limit_commercial: the
+ * adjuster is bounded by their COMMERCIAL authority for the band of the credit
+ * decision being adjusted. Since 0063 nobody is exempt — admin included. */
 export function commercialPreflight(
   amount: number,
   currencyCode: string,
-  roles: readonly UserRole[],
   band: GradeBand,
   grants: readonly AuthorityGrant[],
   rates: readonly FxRateRow[],
   todayIso: string,
 ): AuthorityPreflight {
-  if (hasRole(roles, 'admin')) {
-    return { band, amountUzs: null, authorityUzs: null, withinAuthority: true }
-  }
   const authority = scopedAuthorityUzs(grants, 'commercial', band, rates, todayIso)
   const amountUzs = toUzs(amount, currencyCode, rates, todayIso)
   if (amountUzs === null) {
@@ -143,20 +138,17 @@ export interface AuthorityPreflight {
   withinAuthority: boolean | null
 }
 
-/** Mirror of the authority branch of tci.decide_limit_request: admin is
- * unlimited, everyone else is bounded by their authority for THIS band. */
+/** Mirror of the authority branch of tci.decide_limit_request: the decider
+ * is bounded by their authority for THIS band. Since 0063 nobody is exempt —
+ * admin included. */
 export function preflight(
   amount: number,
   currencyCode: string,
-  roles: readonly UserRole[],
   band: GradeBand,
   myAuthorityUzsValue: number | null,
   rates: readonly FxRateRow[],
   todayIso: string,
 ): AuthorityPreflight {
-  if (hasRole(roles, 'admin')) {
-    return { band, amountUzs: null, authorityUzs: null, withinAuthority: true }
-  }
   const amountUzs = toUzs(amount, currencyCode, rates, todayIso)
   if (amountUzs === null || myAuthorityUzsValue === null) {
     return { band, amountUzs, authorityUzs: myAuthorityUzsValue, withinAuthority: null }

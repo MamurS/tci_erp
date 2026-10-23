@@ -9,11 +9,9 @@
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 
-import { useAuth } from '../../../auth/AuthContext'
 import { Skeleton } from '../../../components/ui'
 import { todayIso } from '../../../components/ui/dateEntry'
 import { EM_DASH, formatAmount, formatDate } from '../../../lib/format'
-import { hasRole } from '../../../lib/roles'
 import { useUzsRates } from '../../declarations/api'
 import { useAssessments } from '../../entities/rating/assessmentsApi'
 import { useBuyerExposure, useDecisionChain, useLimitRequest } from '../../limits/api'
@@ -146,7 +144,6 @@ function useRequestedFigure(request: LimitRequestWithRefs): Figure {
 function DecisionStrip({ row, request }: BodyProps & { request: LimitRequestWithRefs }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.language
-  const { roles } = useAuth()
   const queue = useLimitQueueRow(request.id)
   const requested = useRequestedFigure(request)
   const engine = useEngineFigure(request.entity_id, request.currency_code, num(request.requested_amount), 'request')
@@ -169,10 +166,10 @@ function DecisionStrip({ row, request }: BodyProps & { request: LimitRequestWith
   } else {
     const q = queue.data
     const label = t('agenda.triage.limit.yourAuthority', { band: t(`limits.bands.${q.band}`) })
-    const state = authorityState(q, hasRole(roles, 'admin'))
+    const state = authorityState(q)
     middle =
-      state.kind === 'admin'
-        ? { label, value: t('agenda.triage.limit.unlimited'), sub: t('agenda.triage.limit.adminNote') }
+      state.kind === 'ownRequest'
+        ? { label, value: EM_DASH, sub: t('limits.workbench.queue.ownRequest') }
         : state.kind === 'noRate'
           ? { label, value: EM_DASH, sub: t('agenda.triage.limit.noRate', { currency: request.currency_code }), tone: 'warn' }
           : state.kind === 'within'

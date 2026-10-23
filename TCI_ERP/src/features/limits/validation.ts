@@ -42,15 +42,15 @@ export function actionNeedsComment(action: ValidationAction): boolean {
 }
 
 /** Mirrors v_kind in both submit functions: an amount beyond the author's
- * authority in the band (in UZS) makes it REQUIRED; admin never needs it; a
- * decline (no amount) is always voluntary. `authorityUzs === null` means the
- * screen cannot tell (no rate) — the database will answer. */
+ * authority in the band (in UZS) makes it REQUIRED; a decline (no amount) is
+ * always voluntary. Since 0063 nobody is exempt (admin decides nothing).
+ * `authorityUzs === null` means the screen cannot tell (no rate) — the
+ * database will answer. */
 export function validationKind(input: {
   amountUzs: number | null
   authorityUzs: number | null
-  isAdmin: boolean
 }): ValidationKind | null {
-  if (input.isAdmin || input.amountUzs === null) return 'voluntary'
+  if (input.amountUzs === null) return 'voluntary'
   if (input.authorityUzs === null) return null
   return input.amountUzs > input.authorityUzs ? 'required' : 'voluntary'
 }

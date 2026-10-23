@@ -40,8 +40,9 @@ export function LimitsPage() {
   const locale = i18n.resolvedLanguage ?? 'en'
   const navigate = useNavigate()
   const { session, roles } = useAuth()
-  // Only those who may decide need the escalated queue.
-  const canDecide = hasRole(roles, 'admin', 'credit_underwriter')
+  // Only those who may decide need the escalated queue (credit underwriting;
+  // since 0063 admin decides nothing).
+  const canDecide = hasRole(roles, 'credit_underwriter')
 
   const { data: requests, isLoading } = useLimitRequests()
   const grades = useLatestGrades()
@@ -77,7 +78,7 @@ export function LimitsPage() {
     const query = search.trim().toLowerCase()
     return inTab.filter((r) => {
       if (statusFilter && r.status !== statusFilter) return false
-      if (mineOnly && !annotated.get(r.id)?.decide_alone) return false
+      if (mineOnly && !(annotated.get(r.id)?.decide_alone && !annotated.get(r.id)?.own_request)) return false
       if (!query) return true
       return (
         (r.legal_entities?.name ?? '').toLowerCase().includes(query) ||
@@ -297,6 +298,15 @@ function AgeCell({ days }: { days: number | null }) {
 function AuthorityCell({ row }: { row: QueueRow | undefined }) {
   const { t } = useTranslation()
   if (!row) return null
+  // Four eyes first (0063): one's own request is a colleague's to decide,
+  // whatever the authority would allow.
+  if (row.own_request) {
+    return (
+      <span title={t('limits.fourEyes.ownRequest')}>
+        <Badge tone="neutral">{t('limits.workbench.queue.ownRequest')}</Badge>
+      </span>
+    )
+  }
   if (row.rate_missing) {
     return (
       <span title={t('limits.workbench.queue.noRateHint', { currency: row.currency_code })}>

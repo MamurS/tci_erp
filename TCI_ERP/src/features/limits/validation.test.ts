@@ -7,6 +7,7 @@
 import { describe, expect, it } from 'vitest'
 
 import M60 from '../../../supabase/migrations/0060_limit_validation.sql?raw'
+import M63 from '../../../supabase/migrations/0063_acting_role.sql?raw'
 import { OPERATIONS_REFUSALS } from '../../lib/refusals'
 import {
   actionNeedsComment,
@@ -28,12 +29,15 @@ import {
 import type { ValidationCandidate } from './validation'
 
 /** The body of one function in 0060, from its create statement to its end. */
+/** The LATEST definition of a function: 0063 restated several of 0060's. */
 function fn(name: string): string {
-  const start = M60.search(new RegExp(`create (or replace )?function tci\\.${name}\\(`))
-  expect(start, name).toBeGreaterThanOrEqual(0)
-  const rest = M60.slice(start)
-  const end = rest.search(/\n\$(function)?\$;/)
-  return rest.slice(0, end)
+  for (const migration of [M63, M60]) {
+    const start = migration.search(new RegExp(`create (or replace )?function tci\\.${name}\\(`, 'i'))
+    if (start < 0) continue
+    const rest = migration.slice(start)
+    return rest.slice(0, rest.search(/\n\$(function)?\$\n?;/))
+  }
+  throw new Error(`${name} is defined in neither 0060 nor 0063`)
 }
 
 describe('enums (0060)', () => {
@@ -126,21 +130,21 @@ describe('the validator’s answers (resolve_limit_validation)', () => {
 })
 
 describe('required or voluntary (submit_limit_for_validation / submit_adjustment_for_validation)', () => {
-  it('beyond the author’s authority it is required; admin and a decline never are', () => {
+  it('beyond the author’s authority it is required; a decline never is; nobody is exempt (0063)', () => {
     expect(fn('submit_limit_for_validation')).toContain(
       `  v_kind := case
-              when p_amount is not null and not tci.has_role('admin')
+              when p_amount is not null
                    and v_amount_uzs > tci.my_authority_uzs(v_band) then 'required'
               else 'voluntary' end;`,
     )
     expect(fn('submit_adjustment_for_validation')).toContain(
-      "and v_amount_uzs > tci.user_authority_uzs((select auth.uid()), 'commercial', v_band) then 'required'",
+      "when v_amount_uzs > tci.user_authority_uzs((select auth.uid()), 'commercial', v_band) then 'required'",
     )
-    expect(validationKind({ amountUzs: 101, authorityUzs: 100, isAdmin: false })).toBe('required')
-    expect(validationKind({ amountUzs: 100, authorityUzs: 100, isAdmin: false })).toBe('voluntary') // strict >
-    expect(validationKind({ amountUzs: 1e15, authorityUzs: 0, isAdmin: true })).toBe('voluntary')
-    expect(validationKind({ amountUzs: null, authorityUzs: 0, isAdmin: false })).toBe('voluntary') // a decline
-    expect(validationKind({ amountUzs: 5, authorityUzs: null, isAdmin: false })).toBeNull() // no rate: the DB says
+    expect(validationKind({ amountUzs: 101, authorityUzs: 100 })).toBe('required')
+    expect(validationKind({ amountUzs: 100, authorityUzs: 100 })).toBe('voluntary') // strict >
+    expect(validationKind({ amountUzs: 1e15, authorityUzs: 0 })).toBe('required')
+    expect(validationKind({ amountUzs: null, authorityUzs: 0 })).toBe('voluntary') // a decline
+    expect(validationKind({ amountUzs: 5, authorityUzs: null })).toBeNull() // no rate: the DB says
   })
 
   it('a voluntary step must carry a comment (both streams)', () => {
@@ -156,7 +160,7 @@ describe('required or voluntary (submit_limit_for_validation / submit_adjustment
     expect(fn('submit_adjustment_for_validation')).toContain(
       "  if p_new_amount < v_credit.approved_amount then\n    raise exception 'validation_not_for_reduction:",
     )
-    expect(fn('adjust_limit_commercial')).toContain("if not tci.has_role('admin') and not v_is_reduction then")
+    expect(fn('adjust_limit_commercial')).toContain('  if not v_is_reduction then')
     expect(adjustmentCanBeValidated(99, 100)).toBe(false)
     expect(adjustmentCanBeValidated(100, 100)).toBe(true)
     expect(adjustmentCanBeValidated(150, 100)).toBe(true)
@@ -186,10 +190,11 @@ describe('required or voluntary (submit_limit_for_validation / submit_adjustment
 describe('candidates (tci.validation_candidates)', () => {
   const candidates = fn('validation_candidates')
 
-  it('the manager first, never the caller; admin’s authority is unlimited', () => {
+  it('the manager first, never the caller; nobody’s authority is unlimited (0063)', () => {
     expect(candidates).toContain('order by (u.id = v_manager) desc, p.full_name nulls last, u.email;')
     expect(candidates).toContain('and u.id <> v_me')
-    expect(fn('user_authority_uzs')).toContain("then 'Infinity'::numeric")
+    expect(fn('user_authority_uzs')).not.toContain('Infinity')
+    expect(fn('user_authority_uzs')).not.toContain("'admin'")
   })
 
   const c = (over: Partial<ValidationCandidate>): ValidationCandidate => ({

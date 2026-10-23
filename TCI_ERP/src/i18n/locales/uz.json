@@ -95,13 +95,19 @@
     "information_manager": "Axborot menejeri",
     "client": "Mijoz",
     "descriptions": {
-      "admin": "To‘liq huquq; foydalanuvchilar, rollar va vakolatlarni boshqaradi",
+      "admin": "Texnik rol: foydalanuvchilar, rollar, vakolatlar va sozlamalar; biznes qarorlarini qabul qilmaydi",
       "sales": "Tashkilotlar va polislar (o‘qish), limit so‘rovlarini yaratadi",
       "commercial_underwriter": "Polis shartlari va qarorlarning tijorat bosqichi",
       "credit_underwriter": "Reytinglar, limitlar va vakolat doirasidagi kredit qarorlari",
       "claims": "Sug‘urta da’volari va subrogatsiya",
       "information_manager": "Tashkilot ma’lumotlari va moliyaviy hisobotlarni kiritadi",
       "client": "Portal foydalanuvchisi: faqat o‘z polislari va limitlari"
+    },
+    "actingAs": "Joriy rol: {{role}}",
+    "held": "Sizning rollaringiz: {{roles}}",
+    "errors": {
+      "notHeld": "Sizda bu rol yo‘q.",
+      "noSession": "Kirish sessiyasi topilmadi. Qaytadan kiring."
     }
   },
   "common": {
@@ -1441,7 +1447,8 @@
         "noRate": "UZS kursi yo‘q",
         "authority": "Vakolat",
         "beyondHint": "Summa «{{band}}» reyting diapazoni uchun vakolatingizdan yuqori: qaror eskalatsiya qilinadi yoki uni kattaroq vakolatli hamkasb qabul qiladi.",
-        "noRateHint": "{{currency}} uchun UZS kursi yo‘q: vakolatni solishtirib bo‘lmaydi, shuning uchun qaror eskalatsiya qilinadi."
+        "noRateHint": "{{currency}} uchun UZS kursi yo‘q: vakolatni solishtirib bo‘lmaydi, shuning uchun qaror eskalatsiya qilinadi.",
+        "ownRequest": "Sizning so‘rovingiz"
       },
       "inforce": {
         "title": "Amaldagi limitlar",
@@ -1685,11 +1692,17 @@
         "closed": "Bu tasdiqlash allaqachon yakunlangan.",
         "notForReduction": "Kamaytirish darhol kuchga kiradi va tasdiqlashni talab qilmaydi.",
         "notRecorded": "Qarorni tasdiqlashda qayd etib bo‘lmadi (masalan, guruh limiti sababli). Hech narsa o‘zgarmadi.",
-        "notYours": "Bu tasdiqlashga faqat tayinlangan tasdiqlovchi javob bera oladi."
+        "notYours": "Bu tasdiqlashga faqat tayinlangan tasdiqlovchi javob bera oladi.",
+        "fourEyesOwnRequest": "To‘rt ko‘z tamoyili: siz tanlagan hamkasb bu limit so‘rovini o‘zi yuborgan va uni tasdiqlay olmaydi.",
+        "fourEyesOwnCredit": "To‘rt ko‘z tamoyili: siz tanlagan hamkasb bu so‘rov bo‘yicha kredit qarorini qabul qilgan va uning tijorat tuzatishini tasdiqlay olmaydi."
       }
     },
     "errors": {
-      "noRate": "Bu valyuta uchun UZS kursi yo‘q — summani vakolat bilan solishtirib bo‘lmaydi. Avval kursni kiriting."
+      "noRate": "Bu valyuta uchun UZS kursi yo‘q — summani vakolat bilan solishtirib bo‘lmaydi. Avval kursni kiriting.",
+      "fourEyesOwnRequest": "To‘rt ko‘z tamoyili: bu limit so‘rovini siz yuborgansiz, shuning uchun uni ko‘rib chiqishga ololmaysiz, u bo‘yicha qaror qabul qila olmaysiz yoki qarorni o‘zgartira olmaysiz.",
+      "fourEyesOwnCredit": "To‘rt ko‘z tamoyili: bu so‘rov bo‘yicha kredit qarorini siz qabul qilgansiz, shuning uchun uni tijorat bosqichida o‘zgartira olmaysiz.",
+      "reviewCreditOnly": "Limit so‘rovini faqat kredit anderrayteri ko‘rib chiqishga oladi.",
+      "decideCreditOnly": "Limit so‘rovlari bo‘yicha qarorni faqat kredit anderrayteri qabul qiladi."
     },
     "auto": {
       "adt": "Avtomatik qaror (ADT)",
@@ -1777,7 +1790,6 @@
       "recommended": "Tavsiya etilgan limit: {{amount}}",
       "countHint": "{{min}} dan {{max}} gacha.",
       "authorityIn": "«{{band}}» reyting diapazonidagi vakolatingiz: {{amount}}",
-      "unlimited": "cheklanmagan",
       "beyondAuthority": "«{{band}}» reyting diapazonidagi vakolatingizdan yuqori — rad etiladi.",
       "noRate": "{{currency}} uchun UZS kursi yo‘q: summani vakolatingiz bilan solishtirib bo‘lmaydi.",
       "commentHint": "Ixtiyoriy.",
@@ -1798,6 +1810,11 @@
         "blockReason": "Bu bayer bo‘yicha avtomatik qarorlar nima uchun taqiqlanganini yozing.",
         "saveFailed": "ADTni saqlab bo‘lmadi."
       }
+    },
+    "fourEyes": {
+      "ownRequest": "Bu so‘rovni siz yuborgansiz. To‘rt ko‘z tamoyiliga ko‘ra uni boshqa kredit anderrayteri ko‘rib chiqadi va qaror qabul qiladi.",
+      "ownRequestCommercial": "Bu so‘rovni siz yuborgansiz. To‘rt ko‘z tamoyiliga ko‘ra limitni boshqa tijorat anderrayteri o‘zgartiradi.",
+      "ownCreditDecision": "Bu so‘rov bo‘yicha kredit qarorini siz qabul qilgansiz. To‘rt ko‘z tamoyiliga ko‘ra limitni boshqa tijorat anderrayteri o‘zgartiradi."
     }
   },
   "entities": {
@@ -1846,7 +1863,9 @@
     "denied": "Ruxsat yo‘q",
     "deniedHint": "Bu bo‘lim sizning rolingizga kirmaydi. Kerak bo‘lsa administratorga murojaat qiling.",
     "yourRoles": "Sizning rollaringiz",
-    "backToDashboard": "Dashbordga qaytish"
+    "backToDashboard": "Dashbordga qaytish",
+    "otherRoleOpens": "Joriy rolingizda bu bo‘lim ochilmaydi, lekin boshqa rolingizda ochiq.",
+    "openAs": "«{{role}}» rolida ochish"
   },
   "admin": {
     "subtitle": "Foydalanuvchilar, bo‘lim rollari va anderrayting vakolatlari",
@@ -1864,7 +1883,6 @@
     "authoritiesFor": "Vakolatlar — {{email}}",
     "authoritiesHint": "Foydalanuvchi har bir reyting diapazoni bo‘yicha tasdiqlashi mumkin bo‘lgan maksimal summa. Summalar so‘nggi kurs bo‘yicha UZS da solishtiriladi.",
     "commercialDormant": "Tijorat vakolatlari hozir saqlanadi, 3c bosqichida qo‘llanila boshlaydi.",
-    "adminUnlimited": "Administratorlar istalgan summa bo‘yicha qaror qabul qiladi — matritsa ularga tegishli emas.",
     "scopes": {
       "credit": "Kredit",
       "commercial": "Tijorat"
@@ -2007,7 +2025,8 @@
       "saveFailed": "Avtomatik qarorlar sozlamalarini saqlab bo‘lmadi.",
       "loadFailed": "Avtomatik qarorlar sozlamalarini yuklab bo‘lmadi."
     },
-    "clientAloneHint": "Portal mijozi boshqa rolga ega bo‘la olmaydi: «Mijoz» roli va xodim rollari bir-birini istisno qiladi."
+    "clientAloneHint": "Portal mijozi boshqa rolga ega bo‘la olmaydi: «Mijoz» roli va xodim rollari bir-birini istisno qiladi.",
+    "adminDecidesNothing": "Administrator limitlar bo‘yicha qaror qabul qilmaydi: bu texnik rol. Limitlar bo‘yicha ham qaror qabul qiladigan xodim buni kredit yoki tijorat anderrayteri rolida, quyidagi vakolatlar doirasida qiladi."
   },
   "requests": {
     "subtitle": "Sug‘urta arizalari: so‘rovdan rasmiylashtirilgan polisgacha",
@@ -2810,8 +2829,6 @@
         "terms_other": "{{count}} kunlik muddat",
         "yourAuthority": "Vakolatingiz · {{band}} reyting diapazoni",
         "yourAuthorityPlain": "Vakolatingiz",
-        "unlimited": "Cheklanmagan",
-        "adminNote": "administrator — reyting diapazoni bo‘yicha cheklovsiz",
         "noRate": "{{currency}} uchun UZS kursi yo‘q — solishtirib bo‘lmaydi",
         "withinAuthority": "UZS · so‘rov vakolat doirasida",
         "shortBy": "UZS · {{amount}} yetmaydi",
@@ -4186,7 +4203,6 @@
       "within": "Guruhga ekspozitsiya: {{members}} ta tashkilot bo‘yicha {{exposure}} UZS; bu qaror uni {{limit}} UZS dan {{after}} ga yetkazadi.",
       "warn": "Guruhga ekspozitsiya {{limit}} UZS dan {{after}} ga yetadi (guruh limitining {{pct}}%).",
       "over": "Bu qaror guruhga ekspozitsiyani {{after}} UZS ga yetkazadi, guruh limiti esa {{limit}} UZS. Sizning vakolatingiz doirasida bu mumkin emas va so‘rov oshiriladi.",
-      "overAdmin": "Bu qaror guruhga ekspozitsiyani {{after}} UZS ga yetkazadi, guruh limiti esa {{limit}} UZS. Administrator sifatida davom etishingiz mumkin.",
       "noLimit": "Guruhga ekspozitsiya: {{members}} ta tashkilot bo‘yicha {{exposure}} UZS; bu qaror uni {{after}} UZS ga yetkazadi. Guruh limiti belgilanmagan.",
       "missingRates": "(Kursi yo‘q valyutadagi {{count}} ta limit hisobga olinmagan.)"
     },

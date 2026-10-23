@@ -125,7 +125,8 @@ begin
 
   perform pg_temp.act('99999999-0000-4000-8000-0000000001c9');
   select * into v_q from tci.v_limit_request_queue where request_id = '99999999-0000-4000-8000-0000000001a3';
-  if not v_q.decide_alone then raise exception 'workbench: admin must decide alone'; end if;
+  -- 0063: admin holds no business decision rights, so no authority either
+  if v_q.decide_alone then raise exception 'workbench: admin must not decide alone (0063)'; end if;
 
   -- 2. the rating worklist: one reason each, the fresh buyer absent
   perform pg_temp.act('99999999-0000-4000-8000-0000000001c1');

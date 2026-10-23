@@ -90,10 +90,16 @@ export const ADT_COUNT_BOUNDS = { min: 1, max: 1000 } as const
 // Who
 // ---------------------------------------------------------------------------
 
-/** The credit desk: sees the ADT block, the attempts and the report, and
- * sets, disables or bans (tci.require_role('admin', 'credit_underwriter')). */
+/** The credit desk and admin READ the ADT block, the attempts and the
+ * report (the RLS of 0061). */
 export function canSeeAdt(roles: readonly UserRole[]): boolean {
   return hasRole(roles, 'admin', 'credit_underwriter')
+}
+
+/** Only credit underwriting sets, disables or bans an ADT — since 0063 admin
+ * makes no business decisions (tci.require_role('credit_underwriter')). */
+export function canSetAdt(roles: readonly UserRole[]): boolean {
+  return hasRole(roles, 'credit_underwriter')
 }
 
 /** Only admin switches auto decisions on or off (set_auto_decision_settings). */
@@ -293,16 +299,14 @@ export function isAutoDecision(d: { system_reason_key?: string | null }): boolea
   return d.system_reason_key === AUTO_DECISION_REASON_KEY
 }
 
-/** Mirror of set_buyer_adt's authority test: admin is unlimited; anyone else
- * may not set an ADT whose amount in UZS is above their authority for the band
- * of the buyer's latest rating. Null when it cannot be told here (no rate, or
+/** Mirror of set_buyer_adt's authority test: nobody may set an ADT whose
+ * amount in UZS is above their authority for the band of the buyer's latest
+ * rating (since 0063 admin is not exempt). Null when it cannot be told here (no rate, or
  * the authority not loaded) — the database says. A HINT only. */
 export function adtWithinAuthority(input: {
   amountUzs: number | null
   authorityUzs: number | null
-  isAdmin: boolean
 }): boolean | null {
-  if (input.isAdmin) return true
   if (input.amountUzs === null || input.authorityUzs === null) return null
   return input.amountUzs <= input.authorityUzs
 }
