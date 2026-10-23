@@ -28,6 +28,7 @@ import { deadlinePassesAt, displayTaskType, isOverdue } from './catalogue'
 import { FAMILIES, TASK_FAMILY } from './families'
 import type { Family } from './families'
 import type { Task, TaskType } from './types'
+import type { UserRole } from '../../lib/roles'
 
 // ---------------------------------------------------------------------------
 // Calendar (Tashkent is UTC+5 all year, as every date in the product)
@@ -336,6 +337,18 @@ export function writeFilter(params: URLSearchParams, filter: BoardFilter): URLSe
 /** Is the task addressed to me by name (not merely to a role I hold)? */
 export function assignedToMe(task: Pick<Task, 'target_user'>, me: string | null): boolean {
   return me !== null && task.target_user === me
+}
+
+/** tci.task_is_mine (0065): addressed to me by name, or to the role I act in.
+ * Admin used to pass every task; since 0065 it acts on none of another
+ * department's, so «Моя повестка» shows exactly what the caller may work
+ * (admin keeps reading every task through the tasks read policy). */
+export function isMine(
+  task: Pick<Task, 'target_user' | 'target_role'>,
+  me: string | null,
+  roles: readonly UserRole[],
+): boolean {
+  return assignedToMe(task, me) || (task.target_role !== null && roles.includes(task.target_role))
 }
 
 // ---------------------------------------------------------------------------

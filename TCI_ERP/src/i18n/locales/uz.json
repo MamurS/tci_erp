@@ -1137,6 +1137,7 @@
     "historyTitle": "Statuslar tarixi",
     "historyEmpty": "Hozircha status o‘zgarishlari yo‘q.",
     "transitionFailed": "Statusni o‘zgartirish rad etildi",
+    "statusCommercialOnly": "Polis holatini faqat tijorat anderrayteri o‘zgartirishi mumkin.",
     "transitionComment": "Izoh",
     "expiryDueHint": "Polis muddati {{date}} kuni tugadi — uni «Muddati tugagan» statusiga o‘tkazing.",
     "fields": {

@@ -44,7 +44,7 @@ export function ClaimMoneyTab({ claim }: { claim: Claim }) {
   const [paying, setPaying] = useState(false)
   const [recovering, setRecovering] = useState(false)
 
-  const isClaims = roles.includes('claims') || roles.includes('admin')
+  const isClaims = roles.includes('claims')
   const canRecover = isClaims && (payments ?? []).length > 0
 
   if (isLoading) return <Spinner label={t('common.loading')} />

@@ -216,9 +216,17 @@ begin
   perform pg_temp.act('99999999-0000-4000-8000-0000000002b1');
   perform tci.complete_task(v_task.id);
 
-  -- 7. reassigning: admin hands request 2 to a named information manager;
-  --    the banned account cannot hold it, and a non-information-manager cannot
+  -- 7. reassigning: admin may not (0065: admin is technical); the holder
+  --    hands request 2 to a named information manager; a
+  --    non-information-manager cannot hold it
   perform pg_temp.act('99999999-0000-4000-8000-0000000002b9');
+  begin
+    perform tci.assign_entity_request((select id from t_ids where k = 'r2'), '99999999-0000-4000-8000-0000000002a1');
+    raise exception 'data: admin reassigned a data request';
+  exception when sqlstate '42501' then null;
+  end;
+  perform set_config('role', 'postgres', true);
+  perform pg_temp.act((select assigned_to from tci.entity_requests where id = (select id from t_ids where k = 'r2')));
   begin
     perform tci.assign_entity_request((select id from t_ids where k = 'r2'), '99999999-0000-4000-8000-0000000002b1');
     raise exception 'data: assigned to an underwriter';

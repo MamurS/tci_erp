@@ -69,7 +69,6 @@ export function BuyerProposalsSection() {
 
   const canResolve = hasRole(
     roles,
-    'admin',
     'information_manager',
     'sales',
     'credit_underwriter',

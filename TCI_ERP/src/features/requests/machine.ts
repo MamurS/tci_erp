@@ -72,12 +72,14 @@ export function canTransitionAs(
   roles: readonly UserRole[],
   isCreator: boolean,
 ): boolean {
-  if (to === 'withdrawn') return isCreator || hasRole(roles, 'admin')
-  if (to === 'accepted' || to === 'declined') return hasRole(roles, 'client', 'admin', 'sales')
-  if (to === 'client_review') return hasRole(roles, 'admin', 'sales')
-  if (to === 'sales_confirmation') return hasRole(roles, 'admin', 'commercial_underwriter')
-  // Everything else: any staff role.
-  return roles.some((r) => r !== 'client')
+  if (to === 'withdrawn') return isCreator
+  if (to === 'accepted' || to === 'declined') return hasRole(roles, 'client', 'sales')
+  if (to === 'client_review') return hasRole(roles, 'sales')
+  if (to === 'sales_confirmation') return hasRole(roles, 'commercial_underwriter')
+  // Everything else: the function asks is_staff(), and the row lock needs the
+  // "insurance_requests: workflow write" policy (sales, commercial and credit
+  // underwriting since 0065), so these are the roles that can actually move it.
+  return hasRole(roles, 'sales', 'commercial_underwriter', 'credit_underwriter')
 }
 
 /** Why a transition the roles allow is still blocked — the content guards
@@ -151,7 +153,7 @@ export function creditComplete(
 /** Sales, commercial and credit underwriting may raise a submission
  * (the "insurance_requests: workflow write" policy of migration 0019). */
 export function canCreateSubmission(roles: readonly UserRole[]): boolean {
-  return hasRole(roles, 'admin', 'sales', 'commercial_underwriter', 'credit_underwriter')
+  return hasRole(roles, 'sales', 'commercial_underwriter', 'credit_underwriter')
 }
 
 /** Only commercial underwriting shapes the proposed terms, and only while
@@ -161,12 +163,12 @@ export function canEditTerms(
   roles: readonly UserRole[],
 ): boolean {
   if (isTerminal(status)) return false
-  return hasRole(roles, 'admin', 'commercial_underwriter')
+  return hasRole(roles, 'commercial_underwriter')
 }
 
 /** Resolving a package buyer onto a company: tci.resolve_request_buyer. */
 export function canResolveBuyers(roles: readonly UserRole[]): boolean {
-  return hasRole(roles, 'admin', 'sales', 'information_manager', 'credit_underwriter')
+  return hasRole(roles, 'sales', 'information_manager', 'credit_underwriter')
 }
 
 /** The package is editable while the submission has not left the sales
@@ -176,7 +178,7 @@ export function canEditPackage(
   roles: readonly UserRole[],
 ): boolean {
   if (!['draft', 'submitted', 'entity_resolution'].includes(status)) return false
-  return hasRole(roles, 'admin', 'sales', 'commercial_underwriter', 'credit_underwriter')
+  return hasRole(roles, 'sales', 'commercial_underwriter', 'credit_underwriter')
 }
 
 export type Tone = 'neutral' | 'accent' | 'pos' | 'neg' | 'warn'

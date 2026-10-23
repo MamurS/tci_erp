@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0057_contract_drafts.sql?raw'
+import M65 from '../../../supabase/migrations/0065_admin_technical_only.sql?raw'
 import { NO_CONTRACT_STATUSES } from '../wording/contracts'
 import { diffDocs, diffSummary, diffWords, docLines } from './diff'
 import { CONTRACT_REFUSALS, contractErrorKey } from './errors'
@@ -168,8 +169,9 @@ describe('the status machine mirrors 0057', () => {
   })
 
   it('gates the writers, agreeing, sharing and client comments as the migration does', () => {
-    expect(MIGRATION).toContain(`perform tci.require_role(${WRITER_ROLES.map((r) => `'${r}'`).join(', ')});`)
-    expect(MIGRATION).toContain(
+    // The role gates as 0065 restated them (admin is a technical role).
+    expect(M65).toContain(`perform tci.require_role(${WRITER_ROLES.map((r) => `'${r}'`).join(', ')});`)
+    expect(M65).toContain(
       `if (v_to = 'agreed' or v_from = 'agreed') and not tci.has_role(${AGREE_ROLES.map((r) => `'${r}'`).join(', ')}) then`,
     )
     expect(MIGRATION).toContain(
@@ -184,11 +186,12 @@ describe('the status machine mirrors 0057', () => {
     expect(statusActions('under_review', ['sales']).map((a) => a.action)).toEqual(['returnToDraft'])
     expect(statusActions('under_review', ['commercial_underwriter']).map((a) => a.action)).toEqual(['agree', 'returnToDraft'])
     expect(statusActions('agreed', ['sales']).map((a) => a.action)).toEqual(['sign'])
-    expect(statusActions('agreed', ['admin']).find((a) => a.action === 'reopen')?.needsReason).toBe(true)
-    expect(statusActions('signed', ['admin'])).toEqual([])
+    expect(statusActions('agreed', ['commercial_underwriter']).find((a) => a.action === 'reopen')?.needsReason).toBe(true)
+    expect(statusActions('signed', ['commercial_underwriter'])).toEqual([])
+    for (const status of CONTRACT_STATUSES) expect(statusActions(status, ['admin'])).toEqual([])
     expect(statusActions('draft', ['credit_underwriter'])).toEqual([])
     for (const status of CONTRACT_STATUSES) {
-      for (const a of statusActions(status, ['admin'])) expect(canTransition(status, a.to)).toBe(true)
+      for (const a of statusActions(status, ['commercial_underwriter'])) expect(canTransition(status, a.to)).toBe(true)
     }
   })
 

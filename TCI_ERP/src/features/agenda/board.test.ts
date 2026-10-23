@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import M65 from '../../../supabase/migrations/0065_admin_technical_only.sql?raw'
+
 import {
   amountOf,
   bucketOf,
@@ -10,6 +12,7 @@ import {
   sumUzs,
   tashkentDay,
   writeFilter,
+  isMine,
 } from './board'
 import type { AgendaRow } from './board'
 import type { Task, TaskType } from './types'
@@ -217,5 +220,20 @@ describe('amounts', () => {
       currency: 'UZS',
     })
     expect(amountOf(task('declaration_awaiting_acceptance', { params: { total: 5 } }))).toBeNull()
+  })
+})
+
+describe('isMine (mirror of tci.task_is_mine, 0065)', () => {
+  const me = 'u-1'
+  it('is a task addressed to me or to the role I act in — and no longer every task for admin', () => {
+    expect(M65).toContain(`  select p_target_user = (select auth.uid())
+      or (p_target_role is not null and p_target_role in (select tci.current_user_roles()))
+$function$`)
+    expect(isMine({ target_user: me, target_role: null }, me, ['admin'])).toBe(true)
+    expect(isMine({ target_user: null, target_role: 'sales' }, me, ['sales'])).toBe(true)
+    expect(isMine({ target_user: null, target_role: 'sales' }, me, ['admin'])).toBe(false)
+    expect(isMine({ target_user: 'u-2', target_role: null }, me, ['admin'])).toBe(false)
+    expect(isMine({ target_user: null, target_role: 'admin' }, me, ['admin'])).toBe(true)
+    expect(isMine({ target_user: null, target_role: null }, null, ['sales'])).toBe(false)
   })
 })

@@ -5,15 +5,19 @@
  * call is idempotent — the partial unique index absorbs repeats and stale
  * conditions are cancelled — so a second read in the same minute is a no-op.
  *
- * RLS decides what comes back: a user sees tasks targeted at their roles or
- * at themselves, admin sees all. Nothing here filters by role. */
+ * RLS decides what comes back: a user sees tasks targeted at their acting role
+ * or at themselves, admin sees all. The board then keeps what the caller may
+ * WORK (isMine, the mirror of tci.task_is_mine): for everyone but admin that
+ * is the same set; admin, a technical role since 0065, acts on no other
+ * department's task. */
 
+import { useCallback } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { useAuth } from '../../auth/AuthContext'
 import { optimistic, patch, pendingId } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
-import { tashkentDay } from './board'
+import { isMine, tashkentDay } from './board'
 import { SUBJECT_IN_TITLE } from './catalogue'
 import { clearedPlus, asIds, commentsKeyHolds, withAnswers, withComment, withoutTasks, withSnooze } from './optimistic'
 import type { Task, TaskComment } from './types'
@@ -55,6 +59,11 @@ async function fetchOpenTasks(): Promise<Task[]> {
  * not refetch, so the generation runs about once a minute, not once a click. */
 export function useAgendaTasks(options: { enabled?: boolean } = {}) {
   const { enabled = true } = options
+  const { session, roles } = useAuth()
+  const me = session?.user.id ?? null
+  // A stable select: TanStack Query reuses its result while the data and this
+  // function are unchanged, so the board's memos are not recomputed per render.
+  const mine = useCallback((tasks: Task[]) => tasks.filter((task) => isMine(task, me, roles)), [me, roles])
   return useQuery({
     queryKey: KEYS.tasks,
     enabled,
@@ -63,6 +72,7 @@ export function useAgendaTasks(options: { enabled?: boolean } = {}) {
       await refreshAgenda()
       return fetchOpenTasks()
     },
+    select: mine,
   })
 }
 

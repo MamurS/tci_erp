@@ -4,6 +4,7 @@
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0058_commercial_offers.sql?raw'
+import M65 from '../../../supabase/migrations/0065_admin_technical_only.sql?raw'
 import ru from '../../i18n/locales/ru.json'
 import {
   addDays,
@@ -77,10 +78,12 @@ describe('the rules the buttons mirror', () => {
   })
 
   it('who writes and who publishes, as the functions gate it', () => {
-    expect(MIGRATION).toContain("perform tci.require_role('admin', 'sales', 'commercial_underwriter');")
-    expect(MIGRATION).toContain("perform tci.require_role('admin', 'sales');")
-    expect([...OFFER_WRITERS]).toEqual(['admin', 'sales', 'commercial_underwriter'])
-    expect([...OFFER_PUBLISHERS]).toEqual(['admin', 'sales'])
+    // 0065: admin is a technical role and prepares or publishes no offer.
+    expect(M65).toContain("perform tci.require_role('sales', 'commercial_underwriter');")
+    expect(M65).toContain("perform tci.require_role('sales');")
+    expect([...OFFER_WRITERS]).toEqual(['sales', 'commercial_underwriter'])
+    expect([...OFFER_PUBLISHERS]).toEqual(['sales'])
+    expect(canWriteOffers(['admin'])).toBe(false)
     expect(canWriteOffers(['commercial_underwriter'])).toBe(true)
     expect(canPublishOffers(['commercial_underwriter'])).toBe(false)
     expect(canWriteOffers(['credit_underwriter'])).toBe(false)

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0026_declarations.sql?raw'
-import { canCorrect, canTransition, isEditable, transitionsOffered } from './machine'
+import M65 from '../../../supabase/migrations/0065_admin_technical_only.sql?raw'
+import { canCorrect, canTransition, isEditable, mayMoveAs, transitionsOffered } from './machine'
 
 describe('the declaration status machine', () => {
   it('walks the happy path', () => {
@@ -56,5 +57,22 @@ describe('contract with migration 0026', () => {
 
   it('still refuses to submit a declaration with no lines', () => {
     expect(MIGRATION).toContain('a declaration cannot be submitted with no lines')
+  })
+})
+
+describe('who moves a declaration on the staff side (0065)', () => {
+  it('accepting is commercial underwriting\'s; disputing and the rest sales\' too; never admin', () => {
+    expect(M65).toContain("  if not tci.has_role('commercial_underwriter') then\n    raise exception 'only commercial underwriting may accept a declaration'")
+    expect(M65).toContain("if not tci.has_role('commercial_underwriter', 'sales') then")
+    expect(mayMoveAs('accepted', ['commercial_underwriter'])).toBe(true)
+    expect(mayMoveAs('accepted', ['sales'])).toBe(false)
+    for (const to of ['submitted', 'disputed', 'corrected'] as const) {
+      expect(mayMoveAs(to, ['sales'])).toBe(true)
+      expect(mayMoveAs(to, ['commercial_underwriter'])).toBe(true)
+    }
+    for (const to of ['submitted', 'accepted', 'disputed', 'corrected'] as const) {
+      expect(mayMoveAs(to, ['admin'])).toBe(false)
+      expect(mayMoveAs(to, ['claims'])).toBe(false)
+    }
   })
 })

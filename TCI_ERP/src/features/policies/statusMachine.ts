@@ -13,6 +13,8 @@
  * function rejects an empty one.
  */
 
+import type { UserRole } from '../../lib/roles'
+import { hasRole } from '../../lib/roles'
 import type { PolicyStatus } from './types'
 
 export const ALLOWED_TRANSITIONS: Record<PolicyStatus, readonly PolicyStatus[]> = {
@@ -22,6 +24,13 @@ export const ALLOWED_TRANSITIONS: Record<PolicyStatus, readonly PolicyStatus[]> 
   expired: [],
   cancelled: [],
   annulled: [],
+}
+
+/** Creating, editing and moving a policy is commercial underwriting's: the
+ * "policies: commercial write" policy and the named rule in
+ * tci.change_policy_status (0065). Admin is a technical role. */
+export function mayWritePolicies(roles: readonly UserRole[]): boolean {
+  return hasRole(roles, 'commercial_underwriter')
 }
 
 export function allowedTargets(from: PolicyStatus): readonly PolicyStatus[] {

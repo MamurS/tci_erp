@@ -13,9 +13,9 @@ import type { ClaimStatus } from '../claims/types'
 import type { NoaStatus } from './types'
 
 /** Staff who may open a claim on the policyholder's behalf:
- * `tci.has_role('claims', 'sales', 'admin')`. (The client's own path is the
+ * `tci.has_role('claims', 'sales')`. (The client's own path is the
  * portal's `client_open_claim`.) */
-export const OPEN_CLAIM_ROLES = ['claims', 'sales', 'admin'] as const satisfies readonly UserRole[]
+export const OPEN_CLAIM_ROLES = ['claims', 'sales'] as const satisfies readonly UserRole[]
 
 /** A claim in one of these no longer holds the (policy, buyer) slot:
  * `claims_live_uq … where status not in ('declined', 'closed', 'withdrawn')`. */

@@ -49,7 +49,7 @@ export function canDecideAs(status: LimitRequestStatus, roles: readonly UserRole
 
 /** Sales, commercial and credit underwriting may raise limit requests. */
 export function canCreateRequest(roles: readonly UserRole[]): boolean {
-  return hasRole(roles, 'admin', 'sales', 'commercial_underwriter', 'credit_underwriter')
+  return hasRole(roles, 'sales', 'commercial_underwriter', 'credit_underwriter')
 }
 
 /** Requester, or anyone who may decide, on any open request. */
@@ -59,7 +59,7 @@ export function canWithdraw(
   isRequester: boolean,
 ): boolean {
   if (!isOpen(status)) return false
-  return isRequester || hasRole(roles, 'admin', 'credit_underwriter')
+  return isRequester || hasRole(roles, 'credit_underwriter')
 }
 
 export function statusTone(

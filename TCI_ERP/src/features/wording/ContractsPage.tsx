@@ -57,7 +57,7 @@ export function ContractsPage() {
   const navigate = useNavigate()
   const { roles } = useAuth()
   const canManageTemplates = roles.includes('admin') || roles.includes('commercial_underwriter')
-  const canGenerate = roles.some((r) => r === 'admin' || r === 'commercial_underwriter' || r === 'sales')
+  const canGenerate = roles.some((r) => r === 'commercial_underwriter' || r === 'sales')
 
   const { data: templates, isLoading: templatesLoading } = useWordingTemplates()
   const { data: policies, isLoading: policiesLoading } = usePolicies()

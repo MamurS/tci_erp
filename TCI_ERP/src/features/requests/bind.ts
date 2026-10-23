@@ -32,7 +32,7 @@ export type RequiredTerm = (typeof REQUIRED_TERMS)[number]
 
 /** Mirrors the function's role gate. */
 export function canBindAs(roles: readonly UserRole[]): boolean {
-  return hasRole(roles, 'admin', 'commercial_underwriter')
+  return hasRole(roles, 'commercial_underwriter')
 }
 
 /** Mirrors the status + idempotency guards. */

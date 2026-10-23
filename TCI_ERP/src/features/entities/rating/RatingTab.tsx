@@ -71,6 +71,7 @@ import { FactorChipList } from './FactorChips'
 import { limitReason } from './limitReasons'
 import { ScoreChangeNote } from './ScoreChangeNote'
 import { mayEnterStatements } from '../financials/access'
+import { mayRate } from '../access'
 import { CHART_COLORS } from '../report/DynamicCharts'
 import { ReportModal } from './ReportModal'
 
@@ -263,14 +264,16 @@ export function RatingTab({ entityId }: { entityId: string }) {
               ))}
             </Select>
           </label>
-          <Button
-            onClick={() => selected && calculate.mutate(selected)}
-            disabled={!selected}
-            loading={calculate.isPending}
-            title={calculate.isPending ? t('rating.calculating') : undefined}
-          >
-            {t('rating.calculate')}
-          </Button>
+          {mayRate(myRoles) && (
+            <Button
+              onClick={() => selected && calculate.mutate(selected)}
+              disabled={!selected}
+              loading={calculate.isPending}
+              title={calculate.isPending ? t('rating.calculating') : undefined}
+            >
+              {t('rating.calculate')}
+            </Button>
+          )}
           <Button variant="secondary" onClick={() => setReportModalOpen(true)}>
             {t('rating.generateReport')}
           </Button>

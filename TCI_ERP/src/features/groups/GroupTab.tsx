@@ -46,12 +46,11 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
 
   const mayEdit = hasRole(
     roles,
-    'admin',
     'information_manager',
     'credit_underwriter',
     'commercial_underwriter',
   )
-  const mayManageLimit = hasRole(roles, 'admin', 'credit_underwriter')
+  const mayManageLimit = hasRole(roles, 'credit_underwriter')
 
   const group = useEntityGroup(entityId)
   const members = useMemo(() => group.data ?? [], [group.data])

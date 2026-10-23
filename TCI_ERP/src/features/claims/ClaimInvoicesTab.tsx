@@ -49,7 +49,7 @@ export function ClaimInvoicesTab({ claim }: { claim: Claim }) {
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const isClaims = roles.includes('claims') || roles.includes('admin')
+  const isClaims = roles.includes('claims')
   const canEdit =
     (isClaims || roles.includes('sales')) &&
     ['draft', 'submitted', 'under_assessment', 'info_requested'].includes(claim.status)

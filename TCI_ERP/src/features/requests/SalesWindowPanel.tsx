@@ -32,7 +32,7 @@ export function SalesWindowPanel({ request }: { request: InsuranceRequestWithRef
   const { data: entities } = useEntities()
   const nameOf = (id: string) => entities?.find((e) => e.id === id)?.name ?? EM_DASH
 
-  const mayAct = hasRole(roles, 'admin', 'sales')
+  const mayAct = hasRole(roles, 'sales')
   const pending = (limits ?? []).filter((l) => !l.client_visible)
 
   return (

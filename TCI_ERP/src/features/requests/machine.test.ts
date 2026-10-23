@@ -5,6 +5,7 @@
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0019_insurance_requests.sql?raw'
+import M65 from '../../../supabase/migrations/0065_admin_technical_only.sql?raw'
 import {
   TERMINAL_STATUSES,
   TRANSITIONS,
@@ -75,34 +76,37 @@ describe('transition table (mirror of the CASE in advance_insurance_request)', (
 })
 
 describe('role gates (mirror of the elsif ladder)', () => {
-  it('only the creator or an admin may withdraw', () => {
+  it('only the creator may withdraw (0065: admin no longer)', () => {
     expect(canTransitionAs('withdrawn', ['sales'], true)).toBe(true)
     expect(canTransitionAs('withdrawn', ['sales'], false)).toBe(false)
-    expect(canTransitionAs('withdrawn', ['admin'], false)).toBe(true)
-    expect(MIGRATION).toContain('only the creator or an admin may withdraw a submission')
+    expect(canTransitionAs('withdrawn', ['admin'], false)).toBe(false)
+    expect(M65).toContain('if not (v_request.created_by = (select auth.uid())) then')
+    expect(M65).toContain('only the creator may withdraw a submission')
   })
 
-  it('accept/decline is the client, or sales/admin on its behalf', () => {
+  it('accept/decline is the client, or sales on its behalf', () => {
     for (const to of ['accepted', 'declined'] as const) {
       expect(canTransitionAs(to, ['client'], false)).toBe(true)
       expect(canTransitionAs(to, ['sales'], false)).toBe(true)
-      expect(canTransitionAs(to, ['admin'], false)).toBe(true)
+      expect(canTransitionAs(to, ['admin'], false)).toBe(false)
       expect(canTransitionAs(to, ['credit_underwriter'], false)).toBe(false)
       expect(canTransitionAs(to, ['commercial_underwriter'], false)).toBe(false)
     }
-    expect(MIGRATION).toContain("if not tci.has_role('client', 'admin', 'sales') then")
+    expect(M65).toContain("if not tci.has_role('client', 'sales') then")
   })
 
   it('only sales release a submission to the client', () => {
     expect(canTransitionAs('client_review', ['sales'], false)).toBe(true)
-    expect(canTransitionAs('client_review', ['admin'], false)).toBe(true)
+    expect(canTransitionAs('client_review', ['admin'], false)).toBe(false)
+    expect(M65).toContain("if not tci.has_role('sales') then")
     expect(canTransitionAs('client_review', ['commercial_underwriter'], false)).toBe(false)
     expect(MIGRATION).toContain('only sales may release a submission to the client')
   })
 
   it('only commercial underwriting finishes the commercial review', () => {
     expect(canTransitionAs('sales_confirmation', ['commercial_underwriter'], false)).toBe(true)
-    expect(canTransitionAs('sales_confirmation', ['admin'], false)).toBe(true)
+    expect(canTransitionAs('sales_confirmation', ['admin'], false)).toBe(false)
+    expect(M65).toContain("elsif not tci.has_role('commercial_underwriter') then")
     expect(canTransitionAs('sales_confirmation', ['sales'], false)).toBe(false)
     expect(canTransitionAs('sales_confirmation', ['credit_underwriter'], false)).toBe(false)
     expect(MIGRATION).toContain(
@@ -110,13 +114,21 @@ describe('role gates (mirror of the elsif ladder)', () => {
     )
   })
 
-  it('every other move is any staff role, never the client alone', () => {
+  it('every other move is a role that holds the workflow write policy, never the client alone', () => {
     for (const to of ['submitted', 'entity_resolution', 'underwriting', 'commercial_review', 'bound'] as const) {
-      expect(canTransitionAs(to, ['information_manager'], false)).toBe(true)
-      expect(canTransitionAs(to, ['client'], false)).toBe(false)
+      for (const r of ['sales', 'commercial_underwriter', 'credit_underwriter'] as const) {
+        expect(canTransitionAs(to, [r], false)).toBe(true)
+      }
+      for (const r of ['information_manager', 'claims', 'admin', 'client'] as const) {
+        expect(canTransitionAs(to, [r], false)).toBe(false)
+      }
       expect(canTransitionAs(to, [], false)).toBe(false)
     }
     expect(MIGRATION).toContain('only staff may move a submission')
+    expect(M65).toContain(
+      `alter policy "insurance_requests: workflow write" on tci.insurance_requests
+  using (tci.has_role(VARIADIC ARRAY['sales'::tci.user_role, 'commercial_underwriter'::tci.user_role, 'credit_underwriter'::tci.user_role]))`,
+    )
   })
 
   it('multi-role users get the union of the gates', () => {
@@ -190,7 +202,7 @@ describe('transitionOffers', () => {
       allowedByRole: true,
       guard: 'entitiesUnresolved',
     })
-    // not the creator, not an admin -> withdraw is not on offer
+    // not the creator -> withdraw is not on offer
     expect(offers.find((o) => o.to === 'withdrawn')?.allowedByRole).toBe(false)
   })
 
@@ -203,7 +215,7 @@ describe('transitionOffers', () => {
   })
 
   it('a terminal status offers nothing', () => {
-    expect(transitionOffers('bound', ['admin'], true, facts)).toEqual([])
+    expect(transitionOffers('bound', ['commercial_underwriter'], true, facts)).toEqual([])
   })
 
   it('never offers accepted -> bound as a bare transition', () => {
@@ -215,7 +227,7 @@ describe('transitionOffers', () => {
     )
     expect(isAllowedTransition('accepted', 'bound')).toBe(true)
     expect(
-      transitionOffers('accepted', ['admin', 'commercial_underwriter'], true, {
+      transitionOffers('accepted', ['sales', 'commercial_underwriter'], true, {
         entitiesResolved: true,
         creditComplete: true,
       }),
@@ -241,10 +253,10 @@ describe('who owns the submission at each step', () => {
 
 describe('capability helpers', () => {
   it('who may raise a submission', () => {
-    for (const r of ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter'] as const) {
+    for (const r of ['sales', 'commercial_underwriter', 'credit_underwriter'] as const) {
       expect(canCreateSubmission([r])).toBe(true)
     }
-    for (const r of ['claims', 'information_manager', 'client'] as const) {
+    for (const r of ['admin', 'claims', 'information_manager', 'client'] as const) {
       expect(canCreateSubmission([r])).toBe(false)
     }
   })
@@ -253,20 +265,20 @@ describe('capability helpers', () => {
     expect(canEditTerms('commercial_review', ['commercial_underwriter'])).toBe(true)
     expect(canEditTerms('draft', ['commercial_underwriter'])).toBe(true)
     expect(canEditTerms('bound', ['commercial_underwriter'])).toBe(false)
-    expect(canEditTerms('withdrawn', ['admin'])).toBe(false)
+    expect(canEditTerms('withdrawn', ['commercial_underwriter'])).toBe(false)
+    expect(canEditTerms('commercial_review', ['admin'])).toBe(false)
     expect(canEditTerms('commercial_review', ['sales'])).toBe(false)
     expect(canEditTerms('commercial_review', ['credit_underwriter'])).toBe(false)
   })
 
   it('who may resolve package buyers (mirror of resolve_request_buyer)', () => {
-    for (const r of ['admin', 'sales', 'information_manager', 'credit_underwriter'] as const) {
+    for (const r of ['sales', 'information_manager', 'credit_underwriter'] as const) {
       expect(canResolveBuyers([r])).toBe(true)
     }
+    expect(canResolveBuyers(['admin'])).toBe(false)
     expect(canResolveBuyers(['commercial_underwriter'])).toBe(false)
     expect(canResolveBuyers(['client'])).toBe(false)
-    expect(MIGRATION).toContain(
-      "if not tci.has_role('admin', 'sales', 'information_manager', 'credit_underwriter') then",
-    )
+    expect(M65).toContain("if not tci.has_role('sales', 'information_manager', 'credit_underwriter') then")
   })
 
   it('the package is editable only on the sales side of the pipeline', () => {

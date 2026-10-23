@@ -8,7 +8,7 @@
 import { hasRole } from '../../../lib/roles'
 import type { UserRole } from '../../../lib/roles'
 
-export const STATEMENT_WRITERS = ['admin', 'information_manager', 'credit_underwriter'] as const satisfies readonly UserRole[]
+export const STATEMENT_WRITERS = ['information_manager', 'credit_underwriter'] as const satisfies readonly UserRole[]
 
 export function mayEnterStatements(roles: readonly UserRole[]): boolean {
   return hasRole(roles, ...STATEMENT_WRITERS)

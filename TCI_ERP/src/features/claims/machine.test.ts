@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0032_claims.sql?raw'
+import M65 from '../../../supabase/migrations/0065_admin_technical_only.sql?raw'
 import {
   CLAIM_TRANSITIONS,
   NOT_OFFERED_DIRECTLY,
@@ -73,7 +74,10 @@ describe('claim status machine — contract with 0032', () => {
   it('leaves assessment decisions to claims alone', () => {
     expect(mayTransition(['sales'], 'under_assessment', 'declined')).toBe(false)
     expect(mayTransition(['claims'], 'under_assessment', 'declined')).toBe(true)
-    expect(mayTransition(['admin'], 'under_assessment', 'approved')).toBe(true)
+    expect(mayTransition(['claims'], 'under_assessment', 'approved')).toBe(true)
+    // 0065: admin is a technical role and assesses nothing.
+    expect(mayTransition(['admin'], 'under_assessment', 'approved')).toBe(false)
+    expect(M65).toContain("    if not tci.has_role('claims') then")
   })
 
   it('lets the policyholder answer an information request', () => {

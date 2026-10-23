@@ -35,10 +35,10 @@ export function requestAllowsOffer(requestStatus: string): boolean {
   return (OFFER_REQUEST_STATUSES as readonly string[]).includes(requestStatus)
 }
 
-/** create_commercial_offer / save_offer_version: require_role('admin', 'sales', 'commercial_underwriter'). */
-export const OFFER_WRITERS: readonly UserRole[] = ['admin', 'sales', 'commercial_underwriter']
-/** publish_offer / withdraw_offer: require_role('admin', 'sales'). */
-export const OFFER_PUBLISHERS: readonly UserRole[] = ['admin', 'sales']
+/** create_commercial_offer / save_offer_version: require_role('sales', 'commercial_underwriter') (0065). */
+export const OFFER_WRITERS: readonly UserRole[] = ['sales', 'commercial_underwriter']
+/** publish_offer / withdraw_offer: require_role('sales') (0065). */
+export const OFFER_PUBLISHERS: readonly UserRole[] = ['sales']
 
 const holds = (roles: readonly UserRole[], allowed: readonly UserRole[]) => roles.some((r) => allowed.includes(r))
 export const canWriteOffers = (roles: readonly UserRole[]) => holds(roles, OFFER_WRITERS)

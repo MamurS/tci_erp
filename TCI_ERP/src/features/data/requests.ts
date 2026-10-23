@@ -21,7 +21,7 @@ export const OUTCOMES: Readonly<Record<RequestKind, readonly Outcome[]>> = {
 
 /** Who works requests: information managers and admins. */
 export function canWorkRequests(roles: readonly string[]): boolean {
-  return roles.includes('information_manager') || roles.includes('admin')
+  return roles.includes('information_manager')
 }
 
 export const STATUS_TONE: Readonly<Record<RequestStatus, 'neutral' | 'accent' | 'pos' | 'warn' | 'neg'>> = {
