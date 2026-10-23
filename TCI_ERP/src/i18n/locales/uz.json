@@ -1860,7 +1860,6 @@
     "editRoles": "Rollar",
     "rolesFor": "Rollar — {{email}}",
     "rolesHint": "Foydalanuvchi bir nechta rolga ega bo‘lishi mumkin; huquqlar ularning birlashmasi.",
-    "clientAndStaffWarning": "Bu foydalanuvchi ham portal mijozi, ham xodim bo‘lib qoladi. «Mijoz» roli faqat tashqi foydalanuvchilar uchun.",
     "selectUser": "Foydalanuvchini tanlang",
     "selectUserHint": "Vakolatlarni tahrirlash uchun «Foydalanuvchilar va rollar» yorlig‘ida foydalanuvchini tanlang.",
     "authoritiesFor": "Vakolatlar — {{email}}",
@@ -1888,7 +1887,8 @@
     "errors": {
       "amountPositive": "Summa noldan katta bo‘lishi kerak",
       "periodOrder": "«Amal qilish tugashi» boshlanishidan oldin bo‘lmasligi kerak",
-      "validFromRequired": "«Amal qilish boshlanishi» ni ko‘rsating"
+      "validFromRequired": "«Amal qilish boshlanishi» ni ko‘rsating",
+      "clientRoleExclusive": "Portal mijozi boshqa rolga ega bo‘la olmaydi. Avval «Mijoz» rolini olib tashlang yoki alohida portal foydalanuvchisini yarating."
     },
     "usersCount": "Foydalanuvchilar: {{count}}",
     "security": {
@@ -2007,7 +2007,8 @@
       "saved": "Saqlandi.",
       "saveFailed": "Avtomatik qarorlar sozlamalarini saqlab bo‘lmadi.",
       "loadFailed": "Avtomatik qarorlar sozlamalarini yuklab bo‘lmadi."
-    }
+    },
+    "clientAloneHint": "Portal mijozi boshqa rolga ega bo‘la olmaydi: «Mijoz» roli va xodim rollari bir-birini istisno qiladi."
   },
   "requests": {
     "subtitle": "Sug‘urta arizalari: so‘rovdan rasmiylashtirilgan polisgacha",
@@ -4253,7 +4254,17 @@
       "body_other": "Oldingi kirishingizdan beri hisobingizga {{count}} marta muvaffaqiyatsiz kirishga urinilgan.",
       "hint": "Agar bu siz bo‘lmasangiz — parolni almashtiring va administratorga xabar bering.",
       "changePassword": "Parolni almashtirish",
-      "dismiss": "Yopish"
+      "dismiss": "Yopish",
+      "at": "{{at}}.",
+      "range": "{{from}} dan {{to}} gacha.",
+      "thisWasMe": "Bu men edim",
+      "showAttempts": "Urinishlarni ko‘rsatish",
+      "hideAttempts": "Urinishlarni yashirish",
+      "columns": {
+        "time": "Vaqt",
+        "network": "Tarmoq",
+        "device": "Brauzer va tizim"
+      }
     }
   },
   "wording": {

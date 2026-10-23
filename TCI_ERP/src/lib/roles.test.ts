@@ -6,8 +6,10 @@ import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../supabase/migrations/0016_department_roles.sql?raw'
 import MIGRATION_0017 from '../../supabase/migrations/0017_authority_matrix.sql?raw'
+import MIGRATION_0062 from '../../supabase/migrations/0062_sign_in_notice.sql?raw'
 import {
   GRADE_BANDS,
+  clientRoleBlocked,
   STAFF_ROLES,
   USER_ROLES,
   bandForGrade,
@@ -92,5 +94,28 @@ describe('grade bands (mirror of tci.grade_band + grade_band_for_assessment)', (
     expect(bandForGrade('Z9')).toBe('unrated')
     // lower-case grades still resolve, like upper(left(...)) in SQL
     expect(bandForGrade('b2')).toBe('B')
+  })
+})
+
+describe('a portal client holds no other role (0062)', () => {
+  it('the role editor blocks the combination the database refuses', () => {
+    // nothing chosen: everything is open
+    expect(USER_ROLES.some((r) => clientRoleBlocked([], r))).toBe(false)
+    // a staff role chosen: client is blocked, other staff roles are not
+    expect(clientRoleBlocked(['sales'], 'client')).toBe(true)
+    expect(clientRoleBlocked(['sales'], 'claims')).toBe(false)
+    // client chosen: every staff role is blocked
+    for (const role of STAFF_ROLES) expect(clientRoleBlocked(['client'], role)).toBe(true)
+    // what is already ticked can always be unticked
+    expect(clientRoleBlocked(['client', 'sales'], 'client')).toBe(false)
+    expect(clientRoleBlocked(['client', 'sales'], 'sales')).toBe(false)
+  })
+
+  it('mirrors the trigger on tci.user_roles', () => {
+    expect(MIGRATION_0062).toContain('create trigger user_roles_client_exclusive')
+    expect(MIGRATION_0062).toContain('after insert or update on tci.user_roles')
+    expect(MIGRATION_0062).toContain(
+      "raise exception 'client_role_exclusive: a portal client holds no other role'",
+    )
   })
 })
