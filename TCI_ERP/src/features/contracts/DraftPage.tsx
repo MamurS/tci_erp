@@ -256,7 +256,7 @@ function DraftScreen({
       <DetailHeader
         eyebrow={t('contractDrafts.title')}
         title={draft.draft_number}
-        status={<Badge tone={statusTone(draft.status)} size="lg">{t(`contractDrafts.statuses.${draft.status}`)}</Badge>}
+        status={<Badge tone={statusTone(draft.status)}>{t(`contractDrafts.statuses.${draft.status}`)}</Badge>}
         meta={[
           <Link key="target" to={target.to} className="text-accent-700 hover:underline">
             {draft.policy_id ? t('contracts.forPolicy', { number: reference }) : t('contracts.forSubmission', { number: reference })}

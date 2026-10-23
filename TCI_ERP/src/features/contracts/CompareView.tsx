@@ -5,7 +5,7 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Callout, Field, Segmented, Select, Spinner } from '../../components/ui'
+import { Callout, Field, PanelGrid, Segmented, Select, Spinner } from '../../components/ui'
 import type { VersionMeta } from './api'
 import { useVersion } from './api'
 import { diffDocs, diffSummary } from './diff'
@@ -146,7 +146,7 @@ export function CompareView({
           </div>
         </article>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <PanelGrid cols="lg:grid-cols-2" gap="gap-4">
           {(['before', 'after'] as const).map((side) => (
             <article key={side} className="cd-sheet" style={{ ...sheetStyle(b.data?.content.attrs?.layout), padding: '10mm' }}>
               <div className="mb-3 text-[12px] font-semibold tracking-wide text-slate-500 uppercase">
@@ -159,7 +159,7 @@ export function CompareView({
               </div>
             </article>
           ))}
-        </div>
+        </PanelGrid>
       )}
     </div>
   )

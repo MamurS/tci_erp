@@ -24,6 +24,8 @@ export {
   ViewBar,
 } from './primitives'
 export type { TabDef } from './primitives'
+export { BADGE_TONES, BadgeSizeContext, badgeClassName } from './badgeStyles'
+export type { BadgeSize, BadgeTone } from './badgeStyles'
 export { BrandMark } from './BrandMark'
 export { GradeScale } from './GradeScale'
 export { RatingGauge, RatingLegend } from './RatingGauge'

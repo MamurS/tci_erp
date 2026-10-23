@@ -9,6 +9,8 @@
  */
 import { Suspense, createContext, useContext, useEffect, useId, useRef } from 'react'
 
+import { BADGE_TONES, BadgeSizeContext, badgeClassName } from './badgeStyles'
+import type { BadgeSize, BadgeTone } from './badgeStyles'
 import { buttonClassName } from './buttonStyles'
 import { FieldLabelIdContext } from './fieldContext'
 import type { ButtonVariant } from './buttonStyles'
@@ -17,6 +19,7 @@ import type { ColumnWidth } from './columns'
 import type {
   ButtonHTMLAttributes,
   ComponentProps,
+  HTMLAttributes,
   MouseEvent,
   ReactNode,
   SelectHTMLAttributes,
@@ -110,7 +113,9 @@ export function Select({ className = '', children, ...rest }: SelectHTMLAttribut
 // Card
 // ---------------------------------------------------------------------------
 
-interface CardProps {
+/** A Card takes any div attribute besides its look — a `data-*` hook, an
+ * aria label — and passes it on. */
+interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'className'> {
   children: ReactNode
   className?: string
 }
@@ -118,10 +123,10 @@ interface CardProps {
 /** Inside a card: an empty state needs no frame of its own (no box in a box). */
 const FramedContext = createContext(false)
 
-export function Card({ children, className = '' }: CardProps) {
+export function Card({ children, className = '', ...rest }: CardProps) {
   return (
     <FramedContext.Provider value={true}>
-      <div className={`rounded-lg border border-slate-200/90 bg-white shadow-card ${className}`}>
+      <div {...rest} className={`rounded-lg border border-slate-200/90 bg-white shadow-card ${className}`}>
         {children}
       </div>
     </FramedContext.Provider>
@@ -178,36 +183,62 @@ export function SectionTitle({ children, actions, hint, rule = false, className 
 interface PanelGridProps {
   /** Column template; one column below the breakpoint. */
   cols?: string
+  /** The gap between the cards (gap-5 by default). */
+  gap?: string
   className?: string
   children: ReactNode
 }
 
 /**
- * A row of Panels. Each Panel is a two-row SUBGRID of this grid (head, body),
- * so the head row is as tall as the tallest head in the row: a panel with a
- * two-line hint and one with a bare title still start their tables on the
- * same line, and the cards are the same height whatever their bodies hold.
+ * A row of cards side by side (DESIGN.md «Side-by-side cards») — the ONE
+ * way to put cards next to each other:
+ *
+ * - every card in a line is as tall as the tallest (the grid stretches its
+ *   children): content stays top-aligned and the spare space stays at the
+ *   bottom of the shorter card;
+ * - a Panel is a two-row SUBGRID of this grid (head, body): the heads share
+ *   a height, so the bodies start on one line, and the bodies share the
+ *   rest; a Panel's `footer` is pinned to the bottom of its body, so the
+ *   action bars of a row sit on one line at the bottom of the cards;
+ * - any other child (a Card, or a component whose root is one) spans the
+ *   same two rows and simply stretches; a growable element inside a Panel
+ *   body (a list, a preview, a textarea) can take the spare height with
+ *   `h-full`;
+ * - `data-card-row` lets the layout guard check that the bottoms agree
+ *   (e2e/layout/cardRows.spec.ts).
  */
-export function PanelGrid({ cols = 'lg:grid-cols-2', className = '', children }: PanelGridProps) {
-  return <div className={`grid gap-5 ${cols} ${className}`}>{children}</div>
+export function PanelGrid({ cols = 'lg:grid-cols-2', gap = 'gap-5', className = '', children }: PanelGridProps) {
+  return (
+    <div data-card-row className={`grid *:row-span-2 ${gap} ${cols} ${className}`}>
+      {children}
+    </div>
+  )
 }
 
 interface PanelProps {
   title: ReactNode
   hint?: ReactNode
   actions?: ReactNode
+  /** An action bar pinned to the bottom of the card; inside a PanelGrid the
+   * footers of a row line up on one baseline. */
+  footer?: ReactNode
   className?: string
   children: ReactNode
 }
 
-/** A titled card. Inside a PanelGrid its body lines up with its neighbours'. */
-export function Panel({ title, hint, actions, className = '', children }: PanelProps) {
+/** A titled card. Inside a PanelGrid its body lines up with its neighbours'
+ * and its footer with theirs, at the bottom of a card as tall as the row. */
+export function Panel({ title, hint, actions, footer, className = '', children }: PanelProps) {
   return (
     <Card className={`row-span-2 grid min-w-0 grid-rows-subgrid gap-y-0 p-5 ${className}`}>
-      <SectionTitle actions={actions} hint={hint} className="mb-3 min-w-0">
+      <SectionTitle actions={actions} hint={hint} className="mb-3 min-w-0 self-start">
         {title}
       </SectionTitle>
-      <div className="min-w-0">{children}</div>
+      {/* The body takes the row's height; the footer sits at its bottom. */}
+      <div className="flex min-w-0 flex-col">
+        <div className="min-w-0 flex-1">{children}</div>
+        {footer && <div className="min-w-0 pt-4">{footer}</div>}
+      </div>
     </Card>
   )
 }
@@ -269,36 +300,25 @@ export function StatCard({
 // Badge
 // ---------------------------------------------------------------------------
 
-type BadgeTone = 'neutral' | 'accent' | 'pos' | 'neg' | 'negStrong' | 'warn'
-
-const BADGE_TONES: Record<BadgeTone, string> = {
-  neutral: 'bg-slate-100 text-slate-600 ring-slate-200',
-  accent: 'bg-accent-50 text-accent-700 ring-accent-200',
-  pos: 'bg-pos-50 text-pos-500 ring-pos-500/20',
-  neg: 'bg-neg-50 text-neg-500 ring-neg-500/20',
-  // Solid danger for statuses that must not be mistaken for ordinary
-  // termination (e.g. policy annulment vs cancellation).
-  negStrong: 'bg-neg-500 text-white ring-neg-500',
-  warn: 'bg-warn-50 text-warn-500 ring-warn-500/25',
-}
-
 interface BadgeProps {
   tone?: BadgeTone
-  /** lg: prominent badge (e.g. the grade badge in the buyer header). */
-  size?: 'md' | 'lg'
+  /** `sm` (tables, rows) or `md` (beside a page title); by default the size
+   * of the slot it sits in (BadgeSizeContext), `sm` anywhere else. */
+  size?: BadgeSize
+  title?: string
   children: ReactNode
 }
 
-export function Badge({ tone = 'neutral', size = 'md', children }: BadgeProps) {
-  const sizing = size === 'lg' ? 'px-3 py-1 text-sm font-bold' : 'px-2 py-0.5 text-xs font-medium'
+/** A badge (DESIGN.md «Badges», badgeStyles.ts). */
+export function Badge({ tone = 'neutral', size, title, children }: BadgeProps) {
+  const slot = useContext(BadgeSizeContext)
+  const resolved = size ?? slot
   // Never wider than its cell: a label longer than the column reserved for it
   // is cut with an ellipsis (a fixed Table names it in full on hover) instead
   // of widening the column or wrapping the row.
   const text = typeof children === 'string' ? children : undefined
   return (
-    <span
-      className={`inline-flex max-w-full min-w-0 items-center gap-1 rounded-full whitespace-nowrap ring-1 ring-inset ${sizing} ${BADGE_TONES[tone]}`}
-    >
+    <span data-badge={resolved} title={title} className={badgeClassName(resolved, BADGE_TONES[tone])}>
       {text !== undefined ? <span className="min-w-0 truncate">{text}</span> : children}
     </span>
   )
@@ -359,7 +379,7 @@ export function Segmented({ value, options, onChange, ariaLabel, tone = 'default
           disabled={option.disabled}
           aria-pressed={option.key === value}
           onClick={() => onChange(option.key)}
-          className={`rounded-[5px] px-2.5 py-1 text-xs font-semibold transition-colors ${
+          className={`rounded-[5px] px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none ${
             option.key === value
               ? 'bg-white text-accent-600 shadow-sm ring-1 ring-slate-200'
               : 'text-slate-600 hover:text-slate-900'
@@ -378,13 +398,16 @@ export function Segmented({ value, options, onChange, ariaLabel, tone = 'default
 
 interface PageHeaderProps {
   title: ReactNode
+  /** Badges beside the title (a status, a grade, roles): `md`, centred on
+   * the title, in the body font — never inside the heading itself. */
+  status?: ReactNode
   subtitle?: ReactNode
   actions?: ReactNode
   /** Small line above the title (section / breadcrumb). */
   eyebrow?: ReactNode
 }
 
-export function PageHeader({ title, subtitle, actions, eyebrow }: PageHeaderProps) {
+export function PageHeader({ title, status, subtitle, actions, eyebrow }: PageHeaderProps) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
@@ -393,9 +416,16 @@ export function PageHeader({ title, subtitle, actions, eyebrow }: PageHeaderProp
             {eyebrow}
           </div>
         )}
-        <h1 className="font-display text-[28px] leading-tight font-bold tracking-wide text-accent-600 uppercase">
-          {title}
-        </h1>
+        <div data-badge-row className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+          <h1 className="font-display text-[28px] leading-tight font-bold tracking-wide text-accent-600 uppercase">
+            {title}
+          </h1>
+          {status && (
+            <BadgeSizeContext.Provider value="md">
+              <span className="inline-flex flex-wrap items-center gap-2">{status}</span>
+            </BadgeSizeContext.Provider>
+          )}
+        </div>
         {subtitle && <p className="mt-1 max-w-3xl text-sm text-slate-500">{subtitle}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
@@ -508,7 +538,7 @@ export function EmptyState({ title, hint, action, icon }: EmptyStateProps) {
  * A number in a pill — a tab's count, a sidebar badge, a filter chip's count.
  * Tabular digits, centred in a box at least `digits` wide, so a count going
  * from 9 to 10 (or a refetch) never pushes the label or the pill beside it.
- * The tone (background, text colour, weight) is the caller's.
+ * The tone (background and text colour) is the caller's.
  */
 export function Count({
   value,
@@ -521,11 +551,16 @@ export function Count({
   className?: string
   title?: string
 }) {
+  // The counter form of the `sm` badge (DESIGN.md «Badges»): its height,
+  // font, text size and weight, with the narrower counter padding (px-1.5)
+  // and a minimum width of `digits` numerals; only the tone (the caller's)
+  // varies.
   return (
     <span
+      data-badge="sm"
       title={title}
       style={{ minWidth: `calc(${digits}ch + 0.75rem)` }}
-      className={`inline-block rounded-full px-1.5 text-center text-[11px] tabular-nums ${className}`}
+      className={`inline-flex h-5 shrink-0 items-center justify-center rounded-full px-1.5 font-sans text-xs leading-4 font-medium tabular-nums normal-case ${className}`}
     >
       {value}
     </span>
@@ -589,7 +624,7 @@ export function Tabs({ tabs, active, onChange, size = 'md' }: TabsProps) {
             {tab.count !== undefined && (
               <Count
                 value={tab.count ?? ''}
-                className={`font-semibold ${tab.count === null ? 'invisible' : ''} ${
+                className={`${tab.count === null ? 'invisible' : ''} ${
                   selected ? 'bg-accent-100 text-accent-700' : 'bg-slate-100 text-slate-500'
                 }`}
               />

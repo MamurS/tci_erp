@@ -293,26 +293,46 @@ export function AgendaPage() {
       }
       actions={
         <>
-          <Segmented
-            tone="solid"
-            ariaLabel={t('agenda.views.label')}
-            value={view}
-            onChange={(key) => setView(key as View)}
-            options={[
-              { key: 'list', label: t('agenda.views.list') },
-              { key: 'triage', label: t('agenda.views.triage') },
-            ]}
-          />
-          {view === 'list' && (
-            <ActionsMenu
-              label={t('agenda.groupBy.button', { value: t(`agenda.groupBy.${grouping}`) })}
-              actions={GROUPINGS.map((g) => ({
-                key: g,
-                label: t(`agenda.groupBy.${g}`),
-                onSelect: () => remember({ grouping: g }),
-              }))}
+          <span data-agenda-views className="inline-flex">
+            <Segmented
+              tone="solid"
+              ariaLabel={t('agenda.views.label')}
+              value={view}
+              onChange={(key) => setView(key as View)}
+              options={[
+                { key: 'list', label: t('agenda.views.list') },
+                { key: 'triage', label: t('agenda.views.triage') },
+              ]}
             />
-          )}
+          </span>
+          {/* In BOTH views (the triage queue is grouped the same way), so the
+              header never changes when the view does. The menu takes the
+              width of its widest choice, so picking a grouping moves nothing. */}
+          <span
+            data-agenda-groupby
+            className="inline-grid [&_button[aria-haspopup]]:w-full [&_button[aria-haspopup]]:justify-between"
+          >
+            {GROUPINGS.map((g) => (
+              <span
+                key={g}
+                aria-hidden
+                className="invisible col-start-1 row-start-1 inline-flex h-0 gap-1.5 overflow-hidden border px-3.5 text-sm font-medium whitespace-nowrap"
+              >
+                {t('agenda.groupBy.button', { value: t(`agenda.groupBy.${g}`) })}
+                <span className="w-4" />
+              </span>
+            ))}
+            <span className="col-start-1 row-start-1">
+              <ActionsMenu
+                label={t('agenda.groupBy.button', { value: t(`agenda.groupBy.${grouping}`) })}
+                actions={GROUPINGS.map((g) => ({
+                  key: g,
+                  label: t(`agenda.groupBy.${g}`),
+                  onSelect: () => remember({ grouping: g }),
+                }))}
+              />
+            </span>
+          </span>
         </>
       }
     />
@@ -390,6 +410,7 @@ export function AgendaPage() {
     body = (
       <TriageView
         groups={groups}
+        grouping={grouping}
         now={now}
         subjects={subjects}
         staff={staff}

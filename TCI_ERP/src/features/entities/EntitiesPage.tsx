@@ -375,7 +375,7 @@ export function RoleBadges({ roles }: { roles: EntityRoles | undefined }) {
     return <Badge tone="neutral">{t('entities.roles.none')}</Badge>
   }
   return (
-    <span className="inline-flex flex-wrap gap-1">
+    <span className="inline-flex flex-wrap items-center gap-1">
       {roles.is_policyholder && <Badge tone="accent">{t('entities.roles.policyholder')}</Badge>}
       {roles.is_buyer && <Badge tone="pos">{t('entities.roles.buyer')}</Badge>}
     </span>

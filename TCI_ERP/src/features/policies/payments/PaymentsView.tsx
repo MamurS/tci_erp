@@ -115,7 +115,7 @@ export function PaymentsView() {
                       <td className="num">{imp.counts.suggested}</td>
                       <td className="num">
                         {imp.counts.unmatched ? (
-                          <Count value={imp.counts.unmatched} className="bg-warn-50 font-semibold text-slate-800 ring-1 ring-warn-500/40" />
+                          <Count value={imp.counts.unmatched} className="bg-warn-50 text-slate-800 ring-1 ring-warn-500/40 ring-inset" />
                         ) : (
                           0
                         )}

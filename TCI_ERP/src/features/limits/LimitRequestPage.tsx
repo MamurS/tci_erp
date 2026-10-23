@@ -133,21 +133,13 @@ export function LimitRequestPage() {
   return (
     <div>
       <PageHeader
-        title={
-          <span className="inline-flex items-center gap-3">
-            <span>
-              {t('limits.requestTitle', { buyer: request.legal_entities?.name ?? EM_DASH })}
-            </span>
-            {onValidation ? (
-              <Badge tone="warn" size="lg">
-                {t('limits.validation.badge')}
-              </Badge>
-            ) : (
-              <Badge tone={statusTone(request.status)} size="lg">
-                {t(`limits.statuses.${request.status}`)}
-              </Badge>
-            )}
-          </span>
+        title={t('limits.requestTitle', { buyer: request.legal_entities?.name ?? EM_DASH })}
+        status={
+          onValidation ? (
+            <Badge tone="warn">{t('limits.validation.badge')}</Badge>
+          ) : (
+            <Badge tone={statusTone(request.status)}>{t(`limits.statuses.${request.status}`)}</Badge>
+          )
         }
         subtitle={
           <span>

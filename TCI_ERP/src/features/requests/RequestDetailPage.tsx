@@ -6,7 +6,7 @@ import { useMemo, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Callout, EmptyState, Field, LinkButton, Modal, PageHeader, Spinner, Textarea } from '../../components/ui'
+import { Badge, Button, Callout, EmptyState, Field, LinkButton, Modal, PageHeader, PanelGrid, Spinner, Textarea } from '../../components/ui'
 import { refusalOr } from '../../lib/optimistic'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH } from '../../lib/format'
@@ -125,14 +125,8 @@ export function RequestDetailPage() {
   return (
     <div>
       <PageHeader
-        title={
-          <span className="inline-flex items-center gap-3">
-            <span className="num">{request.request_number}</span>
-            <Badge tone={statusTone(request.status)} size="lg">
-              {t(`requests.statuses.${request.status}`)}
-            </Badge>
-          </span>
-        }
+        title={<span className="num">{request.request_number}</span>}
+        status={<Badge tone={statusTone(request.status)}>{t(`requests.statuses.${request.status}`)}</Badge>}
         subtitle={
           <span>
             <Link to="/requests" className="text-accent-700 hover:underline">
@@ -227,10 +221,10 @@ export function RequestDetailPage() {
             <SalesWindowPanel request={request} />
           </div>
         )}
-        <div className="grid items-start gap-5 xl:grid-cols-2">
+        <PanelGrid cols="xl:grid-cols-2">
           <ProposedTermsSection request={request} />
           <RequestHistoryTimeline requestId={request.id} notes={request.notes} />
-        </div>
+        </PanelGrid>
         {/* The commercial offer published to the client (0058). */}
         <div id="offer" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
           <OfferSection

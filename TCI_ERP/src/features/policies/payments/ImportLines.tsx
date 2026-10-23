@@ -183,7 +183,7 @@ export function ImportLines({ importId }: { importId: string }) {
     <SectionTitle hint={t(`premium.bank.sections.${section}Hint`)} actions={actions}>
       <span className="flex items-center gap-2">
         {t(`premium.bank.sections.${section}`)}
-        <Count value={bySection[section].length} className="bg-slate-100 font-sans text-[12px] font-semibold text-slate-600" />
+        <Count value={bySection[section].length} className="bg-slate-100 text-slate-600" />
       </span>
     </SectionTitle>
   )
@@ -219,7 +219,7 @@ export function ImportLines({ importId }: { importId: string }) {
                 onClick={() => runConfirm(confirmable)}
               >
                 {t('premium.bank.actions.confirmAll')}
-                <Count value={confirmable.length} className="bg-white/20 font-semibold" />
+                <Count value={confirmable.length} className="bg-white/20" />
               </Button>
             ) : undefined,
           )}
