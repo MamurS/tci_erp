@@ -567,31 +567,62 @@ A draft contract reads like paper and works like an object page
   plain sheet with «Ваши комментарии» beside it (a comment box only while
   under review).
 
-## Commercial offers and the brochure (`src/features/offers`, `src/features/brochure`)
+## Commercial offers (`src/features/offers`, the document in `src/features/offers/kp`)
 
-One document, three faces: `OfferDocument` renders the offer on the portal,
-in the staff print preview and on A4 (`/requests/offers/:id/print`,
-`/portal/offers/:id/print`); `BrochureBody` renders the brochure in the
-editor preview, the portal and the appended print pages. Never fork either.
+«Как в ДМС» (owner, October 2026): the offer is a FIXED, approved document —
+the TCI brochure and the offer letter — and staff choose only its parameters
+(language when it is prepared, cover, validity, whether the brochure is
+appended, a short note to the client). No text editor; the words are the
+template's, the facts the database's (`tci.offer_merge_data`).
 
-* **The document's language, not the UI's.** Every label comes from
-  `useFixedT(offer.language)`; country names from `tci.countries` in that
-  language; amounts through `formatDocumentAmount`.
-* **Print rules.** A4, 16/15/18/18 mm margins, «page x of y» in the `@page`
-  margin box from `pageCounterContent`, no footer on the cover. The cover
-  breaks after itself, the brochure starts on a new page. Terms and premium
-  tables are kept whole; the buyer table may run over pages, repeats its
-  header and never splits a row; an amount never wraps (`white-space:
-  nowrap`, widths from the `colgroup`). Brochure sections FLOW — a section
-  kept whole left half-empty pages — while a heading stays with its text and
-  the diagram, an image and each FAQ question with its answer stay whole.
-* **Auto-print waits** until every image has settled and the fonts are in
-  (10 s cap), so a PDF never captures an empty picture box.
-* **Basis badges** on buyer limits: approved = positive, indicative = neutral,
-  declined = negative, with the footnote that only approved limits are
-  decisions. A grade, an engine limit or an authority never appears.
-* `e2e/offers/print.spec.ts` prints the offer with the brochure in ru/en/uz
-  through the sealed stub (`OFFER_PDF_DIR` keeps the PDFs).
+* **One renderer, one page order.** `kp/render.ts` `renderOffer(params, data,
+  ctx) → { title, pagesHtml }` is pure (no DOM, no i18n instance): 1 the
+  brochure cover, 2 the offer letter (and its continuation pages), then the
+  brochure's pages 2…9; without the brochure, the cover and the letter only.
+  `offerSrcdoc` wraps the pages into the document (A4 `@page` with no margin,
+  `print-color-adjust: exact`, one page per sheet). The staff screen, the print
+  route, the submission's «Скачать PDF», the company card and the portal all
+  render through it. Never fork it.
+* **THE exception to "no HTML strings in the DOM": `OfferFrame`.** The
+  document is shown ONLY in `<iframe sandbox="allow-same-origin allow-modals"
+  srcdoc=…>` without `allow-scripts` — nothing inside can run, and the
+  document's styles never meet the app's. ESLint (`no-restricted-syntax`)
+  refuses `srcDoc` and `dangerouslySetInnerHTML` in every other file. Every
+  dynamic value is escaped where it enters the markup (`kp/format.ts
+  escapeHtml`); numbers and dates are formatted only from typed values
+  (`formatDocumentAmount`, `formatLongDate`) in the DOCUMENT's language.
+* **Fonts and colours are the app's.** PT Sans Narrow (display) and Inter
+  (text), OFL, served from `public/kp/tci/` and loaded through `<base
+  href="/kp/tci/">` — same origin, no CSP change. Palette = the brand tokens:
+  navy, process blue, orange and amber as FILLS, rules and shapes; text is
+  ink or navy on white and the light tints, white (or amber at a large size)
+  on navy. Orange is never a text colour (a test refuses it).
+* **Fixed pages, nothing overflows.** Every page is a 794 × 1123 px box.
+  The letter is packed from blocks with conservative height estimates; the
+  buyer table continues on further letter pages («продолжение», heads
+  repeated), and the contact, the note and the closing lines stay together
+  with the table's last rows. The e2e suite proves no page's content area
+  overflows on extreme data in ru / en / uz. The letter pages print no page
+  number; the brochure numbers its own pages.
+* **The words are approved and pinned.** `templates/tciTexts.ts` quotes
+  `brochure/defaultContent.ts` verbatim (test), leaves the two ⚠ statements
+  of `docs/BROCHURE-CLAIMS.md` out, and the SHA-256 of the words and of the
+  rendered brochure pages is pinned (`templates/tci.test.ts`).
+* **The screen.** Form on the left (360 px), the live preview of every page on
+  the right (stacked, scaled to the column, «Страница N из M», re-rendered
+  200 ms after a change); both columns are one grid row, the preview fills its
+  height. «Сохранить» makes a version; «Сохранить и отправить клиенту» saves
+  and publishes where the machine allows; «Скачать PDF» prints the preview's
+  own frame («В окне печати выберите «Сохранить как PDF»»). A published offer
+  opens read-only until «Новая версия»; an answered or withdrawn offer, and an
+  earlier version (`?v=N`), stay read-only.
+* **Basis badges** on buyer limits: approved = green, indicative = grey,
+  declined = red, with the footnote that only approved limits are decisions.
+  A grade, an engine limit or an authority never appears (the data does not
+  carry them).
+* `e2e/offers/offer.spec.ts` drives the screen and the portal;
+  `e2e/offers/print.spec.ts` prints the frame's document to PDF in ru/en/uz
+  and expects one sheet per rendered page (`OFFER_PDF_DIR` keeps the PDFs).
 
 ## Financial data display rules (apply everywhere)
 

@@ -46,7 +46,6 @@ describe('role → screen map', () => {
       'policies',
       'declarations',
       'overdues',
-      'brochure',
     ])
     expect(keys(['information_manager'])).toEqual(['dashboard', 'agenda', 'entities', 'data'])
     expect(keys(['claims'])).toEqual([
@@ -82,7 +81,6 @@ describe('role → screen map', () => {
       'declarations',
       'overdues',
       'claims',
-      'brochure',
     ])
   })
 
@@ -128,17 +126,10 @@ describe('route guard', () => {
     expect(canAccessPath(['information_manager'], '/data/requests/abc')).toBe(true)
     expect(canAccessPath(['sales', 'credit_underwriter'], '/data')).toBe(false)
     expect(canAccessPath(['sales'], '/admin')).toBe(false)
-    // The brochure and its media library: admin and sales write them (0058).
-    expect(canAccessPath(['sales'], '/brochure')).toBe(true)
-    expect(canAccessPath(['admin'], '/brochure')).toBe(true)
-    for (const role of [
-      'commercial_underwriter',
-      'credit_underwriter',
-      'claims',
-      'information_manager',
-      'client',
-    ] as const)
-      expect(canAccessPath([role], '/brochure')).toBe(false)
+    // The brochure is the fixed offer template now: no section of its own,
+    // and /brochure is only a redirect to the submissions.
+    expect(matchNavItem('/brochure')).toBeNull()
+    expect(keys(['admin', 'sales'])).not.toContain('brochure')
     expect(canAccessPath(['admin'], '/admin')).toBe(true)
   })
 

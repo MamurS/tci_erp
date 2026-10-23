@@ -676,6 +676,18 @@ is fine for internal test accounts and not fine for customers.
   impersonation and rolled back, counts unchanged); the cleanup of the
   owner's `client` role and the ledger row by the owner with
   `docs/deploy/canonical-apply-0062.sql`
+- [x] Commercial offer «как в ДМС» (Prompt 27, NO migration): the offer is a
+  FIXED, approved document — the TCI brochure (9 A4 pages in the app's
+  colours and faces, three covers white / navy / blue, a geometric mosaic
+  drawn in SVG, ru / en / uz) with the offer letter after its cover — and
+  staff choose only parameters (cover, validity, brochure on/off, a ≤ 600-char
+  note; the language when the offer is prepared). The text editor for offers,
+  the in-app brochure editor and the media library are retired (`/brochure`
+  redirects to `/requests`); 0058's versions, publishing, viewing, expiry and
+  acceptance are untouched. One pure renderer (`src/features/offers/kp`) for
+  the staff screen (form + live preview), the print route, «Скачать PDF», the
+  company card and the portal; the document is shown only in the sandboxed
+  `OfferFrame`. See **Commercial offer rules** below and DESIGN.md
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1498,15 +1510,28 @@ and were undone by hand. The rules since:
 
 ### Commercial offer rules (migration 0058)
 
-**The browser writes words; the database writes facts.** A version's
-`texts` (one editor document per block: intro, why TCI, conditions, next
-steps) come from the screen; its `data` is composed by `tci.offer_merge_data`
+**The browser writes parameters; the database writes facts.** Since Prompt
+27 («как в ДМС») a version's `texts` hold only the document's PARAMETERS —
+`{ kind: 'kp', template: 'tci', template_version, cover, note }`
+(`src/features/offers/kp/params.ts`; 0058 checks only that it is an object of
+at most 256 KB) — and the words are the fixed, approved template's; a version
+of the retired editor renders with the default parameters. Its `data` is
+composed by `tci.offer_merge_data`
 on EVERY save, so terms, premium and limits always print what the submission
 says now. A buyer limit is `approved` only for an effective approved/partial
 decision that is not held, `declined` for a declined/revoked one, and
 `indicative` (the requested amount) otherwise. `offer_merge_data` is granted
 to no API role, and 0058 plus `tests/db/commercial_offers.sql` assert that
 the client view carries no internal column and the data no internal field.
+The offer's LANGUAGE is set when it is prepared (`create_commercial_offer`);
+`save_offer_version` takes none, so the screen shows it fixed.
+
+**One renderer, one sandboxed frame.** `renderOffer(params, data, ctx)` is
+pure and THE page order (cover, letter pages, brochure pages 2…9); every
+dynamic value is escaped where it enters the markup, and the HTML reaches
+the screen only inside `OfferFrame` (`sandbox="allow-same-origin
+allow-modals"`, no scripts) — ESLint refuses `srcDoc` and
+`dangerouslySetInnerHTML` anywhere else. The PDF is the frame's own print.
 
 **One source of truth for acceptance.** The offer FOLLOWS its submission:
 `client_accept_offer` and `client_request_offer_changes` call
@@ -1524,13 +1549,11 @@ Tashkent, `tci.offer_today`); nothing is rewritten when the date passes.
 offer has expired, so the older «Мои заявки» page is not a way around it.
 Asking for changes stays possible after expiry ("renew it").
 
-**Versions and brochures are immutable.** An offer version is never updated
-(trigger, owner included); a brochure version's content never changes and
-only its status moves (draft → published → retired; the current brochure is
-the latest published, embedded in a version when that version is saved).
-`save_brochure_version` stamps each image's storage path and alt text from
-the library onto the section — a portal client cannot read the library, and
-a later alt edit must not rewrite a published brochure.
+**Versions are immutable.** An offer version is never updated (trigger,
+owner included). `tci.brochure_versions` and `tci.media_assets` (0058) stay
+in the database but no screen writes or reads them since Prompt 27: the
+brochure is the fixed template, and a version's `brochure_version_id` is
+simply null.
 
 **The client answer path is trusted code.** `advance_insurance_request`
 opens with `begin_internal_call()`, which refuses non-staff. A client
@@ -1540,14 +1563,16 @@ transaction that already carries the token. A client calling it directly is
 still refused (asserted). This was broken from 0043 to 0058: no DB test had
 exercised the client's own answer.
 
-**The brochure's claims are reviewed before anything reaches a client.** The
-default brochure text is a DRAFT offered in the editor; it is never published
-automatically, and nothing without a recorded source and licence enters the
-media library. Statistics, partner names, ratings and awards are never
-invented. Every statement the draft makes is listed for sign-off in
-`docs/BROCHURE-CLAIMS.md` (generated from `BROCHURE_CLAIMS` in
-`defaultContent.ts`; the two marked ⚠ — collection support and disputed
-debts — are not modelled by the system and need the owner's confirmation).
+**The brochure's words are the approved ones, pinned.** The template
+(`kp/templates/tciTexts.ts`) quotes `src/features/brochure/defaultContent.ts`
+verbatim — `tciTexts.test.ts` proves it statement by statement — and the
+SHA-256 of the words and of the rendered brochure pages is pinned in
+`kp/templates/tci.test.ts`: a change is deliberate (bump
+`TCI_BROCHURE_VERSION`, update the hash, say why). Statistics, partner names,
+ratings, awards and contacts are never invented; the insurer's particulars
+come from the offer's data. The two ⚠ statements of `docs/BROCHURE-CLAIMS.md`
+(collection support, disputed debts) are `pending` in `BROCHURE_CLAIMS` and
+NOT printed until the owner confirms them.
 
 ### Contract drafts rules (migration 0057)
 

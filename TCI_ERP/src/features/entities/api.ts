@@ -301,16 +301,20 @@ export interface CurrencyRow {
   name_uz: string
 }
 
+/** The countries reference list (one query key for every screen, so a
+ * fetchQuery outside React — the offer PDF — reuses the cache). */
+export const countriesQuery = {
+  queryKey: ['ref', 'countries'] as const,
+  staleTime: Infinity,
+  queryFn: async (): Promise<CountryRow[]> => {
+    const { data, error } = await tci().from('countries').select('*').order('name_en')
+    if (error) throw error
+    return (data ?? []) as CountryRow[]
+  },
+}
+
 export function useCountries() {
-  return useQuery({
-    queryKey: ['ref', 'countries'],
-    staleTime: Infinity,
-    queryFn: async (): Promise<CountryRow[]> => {
-      const { data, error } = await tci().from('countries').select('*').order('name_en')
-      if (error) throw error
-      return (data ?? []) as CountryRow[]
-    },
-  })
+  return useQuery(countriesQuery)
 }
 
 export function useIndustries() {

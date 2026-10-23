@@ -1,7 +1,10 @@
 /** Routes of the offer screens (App.tsx registers them). The staff screens
  * live under /requests so the section's role guard covers them. */
 
-export const offerEditPath = (offerId: string) => `/requests/offers/${offerId}/edit`
+/** The offer screen: parameters and the live preview. With a version
+ * number it shows that version, read-only. */
+export const offerEditPath = (offerId: string, versionNo?: number | null) =>
+  `/requests/offers/${offerId}/edit${versionNo ? `?v=${versionNo}` : ''}`
 
 export const offerPrintPath = (offerId: string, versionNo?: number | null, auto = false) => {
   const q = new URLSearchParams()

@@ -2,8 +2,9 @@
  * Commercial offers (КП, migration 0058) as the screens read them.
  *
  * An offer belongs to a submission. Each version carries two halves:
- *   texts — what staff wrote, one editor document per block (the Prompt 25
- *           editor's ContractDoc), the only part that comes from the browser;
+ *   texts — the PARAMETERS staff chose ({ kind: 'kp', template, cover, note },
+ *           kp/params.ts), the only part that comes from the browser; the
+ *           document's words are the fixed, approved template («как в ДМС»);
  *   data  — what the DATABASE composed from the submission when the version
  *           was saved (tci.offer_merge_data): client, proposed terms, premium,
  *           buyer limits marked approved / indicative / declined, insurer
@@ -11,10 +12,8 @@
  *           authority or an internal comment.
  */
 
-import type { BrochureContent, BrochureLang } from '../brochure/model'
-import type { ContractDoc } from '../contracts/model'
-
-export type OfferLang = BrochureLang
+export const OFFER_LANGS = ['ru', 'en', 'uz'] as const
+export type OfferLang = (typeof OFFER_LANGS)[number]
 
 export const OFFER_STATUSES = [
   'draft',
@@ -31,10 +30,10 @@ export type OfferStatus = (typeof OFFER_STATUSES)[number]
 export type EffectiveOfferStatus = OfferStatus | 'expired'
 export const EFFECTIVE_OFFER_STATUSES = [...OFFER_STATUSES, 'expired'] as const
 
-/** The text blocks of an offer, in print order. */
-export const OFFER_BLOCKS = ['intro', 'why_tci', 'conditions', 'next_steps'] as const
-export type OfferBlock = (typeof OFFER_BLOCKS)[number]
-export type OfferTexts = Partial<Record<OfferBlock, ContractDoc>>
+/** What a version's `texts` holds: the parameters (kp/params.ts parses it;
+ * a version of the retired editor holds its text blocks and renders with the
+ * default parameters). */
+export type OfferTexts = unknown
 
 export type BuyerBasis = 'approved' | 'indicative' | 'declined'
 
@@ -166,19 +165,9 @@ export interface ClientOffer {
   texts: OfferTexts | null
   data: OfferData | null
   include_brochure: boolean | null
+  /** The brochure version 0058 embedded at generation. The document no longer
+   * prints it — the brochure is the fixed template — but the view still
+   * returns the columns. */
   brochure_version_no: number | null
-  brochure_content: BrochureContent | null
-}
-
-/** What one document needs to print, from either side. */
-export interface OfferDocumentInput {
-  offerNumber: string
-  language: OfferLang
-  validUntil: string
-  /** The day the version was composed (the offer's date). */
-  date: string
-  versionNo: number
-  texts: OfferTexts
-  data: OfferData
-  brochure: BrochureContent | null
+  brochure_content: unknown
 }

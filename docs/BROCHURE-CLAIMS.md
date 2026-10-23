@@ -1,15 +1,23 @@
 # TCI brochure — statements for the owner's review
 
-The default brochure (`src/features/brochure/defaultContent.ts`) is a DRAFT. It is never
-published automatically: an admin or sales user opens «Брошюра TCI», reviews it, and
-publishes a version. Every statement it makes is listed below (Russian text; en and uz
-say the same). **Factual** statements must hold for our actual wording and service;
-**marketing** ones are selling points to accept or remove. The ones marked ⚠ describe
-something the system does not model at all and need the owner's confirmation first.
+The brochure's texts (`TCI_ERP/src/features/brochure/defaultContent.ts`) are the APPROVED
+source of the commercial offer's fixed template («как в ДМС», October 2026): the offer
+prints the TCI brochure laid out by `TCI_ERP/src/features/offers/kp/templates/tci.ts`
+from `tciTexts.ts`, and a test proves every statement there is a verbatim quote of
+`defaultContent.ts`. There is no brochure editor in the app any more. Every statement the
+texts make is listed below (Russian text; en and uz say the same). **Factual** statements
+must hold for our actual wording and service; **marketing** ones are selling points.
+
+The two marked ⚠ describe something the system does not model at all and are NOT
+confirmed: the template leaves them out (`pending: true` in `BROCHURE_CLAIMS`; a test
+refuses their words in the printed brochure). #19 (subrogation) is printed on its own,
+without #18. To print a ⚠ statement, the owner confirms it here first, the flag is
+removed and the template and its pinned hash are updated in the same commit.
 
 No statistics, partner names, ratings, awards, phone numbers or e-mails appear in the
-draft; `defaultContent.test.ts` fails if a digit, «№1», «лидер», «гарант…»,
-guarantee or kafolat ever does.
+texts; `defaultContent.test.ts` and `tciTexts.test.ts` fail if a digit, «№1», «лидер»,
+«гарант…», guarantee or kafolat ever does. The insurer's own phone, e-mail, website and
+address are printed from the offer's data (`tci.insurer_profile`), never from the texts.
 
 | # | Section | Kind | Statement | Confirmed |
 |---|---|---|---|---|
@@ -26,11 +34,11 @@ guarantee or kafolat ever does.
 | 11 | Что покрывает страхование | factual | Возмещение — в пределах процента покрытия, за вычетом франшизы, в пределах максимального лимита ответственности. | ☐ |
 | 12 | Что покрывает страхование | factual | Убыток ниже порога невозмещаемых убытков (NQL) не возмещается. | ☐ |
 | 13 | Что покрывает страхование | factual | Не покрываются поставки сверх лимита или вне периода полиса и отсрочка длиннее максимальной по полису. | ☐ |
-| 14 | Что покрывает страхование | factual ⚠ | Проверить по wording: суммы, оспариваемые байером по существу поставки, не покрываются до разрешения спора (система этого исключения не моделирует). | ☐ |
+| 14 | Что покрывает страхование | factual ⚠ not printed | Проверить по wording: суммы, оспариваемые байером по существу поставки, не покрываются до разрешения спора (система этого исключения не моделирует). | ☐ |
 | 15 | Преимущества | marketing | Неоплата застрахованных поставок не ложится целиком на ваш оборотный капитал. | ☐ |
 | 16 | Преимущества | factual | Застрахованная дебиторская задолженность может служить дополнительным обеспечением при банковском финансировании или факторинге; решение за финансирующей организацией. | ☐ |
 | 17 | Преимущества | factual | Страховщик сообщает страхователю, когда лимит меняется. | ☐ |
-| 18 | Преимущества | factual ⚠ | Проверить: при просрочке страхователь может рассчитывать на содействие во взыскании долга (услуга взыскания в системе не моделируется). | ☐ |
+| 18 | Преимущества | factual ⚠ not printed | Проверить: при просрочке страхователь может рассчитывать на содействие во взыскании долга (услуга взыскания в системе не моделируется). | ☐ |
 | 19 | Преимущества | factual | После выплаты возмещения страховщик продолжает взыскание в порядке суброгации. | ☐ |
 | 20 | Преимущества | marketing | Уверенный рост продаж: отсрочка платежа новым байерам на основе независимой оценки их кредитоспособности. | ☐ |
 | 21 | Кредитные лимиты | factual | Кредитный лимит — наибольшая сумма неоплаченной задолженности байера, застрахованная в каждый момент времени; устанавливается на каждого байера отдельно. | ☐ |

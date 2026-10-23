@@ -24,7 +24,8 @@ import {
   requestAllowsOffer,
   versionState,
 } from './machine'
-import { EFFECTIVE_OFFER_STATUSES, OFFER_BLOCKS, OFFER_STATUSES } from './model'
+import { defaultOfferParams, NOTE_MAX, paramsForSave } from './kp/params'
+import { EFFECTIVE_OFFER_STATUSES, OFFER_STATUSES } from './model'
 
 describe('the offer statuses', () => {
   it('lists exactly the values of tci.offer_status', () => {
@@ -152,14 +153,13 @@ describe('helpers', () => {
     expect(offerDocumentTitle('KP-2026-0001', 'ООО "Тест/Альфа"\n')).toBe('KP-2026-0001 — ООО ТестАльфа')
   })
 
-  it('has a label and default text for every block, in every language', async () => {
-    const en = (await import('../../i18n/locales/en.json')).default
-    const uz = (await import('../../i18n/locales/uz.json')).default
-    for (const locale of [ru, en, uz]) {
-      for (const b of OFFER_BLOCKS) {
-        expect(locale.offers.blocks[b], b).toBeTruthy()
-        expect(locale.offers.defaults[b], b).toBeTruthy()
-      }
+  it('stores parameters that tci.offer_texts_ok accepts: an object of at most 256 KB', () => {
+    expect(MIGRATION).toContain(
+      "as $$ select p is not null and jsonb_typeof(p) = 'object' and octet_length(p::text) <= 262144 $$;",
+    )
+    for (const p of [defaultOfferParams(), paramsForSave({ cover: 'blue', note: 'я'.repeat(NOTE_MAX * 3) })]) {
+      expect(typeof p === 'object' && p !== null && !Array.isArray(p)).toBe(true)
+      expect(new TextEncoder().encode(JSON.stringify(p)).length).toBeLessThanOrEqual(262144)
     }
   })
 })

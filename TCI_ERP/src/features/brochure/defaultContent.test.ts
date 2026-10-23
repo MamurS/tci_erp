@@ -1,5 +1,6 @@
-/** The default draft: complete in every language, in print order, in the
- * glossary's terms, and free of the statements a brochure must not invent. */
+/** The approved brochure texts (the source the offer template quotes):
+ * complete in every language, in print order, in the glossary's terms, and
+ * free of the statements a brochure must not invent. */
 
 import { describe, expect, it } from 'vitest'
 
@@ -17,7 +18,7 @@ const texts = content.sections.flatMap((s) =>
 const offenders = (pattern: RegExp, lang?: string) =>
   texts.filter((x) => (!lang || x.lang === lang) && pattern.test(x.text)).map((x) => x.where)
 
-describe('default brochure draft', () => {
+describe('the approved brochure texts', () => {
   it('has every section, in print order', () => {
     expect(content.sections.map((s) => s.key)).toEqual([...BROCHURE_SECTION_KEYS])
   })
@@ -26,7 +27,7 @@ describe('default brochure draft', () => {
     for (const x of texts) expect(x.text.trim(), x.where).not.toBe('')
   })
 
-  it('is a fresh object each time (the editor changes it freely)', () => {
+  it('is a fresh object each time', () => {
     const a = defaultBrochureContent()
     a.sections[0]!.title.ru = 'changed'
     expect(defaultBrochureContent().sections[0]!.title.ru).not.toBe('changed')
@@ -101,7 +102,7 @@ describe('default brochure draft', () => {
     }
   })
 
-  it('names no image (images are chosen from the library by a person)', () => {
+  it('names no image (the template draws its own shapes; no licensed picture)', () => {
     for (const s of content.sections) expect(s.image_asset_id ?? null).toBeNull()
   })
 })

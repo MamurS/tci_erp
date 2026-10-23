@@ -78,14 +78,14 @@ export const ROUTES: Record<string, RouteEntry> = {
   '/data/requests/:id': {
     skip: 'the demo book holds no data request to record (re-record once one exists and give it role info); the page is a request form with its own facts, no register',
   },
-  '/brochure': {
-    skip: 'PENDING (Prompt 26): the brochure editor and media library are new in 0058 and the demo book holds no brochure version or image to record — fixtures cannot be recorded now; record them with the sales demo user (tools/layout-fixtures/record.mjs) once 0058 is applied and give it role sales. Its tables use declared columns (versions: labelCol brochureStatus + actionsCol brochurePublish; media: fixed widths)',
-  },
+  '/brochure': { skip: REDIRECT },
   '/admin': {
     skip: 'admin only, and an admin session needs a second factor that a headless sign-in cannot pass — no demo admin to record; its tables use the same fixed columns and are held by the static contract',
   },
-  '/requests/offers/:offerId/print': { skip: 'the printable commercial offer: a document without row actions (its versions table lives on the submission page, covered under /requests/:id)' },
-  '/requests/offers/:offerId/edit': { skip: FORM },
+  '/requests/offers/:offerId/print': { skip: 'the printable commercial offer: the document frame alone, no table (its versions table lives on the submission page, covered under /requests/:id)' },
+  '/requests/offers/:offerId/edit': {
+    skip: 'PENDING (Prompt 27): the commercial offer screen — a parameter form beside the sandboxed document frame, no table or list; the demo book holds no offer to record a fixture from. e2e/offers/offer.spec.ts drives it on stubbed rows meanwhile',
+  },
   '/portal/offers': { skip: OFFERS_PENDING },
   '/portal/offers/:offerId': { skip: 'the client\'s view of one offer: a document with two answer buttons, no table' },
   '/portal/offers/:offerId/print': { skip: 'the printable commercial offer (portal face): a document without row actions' },

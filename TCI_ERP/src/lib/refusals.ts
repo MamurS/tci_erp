@@ -110,11 +110,6 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'client_role_exclusive', key: 'admin.errors.clientRoleExclusive' },
   // a currency with no rate cannot be weighed against an authority (0013)
   { fragment: 'no UZS rate for', key: 'limits.errors.noRate' },
-  // the TCI brochure and its media library (0058)
-  { fragment: 'brochure_content_invalid', key: 'brochure.errors.contentInvalid' },
-  { fragment: 'brochure_image_unknown', key: 'brochure.errors.imageUnknown' },
-  { fragment: 'brochure_not_draft', key: 'brochure.errors.notDraft' },
-  { fragment: 'media_not_uploaded', key: 'media.errors.notUploaded' },
 ]
 
 /** The i18n key for a refused operation. Never returns raw server text. */

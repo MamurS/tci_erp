@@ -7,10 +7,10 @@
  * offer can no longer be accepted — only renewed through a change request.
  */
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowLeft, Printer } from 'lucide-react'
+import { ArrowLeft, Download } from 'lucide-react'
 
 import {
   Badge,
@@ -28,13 +28,15 @@ import {
   Table,
   Textarea,
 } from '../../components/ui'
-import { useFixedT } from '../../i18n/useFixedT'
 import { formatDate } from '../../lib/format'
+import { useCountries } from '../entities/api'
 import { useClientAcceptOffer, useClientOffers, useClientRequestOfferChanges, useClientViewOffer } from './api'
-import { clientCanAccept, clientCanRequestChanges, offerToday, statusTone } from './machine'
-import type { ClientOffer, OfferDocumentInput } from './model'
-import { OfferDocument } from './OfferDocument'
-import { portalOfferPath, portalOfferPrintPath } from './paths'
+import { clientRenderInput } from './kp/input'
+import { clientCanAccept, clientCanRequestChanges, statusTone } from './machine'
+import { printOfferFrame } from './printOfferFrame'
+import { OfferPreview, type OfferPreviewHandle } from './OfferPreview'
+import { portalOfferPath } from './paths'
+import { useOfferDocument } from './useOfferDocument'
 
 const STATUS_COL = labelCol('offerStatus')
 
@@ -90,27 +92,19 @@ export function PortalOffersPage() {
   )
 }
 
-function toInput(o: ClientOffer): OfferDocumentInput | null {
-  if (!o.texts || !o.data || !o.version_no) return null
-  return {
-    offerNumber: o.offer_number,
-    language: o.language,
-    validUntil: o.valid_until,
-    date: offerToday(new Date(o.published_at ?? o.data.composed_at)),
-    versionNo: o.version_no,
-    texts: o.texts,
-    data: o.data,
-    brochure: o.include_brochure ? o.brochure_content : null,
-  }
-}
-
 export function PortalOfferPage() {
   const { offerId } = useParams<{ offerId: string }>()
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const { data: offers, isLoading } = useClientOffers()
   const offer = offers?.find((o) => o.id === offerId) ?? null
-  const docT = useFixedT(offer?.language ?? 'ru')
+  const { data: countries, isLoading: countriesLoading } = useCountries()
+  const input = useMemo(
+    () => (offer && !countriesLoading ? clientRenderInput(offer, countries) : null),
+    [offer, countries, countriesLoading],
+  )
+  const doc = useOfferDocument(input)
+  const preview = useRef<OfferPreviewHandle>(null)
   const view = useClientViewOffer()
   const [error, setError] = useState<string | null>(null)
   const accept = useClientAcceptOffer((key) => setError(t(key)))
@@ -136,7 +130,6 @@ export function PortalOfferPage() {
       </Card>
     )
   }
-  const input = toInput(offer)
   const status = offer.effective_status
 
   return (
@@ -155,11 +148,19 @@ export function PortalOfferPage() {
         }
         actions={
           <span className="flex flex-wrap gap-2">
-            {input && (
-              <LinkButton size="sm" variant="secondary" to={portalOfferPrintPath(offer.id, true)}>
-                <Printer className="size-4" />
-                {t('offers.actions.downloadPdf')}
-              </LinkButton>
+            {offer.data && (
+              <>
+                <span className="text-[12.5px] text-slate-500">{t('offers.pdfHint')}</span>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  disabled={!doc}
+                  onClick={() => void printOfferFrame(preview.current?.frame ?? null).catch(() => setError(t('offers.errors.printFailed')))}
+                >
+                  <Download className="size-4" />
+                  {t('offers.actions.downloadPdf')}
+                </Button>
+              </>
             )}
             {clientCanRequestChanges(status) && (
               <Button size="sm" variant="secondary" onClick={() => setAsking(true)} loading={changes.isPending}>
@@ -195,12 +196,8 @@ export function PortalOfferPage() {
       )}
       {status === 'withdrawn' && <Callout tone="warn" title={t('offers.portal.withdrawnTitle')} className="mb-4" />}
 
-      {input ? (
-        docT.ready ? (
-          <OfferDocument input={input} t={docT.t} />
-        ) : (
-          <Spinner />
-        )
+      {offer.data ? (
+        <OfferPreview ref={preview} doc={doc} height="calc(100vh - 15rem)" />
       ) : (
         <Card className="p-5">
           <EmptyState title={t('offers.portal.noContent')} hint={t('offers.portal.noContentHint')} />
