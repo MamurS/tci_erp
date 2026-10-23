@@ -56,6 +56,10 @@
       "data": {
         "name": "Ma’lumotlarni boshqarish",
         "hint": "Tashkilot va hisobot so‘rovlari, ma’lumotlar dolzarbligi, taklif qilingan bayerlar"
+      },
+      "analysis": {
+        "name": "Kredit tahlili",
+        "hint": "Ishlanadigan reytinglar, monitoring, limitlar reyestri va guruhlar"
       }
     },
     "data": "Ma’lumotlarni boshqarish"
@@ -108,14 +112,16 @@
       "credit_underwriter": "Reytinglar, limitlar va vakolat doirasidagi kredit qarorlari",
       "claims": "Sug‘urta da’volari va subrogatsiya",
       "information_manager": "Tashkilot ma’lumotlari va moliyaviy hisobotlarni kiritadi",
-      "client": "Portal foydalanuvchisi: faqat o‘z polislari va limitlari"
+      "client": "Portal foydalanuvchisi: faqat o‘z polislari va limitlari",
+      "credit_analyst": "Bayerlarni baholaydi va reytinglarni tasdiqlaydi; moliyaviy hisobotlarni kiritadi"
     },
     "actingAs": "Joriy rol: {{role}}",
     "held": "Sizning rollaringiz: {{roles}}",
     "errors": {
       "notHeld": "Sizda bu rol yo‘q.",
       "noSession": "Kirish sessiyasi topilmadi. Qaytadan kiring."
-    }
+    },
+    "credit_analyst": "Kredit tahlilchisi"
   },
   "common": {
     "loading": "Yuklanmoqda…",
@@ -721,6 +727,33 @@
       "years_few": "{{value}} yil",
       "years_many": "{{value}} yil",
       "years_other": "{{value}} yil"
+    },
+    "confirmation": {
+      "engineGrade": "Model reytingi",
+      "gradeInForce": "Amaldagi reyting",
+      "unconfirmed": "Tasdiqlanmagan",
+      "confirmedBy": "Tasdiqladi: {{name}}, {{at}}",
+      "overriddenBy": "Model reytingidan o‘zgartirdi: {{name}}, {{at}}",
+      "someone": "hamkasb",
+      "confirm": "Reytingni tasdiqlash",
+      "ownRating": "Bu reytingni siz hisobladingiz — uni hamkasb tasdiqlaydi",
+      "title": "Reytingni tasdiqlash",
+      "hint": "Model {{grade}} reytingini hisobladi. Uni tasdiqlang yoki shkaladan boshqa reytingni tanlab, sababini ko‘rsating. Tasdiqlangan reyting ushbu bayer bo‘yicha barcha limit qarorlarining asosidir.",
+      "grade": "Reyting",
+      "engineOption": "{{grade}} (model)",
+      "comment": "Izoh",
+      "commentRequired": "Majburiy: reyting model hisoblaganidan farq qiladi",
+      "commentOptional": "Ixtiyoriy",
+      "submit": "Tasdiqlash",
+      "errors": {
+        "notAllowed": "Joriy kredit tahlili rejimida rolingiz reytinglarni tasdiqlamaydi.",
+        "alreadyConfirmed": "Bu reyting allaqachon tasdiqlangan.",
+        "notLatest": "Faqat bayerning joriy reytingini tasdiqlash mumkin.",
+        "ownRating": "Bu reytingni siz hisobladingiz, shuning uchun uni hamkasb tasdiqlaydi.",
+        "commentRequired": "Model hisoblaganidan boshqa reyting uchun sabab kerak.",
+        "gradeInvalid": "Bunday reyting shkalada yo‘q.",
+        "immutable": "Reyting — tarix, u o‘zgartirilmaydi; faqat uning tasdig‘i yoziladi."
+      }
     }
   },
   "report": {
@@ -1505,7 +1538,8 @@
           "no_statements": "Hisobot yo‘q",
           "no_rating": "Reytingsiz",
           "new_statement": "Yangi hisobot bor",
-          "stale": "Bir yildan eski"
+          "stale": "Bir yildan eski",
+          "unconfirmed": "Tasdiqlanmagan"
         },
         "empty": "Barcha bayerlar so‘nggi hisoboti bo‘yicha baholangan",
         "emptyHint": "Bayer bo‘yicha kredit ishi olib borilayotgan bo‘lsa va reytingi yo‘q, keyingi davr hisoboti bor yoki reytingi bir yildan eski bo‘lsa, u shu yerda paydo bo‘ladi.",
@@ -1736,7 +1770,8 @@
       "fourEyesOwnRequest": "To‘rt ko‘z tamoyili: bu limit so‘rovini siz yuborgansiz, shuning uchun uni ko‘rib chiqishga ololmaysiz, u bo‘yicha qaror qabul qila olmaysiz yoki qarorni o‘zgartira olmaysiz.",
       "fourEyesOwnCredit": "To‘rt ko‘z tamoyili: bu so‘rov bo‘yicha kredit qarorini siz qabul qilgansiz, shuning uchun uni tijorat bosqichida o‘zgartira olmaysiz.",
       "reviewCreditOnly": "Limit so‘rovini faqat kredit anderrayteri ko‘rib chiqishga oladi.",
-      "decideCreditOnly": "Limit so‘rovlari bo‘yicha qarorni faqat kredit anderrayteri qabul qiladi."
+      "decideCreditOnly": "Limit so‘rovlari bo‘yicha qarorni faqat kredit anderrayteri qabul qiladi.",
+      "fourEyesOwnRating": "Siz bu bayerni baholagansiz, shuning uchun uning limiti bo‘yicha qarorni boshqa anderrayter qabul qiladi (alohida kredit tahlili)."
     },
     "auto": {
       "adt": "Avtomatik qaror (ADT)",
@@ -2060,7 +2095,28 @@
       "loadFailed": "Avtomatik qarorlar sozlamalarini yuklab bo‘lmadi."
     },
     "clientAloneHint": "Portal mijozi boshqa rolga ega bo‘la olmaydi: «Mijoz» roli va xodim rollari bir-birini istisno qiladi.",
-    "adminDecidesNothing": "Administrator limitlar bo‘yicha qaror qabul qilmaydi: bu texnik rol. Limitlar bo‘yicha ham qaror qabul qiladigan xodim buni kredit yoki tijorat anderrayteri rolida, quyidagi vakolatlar doirasida qiladi."
+    "adminDecidesNothing": "Administrator limitlar bo‘yicha qaror qabul qilmaydi: bu texnik rol. Limitlar bo‘yicha ham qaror qabul qiladigan xodim buni kredit yoki tijorat anderrayteri rolida, quyidagi vakolatlar doirasida qiladi.",
+    "creditAnalysis": {
+      "title": "Kredit tahlili",
+      "hint": "Bayerlarni kim baholaydi va limitlar bo‘yicha kim qaror qabul qiladi",
+      "modes": {
+        "combined": "Birlashgan",
+        "separate": "Alohida"
+      },
+      "body": {
+        "combined": "Kredit anderrayterlari bayerlarni baholaydi, reytinglarni tasdiqlaydi va limitlar bo‘yicha qaror qabul qiladi; kredit tahlilchilari, agar bo‘lsa, ham baholaydi va tasdiqlaydi. Reytingni uni hisoblagan xodim emas, boshqasi tasdiqlaydi.",
+        "separate": "Faqat kredit tahlilchilari bayerlarni baholaydi va reytinglarni tasdiqlaydi; kredit anderrayterlari limitlar bo‘yicha qaror qabul qiladi — o‘zlari hisoblagan yoki tasdiqlagan reyting bo‘yicha hech qachon. Reyting vazifalari kredit tahlilchilariga beriladi."
+      },
+      "confirmTitle": "Kredit tahlili rejimini o‘zgartirasizmi?",
+      "confirm": {
+        "combined": "Kredit anderrayterlari yana baholaydi va tasdiqlaydi, ochiq reyting vazifalari ularga o‘tadi.",
+        "separate": "Faqat kredit tahlilchilari baholaydi va tasdiqlaydi, ochiq reyting vazifalari ularga o‘tadi. Kredit tahlilchisi roli kimdadir borligiga ishonch hosil qiling."
+      },
+      "switch": "Almashtirish",
+      "errors": {
+        "modeInvalid": "Rejim birlashgan yoki alohida bo‘lishi kerak."
+      }
+    }
   },
   "requests": {
     "subtitle": "Sug‘urta arizalari: so‘rovdan rasmiylashtirilgan polisgacha",

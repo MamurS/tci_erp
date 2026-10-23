@@ -72,6 +72,8 @@ import { limitReason } from './limitReasons'
 import { ScoreChangeNote } from './ScoreChangeNote'
 import { mayEnterStatements } from '../financials/access'
 import { mayRate } from '../access'
+import { useCreditAnalysisMode } from '../../../lib/creditAnalysis'
+import { RatingConfirmation } from './RatingConfirmation'
 import { CHART_COLORS } from '../report/DynamicCharts'
 import { ReportModal } from './ReportModal'
 
@@ -98,6 +100,7 @@ export function RatingTab({ entityId }: { entityId: string }) {
   const { roles: myRoles } = useAuth()
   const { data: statements, isLoading } = useStatements(entityId)
   const { data: gradeBands } = useGradeScale()
+  const mode = useCreditAnalysisMode()
   const ordered = useMemo(
     () => sortChronological(statements ?? []).reverse(),
     [statements],
@@ -264,7 +267,7 @@ export function RatingTab({ entityId }: { entityId: string }) {
               ))}
             </Select>
           </label>
-          {mayRate(myRoles) && (
+          {mayRate(myRoles, mode) && (
             <Button
               onClick={() => selected && calculate.mutate(selected)}
               disabled={!selected}
@@ -289,6 +292,18 @@ export function RatingTab({ entityId }: { entityId: string }) {
           )}
         </Card>
       </div>
+
+      {/* The grade in force and its confirmation (0069). */}
+      {latestStored && (
+        <RatingConfirmation
+          key={latestStored.id}
+          entityId={entityId}
+          current={latestStored}
+          bands={gradeBands}
+          mode={mode}
+          locale={locale}
+        />
+      )}
 
       {shown ? (
         <ResultView

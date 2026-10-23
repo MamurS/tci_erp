@@ -87,9 +87,9 @@ select string_agg(
 -- roles (the failure mode the service unwinds by hand).
 --
 -- Roles (tci.user_role): admin, sales, commercial_underwriter,
---                        credit_underwriter, claims, information_manager,
---                        client
--- A user may hold SEVERAL roles — access is the union. Pass them as an
+--                        credit_underwriter, credit_analyst, claims,
+--                        information_manager, client
+-- A user may hold SEVERAL roles (acting in one at a time, 0063). Pass them as an
 -- array. `client` is the exception: it must be alone and it must name a
 -- company, exactly as `authorize_create` / `requires_entity` enforce in
 -- the service.

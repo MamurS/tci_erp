@@ -6,6 +6,8 @@ export const USER_ROLES = [
   'sales',
   'commercial_underwriter',
   'credit_underwriter',
+  // 0068: rates buyers and confirms ratings (credit analysis, 0069)
+  'credit_analyst',
   'claims',
   'information_manager',
   'client',
