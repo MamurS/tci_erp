@@ -732,7 +732,16 @@ is fine for internal test accounts and not fine for customers.
   admin keeps users, authority, reference data, templates, settings and READ
   oversight. The screens stop offering admin those actions, and the Agenda
   lists only what the person may work. See **Acting role and four-eyes
-  rules** below.
+  rules** below. **Canonical: 0065 applied 2026-10-23** BEFORE merge
+  (backward-compatible: the old screens only see admin's business actions
+  refused): the 44 functions and 39 policies it replaces verified identical
+  to a local replay of 0064 first; `delete_claim_document` as written, the
+  other 42 functions rebuilt server-side from their own bodies by the same
+  textual change (a local run of that procedure is fingerprint-identical to
+  a replay of the file), sections 2–4 with the closing assertions and the
+  ledger row; all 44 functions and every tci policy fingerprint-identical
+  afterwards; `tests/db/admin_technical.sql` run on canonical with role
+  impersonation (forced rollback, nothing left behind, counts unchanged)
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
