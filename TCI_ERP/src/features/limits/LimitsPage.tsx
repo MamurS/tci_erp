@@ -32,8 +32,8 @@ import type { LimitRequestWithRefs } from './types'
 import { useValidationState } from './validationApi'
 import type { QueueRow } from './workbench/types'
 
-type QueueTab = 'drafts' | 'review' | 'escalated' | 'decided' | 'proposals'
-const QUEUE_TABS: readonly QueueTab[] = ['drafts', 'review', 'escalated', 'decided', 'proposals']
+type QueueTab = 'drafts' | 'information' | 'review' | 'escalated' | 'decided' | 'proposals'
+const QUEUE_TABS: readonly QueueTab[] = ['drafts', 'information', 'review', 'escalated', 'decided', 'proposals']
 
 export function LimitsPage() {
   const { t, i18n } = useTranslation()
@@ -67,6 +67,9 @@ export function LimitsPage() {
       switch (tab) {
         case 'drafts':
           return r.status === 'draft' && r.requested_by === uid
+        // 0067: waiting for the buyer's data, before anyone may decide
+        case 'information':
+          return r.status === 'information_gathering'
         case 'review':
           return r.status === 'submitted' || r.status === 'under_review'
         case 'escalated':
@@ -91,6 +94,7 @@ export function LimitsPage() {
   }, [requests, tab, search, statusFilter, mineOnly, annotated, session?.user.id])
 
   const escalatedCount = (requests ?? []).filter((r) => r.status === 'escalated').length
+  const informationCount = (requests ?? []).filter((r) => r.status === 'information_gathering').length
   // 0060: an escalated request may be on validation with a named colleague.
   const escalatedIds = useMemo(() => filtered.filter((r) => r.status === 'escalated').map((r) => r.id), [filtered])
   const { data: validations } = useValidationState(escalatedIds)
@@ -99,6 +103,10 @@ export function LimitsPage() {
 
   const tabs = [
     { key: 'drafts', label: t('limits.tabs.drafts') },
+    {
+      key: 'information',
+      label: informationCount ? `${t('limits.tabs.information')} (${informationCount})` : t('limits.tabs.information'),
+    },
     { key: 'review', label: t('limits.tabs.review') },
     ...(canDecide
       ? [{

@@ -73,8 +73,11 @@ end $$;
 create function pg_temp.buyer(p_id uuid, p_name text, p_period_end date, p_recommended numeric) returns void
 language plpgsql as $$
 begin
-  insert into tci.legal_entities (id, name, country_code, created_by)
-  values (p_id, p_name, 'KZ', '99999999-0000-4000-8000-0000000009a3');
+  -- 0067: a complete company card, so the request is routed to the credit
+  -- desk rather than to information gathering.
+  insert into tci.legal_entities (id, name, country_code, created_by, registration_number, address, industry_id)
+  values (p_id, p_name, 'KZ', '99999999-0000-4000-8000-0000000009a3', 'ADT-' || left(p_id::text, 8), 'Almaty',
+          (select min(i.code) from tci.industries i));
   insert into tci.financial_statements (id, entity_id, statement_kind, fiscal_year, period_end_date, currency_code, created_by)
   values (p_id, p_id, 'annual', extract(year from p_period_end)::int, p_period_end, 'UZS', '99999999-0000-4000-8000-0000000009a1');
   insert into tci.credit_assessments (entity_id, statement_id, rating_score, rating_grade, suggested_limit, limit_currency,
@@ -225,7 +228,8 @@ begin
     v_b := gen_random_uuid();
     perform pg_temp.owner();
     perform pg_temp.buyer(v_b, 'ADT Buyer ' || v_s,
-                          case when v_s = 'stale_financials' then current_date - 800 else current_date - 90 end,
+                          -- 0067: older than the ADT's 15 months, within routing's 18
+                          case when v_s = 'stale_financials' then current_date - 500 else current_date - 90 end,
                           case when v_s = 'above_recommended' then 50000 else 500000 end);
     perform pg_temp.act(c_credit);
     perform tci.set_buyer_adt(v_b, 200000, 'UZS', 5);

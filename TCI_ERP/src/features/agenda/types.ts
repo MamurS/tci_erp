@@ -53,6 +53,8 @@ export const TASK_TYPES = [
   'limit_validation_result',
   // Auto decisions (migration 0061)
   'adt_review',
+  // Information gathering before a limit decision (migration 0067)
+  'limit_information_needed',
 ] as const
 
 export type TaskType = (typeof TASK_TYPES)[number]

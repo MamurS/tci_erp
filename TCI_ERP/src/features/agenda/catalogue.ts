@@ -84,6 +84,9 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   // closes itself when the credit desk sets a new ADT or disables it
   // (adt.set / adt.disabled), so it needs no button.
   adt_review: 'auto',
+  // Information gathering (migration 0067): closes itself when the data is
+  // complete (the request goes on by itself), on a waiver or a withdrawal.
+  limit_information_needed: 'auto',
 }
 
 /** Mirrors tci.complete_task's guard (as 0060 restates it): it refuses
@@ -115,6 +118,12 @@ export function taskLink(
         return `/entities/${task.object_id}?tab=rating`
       return `/entities/${task.object_id}`
     case 'credit_limit_request':
+      // The information desk's task (0067) is done on the BUYER's card —
+      // the data desk does not open credit limits.
+      if (task.task_type === 'limit_information_needed') {
+        const entityId = task.params?.entity_id
+        if (typeof entityId === 'string') return `/entities/${entityId}`
+      }
       return `/limits/${task.object_id}`
     case 'credit_limit_decision': {
       // A decision has no page of its own; its limit request does.

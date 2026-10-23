@@ -22,6 +22,8 @@ import CONTRACTS from '../../../supabase/migrations/0057_contract_drafts.sql?raw
 import OFFERS from '../../../supabase/migrations/0058_commercial_offers.sql?raw'
 import VALIDATION from '../../../supabase/migrations/0060_limit_validation.sql?raw'
 import ADT from '../../../supabase/migrations/0061_auto_decisions.sql?raw'
+import INFO_ENUMS from '../../../supabase/migrations/0066_information_gathering_enums.sql?raw'
+import INFO from '../../../supabase/migrations/0067_information_gathering.sql?raw'
 import {
   AGENDA_GROUPS,
   agendaCounts,
@@ -93,6 +95,7 @@ describe('task type enum', () => {
       ...OFFERS.matchAll(/alter type tci\.task_type add value '([a-z_]+)'/g),
       ...VALIDATION.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
       ...ADT.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
+      ...INFO_ENUMS.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
     ].map((m) => m[1])
     expect([...created, ...appended]).toEqual([...TASK_TYPES])
   })
@@ -136,7 +139,10 @@ describe('task type enum', () => {
     // 0061 adds adt_review.
     const addedAdt = ADT.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
     expect(addedAdt).toHaveLength(1)
-    expect(TASK_TYPES).toHaveLength(39)
+    // 0066 adds limit_information_needed (0067 uses it).
+    const addedInfo = INFO_ENUMS.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
+    expect(addedInfo).toHaveLength(1)
+    expect(TASK_TYPES).toHaveLength(40)
   })
 
   it('lists exactly the values of tci.task_priority', () => {
@@ -189,7 +195,7 @@ describe('completion rules', () => {
     // Each header row is "<type>  <target>  AUTO ..." or "... MANUAL - ...".
     // A row may continue on the next comment lines (0060 wraps
     // limit_validation's), so the rule is read up to the next type's row.
-    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}\n${PAYMENTS}\n${CONTRACTS}\n${OFFERS}\n${VALIDATION}`.split('\n')
+    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}\n${PAYMENTS}\n${CONTRACTS}\n${OFFERS}\n${VALIDATION}\n${INFO}`.split('\n')
     // 0061 has no catalogue table in its header: adt_review's rule is read
     // from its mapping instead (the next test).
     for (const type of TASK_TYPES.filter((t) => t !== 'adt_review')) {

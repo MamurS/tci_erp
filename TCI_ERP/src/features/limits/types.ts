@@ -3,7 +3,7 @@
 import type { AuthorityScope, GradeBand } from '../../lib/roles'
 
 export const LIMIT_REQUEST_STATUSES = [
-  'draft', 'submitted', 'under_review', 'escalated', 'decided', 'withdrawn',
+  'draft', 'submitted', 'information_gathering', 'under_review', 'escalated', 'decided', 'withdrawn',
 ] as const
 export type LimitRequestStatus = (typeof LIMIT_REQUEST_STATUSES)[number]
 

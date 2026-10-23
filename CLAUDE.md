@@ -742,6 +742,25 @@ is fine for internal test accounts and not fine for customers.
   ledger row; all 44 functions and every tci policy fingerprint-identical
   afterwards; `tests/db/admin_technical.sql` run on canonical with role
   impersonation (forced rollback, nothing left behind, counts unchanged)
+- [x] Information gathering before a limit decision (Prompt 29 §2,
+  migrations 0066–0067): a submitted limit request whose buyer lacks a
+  registration number, an address, an industry, or statements for a period
+  ending within `workflow_settings.information_statement_max_age_months`
+  (18) is routed to `information_gathering` with a
+  `limit_information_needed` task for the information desk; saving the
+  missing data releases it by itself (back to `submitted`, the ordinary
+  decision task and auto decision follow), «Проверить снова» re-tests it, and
+  credit underwriting may waive it with a reason (never on its own request).
+  See **Information gathering rules** below. **Canonical: 0066–0067 applied
+  2026-10-23** BEFORE merge: the 3 functions, 3 views and the index they
+  replace verified identical to a local replay of 0065 first; 0066 as
+  written, then 0067 in one call (the new objects as written, the 3
+  functions and 3 views rebuilt server-side from their own bodies by the
+  same change — a local run of that procedure is fingerprint-identical to a
+  replay of the file); every tci function, policy and index identical to the
+  local replay afterwards; the whole `tests/db/information_gathering.sql` run
+  on canonical with role impersonation (forced rollback, nothing left
+  behind, counts unchanged)
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1823,6 +1842,38 @@ admin's «Моя повестка» holds admin's own tasks; the UI mirrors the 
 (`entities/access.ts`, `policies/statusMachine.ts mayWritePolicies`,
 `declarations/machine.ts mayMoveAs`, and the role lists of every feature
 machine). `tests/db/admin_technical.sql` proves it.
+
+### Information gathering rules (migrations 0066–0067)
+
+**Routed in one place.** `tci.handle_information_routing` is an AFTER INSERT
+trigger on `tci.workflow_events` named `workflow_events_zy_…` so it fires
+after the Agenda mapping (it cancels the `limit_needs_decision` that mapping
+just opened) and before `workflow_events_zz_auto_decisions` (which then finds
+the request no longer `submitted` and does nothing). It acts on
+`limit.request_submitted` whichever path submitted — the staff form, the
+client portal, a resolved buyer proposal — so no submit function decides.
+
+**What counts as missing** is `tci.buyer_information_gaps(entity)`, in a
+fixed order: `registration_number`, `address`, `industry`, `no_statements`,
+`stale_statements` (latest `period_end_date` older than the setting, 18
+months by default). `information.ts` mirrors the order (contract-tested).
+
+**Released by the data, not by a job.** AFTER triggers on
+`financial_statements` (insert/update) and `legal_entities` (update) call
+`release_limit_information` for that buyer's requests in gathering; it moves
+a request back to `submitted` only when nothing is missing and emits
+`limit.request_submitted` again, so the decision task and the auto decision
+follow as for any submission. «Проверить снова» (`recheck_limit_information`,
+staff) does the same on demand and answers what is still missing.
+
+**The waiver is credit's, with a reason, four eyes.**
+`waive_limit_information` (credit underwriting, never on its own request,
+comment required) writes a row of `tci.limit_information_waivers` (no API
+write grant) and sends the request on; the routing then lets it pass.
+`information_gathering` is an OPEN status everywhere the open ones are named
+(the one-open-request index, withdraw, the client duplicate checks, the
+queue, freshness and rating views). Withdrawing now emits
+`limit.request_withdrawn`, which closes the request's open limit tasks.
 
 ### Auto decision (ADT) rules (migration 0061)
 

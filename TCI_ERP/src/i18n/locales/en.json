@@ -1255,6 +1255,7 @@
     "subtitle": "Credit limit requests and decisions",
     "tabs": {
       "drafts": "Drafts",
+      "information": "Gathering data",
       "review": "In review",
       "escalated": "Escalated",
       "decided": "Decided",
@@ -1263,6 +1264,7 @@
     "statuses": {
       "draft": "Draft",
       "submitted": "Submitted",
+      "information_gathering": "Gathering data",
       "under_review": "Under review",
       "escalated": "Escalated",
       "decided": "Decided",
@@ -1556,6 +1558,30 @@
         "date": "Decided on",
         "adtLeft": "ADT left now",
         "lifecycle": "Limit"
+      }
+    },
+    "information": {
+      "title": "Gathering information on the buyer",
+      "hint": "The buyer’s file is not complete enough to decide on. The request goes to the credit desk by itself as soon as the missing data is entered; the information desk has a task for it.",
+      "gaps": {
+        "registration_number": "Registration number",
+        "address": "Address",
+        "industry": "Industry",
+        "no_statements": "No financial statements",
+        "stale_statements": "Financial statements are out of date (older than the allowed period)"
+      },
+      "openCompany": "Open the company card",
+      "recheck": "Check again",
+      "released": "The data is complete — the request has gone to the credit desk.",
+      "stillMissing": "Still missing — see the list.",
+      "waive": "Decide without it",
+      "waiveTitle": "Send on without the missing information",
+      "waiveHint": "The request goes to the credit queue now, without the missing data. Say why; the reason is kept with the request.",
+      "waiveComment": "Reason",
+      "waiveCommentRequired": "A reason is required",
+      "waived": "The request has gone to the credit desk without the missing information.",
+      "errors": {
+        "notGathering": "The request is no longer gathering information."
       }
     },
     "sectionSubtitle": "The credit underwriter's workbench: portfolio, decisions, limits in force, monitoring, ratings, groups and your own authority.",
@@ -2386,7 +2412,8 @@
       "offer_expired": "Offer expired",
       "limit_validation": "Limit validation",
       "limit_validation_result": "Validation result",
-      "adt_review": "ADT review"
+      "adt_review": "ADT review",
+      "limit_information_needed": "Gather buyer information"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -2441,7 +2468,8 @@
       "adt_review_limit_revoked": "The ADT of {{entity_name}} is suspended: a limit was revoked — review the buyer",
       "adt_review_manual_block": "The ADT of {{entity_name}} is suspended: auto decisions are banned — review the buyer",
       "adt_review_no_financials": "The ADT of {{entity_name}} is suspended: no financial statements — review the buyer",
-      "adt_review_stale_financials": "The ADT of {{entity_name}} is suspended: the financials are too old — review the buyer"
+      "adt_review_stale_financials": "The ADT of {{entity_name}} is suspended: the financials are too old — review the buyer",
+      "limit_information_needed": "Gather information on {{entity_name}} for a limit request"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -2769,7 +2797,9 @@
         "payments": "Payments",
         "offer": "Commercial offer",
         "validation": "Validation",
-        "adt": "ADT"
+        "adt": "ADT",
+        "financials": "Financial statements",
+        "card": "Company card"
       },
       "with": {
         "task": "with this task’s context",
@@ -3109,6 +3139,7 @@
         "pending_entity": "Identifying the company",
         "draft": "Draft",
         "submitted": "Submitted",
+        "information_gathering": "Gathering data",
         "under_review": "Under review",
         "escalated": "Under review"
       },
