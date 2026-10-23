@@ -700,7 +700,7 @@ is fine for internal test accounts and not fine for customers.
   proposes, validates or adjusts; the credit decider never adjusts
   commercially. Admin is technical: no decide / adjust / hold / release /
   revoke / validate / ADT / group limit and no authority. See **Acting role
-  and four-eyes rules** below. **Canonical: CANONICAL_0063_STATUS**
+  and four-eyes rules** below. **Canonical: 0063 is applied AT MERGE, not before** — with it live and the old frontend still deployed, a multi-role account (two exist) acts in no role and every gate closes; the 21 replaced objects were verified fingerprint-identical to a local replay of 0062 first
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
