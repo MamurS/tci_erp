@@ -1255,6 +1255,7 @@
     "subtitle": "Kredit limiti so‘rovlari va qarorlar",
     "tabs": {
       "drafts": "Qoralamalar",
+      "information": "Ma’lumot yig‘ish",
       "review": "Ko‘rib chiqishda",
       "escalated": "Eskalatsiya",
       "decided": "Hal qilingan",
@@ -1263,6 +1264,7 @@
     "statuses": {
       "draft": "Qoralama",
       "submitted": "Yuborilgan",
+      "information_gathering": "Ma’lumot yig‘ish",
       "under_review": "Ko‘rib chiqilmoqda",
       "escalated": "Eskalatsiya",
       "decided": "Qaror qabul qilingan",
@@ -1556,6 +1558,30 @@
         "date": "Qaror sanasi",
         "adtLeft": "Hozirgi ADT qoldig‘i",
         "lifecycle": "Limit"
+      }
+    },
+    "information": {
+      "title": "Bayer haqida ma’lumot yig‘ilmoqda",
+      "hint": "Bayer haqidagi ma’lumotlar qaror qabul qilish uchun yetarli emas. Yetishmayotgan ma’lumotlar kiritilishi bilan so‘rov kredit anderrayteriga o‘zi o‘tadi; ma’lumotlarni boshqarish bo‘limida vazifa bor.",
+      "gaps": {
+        "registration_number": "Ro‘yxatdan o‘tish raqami",
+        "address": "Manzil",
+        "industry": "Tarmoq",
+        "no_statements": "Moliyaviy hisobot yo‘q",
+        "stale_statements": "Moliyaviy hisobot eskirgan (ruxsat etilgan muddatdan eski)"
+      },
+      "openCompany": "Tashkilot kartochkasini ochish",
+      "recheck": "Qayta tekshirish",
+      "released": "Ma’lumotlar to‘liq — so‘rov kredit anderrayteriga o‘tkazildi.",
+      "stillMissing": "Hali ma’lumotlar yetishmaydi — ro‘yxatga qarang.",
+      "waive": "Ularsiz qaror qilish",
+      "waiveTitle": "Yetishmayotgan ma’lumotlarsiz o‘tkazish",
+      "waiveHint": "So‘rov yetishmayotgan ma’lumotlarsiz darhol kredit qarorlari navbatiga o‘tadi. Sababini ko‘rsating — u so‘rov bilan birga saqlanadi.",
+      "waiveComment": "Sabab",
+      "waiveCommentRequired": "Sababini ko‘rsating",
+      "waived": "So‘rov yetishmayotgan ma’lumotlarsiz kredit anderrayteriga o‘tkazildi.",
+      "errors": {
+        "notGathering": "So‘rov endi ma’lumot yig‘ish bosqichida emas."
       }
     },
     "sectionSubtitle": "Kredit anderrayterining ish joyi: portfel, qarorlar, amaldagi limitlar, monitoring, reytinglar, guruhlar va sizning vakolatlaringiz.",
@@ -2386,7 +2412,8 @@
       "offer_expired": "Taklif muddati o‘tdi",
       "limit_validation": "Limitni tasdiqlash",
       "limit_validation_result": "Tasdiqlash natijasi",
-      "adt_review": "Bayerni qayta ko‘rib chiqish / ADTni yangilash"
+      "adt_review": "Bayerni qayta ko‘rib chiqish / ADTni yangilash",
+      "limit_information_needed": "Bayer bo‘yicha ma’lumot yig‘ish"
     },
     "tasks": {
       "buyer_needs_entity": "{{subject}} arizasidagi «{{name}}» ortidagi tashkilotni aniqlang",
@@ -2441,7 +2468,8 @@
       "adt_review_limit_revoked": "{{entity_name}} bayerining ADTsi to‘xtatildi: limit bekor qilingan — bayerni qayta ko‘rib chiqing",
       "adt_review_manual_block": "{{entity_name}} bayerining ADTsi to‘xtatildi: avtomatik qarorlar taqiqlangan — bayerni qayta ko‘rib chiqing",
       "adt_review_no_financials": "{{entity_name}} bayerining ADTsi to‘xtatildi: moliyaviy hisobot yo‘q — bayerni qayta ko‘rib chiqing",
-      "adt_review_stale_financials": "{{entity_name}} bayerining ADTsi to‘xtatildi: hisobot eskirgan — bayerni qayta ko‘rib chiqing"
+      "adt_review_stale_financials": "{{entity_name}} bayerining ADTsi to‘xtatildi: hisobot eskirgan — bayerni qayta ko‘rib chiqing",
+      "limit_information_needed": "Limit so‘rovi uchun {{entity_name}} bayeri bo‘yicha ma’lumot yig‘ish"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
@@ -2769,7 +2797,9 @@
         "payments": "To‘lovlar",
         "offer": "Tijorat taklifi",
         "validation": "Tasdiqlash",
-        "adt": "ADT"
+        "adt": "ADT",
+        "financials": "Moliyaviy hisobot",
+        "card": "Tashkilot kartochkasi"
       },
       "with": {
         "task": "shu vazifa konteksti bilan",
@@ -3109,6 +3139,7 @@
         "pending_entity": "Tashkilot aniqlanmoqda",
         "draft": "Qoralama",
         "submitted": "Yuborilgan",
+        "information_gathering": "Ma’lumot yig‘ilmoqda",
         "under_review": "Ko‘rib chiqilmoqda",
         "escalated": "Ko‘rib chiqilmoqda"
       },

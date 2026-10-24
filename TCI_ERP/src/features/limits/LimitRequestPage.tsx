@@ -41,6 +41,8 @@ import { GroupChip, GroupPreflightNotice, useGroupPreflight } from '../groups'
 import { useSystemDecisionMarks } from './adtApi'
 import { AutoDecisionPanel } from './AutoDecisionPanel'
 import { CommercialStageSection } from './CommercialStageSection'
+import { InformationSection } from './InformationSection'
+import { mayWaiveInformation } from './information'
 import { DecisionMark } from './DecisionMark'
 import { ReleaseBadge } from './ReleaseBadge'
 import { SendForValidationModal } from './ValidationDialogs'
@@ -223,6 +225,15 @@ export function LimitRequestPage() {
           <RequestCard request={request} locale={locale} />
           {/* The auto-decision rule's answer (0061): the credit desk only. */}
           <AutoDecisionPanel requestId={request.id} />
+          {/* Waiting for the buyer's data, not for a decision (0067). */}
+          {request.status === 'information_gathering' && (
+            <InformationSection
+              requestId={request.id}
+              entityId={request.entity_id}
+              mayWaive={mayWaiveInformation(roles, isRequester)}
+              onNotice={setNotice}
+            />
+          )}
           {pendingValidation && <ValidationStatusLine state={pendingValidation} />}
           {myStep && (
             <div id="validation" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>

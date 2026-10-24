@@ -92,7 +92,7 @@ export function PortalLimitsPage() {
 
   const activePolicies = (policies ?? []).filter((p) => p.status === 'active')
   const pending = (requests ?? []).filter(
-    (r) => r.status === 'pending_entity' || ['draft', 'submitted', 'under_review', 'escalated'].includes(r.status),
+    (r) => r.status === 'pending_entity' || ['draft', 'submitted', 'information_gathering', 'under_review', 'escalated'].includes(r.status),
   )
 
   if (isLoading) return <Spinner label={t('common.loading')} />
