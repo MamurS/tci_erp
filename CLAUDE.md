@@ -799,8 +799,17 @@ is fine for internal test accounts and not fine for customers.
   majority, the chair's casting vote, no majority ⇒ back to the author);
   the named validator of 0060 is retired. Admin › Полномочия «Уровни
   полномочий», the route on «Отправить на валидацию», the committee panel on
-  the request page. See **Authority levels rules** below. **Canonical: not
-  yet applied**
+  the request page. See **Authority levels rules** below. **Canonical: 0070
+  applied 2026-10-23 before merge; 0071 applied 2026-10-24 AT MERGE** (it
+  retires the named validator the old frontend still sent): every tci
+  function, policy and column first verified identical to a local replay of
+  0069 and no validation step pending, the whole file then in one atomic
+  `execute_sql` call with its ledger row, PR #54 merged right after; every
+  function, policy, column, trigger and the queue view fingerprint-identical
+  to a local replay of 0071 afterwards; the whole
+  `tests/db/authority_levels.sql` run on canonical with role impersonation
+  (forced rollback, nothing left behind); no new advisor finding. The levels
+  are empty until the owner sets them up in Admin › Полномочия
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
