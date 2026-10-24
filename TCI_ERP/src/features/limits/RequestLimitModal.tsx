@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import { AmountInput, Button, Field, Modal, Textarea } from '../../components/ui'
 import { parseAmount } from '../../components/ui/amount'
 import { EntityPicker } from '../entities/EntityPicker'
+import { DlNote } from './DlNote'
 import type { PolicyWithRefs } from '../policies/types'
 import { useCreateLimitRequest } from './api'
 
@@ -34,7 +35,12 @@ export function RequestLimitModal({
   const [error, setError] = useState<string | null>(null)
 
   const parsedAmount = parseAmount(amount) ?? Number.NaN
-  const valid = entityId && Number.isFinite(parsedAmount) && parsedAmount > 0
+  const amountValid = Number.isFinite(parsedAmount) && parsedAmount > 0
+  const valid = entityId && amountValid
+  const missing = [
+    ...(entityId ? [] : [t('limits.missing.buyer')]),
+    ...(amountValid ? [] : [t('limits.missing.amount')]),
+  ]
 
   const handleCreate = async () => {
     if (!valid || !entityId) return
@@ -88,6 +94,12 @@ export function RequestLimitModal({
             />
           </Field>
         </div>
+        <DlNote
+          amount={amountValid ? parsedAmount : null}
+          dl={Number(policy.discretionary_limit)}
+          currency={policy.currency_code}
+          audience="staff"
+        />
         <Field label={t('limits.fields.justification')}>
           <Textarea
             value={justification}
@@ -95,6 +107,7 @@ export function RequestLimitModal({
             rows={3}
           />
         </Field>
+        {missing.length > 0 && <p className="text-[13px] text-slate-500">{missing.join(' · ')}</p>}
         {error && (
           <p className="text-[13px] text-neg-500" role="alert">
             {error}

@@ -2040,6 +2040,33 @@
       "ownRequest": "Bu so‘rovni siz yuborgansiz. To‘rt ko‘z tamoyiliga ko‘ra uni boshqa kredit anderrayteri ko‘rib chiqadi va qaror qabul qiladi.",
       "ownRequestCommercial": "Bu so‘rovni siz yuborgansiz. To‘rt ko‘z tamoyiliga ko‘ra limitni boshqa tijorat anderrayteri o‘zgartiradi.",
       "ownCreditDecision": "Bu so‘rov bo‘yicha kredit qarorini siz qabul qilgansiz. To‘rt ko‘z tamoyiliga ko‘ra limitni boshqa tijorat anderrayteri o‘zgartiradi."
+    },
+    "dl": {
+      "client": {
+        "noneTitle": "Polisingizda diskretsion limit yo‘q",
+        "noneBody": "Bayerga sotuvlar faqat biz belgilagan kredit limiti doirasida qoplanadi.",
+        "knownTitle": "Diskretsion limitingiz — {{dl}}",
+        "knownBody": "Bitta bayer uchun shu summa doirasida bayerni polis shartlari asosida bizdan so‘ramasdan o‘zingiz baholab qoplashingiz mumkin.",
+        "withinTitle": "Diskretsion limitingiz doirasida ({{dl}})",
+        "withinBody": "Bu bayerni polis shartlari asosida bizdan so‘ramasdan o‘zingiz baholab qoplashingiz mumkin. Baribir kredit limitini so‘rash mumkin.",
+        "aboveTitle": "Diskretsion limitingizdan ({{dl}}) {{excess}} ga ortiq",
+        "aboveBody": "Bunday summa bizning qarorimizni talab qiladi."
+      },
+      "staff": {
+        "noneTitle": "Polisda diskretsion limit yo‘q",
+        "noneBody": "Har bir bayer uchun kredit limiti kerak.",
+        "knownTitle": "Polisning diskretsion limiti — {{dl}}",
+        "knownBody": "Bitta bayer uchun shu summa doirasida sug‘urtalanuvchi bayerni polis shartlari asosida o‘zi baholab qoplashi mumkin.",
+        "withinTitle": "Polisning diskretsion limiti doirasida ({{dl}})",
+        "withinBody": "Sug‘urtalanuvchi bu bayerni o‘zi baholab qoplashi mumkin; baribir kredit limitini so‘rash mumkin.",
+        "aboveTitle": "Polisning diskretsion limitidan ({{dl}}) {{excess}} ga ortiq",
+        "aboveBody": "Bunday summa kredit qarorini talab qiladi."
+      }
+    },
+    "missing": {
+      "buyerOrName": "Bayerni tanlang yoki qo‘lda kiriting",
+      "buyer": "Bayerni tanlang",
+      "amount": "Summani kiriting"
     }
   },
   "entities": {
@@ -3427,7 +3454,6 @@
       "amountInvalid": "Noldan katta summa kiriting",
       "maxTerms": "Polisingiz bo‘yicha — {{days}} kungacha",
       "justification": "Nega aynan shu bayer va nega shu summa",
-      "dlHint": "Diskretsion limit doirasida bayerni bizdan so‘ramasdan o‘zingiz baholaysiz.",
       "send": "So‘rovni yuborish",
       "sentRequest": "Yuborildi. Anderrayting qaror bilan sizga qaytadi.",
       "sentProposal": "Yuborildi. Avval tashkilotni aniqlaymiz, so‘ng limitni ko‘rib chiqamiz.",

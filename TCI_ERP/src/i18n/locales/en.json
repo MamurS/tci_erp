@@ -2040,6 +2040,33 @@
       "ownRequest": "You raised this request. Under the four-eyes rule another credit underwriter takes it into review and decides it.",
       "ownRequestCommercial": "You raised this request. Under the four-eyes rule another commercial underwriter adjusts the limit.",
       "ownCreditDecision": "You made the credit decision on this request. Under the four-eyes rule another commercial underwriter adjusts the limit."
+    },
+    "dl": {
+      "client": {
+        "noneTitle": "Your policy has no discretionary limit",
+        "noneBody": "Your sales to a buyer are covered only under a credit limit we have set.",
+        "knownTitle": "Your discretionary limit: {{dl}}",
+        "knownBody": "Up to this amount per buyer you may cover a buyer on your own assessment, under the policy’s conditions, without asking us.",
+        "withinTitle": "Within your discretionary limit ({{dl}})",
+        "withinBody": "You may cover this buyer on your own assessment, under the policy’s conditions, without asking us. You can still request a credit limit.",
+        "aboveTitle": "Above your discretionary limit ({{dl}}) by {{excess}}",
+        "aboveBody": "This amount needs our decision."
+      },
+      "staff": {
+        "noneTitle": "The policy has no discretionary limit",
+        "noneBody": "Every buyer needs a credit limit.",
+        "knownTitle": "Discretionary limit of the policy: {{dl}}",
+        "knownBody": "Up to this amount per buyer the policyholder may cover a buyer on its own assessment, under the policy’s conditions.",
+        "withinTitle": "Within the policy’s discretionary limit ({{dl}})",
+        "withinBody": "The policyholder may cover this buyer on its own assessment; a credit limit may still be requested.",
+        "aboveTitle": "Above the policy’s discretionary limit ({{dl}}) by {{excess}}",
+        "aboveBody": "This amount needs a credit decision."
+      }
+    },
+    "missing": {
+      "buyerOrName": "Choose a buyer, or enter it by name",
+      "buyer": "Choose a buyer",
+      "amount": "Enter the amount"
     }
   },
   "entities": {
@@ -3427,7 +3454,6 @@
       "amountInvalid": "Enter an amount greater than zero",
       "maxTerms": "Your policy allows up to {{days}} days",
       "justification": "Why this buyer, and why this amount",
-      "dlHint": "Below your discretionary limit you may self-assess without asking us.",
       "send": "Send request",
       "sentRequest": "Sent. Underwriting will come back to you with a decision.",
       "sentProposal": "Sent. We will identify the company first, then underwrite the limit.",
