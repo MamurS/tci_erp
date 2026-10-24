@@ -754,6 +754,85 @@
         "gradeInvalid": "That grade is not on the rating scale.",
         "immutable": "A rating is history and is never changed; only its confirmation is recorded."
       }
+    },
+    "proposals": {
+      "title": "Rating proposals",
+      "hint": "A grade set by hand, or a grade sent for validation, comes into force only when a second person confirms it — a colleague, or the credit authority levels it is escalated to.",
+      "sendEngine": "Send for validation",
+      "manualAction": "Set a rating manually",
+      "none": "No rating proposals for this buyer yet.",
+      "manual": "Manual rating",
+      "manualGrade": "Manual rating {{grade}}",
+      "manualBy": "Set by {{author}}, confirmed by {{name}}, {{at}}",
+      "manualTitle": "Set a rating manually",
+      "manualHint": "Propose a grade without the engine — for example a buyer without statements. Statements are optional; the reason is required. The grade comes into force when a second person confirms it.",
+      "engineTitle": "Send the rating for validation",
+      "engineHint": "The recommended grade is {{grade}}. Propose it, or another grade of the scale, and say why. The grade comes into force when a second person confirms it.",
+      "grade": "Proposed grade",
+      "otherGrade": "The grade you approve",
+      "gradeTyped": "The rating scale is unavailable: type a grade such as B1.",
+      "statement": "Statement it is based on",
+      "statementOptional": "Optional",
+      "noStatement": "No statement",
+      "reason": "Reason",
+      "reasonRequired": "Required",
+      "route": "Send to",
+      "routes": {
+        "colleague": "A colleague",
+        "escalate": "Escalate"
+      },
+      "routeHintColleague": "Any colleague who confirms ratings may confirm it; you cannot.",
+      "routeHintEscalate": "It goes to the next credit authority level that can take it, rank by rank, up to the credit committee.",
+      "submitColleague": "Send for validation",
+      "submitEscalate": "Escalate",
+      "withColleague": "with a colleague",
+      "sitsWith": "Waiting {{where}} since {{date}}",
+      "reasonBy": "{{name}}, {{date}}",
+      "answerers": "Can answer: {{names}}",
+      "noAnswerers": "Nobody can answer it now — forward it or ask the administrator to set up the levels.",
+      "actions": {
+        "approve": "Approve",
+        "approve_modified": "Approve another grade",
+        "return": "Return",
+        "reject": "Reject",
+        "forward": "Forward to the next rank"
+      },
+      "withdraw": "Withdraw",
+      "commentRequired": "Required",
+      "statuses": {
+        "pending": "On validation",
+        "approved": "Approved",
+        "modified": "Approved with another grade",
+        "returned": "Returned",
+        "rejected": "Rejected",
+        "forwarded": "Forwarded",
+        "withdrawn": "Withdrawn"
+      },
+      "committeeOutcome": {
+        "approve": "the grade is approved",
+        "reject": "the proposal is rejected",
+        "return": "without a majority the proposal goes back to its author"
+      },
+      "history": "Earlier proposals ({{count}})",
+      "historyLine": "Proposed by {{proposer}}, answered by {{resolver}}",
+      "failed": "The rating proposal could not be saved.",
+      "errors": {
+        "notAllowed": "Your role does not rate buyers under the current credit analysis mode.",
+        "reasonRequired": "Say why you propose this grade.",
+        "pending": "A rating proposal for this buyer is already waiting for an answer.",
+        "assessmentMismatch": "That rating is not this buyer’s.",
+        "statementMismatch": "That statement is not this buyer’s.",
+        "noColleague": "Nobody else confirms ratings now — escalate it to an authority level instead.",
+        "levelMissing": "No credit authority level can take this rating. Ask the administrator to set up the levels.",
+        "notEligible": "You cannot answer this rating proposal: it is your own, you took part in it already, or it is not with your level.",
+        "committeeVotes": "The committee decides this rating by vote.",
+        "committeeIsLast": "The committee is the top of the chain; nothing goes above it.",
+        "notCommittee": "This rating is not before the committee.",
+        "closed": "This rating proposal has already been answered.",
+        "modifiedSame": "That is the proposed grade — approve it as is.",
+        "withdrawNotYours": "Only whoever proposed a rating withdraws it.",
+        "manualDirect": "A manual rating comes into force only through a confirmed rating proposal."
+      }
     }
   },
   "report": {
@@ -1123,7 +1202,8 @@
       "turnover": "Turnover ratios (days)",
       "note": "Company figures, annual statements."
     },
-    "unchanged": "unchanged"
+    "unchanged": "unchanged",
+    "manualRating": "Rating {{grade}} set by hand and confirmed by a second person; there is no recommended limit."
   },
   "policyholders": {
     "subtitle": "Insured clients (sellers) holding TCI policies",
@@ -1868,7 +1948,8 @@
         "no_financials": "The buyer has no financial statements",
         "stale_financials": "The buyer's financial statements are too old",
         "group_limit": "The group would go over its group limit",
-        "downgrade": "The buyer was downgraded below the rating band the ADT was set at"
+        "downgrade": "The buyer was downgraded below the rating band the ADT was set at",
+        "no_recommended_limit": "The rating carries no recommended limit (a manual rating)"
       },
       "attempt": {
         "decided": "Decided automatically (ADT)",
@@ -2222,6 +2303,14 @@
         "chairCommitteeOnly": "Only the committee has a chair.",
         "chairNotMember": "The chair must be a member of the committee."
       }
+    },
+    "senior": {
+      "mark": "Mark as senior",
+      "marked": "Senior analyst",
+      "hint": "A senior credit analyst sets group ratings",
+      "errors": {
+        "requiresAnalyst": "Only a credit analyst can be marked senior."
+      }
     }
   },
   "requests": {
@@ -2533,7 +2622,8 @@
       "contract_draft": "Draft contract",
       "bank_statement_import": "Bank statement",
       "commercial_offer": "Commercial offer",
-      "limit_validation": "Limit validation"
+      "limit_validation": "Limit validation",
+      "rating_proposal_step": "Rating proposal"
     },
     "taskTypes": {
       "buyer_needs_entity": "Identify buyer",
@@ -2576,7 +2666,9 @@
       "limit_validation_result": "Validation result",
       "adt_review": "ADT review",
       "limit_information_needed": "Gather buyer information",
-      "limit_validation_fyi": "Limit validation: for information"
+      "limit_validation_fyi": "Limit validation: for information",
+      "rating_proposal": "Rating validation",
+      "rating_proposal_result": "Rating validation result"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -2634,7 +2726,13 @@
       "adt_review_stale_financials": "The ADT of {{entity_name}} is suspended: the financials are too old — review the buyer",
       "limit_information_needed": "Gather information on {{entity_name}} for a limit request",
       "limit_validation_committee": "Committee vote: the limit for {{entity_name}} (author: {{proposed_by_name}})",
-      "limit_validation_fyi": "For information: the limit decision for {{entity_name}} went past your level (author: {{proposed_by_name}})"
+      "limit_validation_fyi": "For information: the limit decision for {{entity_name}} went past your level (author: {{proposed_by_name}})",
+      "rating_proposal": "Validate the rating {{grade}} proposed for {{entity_name}} (author: {{proposed_by_name}})",
+      "rating_proposal_committee": "Committee vote: the rating {{grade}} for {{entity_name}} (author: {{proposed_by_name}})",
+      "rating_proposal_result_approved": "Your rating {{grade}} for {{entity_name}} was approved — {{resolver_name}}",
+      "rating_proposal_result_modified": "Your rating for {{entity_name}} was approved as {{grade}} — {{resolver_name}}",
+      "rating_proposal_result_returned": "Your rating proposal for {{entity_name}} was returned to you — {{resolver_name}}",
+      "rating_proposal_result_rejected": "Your rating proposal for {{entity_name}} was rejected — {{resolver_name}}"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -2846,7 +2944,13 @@
       "adt_review_manual_block": "ADT suspended: auto decisions banned — review the buyer",
       "adt_review_no_financials": "ADT suspended: no financials — review the buyer",
       "adt_review_stale_financials": "ADT suspended: financials too old — review the buyer",
-      "limit_validation_fyi": "Limit decision past your level"
+      "limit_validation_fyi": "Limit decision past your level",
+      "rating_proposal": "Rating to validate",
+      "rating_proposal_result": "Rating proposal result",
+      "rating_proposal_result_approved": "Your rating proposal approved",
+      "rating_proposal_result_modified": "Your rating approved with another grade",
+      "rating_proposal_result_returned": "Your rating proposal returned to you",
+      "rating_proposal_result_rejected": "Your rating proposal rejected"
     },
     "facts": {
       "policies_one": "{{count}} policy",
@@ -2865,7 +2969,8 @@
       "membersWithLimits_few": "{{count}} members with limits",
       "membersWithLimits_many": "{{count}} members with limits",
       "from": "from {{name}}",
-      "validatedBy": "validator: {{name}}"
+      "validatedBy": "validator: {{name}}",
+      "proposedGrade": "grade {{grade}}"
     },
     "sub": {
       "instalment": "Instalment {{sequence}}"
@@ -4442,6 +4547,41 @@
       "endRelationshipAction": "End the relationship",
       "endLimitTitle": "Remove the group limit?",
       "endLimitMessage": "The group limit of {{name}} stops applying today: decisions on its members are no longer checked against it. The limit stays in the history."
+    },
+    "rating": {
+      "title": "Group rating",
+      "hint": "The grade of the whole group. No member’s grade can be better: setting or lowering it caps the members at once, and every new rating of a member is capped as it is written. Raising or ending it raises nobody — a member goes up by being rated again.",
+      "set": "Set group rating",
+      "change": "Change",
+      "end": "End group rating",
+      "none": "This group has no group rating.",
+      "whoSets": "It is set by a senior credit analyst: {{names}}.",
+      "noSenior": "It is set by a senior credit analyst; nobody is marked senior yet (Admin › Users and roles).",
+      "setBy": "Set by {{name}}, {{at}}",
+      "cappedMembers": "Capped now: {{names}}",
+      "noneCapped": "No member is capped by it now.",
+      "cappedNow": "Saved. Members capped now: {{count}}.",
+      "ended": "The group rating has ended. Capped members keep their grades until they are rated again.",
+      "history": "Earlier group ratings ({{count}})",
+      "statuses": {
+        "replaced": "Replaced",
+        "ended": "Ended"
+      },
+      "setTitle": "Set the group rating",
+      "setHint": "Every member whose grade in force is better than this is capped at it at once, with this reason.",
+      "endTitle": "End the group rating",
+      "endHint": "Members already capped keep their grades; the cap no longer applies to new ratings.",
+      "grade": "Group grade",
+      "save": "Save",
+      "cappedBadge": "Capped by the group rating",
+      "failed": "The group rating could not be saved.",
+      "errors": {
+        "seniorOnly": "Only a senior credit analyst sets or ends a group rating.",
+        "reasonRequired": "Give the reason for the group rating.",
+        "none": "This group has no group rating to end.",
+        "aboveCap": "That grade is better than the group rating that caps this buyer.",
+        "capDirect": "A capped rating is written only by the group rating."
+      }
     }
   },
   "mfaVerify": {

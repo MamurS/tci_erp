@@ -17,9 +17,11 @@ import M65 from '../../supabase/migrations/0065_admin_technical_only.sql?raw'
 import M67 from '../../supabase/migrations/0067_information_gathering.sql?raw'
 import M69 from '../../supabase/migrations/0069_credit_analysis.sql?raw'
 import M71 from '../../supabase/migrations/0071_authority_levels.sql?raw'
+import M73 from '../../supabase/migrations/0073_rating_proposals.sql?raw'
+import M74 from '../../supabase/migrations/0074_group_ratings.sql?raw'
 import { OPERATIONS_REFUSALS, refusalKey } from './refusals'
 
-const ALL = [M13, M26, M27, M28, M29, M54, M55, M56, M58, M60, M61, M62, M63, M65, M67, M69, M71].join('\n')
+const ALL = [M13, M26, M27, M28, M29, M54, M55, M56, M58, M60, M61, M62, M63, M65, M67, M69, M71, M73, M74].join('\n')
 
 describe('operations refusal mapping — contract with 0026-0029', () => {
   it('maps only refusals the database actually raises', () => {

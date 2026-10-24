@@ -12,6 +12,7 @@ import type { AuthorityGrant } from '../limits/types'
 const KEYS = {
   users: ['admin', 'users'] as const,
   managers: ['admin', 'managers'] as const,
+  seniors: ['admin', 'senior-analysts'] as const,
   grants: (userId: string) => ['admin', 'grants', userId] as const,
 }
 
@@ -158,6 +159,37 @@ export function useSetUserManager() {
       // the validator picker lists the manager first
       invalidate: () => [['limit-validations']],
     }),
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Senior credit analysts (0074): they set group ratings. Admin's flag, set
+// only through tci.set_senior_credit_analyst, on credit analysts only.
+// ---------------------------------------------------------------------------
+
+export function useSeniorAnalysts() {
+  return useQuery({
+    queryKey: KEYS.seniors,
+    queryFn: async (): Promise<Set<string>> => {
+      const { data, error } = await tci().rpc('senior_credit_analysts')
+      if (error) throw error
+      return new Set((data ?? []) as string[])
+    },
+  })
+}
+
+export function useSetSeniorAnalyst() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationKey: ['admin', 'senior-analyst'],
+    mutationFn: async (input: { userId: string; senior: boolean }): Promise<void> => {
+      const { error } = await tci().rpc('set_senior_credit_analyst', {
+        p_user: input.userId,
+        p_senior: input.senior,
+      })
+      if (error) throw error
+    },
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: KEYS.seniors }),
   })
 }
 

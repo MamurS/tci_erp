@@ -26,6 +26,7 @@ export function RatingConfirmation({
   bands,
   mode,
   locale,
+  proposalPending = false,
 }: {
   entityId: string
   /** The buyer's current (latest) assessment. */
@@ -33,6 +34,8 @@ export function RatingConfirmation({
   bands: GradeBand[] | undefined
   mode: CreditAnalysisMode
   locale: string
+  /** A rating proposal is waiting (0073): it is answered there, not here. */
+  proposalPending?: boolean
 }) {
   const { t } = useTranslation()
   const { roles, session } = useAuth()
@@ -45,9 +48,10 @@ export function RatingConfirmation({
   const [error, setError] = useState<string | null>(null)
 
   const uid = session?.user.id
-  const mayConfirm = mayConfirmRating(roles, mode, current, uid)
+  const manual = current.source === 'manual'
+  const mayConfirm = !proposalPending && mayConfirmRating(roles, mode, current, uid)
   const ownRating = !current.confirmed_at && current.created_by === uid && current.created_by !== null
-  const overridden = current.confirmed_at !== null && current.rating_grade !== engineGrade
+  const overridden = !manual && current.confirmed_at !== null && current.rating_grade !== engineGrade
   const nameOf = (id: string | null) =>
     (id && (people.data?.get(id)?.full_name || people.data?.get(id)?.email)) || t('rating.confirmation.someone')
 
@@ -75,17 +79,33 @@ export function RatingConfirmation({
 
   return (
     <Card className="flex flex-wrap items-center gap-x-5 gap-y-2 p-5 text-sm" data-testid="rating-confirmation">
-      <span className="flex items-center gap-2">
-        <span className="text-slate-500">{t('rating.confirmation.engineGrade')}</span>
-        <Badge tone={gradeTone(engineGrade)}>{engineGrade}</Badge>
-      </span>
+      {manual ? (
+        // A manual grade (0073): set by a person, confirmed by a second one.
+        <span className="flex items-center gap-2">
+          <Badge tone="neutral">{t('rating.proposals.manual')}</Badge>
+          {current.manual_reason && <span className="text-slate-600">«{current.manual_reason}»</span>}
+        </span>
+      ) : (
+        <span className="flex items-center gap-2">
+          <span className="text-slate-500">{t('rating.confirmation.engineGrade')}</span>
+          <Badge tone={gradeTone(engineGrade)}>{engineGrade}</Badge>
+        </span>
+      )}
       <span className="flex items-center gap-2">
         <span className="text-slate-500">{t('rating.confirmation.gradeInForce')}</span>
         <Badge tone={gradeTone(current.rating_grade)}>{current.rating_grade}</Badge>
       </span>
+      {/* The group's grade caps this buyer's (0074). */}
+      {current.group_rating_id && <Badge tone="warn">{t('groups.rating.cappedBadge')}</Badge>}
       {current.confirmed_at ? (
         <span className="text-slate-600">
-          {overridden
+          {manual
+            ? t('rating.proposals.manualBy', {
+                author: nameOf(current.created_by),
+                name: nameOf(current.confirmed_by),
+                at: formatMoment(current.confirmed_at, locale),
+              })
+            : overridden
             ? t('rating.confirmation.overriddenBy', {
                 name: nameOf(current.confirmed_by),
                 at: formatMoment(current.confirmed_at, locale),
@@ -113,7 +133,7 @@ export function RatingConfirmation({
           {t('rating.confirmation.confirm')}
         </Button>
       )}
-      {ownRating && (
+      {ownRating && !proposalPending && (
         <span className="ml-auto text-[13px] text-slate-500">{t('rating.confirmation.ownRating')}</span>
       )}
 

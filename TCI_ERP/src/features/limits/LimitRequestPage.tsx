@@ -457,12 +457,20 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
 
       {latest ? (
         <>
-          <GradeScale
-            score={Number(latest.rating_score)}
-            grade={latest.rating_grade}
-            bands={gradeBands}
-            size="compact"
-          />
+          {latest.rating_score === null ? (
+            // A manual grade (0073) has no score to place on the scale.
+            <p className="text-[13px] text-slate-600">
+              {t('rating.proposals.manualGrade', { grade: latest.rating_grade })}
+              {latest.manual_reason && <> — «{latest.manual_reason}»</>}
+            </p>
+          ) : (
+            <GradeScale
+              score={Number(latest.rating_score)}
+              grade={latest.rating_grade}
+              bands={gradeBands}
+              size="compact"
+            />
+          )}
           <div className="text-[13px]">
             <span className="text-slate-500">{t('report.calculatedLimit')}: </span>
             <SuggestedLimit
@@ -662,7 +670,9 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
               {(assessments.data ?? []).map((a) => (
                 <option key={a.id} value={a.id}>
                   {formatDate(a.created_at, locale)} · {a.rating_grade} ·{' '}
-                  {formatAmount(Number(a.suggested_limit), locale)} {a.limit_currency}
+                  {a.suggested_limit === null
+                    ? t('rating.proposals.manual')
+                    : `${formatAmount(Number(a.suggested_limit), locale)} ${a.limit_currency ?? ''}`}
                 </option>
               ))}
             </Select>
@@ -902,16 +912,17 @@ function SuggestedLimit({
   className = '',
 }: {
   amount: number | string | null
-  from: string
+  /** Null for a manual rating (0073): it recommends no limit. */
+  from: string | null
   to: string
   className?: string
 }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const fromRates = useLatestRatesFor(from === to ? '' : from)
-  const toRates = useLatestRatesFor(from === to ? '' : to)
+  const fromRates = useLatestRatesFor(!from || from === to ? '' : from)
+  const toRates = useLatestRatesFor(!from || from === to ? '' : to)
 
-  if (amount === null || amount === '') return <span className={`num ${className}`}>{EM_DASH}</span>
+  if (amount === null || amount === '' || !from) return <span className={`num ${className}`}>{EM_DASH}</span>
   const value = Number(amount)
   const original = `${formatAmount(value, locale)} ${from}`
   if (from === to) return <span className={`num ${className}`}>{original}</span>

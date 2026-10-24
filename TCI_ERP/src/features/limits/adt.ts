@@ -29,6 +29,8 @@ export const AUTO_DECISION_REASONS = [
   'fx_missing',
   'above_adt_amount',
   'no_rating',
+  // 0073: a manual rating carries no recommended limit
+  'no_recommended_limit',
   'above_recommended',
   'open_noa',
   'claims',
@@ -90,16 +92,18 @@ export const ADT_COUNT_BOUNDS = { min: 1, max: 1000 } as const
 // Who
 // ---------------------------------------------------------------------------
 
-/** The credit desk and admin READ the ADT block, the attempts and the
- * report (the RLS of 0061). */
+/** The credit desk — credit analysts too since 0073 — and admin READ the
+ * ADT block, the attempts and the report (the RLS of 0061, 0073). */
 export function canSeeAdt(roles: readonly UserRole[]): boolean {
-  return hasRole(roles, 'admin', 'credit_underwriter')
+  return hasRole(roles, 'admin', 'credit_underwriter', 'credit_analyst')
 }
 
-/** Only credit underwriting sets, disables or bans an ADT — since 0063 admin
- * makes no business decisions (tci.require_role('credit_underwriter')). */
+/** Credit underwriting and, since 0073, credit analysts set, disable or ban
+ * an ADT, within their own authority grants for the buyer's band — admin
+ * makes no business decisions (tci.require_role('credit_underwriter',
+ * 'credit_analyst')). */
 export function canSetAdt(roles: readonly UserRole[]): boolean {
-  return hasRole(roles, 'credit_underwriter')
+  return hasRole(roles, 'credit_underwriter', 'credit_analyst')
 }
 
 /** Only admin switches auto decisions on or off (set_auto_decision_settings). */

@@ -7,19 +7,28 @@ import { tci } from '../../../lib/supabase'
 
 export interface AssessmentRow {
   id: string
-  statement_id: string
-  rating_score: number
+  /** Null for a manual rating entered without a statement (0073). */
+  statement_id: string | null
+  /** Null for a manual rating (0073): no engine score. */
+  rating_score: number | null
   /** The grade IN FORCE: the engine's until confirmed, then the confirmed
    * one (0069). */
   rating_grade: string
   /** What the engine calculated, frozen on insert (0069). */
   engine_grade: string | null
+  /** engine | manual (0073): a manual grade came into force through a
+   * rating proposal a second person confirmed. */
+  source: 'engine' | 'manual'
+  manual_reason: string | null
+  /** Set when the grade in force was capped by the group rating (0074). */
+  group_rating_id: string | null
   created_by: string | null
   confirmed_by: string | null
   confirmed_at: string | null
   confirmation_comment: string | null
-  suggested_limit: number
-  limit_currency: string
+  /** Null for a manual rating: no recommended limit (0073). */
+  suggested_limit: number | null
+  limit_currency: string | null
   engine_version: string
   created_at: string
   calculation_trace: { rating: RatingResponse; limit: CreditLimitResponse } | null
@@ -33,7 +42,7 @@ export function useAssessments(entityId: string) {
       const { data, error } = await tci()
         .from('credit_assessments')
         .select(
-          'id, statement_id, rating_score, rating_grade, engine_grade, created_by, confirmed_by, confirmed_at, confirmation_comment, suggested_limit, limit_currency, engine_version, created_at, calculation_trace',
+          'id, statement_id, rating_score, rating_grade, engine_grade, source, manual_reason, group_rating_id, created_by, confirmed_by, confirmed_at, confirmation_comment, suggested_limit, limit_currency, engine_version, created_at, calculation_trace',
         )
         .eq('entity_id', entityId)
         .order('created_at', { ascending: false })

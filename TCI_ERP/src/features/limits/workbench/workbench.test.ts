@@ -94,7 +94,7 @@ describe('limit views', () => {
     expect(limitViewsFor(['sales'])).toEqual(['queue', 'inforce'])
     expect(limitViewsFor(['commercial_underwriter', 'sales'])).toEqual(['queue', 'inforce'])
     // the credit analyst (0069): the analysis views, never the decision queue
-    expect(limitViewsFor(['credit_analyst'])).toEqual(['ratings', 'monitoring', 'inforce', 'groups'])
+    expect(limitViewsFor(['credit_analyst'])).toEqual(['ratings', 'monitoring', 'inforce', 'groups', 'auto'])
   })
 
   it('opens the requested view, an old ?tab= link on the queue, otherwise the first view', () => {

@@ -58,6 +58,10 @@ export const TASK_TYPES = [
   // Authority levels (migration 0071): a rank the direct routing skipped is
   // told, for information
   'limit_validation_fyi',
+  // Rating proposals (migrations 0072–0073): a suggested grade waits for a
+  // colleague or a level; the proposer hears how it ended
+  'rating_proposal',
+  'rating_proposal_result',
 ] as const
 
 export type TaskType = (typeof TASK_TYPES)[number]
@@ -90,6 +94,8 @@ export type TaskObjectType =
   | 'commercial_offer'
   // a limit decision waiting for (or answered by) a validator (0060)
   | 'limit_validation'
+  // a rating proposal waiting for (or answered by) a colleague or a level (0073)
+  | 'rating_proposal_step'
 
 export interface Task {
   id: string

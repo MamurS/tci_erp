@@ -754,6 +754,85 @@
         "gradeInvalid": "Bunday reyting shkalada yo‘q.",
         "immutable": "Reyting — tarix, u o‘zgartirilmaydi; faqat uning tasdig‘i yoziladi."
       }
+    },
+    "proposals": {
+      "title": "Reyting takliflari",
+      "hint": "Qo‘lda belgilangan yoki tasdiqlashga yuborilgan reyting faqat ikkinchi shaxs tasdiqlaganidan keyin kuchga kiradi — hamkasb yoki u yuborilgan kredit vakolat darajalari.",
+      "sendEngine": "Tasdiqlashga yuborish",
+      "manualAction": "Reytingni qo‘lda belgilash",
+      "none": "Bu bayer bo‘yicha hozircha reyting takliflari yo‘q.",
+      "manual": "Qo‘lda belgilangan reyting",
+      "manualGrade": "Qo‘lda belgilangan reyting {{grade}}",
+      "manualBy": "Belgiladi: {{author}}, tasdiqladi: {{name}}, {{at}}",
+      "manualTitle": "Reytingni qo‘lda belgilash",
+      "manualHint": "Modelsiz reyting taklif qiling — masalan, hisoboti yo‘q bayer uchun. Hisobot ixtiyoriy, sabab majburiy. Reyting ikkinchi shaxs tasdiqlaganidan keyin kuchga kiradi.",
+      "engineTitle": "Reytingni tasdiqlashga yuborish",
+      "engineHint": "Tavsiya etilgan reyting — {{grade}}. Uni yoki shkaladagi boshqa reytingni taklif qiling va sababini yozing. Reyting ikkinchi shaxs tasdiqlaganidan keyin kuchga kiradi.",
+      "grade": "Taklif etilayotgan reyting",
+      "otherGrade": "Tasdiqlanayotgan reyting",
+      "gradeTyped": "Reyting shkalasi mavjud emas: reytingni kiriting, masalan B1.",
+      "statement": "Asos bo‘lgan hisobot",
+      "statementOptional": "Ixtiyoriy",
+      "noStatement": "Hisobotsiz",
+      "reason": "Sabab",
+      "reasonRequired": "Majburiy",
+      "route": "Kimga",
+      "routes": {
+        "colleague": "Hamkasbga",
+        "escalate": "Yuqoriga yo‘naltirish"
+      },
+      "routeHintColleague": "Reytinglarni tasdiqlaydigan istalgan hamkasb tasdiqlashi mumkin; siz emas.",
+      "routeHintEscalate": "Taklif uni qabul qila oladigan keyingi kredit vakolat darajasiga, darajama-daraja, kredit qo‘mitasigacha boradi.",
+      "submitColleague": "Tasdiqlashga yuborish",
+      "submitEscalate": "Yuqoriga yo‘naltirish",
+      "withColleague": "hamkasbda",
+      "sitsWith": "Kutilmoqda: {{where}}, {{date}} dan",
+      "reasonBy": "{{name}}, {{date}}",
+      "answerers": "Javob berishi mumkin: {{names}}",
+      "noAnswerers": "Hozir javob beradigan hech kim yo‘q — taklifni yuqoriga yo‘naltiring yoki administratordan darajalarni sozlashni so‘rang.",
+      "actions": {
+        "approve": "Tasdiqlash",
+        "approve_modified": "Boshqa reytingni tasdiqlash",
+        "return": "Qaytarish",
+        "reject": "Rad etish",
+        "forward": "Keyingi darajaga yo‘naltirish"
+      },
+      "withdraw": "Qaytarib olish",
+      "commentRequired": "Majburiy",
+      "statuses": {
+        "pending": "Tasdiqlashda",
+        "approved": "Tasdiqlandi",
+        "modified": "Boshqa reyting tasdiqlandi",
+        "returned": "Qaytarildi",
+        "rejected": "Rad etildi",
+        "forwarded": "Yo‘naltirildi",
+        "withdrawn": "Qaytarib olindi"
+      },
+      "committeeOutcome": {
+        "approve": "reyting tasdiqlanadi",
+        "reject": "taklif rad etiladi",
+        "return": "ko‘pchilik bo‘lmasa, taklif muallifga qaytadi"
+      },
+      "history": "Avvalgi takliflar ({{count}})",
+      "historyLine": "Taklif qildi: {{proposer}}, javob berdi: {{resolver}}",
+      "failed": "Reyting taklifini saqlab bo‘lmadi.",
+      "errors": {
+        "notAllowed": "Joriy kredit tahlili rejimida rolingiz bayerlarga reyting bermaydi.",
+        "reasonRequired": "Bu reytingni nima uchun taklif qilayotganingizni yozing.",
+        "pending": "Bu bayer bo‘yicha reyting taklifi allaqachon javob kutmoqda.",
+        "assessmentMismatch": "Bu reyting boshqa bayerga tegishli.",
+        "statementMismatch": "Bu hisobot boshqa bayerga tegishli.",
+        "noColleague": "Hozir reytinglarni boshqa hech kim tasdiqlamaydi — taklifni vakolat darajasiga yo‘naltiring.",
+        "levelMissing": "Hech bir kredit vakolat darajasi bu reytingni qabul qila olmaydi. Administratordan darajalarni sozlashni so‘rang.",
+        "notEligible": "Bu taklifga javob bera olmaysiz: u sizniki, siz unda allaqachon ishtirok etgansiz yoki u sizning darajangizda emas.",
+        "committeeVotes": "Bu reytingni qo‘mita ovoz berish orqali hal qiladi.",
+        "committeeIsLast": "Qo‘mita — zanjirning eng yuqorisi; undan yuqori hech narsa yo‘q.",
+        "notCommittee": "Bu reyting qo‘mita ko‘rib chiqishida emas.",
+        "closed": "Bu reyting taklifiga allaqachon javob berilgan.",
+        "modifiedSame": "Bu taklif etilgan reytingning o‘zi — uni o‘zgartirmasdan tasdiqlang.",
+        "withdrawNotYours": "Reyting taklifini faqat uning muallifi qaytarib olishi mumkin.",
+        "manualDirect": "Qo‘lda belgilangan reyting faqat tasdiqlangan reyting taklifi orqali kuchga kiradi."
+      }
     }
   },
   "report": {
@@ -1123,7 +1202,8 @@
       "turnover": "Aylanma ko‘rsatkichlari (kun)",
       "note": "Tashkilot ko‘rsatkichlari, yillik hisobot."
     },
-    "unchanged": "o‘zgarishsiz"
+    "unchanged": "o‘zgarishsiz",
+    "manualRating": "{{grade}} reytingi qo‘lda belgilangan va ikkinchi shaxs tomonidan tasdiqlangan; tavsiya etilgan limit yo‘q."
   },
   "policyholders": {
     "subtitle": "Sug‘urtalanuvchilar (sotuvchilar) — TCI polislari egalari",
@@ -1868,7 +1948,8 @@
         "no_financials": "Bayerda moliyaviy hisobot yo‘q",
         "stale_financials": "Bayerning moliyaviy hisoboti eskirgan",
         "group_limit": "Guruh o‘z guruh limitidan oshib ketadi",
-        "downgrade": "Bayer reytingi ADT belgilangan reyting diapazonidan pastga tushdi"
+        "downgrade": "Bayer reytingi ADT belgilangan reyting diapazonidan pastga tushdi",
+        "no_recommended_limit": "Reytingda tavsiya etilgan limit yo‘q (qo‘lda belgilangan reyting)"
       },
       "attempt": {
         "decided": "Qaror avtomatik qabul qilindi (ADT)",
@@ -2222,6 +2303,14 @@
         "chairCommitteeOnly": "Faqat qo‘mitada rais bo‘ladi.",
         "chairNotMember": "Rais qo‘mita a’zosi bo‘lishi kerak."
       }
+    },
+    "senior": {
+      "mark": "Katta deb belgilash",
+      "marked": "Katta tahlilchi",
+      "hint": "Katta kredit tahlilchi guruh reytinglarini belgilaydi",
+      "errors": {
+        "requiresAnalyst": "Faqat kredit tahlilchini katta deb belgilash mumkin."
+      }
     }
   },
   "requests": {
@@ -2533,7 +2622,8 @@
       "contract_draft": "Shartnoma loyihasi",
       "bank_statement_import": "Bank ko‘chirmasi",
       "commercial_offer": "Tijorat taklifi",
-      "limit_validation": "Limitni tasdiqlash"
+      "limit_validation": "Limitni tasdiqlash",
+      "rating_proposal_step": "Reyting taklifi"
     },
     "taskTypes": {
       "buyer_needs_entity": "Bayerni aniqlash",
@@ -2576,7 +2666,9 @@
       "limit_validation_result": "Tasdiqlash natijasi",
       "adt_review": "Bayerni qayta ko‘rib chiqish / ADTni yangilash",
       "limit_information_needed": "Bayer bo‘yicha ma’lumot yig‘ish",
-      "limit_validation_fyi": "Limitni tasdiqlash: ma’lumot uchun"
+      "limit_validation_fyi": "Limitni tasdiqlash: ma’lumot uchun",
+      "rating_proposal": "Reytingni tasdiqlash",
+      "rating_proposal_result": "Reyting tasdiqlash natijasi"
     },
     "tasks": {
       "buyer_needs_entity": "{{subject}} arizasidagi «{{name}}» ortidagi tashkilotni aniqlang",
@@ -2634,7 +2726,13 @@
       "adt_review_stale_financials": "{{entity_name}} bayerining ADTsi to‘xtatildi: hisobot eskirgan — bayerni qayta ko‘rib chiqing",
       "limit_information_needed": "Limit so‘rovi uchun {{entity_name}} bayeri bo‘yicha ma’lumot yig‘ish",
       "limit_validation_committee": "Qo‘mita ovozi: {{entity_name}} limiti (muallif: {{proposed_by_name}})",
-      "limit_validation_fyi": "Ma’lumot uchun: {{entity_name}} limiti bo‘yicha qaror darajangizdan yuqoriga o‘tdi (muallif: {{proposed_by_name}})"
+      "limit_validation_fyi": "Ma’lumot uchun: {{entity_name}} limiti bo‘yicha qaror darajangizdan yuqoriga o‘tdi (muallif: {{proposed_by_name}})",
+      "rating_proposal": "{{entity_name}} uchun taklif etilgan {{grade}} reytingini tasdiqlang (muallif: {{proposed_by_name}})",
+      "rating_proposal_committee": "Qo‘mita ovozi: {{entity_name}} uchun {{grade}} reytingi (muallif: {{proposed_by_name}})",
+      "rating_proposal_result_approved": "{{entity_name}} uchun {{grade}} reytingingiz tasdiqlandi — {{resolver_name}}",
+      "rating_proposal_result_modified": "{{entity_name}} uchun reytingingiz {{grade}} sifatida tasdiqlandi — {{resolver_name}}",
+      "rating_proposal_result_returned": "{{entity_name}} uchun reyting taklifingiz qayta ishlashga qaytarildi — {{resolver_name}}",
+      "rating_proposal_result_rejected": "{{entity_name}} uchun reyting taklifingiz rad etildi — {{resolver_name}}"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
@@ -2846,7 +2944,13 @@
       "adt_review_manual_block": "ADT to‘xtatildi: avtomatik qarorlar taqiqlangan — bayerni qayta ko‘rib chiqish",
       "adt_review_no_financials": "ADT to‘xtatildi: hisobot yo‘q — bayerni qayta ko‘rib chiqish",
       "adt_review_stale_financials": "ADT to‘xtatildi: hisobot eskirgan — bayerni qayta ko‘rib chiqish",
-      "limit_validation_fyi": "Darajangizdan yuqori limit qarori"
+      "limit_validation_fyi": "Darajangizdan yuqori limit qarori",
+      "rating_proposal": "Tasdiqlanadigan reyting",
+      "rating_proposal_result": "Reyting tasdiqlash natijasi",
+      "rating_proposal_result_approved": "Reyting taklifingiz tasdiqlandi",
+      "rating_proposal_result_modified": "Reytingingiz boshqa qiymat bilan tasdiqlandi",
+      "rating_proposal_result_returned": "Reyting taklifingiz qayta ishlashga qaytarildi",
+      "rating_proposal_result_rejected": "Reyting taklifingiz rad etildi"
     },
     "facts": {
       "policies_one": "{{count}} ta polis",
@@ -2865,7 +2969,8 @@
       "membersWithLimits_few": "limitli {{count}} ta ishtirokchi",
       "membersWithLimits_many": "limitli {{count}} ta ishtirokchi",
       "from": "muallif: {{name}}",
-      "validatedBy": "tasdiqlovchi: {{name}}"
+      "validatedBy": "tasdiqlovchi: {{name}}",
+      "proposedGrade": "{{grade}} reytingi"
     },
     "sub": {
       "instalment": "{{sequence}}-to‘lov"
@@ -4442,6 +4547,41 @@
       "endRelationshipAction": "Bog‘lanishni to‘xtatish",
       "endLimitTitle": "Guruh limiti olib tashlansinmi?",
       "endLimitMessage": "{{name}} guruh limiti bugundan amal qilmaydi: guruh a’zolari bo‘yicha qarorlar endi u bilan solishtirilmaydi. Limit tarixda qoladi."
+    },
+    "rating": {
+      "title": "Guruh reytingi",
+      "hint": "Butun guruhning reytingi. Ishtirokchining reytingi undan yaxshi bo‘la olmaydi: belgilanganda yoki pasaytirilganda ishtirokchilar darhol shu bilan cheklanadi, ishtirokchining har bir yangi reytingi yozilishida cheklanadi. Ko‘tarish yoki to‘xtatish hech kimni ko‘tarmaydi — ishtirokchi faqat yangi reyting bilan ko‘tariladi.",
+      "set": "Guruh reytingini belgilash",
+      "change": "O‘zgartirish",
+      "end": "Guruh reytingini to‘xtatish",
+      "none": "Bu guruhda guruh reytingi yo‘q.",
+      "whoSets": "Uni katta kredit tahlilchi belgilaydi: {{names}}.",
+      "noSenior": "Uni katta kredit tahlilchi belgilaydi; hozircha hech kim katta deb belgilanmagan (Admin › Foydalanuvchilar va rollar).",
+      "setBy": "Belgiladi: {{name}}, {{at}}",
+      "cappedMembers": "Hozir cheklangan: {{names}}",
+      "noneCapped": "Hozir u hech bir ishtirokchini cheklamaydi.",
+      "cappedNow": "Saqlandi. Cheklangan ishtirokchilar: {{count}}.",
+      "ended": "Guruh reytingi to‘xtatildi. Cheklangan ishtirokchilar yangi reytinggacha reytinglarini saqlaydi.",
+      "history": "Avvalgi guruh reytinglari ({{count}})",
+      "statuses": {
+        "replaced": "Almashtirilgan",
+        "ended": "To‘xtatilgan"
+      },
+      "setTitle": "Guruh reytingini belgilash",
+      "setHint": "Reytingi bundan yaxshi bo‘lgan har bir ishtirokchi darhol shu sabab bilan cheklanadi.",
+      "endTitle": "Guruh reytingini to‘xtatish",
+      "endHint": "Allaqachon cheklangan ishtirokchilar reytinglarini saqlaydi; yangi reytinglarga cheklov endi qo‘llanmaydi.",
+      "grade": "Guruh reytingi",
+      "save": "Saqlash",
+      "cappedBadge": "Guruh reytingi bilan cheklangan",
+      "failed": "Guruh reytingini saqlab bo‘lmadi.",
+      "errors": {
+        "seniorOnly": "Guruh reytingini faqat katta kredit tahlilchi belgilaydi yoki to‘xtatadi.",
+        "reasonRequired": "Guruh reytingining sababini yozing.",
+        "none": "Bu guruhda to‘xtatiladigan guruh reytingi yo‘q.",
+        "aboveCap": "Bu reyting ushbu bayerni cheklaydigan guruh reytingidan yaxshi.",
+        "capDirect": "Cheklangan reyting faqat guruh reytingi orqali yoziladi."
+      }
     }
   },
   "mfaVerify": {

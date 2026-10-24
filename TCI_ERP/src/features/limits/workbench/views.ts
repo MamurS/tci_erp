@@ -25,9 +25,10 @@ export type LimitView = (typeof LIMIT_VIEWS)[number]
 
 const SHARED_VIEWS: readonly LimitView[] = ['queue', 'inforce']
 
-/** The credit analyst (0069) works the ratings and watches the book; the
- * decision queue, ADT and authority are credit underwriting's. */
-const ANALYST_VIEWS: readonly LimitView[] = ['ratings', 'monitoring', 'inforce', 'groups']
+/** The credit analyst (0069) works the ratings and watches the book, and
+ * since 0073 sets ADTs (the auto decisions report); the decision queue and
+ * authority are credit underwriting's. */
+const ANALYST_VIEWS: readonly LimitView[] = ['ratings', 'monitoring', 'inforce', 'groups', 'auto']
 
 /** Credit underwriting and admin see the whole workbench. */
 export function isCreditDesk(roles: readonly UserRole[]): boolean {

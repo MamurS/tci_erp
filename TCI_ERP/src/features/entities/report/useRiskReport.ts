@@ -191,7 +191,8 @@ export function useRiskReport({ entityId, locale, reportType: wanted, displayCur
     stale: latest ? isStale(latest.period_end_date, today.toISOString().slice(0, 10)) : false,
     latestAssessment,
     previousAssessment,
-    score: latestAssessment ? Number(latestAssessment.rating_score) : null,
+    // A manual rating (0073) has no score.
+    score: latestAssessment?.rating_score == null ? null : Number(latestAssessment.rating_score),
     owners: owners.data ?? [],
     exposureUzs: exposure.data?.exposure_uzs ?? null,
     hasGroup,

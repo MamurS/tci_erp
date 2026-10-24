@@ -90,6 +90,11 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   // Authority levels (migration 0071): the skipped rank reads it and puts it
   // away — nothing downstream resolves information.
   limit_validation_fyi: 'manual',
+  // Rating proposals (migration 0073): the answerer's task closes when the
+  // proposal is answered, forwarded or withdrawn (or they voted); the
+  // proposer's notice of the result is the seventh manual type.
+  rating_proposal: 'auto',
+  rating_proposal_result: 'manual',
 }
 
 /** Mirrors tci.complete_task's guard (as 0060 restates it): it refuses
@@ -181,6 +186,11 @@ export function taskLink(
       return task.task_type === 'limit_validation' || task.task_type === 'limit_validation_fyi'
         ? `/limits/${requestId}?focus=validation`
         : `/limits/${requestId}`
+    }
+    case 'rating_proposal_step': {
+      // A proposal step has no page; the buyer's rating tab does.
+      const entityId = task.params?.entity_id
+      return typeof entityId === 'string' ? `/entities/${entityId}?tab=rating&focus=rating-proposal` : null
     }
     default:
       return null
@@ -313,6 +323,7 @@ export const OBJECT_FILTERS = [
   'contract_draft',
   'commercial_offer',
   'limit_validation',
+  'rating_proposal_step',
 ] as const satisfies readonly TaskObjectType[]
 
 export interface AgendaFilters {

@@ -470,7 +470,8 @@ export function subjectFor(task: Task, subjects: TaskSubjects | undefined): stri
       return typeof requestId === 'string' ? (subjects.limitRequests[requestId] ?? null) : null
     }
     case 'limit_validation':
-      // The buyer's name rides on the task (0060's mapping copies it).
+    case 'rating_proposal_step':
+      // The buyer's name rides on the task (0060's mapping copies it; 0073 too).
       return typeof task.params?.entity_name === 'string' ? task.params.entity_name : null
     default:
       return null
@@ -516,6 +517,7 @@ export function contextFor(task: Task, subjects: TaskSubjects | undefined): stri
     case 'credit_limit_request':
     case 'credit_limit_decision':
     case 'limit_validation':
+    case 'rating_proposal_step':
       return subjectFor(task, subjects)
     default:
       return null

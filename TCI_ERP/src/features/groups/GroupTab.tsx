@@ -35,6 +35,7 @@ import { buildOwnershipTree, membersOutsideTree } from './group'
 import { GroupExposurePanel } from './GroupExposurePanel'
 import { GroupFinancialsPanel } from './GroupFinancialsPanel'
 import { GroupLimitModal } from './GroupLimitModal'
+import { GroupRatingCard } from './GroupRatingCard'
 import { GroupMembersTable } from './GroupMembersTable'
 import { GroupTree } from './GroupTree'
 import { RelationshipModal } from './RelationshipModal'
@@ -186,6 +187,9 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
         onSetLimit={() => setLimitOpen(true)}
         onEndLimit={() => setEndingLimit(true)}
       />
+
+      {/* The group's grade caps its members' (0074). */}
+      <GroupRatingCard entityId={entityId} />
 
       <Card className="flex flex-col gap-3 p-5">
         <SectionTitle>{t('groups.members.title')}</SectionTitle>
