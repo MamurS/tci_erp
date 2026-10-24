@@ -24,6 +24,8 @@ import VALIDATION from '../../../supabase/migrations/0060_limit_validation.sql?r
 import ADT from '../../../supabase/migrations/0061_auto_decisions.sql?raw'
 import INFO_ENUMS from '../../../supabase/migrations/0066_information_gathering_enums.sql?raw'
 import INFO from '../../../supabase/migrations/0067_information_gathering.sql?raw'
+import LEVELS_ENUMS from '../../../supabase/migrations/0070_authority_levels_enums.sql?raw'
+import LEVELS from '../../../supabase/migrations/0071_authority_levels.sql?raw'
 import {
   AGENDA_GROUPS,
   agendaCounts,
@@ -96,6 +98,7 @@ describe('task type enum', () => {
       ...VALIDATION.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
       ...ADT.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
       ...INFO_ENUMS.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
+      ...LEVELS_ENUMS.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
     ].map((m) => m[1])
     expect([...created, ...appended]).toEqual([...TASK_TYPES])
   })
@@ -142,7 +145,10 @@ describe('task type enum', () => {
     // 0066 adds limit_information_needed (0067 uses it).
     const addedInfo = INFO_ENUMS.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
     expect(addedInfo).toHaveLength(1)
-    expect(TASK_TYPES).toHaveLength(40)
+    // 0070 adds limit_validation_fyi (0071 uses it).
+    const addedLevels = LEVELS_ENUMS.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
+    expect(addedLevels).toHaveLength(1)
+    expect(TASK_TYPES).toHaveLength(41)
   })
 
   it('lists exactly the values of tci.task_priority', () => {
@@ -158,11 +164,12 @@ describe('completion rules', () => {
     expect(Object.keys(COMPLETION_RULES).sort()).toEqual([...TASK_TYPES].sort())
   })
 
-  it('marks exactly the five types the migrations call manual', () => {
+  it('marks exactly the six types the migrations call manual', () => {
     const manual = TASK_TYPES.filter((type) => COMPLETION_RULES[type] === 'manual')
     expect([...manual].sort()).toEqual([
       'claim_declined_review',
       'entity_request_resolved',
+      'limit_validation_fyi',
       'limit_validation_result',
       'submission_declined',
       'uncovered_excess_review',
@@ -175,9 +182,9 @@ describe('completion rules', () => {
     expect(PHASE5).toContain('claim_declined_review is MANUAL for the same reason as submission_declined')
   })
 
-  it('mirrors the guard in tci.complete_task as 0060 restated it', () => {
-    expect(VALIDATION).toContain(
-      "     ('submission_declined', 'uncovered_excess_review', 'claim_declined_review',\n      'entity_request_resolved', 'limit_validation_result') then",
+  it('mirrors the guard in tci.complete_task as 0071 restated it', () => {
+    expect(LEVELS).toContain(
+      "     ('submission_declined', 'uncovered_excess_review', 'claim_declined_review',\n      'entity_request_resolved', 'limit_validation_result', 'limit_validation_fyi') then",
     )
     const MANUAL = [
       'submission_declined',
@@ -185,6 +192,7 @@ describe('completion rules', () => {
       'claim_declined_review',
       'entity_request_resolved',
       'limit_validation_result',
+      'limit_validation_fyi',
     ]
     for (const type of TASK_TYPES) {
       expect(canCompleteByHand(type)).toBe(MANUAL.includes(type))
@@ -195,7 +203,7 @@ describe('completion rules', () => {
     // Each header row is "<type>  <target>  AUTO ..." or "... MANUAL - ...".
     // A row may continue on the next comment lines (0060 wraps
     // limit_validation's), so the rule is read up to the next type's row.
-    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}\n${PAYMENTS}\n${CONTRACTS}\n${OFFERS}\n${VALIDATION}\n${INFO}`.split('\n')
+    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}\n${PAYMENTS}\n${CONTRACTS}\n${OFFERS}\n${VALIDATION}\n${INFO}\n${LEVELS}`.split('\n')
     // 0061 has no catalogue table in its header: adt_review's rule is read
     // from its mapping instead (the next test).
     for (const type of TASK_TYPES.filter((t) => t !== 'adt_review')) {

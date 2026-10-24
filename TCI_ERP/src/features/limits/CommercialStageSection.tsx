@@ -24,10 +24,10 @@ import {
   useDecisionChain,
   useEffectiveLimits,
   useLatestRatesFor,
-  useMyAuthorityGrants,
+  useMyStreamAuthorityUzs,
   useSalesWindowHours,
 } from './api'
-import { commercialPreflight } from './authority'
+import { preflight } from './authority'
 import { fourEyesNoticeKey, fourEyesRefusal } from './fourEyes'
 import { outcomeTone } from './machine'
 import { GroupPreflightNotice, groupErrorKey, useGroupPreflight } from '../groups'
@@ -63,7 +63,6 @@ export function CommercialStageSection({
 
   const limit = limits?.[0] ?? null
   const { data: chain } = useDecisionChain(limit?.credit_decision_id ?? '')
-  const { data: grants } = useMyAuthorityGrants(session?.user.id)
   const { data: rates } = useLatestRatesFor(limit?.currency_code ?? '')
 
   const [amount, setAmount] = useState('')
@@ -88,6 +87,9 @@ export function CommercialStageSection({
     assessments.data?.find((a) => a.id === limit?.based_on_assessment_id)?.rating_grade,
   )
 
+  // Personal grants or the authority level, whichever is larger (0071).
+  const { data: myAuthority } = useMyStreamAuthorityUzs('commercial', band)
+
   const parsedAmount = parseAmount(amount) ?? Number.NaN
   const amountValid = Number.isFinite(parsedAmount) && parsedAmount > 0
   const todayIso = new Date().toISOString().slice(0, 10)
@@ -96,16 +98,9 @@ export function CommercialStageSection({
   const check = useMemo(
     () =>
       amountValid && limit
-        ? commercialPreflight(
-            parsedAmount,
-            limit.currency_code,
-            band,
-            grants ?? [],
-            rates ?? [],
-            todayIso,
-          )
+        ? preflight(parsedAmount, limit.currency_code, band, myAuthority ?? null, rates ?? [], todayIso)
         : null,
-    [amountValid, limit, parsedAmount, band, grants, rates, todayIso],
+    [amountValid, limit, parsedAmount, band, myAuthority, rates, todayIso],
   )
 
   // Where the adjusted amount would leave the group. The scope being
@@ -343,6 +338,7 @@ export function CommercialStageSection({
 
       {validationOpen && amountValid && (
         <SendForValidationModal
+          requestId={request.id}
           stream="commercial"
           band={validationOpen.needs?.grade_band ?? band}
           amount={parsedAmount}
@@ -375,10 +371,9 @@ export function CommercialStageSection({
           }
           pending={sendForValidation.isPending}
           onClose={() => setValidationOpen(null)}
-          onSubmit={async (validatorId, validationComment, validatorName) => {
+          onSubmit={async (validationComment, destination) => {
             await sendForValidation.mutateAsync({
               decisionId: limit.credit_decision_id,
-              validatorId,
               amount: parsedAmount,
               paymentTermsDays: terms ? Number(terms) : null,
               comment: validationComment ?? (comment.trim() || null),
@@ -386,7 +381,7 @@ export function CommercialStageSection({
             setValidationOpen(null)
             setAmount('')
             setComment('')
-            onNotice(t('limits.validation.sent', { name: validatorName }))
+            onNotice(t('limits.validation.sent', { name: destination }))
           }}
         />
       )}

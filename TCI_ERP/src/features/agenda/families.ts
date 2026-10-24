@@ -54,6 +54,7 @@ export const TASK_FAMILY: Readonly<Record<TaskType, Family>> = {
   statements_requested: 'data',
   entity_request_resolved: 'data',
   limit_information_needed: 'data',
+  limit_validation_fyi: 'limits',
 
   contract_review: 'contracts',
 
@@ -115,6 +116,7 @@ export const TASK_TAG: Readonly<Record<TaskType, Tag>> = {
   statements_requested: 'data',
   entity_request_resolved: 'data',
   limit_information_needed: 'data',
+  limit_validation_fyi: 'validation',
   contract_review: 'contract',
   offer_viewed: 'submission',
   offer_expiring: 'submission',

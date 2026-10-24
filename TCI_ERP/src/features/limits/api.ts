@@ -6,7 +6,7 @@ import type { QueryClient } from '@tanstack/react-query'
 
 import { exactly, optimistic, rowAt, rowInList, rowInLists, updateRow } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
-import type { GradeBand } from '../../lib/roles'
+import type { AuthorityScope, GradeBand } from '../../lib/roles'
 import type { GroupPreflight } from '../groups/types'
 import type { FxRateRow } from './authority'
 import type {
@@ -504,6 +504,19 @@ export function useMyAuthorityUzs(band: GradeBand) {
     queryKey: [...KEYS.authority, band],
     queryFn: async (): Promise<number> => {
       const { data, error } = await tci().rpc('my_authority_uzs', { p_band: band })
+      if (error) throw error
+      return Number(data ?? 0)
+    },
+  })
+}
+
+/** The caller's band authority in a stream, personal grants or their
+ * authority level, whichever is larger (tci.my_stream_authority_uzs, 0071). */
+export function useMyStreamAuthorityUzs(stream: AuthorityScope, band: GradeBand) {
+  return useQuery({
+    queryKey: [...KEYS.authority, stream, band],
+    queryFn: async (): Promise<number> => {
+      const { data, error } = await tci().rpc('my_stream_authority_uzs', { p_stream: stream, p_band: band })
       if (error) throw error
       return Number(data ?? 0)
     },

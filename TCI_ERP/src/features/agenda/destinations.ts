@@ -86,7 +86,8 @@ const validation: Builder = (_row, lead, names) => {
     ...(place ? [{ key: place }] : []),
   ]
   if (!requestId) return { path: '/limits', action: 'open', crumbs: crumbs(null) }
-  if (lead.task_type === 'limit_validation') {
+  // 0071: a skipped rank is told on the same panel it would have answered on.
+  if (lead.task_type === 'limit_validation' || lead.task_type === 'limit_validation_fyi') {
     return {
       path: `/limits/${requestId}?focus=validation`,
       action: 'review',
@@ -313,6 +314,7 @@ export const DESTINATIONS: Readonly<Record<TaskType, Builder>> = {
   offer_expired: offer('review'),
   limit_validation: validation,
   limit_validation_result: validation,
+  limit_validation_fyi: validation,
   adt_review: adtReview,
   limit_information_needed: informationNeeded,
   entity_request_resolved: (row, lead, names) => {

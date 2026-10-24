@@ -42,7 +42,7 @@ Department roles (stored in `tci.user_roles`, enforced via RLS). **A user may ho
 
 SQL helpers: `tci.current_user_roles()` (setof — the ACTING role only since 0063), `tci.has_role(variadic)` and `tci.is_staff()` (= acting role is not `client`) answer for the acting role; `tci.held_roles()` lists every role held (the workspace switcher); `tci.acting_role()` / `tci.set_acting_role(role)`. There is **no `senior_underwriter`** any more — seniority is expressed by the authority matrix.
 
-Underwriting authority is a **2D matrix** (`tci.authority_grants`): user × stream (`credit` | `commercial`) × grade band (`A`/`B`/`C`/`D`/`unrated`) × amount × currency × validity. `tci.my_authority_uzs(band)` = MAX over the caller's currently valid `credit` grants for that band, converted to UZS by the Phase 2b fx rule. **Nobody is unlimited** — since 0063 admin holds no authority and makes no limit decision. A decision above the deciding user's band authority is not recorded: since 0060 `decide_limit_request` answers `needs_validation`, and the author sends the PROPOSED decision to a NAMED validator of the same department whose band authority covers it (`submit_limit_for_validation`; the author's manager is offered first). The request sits as `escalated` (a workflow status, not just UI hiding) «на валидации» with that person, who approves, approves modified within their own authority, returns, rejects or forwards — see **Limit validation rules** below. A group-limit breach (0040) still escalates to the credit pool. The band comes from the grade FAMILY of the assessment the decision is based on (A1/A2→A …); no assessment ⇒ `unrated`. Band families are served by the analytics service (`GET /grade-scale` → `family`), never hardcoded outside the band names.
+Underwriting authority is a **2D matrix** (`tci.authority_grants`): user × stream (`credit` | `commercial`) × grade band (`A`/`B`/`C`/`D`/`unrated`) × amount × currency × validity. `tci.my_authority_uzs(band)` = MAX over the caller's currently valid `credit` grants for that band, converted to UZS by the Phase 2b fx rule. **Nobody is unlimited** — since 0063 admin holds no authority and makes no limit decision. A decision above the deciding user's band authority is not recorded: since 0060 `decide_limit_request` answers `needs_validation`, and the author sends the PROPOSED decision up the **authority levels** of the stream (since 0071 — ranks 1–4 with band authority as the level's grants, rank 5 the committee; a person's authority is the larger of their personal grants and their level's): straight to the lowest rank that covers it (`direct`, the ranks in between told) or rank by rank (`sequential`). Nobody is named any more (`named_validator_retired`). The request sits as `escalated` (a workflow status, not just UI hiding) «на валидации» with that level; any eligible member approves, approves modified within their own authority, returns, rejects or forwards to the next rank; the committee decides by vote — see **Limit validation rules** and **Authority levels rules** below. A group-limit breach (0040) still escalates to the credit pool. The band comes from the grade FAMILY of the assessment the decision is based on (A1/A2→A …); no assessment ⇒ `unrated`. Band families are served by the analytics service (`GET /grade-scale` → `family`), never hardcoded outside the band names.
 
 ## i18n
 
@@ -786,6 +786,21 @@ is fine for internal test accounts and not fine for customers.
   `tests/db/credit_analysis.sql` run on canonical with role impersonation
   (forced rollback, nothing left behind, counts unchanged, mode still
   `combined`); no new advisor finding
+- [x] Authority levels and the committee (Prompt 29 §4a, migrations
+  0070–0071): `tci.authority_levels` (credit / commercial × ranks 1–5,
+  rank 5 the committee with a chair), band authority as the LEVEL's grants
+  (`authority_level_grants`), members (`authority_level_members`, one rank
+  1–4 per stream plus a committee seat); `workflow_settings.authority_routing`
+  `direct` (to the lowest covering rank, the skipped ranks told —
+  `limit_validation_fyi`, a sixth manual Agenda type) or `sequential` (rank
+  by rank; an approval beyond the approver's own authority goes on); any
+  eligible member of the level answers; the committee votes (immutable
+  `committee_votes`, conflicts declared and barred, quorum ≥ half, simple
+  majority, the chair's casting vote, no majority ⇒ back to the author);
+  the named validator of 0060 is retired. Admin › Полномочия «Уровни
+  полномочий», the route on «Отправить на валидацию», the committee panel on
+  the request page. See **Authority levels rules** below. **Canonical: not
+  yet applied**
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1811,6 +1826,55 @@ untouched.
 request is on validation and with whom (`limit_request_validation_state`).
 No API role writes the table; a BEFORE UPDATE trigger lets only the
 resolution columns of a pending step change, once.
+
+### Authority levels rules (migrations 0070–0071)
+
+**A proposal goes to a level, never to a person.** `submit_limit_for_validation`
+and `submit_adjustment_for_validation` refuse a validator
+(`named_validator_retired`) and route with `tci.route_validation_level`:
+above the author's rank (`tci.user_rank`, 0 without one), ranks nobody
+eligible can answer are skipped; `required` + `direct` → the lowest rank whose
+level authority (`tci.level_authority_uzs`; the committee is `Infinity`)
+covers the amount, else the committee; voluntary, `sequential` or a forward →
+the next rank up. Nothing qualifies ⇒ `authority_level_missing`. In `direct`
+mode the eligible members of the skipped ranks get `limit_validation_fyi`
+(manual close). A 0060 step still pending with a named validator is answered
+as before.
+
+**Who answers** (`tci.level_eligible_members`): an active member of the
+level holding the stream's department role, not banned, four eyes clear
+(`limit_four_eyes_refusal` — so not the requester, nor in separate credit
+analysis the rater), not anywhere in the chain (proposer, validator,
+forwarder, resolver) and not conflicted on the step. Every eligible member
+gets the `limit_validation` task; the first answer closes them all. A
+member approving AS IS beyond their own authority passes it to the next rank
+(`v_action := 'forward'`); approve-modified beyond it is refused.
+
+**Authority counts the level.** `my_authority_uzs`, `user_authority_uzs`,
+`underwriters_covering`, the queue's `decide_alone` and
+`adjust_limit_commercial` (`my_stream_authority_uzs`) take the larger of
+the personal grants and the level grants (`tci.level_authority_of`).
+
+**The committee votes.** `cast_committee_vote` (approve / reject with a
+reason / abstain, once), `declare_committee_conflict` (a reason, recorded,
+bars the member), `close_committee_vote`: the chair closes — or, when the
+chair is barred or unset, any eligible member — once at least half of the
+electorate (eligible members plus those who voted) has voted; more
+approvals approve, more rejections reject, a tie goes the chair's way, and
+without the chair's vote the proposal returns to the author; reject / return
+need minutes. The close runs `resolve_limit_validation` under the
+`tci.committee_resolution` marker, which lets decide / adjust take the
+committee's unlimited authority, and records the decision with the closer
+as `decided_by`. Votes and conflicts are rows nobody updates (trigger, owner
+included) and no API role writes. `committeeOutcome` / `quorumMet` in
+`validation.ts` mirror the rule (contract-tested).
+
+**Set up by admin, a technical setting.** `set_authority_routing`,
+`save_authority_level_grant` (replaces the band's live grant; refused on the
+committee), `end_authority_level_grant`, `add_authority_level_member` (the
+department, one rank 1–4 per stream), `end_authority_level_member` (ends a
+chair's chair), `set_committee_chair`. Admin is never a member (no
+department role) and votes on nothing.
 
 ### Acting role and four-eyes rules (migration 0063)
 

@@ -29,7 +29,8 @@ import { BuyerProposalsSection } from './BuyerProposalsSection'
 import { useLimitQueue } from './workbench/api'
 import { queueIndex } from './workbench/model'
 import type { LimitRequestWithRefs } from './types'
-import { useValidationState } from './validationApi'
+import { useValidationLevels, useValidationState } from './validationApi'
+import { levelName } from './levelName'
 import type { QueueRow } from './workbench/types'
 
 type QueueTab = 'drafts' | 'information' | 'review' | 'escalated' | 'decided' | 'proposals'
@@ -95,10 +96,13 @@ export function LimitsPage() {
 
   const escalatedCount = (requests ?? []).filter((r) => r.status === 'escalated').length
   const informationCount = (requests ?? []).filter((r) => r.status === 'information_gathering').length
-  // 0060: an escalated request may be on validation with a named colleague.
+  // 0060/0071: an escalated request may be on validation — with an authority
+  // level, or (before 0071) a named colleague.
   const escalatedIds = useMemo(() => filtered.filter((r) => r.status === 'escalated').map((r) => r.id), [filtered])
   const { data: validations } = useValidationState(escalatedIds)
+  const { data: validationLevels } = useValidationLevels(escalatedIds)
   const onValidation = useMemo(() => new Map((validations ?? []).map((v) => [v.request_id, v])), [validations])
+  const levelOf = useMemo(() => new Map((validationLevels ?? []).map((l) => [l.request_id, l])), [validationLevels])
   const nowIso = new Date().toISOString()
 
   const tabs = [
@@ -219,7 +223,14 @@ export function LimitsPage() {
                 <td>
                   {onValidation.has(r.id) ? (
                     <span title={t('limits.validation.onValidationWith', {
-                      name: onValidation.get(r.id)?.validator_name ?? EM_DASH,
+                      name: levelOf.get(r.id)
+                        ? levelName(
+                            t,
+                            onValidation.get(r.id)?.stream ?? 'credit',
+                            levelOf.get(r.id)?.rank ?? null,
+                            levelOf.get(r.id)?.is_committee ?? false,
+                          )
+                        : (onValidation.get(r.id)?.validator_name ?? EM_DASH),
                       date: formatMoment(onValidation.get(r.id)?.since ?? r.created_at, locale),
                     })}>
                       <Badge tone="warn">{t('limits.validation.badge')}</Badge>

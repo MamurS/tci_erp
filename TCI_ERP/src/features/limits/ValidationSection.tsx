@@ -1,15 +1,17 @@
 /**
- * Validation on the limit request page (migration 0060):
+ * Validation on the limit request page (migrations 0060 and 0071):
  *
- *  * ValidationStatusLine — «На валидации у <ФИО> с <дата>», for every
- *    colleague who can see the request (limit_request_validation_state:
- *    who and since when, never the proposal);
- *  * ValidationPanel — for the ASSIGNED validator only: the proposal, the
- *    author's comment, the buyer's rating and key financials, and the five
- *    answers (approve / modify and approve / return / reject / forward);
+ *  * ValidationStatusLine — «На валидации: уровень 3 / кредитный комитет с
+ *    <дата>» (or the named validator of a 0060 step), for every colleague who
+ *    can see the request — never the proposal;
+ *  * ValidationPanel — for a member of the level the step sits with (or the
+ *    named validator): the proposal, the author's comment, the buyer's rating
+ *    and key financials, and the answers (approve / modify and approve /
+ *    return / reject / forward to the next rank);
+ *  * CommitteePanel — before the committee: the tally, the member's vote or
+ *    declared conflict, and the chair's close;
  *  * ValidationHistory — every chain on the request, step by step, for admin
- *    and the people of a chain (the function returns nothing to anyone else,
- *    and the section is then not drawn at all).
+ *    and the people of a chain and its levels.
  *
  * The database decides; nothing here is optimistic.
  */
@@ -17,7 +19,6 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { useAuth } from '../../auth/AuthContext'
 import {
   AmountInput,
   Badge,
@@ -45,26 +46,44 @@ import { useStatements } from '../entities/api'
 import { useAssessments } from '../entities/rating/assessmentsApi'
 import { annualSeries, keyFigures } from '../entities/report/model'
 import { latestAnnualType } from '../entities/report/useRiskReport'
-import { useLatestRatesFor, useMyAuthorityGrants, useMyAuthorityUzs } from './api'
-import { commercialPreflight, preflight } from './authority'
+import { useLatestRatesFor, useMyStreamAuthorityUzs } from './api'
+import { preflight } from './authority'
 import { outcomeTone } from './machine'
 import type { LimitRequestWithRefs } from './types'
-import { ValidatorPicker } from './ValidationDialogs'
-import { actionNeedsComment, chainsOf, creditApprovalOutcome, MODIFIABLE, validationTone } from './validation'
-import type { ValidationAction, ValidationProposal, ValidationState, ValidationStep } from './validation'
-import { useResolveLimitValidation, useValidationProposal } from './validationApi'
+import { levelName } from './levelName'
+import {
+  actionNeedsComment,
+  chainsOf,
+  closeNeedsComment,
+  committeeOutcome,
+  COMMITTEE_VOTES,
+  creditApprovalOutcome,
+  MODIFIABLE,
+  validationTone,
+  voteNeedsComment,
+} from './validation'
+import type {
+  CommitteeVote,
+  StepLevel,
+  StepState,
+  ValidationAction,
+  ValidationProposal,
+  ValidationState,
+  ValidationStep,
+} from './validation'
+import { useCommitteeActions, useResolveLimitValidation, useValidationProposal } from './validationApi'
 
 // ---------------------------------------------------------------------------
 // Status line
 // ---------------------------------------------------------------------------
 
-export function ValidationStatusLine({ state }: { state: ValidationState }) {
+export function ValidationStatusLine({ state, level }: { state: ValidationState; level: StepLevel | null }) {
   const { t, i18n } = useTranslation()
   return (
     <Callout
       tone="warn"
       title={t('limits.validation.onValidationWith', {
-        name: state.validator_name ?? EM_DASH,
+        name: level ? levelName(t, state.stream, level.rank, level.is_committee) : (state.validator_name ?? EM_DASH),
         date: formatMoment(state.since, i18n.language),
       })}
     >
@@ -78,10 +97,24 @@ export function ValidationStatusLine({ state }: { state: ValidationState }) {
 // History
 // ---------------------------------------------------------------------------
 
-export function ValidationHistory({ steps, locale }: { steps: readonly ValidationStep[]; locale: string }) {
+export function ValidationHistory({
+  steps,
+  levels,
+  locale,
+}: {
+  steps: readonly ValidationStep[]
+  /** The level each step went to (0071); a 0060 step has a named validator. */
+  levels: readonly StepLevel[]
+  locale: string
+}) {
   const { t } = useTranslation()
   if (steps.length === 0) return null
   const chains = chainsOf(steps)
+  const levelOf = new Map(levels.map((l) => [l.validation_id, l]))
+  const addressee = (step: ValidationStep) => {
+    const level = levelOf.get(step.id)
+    return level ? levelName(t, step.stream, level.rank, level.is_committee) : (step.validator_name ?? EM_DASH)
+  }
   return (
     <Card className="flex flex-col gap-3 p-5">
       <SectionTitle hint={t('limits.validation.historyHint')}>{t('limits.validation.historyTitle')}</SectionTitle>
@@ -111,11 +144,11 @@ export function ValidationHistory({ steps, locale }: { steps: readonly Validatio
                     {step.forwarded_by
                       ? t('limits.validation.history.forwarded', {
                           from: step.forwarded_by_name ?? EM_DASH,
-                          to: step.validator_name ?? EM_DASH,
+                          to: addressee(step),
                         })
                       : t('limits.validation.history.sent', {
                           from: step.proposed_by_name ?? EM_DASH,
-                          to: step.validator_name ?? EM_DASH,
+                          to: addressee(step),
                         })}
                   </span>
                   <span className="block text-xs text-slate-500">
@@ -171,11 +204,13 @@ export function ValidationHistory({ steps, locale }: { steps: readonly Validatio
 interface PanelProps {
   request: LimitRequestWithRefs
   step: ValidationStep
+  /** The level the step sits with; null for a 0060 step named to the caller. */
+  level: StepLevel | null
   /** Said at page level, since the panel goes away once answered. */
   onResolved: (message: string) => void
 }
 
-export function ValidationPanel({ request, step, onResolved }: PanelProps) {
+export function ValidationPanel({ request, step, level, onResolved }: PanelProps) {
   const { t, i18n } = useTranslation()
   const locale = i18n.language
   const proposal = useValidationProposal(step.id)
@@ -239,9 +274,13 @@ export function ValidationPanel({ request, step, onResolved }: PanelProps) {
         <Button variant="secondary" onClick={() => setAction('return')}>
           {t('limits.validation.actions.return')}
         </Button>
-        <Button variant="secondary" onClick={() => setAction('forward')}>
-          {t('limits.validation.actions.forward')}
-        </Button>
+        {/* Forward goes to the next rank up (0071); a 0060 step named to
+            someone is answered, not passed on. */}
+        {level && (
+          <Button variant="secondary" onClick={() => setAction('forward')}>
+            {t('limits.validation.actions.forward')}
+          </Button>
+        )}
         <Button variant="dangerOutline" onClick={() => setAction('reject')}>
           {t('limits.validation.actions.reject')}
         </Button>
@@ -251,6 +290,7 @@ export function ValidationPanel({ request, step, onResolved }: PanelProps) {
         <ResolveModal
           action={action}
           step={step}
+          levelStep={level !== null}
           request={request}
           amountText={amountText}
           onClose={() => setAction(null)}
@@ -379,6 +419,7 @@ function BuyerKeyFigures({ entityId }: { entityId: string }) {
 function ResolveModal({
   action,
   step,
+  levelStep,
   request,
   amountText,
   onClose,
@@ -386,6 +427,7 @@ function ResolveModal({
 }: {
   action: ValidationAction
   step: ValidationStep
+  levelStep: boolean
   request: LimitRequestWithRefs
   amountText: string
   onClose: () => void
@@ -393,38 +435,37 @@ function ResolveModal({
 }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.language
-  const { session } = useAuth()
   const resolve = useResolveLimitValidation()
   const [amount, setAmount] = useState(step.amount === null ? '' : amountToPlain(step.amount))
   const [terms, setTerms] = useState(step.payment_terms_days === null ? '' : String(step.payment_terms_days))
   const [comment, setComment] = useState('')
-  const [forwardTo, setForwardTo] = useState<string | null>(null)
-  const [forwardName, setForwardName] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   const modifiable = MODIFIABLE[step.stream]
   const parsed = parseAmount(amount)
   const amountValid = parsed !== null && parsed > 0
-  // The validator's own authority for what they would approve — the same
-  // rule the decision functions apply (they run as the validator).
+  // The member's own authority for what they would approve — the same rule
+  // the decision functions apply (they run as the member): personal grants or
+  // the level, whichever is larger (0071).
   const checkedAmount = action === 'approve' ? step.amount : action === 'approve_modified' && amountValid ? parsed : null
-  const { data: creditAuthority } = useMyAuthorityUzs(step.grade_band)
-  const { data: grants } = useMyAuthorityGrants(session?.user.id)
+  const { data: myAuthority } = useMyStreamAuthorityUzs(step.stream, step.grade_band)
   const { data: rates } = useLatestRatesFor(step.currency_code)
   const check =
     checkedAmount === null
       ? null
-      : step.stream === 'credit'
-        ? preflight(checkedAmount, step.currency_code, step.grade_band, creditAuthority ?? null, rates ?? [], todayIso())
-        : commercialPreflight(checkedAmount, step.currency_code, step.grade_band, grants ?? [], rates ?? [], todayIso())
+      : preflight(checkedAmount, step.currency_code, step.grade_band, myAuthority ?? null, rates ?? [], todayIso())
   const beyond = check !== null && check.withinAuthority === false
+  // A level member approving AS IS beyond their own authority passes it on
+  // to the next rank (resolve_limit_validation does it); a modified amount
+  // beyond it is refused.
+  const passesOn = levelStep && action === 'approve' && beyond
 
   const commentMissing = actionNeedsComment(action) && comment.trim() === ''
   const blocked =
     commentMissing ||
     (action === 'approve_modified' && !amountValid) ||
-    (action === 'forward' && !forwardTo) ||
-    ((action === 'approve' || action === 'approve_modified') && beyond)
+    (action === 'approve_modified' && beyond) ||
+    (action === 'approve' && beyond && !levelStep)
 
   const outcomePreview =
     step.stream === 'credit' && (action === 'approve' || action === 'approve_modified')
@@ -445,11 +486,12 @@ function ResolveModal({
         amount: action === 'approve_modified' ? parsed : null,
         paymentTermsDays: action === 'approve_modified' && step.stream === 'commercial' && terms !== '' ? Number(terms) : null,
         comment: comment.trim() || null,
-        forwardTo: action === 'forward' ? forwardTo : null,
       })
       onDone(
         result.result === 'forwarded'
-          ? t('limits.validation.done.forwarded', { name: forwardName || EM_DASH })
+          ? t('limits.validation.done.forwarded', {
+              name: result.rank === null ? EM_DASH : levelName(t, step.stream, result.rank, result.rank === 5),
+            })
           : t(`limits.validation.done.${result.result}`),
       )
     } catch (failure) {
@@ -460,7 +502,6 @@ function ResolveModal({
   return (
     <Modal
       open
-      wide={action === 'forward'}
       onClose={onClose}
       title={t(`limits.validation.actions.${action}`)}
       footer={
@@ -500,35 +541,27 @@ function ResolveModal({
         <p className="text-xs text-slate-500">{t(`limits.validation.modifyScope.${step.stream}`)}</p>
       )}
 
-      {outcomePreview && (
+      {outcomePreview && !passesOn && (
         <p className="text-[13px] text-slate-600">
           {t('limits.validation.recordsAs')}{' '}
           <Badge tone={outcomeTone(outcomePreview)}>{t(`limits.outcomes.${outcomePreview}`)}</Badge>
         </p>
       )}
 
-      {beyond && check && (
-        <Callout tone="warn" title={t('limits.validation.beyondMine', { band: t(`limits.bands.${step.grade_band}`) })}>
-          {t('limits.validation.beyondMineHint', { authority: formatAmount(check.authorityUzs ?? 0, locale) })}
+      {passesOn && check ? (
+        <Callout tone="info" title={t('limits.validation.passesOn')}>
+          {t('limits.validation.passesOnHint', { authority: formatAmount(check.authorityUzs ?? 0, locale) })}
         </Callout>
+      ) : (
+        beyond &&
+        check && (
+          <Callout tone="warn" title={t('limits.validation.beyondMine', { band: t(`limits.bands.${step.grade_band}`) })}>
+            {t('limits.validation.beyondMineHint', { authority: formatAmount(check.authorityUzs ?? 0, locale) })}
+          </Callout>
+        )
       )}
 
-      {action === 'forward' && (
-        <Field label={t('limits.validation.forwardTo')} hint={t('limits.validation.forwardHint')}>
-          <ValidatorPicker
-            stream={step.stream}
-            band={step.grade_band}
-            amount={step.amount}
-            currency={step.currency_code}
-            chainId={step.chain_id}
-            value={forwardTo}
-            onChange={(id, candidate) => {
-              setForwardTo(id)
-              setForwardName(candidate?.full_name?.trim() || candidate?.email || '')
-            }}
-          />
-        </Field>
-      )}
+      {action === 'forward' && <p className="text-[13px] text-slate-600">{t('limits.validation.forwardHint')}</p>}
 
       <Field
         label={t('limits.validation.resolutionComment')}
@@ -543,5 +576,250 @@ function ResolveModal({
         </p>
       )}
     </Modal>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// The committee (0071)
+// ---------------------------------------------------------------------------
+
+/** Before the committee: the proposal, the tally, the member's own vote or
+ * declared conflict, and — for the chair — the close. Quorum, the majority
+ * and the casting vote are decided in SQL; the screen says what closing now
+ * would record (committeeOutcome mirrors close_committee_vote). */
+export function CommitteePanel({
+  request,
+  step,
+  state,
+  onResolved,
+}: {
+  request: LimitRequestWithRefs
+  step: ValidationStep
+  state: StepState
+  onResolved: (message: string) => void
+}) {
+  const { t, i18n } = useTranslation()
+  const locale = i18n.language
+  const proposal = useValidationProposal(step.id)
+  const { vote, conflict, close } = useCommitteeActions(step.id)
+  const [dialog, setDialog] = useState<CommitteeVote | 'conflict' | 'close' | null>(null)
+  const [comment, setComment] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const committee = state.committee
+  if (!committee) return null
+
+  const chairVote = committee.votes.find((v) => v.voter === committee.chair_id)?.vote ?? null
+  const outcome = committeeOutcome({ approve: committee.approve, reject: committee.reject, chairVote })
+  const needsComment =
+    dialog === null
+      ? false
+      : dialog === 'conflict'
+        ? true
+        : dialog === 'close'
+          ? closeNeedsComment(outcome)
+          : voteNeedsComment(dialog)
+  const pending = vote.isPending || conflict.isPending || close.isPending
+
+  const run = async () => {
+    if (!dialog) return
+    setError(null)
+    try {
+      if (dialog === 'conflict') {
+        await conflict.mutateAsync(comment.trim())
+      } else if (dialog === 'close') {
+        const result = await close.mutateAsync(comment.trim() || null)
+        onResolved(t(`limits.validation.committeeDone.${result.committee.action}`))
+      } else {
+        await vote.mutateAsync({ vote: dialog, comment: comment.trim() || null })
+      }
+      setDialog(null)
+      setComment('')
+    } catch (failure) {
+      setError(t(refusalOr(failure, 'limits.validation.resolveFailed')))
+    }
+  }
+
+  return (
+    <Card className="flex flex-col gap-4 p-5">
+      <SectionTitle
+        hint={t('limits.validation.committeePanel.intro', {
+          author: step.proposed_by_name ?? EM_DASH,
+          date: formatMoment(step.created_at, locale),
+        })}
+        actions={
+          <span className="inline-flex gap-1.5">
+            <Badge tone={step.kind === 'required' ? 'warn' : 'accent'}>{t(`limits.validation.kinds.${step.kind}`)}</Badge>
+            <Badge tone="neutral">{t(`limits.stages.${step.stream}`)}</Badge>
+          </span>
+        }
+      >
+        {levelName(t, step.stream, state.rank, true)}
+      </SectionTitle>
+
+      {proposal.isLoading ? (
+        <Skeleton className="h-16 w-full" />
+      ) : (
+        <ProposalFacts step={step} proposal={proposal.data ?? null} request={request} />
+      )}
+      {step.comment && (
+        <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] text-slate-700">
+          <span className="block text-xs font-medium text-slate-500">
+            {t('limits.validation.panel.authorComment', { author: step.proposed_by_name ?? EM_DASH })}
+          </span>
+          <span className="whitespace-pre-line">{step.comment}</span>
+        </div>
+      )}
+      <BuyerKeyFigures entityId={request.entity_id} />
+
+      <KeyFigures
+        className=""
+        items={[
+          { label: t('limits.validation.committeePanel.approve'), value: String(committee.approve), tone: 'pos' },
+          { label: t('limits.validation.committeePanel.reject'), value: String(committee.reject), tone: 'neg' },
+          { label: t('limits.validation.committeePanel.abstain'), value: String(committee.abstain) },
+          {
+            label: t('limits.validation.committeePanel.turnout'),
+            value: `${committee.cast} / ${committee.electorate}`,
+            meta: committee.quorum_met
+              ? t('limits.validation.committeePanel.quorumMet')
+              : t('limits.validation.committeePanel.quorumNot'),
+          },
+        ]}
+      />
+      <p className="text-[13px] text-slate-600">
+        {t('limits.validation.committeePanel.chair', { name: committee.chair_name ?? EM_DASH })}
+        {' · '}
+        {t('limits.validation.committeePanel.rule')}
+      </p>
+
+      {committee.votes.length > 0 && (
+        <Table columns={[COL.moment, COL.fill, labelCol('validationStatus')]}>
+          <thead>
+            <tr>
+              <th>{t('limits.validation.history.when')}</th>
+              <th>{t('limits.validation.committeePanel.member')}</th>
+              <th>{t('limits.validation.committeePanel.vote')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {committee.votes.map((v) => (
+              <tr key={v.voter}>
+                <td className="text-slate-500">{formatMoment(v.voted_at, locale)}</td>
+                <td className="whitespace-normal">
+                  <span className="block text-slate-800">
+                    {v.name ?? EM_DASH}
+                    {v.voter === committee.chair_id && ` · ${t('limits.validation.committeePanel.chairMark')}`}
+                  </span>
+                  {v.comment && <span className="block text-xs text-slate-600">{v.comment}</span>}
+                </td>
+                <td>
+                  <Badge tone={v.vote === 'approve' ? 'pos' : v.vote === 'reject' ? 'neg' : 'neutral'}>
+                    {t(`limits.validation.votes.${v.vote}`)}
+                  </Badge>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
+      {committee.conflicts.length > 0 && (
+        <ul className="flex list-disc flex-col gap-0.5 pl-5 text-[13px] text-slate-600">
+          {committee.conflicts.map((c) => (
+            <li key={c.member}>
+              {t('limits.validation.committeePanel.conflictOf', { name: c.name ?? EM_DASH })}: {c.reason}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {committee.my_vote && (
+        <p className="text-[13px] text-slate-600">
+          {t('limits.validation.committeePanel.myVote', { vote: t(`limits.validation.votes.${committee.my_vote}`) })}
+        </p>
+      )}
+      {committee.i_am_conflicted && (
+        <p className="text-[13px] text-slate-600">{t('limits.validation.committeePanel.iAmConflicted')}</p>
+      )}
+
+      {(committee.i_may_vote || committee.i_may_close) && (
+        <div className="flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4">
+          {committee.i_may_vote &&
+            COMMITTEE_VOTES.map((v) => (
+              <Button
+                key={v}
+                variant={v === 'approve' ? 'primary' : v === 'reject' ? 'dangerOutline' : 'secondary'}
+                onClick={() => setDialog(v)}
+              >
+                {t(`limits.validation.voteActions.${v}`)}
+              </Button>
+            ))}
+          {committee.i_may_vote && (
+            <Button variant="secondary" onClick={() => setDialog('conflict')}>
+              {t('limits.validation.voteActions.conflict')}
+            </Button>
+          )}
+          {committee.i_may_close && (
+            <Button variant="secondary" disabled={!committee.quorum_met} onClick={() => setDialog('close')}>
+              {t('limits.validation.voteActions.close')}
+            </Button>
+          )}
+          {committee.i_may_close && !committee.quorum_met && (
+            <span className="text-[13px] text-slate-500">{t('limits.validation.committeePanel.needQuorum')}</span>
+          )}
+        </div>
+      )}
+
+      {dialog && (
+        <Modal
+          open
+          onClose={() => setDialog(null)}
+          title={t(`limits.validation.voteActions.${dialog}`)}
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setDialog(null)}>
+                {t('common.cancel')}
+              </Button>
+              <Button
+                variant={dialog === 'reject' ? 'danger' : 'primary'}
+                loading={pending}
+                disabled={needsComment && comment.trim() === ''}
+                onClick={() => void run()}
+              >
+                {t(`limits.validation.voteActions.${dialog}`)}
+              </Button>
+            </>
+          }
+        >
+          {dialog === 'close' && (
+            <p className="text-[13px] text-slate-600">
+              {t('limits.validation.committeePanel.closeWillRecord')}{' '}
+              <Badge tone={outcome === 'approve' ? 'pos' : outcome === 'reject' ? 'neg' : 'accent'}>
+                {t(`limits.validation.committeeOutcome.${outcome}`)}
+              </Badge>
+            </p>
+          )}
+          {dialog === 'conflict' && (
+            <p className="text-[13px] text-slate-600">{t('limits.validation.committeePanel.conflictNote')}</p>
+          )}
+          <Field
+            label={
+              dialog === 'conflict'
+                ? t('limits.validation.committeePanel.conflictReason')
+                : dialog === 'close'
+                  ? t('limits.validation.committeePanel.minutes')
+                  : t('limits.validation.resolutionComment')
+            }
+            hint={needsComment ? t('limits.validation.commentRequiredWhy') : t('limits.validation.commentOptionalHint')}
+          >
+            <Textarea rows={3} value={comment} onChange={(e) => setComment(e.target.value)} />
+          </Field>
+          {error && (
+            <p className="text-[13px] text-neg-500" role="alert">
+              {error}
+            </p>
+          )}
+        </Modal>
+      )}
+    </Card>
   )
 }

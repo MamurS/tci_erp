@@ -55,6 +55,7 @@ export const ORIGIN_SOURCES: Readonly<Partial<Record<TaskType, readonly OriginSo
   // 0060: the task carries neither comment; both live on the step
   limit_validation: [{ kind: 'validationComment' }],
   limit_validation_result: [{ kind: 'validationResolution' }],
+  limit_validation_fyi: [{ kind: 'validationComment' }],
   // 0057: the policyholder's latest portal comment and the note the draft
   // was sent for review with, both carried on the task by the mapping
   contract_review: [
