@@ -9,9 +9,10 @@ import { hasRole } from '../../lib/roles'
 import type { LimitRequestStatus } from './types'
 import type { UserRole } from '../../lib/roles'
 
-/** Statuses covered by the one-open-request partial unique index. */
+/** Statuses covered by the one-open-request partial unique index (0067 adds
+ * information gathering: the request is open, only nobody may decide it yet). */
 export const OPEN_STATUSES: readonly LimitRequestStatus[] = [
-  'draft', 'submitted', 'under_review', 'escalated',
+  'draft', 'submitted', 'information_gathering', 'under_review', 'escalated',
 ]
 
 export function isOpen(status: LimitRequestStatus): boolean {
@@ -71,6 +72,9 @@ export function statusTone(
     case 'submitted':
     case 'under_review':
       return 'accent'
+    // waiting on the information desk, not on a decision (0067)
+    case 'information_gathering':
+      return 'warn'
     case 'escalated':
       return 'warn'
     case 'decided':

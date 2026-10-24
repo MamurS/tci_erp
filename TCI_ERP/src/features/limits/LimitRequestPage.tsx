@@ -41,13 +41,22 @@ import { GroupChip, GroupPreflightNotice, useGroupPreflight } from '../groups'
 import { useSystemDecisionMarks } from './adtApi'
 import { AutoDecisionPanel } from './AutoDecisionPanel'
 import { CommercialStageSection } from './CommercialStageSection'
+import { InformationSection } from './InformationSection'
+import { mayWaiveInformation } from './information'
 import { DecisionMark } from './DecisionMark'
 import { ReleaseBadge } from './ReleaseBadge'
 import { SendForValidationModal } from './ValidationDialogs'
-import { ValidationHistory, ValidationPanel, ValidationStatusLine } from './ValidationSection'
+import { CommitteePanel, ValidationHistory, ValidationPanel, ValidationStatusLine } from './ValidationSection'
 import { myPendingStep, validationKind } from './validation'
 import type { NeedsValidation } from './validation'
-import { useSubmitLimitForValidation, useValidationHistory, useValidationState } from './validationApi'
+import {
+  useStepLevels,
+  useStepState,
+  useSubmitLimitForValidation,
+  useValidationHistory,
+  useValidationLevels,
+  useValidationState,
+} from './validationApi'
 import {
   canDecideAs,
   canStartReview,
@@ -80,12 +89,22 @@ export function LimitRequestPage() {
   // goes away with the answer.
   const [notice, setNotice] = useState<string | null>(null)
 
-  // On validation (0060): with whom (any colleague), and the chain itself
-  // (admin and the people of the chain only).
+  // On validation (0060, 0071): with which level or whom (any colleague), and
+  // the chain itself (admin and the people of the chain and its levels).
   const validationState = useValidationState(id ? [id] : [])
+  const validationLevels = useValidationLevels(id ? [id] : [])
   const history = useValidationHistory(id)
+  const stepLevels = useStepLevels(id)
   const pendingValidation = validationState.data?.[0] ?? null
-  const myStep = myPendingStep(history.data ?? [], session?.user.id)
+  const pendingLevel = validationLevels.data?.[0] ?? null
+  // The caller's own view of the pending step: may they answer it, and the
+  // committee's tally. Nothing for anyone outside the chain and its levels.
+  const stepState = useStepState(pendingValidation?.validation_id ?? null)
+  const pendingStep = (history.data ?? []).find((s) => s.id === pendingValidation?.validation_id) ?? null
+  const myStep =
+    myPendingStep(history.data ?? [], session?.user.id) ??
+    (stepState.data?.can_answer && !stepState.data.is_committee ? pendingStep : null)
+  const committeeStep = stepState.data?.is_committee && stepState.data.status === 'pending' ? pendingStep : null
 
   // ?focus=decision|commercial|validation — the Agenda's «decide» / «adjust»
   // / «validate» link lands on the section where that is done. A section this
@@ -223,10 +242,29 @@ export function LimitRequestPage() {
           <RequestCard request={request} locale={locale} />
           {/* The auto-decision rule's answer (0061): the credit desk only. */}
           <AutoDecisionPanel requestId={request.id} />
-          {pendingValidation && <ValidationStatusLine state={pendingValidation} />}
+          {/* Waiting for the buyer's data, not for a decision (0067). */}
+          {request.status === 'information_gathering' && (
+            <InformationSection
+              requestId={request.id}
+              entityId={request.entity_id}
+              mayWaive={mayWaiveInformation(roles, isRequester)}
+              onNotice={setNotice}
+            />
+          )}
+          {pendingValidation && <ValidationStatusLine state={pendingValidation} level={pendingLevel} />}
           {myStep && (
             <div id="validation" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
-              <ValidationPanel request={request} step={myStep} onResolved={setNotice} />
+              <ValidationPanel
+                request={request}
+                step={myStep}
+                level={(stepLevels.data ?? []).find((l) => l.validation_id === myStep.id) ?? null}
+                onResolved={setNotice}
+              />
+            </div>
+          )}
+          {committeeStep && stepState.data && (
+            <div id="validation" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
+              <CommitteePanel request={request} step={committeeStep} state={stepState.data} onResolved={setNotice} />
             </div>
           )}
           {mayDecideByRole && ownRefusal !== null && (
@@ -260,7 +298,7 @@ export function LimitRequestPage() {
           for admin and the people of a chain (the function's own rule). */}
       {(history.data?.length ?? 0) > 0 && (
         <div className="mt-5">
-          <ValidationHistory steps={history.data ?? []} locale={locale} />
+          <ValidationHistory steps={history.data ?? []} levels={stepLevels.data ?? []} locale={locale} />
         </div>
       )}
 
@@ -715,6 +753,7 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
 
       {validationOpen && (
         <SendForValidationModal
+          requestId={request.id}
           stream="credit"
           band={validationOpen.needs?.grade_band ?? band}
           amount={needsAmount ? parsedAmount : null}
@@ -750,10 +789,9 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
           }
           pending={sendForValidation.isPending}
           onClose={() => setValidationOpen(null)}
-          onSubmit={async (validatorId, validationComment, validatorName) => {
+          onSubmit={async (validationComment, destination) => {
             await sendForValidation.mutateAsync({
               requestId: request.id,
-              validatorId,
               outcome,
               amount: needsAmount ? parsedAmount : null,
               currency,
@@ -761,12 +799,12 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
               validUntil: validUntil || null,
               conditions: conditions.filter((c) => c.description.trim()),
               // One comment travels with the proposal: the note to the
-              // validator, else the decision's own comment.
+              // level, else the decision's own comment.
               comment: validationComment ?? (comment.trim() || null),
               assessmentId: assessmentId || null,
             })
             setValidationOpen(null)
-            onNotice(t('limits.validation.sent', { name: validatorName }))
+            onNotice(t('limits.validation.sent', { name: destination }))
           }}
         />
       )}

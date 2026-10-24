@@ -56,6 +56,10 @@
       "data": {
         "name": "Data management",
         "hint": "Company and statement requests, data freshness, proposed buyers"
+      },
+      "analysis": {
+        "name": "Credit analysis",
+        "hint": "Ratings to work, monitoring, the limit register and groups"
       }
     },
     "data": "Data management"
@@ -108,14 +112,16 @@
       "credit_underwriter": "Ratings, limits and credit decisions within authority",
       "claims": "Claims and recoveries",
       "information_manager": "Fills in company data and financial statements",
-      "client": "Portal user: own policies and limits only"
+      "client": "Portal user: own policies and limits only",
+      "credit_analyst": "Rates buyers and confirms ratings; enters financial statements"
     },
     "actingAs": "Acting as: {{role}}",
     "held": "Your roles: {{roles}}",
     "errors": {
       "notHeld": "You do not hold this role.",
       "noSession": "Your sign-in session was not found. Sign in again."
-    }
+    },
+    "credit_analyst": "Credit analyst"
   },
   "common": {
     "loading": "Loading…",
@@ -721,6 +727,33 @@
       "years_few": "{{value}} years",
       "years_many": "{{value}} years",
       "years_other": "{{value}} years"
+    },
+    "confirmation": {
+      "engineGrade": "Engine grade",
+      "gradeInForce": "Grade in force",
+      "unconfirmed": "Not confirmed",
+      "confirmedBy": "Confirmed by {{name}}, {{at}}",
+      "overriddenBy": "Changed from the engine grade by {{name}}, {{at}}",
+      "someone": "a colleague",
+      "confirm": "Confirm rating",
+      "ownRating": "You calculated this rating — a colleague confirms it",
+      "title": "Confirm the rating",
+      "hint": "The engine calculated {{grade}}. Confirm it, or choose another grade of the scale and say why. The confirmed grade is the one every limit decision on this buyer is based on.",
+      "grade": "Grade",
+      "engineOption": "{{grade}} (engine)",
+      "comment": "Comment",
+      "commentRequired": "Required: the grade differs from the engine’s",
+      "commentOptional": "Optional",
+      "submit": "Confirm",
+      "errors": {
+        "notAllowed": "Your role does not confirm ratings under the current credit analysis mode.",
+        "alreadyConfirmed": "This rating has already been confirmed.",
+        "notLatest": "Only the buyer’s current rating can be confirmed.",
+        "ownRating": "You calculated this rating, so a colleague confirms it.",
+        "commentRequired": "A grade other than the engine’s needs a reason.",
+        "gradeInvalid": "That grade is not on the rating scale.",
+        "immutable": "A rating is history and is never changed; only its confirmation is recorded."
+      }
     }
   },
   "report": {
@@ -1255,6 +1288,7 @@
     "subtitle": "Credit limit requests and decisions",
     "tabs": {
       "drafts": "Drafts",
+      "information": "Gathering data",
       "review": "In review",
       "escalated": "Escalated",
       "decided": "Decided",
@@ -1263,6 +1297,7 @@
     "statuses": {
       "draft": "Draft",
       "submitted": "Submitted",
+      "information_gathering": "Gathering data",
       "under_review": "Under review",
       "escalated": "Escalated",
       "decided": "Decided",
@@ -1503,7 +1538,8 @@
           "no_statements": "No financials",
           "no_rating": "Not rated",
           "new_statement": "Newer statements",
-          "stale": "Older than a year"
+          "stale": "Older than a year",
+          "unconfirmed": "Not confirmed"
         },
         "empty": "Every buyer is rated on its latest financials",
         "emptyHint": "A buyer appears here when it has live credit business and no rating, a newer period than the one rated, or a rating older than a year.",
@@ -1558,6 +1594,30 @@
         "lifecycle": "Limit"
       }
     },
+    "information": {
+      "title": "Gathering information on the buyer",
+      "hint": "The buyer’s file is not complete enough to decide on. The request goes to the credit desk by itself as soon as the missing data is entered; the information desk has a task for it.",
+      "gaps": {
+        "registration_number": "Registration number",
+        "address": "Address",
+        "industry": "Industry",
+        "no_statements": "No financial statements",
+        "stale_statements": "Financial statements are out of date (older than the allowed period)"
+      },
+      "openCompany": "Open the company card",
+      "recheck": "Check again",
+      "released": "The data is complete — the request has gone to the credit desk.",
+      "stillMissing": "Still missing — see the list.",
+      "waive": "Decide without it",
+      "waiveTitle": "Send on without the missing information",
+      "waiveHint": "The request goes to the credit queue now, without the missing data. Say why; the reason is kept with the request.",
+      "waiveComment": "Reason",
+      "waiveCommentRequired": "A reason is required",
+      "waived": "The request has gone to the credit desk without the missing information.",
+      "errors": {
+        "notGathering": "The request is no longer gathering information."
+      }
+    },
     "sectionSubtitle": "The credit underwriter's workbench: portfolio, decisions, limits in force, monitoring, ratings, groups and your own authority.",
     "preBindScope": "Before a policy (submission)",
     "noReviewDate": "No review date set",
@@ -1581,9 +1641,9 @@
       },
       "kindUnknownTitle": "Required or voluntary — decided when it is sent",
       "kindUnknown": "Your authority cannot be compared here (there is no rate). Say what the validator should look at.",
-      "requiredNote": "{{amount}} UZS eq. is above your authority in rating band “{{band}}” ({{authority}} UZS eq.). You cannot finalise this decision: choose a colleague whose authority covers it.",
-      "requiredNoteShort": "The decision is above your authority in rating band “{{band}}”. You cannot finalise it: choose a colleague whose authority covers it.",
-      "voluntaryNote": "The decision is within your authority. A second opinion is voluntary — say what you want checked.",
+      "requiredNote": "{{amount}} UZS-eq. is beyond your authority in rating band «{{band}}» ({{authority}} UZS-eq.). You cannot record this decision — it goes to the authority level that covers it.",
+      "requiredNoteShort": "The decision is beyond your authority in rating band «{{band}}». You cannot record it — it goes to the authority level that covers it.",
+      "voluntaryNote": "The decision is within your authority. A second opinion from the next level up is optional: say what to check.",
       "proposal": "Proposal",
       "bandOf": "rating band “{{band}}”",
       "validator": "Validator",
@@ -1604,7 +1664,7 @@
         "credit": "No other credit underwriter can validate it. Ask an administrator.",
         "commercial": "No other commercial underwriter can validate it. Ask an administrator."
       },
-      "commentLabel": "Comment for the validator",
+      "commentLabel": "Comment for the validating level",
       "commentRequiredHint": "Required for a second opinion: say what you want checked.",
       "commentOptionalHint": "Optional.",
       "submitFailed": "Could not send the decision for validation.",
@@ -1674,9 +1734,9 @@
       },
       "recordsAs": "Recorded as",
       "beyondMine": "Above your authority in rating band “{{band}}”",
-      "beyondMineHint": "Your authority is {{authority}} UZS eq. Forward it to a more senior colleague, or approve a smaller amount.",
+      "beyondMineHint": "Your authority is {{authority}} UZS-eq. Forward it to the next level or approve a smaller amount.",
       "forwardTo": "Forward to",
-      "forwardHint": "Colleagues already in this chain are not offered.",
+      "forwardHint": "The decision goes to the next authority level up; nobody who already took part in this chain answers it again.",
       "resolutionComment": "Your comment",
       "commentRequiredWhy": "Required: the author will read why.",
       "resolveFailed": "Your answer was not recorded.",
@@ -1702,7 +1762,82 @@
         "notRecorded": "The decision could not be recorded on validation (for example, because of the group limit). Nothing was changed.",
         "notYours": "Only the assigned validator may answer this validation.",
         "fourEyesOwnRequest": "Four eyes: the colleague you named raised this limit request and cannot validate it.",
-        "fourEyesOwnCredit": "Four eyes: the colleague you named made the credit decision on this request and cannot validate its commercial adjustment."
+        "fourEyesOwnCredit": "Four eyes: the colleague you named made the credit decision on this request and cannot validate its commercial adjustment.",
+        "namedRetired": "A decision goes to the authority level that may take it, not to a chosen colleague.",
+        "levelMissing": "No authority level above yours can take this decision. Ask the administrator to set up the levels.",
+        "notLevelMember": "Only a member of the level the decision sits with may answer it.",
+        "committeeVotes": "The committee decides by vote, not by a single answer.",
+        "committeeIsLast": "The committee is the top of the chain; nothing goes above it.",
+        "notCommittee": "This decision is not before the committee.",
+        "voteInvalid": "Vote for, against, or abstain.",
+        "alreadyVoted": "Your vote on this proposal is already recorded.",
+        "notEligible": "You are not a voting member of the committee on this proposal (a conflict, your own request, or an earlier part in the chain).",
+        "conflictReason": "Say what the conflict of interest is.",
+        "chairCloses": "Only the chair closes the vote.",
+        "noQuorum": "At least half of the committee must vote first.",
+        "minutesRequired": "When the committee does not approve, the minutes must say why."
+      },
+      "level": "Level {{rank}}",
+      "committee": {
+        "credit": "Credit committee",
+        "commercial": "Commercial committee"
+      },
+      "routeTitle": "Where it goes",
+      "routing": {
+        "direct": "Direct routing: to the lowest authority level that covers the decision; the levels in between are told for information.",
+        "sequential": "Sequential routing: level by level upwards; each level passes on what is beyond its own authority."
+      },
+      "routeFailed": "Could not work out where the decision would go.",
+      "noLevelTitle": "No authority level can take this decision",
+      "noLevel": "No level above yours has members who may take it. Ask the administrator to set up the authority levels.",
+      "routeMembers": "Any of: {{names}}",
+      "routeVoters": "The committee votes: {{names}}",
+      "routeFyi": "For information: {{names}}",
+      "passesOn": "Beyond your own authority: it goes on to the next level",
+      "passesOnHint": "Your authority is {{authority}} UZS-eq. Your approval is recorded in the chain and the decision goes up to the next level.",
+      "committeeDone": {
+        "approve": "The committee approved the decision — it is recorded.",
+        "reject": "The committee rejected the decision — the limit is declined.",
+        "return": "Without a majority the decision went back to its author."
+      },
+      "committeePanel": {
+        "intro": "Proposed by {{author}} on {{date}}; the committee decides by vote.",
+        "approve": "For",
+        "reject": "Against",
+        "abstain": "Abstained",
+        "turnout": "Voted",
+        "quorumMet": "quorum reached",
+        "quorumNot": "no quorum yet",
+        "chair": "Chair: {{name}}",
+        "rule": "Quorum is half of the committee; a simple majority decides, the chair breaks a tie.",
+        "member": "Member",
+        "vote": "Vote",
+        "chairMark": "chair",
+        "conflictOf": "Conflict of interest — {{name}}",
+        "myVote": "Your vote: {{vote}}",
+        "iAmConflicted": "You declared a conflict of interest and do not vote on this proposal.",
+        "needQuorum": "The vote can be closed once half of the committee has voted.",
+        "closeWillRecord": "Closing now records:",
+        "conflictNote": "Declaring a conflict of interest takes you out of this vote; it is recorded and cannot be withdrawn.",
+        "conflictReason": "What the conflict is",
+        "minutes": "Minutes"
+      },
+      "votes": {
+        "approve": "For",
+        "reject": "Against",
+        "abstain": "Abstained"
+      },
+      "voteActions": {
+        "approve": "Vote for",
+        "reject": "Vote against",
+        "abstain": "Abstain",
+        "conflict": "Declare a conflict of interest",
+        "close": "Close the vote"
+      },
+      "committeeOutcome": {
+        "approve": "Approved",
+        "reject": "Rejected",
+        "return": "Returned to the author"
       }
     },
     "errors": {
@@ -1710,7 +1845,8 @@
       "fourEyesOwnRequest": "Four eyes: you raised this limit request, so you cannot take it into review, decide it or change the decision.",
       "fourEyesOwnCredit": "Four eyes: you made the credit decision on this request, so you cannot adjust it commercially.",
       "reviewCreditOnly": "Only credit underwriting takes a limit request into review.",
-      "decideCreditOnly": "Only credit underwriting decides limit requests."
+      "decideCreditOnly": "Only credit underwriting decides limit requests.",
+      "fourEyesOwnRating": "You rated this buyer, so its limit is decided by another underwriter (separate credit analysis)."
     },
     "auto": {
       "adt": "Auto decision (ADT)",
@@ -2034,7 +2170,59 @@
       "loadFailed": "Could not load the auto-decision settings."
     },
     "clientAloneHint": "A portal client holds no other role: the client role and the staff roles exclude each other.",
-    "adminDecidesNothing": "Administrators make no limit decisions: the role is technical. Someone who also decides limits does so in their credit or commercial underwriting role, within the grants below."
+    "adminDecidesNothing": "Administrators make no limit decisions: the role is technical. Someone who also decides limits does so in their credit or commercial underwriting role, within the grants below.",
+    "creditAnalysis": {
+      "title": "Credit analysis",
+      "hint": "Who rates buyers and who decides limits",
+      "modes": {
+        "combined": "Combined",
+        "separate": "Separate"
+      },
+      "body": {
+        "combined": "Credit underwriters rate buyers, confirm ratings and decide limits; credit analysts, if there are any, rate and confirm too. A rating is confirmed by someone other than the one who calculated it.",
+        "separate": "Only credit analysts rate buyers and confirm ratings; credit underwriters decide limits — and never on a rating they calculated or confirmed. Rating tasks go to the credit analysts."
+      },
+      "confirmTitle": "Change the credit analysis mode?",
+      "confirm": {
+        "combined": "Credit underwriters will rate and confirm again, and the open rating tasks move to them.",
+        "separate": "Only credit analysts will rate and confirm, and the open rating tasks move to them. Make sure someone holds the credit analyst role."
+      },
+      "switch": "Switch",
+      "errors": {
+        "modeInvalid": "The mode must be combined or separate."
+      }
+    },
+    "levels": {
+      "title": "Authority levels",
+      "hint": "Five ranks per stream: ranks 1–4 with authority by rating band, rank 5 the committee. A person sits at one rank per stream and may also sit on the committee.",
+      "routing": "Routing",
+      "routings": {
+        "direct": "Direct",
+        "sequential": "Sequential"
+      },
+      "unlimited": "No amount cap",
+      "noAuthority": "No authority set",
+      "setAuthority": "Set authority",
+      "setAuthorityFor": "Authority of {{level}}",
+      "setAuthorityHint": "The new amount for the band applies from today; the previous one ends.",
+      "members": "Members",
+      "nobody": "nobody yet",
+      "add": "Add a member…",
+      "remove": "Remove {{name}}",
+      "chair": "Chair",
+      "noChair": "— no chair —",
+      "committeeRule": "Quorum is half of the committee; a simple majority decides, the chair breaks a tie.",
+      "errors": {
+        "committeeUnlimited": "The committee is the top of the chain and has no amount cap.",
+        "amountInvalid": "The amount must be positive.",
+        "routingInvalid": "The routing must be direct or sequential.",
+        "wrongDepartment": "A member must belong to the stream’s department.",
+        "oneRank": "A person sits at one rank per stream — remove them from the other rank first.",
+        "memberExists": "Already a member of this level.",
+        "chairCommitteeOnly": "Only the committee has a chair.",
+        "chairNotMember": "The chair must be a member of the committee."
+      }
+    }
   },
   "requests": {
     "subtitle": "Insurance submissions: from request to bound policy",
@@ -2386,7 +2574,9 @@
       "offer_expired": "Offer expired",
       "limit_validation": "Limit validation",
       "limit_validation_result": "Validation result",
-      "adt_review": "ADT review"
+      "adt_review": "ADT review",
+      "limit_information_needed": "Gather buyer information",
+      "limit_validation_fyi": "Limit validation: for information"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -2441,7 +2631,10 @@
       "adt_review_limit_revoked": "The ADT of {{entity_name}} is suspended: a limit was revoked — review the buyer",
       "adt_review_manual_block": "The ADT of {{entity_name}} is suspended: auto decisions are banned — review the buyer",
       "adt_review_no_financials": "The ADT of {{entity_name}} is suspended: no financial statements — review the buyer",
-      "adt_review_stale_financials": "The ADT of {{entity_name}} is suspended: the financials are too old — review the buyer"
+      "adt_review_stale_financials": "The ADT of {{entity_name}} is suspended: the financials are too old — review the buyer",
+      "limit_information_needed": "Gather information on {{entity_name}} for a limit request",
+      "limit_validation_committee": "Committee vote: the limit for {{entity_name}} (author: {{proposed_by_name}})",
+      "limit_validation_fyi": "For information: the limit decision for {{entity_name}} went past your level (author: {{proposed_by_name}})"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -2652,7 +2845,8 @@
       "adt_review_limit_revoked": "ADT suspended: limit revoked — review the buyer",
       "adt_review_manual_block": "ADT suspended: auto decisions banned — review the buyer",
       "adt_review_no_financials": "ADT suspended: no financials — review the buyer",
-      "adt_review_stale_financials": "ADT suspended: financials too old — review the buyer"
+      "adt_review_stale_financials": "ADT suspended: financials too old — review the buyer",
+      "limit_validation_fyi": "Limit decision past your level"
     },
     "facts": {
       "policies_one": "{{count}} policy",
@@ -2769,7 +2963,9 @@
         "payments": "Payments",
         "offer": "Commercial offer",
         "validation": "Validation",
-        "adt": "ADT"
+        "adt": "ADT",
+        "financials": "Financial statements",
+        "card": "Company card"
       },
       "with": {
         "task": "with this task’s context",
@@ -3109,6 +3305,7 @@
         "pending_entity": "Identifying the company",
         "draft": "Draft",
         "submitted": "Submitted",
+        "information_gathering": "Gathering data",
         "under_review": "Under review",
         "escalated": "Under review"
       },

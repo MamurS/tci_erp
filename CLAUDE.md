@@ -34,14 +34,15 @@ Department roles (stored in `tci.user_roles`, enforced via RLS). **A user may ho
 - `admin` — **technical**: users, roles, authorities, reference data, contract templates and settings; read-only oversight of the business screens; makes **no business decisions** — on limits since 0063 (no decide, adjust, hold, release, revoke, validate, ADT or group limit, no authority), everywhere else since 0065 (no claims, declarations, premium, policy status or edits, submissions, bind, offers, contract drafts, companies, statements, ratings, data requests, relationships, nor another department's Agenda task)
 - `sales` — companies and policies (read), raises limit requests
 - `commercial_underwriter` — policy terms; the commercial stage of decisions (Phase 3c)
-- `credit_underwriter` — ratings, limits and credit decisions within band authority
+- `credit_underwriter` — ratings, limits and credit decisions within band authority (rates only in `combined` credit analysis mode, 0069)
+- `credit_analyst` — rates buyers and confirms ratings, enters statements; never decides a limit (0068–0069, workspace «Кредитный анализ»). See **Credit analysis rules** below
 - `claims` — claims and recoveries
 - `information_manager` — fills in company data and financial statements
 - `client` — external portal user: sees ONLY own policies, own limit requests, own declarations. Design every policy with this role in mind even before the portal exists. **`client` is held alone** — a trigger on `tci.user_roles` refuses it next to any other role (`client_role_exclusive`, 0062), and the admin role editor greys the combination out.
 
 SQL helpers: `tci.current_user_roles()` (setof — the ACTING role only since 0063), `tci.has_role(variadic)` and `tci.is_staff()` (= acting role is not `client`) answer for the acting role; `tci.held_roles()` lists every role held (the workspace switcher); `tci.acting_role()` / `tci.set_acting_role(role)`. There is **no `senior_underwriter`** any more — seniority is expressed by the authority matrix.
 
-Underwriting authority is a **2D matrix** (`tci.authority_grants`): user × stream (`credit` | `commercial`) × grade band (`A`/`B`/`C`/`D`/`unrated`) × amount × currency × validity. `tci.my_authority_uzs(band)` = MAX over the caller's currently valid `credit` grants for that band, converted to UZS by the Phase 2b fx rule. **Nobody is unlimited** — since 0063 admin holds no authority and makes no limit decision. A decision above the deciding user's band authority is not recorded: since 0060 `decide_limit_request` answers `needs_validation`, and the author sends the PROPOSED decision to a NAMED validator of the same department whose band authority covers it (`submit_limit_for_validation`; the author's manager is offered first). The request sits as `escalated` (a workflow status, not just UI hiding) «на валидации» with that person, who approves, approves modified within their own authority, returns, rejects or forwards — see **Limit validation rules** below. A group-limit breach (0040) still escalates to the credit pool. The band comes from the grade FAMILY of the assessment the decision is based on (A1/A2→A …); no assessment ⇒ `unrated`. Band families are served by the analytics service (`GET /grade-scale` → `family`), never hardcoded outside the band names.
+Underwriting authority is a **2D matrix** (`tci.authority_grants`): user × stream (`credit` | `commercial`) × grade band (`A`/`B`/`C`/`D`/`unrated`) × amount × currency × validity. `tci.my_authority_uzs(band)` = MAX over the caller's currently valid `credit` grants for that band, converted to UZS by the Phase 2b fx rule. **Nobody is unlimited** — since 0063 admin holds no authority and makes no limit decision. A decision above the deciding user's band authority is not recorded: since 0060 `decide_limit_request` answers `needs_validation`, and the author sends the PROPOSED decision up the **authority levels** of the stream (since 0071 — ranks 1–4 with band authority as the level's grants, rank 5 the committee; a person's authority is the larger of their personal grants and their level's): straight to the lowest rank that covers it (`direct`, the ranks in between told) or rank by rank (`sequential`). Nobody is named any more (`named_validator_retired`). The request sits as `escalated` (a workflow status, not just UI hiding) «на валидации» with that level; any eligible member approves, approves modified within their own authority, returns, rejects or forwards to the next rank; the committee decides by vote — see **Limit validation rules** and **Authority levels rules** below. A group-limit breach (0040) still escalates to the credit pool. The band comes from the grade FAMILY of the assessment the decision is based on (A1/A2→A …); no assessment ⇒ `unrated`. Band families are served by the analytics service (`GET /grade-scale` → `family`), never hardcoded outside the band names.
 
 ## i18n
 
@@ -254,7 +255,7 @@ mistaken for a cancellation or a revocation. Two consequences:
 `src/i18n/uzTerminology.test.ts` enforces all of this: it fails on a bare
 «Bekor qilish» anywhere in the uz locale and names the offending key.
 
-Department role names (uz, confirmed): `admin` — Administrator, `sales` — **Sotuv**, `commercial_underwriter` — **Tijorat anderrayteri**, `credit_underwriter` — **Kredit anderrayteri**, `claims` — **Sug‘urta da’volari**, `information_manager` — **Axborot menejeri**, `client` — **Mijoz**.
+Department role names (uz, confirmed): `admin` — Administrator, `sales` — **Sotuv**, `commercial_underwriter` — **Tijorat anderrayteri**, `credit_underwriter` — **Kredit anderrayteri**, `credit_analyst` — **Kredit tahlilchisi**, `claims` — **Sug‘urta da’volari**, `information_manager` — **Axborot menejeri**, `client` — **Mijoz**.
 
 ## Infrastructure
 
@@ -683,7 +684,9 @@ is fine for internal test accounts and not fine for customers.
 - [x] Commercial offer «как в ДМС» (Prompt 27, NO migration): the offer is a
   FIXED, approved document — the TCI brochure (9 A4 pages in the app's
   colours and faces, three covers white / navy / blue, a geometric mosaic
-  drawn in SVG, ru / en / uz) with the offer letter after its cover — and
+  drawn in SVG — since 2026-10-23 of trade motifs: container, parcel, truck,
+  ship, aircraft, pallet, port crane, warehouse, globe, route, barcode,
+  exchange, anchor — ru / en / uz) with the offer letter after its cover — and
   staff choose only parameters (cover, validity, brochure on/off, a ≤ 600-char
   note; the language when the offer is prepared). The text editor for offers,
   the in-app brochure editor and the media library are retired (`/brochure`
@@ -742,6 +745,62 @@ is fine for internal test accounts and not fine for customers.
   ledger row; all 44 functions and every tci policy fingerprint-identical
   afterwards; `tests/db/admin_technical.sql` run on canonical with role
   impersonation (forced rollback, nothing left behind, counts unchanged)
+- [x] Information gathering before a limit decision (Prompt 29 §2,
+  migrations 0066–0067): a submitted limit request whose buyer lacks a
+  registration number, an address, an industry, or statements for a period
+  ending within `workflow_settings.information_statement_max_age_months`
+  (18) is routed to `information_gathering` with a
+  `limit_information_needed` task for the information desk; saving the
+  missing data releases it by itself (back to `submitted`, the ordinary
+  decision task and auto decision follow), «Проверить снова» re-tests it, and
+  credit underwriting may waive it with a reason (never on its own request).
+  See **Information gathering rules** below. **Canonical: 0066–0067 applied
+  2026-10-23** BEFORE merge: the 3 functions, 3 views and the index they
+  replace verified identical to a local replay of 0065 first; 0066 as
+  written, then 0067 in one call (the new objects as written, the 3
+  functions and 3 views rebuilt server-side from their own bodies by the
+  same change — a local run of that procedure is fingerprint-identical to a
+  replay of the file); every tci function, policy and index identical to the
+  local replay afterwards; the whole `tests/db/information_gathering.sql` run
+  on canonical with role impersonation (forced rollback, nothing left
+  behind, counts unchanged)
+- [x] Credit analyst and credit analysis mode (Prompt 29 §2a, migrations
+  0068–0069): the role `credit_analyst` («Кредитный аналитик», workspace
+  «Кредитный анализ»); `workflow_settings.credit_analysis_mode` —
+  `combined` (default: credit underwriting rates and decides, analysts rate
+  too) or `separate` (only analysts rate and confirm, underwriting decides
+  and never on a rating it calculated or confirmed); `tci.has_capability`
+  ('rate' / 'confirm_rating' / 'decide') behind the rating policy and the
+  UI; the engine's grade kept apart (`engine_grade`) from the grade in force
+  (`rating_grade`), which a person confirms once — another grade needs a
+  reason, never by whoever calculated it; rating tasks and the worklist
+  reason `unconfirmed` follow the mode; the switch on Admin › Полномочия.
+  See **Credit analysis rules** below. **Canonical: 0068–0069 applied
+  2026-10-23** BEFORE merge (backward-compatible: in the default `combined`
+  mode the old screens rate and decide as before): the 9 objects 0069
+  replaces verified identical to a local replay of 0067 first; 0068 in one
+  call, then 0069 whole in one call with its ledger row; every 0069
+  function, policy, column, trigger, grant and the view
+  fingerprint-identical to the local replay afterwards (the 25 existing
+  assessments kept their grade as `engine_grade`); the whole
+  `tests/db/credit_analysis.sql` run on canonical with role impersonation
+  (forced rollback, nothing left behind, counts unchanged, mode still
+  `combined`); no new advisor finding
+- [x] Authority levels and the committee (Prompt 29 §4a, migrations
+  0070–0071): `tci.authority_levels` (credit / commercial × ranks 1–5,
+  rank 5 the committee with a chair), band authority as the LEVEL's grants
+  (`authority_level_grants`), members (`authority_level_members`, one rank
+  1–4 per stream plus a committee seat); `workflow_settings.authority_routing`
+  `direct` (to the lowest covering rank, the skipped ranks told —
+  `limit_validation_fyi`, a sixth manual Agenda type) or `sequential` (rank
+  by rank; an approval beyond the approver's own authority goes on); any
+  eligible member of the level answers; the committee votes (immutable
+  `committee_votes`, conflicts declared and barred, quorum ≥ half, simple
+  majority, the chair's casting vote, no majority ⇒ back to the author);
+  the named validator of 0060 is retired. Admin › Полномочия «Уровни
+  полномочий», the route on «Отправить на валидацию», the committee panel on
+  the request page. See **Authority levels rules** below. **Canonical: not
+  yet applied**
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1768,6 +1827,55 @@ request is on validation and with whom (`limit_request_validation_state`).
 No API role writes the table; a BEFORE UPDATE trigger lets only the
 resolution columns of a pending step change, once.
 
+### Authority levels rules (migrations 0070–0071)
+
+**A proposal goes to a level, never to a person.** `submit_limit_for_validation`
+and `submit_adjustment_for_validation` refuse a validator
+(`named_validator_retired`) and route with `tci.route_validation_level`:
+above the author's rank (`tci.user_rank`, 0 without one), ranks nobody
+eligible can answer are skipped; `required` + `direct` → the lowest rank whose
+level authority (`tci.level_authority_uzs`; the committee is `Infinity`)
+covers the amount, else the committee; voluntary, `sequential` or a forward →
+the next rank up. Nothing qualifies ⇒ `authority_level_missing`. In `direct`
+mode the eligible members of the skipped ranks get `limit_validation_fyi`
+(manual close). A 0060 step still pending with a named validator is answered
+as before.
+
+**Who answers** (`tci.level_eligible_members`): an active member of the
+level holding the stream's department role, not banned, four eyes clear
+(`limit_four_eyes_refusal` — so not the requester, nor in separate credit
+analysis the rater), not anywhere in the chain (proposer, validator,
+forwarder, resolver) and not conflicted on the step. Every eligible member
+gets the `limit_validation` task; the first answer closes them all. A
+member approving AS IS beyond their own authority passes it to the next rank
+(`v_action := 'forward'`); approve-modified beyond it is refused.
+
+**Authority counts the level.** `my_authority_uzs`, `user_authority_uzs`,
+`underwriters_covering`, the queue's `decide_alone` and
+`adjust_limit_commercial` (`my_stream_authority_uzs`) take the larger of
+the personal grants and the level grants (`tci.level_authority_of`).
+
+**The committee votes.** `cast_committee_vote` (approve / reject with a
+reason / abstain, once), `declare_committee_conflict` (a reason, recorded,
+bars the member), `close_committee_vote`: the chair closes — or, when the
+chair is barred or unset, any eligible member — once at least half of the
+electorate (eligible members plus those who voted) has voted; more
+approvals approve, more rejections reject, a tie goes the chair's way, and
+without the chair's vote the proposal returns to the author; reject / return
+need minutes. The close runs `resolve_limit_validation` under the
+`tci.committee_resolution` marker, which lets decide / adjust take the
+committee's unlimited authority, and records the decision with the closer
+as `decided_by`. Votes and conflicts are rows nobody updates (trigger, owner
+included) and no API role writes. `committeeOutcome` / `quorumMet` in
+`validation.ts` mirror the rule (contract-tested).
+
+**Set up by admin, a technical setting.** `set_authority_routing`,
+`save_authority_level_grant` (replaces the band's live grant; refused on the
+committee), `end_authority_level_grant`, `add_authority_level_member` (the
+department, one rank 1–4 per stream), `end_authority_level_member` (ends a
+chair's chair), `set_committee_chair`. Admin is never a member (no
+department role) and votes on nothing.
+
 ### Acting role and four-eyes rules (migration 0063)
 
 **One role at a time, decided by the server.** `tci.acting_role()` = the
@@ -1823,6 +1931,77 @@ admin's «Моя повестка» holds admin's own tasks; the UI mirrors the 
 (`entities/access.ts`, `policies/statusMachine.ts mayWritePolicies`,
 `declarations/machine.ts mayMoveAs`, and the role lists of every feature
 machine). `tests/db/admin_technical.sql` proves it.
+
+### Information gathering rules (migrations 0066–0067)
+
+**Routed in one place.** `tci.handle_information_routing` is an AFTER INSERT
+trigger on `tci.workflow_events` named `workflow_events_zy_…` so it fires
+after the Agenda mapping (it cancels the `limit_needs_decision` that mapping
+just opened) and before `workflow_events_zz_auto_decisions` (which then finds
+the request no longer `submitted` and does nothing). It acts on
+`limit.request_submitted` whichever path submitted — the staff form, the
+client portal, a resolved buyer proposal — so no submit function decides.
+
+**What counts as missing** is `tci.buyer_information_gaps(entity)`, in a
+fixed order: `registration_number`, `address`, `industry`, `no_statements`,
+`stale_statements` (latest `period_end_date` older than the setting, 18
+months by default). `information.ts` mirrors the order (contract-tested).
+
+**Released by the data, not by a job.** AFTER triggers on
+`financial_statements` (insert/update) and `legal_entities` (update) call
+`release_limit_information` for that buyer's requests in gathering; it moves
+a request back to `submitted` only when nothing is missing and emits
+`limit.request_submitted` again, so the decision task and the auto decision
+follow as for any submission. «Проверить снова» (`recheck_limit_information`,
+staff) does the same on demand and answers what is still missing.
+
+**The waiver is credit's, with a reason, four eyes.**
+`waive_limit_information` (credit underwriting, never on its own request,
+comment required) writes a row of `tci.limit_information_waivers` (no API
+write grant) and sends the request on; the routing then lets it pass.
+`information_gathering` is an OPEN status everywhere the open ones are named
+(the one-open-request index, withdraw, the client duplicate checks, the
+queue, freshness and rating views). Withdrawing now emits
+`limit.request_withdrawn`, which closes the request's open limit tasks.
+
+### Credit analysis rules (migrations 0068–0069)
+
+**Capabilities, not roles, decide who rates.** `tci.has_capability(cap)`
+answers for the acting role under `workflow_settings.credit_analysis_mode`:
+'rate' and 'confirm_rating' = credit analyst, plus credit underwriting in
+`combined`; 'decide' = credit underwriting in every mode (never admin). The
+"credit_assessments: credit write" policy asks `has_capability('rate')`;
+`src/lib/creditAnalysis.ts` mirrors it (contract-tested) and the screens ask
+the mode through `tci.credit_analysis_mode()`, assuming `combined` until it
+answers — the database still refuses what it must.
+
+**`rating_grade` is the grade IN FORCE.** The engine's grade is frozen in
+`engine_grade` by a BEFORE INSERT trigger; `tci.confirm_rating(assessment,
+grade?, comment?)` stamps the one confirmation (who, when, why) and may set
+another grade of the scale (`^[A-D][0-9]{0,2}$`) only with a comment. Every
+reader of `rating_grade` — the band of a decision, the queue, ADT, the
+report — therefore follows the confirmation without being rewritten.
+Unconfirmed, the engine's grade is in force, as before 0069. Only the
+buyer's CURRENT rating is confirmed (`rating_not_latest`), once
+(`rating_already_confirmed`); `rating.confirmed` is emitted and rechecks the
+ADT. The API may only INSERT an assessment (UPDATE and DELETE revoked), and a
+trigger refuses any change but the confirmation, owner included
+(`rating_immutable`).
+
+**Four eyes on the rating.** Whoever calculated a rating never confirms it
+(`four_eyes_own_rating`, 42501; `created_by` is forced to the signed-in user
+on insert). In `separate` mode `tci.limit_four_eyes_refusal` also refuses a
+CREDIT decision, proposal or validation by whoever calculated or confirmed
+the buyer's current rating — a person holding both roles rates as an analyst
+and is still kept off the decision on that rating. In `combined` mode the
+same underwriter may rate and decide (that is what combined means).
+
+**Rating tasks follow the mode.** `tci.open_task` sends `buyer_needs_rating`,
+`rating_stale` and `rating_new_statements` to `tci.rating_task_role()`
+(credit analysts in `separate`), and `set_credit_analysis_mode` (admin) moves
+the open, department-addressed ones. In `separate` mode the rating worklist
+names a current rating nobody has confirmed (`unconfirmed`, tested last —
+`RATING_REASONS` mirrors the order from 0069's text).
 
 ### Auto decision (ADT) rules (migration 0061)
 

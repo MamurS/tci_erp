@@ -157,7 +157,7 @@ begin
                           '42501', 'reviewing one''s own request', 'four_eyes_own_request');
   perform pg_temp.refused(format('select tci.decide_limit_request(%L, ''approved'', 100000, ''UZS'')', c_own),
                           '42501', 'deciding one''s own request', 'four_eyes_own_request');
-  perform pg_temp.refused(format('select tci.submit_limit_for_validation(%L, %L, ''approved'', 100000, ''UZS'', current_date, null, ''[]''::jsonb, ''second opinion'')', c_own, c_credit),
+  perform pg_temp.refused(format('select tci.submit_limit_for_validation(%L, null, ''approved'', 100000, ''UZS'', current_date, null, ''[]''::jsonb, ''second opinion'')', c_own),
                           '42501', 'proposing a decision on one''s own request', 'four_eyes_own_request');
   select own_request into strict v from (select to_jsonb(q.own_request) as own_request
                                            from tci.v_limit_request_queue q where q.request_id = c_own) x;
@@ -171,9 +171,11 @@ begin
   v := tci.decide_limit_request(c_own, 'approved', 200000, 'UZS');
   if v ->> 'result' <> 'decided' then raise exception 'acting_role: the colleague''s decision answered %', v; end if;
   v_dec_own := (v ->> 'decision_id')::uuid;
-  -- ...but nobody validates what the requester raised.
+  -- ...and nobody validates what the requester raised: since 0071 nobody is
+  -- named at all, and a level never offers the requester
+  -- (tests/db/authority_levels.sql).
   perform pg_temp.refused(format('select tci.submit_limit_for_validation(%L, %L, ''approved'', 100000, ''UZS'', current_date, null, ''[]''::jsonb, ''second opinion'')', c_rval, c_multi),
-                          'P0001', 'the requester as validator', 'validator_four_eyes_own_request');
+                          'P0001', 'naming the requester as validator', 'named_validator_retired');
 
   -- 8. Commercial stage: neither the credit decider nor the requester adjusts.
   perform pg_temp.act(c_multi);

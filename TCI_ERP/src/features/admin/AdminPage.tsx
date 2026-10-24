@@ -10,6 +10,8 @@ import { useTranslation } from 'react-i18next'
 import { PageHeader, Tabs } from '../../components/ui'
 import { AuthoritiesTab } from './AuthoritiesTab'
 import { AutoDecisionSettingsCard } from './AutoDecisionSettingsCard'
+import { CreditAnalysisModeCard } from './CreditAnalysisModeCard'
+import { AuthorityLevelsCard } from './AuthorityLevelsCard'
 import { SecurityTab } from './SecurityTab'
 import { UsersRolesTab } from './UsersRolesTab'
 import { useAdminUsers } from './api'
@@ -56,6 +58,10 @@ export function AdminPage() {
             {/* Auto decisions (0061) are bounded by the same authority: an
                 ADT is never set above its setter's band authority. */}
             <AutoDecisionSettingsCard />
+            {/* Who rates and who decides (0069). */}
+            <CreditAnalysisModeCard />
+            {/* Ranks 1–5 and the committee (0071). */}
+            <AuthorityLevelsCard />
             <AuthoritiesTab user={selectedUser} />
           </div>
         )}

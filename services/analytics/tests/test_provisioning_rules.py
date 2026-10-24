@@ -21,7 +21,7 @@ from app.provisioning_rules import (
     requires_entity,
 )
 
-STAFF_ROLES = ["sales", "commercial_underwriter", "credit_underwriter", "claims", "information_manager"]
+STAFF_ROLES = ["sales", "commercial_underwriter", "credit_underwriter", "credit_analyst", "claims", "information_manager"]
 
 
 class TestTempPassword:

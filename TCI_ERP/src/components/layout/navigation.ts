@@ -13,6 +13,7 @@ const STAFF: readonly UserRole[] = [
   'sales',
   'commercial_underwriter',
   'credit_underwriter',
+  'credit_analyst',
   'claims',
   'information_manager',
 ]
@@ -31,6 +32,8 @@ const STAFF: readonly UserRole[] = [
  *                           policy portfolio, declarations, overdues, claims
  *   sales                   dashboard, agenda, companies, submissions, limits, policies,
  *                           declarations, overdues
+ *   credit_analyst          dashboard, agenda, companies, limits (the analysis views: ratings,
+ *                           monitoring, register, groups — never the decision queue)
  *   information_manager     dashboard, agenda, companies, data management
  *   claims                  dashboard, agenda, companies, overdues, claims
  *   client                  the portal only
@@ -55,7 +58,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   {
     key: 'limits',
     path: '/limits',
-    roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'client'],
+    roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'credit_analyst', 'client'],
   },
   {
     key: 'policies',

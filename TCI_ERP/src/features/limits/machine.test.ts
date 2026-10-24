@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest'
 import MIGRATION from '../../../supabase/migrations/0013_credit_limit_workflow.sql?raw'
 import MIGRATION_0063 from '../../../supabase/migrations/0063_acting_role.sql?raw'
 import M65 from '../../../supabase/migrations/0065_admin_technical_only.sql?raw'
+import M67 from '../../../supabase/migrations/0067_information_gathering.sql?raw'
 import {
   OPEN_STATUSES,
   canDecide,
@@ -24,8 +25,15 @@ import { requestScopeFilter } from './types'
 import { DECISION_OUTCOMES, LIMIT_REQUEST_STATUSES } from './types'
 
 describe('open statuses (partial unique index predicate)', () => {
-  it('matches the index predicate in migration 0013', () => {
-    expect(OPEN_STATUSES).toEqual(['draft', 'submitted', 'under_review', 'escalated'])
+  it('matches the index predicate as 0067 restates it (information gathering is open)', () => {
+    expect(OPEN_STATUSES).toEqual(['draft', 'submitted', 'information_gathering', 'under_review', 'escalated'])
+    expect(M67).toContain(
+      "where status in ('draft', 'submitted', 'information_gathering', 'under_review', 'escalated');",
+    )
+    expect(M67).toContain(
+      "if v_request.status not in ('draft', 'submitted', 'information_gathering', 'under_review', 'escalated') then",
+    )
+    // 0013's original set, which 0067 extends
     expect(MIGRATION).toContain(
       "where status in ('draft', 'submitted', 'under_review', 'escalated')",
     )

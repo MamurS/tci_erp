@@ -14,9 +14,12 @@ import M61 from '../../supabase/migrations/0061_auto_decisions.sql?raw'
 import M62 from '../../supabase/migrations/0062_sign_in_notice.sql?raw'
 import M63 from '../../supabase/migrations/0063_acting_role.sql?raw'
 import M65 from '../../supabase/migrations/0065_admin_technical_only.sql?raw'
+import M67 from '../../supabase/migrations/0067_information_gathering.sql?raw'
+import M69 from '../../supabase/migrations/0069_credit_analysis.sql?raw'
+import M71 from '../../supabase/migrations/0071_authority_levels.sql?raw'
 import { OPERATIONS_REFUSALS, refusalKey } from './refusals'
 
-const ALL = [M13, M26, M27, M28, M29, M54, M55, M56, M58, M60, M61, M62, M63, M65].join('\n')
+const ALL = [M13, M26, M27, M28, M29, M54, M55, M56, M58, M60, M61, M62, M63, M65, M67, M69, M71].join('\n')
 
 describe('operations refusal mapping — contract with 0026-0029', () => {
   it('maps only refusals the database actually raises', () => {
@@ -25,7 +28,8 @@ describe('operations refusal mapping — contract with 0026-0029', () => {
       // and raised as '%' — or as 'validator_%' for a named validator.
       const fourEyes = /^(validator_)?(four_eyes_\w+)$/.exec(fragment)
       if (fourEyes) {
-        expect(M63, fragment).toContain(`'${fourEyes[2]}: `)
+        // 0069 adds four_eyes_own_rating to the same function
+        expect(M63 + M69, fragment).toContain(`'${fourEyes[2]}: `)
         if (fourEyes[1]) expect(M63).toContain("raise exception 'validator_%', v_refusal")
         else expect(M63).toContain("raise exception '%', v_refusal using errcode = '42501';")
         continue
@@ -62,6 +66,16 @@ describe('operations refusal mapping — contract with 0026-0029', () => {
     expect(refusalKey({ message: 'manager_is_self: a person cannot be their own manager', code: 'P0001' })).toBe(
       'admin.manager.errors.self',
     )
+    // 0069: one's own rating — confirming it, and deciding on it
+    expect(
+      refusalKey({ message: 'four_eyes_own_rating: you calculated this rating and cannot confirm it', code: '42501' }),
+    ).toBe('rating.confirmation.errors.ownRating')
+    expect(
+      refusalKey({ message: 'four_eyes_own_rating: you rated this buyer and cannot decide its limit', code: '42501' }),
+    ).toBe('limits.errors.fourEyesOwnRating')
+    expect(
+      refusalKey({ message: 'validator_four_eyes_own_rating: you rated this buyer and cannot decide its limit', code: 'P0001' }),
+    ).toBe('limits.validation.errors.fourEyes')
     // 0063: four eyes — the caller, and a named validator, each by name
     expect(
       refusalKey({ message: 'four_eyes_own_request: you raised this limit request and cannot decide or change it', code: '42501' }),

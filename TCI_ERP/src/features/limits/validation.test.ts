@@ -8,16 +8,21 @@ import { describe, expect, it } from 'vitest'
 
 import M60 from '../../../supabase/migrations/0060_limit_validation.sql?raw'
 import M63 from '../../../supabase/migrations/0063_acting_role.sql?raw'
+import M71 from '../../../supabase/migrations/0071_authority_levels.sql?raw'
 import { OPERATIONS_REFUSALS } from '../../lib/refusals'
 import {
   actionNeedsComment,
   adjustmentCanBeValidated,
-  candidateAuthority,
+  AUTHORITY_ROUTINGS,
   chainsOf,
+  closeNeedsComment,
+  committeeOutcome,
+  COMMITTEE_RANK,
+  COMMITTEE_VOTES,
   creditApprovalOutcome,
-  defaultCandidate,
   MODIFIABLE,
   myPendingStep,
+  quorumMet,
   submitNeedsComment,
   VALIDATION_ACTIONS,
   VALIDATION_KINDS,
@@ -25,19 +30,19 @@ import {
   VALIDATION_STATUSES,
   validationKind,
   validationTone,
+  voteNeedsComment,
 } from './validation'
-import type { ValidationCandidate } from './validation'
 
 /** The body of one function in 0060, from its create statement to its end. */
-/** The LATEST definition of a function: 0063 restated several of 0060's. */
+/** The LATEST definition of a function: 0063 and 0071 restated several of 0060's. */
 function fn(name: string): string {
-  for (const migration of [M63, M60]) {
+  for (const migration of [M71, M63, M60]) {
     const start = migration.search(new RegExp(`create (or replace )?function tci\\.${name}\\(`, 'i'))
     if (start < 0) continue
     const rest = migration.slice(start)
     return rest.slice(0, rest.search(/\n\$(function)?\$\n?;/))
   }
-  throw new Error(`${name} is defined in neither 0060 nor 0063`)
+  throw new Error(`${name} is defined in none of 0060, 0063, 0071`)
 }
 
 describe('enums (0060)', () => {
@@ -72,12 +77,12 @@ describe('the validator’s answers (resolve_limit_validation)', () => {
   const resolve = fn('resolve_limit_validation')
 
   it('offers exactly the actions the function accepts', () => {
-    expect(resolve).toContain("if p_action not in ('approve', 'approve_modified', 'return', 'reject', 'forward') then")
+    expect(resolve).toContain("if v_action not in ('approve', 'approve_modified', 'return', 'reject', 'forward') then")
     expect([...VALIDATION_ACTIONS]).toEqual(['approve', 'approve_modified', 'return', 'reject', 'forward'])
   })
 
   it('return and reject must say why; the others need not', () => {
-    expect(resolve).toContain("if p_action in ('return', 'reject') and coalesce(btrim(p_comment), '') = '' then")
+    expect(resolve).toContain("if v_action in ('return', 'reject') and coalesce(btrim(p_comment), '') = '' then")
     expect(VALIDATION_ACTIONS.filter(actionNeedsComment)).toEqual(['return', 'reject'])
   })
 
@@ -89,7 +94,7 @@ describe('the validator’s answers (resolve_limit_validation)', () => {
   it('a credit approval takes its outcome from the amount against the request', () => {
     expect(resolve).toContain(
       `      v_outcome := case
-        when v_row.outcome = 'declined' and p_action = 'approve' then 'declined'
+        when v_row.outcome = 'declined' and v_action = 'approve' then 'declined'
         when v_amount is null then 'declined'
         when v_amount < v_request.requested_amount then 'partial'
         else 'approved' end;`,
@@ -104,7 +109,7 @@ describe('the validator’s answers (resolve_limit_validation)', () => {
 
   it('commercial approve-modified changes the amount and the payment terms only', () => {
     expect(resolve).toContain(
-      "case when p_action = 'approve_modified' then coalesce(p_payment_terms, v_row.payment_terms_days)",
+      "case when v_action = 'approve_modified' then coalesce(p_payment_terms, v_row.payment_terms_days)",
     )
     // the credit stream re-runs decide with the proposal's own conditions,
     // validity and assessment: only the amount (and so the outcome) moves
@@ -121,10 +126,15 @@ describe('the validator’s answers (resolve_limit_validation)', () => {
     expect(fn('decide_limit_request')).toContain("raise exception 'validation_beyond_authority:")
   })
 
-  it('forward excludes everyone already in the chain (four eyes)', () => {
+  it('forward goes to the next rank up, never to anyone already in the chain (four eyes)', () => {
     expect(resolve).toContain(
-      'perform tci.check_validator(p_forward_to, v_row.stream, v_row.grade_band, v_row.amount,\n                                v_row.currency_code, v_row.chain_id);',
+      'v_next_level := tci.route_validation_level(v_row.stream, v_row.grade_band, v_row.amount_uzs, false,\n                        v_row.request_id, v_row.chain_id, v_level.rank);',
     )
+    expect(fn('level_eligible_members')).toContain(
+      'and m.user_id in (v.proposed_by, v.validator_id, v.forwarded_by, v.resolved_by))',
+    )
+    // a level member approving as is beyond their own authority passes it on
+    expect(resolve).toContain("v_action := 'forward';")
     expect(M60).toContain('constraint limit_validations_four_eyes check (validator_id <> proposed_by')
   })
 })
@@ -187,36 +197,48 @@ describe('required or voluntary (submit_limit_for_validation / submit_adjustment
   })
 })
 
-describe('candidates (tci.validation_candidates)', () => {
-  const candidates = fn('validation_candidates')
-
-  it('the manager first, never the caller; nobody’s authority is unlimited (0063)', () => {
-    expect(candidates).toContain('order by (u.id = v_manager) desc, p.full_name nulls last, u.email;')
-    expect(candidates).toContain('and u.id <> v_me')
-    expect(fn('user_authority_uzs')).not.toContain('Infinity')
+describe('authority levels and the committee (0071)', () => {
+  it('nobody is named, and nobody is unlimited but the committee', () => {
+    expect(fn('submit_limit_for_validation')).toContain('named_validator_retired')
+    expect(fn('submit_adjustment_for_validation')).toContain('named_validator_retired')
     expect(fn('user_authority_uzs')).not.toContain("'admin'")
+    expect(fn('level_authority_uzs')).toContain("select case when l.is_committee then 'Infinity'::numeric")
+    expect(M71).toContain('is_committee boolean generated always as (rank = 5) stored')
+    expect(COMMITTEE_RANK).toBe(5)
   })
 
-  const c = (over: Partial<ValidationCandidate>): ValidationCandidate => ({
-    user_id: 'u',
-    full_name: 'X',
-    email: 'x@demo.invalid',
-    is_manager: false,
-    authority_uzs: 1,
-    ...over,
+  it('routes direct or sequential', () => {
+    expect(M71).toContain("check (authority_routing in ('direct', 'sequential'))")
+    expect(M71).toContain("add column if not exists authority_routing text not null default 'direct'")
+    expect(AUTHORITY_ROUTINGS).toEqual(['direct', 'sequential'])
   })
 
-  it('preselects the manager only', () => {
-    expect(defaultCandidate([c({ user_id: 'a' }), c({ user_id: 'm', is_manager: true })])).toBe('m')
-    expect(defaultCandidate([c({ user_id: 'a' })])).toBeNull()
-    expect(defaultCandidate([])).toBeNull()
+  it('closes the vote by quorum, majority and the chair’s casting vote', () => {
+    const close = fn('close_committee_vote')
+    expect(close).toContain('if cardinality(v_elect) = 0 or v_cast * 2 < cardinality(v_elect) then')
+    expect(close).toContain(`    when v_approve > v_reject then 'approve'
+    when v_reject > v_approve then 'reject'
+    when v_chair_vote = 'approve' then 'approve'
+    when v_chair_vote = 'reject' then 'reject'
+    else 'return' end;`)
+    expect(close).toContain("if v_action in ('reject', 'return') and coalesce(btrim(p_comment), '') = '' then")
+    expect(quorumMet(2, 4)).toBe(true)
+    expect(quorumMet(1, 3)).toBe(false)
+    expect(quorumMet(0, 0)).toBe(false)
+    expect(committeeOutcome({ approve: 2, reject: 1, chairVote: null })).toBe('approve')
+    expect(committeeOutcome({ approve: 1, reject: 2, chairVote: 'approve' })).toBe('reject')
+    expect(committeeOutcome({ approve: 1, reject: 1, chairVote: 'reject' })).toBe('reject')
+    expect(committeeOutcome({ approve: 1, reject: 1, chairVote: 'abstain' })).toBe('return')
+    expect(closeNeedsComment('approve')).toBe(false)
+    expect(closeNeedsComment('return')).toBe(true)
   })
 
-  it('reads Postgres Infinity as unlimited', () => {
-    expect(candidateAuthority('Infinity')).toBe(Number.POSITIVE_INFINITY)
-    expect(candidateAuthority('300000.00')).toBe(300000)
-    expect(candidateAuthority(42)).toBe(42)
-    expect(candidateAuthority(null)).toBeNull()
+  it('votes approve, reject (with a reason) or abstain', () => {
+    expect(M71).toContain("vote          text not null check (vote in ('approve', 'reject', 'abstain')),")
+    expect(COMMITTEE_VOTES).toEqual(['approve', 'reject', 'abstain'])
+    expect(fn('cast_committee_vote')).toContain("if p_vote = 'reject' and coalesce(btrim(p_comment), '') = '' then")
+    expect(voteNeedsComment('reject')).toBe(true)
+    expect(voteNeedsComment('abstain')).toBe(false)
   })
 })
 
@@ -246,9 +268,9 @@ describe('chains', () => {
   })
 })
 
-describe('every 0060 refusal is named on screen', () => {
-  it('maps each refusal code the migration raises', () => {
-    const codes = [...new Set([...M60.matchAll(/raise exception '([a-z_]+):/g)].map((m) => m[1]!))]
+describe('every 0060 and 0071 refusal is named on screen', () => {
+  it('maps each refusal code the migrations raise', () => {
+    const codes = [...new Set([...(M60 + M71).matchAll(/raise exception '([a-z_]+):/g)].map((m) => m[1]!))]
     expect(codes.length).toBeGreaterThanOrEqual(13)
     const mapped = OPERATIONS_REFUSALS.map((r) => r.fragment)
     expect(codes.filter((code) => !mapped.includes(code))).toEqual([])

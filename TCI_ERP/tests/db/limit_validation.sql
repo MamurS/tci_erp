@@ -1,4 +1,5 @@
--- Tests for migration 0060: limit decisions validated by a senior colleague.
+-- Tests for migrations 0060 and 0071: limit decisions validated up the
+-- authority levels (0071 replaced the named validator of 0060).
 --
 --   psql -v ON_ERROR_STOP=1 -f tests/db/limit_validation.sql
 --
@@ -45,6 +46,22 @@ insert into tci.authority_grants (user_id, applies_to, grade_band, max_amount, c
   ('99999999-0000-4000-8000-0000000008a7', 'credit', 'unrated', 1000000, 'UZS', current_date - 1, '99999999-0000-4000-8000-0000000008a8'),
   ('99999999-0000-4000-8000-0000000008a4', 'commercial', 'unrated', 100000, 'UZS', current_date - 1, '99999999-0000-4000-8000-0000000008a8'),
   ('99999999-0000-4000-8000-0000000008a5', 'commercial', 'unrated', 1000000, 'UZS', current_date - 1, '99999999-0000-4000-8000-0000000008a8');
+
+-- 0071: the levels. Credit: junior rank 1, middle rank 2 (300k), senior and
+-- outsider rank 3 (1M). Commercial: comm junior rank 1, comm senior rank 3.
+insert into tci.authority_level_grants (level_id, grade_band, max_amount, currency_code, valid_from)
+select l.id, 'unrated', a.amount, 'UZS', current_date - 1
+  from tci.authority_levels l
+  join (values ('credit', 1, 100000), ('credit', 2, 300000), ('credit', 3, 1000000),
+               ('commercial', 1, 100000), ('commercial', 3, 1000000)) a(stream, rank, amount)
+    on l.stream::text = a.stream and l.rank = a.rank;
+insert into tci.authority_level_members (level_id, user_id, valid_from)
+select l.id, m.uid::uuid, current_date - 1
+  from tci.authority_levels l
+  join (values ('credit', 1, '99999999-0000-4000-8000-0000000008a1'), ('credit', 2, '99999999-0000-4000-8000-0000000008a2'),
+               ('credit', 3, '99999999-0000-4000-8000-0000000008a3'), ('credit', 3, '99999999-0000-4000-8000-0000000008a7'),
+               ('commercial', 1, '99999999-0000-4000-8000-0000000008a4'), ('commercial', 3, '99999999-0000-4000-8000-0000000008a5')) m(stream, rank, uid)
+    on l.stream::text = m.stream and l.rank = m.rank;
 
 select set_config('request.jwt.claims', '{"sub": "99999999-0000-4000-8000-0000000008a6"}', true);
 insert into tci.legal_entities (id, name, country_code, created_by) values
@@ -104,7 +121,6 @@ declare
   v_val2   uuid;
   v_dec    tci.credit_limit_decisions%rowtype;
   v_n      int;
-  v_ids    uuid[];
 begin
   -- 0. The manager is set by admin only.
   perform pg_temp.act(c_junior);
@@ -125,39 +141,31 @@ begin
     raise exception 'limit_validation: an over-authority attempt changed something';
   end if;
 
-  -- 2. Candidates: the department, with the authority, the manager first,
-  --    never the caller. For 500k only senior and outsider qualify; for 200k
-  --    the manager (middle) comes first.
+  -- 2. Where it would go (direct routing): 500k to rank 3 (senior, outsider),
+  --    rank 2 told; 200k to rank 2 (middle).
   perform pg_temp.act(c_junior);
-  select array_agg(user_id) into v_ids from tci.validation_candidates('credit', 'unrated', 500000, 'UZS');
-  if not (v_ids @> array[c_senior, c_out] and not (v_ids && array[c_junior, c_middle, c_cs])) then
-    raise exception 'limit_validation: wrong candidates for 500k: %', v_ids;
+  v := tci.validation_route_preview(c_r1, 'credit', 'unrated', 500000, 'UZS');
+  if (v ->> 'rank')::int <> 3 or v ->> 'kind' <> 'required' or jsonb_array_length(v -> 'members') <> 2
+     or (v -> 'fyi' -> 0 ->> 'user_id')::uuid <> c_middle then
+    raise exception 'limit_validation: wrong route for 500k: %', v;
   end if;
-  select user_id into v_val from tci.validation_candidates('credit', 'unrated', 200000, 'UZS') limit 1;
-  if v_val <> c_middle then
-    raise exception 'limit_validation: the manager is not offered first';
+  v := tci.validation_route_preview(c_r2, 'credit', 'unrated', 200000, 'UZS');
+  if (v ->> 'rank')::int <> 2 or (v -> 'members' -> 0 ->> 'user_id')::uuid <> c_middle then
+    raise exception 'limit_validation: wrong route for 200k: %', v;
   end if;
 
-  -- 3. Refusals when sending: self, wrong department, too little authority.
-  perform pg_temp.refused(format('select tci.submit_limit_for_validation(%L, %L, %L, 500000, %L)', c_r1, c_junior, 'approved', 'UZS'),
-                          'P0001', 'self as validator', 'validator_four_eyes');
-  perform pg_temp.refused(format('select tci.submit_limit_for_validation(%L, %L, %L, 500000, %L)', c_r1, c_cs, 'approved', 'UZS'),
-                          'P0001', 'other department as validator', 'validator_wrong_department');
-  -- Voluntary (within authority) needs a comment.
-  perform pg_temp.refused(format('select tci.submit_limit_for_validation(%L, %L, %L, 80000, %L)', c_r3, c_middle, 'approved', 'UZS'),
+  -- 3. A validator is never named any more; voluntary needs a comment.
+  perform pg_temp.refused(format('select tci.submit_limit_for_validation(%L, %L, %L, 500000, %L)', c_r1, c_senior, 'approved', 'UZS'),
+                          'P0001', 'a named validator', 'named_validator_retired');
+  perform pg_temp.refused(format('select tci.submit_limit_for_validation(%L, null, %L, 80000, %L)', c_r3, 'approved', 'UZS'),
                           'P0001', 'voluntary without a comment', 'validation_comment_required');
 
-  -- 4. A required validation to middle (300k), who cannot cover 500k:
-  --    refused at once — a validator must have the authority.
-  perform pg_temp.refused(format('select tci.submit_limit_for_validation(%L, %L, %L, 500000, %L)', c_r1, c_middle, 'approved', 'UZS'),
-                          'P0001', 'validator without authority', 'validator_lacks_authority');
-
-  -- 5. The multi-level chain on r2 (200k): junior -> middle (300k covers).
-  v := tci.submit_limit_for_validation(c_r2, c_middle, 'approved', 200000, 'UZS', current_date, null,
+  -- 4. The chain on r2 (200k): junior -> rank 2 (middle).
+  v := tci.submit_limit_for_validation(c_r2, null, 'approved', 200000, 'UZS', current_date, null,
                                        '[]'::jsonb, 'Strong payment history');
   v_val := (v ->> 'validation_id')::uuid;
-  if v ->> 'kind' <> 'required' then
-    raise exception 'limit_validation: 200k above 100k is not a required validation: %', v;
+  if v ->> 'kind' <> 'required' or (v ->> 'rank')::int <> 2 then
+    raise exception 'limit_validation: 200k above 100k did not go to rank 2: %', v;
   end if;
   perform set_config('role', 'postgres', true);
   if (select status from tci.credit_limit_requests where id = c_r2) <> 'escalated' then
@@ -165,15 +173,15 @@ begin
   end if;
   if not exists (select 1 from tci.tasks where task_type = 'limit_validation' and object_id = v_val
                   and target_user = c_middle and status = 'open' and priority = 'urgent') then
-    raise exception 'limit_validation: the validator got no urgent task';
+    raise exception 'limit_validation: the level member got no urgent task';
   end if;
-  -- Nobody else decides a request on validation, not even the author.
+  -- Nobody else decides a request on validation.
   perform pg_temp.act(c_senior);
   perform pg_temp.refused(format('select tci.decide_limit_request(%L, %L, 200000, %L)', c_r2, 'approved', 'UZS'),
                           'P0001', 'deciding a request on validation', 'limit_validation_pending');
-  -- ... and only the validator answers.
-  perform pg_temp.refused(format('select tci.resolve_limit_validation(%L, %L)', v_val, 'approve'), '42501', 'answer by a non-validator');
-  -- RLS: an outsider sees nothing of the chain.
+  -- ... and only a member of the level answers.
+  perform pg_temp.refused(format('select tci.resolve_limit_validation(%L, %L)', v_val, 'approve'), '42501', 'answer by a non-member');
+  -- RLS: someone outside the chain and its levels sees nothing of it.
   perform pg_temp.act(c_out);
   select count(*) into v_n from tci.limit_validations;
   if v_n <> 0 then
@@ -183,21 +191,26 @@ begin
   if v_n <> 0 then
     raise exception 'limit_validation: an outsider reads the history';
   end if;
-  -- ... but anyone on staff may know it is on validation, and with whom.
-  select count(*) into v_n from tci.limit_request_validation_state(array[c_r2]) where validator_id = c_middle;
+  -- ... but anyone on staff may know it is on validation, and at which rank.
+  select count(*) into v_n from tci.limit_request_validation_levels(array[c_r2]) where rank = 2;
   if v_n <> 1 then
-    raise exception 'limit_validation: the on-validation state is not visible';
+    raise exception 'limit_validation: the on-validation level is not visible';
+  end if;
+  select count(*) into v_n from tci.limit_request_validation_state(array[c_r2]) where validator_id is null;
+  if v_n <> 1 then
+    raise exception 'limit_validation: a level step is missing from the on-validation state';
   end if;
 
-  -- Middle modifies it to 350k: beyond THEIR authority => refused, forward.
+  -- Middle modifies it to 350k: beyond THEIR authority => refused.
   perform pg_temp.act(c_middle);
   perform pg_temp.refused(format('select tci.resolve_limit_validation(%L, %L, 350000)', v_val, 'approve_modified'),
-                          'P0001', 'approving beyond the validator''s authority', 'validation_beyond_authority');
-  -- Forwarding back to the author is four-eyes refused.
-  perform pg_temp.refused(format('select tci.resolve_limit_validation(%L, %L, null, null, null, %L)', v_val, 'forward', c_junior),
-                          'P0001', 'forward to the author', 'validator_four_eyes');
-  v := tci.resolve_limit_validation(v_val, 'forward', null, null, 'Above my comfort', c_senior);
+                          'P0001', 'approving beyond the member''s authority', 'validation_beyond_authority');
+  -- Forward: to the next rank up (3), never to a chosen person.
+  v := tci.resolve_limit_validation(v_val, 'forward', null, null, 'Above my comfort');
   v_val2 := (v ->> 'validation_id')::uuid;
+  if (v ->> 'rank')::int <> 3 then
+    raise exception 'limit_validation: the forward did not go to rank 3: %', v;
+  end if;
   perform set_config('role', 'postgres', true);
   if (select status from tci.limit_validations where id = v_val) <> 'forwarded'
      or (select chain_id from tci.limit_validations where id = v_val2) <> v_val
@@ -206,6 +219,10 @@ begin
   end if;
   if exists (select 1 from tci.tasks where task_type = 'limit_validation' and object_id = v_val and status = 'open') then
     raise exception 'limit_validation: the forwarded step left its task open';
+  end if;
+  if (select count(*) from tci.tasks where task_type = 'limit_validation' and object_id = v_val2 and status = 'open'
+        and target_user in (c_senior, c_out)) <> 2 then
+    raise exception 'limit_validation: both rank 3 members should have the forwarded step';
   end if;
 
   -- Senior approves modified (180k): a partial decision by senior, linked.
@@ -224,8 +241,11 @@ begin
                   and title_key = 'agenda.tasks.limit_validation_result_approved_modified' and status = 'open') then
     raise exception 'limit_validation: the author was not told';
   end if;
+  if exists (select 1 from tci.tasks where task_type = 'limit_validation' and object_id = v_val2 and status = 'open') then
+    raise exception 'limit_validation: the other rank 3 member still holds the answered step';
+  end if;
   -- A resolved step is final.
-  perform pg_temp.act(c_senior);
+  perform pg_temp.act(c_out);
   perform pg_temp.refused(format('select tci.resolve_limit_validation(%L, %L)', v_val2, 'approve'), 'P0001', 'answering twice', 'validation_closed');
   -- The chain's history, with names, for its people.
   perform pg_temp.act(c_junior);
@@ -234,9 +254,14 @@ begin
     raise exception 'limit_validation: the author sees % history steps, not 2', v_n;
   end if;
 
-  -- 6. Return and reject on r1 (500k): junior -> senior.
-  v := tci.submit_limit_for_validation(c_r1, c_senior, 'approved', 500000, 'UZS', current_date, null, '[]'::jsonb, null);
+  -- 5. Return and reject on r1 (500k): junior -> rank 3 directly, rank 2 told.
+  v := tci.submit_limit_for_validation(c_r1, null, 'approved', 500000, 'UZS', current_date, null, '[]'::jsonb, null);
   v_val := (v ->> 'validation_id')::uuid;
+  perform set_config('role', 'postgres', true);
+  if not exists (select 1 from tci.tasks where task_type = 'limit_validation_fyi' and object_id = v_val
+                  and target_user = c_middle and status = 'open') then
+    raise exception 'limit_validation: the skipped rank was not told';
+  end if;
   perform pg_temp.act(c_senior);
   perform pg_temp.refused(format('select tci.resolve_limit_validation(%L, %L)', v_val, 'return'), 'P0001', 'return without a comment', 'validation_comment_required');
   perform tci.resolve_limit_validation(v_val, 'return', null, null, 'Get the 2025 statements first');
@@ -249,28 +274,30 @@ begin
     raise exception 'limit_validation: the return did not reach the author';
   end if;
   perform pg_temp.act(c_junior);
-  v := tci.submit_limit_for_validation(c_r1, c_out, 'approved', 500000, 'UZS', current_date, null, '[]'::jsonb, null);
+  v := tci.submit_limit_for_validation(c_r1, null, 'approved', 500000, 'UZS', current_date, null, '[]'::jsonb, null);
   v_val := (v ->> 'validation_id')::uuid;
   perform pg_temp.act(c_out);
   perform tci.resolve_limit_validation(v_val, 'reject', null, null, 'Too concentrated');
   perform set_config('role', 'postgres', true);
   if not exists (select 1 from tci.credit_limit_decisions where request_id = c_r1 and outcome = 'declined'
                   and decided_by = c_out and validation_id = v_val) then
-    -- a rejection is recorded as the validator's decline, linked to the step
     raise exception 'limit_validation: a rejection did not decline the limit';
   end if;
 
-  -- 7. Commercial stream on r2's credit decision (180k).
+  -- 6. Commercial stream on r2's credit decision (180k).
   perform pg_temp.act(c_cj);
   v := tci.adjust_limit_commercial(v_dec.id, 250000);
   if v ->> 'result' <> 'needs_validation' then
     raise exception 'limit_validation: a commercial increase over authority answered %', v;
   end if;
   -- A reduction is never authority-checked and needs no validation.
-  perform pg_temp.refused(format('select tci.submit_adjustment_for_validation(%L, %L, 50000)', v_dec.id, c_cs),
+  perform pg_temp.refused(format('select tci.submit_adjustment_for_validation(%L, null, 50000)', v_dec.id),
                           'P0001', 'validating a reduction', 'validation_not_for_reduction');
-  v := tci.submit_adjustment_for_validation(v_dec.id, c_cs, 250000, 90, null);
+  v := tci.submit_adjustment_for_validation(v_dec.id, null, 250000, 90, null);
   v_val := (v ->> 'validation_id')::uuid;
+  if (v ->> 'rank')::int <> 3 then
+    raise exception 'limit_validation: the commercial proposal did not go to rank 3: %', v;
+  end if;
   perform set_config('role', 'postgres', true);
   if not (select held from tci.credit_limit_decisions where id = v_dec.id) then
     raise exception 'limit_validation: the credit decision is not held while the adjustment is weighed';
@@ -287,7 +314,7 @@ begin
     raise exception 'limit_validation: the credit decision stayed held';
   end if;
 
-  -- 8. No direct writes.
+  -- 7. No direct writes.
   perform pg_temp.act(c_senior);
   perform pg_temp.refused(format('insert into tci.limit_validations (chain_id, request_id, stream, kind, outcome, currency_code, grade_band, proposed_by, validator_id) values (gen_random_uuid(), %L, %L, %L, %L, %L, %L, %L, %L)',
                           c_r3, 'credit', 'voluntary', 'declined', 'UZS', 'unrated', c_senior, c_out),
@@ -295,7 +322,7 @@ begin
   perform set_config('role', 'postgres', true);
   perform set_config('tci.internal_call', '', true);
 
-  raise notice 'limit_validation: OK — over authority records nothing and asks for validation, candidates by department and authority with the manager first, four eyes, voluntary needs a comment, multi-level chain with forward, approve-modified within the validator''s authority, return reopens, reject declines, commercial hold and release, author told, RLS to the chain, no direct writes';
+  raise notice 'limit_validation: OK — over authority records nothing and goes to the authority level that covers it (the skipped rank told), no named validator, voluntary needs a comment, any member of the level answers, forward to the next rank, approve-modified within the member''s authority, return reopens, reject declines, commercial hold and release, author told, RLS to the chain and its levels, no direct writes';
 end;
 $$;
 

@@ -86,7 +86,8 @@ const validation: Builder = (_row, lead, names) => {
     ...(place ? [{ key: place }] : []),
   ]
   if (!requestId) return { path: '/limits', action: 'open', crumbs: crumbs(null) }
-  if (lead.task_type === 'limit_validation') {
+  // 0071: a skipped rank is told on the same panel it would have answered on.
+  if (lead.task_type === 'limit_validation' || lead.task_type === 'limit_validation_fyi') {
     return {
       path: `/limits/${requestId}?focus=validation`,
       action: 'review',
@@ -232,6 +233,24 @@ const dataRequest: Builder = (_row, lead) => ({
   crumbs: [{ key: 'nav.data' }, str(lead.params?.request_number) ? { text: String(lead.params?.request_number) } : { key: 'agenda.dest.dataRequest' }],
 })
 
+/** «Собрать информацию по байеру» (0067): the buyer's card — the statements
+ * tab when statements are what is missing, the card itself for the registry
+ * data. Saving either releases the limit request by itself. */
+const informationNeeded: Builder = (_row, lead, names) => {
+  const id = str(lead.params?.entity_id) ?? lead.object_id
+  const gaps = Array.isArray(lead.params?.gaps) ? (lead.params?.gaps as unknown[]) : []
+  const statements = gaps.includes('no_statements') || gaps.includes('stale_statements')
+  return {
+    path: statements ? `/entities/${id}?tab=financials` : `/entities/${id}`,
+    action: 'resolve',
+    crumbs: [
+      { key: 'nav.entities' },
+      named({ subject: names.subject ?? str(lead.params?.entity_name) }, 'agenda.dest.company'),
+      { key: statements ? 'agenda.dest.place.financials' : 'agenda.dest.place.card' },
+    ],
+  }
+}
+
 export const DESTINATIONS: Readonly<Record<TaskType, Builder>> = {
   buyer_needs_entity: (row, lead, names) =>
     lead.object_type === 'client_buyer_proposal'
@@ -295,7 +314,9 @@ export const DESTINATIONS: Readonly<Record<TaskType, Builder>> = {
   offer_expired: offer('review'),
   limit_validation: validation,
   limit_validation_result: validation,
+  limit_validation_fyi: validation,
   adt_review: adtReview,
+  limit_information_needed: informationNeeded,
   entity_request_resolved: (row, lead, names) => {
     const entityId = str(lead.params?.entity_id)
     return entityId

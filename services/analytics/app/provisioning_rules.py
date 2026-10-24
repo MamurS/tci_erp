@@ -14,6 +14,7 @@ ALL_ROLES = frozenset(
         "sales",
         "commercial_underwriter",
         "credit_underwriter",
+        "credit_analyst",
         "claims",
         "information_manager",
         "client",

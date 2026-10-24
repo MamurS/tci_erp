@@ -33,6 +33,7 @@ const REASON_TONE: Record<RatingReason, 'neg' | 'warn' | 'accent' | 'neutral'> =
   no_rating: 'warn',
   new_statement: 'accent',
   stale: 'neutral',
+  unconfirmed: 'warn',
 }
 
 /** Financials are entered on the financials tab; everything else is rated. */
@@ -41,6 +42,7 @@ const REASON_TAB: Record<RatingReason, string> = {
   no_rating: 'rating',
   new_statement: 'rating',
   stale: 'rating',
+  unconfirmed: 'rating',
 }
 
 export function RatingsView() {
