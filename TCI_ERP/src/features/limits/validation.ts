@@ -1,16 +1,19 @@
 /**
- * Limit-decision VALIDATION — pure module, mirror of migration 0060
+ * Limit-decision VALIDATION — pure module, mirror of migrations 0060 and 0071
  * (tci.limit_validations, submit_limit_for_validation,
- * submit_adjustment_for_validation, resolve_limit_validation).
+ * submit_adjustment_for_validation, resolve_limit_validation, the committee
+ * functions).
  *
  * A decision beyond the author's authority in the buyer's rating band is not
- * escalated to a pool any more: nothing is recorded, the author sends the
- * proposal to a NAMED colleague of the same department whose authority covers
- * it (credit → credit, commercial → commercial). Within authority the author
- * may still send it voluntarily — a second opinion, with a comment. While a
- * step is pending the decision does not exist. The database enforces all of
- * it; this module only decides what the screens offer and say, and
- * validation.test.ts locks every rule to the 0060 text.
+ * recorded: the author sends the proposal up the AUTHORITY LEVELS of the
+ * stream (0071) — directly to the lowest rank that covers it (the ranks in
+ * between told), or rank by rank — and any eligible member of that level
+ * answers; above every rank sits the committee, which decides by vote.
+ * Within authority the author may still ask for a second opinion, with a
+ * comment, from the next rank up. While a step is pending the decision does
+ * not exist. The database enforces all of it; this module only decides what
+ * the screens offer and say, and validation.test.ts locks the rules to the
+ * migration text.
  */
 
 import type { AuthorityScope, GradeBand } from '../../lib/roles'
@@ -116,40 +119,24 @@ export function validationTone(status: ValidationStatus): 'neutral' | 'accent' |
 // Row shapes the 0060 functions answer with
 // ---------------------------------------------------------------------------
 
-/** tci.validation_candidates(): a colleague who may validate. Admin's
- * authority is unlimited — Postgres 'Infinity', which reaches the browser as
- * the string "Infinity" (or a non-finite number). */
-export interface ValidationCandidate {
-  user_id: string
-  full_name: string | null
-  email: string
-  is_manager: boolean
-  authority_uzs: number | string | null
-}
-
-/** The authority of a candidate as a number; Infinity for unlimited. */
-export function candidateAuthority(value: number | string | null): number | null {
-  if (value === null || value === undefined) return null
-  if (value === 'Infinity' || value === Number.POSITIVE_INFINITY) return Number.POSITIVE_INFINITY
-  const n = Number(value)
-  return Number.isNaN(n) ? null : n
-}
-
-/** The one to preselect: the manager when they qualify (the function lists
- * them first), else nobody — the author picks. */
-export function defaultCandidate(candidates: readonly ValidationCandidate[]): string | null {
-  return candidates.find((c) => c.is_manager)?.user_id ?? null
-}
-
 /** tci.limit_request_validation_state(): what any colleague may know. */
 export interface ValidationState {
   request_id: string
   validation_id: string
   stream: AuthorityScope
   kind: ValidationKind
-  validator_id: string
+  /** Null for a step that sits with an authority level (0071). */
+  validator_id: string | null
   validator_name: string | null
   since: string
+}
+
+/** tci.limit_request_validation_levels() / limit_validation_levels(): the
+ * level a step sits with. */
+export interface StepLevel {
+  validation_id: string
+  rank: number
+  is_committee: boolean
 }
 
 /** tci.limit_validation_history(): one step of a chain, with names. */
@@ -169,7 +156,7 @@ export interface ValidationStep {
   proposed_by_name: string | null
   forwarded_by: string | null
   forwarded_by_name: string | null
-  validator_id: string
+  validator_id: string | null
   validator_name: string | null
   status: ValidationStatus
   resolution_comment: string | null
@@ -199,12 +186,14 @@ export interface ValidationProposal {
   comment: string | null
   proposed_by: string
   forwarded_by: string | null
-  validator_id: string
+  validator_id: string | null
+  level_id: string | null
   status: ValidationStatus
   created_at: string
 }
 
-/** The step the caller has to answer, if any: pending and addressed to them. */
+/** A 0060 step named to the caller (a level step is answered through
+ * tci.validation_step_state's `can_answer`). */
 export function myPendingStep<T extends Pick<ValidationStep, 'status' | 'validator_id'>>(
   steps: readonly T[],
   userId: string | undefined,
@@ -231,4 +220,99 @@ export interface NeedsValidation {
   grade_band: GradeBand
   amount_uzs: number
   authority_uzs: number
+}
+
+// ---------------------------------------------------------------------------
+// Authority levels and the committee (0071)
+// ---------------------------------------------------------------------------
+
+/** workflow_settings.authority_routing. */
+export const AUTHORITY_ROUTINGS = ['direct', 'sequential'] as const
+export type AuthorityRouting = (typeof AUTHORITY_ROUTINGS)[number]
+
+/** The committee is rank 5 of each stream. */
+export const COMMITTEE_RANK = 5
+export const LEVEL_RANKS = [1, 2, 3, 4, 5] as const
+
+export interface PersonRef {
+  user_id: string
+  name: string | null
+}
+
+/** tci.validation_route_preview(): where a proposal would go now. */
+export type RoutePreview =
+  | { available: false; kind: ValidationKind; routing: AuthorityRouting; my_rank: number }
+  | {
+      available: true
+      kind: ValidationKind
+      routing: AuthorityRouting
+      my_rank: number
+      level_id: string
+      rank: number
+      is_committee: boolean
+      members: PersonRef[]
+      fyi: PersonRef[]
+    }
+
+export const COMMITTEE_VOTES = ['approve', 'reject', 'abstain'] as const
+export type CommitteeVote = (typeof COMMITTEE_VOTES)[number]
+
+export interface CommitteeState {
+  chair_id: string | null
+  chair_name: string | null
+  electorate: number
+  votes: { voter: string; name: string | null; vote: CommitteeVote; comment: string | null; voted_at: string }[]
+  conflicts: { member: string; name: string | null; reason: string; declared_at: string }[]
+  cast: number
+  approve: number
+  reject: number
+  abstain: number
+  quorum_met: boolean
+  my_vote: CommitteeVote | null
+  i_may_vote: boolean
+  i_am_conflicted: boolean
+  i_may_close: boolean
+}
+
+/** tci.validation_step_state(). */
+export interface StepState {
+  id: string
+  status: ValidationStatus
+  stream: AuthorityScope
+  level_id: string | null
+  rank: number | null
+  is_committee: boolean
+  can_answer: boolean
+  answerers: PersonRef[]
+  committee?: CommitteeState
+}
+
+/** Quorum: at least half of the electorate has voted (close_committee_vote). */
+export function quorumMet(cast: number, electorate: number): boolean {
+  return electorate > 0 && cast * 2 >= electorate
+}
+
+/** What closing the vote records: more approvals approve, more rejections
+ * reject, a tie goes the chair's way, and without the chair's vote the
+ * proposal goes back to its author. */
+export function committeeOutcome(input: {
+  approve: number
+  reject: number
+  chairVote: CommitteeVote | null
+}): 'approve' | 'reject' | 'return' {
+  if (input.approve > input.reject) return 'approve'
+  if (input.reject > input.approve) return 'reject'
+  if (input.chairVote === 'approve') return 'approve'
+  if (input.chairVote === 'reject') return 'reject'
+  return 'return'
+}
+
+/** The minutes must say why when the committee does not approve. */
+export function closeNeedsComment(outcome: 'approve' | 'reject' | 'return'): boolean {
+  return outcome !== 'approve'
+}
+
+/** A vote to reject must say why; approve and abstain may. */
+export function voteNeedsComment(vote: CommitteeVote): boolean {
+  return vote === 'reject'
 }

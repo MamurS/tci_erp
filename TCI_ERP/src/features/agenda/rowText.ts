@@ -189,6 +189,12 @@ export function rowFacts(
         str(p.proposed_by_name) ? t('agenda.facts.from', { name: p.proposed_by_name }) : null,
       )
       break
+    case 'limit_validation_fyi':
+      facts.push(
+        money(p.amount, p.currency, locale),
+        str(p.proposed_by_name) ? t('agenda.facts.from', { name: p.proposed_by_name }) : null,
+      )
+      break
     case 'limit_validation_result':
       facts.push(
         money(p.amount, p.currency, locale),

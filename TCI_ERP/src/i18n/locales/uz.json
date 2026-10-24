@@ -1641,9 +1641,9 @@
       },
       "kindUnknownTitle": "Majburiy yoki ixtiyoriy — yuborilganda aniqlanadi",
       "kindUnknown": "Bu yerda vakolatni solishtirib bo‘lmaydi (kurs yo‘q). Tasdiqlovchi nimaga e’tibor berishi kerakligini yozing.",
-      "requiredNote": "{{amount}} UZS ekv. «{{band}}» reyting diapazoni uchun vakolatingizdan ({{authority}} UZS ekv.) yuqori. Bu qarorni o‘zingiz qayd eta olmaysiz — vakolati uni qamraydigan hamkasbni tanlang.",
-      "requiredNoteShort": "Qaror «{{band}}» reyting diapazoni uchun vakolatingizdan yuqori. Uni o‘zingiz qayd eta olmaysiz — vakolati uni qamraydigan hamkasbni tanlang.",
-      "voluntaryNote": "Qaror vakolatingiz doirasida. Ikkinchi fikr ixtiyoriy — nimani tekshirish kerakligini yozing.",
+      "requiredNote": "{{amount}} UZS-ekv. «{{band}}» reyting diapazonidagi vakolatingizdan ({{authority}} UZS-ekv.) oshadi. Bu qarorni qayd eta olmaysiz — u uni qamrab oladigan vakolat darajasiga yuboriladi.",
+      "requiredNoteShort": "Qaror «{{band}}» reyting diapazonidagi vakolatingizdan oshadi. Uni qayd eta olmaysiz — u uni qamrab oladigan vakolat darajasiga yuboriladi.",
+      "voluntaryNote": "Qaror vakolatingiz doirasida. Keyingi darajaning ikkinchi fikri ixtiyoriy: nimani tekshirish kerakligini yozing.",
       "proposal": "Taklif",
       "bandOf": "«{{band}}» reyting diapazoni",
       "validator": "Tasdiqlovchi",
@@ -1664,7 +1664,7 @@
         "credit": "Tasdiqlay oladigan boshqa kredit anderrayteri yo‘q. Administratorga murojaat qiling.",
         "commercial": "Tasdiqlay oladigan boshqa tijorat anderrayteri yo‘q. Administratorga murojaat qiling."
       },
-      "commentLabel": "Tasdiqlovchi uchun izoh",
+      "commentLabel": "Tasdiqlovchi daraja uchun izoh",
       "commentRequiredHint": "Ikkinchi fikr uchun majburiy: nimani tekshirish kerakligini yozing.",
       "commentOptionalHint": "Ixtiyoriy.",
       "submitFailed": "Qarorni tasdiqlash uchun yuborib bo‘lmadi.",
@@ -1734,9 +1734,9 @@
       },
       "recordsAs": "Qayd etiladi:",
       "beyondMine": "«{{band}}» reyting diapazoni uchun vakolatingizdan yuqori",
-      "beyondMineHint": "Vakolatingiz — {{authority}} UZS ekv. Qarorni yuqoriroq hamkasbga yo‘naltiring yoki kichikroq summani tasdiqlang.",
+      "beyondMineHint": "Vakolatingiz — {{authority}} UZS-ekv. Qarorni keyingi darajaga o‘tkazing yoki kamroq summani tasdiqlang.",
       "forwardTo": "Kimga yo‘naltirish",
-      "forwardHint": "Ushbu zanjirda ishtirok etgan hamkasblar taklif qilinmaydi.",
+      "forwardHint": "Qaror keyingi yuqori vakolat darajasiga yuboriladi; ushbu zanjir ishtirokchilari uni qayta ko‘rmaydi.",
       "resolutionComment": "Izohingiz",
       "commentRequiredWhy": "Majburiy: muallif sababini ko‘radi.",
       "resolveFailed": "Javobingiz qayd etilmadi.",
@@ -1762,7 +1762,82 @@
         "notRecorded": "Qarorni tasdiqlashda qayd etib bo‘lmadi (masalan, guruh limiti sababli). Hech narsa o‘zgarmadi.",
         "notYours": "Bu tasdiqlashga faqat tayinlangan tasdiqlovchi javob bera oladi.",
         "fourEyesOwnRequest": "To‘rt ko‘z tamoyili: siz tanlagan hamkasb bu limit so‘rovini o‘zi yuborgan va uni tasdiqlay olmaydi.",
-        "fourEyesOwnCredit": "To‘rt ko‘z tamoyili: siz tanlagan hamkasb bu so‘rov bo‘yicha kredit qarorini qabul qilgan va uning tijorat tuzatishini tasdiqlay olmaydi."
+        "fourEyesOwnCredit": "To‘rt ko‘z tamoyili: siz tanlagan hamkasb bu so‘rov bo‘yicha kredit qarorini qabul qilgan va uning tijorat tuzatishini tasdiqlay olmaydi.",
+        "namedRetired": "Qaror tanlangan hamkasbga emas, uni qabul qila oladigan vakolat darajasiga yuboriladi.",
+        "levelMissing": "Sizdan yuqori vakolat darajalarining hech biri bu qarorni qabul qila olmaydi. Administratordan darajalarni sozlashni so‘rang.",
+        "notLevelMember": "Faqat qaror turgan darajaning a’zosi javob bera oladi.",
+        "committeeVotes": "Qo‘mita yagona javob bilan emas, ovoz berish orqali qaror qiladi.",
+        "committeeIsLast": "Qo‘mita zanjirning cho‘qqisi; undan yuqoriga yuborib bo‘lmaydi.",
+        "notCommittee": "Bu qaror qo‘mita ko‘rib chiqishida emas.",
+        "voteInvalid": "«Yoqlab», «qarshi» ovoz bering yoki betaraf qoling.",
+        "alreadyVoted": "Bu taklif bo‘yicha ovozingiz allaqachon yozilgan.",
+        "notEligible": "Siz bu taklif bo‘yicha ovoz bermaysiz (manfaatlar to‘qnashuvi, o‘zingizning so‘rovingiz yoki zanjirdagi oldingi ishtirok).",
+        "conflictReason": "Manfaatlar to‘qnashuvi nimada ekanini ko‘rsating.",
+        "chairCloses": "Ovoz berishni faqat rais yopa oladi.",
+        "noQuorum": "Avval qo‘mitaning kamida yarmi ovoz berishi kerak.",
+        "minutesRequired": "Agar qo‘mita qarorni ma’qullamasa, bayonnomada sababini ko‘rsatish kerak."
+      },
+      "level": "{{rank}}-daraja",
+      "committee": {
+        "credit": "Kredit qo‘mitasi",
+        "commercial": "Tijorat qo‘mitasi"
+      },
+      "routeTitle": "Qaror qayerga yuboriladi",
+      "routing": {
+        "direct": "To‘g‘ridan-to‘g‘ri yo‘naltirish: qarorni qamrab oladigan eng quyi vakolat darajasiga; oraliq darajalar ma’lumot uchun xabardor qilinadi.",
+        "sequential": "Ketma-ket yo‘naltirish: darajama-daraja yuqoriga; har bir daraja o‘z vakolatidan oshganini keyingisiga o‘tkazadi."
+      },
+      "routeFailed": "Qaror qayerga yuborilishini aniqlab bo‘lmadi.",
+      "noLevelTitle": "Bu qaror uchun vakolat darajasi yo‘q",
+      "noLevel": "Sizdan yuqori darajalarning hech birida uni qabul qila oladigan a’zo yo‘q. Administratordan vakolat darajalarini sozlashni so‘rang.",
+      "routeMembers": "Istalgan biri qaror qiladi: {{names}}",
+      "routeVoters": "Qo‘mita ovoz beradi: {{names}}",
+      "routeFyi": "Ma’lumot uchun: {{names}}",
+      "passesOn": "Vakolatingizdan ortiq: qaror keyingi darajaga o‘tadi",
+      "passesOnHint": "Vakolatingiz — {{authority}} UZS-ekv. Roziligingiz zanjirga yoziladi, qaror esa keyingi darajaga o‘tadi.",
+      "committeeDone": {
+        "approve": "Qo‘mita qarorni ma’qulladi — u qayd etildi.",
+        "reject": "Qo‘mita qarorni rad etdi — limit rad etildi.",
+        "return": "Ko‘pchilik bo‘lmagani uchun qaror muallifga qaytarildi."
+      },
+      "committeePanel": {
+        "intro": "Taklif qildi: {{author}}, {{date}}; qo‘mita ovoz berish orqali qaror qiladi.",
+        "approve": "Yoqlab",
+        "reject": "Qarshi",
+        "abstain": "Betaraf",
+        "turnout": "Ovoz berdi",
+        "quorumMet": "kvorum bor",
+        "quorumNot": "hali kvorum yo‘q",
+        "chair": "Rais: {{name}}",
+        "rule": "Kvorum — qo‘mitaning yarmi; oddiy ko‘pchilik hal qiladi, ovozlar teng bo‘lsa — raisning ovozi.",
+        "member": "A’zo",
+        "vote": "Ovoz",
+        "chairMark": "rais",
+        "conflictOf": "Manfaatlar to‘qnashuvi — {{name}}",
+        "myVote": "Sizning ovozingiz: {{vote}}",
+        "iAmConflicted": "Siz manfaatlar to‘qnashuvini e’lon qildingiz va bu taklif bo‘yicha ovoz bermaysiz.",
+        "needQuorum": "Qo‘mitaning yarmi ovoz bergach, ovoz berishni yopish mumkin.",
+        "closeWillRecord": "Hozir yopilsa qayd etiladi:",
+        "conflictNote": "Manfaatlar to‘qnashuvi haqidagi bayonot sizni bu ovoz berishdan chiqaradi; u yoziladi va qaytarib olinmaydi.",
+        "conflictReason": "To‘qnashuv nimada",
+        "minutes": "Bayonnoma"
+      },
+      "votes": {
+        "approve": "Yoqlab",
+        "reject": "Qarshi",
+        "abstain": "Betaraf"
+      },
+      "voteActions": {
+        "approve": "«Yoqlab» ovoz berish",
+        "reject": "«Qarshi» ovoz berish",
+        "abstain": "Betaraf qolish",
+        "conflict": "Manfaatlar to‘qnashuvini e’lon qilish",
+        "close": "Ovoz berishni yopish"
+      },
+      "committeeOutcome": {
+        "approve": "Ma’qullandi",
+        "reject": "Rad etildi",
+        "return": "Muallifga qaytarildi"
       }
     },
     "errors": {
@@ -2115,6 +2190,37 @@
       "switch": "Almashtirish",
       "errors": {
         "modeInvalid": "Rejim birlashgan yoki alohida bo‘lishi kerak."
+      }
+    },
+    "levels": {
+      "title": "Vakolat darajalari",
+      "hint": "Har bir yo‘nalishda beshta daraja: 1–4-darajalar reyting diapazonlari bo‘yicha vakolatga ega, 5-daraja — qo‘mita. Xodim yo‘nalishda bitta darajada bo‘ladi va qo‘mitaga ham kirishi mumkin.",
+      "routing": "Yo‘naltirish",
+      "routings": {
+        "direct": "To‘g‘ridan-to‘g‘ri",
+        "sequential": "Ketma-ket"
+      },
+      "unlimited": "Summa cheklovisiz",
+      "noAuthority": "Vakolat belgilanmagan",
+      "setAuthority": "Vakolatni belgilash",
+      "setAuthorityFor": "Vakolat: {{level}}",
+      "setAuthorityHint": "Diapazon uchun yangi summa bugundan amal qiladi; avvalgisi tugaydi.",
+      "members": "A’zolar",
+      "nobody": "hozircha hech kim",
+      "add": "A’zo qo‘shish…",
+      "remove": "Olib tashlash: {{name}}",
+      "chair": "Rais",
+      "noChair": "— raissiz —",
+      "committeeRule": "Kvorum — qo‘mitaning yarmi; oddiy ko‘pchilik hal qiladi, tenglikda — raisning ovozi.",
+      "errors": {
+        "committeeUnlimited": "Qo‘mita zanjirning cho‘qqisi, uning summa cheklovi yo‘q.",
+        "amountInvalid": "Summa noldan katta bo‘lishi kerak.",
+        "routingInvalid": "Yo‘naltirish to‘g‘ridan-to‘g‘ri yoki ketma-ket bo‘ladi.",
+        "wrongDepartment": "A’zo shu yo‘nalish bo‘linmasida ishlashi kerak.",
+        "oneRank": "Xodim yo‘nalishda bitta darajada bo‘ladi — avval uni boshqa darajadan olib tashlang.",
+        "memberExists": "Allaqachon shu daraja a’zosi.",
+        "chairCommitteeOnly": "Faqat qo‘mitada rais bo‘ladi.",
+        "chairNotMember": "Rais qo‘mita a’zosi bo‘lishi kerak."
       }
     }
   },
@@ -2469,7 +2575,8 @@
       "limit_validation": "Limitni tasdiqlash",
       "limit_validation_result": "Tasdiqlash natijasi",
       "adt_review": "Bayerni qayta ko‘rib chiqish / ADTni yangilash",
-      "limit_information_needed": "Bayer bo‘yicha ma’lumot yig‘ish"
+      "limit_information_needed": "Bayer bo‘yicha ma’lumot yig‘ish",
+      "limit_validation_fyi": "Limitni tasdiqlash: ma’lumot uchun"
     },
     "tasks": {
       "buyer_needs_entity": "{{subject}} arizasidagi «{{name}}» ortidagi tashkilotni aniqlang",
@@ -2525,7 +2632,9 @@
       "adt_review_manual_block": "{{entity_name}} bayerining ADTsi to‘xtatildi: avtomatik qarorlar taqiqlangan — bayerni qayta ko‘rib chiqing",
       "adt_review_no_financials": "{{entity_name}} bayerining ADTsi to‘xtatildi: moliyaviy hisobot yo‘q — bayerni qayta ko‘rib chiqing",
       "adt_review_stale_financials": "{{entity_name}} bayerining ADTsi to‘xtatildi: hisobot eskirgan — bayerni qayta ko‘rib chiqing",
-      "limit_information_needed": "Limit so‘rovi uchun {{entity_name}} bayeri bo‘yicha ma’lumot yig‘ish"
+      "limit_information_needed": "Limit so‘rovi uchun {{entity_name}} bayeri bo‘yicha ma’lumot yig‘ish",
+      "limit_validation_committee": "Qo‘mita ovozi: {{entity_name}} limiti (muallif: {{proposed_by_name}})",
+      "limit_validation_fyi": "Ma’lumot uchun: {{entity_name}} limiti bo‘yicha qaror darajangizdan yuqoriga o‘tdi (muallif: {{proposed_by_name}})"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
@@ -2736,7 +2845,8 @@
       "adt_review_limit_revoked": "ADT to‘xtatildi: limit bekor qilingan — bayerni qayta ko‘rib chiqish",
       "adt_review_manual_block": "ADT to‘xtatildi: avtomatik qarorlar taqiqlangan — bayerni qayta ko‘rib chiqish",
       "adt_review_no_financials": "ADT to‘xtatildi: hisobot yo‘q — bayerni qayta ko‘rib chiqish",
-      "adt_review_stale_financials": "ADT to‘xtatildi: hisobot eskirgan — bayerni qayta ko‘rib chiqish"
+      "adt_review_stale_financials": "ADT to‘xtatildi: hisobot eskirgan — bayerni qayta ko‘rib chiqish",
+      "limit_validation_fyi": "Darajangizdan yuqori limit qarori"
     },
     "facts": {
       "policies_one": "{{count}} ta polis",

@@ -1,4 +1,4 @@
-/** Data access for limit-decision validation (migration 0060).
+/** Data access for limit-decision validation (migrations 0060 and 0071).
  *
  * Every write is a SECURITY DEFINER function that decides on its own: who may
  * validate, whether the step is required or voluntary, whether the validator's
@@ -14,8 +14,11 @@ import type { AuthorityScope, GradeBand } from '../../lib/roles'
 import { invalidateLimitWorkflow } from './api'
 import type { ConditionInput } from './types'
 import type {
+  CommitteeVote,
+  RoutePreview,
+  StepLevel,
+  StepState,
   ValidationAction,
-  ValidationCandidate,
   ValidationKind,
   ValidationProposal,
   ValidationState,
@@ -26,39 +29,87 @@ import type {
 export const VALIDATION_KEYS = {
   all: ['limit-validations'] as const,
   state: (ids: readonly string[]) => ['limit-validations', 'state', [...ids].sort()] as const,
+  levels: (ids: readonly string[]) => ['limit-validations', 'levels', [...ids].sort()] as const,
   history: (requestId: string) => ['limit-validations', 'history', requestId] as const,
+  stepLevels: (requestId: string) => ['limit-validations', 'step-levels', requestId] as const,
+  step: (id: string) => ['limit-validations', 'step', id] as const,
   proposal: (id: string) => ['limit-validations', 'proposal', id] as const,
-  candidates: (input: CandidateQuery) =>
-    ['limit-validations', 'candidates', input.stream, input.band, input.amount, input.currency, input.chainId ?? ''] as const,
+  route: (input: RouteQuery) =>
+    ['limit-validations', 'route', input.requestId, input.stream, input.band, input.amount, input.currency] as const,
 }
 
-export interface CandidateQuery {
+export interface RouteQuery {
+  requestId: string
   stream: AuthorityScope
   band: GradeBand
-  /** Null for a decline: any colleague of the department qualifies. */
+  /** Null for a decline: a second opinion from the next rank up. */
   amount: number | null
   currency: string
-  /** When forwarding: everyone already in the chain is left out. */
-  chainId?: string | null
 }
 
-/** Colleagues of the stream's department whose authority covers the amount
- * in that band — the caller's manager first; never the caller or anyone
- * already in the chain. */
-export function useValidationCandidates(input: CandidateQuery, enabled = true) {
+/** Where a proposal would go now — the level, its members, who is told —
+ * by the same rules the submit functions apply (0071). */
+export function useRoutePreview(input: RouteQuery, enabled = true) {
   return useQuery({
-    queryKey: VALIDATION_KEYS.candidates(input),
-    enabled: enabled && Boolean(input.currency),
-    queryFn: async (): Promise<ValidationCandidate[]> => {
-      const { data, error } = await tci().rpc('validation_candidates', {
+    queryKey: VALIDATION_KEYS.route(input),
+    enabled: enabled && Boolean(input.requestId) && Boolean(input.currency),
+    queryFn: async (): Promise<RoutePreview> => {
+      const { data, error } = await tci().rpc('validation_route_preview', {
+        p_request_id: input.requestId,
         p_stream: input.stream,
         p_band: input.band,
         p_amount: input.amount,
         p_currency: input.currency,
-        p_chain_id: input.chainId ?? null,
       })
       if (error) throw error
-      return (data ?? []) as ValidationCandidate[]
+      return data as RoutePreview
+    },
+  })
+}
+
+/** The level each pending step of these requests sits with (any staff). */
+export function useValidationLevels(requestIds: readonly string[]) {
+  const ids = [...new Set(requestIds.filter(Boolean))]
+  return useQuery({
+    queryKey: VALIDATION_KEYS.levels(ids),
+    enabled: ids.length > 0,
+    queryFn: async (): Promise<(StepLevel & { request_id: string })[]> => {
+      const { data, error } = await tci().rpc('limit_request_validation_levels', { p_request_ids: ids })
+      if (error) throw error
+      return (data ?? []) as (StepLevel & { request_id: string })[]
+    },
+  })
+}
+
+/** The level of every step of a request's chains (same visibility as the
+ * history). */
+export function useStepLevels(requestId: string) {
+  return useQuery({
+    queryKey: VALIDATION_KEYS.stepLevels(requestId),
+    enabled: Boolean(requestId),
+    queryFn: async (): Promise<StepLevel[]> => {
+      const { data, error } = await tci().rpc('limit_validation_levels', { p_request_id: requestId })
+      if (error) throw error
+      return (data ?? []) as StepLevel[]
+    },
+  })
+}
+
+/** One step as the caller sees it: may they answer, and the committee's
+ * tally. Refused (42501) to anyone outside the chain and its levels — the
+ * screen then simply shows nothing. */
+export function useStepState(validationId: string | null) {
+  return useQuery({
+    queryKey: VALIDATION_KEYS.step(validationId ?? ''),
+    enabled: Boolean(validationId),
+    retry: false,
+    queryFn: async (): Promise<StepState | null> => {
+      const { data, error } = await tci().rpc('validation_step_state', { p_validation_id: validationId })
+      if (error) {
+        if ((error as { code?: string }).code === '42501') return null
+        throw error
+      }
+      return data as StepState
     },
   })
 }
@@ -120,6 +171,7 @@ export interface SubmitResult {
   validation_id: string
   kind: ValidationKind
   grade_band: GradeBand
+  rank: number
 }
 
 function useInvalidateValidation() {
@@ -132,7 +184,6 @@ function useInvalidateValidation() {
 
 export interface SubmitCreditInput {
   requestId: string
-  validatorId: string
   outcome: 'approved' | 'partial' | 'declined'
   amount: number | null
   currency: string
@@ -144,7 +195,8 @@ export interface SubmitCreditInput {
 }
 
 /** Credit stream: the proposal is stored, the request parks as `escalated`
- * with a named validator, and nothing exists until it is validated. */
+ * with the authority level that may decide it, and nothing exists until it
+ * is validated. Nobody is named (0071). */
 export function useSubmitLimitForValidation() {
   const invalidate = useInvalidateValidation()
   return useMutation({
@@ -152,7 +204,7 @@ export function useSubmitLimitForValidation() {
     mutationFn: async (input: SubmitCreditInput): Promise<SubmitResult> => {
       const { data, error } = await tci().rpc('submit_limit_for_validation', {
         p_request_id: input.requestId,
-        p_validator_id: input.validatorId,
+        p_validator_id: null,
         p_outcome: input.outcome,
         p_amount: input.amount,
         p_currency: input.currency,
@@ -171,7 +223,6 @@ export function useSubmitLimitForValidation() {
 
 export interface SubmitAdjustmentInput {
   decisionId: string
-  validatorId: string
   amount: number
   paymentTermsDays: number | null
   comment: string | null
@@ -186,7 +237,7 @@ export function useSubmitAdjustmentForValidation() {
     mutationFn: async (input: SubmitAdjustmentInput): Promise<SubmitResult> => {
       const { data, error } = await tci().rpc('submit_adjustment_for_validation', {
         p_decision_id: input.decisionId,
-        p_validator_id: input.validatorId,
+        p_validator_id: null,
         p_new_amount: input.amount,
         p_new_payment_terms: input.paymentTermsDays,
         p_comment: input.comment,
@@ -204,15 +255,15 @@ export interface ResolveInput {
   amount?: number | null
   paymentTermsDays?: number | null
   comment?: string | null
-  forwardTo?: string | null
 }
 
 export type ResolveResult =
   | { result: Exclude<ValidationStatus, 'pending' | 'forwarded'>; decision_id: string | null }
-  | { result: 'forwarded'; validation_id: string }
+  | { result: 'forwarded'; validation_id: string; rank: number | null }
 
-/** The validator's answer: approve (as is, or modified within THEIR
- * authority), return to the author, reject, or forward to someone senior. */
+/** A level member's answer: approve (as is, or modified within THEIR
+ * authority — an approval as is beyond it goes on to the next rank), return
+ * to the author, reject, or forward to the next rank. */
 export function useResolveLimitValidation() {
   const invalidate = useInvalidateValidation()
   return useMutation({
@@ -224,11 +275,70 @@ export function useResolveLimitValidation() {
         p_amount: input.amount ?? null,
         p_payment_terms: input.paymentTermsDays ?? null,
         p_comment: input.comment ?? null,
-        p_forward_to: input.forwardTo ?? null,
+        p_forward_to: null,
       })
       if (error) throw error
       return data as ResolveResult
     },
     onSuccess: invalidate,
   })
+}
+
+export type CloseResult = ResolveResult & {
+  committee: { approve: number; reject: number; cast: number; electorate: number; action: 'approve' | 'reject' | 'return' }
+}
+
+/** The committee: a member's vote, a declared conflict, and the chair's
+ * close (quorum, majority, the casting vote — decided in SQL). */
+export function useCommitteeActions(validationId: string) {
+  const invalidate = useInvalidateValidation()
+  const queryClient = useQueryClient()
+  const settle = () => {
+    invalidate()
+    void queryClient.invalidateQueries({ queryKey: VALIDATION_KEYS.step(validationId) })
+  }
+  const vote = useMutation({
+    mutationKey: ['limits', 'committee', 'vote'],
+    mutationFn: async (input: { vote: CommitteeVote; comment: string | null }): Promise<StepState> => {
+      const { data, error } = await tci().rpc('cast_committee_vote', {
+        p_validation_id: validationId,
+        p_vote: input.vote,
+        p_comment: input.comment,
+      })
+      if (error) throw error
+      return data as StepState
+    },
+    onSuccess: (state) => {
+      queryClient.setQueryData(VALIDATION_KEYS.step(validationId), state)
+      settle()
+    },
+  })
+  const conflict = useMutation({
+    mutationKey: ['limits', 'committee', 'conflict'],
+    mutationFn: async (reason: string): Promise<StepState> => {
+      const { data, error } = await tci().rpc('declare_committee_conflict', {
+        p_validation_id: validationId,
+        p_reason: reason,
+      })
+      if (error) throw error
+      return data as StepState
+    },
+    onSuccess: (state) => {
+      queryClient.setQueryData(VALIDATION_KEYS.step(validationId), state)
+      settle()
+    },
+  })
+  const close = useMutation({
+    mutationKey: ['limits', 'committee', 'close'],
+    mutationFn: async (comment: string | null): Promise<CloseResult> => {
+      const { data, error } = await tci().rpc('close_committee_vote', {
+        p_validation_id: validationId,
+        p_comment: comment,
+      })
+      if (error) throw error
+      return data as CloseResult
+    },
+    onSuccess: settle,
+  })
+  return { vote, conflict, close }
 }

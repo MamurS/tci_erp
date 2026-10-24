@@ -11,6 +11,7 @@ import { PageHeader, Tabs } from '../../components/ui'
 import { AuthoritiesTab } from './AuthoritiesTab'
 import { AutoDecisionSettingsCard } from './AutoDecisionSettingsCard'
 import { CreditAnalysisModeCard } from './CreditAnalysisModeCard'
+import { AuthorityLevelsCard } from './AuthorityLevelsCard'
 import { SecurityTab } from './SecurityTab'
 import { UsersRolesTab } from './UsersRolesTab'
 import { useAdminUsers } from './api'
@@ -59,6 +60,8 @@ export function AdminPage() {
             <AutoDecisionSettingsCard />
             {/* Who rates and who decides (0069). */}
             <CreditAnalysisModeCard />
+            {/* Ranks 1–5 and the committee (0071). */}
+            <AuthorityLevelsCard />
             <AuthoritiesTab user={selectedUser} />
           </div>
         )}

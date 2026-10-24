@@ -87,6 +87,9 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   // Information gathering (migration 0067): closes itself when the data is
   // complete (the request goes on by itself), on a waiver or a withdrawal.
   limit_information_needed: 'auto',
+  // Authority levels (migration 0071): the skipped rank reads it and puts it
+  // away — nothing downstream resolves information.
+  limit_validation_fyi: 'manual',
 }
 
 /** Mirrors tci.complete_task's guard (as 0060 restates it): it refuses
@@ -175,7 +178,9 @@ export function taskLink(
       // lands on their panel, the author on the request.
       const requestId = task.params?.request_id
       if (typeof requestId !== 'string') return null
-      return task.task_type === 'limit_validation' ? `/limits/${requestId}?focus=validation` : `/limits/${requestId}`
+      return task.task_type === 'limit_validation' || task.task_type === 'limit_validation_fyi'
+        ? `/limits/${requestId}?focus=validation`
+        : `/limits/${requestId}`
     }
     default:
       return null
