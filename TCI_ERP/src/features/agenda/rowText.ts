@@ -59,6 +59,7 @@ export function companyOf(task: Task, subjects: TaskSubjects | undefined): strin
     case 'client_buyer_proposal':
       return str(p.name)
     case 'limit_validation':
+    case 'rating_proposal_step':
       return str(p.entity_name) ?? (str(p.entity_id) ? (s?.entities[p.entity_id as string] ?? null) : null)
     default: {
       const policyId = policyIdOf(task)
@@ -105,6 +106,9 @@ export function rowTitle(
       ? 'agenda.row.limit_escalated_group'
       : lead.object_type === 'client_buyer_proposal'
         ? 'agenda.row.buyer_proposed'
+        : lead.task_type === 'rating_proposal_result' && str(p.status)
+          ? // how it ended (0073): approved / modified / returned / rejected
+            `agenda.row.rating_proposal_result_${p.status as string}`
         : lead.task_type === 'limit_validation_result' && str(p.status)
           ? // how it ended (0060): approved / approved_modified / returned / rejected
             `agenda.row.limit_validation_result_${p.status as string}`
@@ -199,6 +203,19 @@ export function rowFacts(
       facts.push(
         money(p.amount, p.currency, locale),
         str(p.validator_name) ? t('agenda.facts.validatedBy', { name: p.validator_name }) : null,
+      )
+      break
+    case 'rating_proposal':
+      facts.push(
+        str(p.grade) ? t('agenda.facts.proposedGrade', { grade: p.grade }) : null,
+        p.manual === true ? t('rating.proposals.manual') : null,
+        str(p.proposed_by_name) ? t('agenda.facts.from', { name: p.proposed_by_name }) : null,
+      )
+      break
+    case 'rating_proposal_result':
+      facts.push(
+        str(p.grade) ? t('agenda.facts.proposedGrade', { grade: p.grade }) : null,
+        str(p.resolver_name) ? t('agenda.facts.validatedBy', { name: p.resolver_name }) : null,
       )
       break
     case 'group_exposure_near_limit':

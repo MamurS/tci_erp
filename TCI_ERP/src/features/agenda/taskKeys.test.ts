@@ -11,6 +11,8 @@ import ru from '../../i18n/locales/ru.json'
 import uz from '../../i18n/locales/uz.json'
 import VALIDATION from '../../../supabase/migrations/0060_limit_validation.sql?raw'
 import ADT from '../../../supabase/migrations/0061_auto_decisions.sql?raw'
+import PROPOSALS from '../../../supabase/migrations/0073_rating_proposals.sql?raw'
+import { PROPOSAL_STATUSES } from '../entities/rating/proposals'
 import { ADT_REVIEW_REASONS } from '../limits/adt'
 import { VALIDATION_STATUSES } from '../limits/validation'
 import { OBJECT_FILTERS } from './catalogue'
@@ -40,6 +42,20 @@ describe('0060 result titles', () => {
     expect(VALIDATION).toContain("if new.payload ->> 'status' not in ('forwarded', 'cancelled') and new.target_user is not null then")
     expect(VALIDATION).toContain("'agenda.tasks.limit_validation_result_' || (new.payload ->> 'status')")
     expect(VALIDATION_RESULT_STATUSES).toEqual(['approved', 'approved_modified', 'returned', 'rejected'])
+  })
+})
+
+/** The rating proposal outcomes the proposer is told about (0073): every
+ * status but pending, forwarded and withdrawn. */
+const PROPOSAL_RESULT_STATUSES = PROPOSAL_STATUSES.filter(
+  (s) => s !== 'pending' && s !== 'forwarded' && s !== 'withdrawn',
+)
+
+describe('0073 rating proposal result titles', () => {
+  it('tells the proposer every outcome but a forward and a withdrawal', () => {
+    expect(PROPOSALS).toContain("if p_status not in ('forwarded', 'withdrawn') then")
+    expect(PROPOSALS).toContain("'agenda.tasks.rating_proposal_result_' || p_status,")
+    expect(PROPOSAL_RESULT_STATUSES).toEqual(['approved', 'modified', 'returned', 'rejected'])
   })
 })
 
@@ -84,6 +100,7 @@ describe.each([
       entity_request_resolved_: ['created', 'linked', 'updated', 'rejected'],
       limit_validation_result_: VALIDATION_RESULT_STATUSES,
       adt_review_: ADT_REVIEW_REASONS,
+      rating_proposal_result_: PROPOSAL_RESULT_STATUSES,
     }
     const prefixes = [...titleKeys].filter((key) => key.endsWith('_'))
     expect(prefixes.filter((key) => !outcomes[key])).toEqual([])

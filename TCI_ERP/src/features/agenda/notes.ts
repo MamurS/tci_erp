@@ -56,6 +56,9 @@ export const ORIGIN_SOURCES: Readonly<Partial<Record<TaskType, readonly OriginSo
   limit_validation: [{ kind: 'validationComment' }],
   limit_validation_result: [{ kind: 'validationResolution' }],
   limit_validation_fyi: [{ kind: 'validationComment' }],
+  // 0073: the proposal's reason and the answer ride on the task
+  rating_proposal: [{ kind: 'param', param: 'reason', author: 'validationAuthor' }],
+  rating_proposal_result: [{ kind: 'param', param: 'comment', author: 'validator' }],
   // 0057: the policyholder's latest portal comment and the note the draft
   // was sent for review with, both carried on the task by the mapping
   contract_review: [

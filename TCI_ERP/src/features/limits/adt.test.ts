@@ -10,6 +10,7 @@ import M28 from '../../../supabase/migrations/0028_overdue_notifications.sql?raw
 import M34 from '../../../supabase/migrations/0034_indemnity_recoveries.sql?raw'
 import M61 from '../../../supabase/migrations/0061_auto_decisions.sql?raw'
 import M63 from '../../../supabase/migrations/0063_acting_role.sql?raw'
+import M73 from '../../../supabase/migrations/0073_rating_proposals.sql?raw'
 import en from '../../i18n/locales/en.json'
 import ru from '../../i18n/locales/ru.json'
 import uz from '../../i18n/locales/uz.json'
@@ -83,6 +84,13 @@ describe('vocabularies (0061)', () => {
     expect(rule).toContain('v_reasons := v_reasons || tci.adt_buyer_stops(v_request.entity_id);')
     const at = own.indexOf('group_limit')
     const order = [...own.slice(0, at), ...ADT_BUYER_STOPS, ...own.slice(at)]
+    // 0073 restates the body: a rating without a recommended limit is tested
+    // right after the rating is found, before its fx and amount
+    expect(M73).toContain(`    -- 0073: a manual rating carries no recommended limit to stay under.
+    if v_assessment.suggested_limit is null then
+      v_reasons := v_reasons || ''no_recommended_limit''::text;
+    elsif v_rec_uzs is null or v_req_uzs is null then`)
+    order.splice(order.indexOf('no_rating') + 1, 0, 'no_recommended_limit')
     expect(order).toEqual([...AUTO_DECISION_REASONS])
   })
 
@@ -172,6 +180,24 @@ describe('the auto decision itself', () => {
 })
 
 describe('who (the gates the screens assume)', () => {
+  it('credit analysts set, disable and ban too, and read (0073)', () => {
+    for (const f of ['set_buyer_adt', 'disable_buyer_adt', 'set_buyer_adt_block'])
+      expect(M73).toContain(`'tci.${f}(`)
+    expect(M73).toContain(
+      "execute replace(v_def, 'perform tci.require_role(''credit_underwriter'');',\n                           'perform tci.require_role(''credit_underwriter'', ''credit_analyst'');');",
+    )
+    expect(M73).toContain(
+      "execute replace(v_def, 'perform tci.require_role(''admin'', ''credit_underwriter'');',\n                           'perform tci.require_role(''admin'', ''credit_underwriter'', ''credit_analyst'');');",
+    )
+    for (const table of ['buyer_adt', 'buyer_adt_blocks', 'auto_decision_attempts'])
+      expect(M73).toContain(
+        `alter policy "${table}: credit desk" on tci.${table}\n  using (tci.has_role('admin', 'credit_underwriter', 'credit_analyst'));`,
+      )
+    expect(canSetAdt(['credit_analyst'])).toBe(true)
+    expect(canSeeAdt(['credit_analyst'])).toBe(true)
+    expect(limitViewsFor(['credit_analyst'])).toContain('auto')
+  })
+
   it('credit underwriting sets, disables and bans; admin reads and alone switches (0063)', () => {
     for (const f of ['set_buyer_adt', 'disable_buyer_adt', 'set_buyer_adt_block'])
       expect(fn(f), f).toContain("perform tci.require_role('credit_underwriter');")

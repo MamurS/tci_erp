@@ -154,8 +154,8 @@ export function RiskReportBody({ report, t, locale, variant, onNarrative, onFact
                             <td>{t('report.general.recommendedLimit')}:</td>
                             <td>
                               <span className="rpt-big">
-                                {latestAssessment
-                                  ? `${formatAmount(Number(latestAssessment.suggested_limit), locale, 0)} ${latestAssessment.limit_currency}`
+                                {latestAssessment && latestAssessment.suggested_limit !== null
+                                  ? `${formatAmount(Number(latestAssessment.suggested_limit), locale, 0)} ${latestAssessment.limit_currency ?? ''}`
                                   : EM_DASH}
                               </span>
                             </td>
@@ -163,16 +163,18 @@ export function RiskReportBody({ report, t, locale, variant, onNarrative, onFact
                           <tr className="is-limit">
                             <td>{t('report.general.limitBasis')}:</td>
                             <td className="rpt-basis">
-                              {latestAssessment && score !== null
-                                ? limitBasisText(
-                                    t,
-                                    locale,
-                                    score,
-                                    Number(latestAssessment.suggested_limit),
-                                    latestAssessment.limit_currency,
-                                    latest,
-                                  )
-                                : t('report.noAssessment')}
+                              {latestAssessment?.source === 'manual'
+                                ? t('report.manualRating', { grade: latestAssessment.rating_grade })
+                                : latestAssessment && score !== null && latestAssessment.suggested_limit !== null
+                                  ? limitBasisText(
+                                      t,
+                                      locale,
+                                      score,
+                                      Number(latestAssessment.suggested_limit),
+                                      latestAssessment.limit_currency ?? '',
+                                      latest,
+                                    )
+                                  : t('report.noAssessment')}
                             </td>
                           </tr>
                           <tr className="is-limit">
@@ -201,7 +203,7 @@ export function RiskReportBody({ report, t, locale, variant, onNarrative, onFact
                           <ScoreChangeNote
                             score={score}
                             previousScore={
-                              previousAssessment ? Number(previousAssessment.rating_score) : null
+                              previousAssessment?.rating_score == null ? null : Number(previousAssessment.rating_score)
                             }
                             t={t}
                             locale={locale}
@@ -263,16 +265,18 @@ export function RiskReportBody({ report, t, locale, variant, onNarrative, onFact
                     <div className="rpt-overall">
                       <div className="rpt-overall-title">{t('report.overall.title')}</div>
                       <p style={{ margin: 0 }}>
-                        {latestAssessment && score !== null
-                          ? overallText(
-                              t,
-                              locale,
-                              score,
-                              bullets,
-                              Number(latestAssessment.suggested_limit),
-                              latestAssessment.limit_currency,
-                            )
-                          : t('report.noAssessment')}
+                        {latestAssessment?.source === 'manual'
+                          ? t('report.manualRating', { grade: latestAssessment.rating_grade })
+                          : latestAssessment && score !== null && latestAssessment.suggested_limit !== null
+                            ? overallText(
+                                t,
+                                locale,
+                                score,
+                                bullets,
+                                Number(latestAssessment.suggested_limit),
+                                latestAssessment.limit_currency ?? '',
+                              )
+                            : t('report.noAssessment')}
                       </p>
                     </div>
                   </section>

@@ -184,7 +184,7 @@ function GradeHeaderBadge({ entityId, onClick }: { entityId: string; onClick: ()
   const locale = i18n.resolvedLanguage ?? 'en'
   const { data } = useQuery({
     queryKey: ['entities', entityId, 'latest-grade'],
-    queryFn: async (): Promise<{ rating_grade: string; rating_score: number } | null> => {
+    queryFn: async (): Promise<{ rating_grade: string; rating_score: number | null } | null> => {
       const { data: rows, error } = await tci()
         .from('credit_assessments')
         .select('rating_grade, rating_score')
@@ -192,7 +192,7 @@ function GradeHeaderBadge({ entityId, onClick }: { entityId: string; onClick: ()
         .order('created_at', { ascending: false })
         .limit(1)
       if (error) throw error
-      return (rows?.[0] as { rating_grade: string; rating_score: number } | undefined) ?? null
+      return (rows?.[0] as { rating_grade: string; rating_score: number | null } | undefined) ?? null
     },
   })
 
@@ -200,7 +200,10 @@ function GradeHeaderBadge({ entityId, onClick }: { entityId: string; onClick: ()
   return (
     <button type="button" onClick={onClick} title={t('rating.gradeTitle')} className="inline-flex rounded-full">
       <Badge tone={gradeTone(data.rating_grade)}>
-        {data.rating_grade} · {formatAmount(Number(data.rating_score), locale, 0)}
+        {/* a manual grade (0073) has no score */}
+        {data.rating_score === null
+          ? data.rating_grade
+          : `${data.rating_grade} · ${formatAmount(Number(data.rating_score), locale, 0)}`}
       </Badge>
     </button>
   )

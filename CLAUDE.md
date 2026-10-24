@@ -35,7 +35,7 @@ Department roles (stored in `tci.user_roles`, enforced via RLS). **A user may ho
 - `sales` — companies and policies (read), raises limit requests
 - `commercial_underwriter` — policy terms; the commercial stage of decisions (Phase 3c)
 - `credit_underwriter` — ratings, limits and credit decisions within band authority (rates only in `combined` credit analysis mode, 0069)
-- `credit_analyst` — rates buyers and confirms ratings, enters statements; never decides a limit (0068–0069, workspace «Кредитный анализ»). See **Credit analysis rules** below
+- `credit_analyst` — rates buyers and confirms ratings, enters statements, proposes manual grades and sends grades for validation, sets buyers' ADT within their own authority grants (0073); never decides a limit (0068–0069, workspace «Кредитный анализ»). See **Credit analysis rules** and **Rating proposal rules** below
 - `claims` — claims and recoveries
 - `information_manager` — fills in company data and financial statements
 - `client` — external portal user: sees ONLY own policies, own limit requests, own declarations. Design every policy with this role in mind even before the portal exists. **`client` is held alone** — a trigger on `tci.user_roles` refuses it next to any other role (`client_role_exclusive`, 0062), and the admin role editor greys the combination out.
@@ -812,6 +812,29 @@ is fine for internal test accounts and not fine for customers.
   `tests/db/authority_levels.sql` run on canonical with role impersonation
   (forced rollback, nothing left behind); no new advisor finding. The levels
   are empty until the owner sets them up in Admin › Полномочия
+- [x] Manual ratings, rating validation and analyst ADT (migrations
+  0072–0073): a credit analyst (or whoever rates under the mode) proposes a
+  MANUAL grade — statements optional, reason required — or a grade for the
+  buyer's current unconfirmed engine rating, and sends it to a colleague who
+  confirms ratings or ESCALATES it up the credit authority levels (rank by
+  rank, the committee voting by 0071's rules); it comes into force only when
+  a second person approves it (`tci.rating_proposals` /
+  `rating_proposal_steps` / `rating_votes` / `rating_conflicts`, Agenda
+  `rating_proposal` and the seventh manual type `rating_proposal_result`). A
+  manual rating is an assessment with `source = 'manual'`, no score and no
+  recommended limit, so no auto decision rests on it
+  (`no_recommended_limit`). Credit analysts set, disable and block ADTs
+  within their own authority grants and see «Авторешения». Rating tab
+  «Предложения рейтинга», null-safe report and limit page. See **Rating
+  proposal rules** below. **Canonical: 0072–0073 applied 2026-10-24** BEFORE
+  merge (backward-compatible: the deployed screens never write a manual
+  rating): the objects 0073 replaces verified identical to a local replay of
+  0071 first, 0072 then 0073 whole in one atomic `execute_sql` call each with
+  its ledger row; every tci function (per-function hash), policy, the new
+  tables' columns, constraints, indexes, grants and triggers identical to a
+  local replay afterwards; the whole `tests/db/rating_proposals.sql` run on
+  canonical with role impersonation (forced rollback, nothing left behind,
+  counts unchanged, mode still `combined`); no new advisor finding
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2013,6 +2036,51 @@ same underwriter may rate and decide (that is what combined means).
 the open, department-addressed ones. In `separate` mode the rating worklist
 names a current rating nobody has confirmed (`unconfirmed`, tested last —
 `RATING_REASONS` mirrors the order from 0069's text).
+
+### Rating proposal rules (migrations 0072–0073)
+
+**A suggested grade is never in force on its proposer's word.**
+`tci.propose_rating(entity, grade, reason, assessment?, statement?, escalate)`
+needs `has_capability('rate')` and a reason; one pending proposal per buyer
+(partial unique index), and a pending proposal holds `confirm_rating`
+(`rating_proposal_pending`). With an assessment it proposes a grade for the
+buyer's CURRENT, UNCONFIRMED engine rating; without one it is a manual
+rating. Approval writes the grade: a manual proposal becomes a confirmed
+assessment (`source = 'manual'`, `created_by` = the proposer, `confirmed_by`
+= the approver, no score, no recommended limit, `engine_grade` null), an
+engine proposal stamps that assessment's one confirmation. A manual
+assessment can only be inserted by trusted code — the guard trigger (SECURITY
+DEFINER since 0073, it asks `internal_call_ok`) refuses
+`rating_manual_direct` otherwise.
+
+**Who answers.** The colleague route: anyone who confirms ratings under the
+mode (`rating_colleagues`: credit analysts; credit underwriting too in
+`combined`), acting in that role. The level route: the members of the credit
+authority level the step sits with (`rating_level_members`: credit
+underwriting, as 0071 seats them). Never anyone in the chain — the proposer,
+the author of the engine rating, whoever opened or answered a step
+(`rating_proposal_chain`) — nor a member who declared a conflict. A rating has
+no amount, so escalation is always rank by rank from the proposer's rank
+(`user_rank`, 0 for an analyst), skipping ranks nobody eligible can answer;
+a colleague may forward it to the levels; nothing goes above the committee
+(`rating_top_of_chain`). Each eligible answerer gets their own
+`rating_proposal` task; the first answer closes them all.
+
+**Answers**: approve (the proposed grade), approve another grade (reason
+required, not the proposed one — `rating_modified_same`), return and reject
+(reason required), forward. The proposer may withdraw while pending. The
+committee votes (`cast_rating_vote`, `declare_rating_conflict`,
+`close_rating_vote`) under exactly 0071's rules; the close runs the answer
+under the `tci.rating_committee_resolution` marker. Steps are resolved once
+(trigger), proposals, votes and conflicts never change, and no API role
+writes any of the four tables (credit desk + admin read).
+
+**ADT by analysts.** `set_buyer_adt` / `disable_buyer_adt` /
+`set_buyer_adt_block` accept credit analysts, still capped by
+`my_authority_uzs(band)` — an analyst needs authority grants of their own
+(Admin › Полномочия; `underwriters_covering` still names credit underwriters
+only, so a grant never routes limit decisions to an analyst). The ADT tables
+and «Авторешения» are the analysts' to read too.
 
 ### Auto decision (ADT) rules (migration 0061)
 

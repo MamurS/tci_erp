@@ -74,8 +74,16 @@ import { mayEnterStatements } from '../financials/access'
 import { mayRate } from '../access'
 import { useCreditAnalysisMode } from '../../../lib/useCreditAnalysisMode'
 import { RatingConfirmation } from './RatingConfirmation'
+import { RATING_PROPOSAL_ANCHOR, RatingProposalPanel } from './RatingProposalPanel'
+import { useRatingProposals } from './proposalsApi'
 import { CHART_COLORS } from '../report/DynamicCharts'
 import { ReportModal } from './ReportModal'
+
+/** The engine's stored result, or null for a manual rating (0073), whose
+ * trace is empty. */
+function engineTrace(row: AssessmentRow | null): { rating: RatingResponse; limit: CreditLimitResponse } | null {
+  return row?.calculation_trace?.rating && row.calculation_trace.limit ? row.calculation_trace : null
+}
 
 /** id of the factor breakdown table — dashboard chips deep-link here. */
 export const FACTOR_TABLE_ANCHOR_ID = 'rating-factor-table'
@@ -119,6 +127,14 @@ export function RatingTab({ entityId }: { entityId: string }) {
   // ADT block, which only the credit desk gets; for anyone else it is never
   // found and the tab is as usual.
   useDeepLinkFocus(searchParams.get('focus') === ADT_FOCUS ? ADT_FOCUS : null, { ready: !isLoading })
+  // ?focus=rating-proposal (the Agenda's rating proposal tasks, 0073).
+  const proposals = useRatingProposals(
+    entityId,
+    myRoles.some((r) => r === 'admin' || r === 'credit_underwriter' || r === 'credit_analyst'),
+  )
+  useDeepLinkFocus(searchParams.get('focus') === RATING_PROPOSAL_ANCHOR ? RATING_PROPOSAL_ANCHOR : null, {
+    ready: !isLoading && proposals.data !== undefined,
+  })
 
   const [result, setResult] = useState<{
     rating: RatingResponse
@@ -141,7 +157,7 @@ export function RatingTab({ entityId }: { entityId: string }) {
 
   // ?anchor=factors (dashboard chip click) → scroll to the factor table.
   const anchor = searchParams.get('anchor')
-  const hasResult = Boolean(result ?? assessments.data?.[0]?.calculation_trace)
+  const hasResult = Boolean(result ?? engineTrace(assessments.data?.[0] ?? null))
   useDeepLinkFocus(anchor === 'factors' ? FACTOR_TABLE_ANCHOR_ID : null, {
     ready: hasResult,
     highlight: false,
@@ -229,6 +245,26 @@ export function RatingTab({ entityId }: { entityId: string }) {
             ) : undefined
           }
         />
+        {/* A manual grade needs no statements (0073); its confirmation
+            card says who set it and who confirmed it. */}
+        {assessments.data?.[0] && (
+          <RatingConfirmation
+            key={assessments.data[0].id}
+            entityId={entityId}
+            current={assessments.data[0]}
+            bands={gradeBands}
+            mode={mode}
+            locale={locale}
+            proposalPending={Boolean(proposals.data?.pending)}
+          />
+        )}
+        <RatingProposalPanel
+          entityId={entityId}
+          current={assessments.data?.[0] ?? null}
+          statements={[]}
+          bands={gradeBands}
+          locale={locale}
+        />
         {/* A live ADT stays visible (and can be disabled) even when the
             statements it was set on are gone (no_financials, 0061). */}
         <AdtSection entityId={entityId} />
@@ -238,10 +274,11 @@ export function RatingTab({ entityId }: { entityId: string }) {
 
   // Fresh result wins; otherwise the latest stored assessment.
   const latestStored = assessments.data?.[0] ?? null
-  const shown = result ?? latestStored?.calculation_trace ?? null
+  // A manual rating (0073) carries no engine result to show.
+  const shown = result ?? engineTrace(latestStored)
   const previousRow = result ? latestStored && assessments.data?.[1] : assessments.data?.[1]
   const change =
-    shown?.rating.score !== null && shown?.rating.grade && previousRow && gradeBands
+    shown?.rating.score !== null && shown?.rating.grade && previousRow && previousRow.rating_score !== null && gradeBands
       ? gradeChange(
           gradeBands,
           { score: shown.rating.score ?? 0, grade: shown.rating.grade },
@@ -302,8 +339,18 @@ export function RatingTab({ entityId }: { entityId: string }) {
           bands={gradeBands}
           mode={mode}
           locale={locale}
+          proposalPending={Boolean(proposals.data?.pending)}
         />
       )}
+
+      {/* Manual grades and grades sent for validation (0073). */}
+      <RatingProposalPanel
+        entityId={entityId}
+        current={latestStored}
+        statements={ordered}
+        bands={gradeBands}
+        locale={locale}
+      />
 
       {shown ? (
         <ResultView
@@ -311,7 +358,7 @@ export function RatingTab({ entityId }: { entityId: string }) {
           locale={locale}
           bands={gradeBands}
           change={change}
-          previousScore={previousRow ? Number(previousRow.rating_score) : null}
+          previousScore={previousRow?.rating_score == null ? null : Number(previousRow.rating_score)}
         />
       ) : (
         <Card className="p-5">
@@ -535,8 +582,10 @@ function ScoreHistoryChart({
 }) {
   const { t } = useTranslation()
   // Nothing to draw before the first assessment (the result card says so).
-  if (assessments.length === 0) return null
-  if (assessments.length < 2) {
+  // A manual rating (0073) has no score to plot.
+  const scored = assessments.filter((a) => a.rating_score !== null)
+  if (scored.length === 0) return null
+  if (scored.length < 2) {
     return (
       <Card className="p-5">
         <SectionTitle className="mb-2">{t('rating.historyChart')}</SectionTitle>
@@ -548,7 +597,7 @@ function ScoreHistoryChart({
   // A TIME axis: two assessments months apart sit months apart, and every
   // point gets its own date under it (a category axis of formatted dates
   // drops labels and cannot space them).
-  const data = [...assessments].reverse().map((a) => ({
+  const data = [...scored].reverse().map((a) => ({
     at: new Date(a.created_at).getTime(),
     score: Number(a.rating_score),
     grade: a.rating_grade,
@@ -629,8 +678,8 @@ function HistoryCard({
 
   const versions = [...new Set(assessments.map((a) => a.engine_version).filter(Boolean))]
 
-  const periodOf = (statementId: string): string => {
-    const s = statements.find((x) => x.id === statementId)
+  const periodOf = (statementId: string | null): string => {
+    const s = statementId ? statements.find((x) => x.id === statementId) : undefined
     return s ? statementPeriodLabel(s) : EM_DASH
   }
 
@@ -654,12 +703,17 @@ function HistoryCard({
             <tr key={a.id}>
               <td className="whitespace-nowrap text-slate-500">{formatMoment(a.created_at, i18n.language)}</td>
               <td>{periodOf(a.statement_id)}</td>
-              <td className="num">{formatAmount(Number(a.rating_score), locale, 1)}</td>
+              <td className="num">{a.rating_score === null ? EM_DASH : formatAmount(Number(a.rating_score), locale, 1)}</td>
               <td>
-                <Badge tone={gradeTone(a.rating_grade)}>{a.rating_grade}</Badge>
+                <span className="inline-flex items-center gap-1.5">
+                  <Badge tone={gradeTone(a.rating_grade)}>{a.rating_grade}</Badge>
+                  {a.source === 'manual' && <span className="text-xs text-slate-500">{t('rating.proposals.manual')}</span>}
+                </span>
               </td>
               <td className="num">
-                {formatAmount(Number(a.suggested_limit), locale)} {a.limit_currency}
+                {a.suggested_limit === null
+                  ? EM_DASH
+                  : `${formatAmount(Number(a.suggested_limit), locale)} ${a.limit_currency ?? ''}`}
               </td>
             </tr>
           ))}

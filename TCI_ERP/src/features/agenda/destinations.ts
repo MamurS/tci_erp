@@ -119,6 +119,18 @@ const rating: Builder = (_row, lead, names) => {
   }
 }
 
+/** A rating proposal (0073) lives on the buyer's rating tab: the answerer
+ * lands on its panel, the proposer is told the result there. */
+const ratingProposal: Builder = (_row, lead, names) => ({
+  path: `/entities/${str(lead.params?.entity_id) ?? lead.object_id}?tab=rating&focus=rating-proposal`,
+  action: lead.task_type === 'rating_proposal' ? 'review' : 'open',
+  crumbs: [
+    { key: 'nav.entities' },
+    named({ subject: names.subject ?? str(lead.params?.entity_name) }, 'agenda.dest.company'),
+    { key: 'agenda.dest.place.rating' },
+  ],
+})
+
 /** «Пересмотр байера / обновить ADT» (0061): the ADT block on the rating
  * tab, where the ADT is set again or disabled — either closes the task. */
 const adtReview: Builder = (_row, lead, names) => ({
@@ -315,6 +327,8 @@ export const DESTINATIONS: Readonly<Record<TaskType, Builder>> = {
   limit_validation: validation,
   limit_validation_result: validation,
   limit_validation_fyi: validation,
+  rating_proposal: ratingProposal,
+  rating_proposal_result: ratingProposal,
   adt_review: adtReview,
   limit_information_needed: informationNeeded,
   entity_request_resolved: (row, lead, names) => {
