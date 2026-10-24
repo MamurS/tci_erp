@@ -56,6 +56,10 @@
       "data": {
         "name": "Data management",
         "hint": "Company and statement requests, data freshness, proposed buyers"
+      },
+      "analysis": {
+        "name": "Credit analysis",
+        "hint": "Ratings to work, monitoring, the limit register and groups"
       }
     },
     "data": "Data management"
@@ -108,14 +112,16 @@
       "credit_underwriter": "Ratings, limits and credit decisions within authority",
       "claims": "Claims and recoveries",
       "information_manager": "Fills in company data and financial statements",
-      "client": "Portal user: own policies and limits only"
+      "client": "Portal user: own policies and limits only",
+      "credit_analyst": "Rates buyers and confirms ratings; enters financial statements"
     },
     "actingAs": "Acting as: {{role}}",
     "held": "Your roles: {{roles}}",
     "errors": {
       "notHeld": "You do not hold this role.",
       "noSession": "Your sign-in session was not found. Sign in again."
-    }
+    },
+    "credit_analyst": "Credit analyst"
   },
   "common": {
     "loading": "Loading…",
@@ -721,6 +727,33 @@
       "years_few": "{{value}} years",
       "years_many": "{{value}} years",
       "years_other": "{{value}} years"
+    },
+    "confirmation": {
+      "engineGrade": "Engine grade",
+      "gradeInForce": "Grade in force",
+      "unconfirmed": "Not confirmed",
+      "confirmedBy": "Confirmed by {{name}}, {{at}}",
+      "overriddenBy": "Changed from the engine grade by {{name}}, {{at}}",
+      "someone": "a colleague",
+      "confirm": "Confirm rating",
+      "ownRating": "You calculated this rating — a colleague confirms it",
+      "title": "Confirm the rating",
+      "hint": "The engine calculated {{grade}}. Confirm it, or choose another grade of the scale and say why. The confirmed grade is the one every limit decision on this buyer is based on.",
+      "grade": "Grade",
+      "engineOption": "{{grade}} (engine)",
+      "comment": "Comment",
+      "commentRequired": "Required: the grade differs from the engine’s",
+      "commentOptional": "Optional",
+      "submit": "Confirm",
+      "errors": {
+        "notAllowed": "Your role does not confirm ratings under the current credit analysis mode.",
+        "alreadyConfirmed": "This rating has already been confirmed.",
+        "notLatest": "Only the buyer’s current rating can be confirmed.",
+        "ownRating": "You calculated this rating, so a colleague confirms it.",
+        "commentRequired": "A grade other than the engine’s needs a reason.",
+        "gradeInvalid": "That grade is not on the rating scale.",
+        "immutable": "A rating is history and is never changed; only its confirmation is recorded."
+      }
     }
   },
   "report": {
@@ -1505,7 +1538,8 @@
           "no_statements": "No financials",
           "no_rating": "Not rated",
           "new_statement": "Newer statements",
-          "stale": "Older than a year"
+          "stale": "Older than a year",
+          "unconfirmed": "Not confirmed"
         },
         "empty": "Every buyer is rated on its latest financials",
         "emptyHint": "A buyer appears here when it has live credit business and no rating, a newer period than the one rated, or a rating older than a year.",
@@ -1736,7 +1770,8 @@
       "fourEyesOwnRequest": "Four eyes: you raised this limit request, so you cannot take it into review, decide it or change the decision.",
       "fourEyesOwnCredit": "Four eyes: you made the credit decision on this request, so you cannot adjust it commercially.",
       "reviewCreditOnly": "Only credit underwriting takes a limit request into review.",
-      "decideCreditOnly": "Only credit underwriting decides limit requests."
+      "decideCreditOnly": "Only credit underwriting decides limit requests.",
+      "fourEyesOwnRating": "You rated this buyer, so its limit is decided by another underwriter (separate credit analysis)."
     },
     "auto": {
       "adt": "Auto decision (ADT)",
@@ -2060,7 +2095,28 @@
       "loadFailed": "Could not load the auto-decision settings."
     },
     "clientAloneHint": "A portal client holds no other role: the client role and the staff roles exclude each other.",
-    "adminDecidesNothing": "Administrators make no limit decisions: the role is technical. Someone who also decides limits does so in their credit or commercial underwriting role, within the grants below."
+    "adminDecidesNothing": "Administrators make no limit decisions: the role is technical. Someone who also decides limits does so in their credit or commercial underwriting role, within the grants below.",
+    "creditAnalysis": {
+      "title": "Credit analysis",
+      "hint": "Who rates buyers and who decides limits",
+      "modes": {
+        "combined": "Combined",
+        "separate": "Separate"
+      },
+      "body": {
+        "combined": "Credit underwriters rate buyers, confirm ratings and decide limits; credit analysts, if there are any, rate and confirm too. A rating is confirmed by someone other than the one who calculated it.",
+        "separate": "Only credit analysts rate buyers and confirm ratings; credit underwriters decide limits — and never on a rating they calculated or confirmed. Rating tasks go to the credit analysts."
+      },
+      "confirmTitle": "Change the credit analysis mode?",
+      "confirm": {
+        "combined": "Credit underwriters will rate and confirm again, and the open rating tasks move to them.",
+        "separate": "Only credit analysts will rate and confirm, and the open rating tasks move to them. Make sure someone holds the credit analyst role."
+      },
+      "switch": "Switch",
+      "errors": {
+        "modeInvalid": "The mode must be combined or separate."
+      }
+    }
   },
   "requests": {
     "subtitle": "Insurance submissions: from request to bound policy",

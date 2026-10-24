@@ -34,7 +34,8 @@ Department roles (stored in `tci.user_roles`, enforced via RLS). **A user may ho
 - `admin` — **technical**: users, roles, authorities, reference data, contract templates and settings; read-only oversight of the business screens; makes **no business decisions** — on limits since 0063 (no decide, adjust, hold, release, revoke, validate, ADT or group limit, no authority), everywhere else since 0065 (no claims, declarations, premium, policy status or edits, submissions, bind, offers, contract drafts, companies, statements, ratings, data requests, relationships, nor another department's Agenda task)
 - `sales` — companies and policies (read), raises limit requests
 - `commercial_underwriter` — policy terms; the commercial stage of decisions (Phase 3c)
-- `credit_underwriter` — ratings, limits and credit decisions within band authority
+- `credit_underwriter` — ratings, limits and credit decisions within band authority (rates only in `combined` credit analysis mode, 0069)
+- `credit_analyst` — rates buyers and confirms ratings, enters statements; never decides a limit (0068–0069, workspace «Кредитный анализ»). See **Credit analysis rules** below
 - `claims` — claims and recoveries
 - `information_manager` — fills in company data and financial statements
 - `client` — external portal user: sees ONLY own policies, own limit requests, own declarations. Design every policy with this role in mind even before the portal exists. **`client` is held alone** — a trigger on `tci.user_roles` refuses it next to any other role (`client_role_exclusive`, 0062), and the admin role editor greys the combination out.
@@ -254,7 +255,7 @@ mistaken for a cancellation or a revocation. Two consequences:
 `src/i18n/uzTerminology.test.ts` enforces all of this: it fails on a bare
 «Bekor qilish» anywhere in the uz locale and names the offending key.
 
-Department role names (uz, confirmed): `admin` — Administrator, `sales` — **Sotuv**, `commercial_underwriter` — **Tijorat anderrayteri**, `credit_underwriter` — **Kredit anderrayteri**, `claims` — **Sug‘urta da’volari**, `information_manager` — **Axborot menejeri**, `client` — **Mijoz**.
+Department role names (uz, confirmed): `admin` — Administrator, `sales` — **Sotuv**, `commercial_underwriter` — **Tijorat anderrayteri**, `credit_underwriter` — **Kredit anderrayteri**, `credit_analyst` — **Kredit tahlilchisi**, `claims` — **Sug‘urta da’volari**, `information_manager` — **Axborot menejeri**, `client` — **Mijoz**.
 
 ## Infrastructure
 
@@ -763,6 +764,28 @@ is fine for internal test accounts and not fine for customers.
   local replay afterwards; the whole `tests/db/information_gathering.sql` run
   on canonical with role impersonation (forced rollback, nothing left
   behind, counts unchanged)
+- [x] Credit analyst and credit analysis mode (Prompt 29 §2a, migrations
+  0068–0069): the role `credit_analyst` («Кредитный аналитик», workspace
+  «Кредитный анализ»); `workflow_settings.credit_analysis_mode` —
+  `combined` (default: credit underwriting rates and decides, analysts rate
+  too) or `separate` (only analysts rate and confirm, underwriting decides
+  and never on a rating it calculated or confirmed); `tci.has_capability`
+  ('rate' / 'confirm_rating' / 'decide') behind the rating policy and the
+  UI; the engine's grade kept apart (`engine_grade`) from the grade in force
+  (`rating_grade`), which a person confirms once — another grade needs a
+  reason, never by whoever calculated it; rating tasks and the worklist
+  reason `unconfirmed` follow the mode; the switch on Admin › Полномочия.
+  See **Credit analysis rules** below. **Canonical: 0068–0069 applied
+  2026-10-23** BEFORE merge (backward-compatible: in the default `combined`
+  mode the old screens rate and decide as before): the 9 objects 0069
+  replaces verified identical to a local replay of 0067 first; 0068 in one
+  call, then 0069 whole in one call with its ledger row; every 0069
+  function, policy, column, trigger, grant and the view
+  fingerprint-identical to the local replay afterwards (the 25 existing
+  assessments kept their grade as `engine_grade`); the whole
+  `tests/db/credit_analysis.sql` run on canonical with role impersonation
+  (forced rollback, nothing left behind, counts unchanged, mode still
+  `combined`); no new advisor finding
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1876,6 +1899,45 @@ write grant) and sends the request on; the routing then lets it pass.
 (the one-open-request index, withdraw, the client duplicate checks, the
 queue, freshness and rating views). Withdrawing now emits
 `limit.request_withdrawn`, which closes the request's open limit tasks.
+
+### Credit analysis rules (migrations 0068–0069)
+
+**Capabilities, not roles, decide who rates.** `tci.has_capability(cap)`
+answers for the acting role under `workflow_settings.credit_analysis_mode`:
+'rate' and 'confirm_rating' = credit analyst, plus credit underwriting in
+`combined`; 'decide' = credit underwriting in every mode (never admin). The
+"credit_assessments: credit write" policy asks `has_capability('rate')`;
+`src/lib/creditAnalysis.ts` mirrors it (contract-tested) and the screens ask
+the mode through `tci.credit_analysis_mode()`, assuming `combined` until it
+answers — the database still refuses what it must.
+
+**`rating_grade` is the grade IN FORCE.** The engine's grade is frozen in
+`engine_grade` by a BEFORE INSERT trigger; `tci.confirm_rating(assessment,
+grade?, comment?)` stamps the one confirmation (who, when, why) and may set
+another grade of the scale (`^[A-D][0-9]{0,2}$`) only with a comment. Every
+reader of `rating_grade` — the band of a decision, the queue, ADT, the
+report — therefore follows the confirmation without being rewritten.
+Unconfirmed, the engine's grade is in force, as before 0069. Only the
+buyer's CURRENT rating is confirmed (`rating_not_latest`), once
+(`rating_already_confirmed`); `rating.confirmed` is emitted and rechecks the
+ADT. The API may only INSERT an assessment (UPDATE and DELETE revoked), and a
+trigger refuses any change but the confirmation, owner included
+(`rating_immutable`).
+
+**Four eyes on the rating.** Whoever calculated a rating never confirms it
+(`four_eyes_own_rating`, 42501; `created_by` is forced to the signed-in user
+on insert). In `separate` mode `tci.limit_four_eyes_refusal` also refuses a
+CREDIT decision, proposal or validation by whoever calculated or confirmed
+the buyer's current rating — a person holding both roles rates as an analyst
+and is still kept off the decision on that rating. In `combined` mode the
+same underwriter may rate and decide (that is what combined means).
+
+**Rating tasks follow the mode.** `tci.open_task` sends `buyer_needs_rating`,
+`rating_stale` and `rating_new_statements` to `tci.rating_task_role()`
+(credit analysts in `separate`), and `set_credit_analysis_mode` (admin) moves
+the open, department-addressed ones. In `separate` mode the rating worklist
+names a current rating nobody has confirmed (`unconfirmed`, tested last —
+`RATING_REASONS` mirrors the order from 0069's text).
 
 ### Auto decision (ADT) rules (migration 0061)
 

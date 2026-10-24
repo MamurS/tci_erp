@@ -28,7 +28,8 @@ export interface QueueRow {
   information_gaps: string[] | null
 }
 
-export const RATING_REASONS = ['no_statements', 'no_rating', 'new_statement', 'stale'] as const
+/** In the order the view tests them; 'unconfirmed' (0069) only in separate mode. */
+export const RATING_REASONS = ['no_statements', 'no_rating', 'new_statement', 'stale', 'unconfirmed'] as const
 export type RatingReason = (typeof RATING_REASONS)[number]
 
 /** tci.v_rating_worklist — buyers whose rating needs work. */
@@ -47,6 +48,9 @@ export interface RatingWorkRow {
   limits_in_force: number
   band: GradeBand
   reason: RatingReason
+  /** 0069: the engine's grade and when the grade in force was confirmed. */
+  engine_grade: string | null
+  confirmed_at: string | null
 }
 
 /** tci.v_group_limit_status — groups against their caps. The group tab reads

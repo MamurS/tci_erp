@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../../supabase/migrations/0053_credit_workbench_views.sql?raw'
+import M69 from '../../../../supabase/migrations/0069_credit_analysis.sql?raw'
 import type { CreditPortfolioRow } from '../../portfolio/aggregate'
 import {
   countByReason,
@@ -69,6 +70,8 @@ function work(over: Partial<RatingWorkRow>): RatingWorkRow {
     entity_id: 'e',
     buyer_name: 'Buyer',
     buyer_country: 'UZ',
+    engine_grade: null,
+    confirmed_at: null,
     assessment_id: null,
     grade: null,
     rated_at: null,
@@ -90,6 +93,8 @@ describe('limit views', () => {
     expect(limitViewsFor(['admin'])).toEqual(LIMIT_VIEWS)
     expect(limitViewsFor(['sales'])).toEqual(['queue', 'inforce'])
     expect(limitViewsFor(['commercial_underwriter', 'sales'])).toEqual(['queue', 'inforce'])
+    // the credit analyst (0069): the analysis views, never the decision queue
+    expect(limitViewsFor(['credit_analyst'])).toEqual(['ratings', 'monitoring', 'inforce', 'groups'])
   })
 
   it('opens the requested view, an old ?tab= link on the queue, otherwise the first view', () => {
@@ -100,6 +105,9 @@ describe('limit views', () => {
     // a view the roles may not see falls back rather than leaking
     expect(parseLimitView('authority', null, ['sales'])).toBe('queue')
     expect(parseLimitView('nonsense', null, ['admin'])).toBe('overview')
+    expect(parseLimitView(null, null, ['credit_analyst'])).toBe('ratings')
+    // an old ?tab= link does not open a queue the analyst does not have
+    expect(parseLimitView(null, 'escalated', ['credit_analyst'])).toBe('ratings')
   })
 
   it('keeps the old portfolio address working', () => {
@@ -160,7 +168,7 @@ describe('rating worklist', () => {
       'new',
       'stale',
     ])
-    expect(countByReason(rows)).toEqual({ no_statements: 1, no_rating: 2, new_statement: 1, stale: 1 })
+    expect(countByReason(rows)).toEqual({ no_statements: 1, no_rating: 2, new_statement: 1, stale: 1, unconfirmed: 0 })
   })
 })
 
@@ -185,8 +193,8 @@ describe('in-force register', () => {
 })
 
 describe('contract with migration 0053', () => {
-  it('lists the rating reasons in the order the view tests them', () => {
-    const positions = RATING_REASONS.map((r) => MIGRATION.indexOf(`then '${r}'`))
+  it('lists the rating reasons in the order the view tests them (as restated by 0069)', () => {
+    const positions = RATING_REASONS.map((r) => M69.indexOf(`THEN '${r}'::text`))
     expect(positions.every((p) => p > 0)).toBe(true)
     expect([...positions].sort((a, b) => a - b)).toEqual(positions)
   })

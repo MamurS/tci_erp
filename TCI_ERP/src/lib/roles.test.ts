@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest'
 import MIGRATION from '../../supabase/migrations/0016_department_roles.sql?raw'
 import MIGRATION_0017 from '../../supabase/migrations/0017_authority_matrix.sql?raw'
 import MIGRATION_0062 from '../../supabase/migrations/0062_sign_in_notice.sql?raw'
+import MIGRATION_0068 from '../../supabase/migrations/0068_credit_analyst_role.sql?raw'
 import {
   GRADE_BANDS,
   clientRoleBlocked,
@@ -25,13 +26,16 @@ describe('role set (mirror of the tci.user_role enum)', () => {
       'sales',
       'commercial_underwriter',
       'credit_underwriter',
+      'credit_analyst',
       'claims',
       'information_manager',
       'client',
     ])
     for (const role of USER_ROLES) {
-      expect(MIGRATION).toContain(`'${role}'`)
+      expect(MIGRATION + MIGRATION_0068).toContain(`'${role}'`)
     }
+    // 0068 places it next to credit underwriting, as the list does
+    expect(MIGRATION_0068).toContain("add value if not exists 'credit_analyst' after 'credit_underwriter'")
   })
 
   it('drops the pre-3b roles', () => {

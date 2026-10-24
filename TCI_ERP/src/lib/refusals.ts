@@ -116,6 +116,17 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'four_eyes_own_credit_decision', key: 'limits.errors.fourEyesOwnCredit' },
   { fragment: 'only credit underwriting may take a request into review', key: 'limits.errors.reviewCreditOnly' },
   { fragment: 'only credit underwriting may decide', key: 'limits.errors.decideCreditOnly' },
+  // credit analysis (0069). Confirming one's own rating names the rating; the
+  // same prefix on a decision names the decision.
+  { fragment: 'you calculated this rating and cannot confirm it', key: 'rating.confirmation.errors.ownRating' },
+  { fragment: 'four_eyes_own_rating', key: 'limits.errors.fourEyesOwnRating' },
+  { fragment: 'rating_confirm_not_allowed', key: 'rating.confirmation.errors.notAllowed' },
+  { fragment: 'rating_already_confirmed', key: 'rating.confirmation.errors.alreadyConfirmed' },
+  { fragment: 'rating_not_latest', key: 'rating.confirmation.errors.notLatest' },
+  { fragment: 'rating_override_comment_required', key: 'rating.confirmation.errors.commentRequired' },
+  { fragment: 'rating_grade_invalid', key: 'rating.confirmation.errors.gradeInvalid' },
+  { fragment: 'rating_immutable', key: 'rating.confirmation.errors.immutable' },
+  { fragment: 'credit_analysis_mode_invalid', key: 'admin.creditAnalysis.errors.modeInvalid' },
   // information gathering (0067)
   { fragment: 'limit_not_gathering_information', key: 'limits.information.errors.notGathering' },
   { fragment: 'information_waiver_comment_required', key: 'limits.information.waiveCommentRequired' },

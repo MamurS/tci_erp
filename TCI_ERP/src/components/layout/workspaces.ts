@@ -16,7 +16,7 @@ import type { UserRole } from '../../lib/roles'
 import { navItemsForRoles } from './navigation'
 import type { NavItem } from './navigation'
 
-export type WorkspaceKey = 'commercial' | 'credit' | 'sales' | 'claims' | 'data' | 'admin'
+export type WorkspaceKey = 'commercial' | 'credit' | 'analysis' | 'sales' | 'claims' | 'data' | 'admin'
 
 export interface Workspace {
   key: WorkspaceKey
@@ -40,6 +40,9 @@ export const WORKSPACES: readonly Workspace[] = [
     role: 'credit_underwriter',
     items: ['limits', 'requests', 'overdues', 'declarations', 'claims'],
   },
+  // «Кредитный анализ» (0069): rating buyers and confirming ratings — the
+  // analysis views of «Кредитные лимиты», never the decision queue.
+  { key: 'analysis', role: 'credit_analyst', items: ['limits'] },
   {
     key: 'sales',
     role: 'sales',
