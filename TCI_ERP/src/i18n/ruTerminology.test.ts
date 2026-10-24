@@ -86,6 +86,16 @@ describe('ru: owner-decided terms', () => {
     expect(ru.agenda.triage.limit.engine).toBe('Рекомендуемый лимит')
   })
 
+  it('the engine grade is «Рекомендуемый рейтинг», the grade in force «Рейтинг» (2026-10-24)', () => {
+    expect(ru.rating.confirmation.engineGrade).toBe('Рекомендуемый рейтинг')
+    expect(ru.rating.confirmation.gradeInForce).toBe('Рейтинг')
+    expect(offenders(ru as Json, /рейтинг модели|действующ\S* рейтинг/i)).toEqual([])
+  })
+
+  it('the credit analyst is «Кредитный аналитик»', () => {
+    expect(ru.roles.credit_analyst).toBe('Кредитный аналитик')
+  })
+
   it('a claim refers to the «полис», not the «договор»', () => {
     expect(ru.claims.fields.policy).toBe('Полис')
     expect(ru.portal.claims.fields.policy).toBe('Полис')
@@ -95,5 +105,18 @@ describe('ru: owner-decided terms', () => {
 describe('uz: overdue notification is «xabarnoma»', () => {
   it('no uz string still says «bildirishnoma» in any form', () => {
     expect(offenders(uz as Json, /bildirishnom/i)).toEqual([])
+  })
+})
+
+describe('uz: credit analysis terms (2026-10-24)', () => {
+  it('the role is «Kredit tahlilchi», never «Kredit tahlilchisi»', () => {
+    expect(uz.roles.credit_analyst).toBe('Kredit tahlilchi')
+    expect(offenders(uz as Json, /tahlilchisi/i)).toEqual([])
+  })
+
+  it('the engine grade is «Tavsiya etilgan reyting», the grade in force «Reyting»', () => {
+    expect(uz.rating.confirmation.engineGrade).toBe('Tavsiya etilgan reyting')
+    expect(uz.rating.confirmation.gradeInForce).toBe('Reyting')
+    expect(offenders(uz as Json, /model reyting|amaldagi reyting/i)).toEqual([])
   })
 })

@@ -224,6 +224,8 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 | policy (the insurance policy object) | **Полис** (NOT «Договор» / «по договору TCI-…»); «договор» stays ONLY for the generated contract document and its templates («Договоры», «Шаблоны договоров», «Проект договора», `wording.*`) and for the buyer's supply contract («Договор поставки») — owner-decided 2026-10-22 | — (not decided; uz unchanged) |
 | grade band (A/B/C/D/unrated, authority) | **Диапазон рейтинга** — «в диапазоне рейтинга B», «по диапазонам рейтинга» (NOT «рейтинговый класс», «класс B», bare «Диапазон», «грейд-бэнд»); en "rating band" — owner-decided 2026-10-22 | **reyting diapazoni** (NOT «reyting klassi», «reyting sinfi», bare «Diapazon») |
 | engine-calculated credit limit | **Рекомендуемый лимит** (NOT «Расчётный лимит (модель)», «Расчётный лимит»); en "Recommended limit" — owner-decided 2026-10-22 | **Tavsiya etilgan limit** |
+| engine-calculated grade (`engine_grade`) | **Рекомендуемый рейтинг** (NOT «Рейтинг модели»); en "Recommended grade" — owner-decided 2026-10-24 | **Tavsiya etilgan reyting** (NOT «Model reytingi») |
+| grade in force (`rating_grade`, after confirmation) | **Рейтинг** (NOT «Действующий рейтинг»); en "Grade" — owner-decided 2026-10-24 | **Reyting** (NOT «Amaldagi reyting») |
 | overdue notification (NOA) | Уведомление о просрочке | **xabarnoma** in every form and suffix (NOT «bildirishnoma») — owner-decided 2026-10-22 |
 | discretionary limit | Дискреционный лимит | **Diskretsion limit** |
 | deductible | Франшиза | **Franshiza** |
@@ -255,7 +257,7 @@ mistaken for a cancellation or a revocation. Two consequences:
 `src/i18n/uzTerminology.test.ts` enforces all of this: it fails on a bare
 «Bekor qilish» anywhere in the uz locale and names the offending key.
 
-Department role names (uz, confirmed): `admin` — Administrator, `sales` — **Sotuv**, `commercial_underwriter` — **Tijorat anderrayteri**, `credit_underwriter` — **Kredit anderrayteri**, `credit_analyst` — **Kredit tahlilchisi**, `claims` — **Sug‘urta da’volari**, `information_manager` — **Axborot menejeri**, `client` — **Mijoz**.
+Department role names (uz, confirmed): `admin` — Administrator, `sales` — **Sotuv**, `commercial_underwriter` — **Tijorat anderrayteri**, `credit_underwriter` — **Kredit anderrayteri**, `credit_analyst` — **Kredit tahlilchi** (NOT «Kredit tahlilchisi»; ru «Кредитный аналитик») — owner-decided 2026-10-24, `claims` — **Sug‘urta da’volari**, `information_manager` — **Axborot menejeri**, `client` — **Mijoz**.
 
 ## Infrastructure
 

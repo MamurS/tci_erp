@@ -121,7 +121,7 @@
       "notHeld": "Sizda bu rol yo‘q.",
       "noSession": "Kirish sessiyasi topilmadi. Qaytadan kiring."
     },
-    "credit_analyst": "Kredit tahlilchisi"
+    "credit_analyst": "Kredit tahlilchi"
   },
   "common": {
     "loading": "Yuklanmoqda…",
@@ -729,20 +729,20 @@
       "years_other": "{{value}} yil"
     },
     "confirmation": {
-      "engineGrade": "Model reytingi",
-      "gradeInForce": "Amaldagi reyting",
+      "engineGrade": "Tavsiya etilgan reyting",
+      "gradeInForce": "Reyting",
       "unconfirmed": "Tasdiqlanmagan",
       "confirmedBy": "Tasdiqladi: {{name}}, {{at}}",
-      "overriddenBy": "Model reytingidan o‘zgartirdi: {{name}}, {{at}}",
+      "overriddenBy": "Tavsiya etilgan reytingdan o‘zgartirdi: {{name}}, {{at}}",
       "someone": "hamkasb",
       "confirm": "Reytingni tasdiqlash",
       "ownRating": "Bu reytingni siz hisobladingiz — uni hamkasb tasdiqlaydi",
       "title": "Reytingni tasdiqlash",
-      "hint": "Model {{grade}} reytingini hisobladi. Uni tasdiqlang yoki shkaladan boshqa reytingni tanlab, sababini ko‘rsating. Tasdiqlangan reyting ushbu bayer bo‘yicha barcha limit qarorlarining asosidir.",
+      "hint": "Tavsiya etilgan reyting — {{grade}}. Uni tasdiqlang yoki shkaladan boshqa reytingni tanlab, sababini ko‘rsating. Tasdiqlangan reyting ushbu bayer bo‘yicha barcha limit qarorlarining asosidir.",
       "grade": "Reyting",
-      "engineOption": "{{grade}} (model)",
+      "engineOption": "{{grade}} (tavsiya etilgan)",
       "comment": "Izoh",
-      "commentRequired": "Majburiy: reyting model hisoblaganidan farq qiladi",
+      "commentRequired": "Majburiy: reyting tavsiya etilganidan farq qiladi",
       "commentOptional": "Ixtiyoriy",
       "submit": "Tasdiqlash",
       "errors": {
@@ -750,7 +750,7 @@
         "alreadyConfirmed": "Bu reyting allaqachon tasdiqlangan.",
         "notLatest": "Faqat bayerning joriy reytingini tasdiqlash mumkin.",
         "ownRating": "Bu reytingni siz hisobladingiz, shuning uchun uni hamkasb tasdiqlaydi.",
-        "commentRequired": "Model hisoblaganidan boshqa reyting uchun sabab kerak.",
+        "commentRequired": "Tavsiya etilganidan boshqa reyting uchun sabab kerak.",
         "gradeInvalid": "Bunday reyting shkalada yo‘q.",
         "immutable": "Reyting — tarix, u o‘zgartirilmaydi; faqat uning tasdig‘i yoziladi."
       }
@@ -2185,7 +2185,7 @@
       "confirmTitle": "Kredit tahlili rejimini o‘zgartirasizmi?",
       "confirm": {
         "combined": "Kredit anderrayterlari yana baholaydi va tasdiqlaydi, ochiq reyting vazifalari ularga o‘tadi.",
-        "separate": "Faqat kredit tahlilchilari baholaydi va tasdiqlaydi, ochiq reyting vazifalari ularga o‘tadi. Kredit tahlilchisi roli kimdadir borligiga ishonch hosil qiling."
+        "separate": "Faqat kredit tahlilchilari baholaydi va tasdiqlaydi, ochiq reyting vazifalari ularga o‘tadi. Kredit tahlilchi roli kimdadir borligiga ishonch hosil qiling."
       },
       "switch": "Almashtirish",
       "errors": {
