@@ -95,6 +95,8 @@ export function RatingConfirmation({
         <span className="text-slate-500">{t('rating.confirmation.gradeInForce')}</span>
         <Badge tone={gradeTone(current.rating_grade)}>{current.rating_grade}</Badge>
       </span>
+      {/* The group's grade caps this buyer's (0074). */}
+      {current.group_rating_id && <Badge tone="warn">{t('groups.rating.cappedBadge')}</Badge>}
       {current.confirmed_at ? (
         <span className="text-slate-600">
           {manual

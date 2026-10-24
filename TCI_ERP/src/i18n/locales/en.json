@@ -2303,6 +2303,14 @@
         "chairCommitteeOnly": "Only the committee has a chair.",
         "chairNotMember": "The chair must be a member of the committee."
       }
+    },
+    "senior": {
+      "mark": "Mark as senior",
+      "marked": "Senior analyst",
+      "hint": "A senior credit analyst sets group ratings",
+      "errors": {
+        "requiresAnalyst": "Only a credit analyst can be marked senior."
+      }
     }
   },
   "requests": {
@@ -4539,6 +4547,41 @@
       "endRelationshipAction": "End the relationship",
       "endLimitTitle": "Remove the group limit?",
       "endLimitMessage": "The group limit of {{name}} stops applying today: decisions on its members are no longer checked against it. The limit stays in the history."
+    },
+    "rating": {
+      "title": "Group rating",
+      "hint": "The grade of the whole group. No member’s grade can be better: setting or lowering it caps the members at once, and every new rating of a member is capped as it is written. Raising or ending it raises nobody — a member goes up by being rated again.",
+      "set": "Set group rating",
+      "change": "Change",
+      "end": "End group rating",
+      "none": "This group has no group rating.",
+      "whoSets": "It is set by a senior credit analyst: {{names}}.",
+      "noSenior": "It is set by a senior credit analyst; nobody is marked senior yet (Admin › Users and roles).",
+      "setBy": "Set by {{name}}, {{at}}",
+      "cappedMembers": "Capped now: {{names}}",
+      "noneCapped": "No member is capped by it now.",
+      "cappedNow": "Saved. Members capped now: {{count}}.",
+      "ended": "The group rating has ended. Capped members keep their grades until they are rated again.",
+      "history": "Earlier group ratings ({{count}})",
+      "statuses": {
+        "replaced": "Replaced",
+        "ended": "Ended"
+      },
+      "setTitle": "Set the group rating",
+      "setHint": "Every member whose grade in force is better than this is capped at it at once, with this reason.",
+      "endTitle": "End the group rating",
+      "endHint": "Members already capped keep their grades; the cap no longer applies to new ratings.",
+      "grade": "Group grade",
+      "save": "Save",
+      "cappedBadge": "Capped by the group rating",
+      "failed": "The group rating could not be saved.",
+      "errors": {
+        "seniorOnly": "Only a senior credit analyst sets or ends a group rating.",
+        "reasonRequired": "Give the reason for the group rating.",
+        "none": "This group has no group rating to end.",
+        "aboveCap": "That grade is better than the group rating that caps this buyer.",
+        "capDirect": "A capped rating is written only by the group rating."
+      }
     }
   },
   "mfaVerify": {

@@ -2303,6 +2303,14 @@
         "chairCommitteeOnly": "Faqat qo‘mitada rais bo‘ladi.",
         "chairNotMember": "Rais qo‘mita a’zosi bo‘lishi kerak."
       }
+    },
+    "senior": {
+      "mark": "Katta deb belgilash",
+      "marked": "Katta tahlilchi",
+      "hint": "Katta kredit tahlilchi guruh reytinglarini belgilaydi",
+      "errors": {
+        "requiresAnalyst": "Faqat kredit tahlilchini katta deb belgilash mumkin."
+      }
     }
   },
   "requests": {
@@ -4539,6 +4547,41 @@
       "endRelationshipAction": "Bog‘lanishni to‘xtatish",
       "endLimitTitle": "Guruh limiti olib tashlansinmi?",
       "endLimitMessage": "{{name}} guruh limiti bugundan amal qilmaydi: guruh a’zolari bo‘yicha qarorlar endi u bilan solishtirilmaydi. Limit tarixda qoladi."
+    },
+    "rating": {
+      "title": "Guruh reytingi",
+      "hint": "Butun guruhning reytingi. Ishtirokchining reytingi undan yaxshi bo‘la olmaydi: belgilanganda yoki pasaytirilganda ishtirokchilar darhol shu bilan cheklanadi, ishtirokchining har bir yangi reytingi yozilishida cheklanadi. Ko‘tarish yoki to‘xtatish hech kimni ko‘tarmaydi — ishtirokchi faqat yangi reyting bilan ko‘tariladi.",
+      "set": "Guruh reytingini belgilash",
+      "change": "O‘zgartirish",
+      "end": "Guruh reytingini to‘xtatish",
+      "none": "Bu guruhda guruh reytingi yo‘q.",
+      "whoSets": "Uni katta kredit tahlilchi belgilaydi: {{names}}.",
+      "noSenior": "Uni katta kredit tahlilchi belgilaydi; hozircha hech kim katta deb belgilanmagan (Admin › Foydalanuvchilar va rollar).",
+      "setBy": "Belgiladi: {{name}}, {{at}}",
+      "cappedMembers": "Hozir cheklangan: {{names}}",
+      "noneCapped": "Hozir u hech bir ishtirokchini cheklamaydi.",
+      "cappedNow": "Saqlandi. Cheklangan ishtirokchilar: {{count}}.",
+      "ended": "Guruh reytingi to‘xtatildi. Cheklangan ishtirokchilar yangi reytinggacha reytinglarini saqlaydi.",
+      "history": "Avvalgi guruh reytinglari ({{count}})",
+      "statuses": {
+        "replaced": "Almashtirilgan",
+        "ended": "To‘xtatilgan"
+      },
+      "setTitle": "Guruh reytingini belgilash",
+      "setHint": "Reytingi bundan yaxshi bo‘lgan har bir ishtirokchi darhol shu sabab bilan cheklanadi.",
+      "endTitle": "Guruh reytingini to‘xtatish",
+      "endHint": "Allaqachon cheklangan ishtirokchilar reytinglarini saqlaydi; yangi reytinglarga cheklov endi qo‘llanmaydi.",
+      "grade": "Guruh reytingi",
+      "save": "Saqlash",
+      "cappedBadge": "Guruh reytingi bilan cheklangan",
+      "failed": "Guruh reytingini saqlab bo‘lmadi.",
+      "errors": {
+        "seniorOnly": "Guruh reytingini faqat katta kredit tahlilchi belgilaydi yoki to‘xtatadi.",
+        "reasonRequired": "Guruh reytingining sababini yozing.",
+        "none": "Bu guruhda to‘xtatiladigan guruh reytingi yo‘q.",
+        "aboveCap": "Bu reyting ushbu bayerni cheklaydigan guruh reytingidan yaxshi.",
+        "capDirect": "Cheklangan reyting faqat guruh reytingi orqali yoziladi."
+      }
     }
   },
   "mfaVerify": {

@@ -20,6 +20,8 @@ export interface AssessmentRow {
    * rating proposal a second person confirmed. */
   source: 'engine' | 'manual'
   manual_reason: string | null
+  /** Set when the grade in force was capped by the group rating (0074). */
+  group_rating_id: string | null
   created_by: string | null
   confirmed_by: string | null
   confirmed_at: string | null
@@ -40,7 +42,7 @@ export function useAssessments(entityId: string) {
       const { data, error } = await tci()
         .from('credit_assessments')
         .select(
-          'id, statement_id, rating_score, rating_grade, engine_grade, source, manual_reason, created_by, confirmed_by, confirmed_at, confirmation_comment, suggested_limit, limit_currency, engine_version, created_at, calculation_trace',
+          'id, statement_id, rating_score, rating_grade, engine_grade, source, manual_reason, group_rating_id, created_by, confirmed_by, confirmed_at, confirmation_comment, suggested_limit, limit_currency, engine_version, created_at, calculation_trace',
         )
         .eq('entity_id', entityId)
         .order('created_at', { ascending: false })

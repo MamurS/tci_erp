@@ -165,6 +165,13 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'rating_modified_same', key: 'rating.proposals.errors.modifiedSame' },
   { fragment: 'rating_withdraw_not_yours', key: 'rating.proposals.errors.withdrawNotYours' },
   { fragment: 'rating_manual_direct', key: 'rating.proposals.errors.manualDirect' },
+  // group ratings (0074)
+  { fragment: 'group_rating_senior_only', key: 'groups.rating.errors.seniorOnly' },
+  { fragment: 'group_rating_reason_required', key: 'groups.rating.errors.reasonRequired' },
+  { fragment: 'group_rating_none', key: 'groups.rating.errors.none' },
+  { fragment: 'rating_above_group_cap', key: 'groups.rating.errors.aboveCap' },
+  { fragment: 'rating_group_cap_direct', key: 'groups.rating.errors.capDirect' },
+  { fragment: 'senior_requires_analyst', key: 'admin.senior.errors.requiresAnalyst' },
   // information gathering (0067)
   { fragment: 'limit_not_gathering_information', key: 'limits.information.errors.notGathering' },
   { fragment: 'information_waiver_comment_required', key: 'limits.information.waiveCommentRequired' },

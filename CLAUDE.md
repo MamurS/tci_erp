@@ -35,7 +35,7 @@ Department roles (stored in `tci.user_roles`, enforced via RLS). **A user may ho
 - `sales` — companies and policies (read), raises limit requests
 - `commercial_underwriter` — policy terms; the commercial stage of decisions (Phase 3c)
 - `credit_underwriter` — ratings, limits and credit decisions within band authority (rates only in `combined` credit analysis mode, 0069)
-- `credit_analyst` — rates buyers and confirms ratings, enters statements, proposes manual grades and sends grades for validation, sets buyers' ADT within their own authority grants (0073); never decides a limit (0068–0069, workspace «Кредитный анализ»). See **Credit analysis rules** and **Rating proposal rules** below
+- `credit_analyst` — rates buyers and confirms ratings, enters statements, proposes manual grades and sends grades for validation, sets buyers' ADT within their own authority grants (0073); a credit analyst marked SENIOR by admin sets group ratings (0074); never decides a limit (0068–0069, workspace «Кредитный анализ»). See **Credit analysis rules** and **Rating proposal rules** below
 - `claims` — claims and recoveries
 - `information_manager` — fills in company data and financial statements
 - `client` — external portal user: sees ONLY own policies, own limit requests, own declarations. Design every policy with this role in mind even before the portal exists. **`client` is held alone** — a trigger on `tci.user_roles` refuses it next to any other role (`client_role_exclusive`, 0062), and the admin role editor greys the combination out.
@@ -835,6 +835,24 @@ is fine for internal test accounts and not fine for customers.
   local replay afterwards; the whole `tests/db/rating_proposals.sql` run on
   canonical with role impersonation (forced rollback, nothing left behind,
   counts unchanged, mode still `combined`); no new advisor finding
+- [x] Group rating (migration 0074): a grade for a whole corporate group,
+  keyed by its ultimate parent and set (with a reason) by a credit analyst
+  admin has marked senior (`user_profiles.senior_credit_analyst`, Admin ›
+  Пользователи и роли), that CAPS every member — setting or lowering it
+  writes a capped rating row for each member whose grade is better
+  (`group_rating_id`, the engine's own grade kept), every later rating is
+  capped as it is written, and a confirmation, proposal or approval above
+  it is refused (`rating_above_group_cap`); raising or ending it raises
+  nobody. «Рейтинг группы» on the «Группа» tab, «Ограничен рейтингом группы»
+  on the rating tab. See **Group rating rules** below. **Canonical: 0074
+  applied 2026-10-24** BEFORE merge (backward-compatible: nothing is capped
+  until a group rating exists): the five objects it replaces verified
+  identical to a local replay of 0073 first, the whole file in one atomic
+  call with its ledger row; every 0074 function, policy, column, grant and
+  trigger identical to a local replay afterwards; the whole
+  `tests/db/group_ratings.sql` run on canonical with role impersonation
+  (forced rollback, nothing left behind, counts unchanged); no new advisor
+  finding
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2081,6 +2099,38 @@ writes any of the four tables (credit desk + admin read).
 (Admin › Полномочия; `underwriters_covering` still names credit underwriters
 only, so a grant never routes limit decisions to an analyst). The ADT tables
 and «Авторешения» are the analysts' to read too.
+
+### Group rating rules (migration 0074)
+
+**The cap lives in the guard trigger.** `tci.guard_credit_assessment` (SECURITY
+DEFINER) lowers every new engine or manual grade to the live group rating
+over the buyer (`tci.group_rating_cap` = the active `group_ratings` row of
+`tci.ultimate_parent(entity)`) and stamps `group_rating_id`; the engine's own
+grade stays in `engine_grade`. On UPDATE (the one confirmation) it refuses a
+grade better than the cap. `propose_rating` and `apply_rating_proposal`
+refuse the same up front; `confirm_rating` now defaults to the grade in force
+(the capped one), which needs no reason. "Worse" is one function,
+`tci.grade_worse` = the larger in byte order (A1 < A2 < B1 < … < D),
+mirrored by `groups/groupRating.ts gradeWorse` (contract-tested).
+
+**Setting writes rows; history is not rewritten.** `set_group_rating(member,
+grade, reason)` (credit analyst acting, `is_senior_credit_analyst`, else
+`group_rating_senior_only` 42501) replaces the live row and runs
+`apply_group_cap`: each member whose current grade is better gets a NEW
+assessment that copies the row it caps (source, statement, score,
+recommended limit, trace) at the group's grade, confirmed by the setter, with
+`group_rating_id` — only trusted code may insert such a row
+(`rating_group_cap_direct`). `rating.created` follows, so the rating tasks
+close and the ADT is rechecked (a downgrade suspends it). Raising or ending
+(`end_group_rating`, reason required) writes nothing on the members: a capped
+member goes up only by being rated again. A company joining the group later
+is capped at its next rating.
+
+**Seniority is admin's flag.** `set_senior_credit_analyst(user, on)`
+(admin; refused for anyone not holding `credit_analyst` —
+`senior_requires_analyst`); no API role writes the column. The group rating
+is read by the credit desk and admin (`group_rating_state`), never by sales
+or clients.
 
 ### Auto decision (ADT) rules (migration 0061)
 

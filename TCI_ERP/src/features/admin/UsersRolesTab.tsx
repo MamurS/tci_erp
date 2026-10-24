@@ -26,7 +26,14 @@ import { STAFF_ROLES, USER_ROLES, clientRoleBlocked } from '../../lib/roles'
 import type { UserRole } from '../../lib/roles'
 import { useAuth } from '../../auth/AuthContext'
 import { canDisableUser, canManageUser } from './provisioningAccess'
-import { useAdminUsers, useSetUserManager, useSetUserRoles, useUserManagers } from './api'
+import {
+  useAdminUsers,
+  useSeniorAnalysts,
+  useSetSeniorAnalyst,
+  useSetUserManager,
+  useSetUserRoles,
+  useUserManagers,
+} from './api'
 import type { AdminUser } from './api'
 import { CreateUserModal } from './CreateUserModal'
 import { ServiceUnavailableNotice } from './ServiceUnavailableNotice'
@@ -50,6 +57,8 @@ export function UsersRolesTab({
   const { session, roles: callerRoles } = useAuth()
   const { data: users, isLoading } = useAdminUsers()
   const { data: managers } = useUserManagers()
+  const { data: seniors } = useSeniorAnalysts()
+  const setSenior = useSetSeniorAnalyst()
   const [managerFor, setManagerFor] = useState<AdminUser | null>(null)
   const [managerError, setManagerError] = useState<string | null>(null)
   const { data: provisioningUp } = useProvisioningAvailable()
@@ -160,6 +169,25 @@ export function UsersRolesTab({
               </td>
               <td>
                 <RoleChips roles={u.roles} />
+                {/* A credit analyst may be marked senior: they set group
+                    ratings (0074). Admin's flag, toggled here. */}
+                {u.roles.includes('credit_analyst') && (
+                  <button
+                    type="button"
+                    className="ml-1 text-[12px] text-accent-700 hover:underline disabled:opacity-60"
+                    disabled={setSenior.isPending}
+                    title={t('admin.senior.hint')}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      setRolesError(null)
+                      setSenior
+                        .mutateAsync({ userId: u.user_id, senior: !seniors?.has(u.user_id) })
+                        .catch((failure: unknown) => setRolesError(t(refusalOr(failure, 'common.saveFailed'))))
+                    }}
+                  >
+                    {seniors?.has(u.user_id) ? `✓ ${t('admin.senior.marked')}` : t('admin.senior.mark')}
+                  </button>
+                )}
                 <span className="ml-1 inline-flex gap-1">
                   {u.disabled && <Badge tone="neg">{t('provisioning.disabled')}</Badge>}
                   {u.must_change_password && (
