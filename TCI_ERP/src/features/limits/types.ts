@@ -43,8 +43,32 @@ export interface CreditLimitRequest {
   decided_at: string | null
   withdrawn_at: string | null
   withdraw_comment: string | null
+  /** 0075: who withdrew it, from the portal or a staff screen. */
+  withdrawn_by?: string | null
+  withdrawn_via?: 'staff' | 'portal' | null
+  /** 0075: the request the policyholder withdrew to send this one instead. */
+  replaces_request_id?: string | null
   created_at: string
   updated_at: string
+}
+
+/** A policyholder's change to a request (tci.limit_request_amendments, 0075):
+ * in place before review, or carried by a replacing request after. */
+export interface LimitRequestAmendment {
+  id: string
+  request_id: string | null
+  proposal_id: string | null
+  kind: 'amended' | 'replaced'
+  replaced_request_id: string | null
+  amended_at: string
+  status_at: string
+  currency_code: string
+  from_amount: number
+  to_amount: number
+  from_payment_terms_days: number | null
+  to_payment_terms_days: number | null
+  from_justification: string | null
+  to_justification: string | null
 }
 
 export interface LimitRequestWithRefs extends CreditLimitRequest {

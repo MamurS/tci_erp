@@ -252,6 +252,75 @@ export function useRequestLimit() {
   })
 }
 
+// 0075: the policyholder changes or withdraws a request.
+
+type WithdrawVars = { id: string; comment: string | null }
+
+/** The row leaves «Ждут нашего решения» at once; a refusal puts it back. */
+export function useWithdrawLimitRequest() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationKey: ['portal', 'withdraw-limit-request'],
+    ...optimistic<WithdrawVars, unknown>(qc, {
+      patches: () => [
+        rowInList<ClientLimitRequest, WithdrawVars>(KEYS.requests, (v) => v.id, (row) => ({
+          ...row,
+          status: 'withdrawn',
+          may_amend: false,
+          may_withdraw: false,
+        })),
+      ],
+      invalidate: () => [['portal']],
+    }),
+    mutationFn: async (input: WithdrawVars) => {
+      const { data, error } = await tci().rpc('client_withdraw_limit_request', {
+        p_id: input.id,
+        p_comment: input.comment,
+      })
+      if (error) throw error
+      return data
+    },
+  })
+}
+
+export interface ChangeLimitRequestInput {
+  id: string
+  mode: 'amend' | 'replace'
+  amount: number
+  paymentTermsDays: number | null
+  justification: string | null
+}
+
+/** Amend in place before underwriting has it; replace (withdraw + a new
+ * request, one transaction) after. The server routes the result, so the
+ * screen waits for the answer instead of guessing the new status. */
+export function useChangeLimitRequest() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationKey: ['portal', 'change-limit-request'],
+    mutationFn: async (input: ChangeLimitRequestInput): Promise<{ id: string; status: string }> => {
+      const { data, error } =
+        input.mode === 'amend'
+          ? await tci().rpc('client_amend_limit_request', {
+              p_id: input.id,
+              p_amount: input.amount,
+              p_payment_terms_days: input.paymentTermsDays,
+              p_justification: input.justification,
+            })
+          : await tci().rpc('client_replace_limit_request', {
+              p_id: input.id,
+              p_amount: input.amount,
+              p_payment_terms_days: input.paymentTermsDays,
+              p_justification: input.justification,
+              p_comment: null,
+            })
+      if (error) throw error
+      return data as { id: string; status: string }
+    },
+    onSuccess: () => invalidatePortal(queryClient),
+  })
+}
+
 export type SubmissionAction = 'accept' | 'decline' | 'request_changes'
 
 type RespondVars = { requestId: string; action: SubmissionAction; comment?: string | null }

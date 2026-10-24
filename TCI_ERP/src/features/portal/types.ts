@@ -95,6 +95,11 @@ export interface ClientLimitRequest {
   status: string
   created_at: string
   decided_at: string | null
+  /** 0075: the database's answer — amend before underwriting has it. */
+  may_amend: boolean
+  may_withdraw: boolean
+  amended_at: string | null
+  replaces_request_id: string | null
 }
 
 /** Terms are null until the submission reaches client_review — the database

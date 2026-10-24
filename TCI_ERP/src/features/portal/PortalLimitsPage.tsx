@@ -15,12 +15,15 @@ import { useTranslation } from 'react-i18next'
 
 import {
   actionsCol,
+  ActionsMenu,
   Badge,
   Button,
   Callout,
   Card,
   COL,
   EmptyState,
+  Field,
+  Input,
   labelCol,
   Modal,
   PageHeader,
@@ -31,15 +34,19 @@ import {
   Truncate,
 } from '../../components/ui'
 import { EM_DASH, formatAmount, formatDate, formatMoment } from '../../lib/format'
+import { refusalOr } from '../../lib/optimistic'
 import {
   useMyLimitConditions,
   useMyLimitHistory,
   useMyLimitRequests,
   useMyLimits,
   useMyPolicies,
+  useWithdrawLimitRequest,
 } from './api'
+import { ChangeLimitRequestModal } from './ChangeLimitRequestModal'
 import { RequestLimitModal } from './RequestLimitModal'
-import type { ClientLimit, ClientLimitHistoryRow } from './types'
+import { changeMode, clientRequestOpen } from './requestChanges'
+import type { ClientLimit, ClientLimitHistoryRow, ClientLimitRequest } from './types'
 
 /** A decision that grants nothing: revoked (or, rarely, declined). It has no
  * amount and no validity worth showing — only the date it took effect. */
@@ -62,6 +69,12 @@ export function PortalLimitsPage() {
 
   const [historyFor, setHistoryFor] = useState<ClientLimit | null>(null)
   const [asking, setAsking] = useState(false)
+  const [changing, setChanging] = useState<ClientLimitRequest | null>(null)
+  const [withdrawing, setWithdrawing] = useState<ClientLimitRequest | null>(null)
+  const [withdrawReason, setWithdrawReason] = useState('')
+  const [notice, setNotice] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
+  const withdraw = useWithdrawLimitRequest()
 
   const conditionsByDecision = useMemo(() => {
     const map = new Map<string, string[]>()
@@ -91,9 +104,23 @@ export function PortalLimitsPage() {
   )
 
   const activePolicies = (policies ?? []).filter((p) => p.status === 'active')
-  const pending = (requests ?? []).filter(
-    (r) => r.status === 'pending_entity' || ['draft', 'submitted', 'information_gathering', 'under_review', 'escalated'].includes(r.status),
-  )
+  // What still waits on the insurer (0075's open statuses, plus a draft).
+  const pending = (requests ?? []).filter((r) => r.status === 'draft' || clientRequestOpen(r.status))
+  const policyOf = (id: string) => (policies ?? []).find((p) => p.id === id)
+
+  const confirmWithdraw = async () => {
+    if (!withdrawing) return
+    const row = withdrawing
+    setActionError(null)
+    setWithdrawing(null)
+    try {
+      await withdraw.mutateAsync({ id: row.id, comment: withdrawReason.trim() || null })
+      setNotice(t('portal.limits.change.withdrawn'))
+    } catch (failure) {
+      setActionError(t(refusalOr(failure, 'portal.limits.change.withdrawFailed')))
+    }
+    setWithdrawReason('')
+  }
 
   if (isLoading) return <Spinner label={t('common.loading')} />
 
@@ -114,17 +141,20 @@ export function PortalLimitsPage() {
       />
 
       {!activePolicies.length && <Callout tone="info" title={t('portal.limits.needsActivePolicy')} />}
+      {actionError && <Callout tone="neg" title={actionError} />}
+      {notice && <Callout tone="pos" title={notice} />}
 
       {pending.length > 0 && (
         <Card className="p-5">
           <SectionTitle className="mb-3">{t('portal.limits.pendingTitle')}</SectionTitle>
-          <Table columns={[COL.fill, COL.money, labelCol('portalRequestStatus'), COL.moment]}>
+          <Table columns={[COL.fill, COL.money, labelCol('portalRequestStatus'), COL.moment, actionsCol(['limitRequestChange'], 1)]}>
             <thead>
               <tr>
                 <th>{t('portal.limits.buyer')}</th>
                 <th className="num">{t('portal.limits.requested')}</th>
                 <th>{t('portal.limits.status')}</th>
                 <th>{t('portal.limits.asked')}</th>
+                <th />
               </tr>
             </thead>
             <tbody>
@@ -143,9 +173,41 @@ export function PortalLimitsPage() {
                       {formatAmount(r.requested_amount, locale)} {r.currency_code}
                     </td>
                     <td>
-                      <Badge tone="warn">{t(`portal.limits.requestStatuses.${r.status}`)}</Badge>
+                      <span className="flex flex-col items-start gap-0.5">
+                        <Badge tone="warn">{t(`portal.limits.requestStatuses.${r.status}`)}</Badge>
+                        {r.amended_at && (
+                          <span className="text-xs text-slate-500">
+                            {t('portal.limits.change.changedOn', { date: formatDate(r.amended_at, locale) })}
+                          </span>
+                        )}
+                        {r.replaces_request_id && (
+                          <span className="text-xs text-slate-500">{t('portal.limits.change.replacesNote')}</span>
+                        )}
+                      </span>
                     </td>
                     <td className="whitespace-nowrap text-slate-500">{formatMoment(r.created_at, locale)}</td>
+                    <RowActions>
+                      {changeMode(r) && (
+                        <>
+                          <Button variant="secondary" size="sm" onClick={() => setChanging(r)}>
+                            {t('portal.limits.change.action')}
+                          </Button>
+                          {/* Withdrawal ends the request: apart, in red, behind ⋯. */}
+                          <ActionsMenu
+                            trigger="icon"
+                            size="sm"
+                            actions={[
+                              {
+                                key: 'withdraw',
+                                label: t('portal.limits.change.withdraw'),
+                                danger: true,
+                                onSelect: () => setWithdrawing(r),
+                              },
+                            ]}
+                          />
+                        </>
+                      )}
+                    </RowActions>
                   </tr>
                 )
               })}
@@ -242,6 +304,43 @@ export function PortalLimitsPage() {
       </Card>
 
       {asking && <RequestLimitModal policies={activePolicies} open onClose={() => setAsking(false)} />}
+      {changing && changeMode(changing) && (
+        <ChangeLimitRequestModal
+          request={changing}
+          mode={changeMode(changing) ?? 'amend'}
+          policy={policyOf(changing.policy_id)}
+          onClose={() => setChanging(null)}
+          onDone={(message) => {
+            setChanging(null)
+            setActionError(null)
+            setNotice(message)
+          }}
+        />
+      )}
+      {withdrawing && (
+        <Modal
+          open
+          title={t('portal.limits.change.withdrawTitle', { buyer: withdrawing.buyer_name ?? withdrawing.proposed_name ?? '' })}
+          onClose={() => setWithdrawing(null)}
+          footer={
+            <>
+              <Button variant="secondary" onClick={() => setWithdrawing(null)}>
+                {t('common.cancel')}
+              </Button>
+              <Button variant="danger" loading={withdraw.isPending} onClick={() => void confirmWithdraw()}>
+                {t('portal.limits.change.withdraw')}
+              </Button>
+            </>
+          }
+        >
+          <div className="flex flex-col gap-4">
+            <p className="text-sm text-slate-700">{t('portal.limits.change.withdrawMessage')}</p>
+            <Field label={t('portal.limits.change.withdrawReason')}>
+              <Input value={withdrawReason} onChange={(e) => setWithdrawReason(e.target.value)} maxLength={500} />
+            </Field>
+          </div>
+        </Modal>
+      )}
       {historyFor && <HistoryModal limit={historyFor} onClose={() => setHistoryFor(null)} />}
     </div>
   )

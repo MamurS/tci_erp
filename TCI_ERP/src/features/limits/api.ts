@@ -16,6 +16,7 @@ import type {
   DecisionOutcome,
   DecisionWithConditions,
   EffectiveLimit,
+  LimitRequestAmendment,
   LimitRequestWithRefs,
 } from './types'
 import { held, released, REQUEST_ACTION_STATUS, withStatus } from './optimistic'
@@ -125,6 +126,19 @@ export function useLimitRequest(id: string) {
         .maybeSingle()
       if (error) throw error
       return data as unknown as LimitRequestWithRefs | null
+    },
+  })
+}
+
+/** The policyholder's changes of a request, its proposal's included (0075). */
+export function useLimitRequestChanges(id: string) {
+  return useQuery({
+    queryKey: [...KEYS.request(id), 'changes'],
+    enabled: Boolean(id),
+    queryFn: async (): Promise<LimitRequestAmendment[]> => {
+      const { data, error } = await tci().rpc('limit_request_changes', { p_request_id: id })
+      if (error) throw error
+      return (data ?? []) as LimitRequestAmendment[]
     },
   })
 }
