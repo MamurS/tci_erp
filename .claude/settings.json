@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "mcp__Supabase__execute_sql",
+      "mcp__Supabase__list_tables",
+      "mcp__Supabase__list_migrations",
+      "mcp__Supabase__get_logs",
+      "mcp__Supabase__query_logs",
+      "mcp__Supabase__get_advisors",
+      "mcp__Supabase__apply_migration"
+    ],
+    "ask": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git push --force-with-lease:*)",
+      "Bash(git push --delete:*)",
+      "Bash(git push -d:*)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f)",
+      "Bash(git push * -f *)",
+      "Bash(git push * --delete *)",
+      "Bash(git push * -d *)",
+      "Bash(git branch -D:*)",
+      "Bash(git branch -d:*)",
+      "Bash(git branch --delete:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean:*)",
+      "Bash(rm -rf:*)",
+      "mcp__github__delete_file",
+      "mcp__github__merge_pull_request",
+      "mcp__Supabase__delete_branch",
+      "mcp__Supabase__reset_branch",
+      "mcp__Supabase__merge_branch",
+      "mcp__Supabase__pause_project",
+      "mcp__Supabase__create_project"
+    ]
+  }
+}
