@@ -24,7 +24,7 @@ import { TCI_PAGE_COUNT, tciBrochurePages } from './tci'
 import { TCI_BROCHURE_VERSION, TCI_TEXTS } from './tciTexts'
 
 const PINNED_TEXTS_SHA256 = '750a0629db15543a3c382115fb40a6ec00c0647261b66850d66a47be20969865'
-const PINNED_PAGES_SHA256 = '6b0d0398d7321cf93533d8b9f5fec3ab79db2db6c946363671f43a762de10efe'
+const PINNED_PAGES_SHA256 = 'b184c3aca87895403634c47db73e9a45b31cd76f0d35d8c8959a4143f10ad41d'
 
 async function sha256(value: string): Promise<string> {
   const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value))

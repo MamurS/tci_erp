@@ -683,7 +683,9 @@ is fine for internal test accounts and not fine for customers.
 - [x] Commercial offer «как в ДМС» (Prompt 27, NO migration): the offer is a
   FIXED, approved document — the TCI brochure (9 A4 pages in the app's
   colours and faces, three covers white / navy / blue, a geometric mosaic
-  drawn in SVG, ru / en / uz) with the offer letter after its cover — and
+  drawn in SVG — since 2026-10-23 of trade motifs: container, parcel, truck,
+  ship, aircraft, pallet, port crane, warehouse, globe, route, barcode,
+  exchange, anchor — ru / en / uz) with the offer letter after its cover — and
   staff choose only parameters (cover, validity, brochure on/off, a ≤ 600-char
   note; the language when the offer is prepared). The text editor for offers,
   the in-app brochure editor and the media library are retired (`/brochure`
