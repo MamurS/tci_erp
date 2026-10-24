@@ -47,6 +47,7 @@ import { DecisionMark } from './DecisionMark'
 import { ReleaseBadge } from './ReleaseBadge'
 import { SendForValidationModal } from './ValidationDialogs'
 import { CommitteePanel, ValidationHistory, ValidationPanel, ValidationStatusLine } from './ValidationSection'
+import { RequestChangesSection } from './RequestChangesSection'
 import { myPendingStep, validationKind } from './validation'
 import type { NeedsValidation } from './validation'
 import {
@@ -240,6 +241,8 @@ export function LimitRequestPage() {
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="flex flex-col gap-5">
           <RequestCard request={request} locale={locale} />
+          {/* What the policyholder changed (0075). */}
+          <RequestChangesSection requestId={request.id} />
           {/* The auto-decision rule's answer (0061): the credit desk only. */}
           <AutoDecisionPanel requestId={request.id} />
           {/* Waiting for the buyer's data, not for a decision (0067). */}
@@ -415,6 +418,22 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
           <>
             <dt className="text-slate-500">{t('limits.fields.withdrawComment')}</dt>
             <dd className="text-slate-700">{request.withdraw_comment}</dd>
+          </>
+        )}
+        {request.withdrawn_via === 'portal' && (
+          <>
+            <dt className="text-slate-500">{t('limits.timeline.withdrawn')}</dt>
+            <dd className="text-slate-700">{t('limits.changes.withdrawnByPolicyholder')}</dd>
+          </>
+        )}
+        {request.replaces_request_id && (
+          <>
+            <dt className="text-slate-500">{t('limits.changes.replaces')}</dt>
+            <dd>
+              <Link to={`/limits/${request.replaces_request_id}`} className="text-accent-700 hover:underline">
+                {t('limits.changes.openReplaced')}
+              </Link>
+            </dd>
           </>
         )}
       </dl>

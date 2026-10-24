@@ -2067,6 +2067,20 @@
       "buyerOrName": "Bayerni tanlang yoki qo‘lda kiriting",
       "buyer": "Bayerni tanlang",
       "amount": "Summani kiriting"
+    },
+    "changes": {
+      "title": "Sug‘urtalanuvchining o‘zgartirishlari",
+      "hint": "Sug‘urtalanuvchi portalda nimani o‘zgartirgani. Ko‘rib chiqishdan oldingi o‘zgartirish so‘rovni anderraytingga qayta yuboradi.",
+      "amount": "Summa: {{from}} → {{to}}",
+      "terms": "To‘lov muddati: {{from}} → {{to}}",
+      "justification": "Asoslash o‘zgartirildi",
+      "kinds": {
+        "amended": "Ko‘rib chiqishdan oldin o‘zgartirilgan",
+        "replaced": "Avvalgi so‘rov o‘rniga yuborilgan"
+      },
+      "openReplaced": "Avvalgi so‘rovni ochish",
+      "replaces": "Almashtiradi",
+      "withdrawnByPolicyholder": "sug‘urtalanuvchi tomonidan, portalda"
     }
   },
   "entities": {
@@ -3462,7 +3476,35 @@
       "requestFailed": "So‘rovni yuborib bo‘lmadi. Qaytadan urinib ko‘ring.",
       "decided": "Qaror sanasi",
       "limitsTitle": "Bayerlar bo‘yicha limitlar",
-      "revokedHint": "Limitni sug‘urtalovchi bekor qilgan: bu bayerga yangi jo‘natmalar sug‘urtalanmagan."
+      "revokedHint": "Limitni sug‘urtalovchi bekor qilgan: bu bayerga yangi jo‘natmalar sug‘urtalanmagan.",
+      "change": {
+        "action": "O‘zgartirish",
+        "withdraw": "So‘rovni qaytarib olish",
+        "title": "So‘rovni o‘zgartirish — {{buyer}}",
+        "amendTitle": "Anderrayting bu so‘rovni hali ko‘rib chiqishga olmagan",
+        "amendHint": "So‘rov o‘zgaradi va yangi ma’lumotlar bilan ularga yuboriladi.",
+        "replaceTitle": "Anderrayting bu so‘rov ustida allaqachon ishlamoqda",
+        "replaceHint": "Uni o‘zgartirish uchun so‘rovni qaytarib olamiz va bir vaqtda uning o‘rniga sizning ma’lumotlaringiz bilan yangi so‘rov yuboramiz. Yangi so‘rovni yuborib bo‘lmasa, avvalgisi o‘zgarishsiz qoladi.",
+        "saveAmend": "O‘zgarishlarni saqlash",
+        "saveReplace": "Qaytarib olish va yangi so‘rovni yuborish",
+        "unchangedHint": "Hali hech narsa o‘zgartirilmagan.",
+        "doneAmended": "So‘rov o‘zgartirildi.",
+        "doneReplaced": "Yangi so‘rov avvalgisi o‘rniga yuborildi.",
+        "failed": "O‘zgarishlarni saqlab bo‘lmadi.",
+        "withdrawTitle": "{{buyer}} bayeri bo‘yicha so‘rovni qaytarib olasizmi?",
+        "withdrawMessage": "Anderrayting u bo‘yicha ishni to‘xtatadi. Keyinroq yana so‘rash uchun yangi so‘rov yuboring.",
+        "withdrawReason": "Sabab (ixtiyoriy)",
+        "withdrawn": "So‘rov qaytarib olindi.",
+        "withdrawFailed": "So‘rovni qaytarib olib bo‘lmadi.",
+        "changedOn": "{{date}} o‘zgartirilgan",
+        "replacesNote": "Avvalgi so‘rov o‘rniga",
+        "errors": {
+          "inReview": "Anderrayting so‘rovni hozirgina ko‘rib chiqishga oldi, shuning uchun uni joyida o‘zgartirib bo‘lmaydi. Qaytarib olib, yangisini yuborish uchun uni qayta oching.",
+          "notOpen": "Bu so‘rov bo‘yicha qaror qabul qilingan yoki u yopilgan.",
+          "unchanged": "Hech narsa o‘zgartirilmadi.",
+          "termsInvalid": "To‘lov muddati manfiy bo‘lishi mumkin emas."
+        }
+      }
     },
     "submissions": {
       "title": "Mening sug‘urta arizalarim",

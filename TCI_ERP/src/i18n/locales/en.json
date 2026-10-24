@@ -2067,6 +2067,20 @@
       "buyerOrName": "Choose a buyer, or enter it by name",
       "buyer": "Choose a buyer",
       "amount": "Enter the amount"
+    },
+    "changes": {
+      "title": "Changes by the policyholder",
+      "hint": "What the policyholder changed in the portal. A change before review sends the request to underwriting again.",
+      "amount": "Amount: {{from}} → {{to}}",
+      "terms": "Payment terms: {{from}} → {{to}}",
+      "justification": "Justification changed",
+      "kinds": {
+        "amended": "Changed before review",
+        "replaced": "Sent in place of an earlier request"
+      },
+      "openReplaced": "Open the earlier request",
+      "replaces": "Replaces",
+      "withdrawnByPolicyholder": "by the policyholder, in the portal"
     }
   },
   "entities": {
@@ -3462,7 +3476,35 @@
       "requestFailed": "The request could not be sent. Please try again.",
       "decided": "Decided on",
       "limitsTitle": "Limits by buyer",
-      "revokedHint": "The limit was withdrawn by the insurer: new shipments to this buyer are not insured."
+      "revokedHint": "The limit was withdrawn by the insurer: new shipments to this buyer are not insured.",
+      "change": {
+        "action": "Change",
+        "withdraw": "Withdraw the request",
+        "title": "Change the request — {{buyer}}",
+        "amendTitle": "Underwriting has not taken this request yet",
+        "amendHint": "It changes in place and goes to them with the new figures.",
+        "replaceTitle": "Underwriting is already working on this request",
+        "replaceHint": "To change it, we withdraw it and send a new request with your figures in its place, both at once. If the new request cannot be sent, the old one stays as it is.",
+        "saveAmend": "Save the change",
+        "saveReplace": "Withdraw and send the new request",
+        "unchangedHint": "Nothing has changed yet.",
+        "doneAmended": "The request is changed.",
+        "doneReplaced": "The new request has been sent in place of the old one.",
+        "failed": "The change could not be saved.",
+        "withdrawTitle": "Withdraw the request for {{buyer}}?",
+        "withdrawMessage": "Underwriting stops working on it. To ask again later, send a new request.",
+        "withdrawReason": "Reason (optional)",
+        "withdrawn": "The request is withdrawn.",
+        "withdrawFailed": "The request could not be withdrawn.",
+        "changedOn": "Changed {{date}}",
+        "replacesNote": "In place of an earlier request",
+        "errors": {
+          "inReview": "Underwriting has just taken this request, so it can no longer change in place. Open it again to withdraw it and send a new one.",
+          "notOpen": "This request has already been decided or closed.",
+          "unchanged": "Nothing was changed.",
+          "termsInvalid": "Payment terms cannot be negative."
+        }
+      }
     },
     "submissions": {
       "title": "My submissions",
