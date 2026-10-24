@@ -729,20 +729,20 @@
       "years_other": "{{value}} years"
     },
     "confirmation": {
-      "engineGrade": "Engine grade",
-      "gradeInForce": "Grade in force",
+      "engineGrade": "Recommended grade",
+      "gradeInForce": "Grade",
       "unconfirmed": "Not confirmed",
       "confirmedBy": "Confirmed by {{name}}, {{at}}",
-      "overriddenBy": "Changed from the engine grade by {{name}}, {{at}}",
+      "overriddenBy": "Changed from the recommended grade by {{name}}, {{at}}",
       "someone": "a colleague",
       "confirm": "Confirm rating",
       "ownRating": "You calculated this rating — a colleague confirms it",
       "title": "Confirm the rating",
-      "hint": "The engine calculated {{grade}}. Confirm it, or choose another grade of the scale and say why. The confirmed grade is the one every limit decision on this buyer is based on.",
+      "hint": "The recommended grade is {{grade}}. Confirm it, or choose another grade of the scale and say why. The confirmed grade is the one every limit decision on this buyer is based on.",
       "grade": "Grade",
-      "engineOption": "{{grade}} (engine)",
+      "engineOption": "{{grade}} (recommended)",
       "comment": "Comment",
-      "commentRequired": "Required: the grade differs from the engine’s",
+      "commentRequired": "Required: the grade differs from the recommended one",
       "commentOptional": "Optional",
       "submit": "Confirm",
       "errors": {
@@ -750,7 +750,7 @@
         "alreadyConfirmed": "This rating has already been confirmed.",
         "notLatest": "Only the buyer’s current rating can be confirmed.",
         "ownRating": "You calculated this rating, so a colleague confirms it.",
-        "commentRequired": "A grade other than the engine’s needs a reason.",
+        "commentRequired": "A grade other than the recommended one needs a reason.",
         "gradeInvalid": "That grade is not on the rating scale.",
         "immutable": "A rating is history and is never changed; only its confirmation is recorded."
       }
