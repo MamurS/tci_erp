@@ -17,6 +17,7 @@ import {
   DescriptionList,
   EmptyState,
   Field,
+  LinkButton,
   Input,
   labelCol,
   Modal,
@@ -83,6 +84,22 @@ export function PortalClaimsPage() {
       <PageHeader title={t('portal.claims.title')} subtitle={t('portal.claims.subtitle')} />
 
       {error && <Callout tone="neg" title={error} />}
+
+      {/* Nothing to claim yet: say where a claim comes from, whether or not
+          there are claims below (the empty state alone said it only once). */}
+      {ready.length === 0 && (
+        <Callout
+          tone="info"
+          title={t('portal.claims.howTo.title')}
+          action={
+            <LinkButton to="/portal/overdues" variant="secondary" size="sm">
+              {t('portal.claims.howTo.action')}
+            </LinkButton>
+          }
+        >
+          {t('portal.claims.howTo.body')}
+        </Callout>
+      )}
 
       {ready.length > 0 && (
         <Card className="p-5">

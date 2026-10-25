@@ -2143,7 +2143,7 @@
     "noUsers": "No users yet",
     "editRoles": "Roles",
     "rolesFor": "Roles — {{email}}",
-    "rolesHint": "A user may hold several roles; access is the union of them.",
+    "rolesHint": "A user may hold several roles but works in one at a time — the role of the workspace they choose. Access is never the sum of the roles. The client role is held alone.",
     "selectUser": "Select a user",
     "selectUserHint": "Pick a user on the “Users & roles” tab to edit their authority.",
     "authoritiesFor": "Authority — {{email}}",
@@ -3600,8 +3600,8 @@
     "claims": {
       "title": "Claims",
       "subtitle": "Ask for indemnity when a buyer has not paid, and follow what the insurer decides.",
-      "claimableTitle": "Ready to be claimed",
-      "claimableHint": "The waiting period has run on these overdue accounts.",
+      "claimableTitle": "Overdue accounts you can claim on",
+      "claimableHint": "Each overdue account you have reported can be claimed once the policy's waiting period has run; until then the date shows when.",
       "waiting": "Waiting period",
       "emptyTitle": "No claims yet",
       "emptyHint": "A claim starts from an overdue account you have already reported.",
@@ -3653,7 +3653,12 @@
         "message": "Message"
       },
       "listTitle": "My claims",
-      "withdrawConfirm": "The draft claim {{number}} will be withdrawn. This cannot be undone."
+      "withdrawConfirm": "The draft claim {{number}} will be withdrawn. This cannot be undone.",
+      "howTo": {
+        "title": "How a claim starts",
+        "body": "First report the buyer's unpaid invoice under Overdue accounts. When the policy's waiting period has run, the overdue account appears on this page and you can file the claim.",
+        "action": "Go to Overdue accounts"
+      }
     }
   },
   "declarations": {

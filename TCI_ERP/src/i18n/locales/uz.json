@@ -2143,7 +2143,7 @@
     "noUsers": "Hozircha foydalanuvchilar yo‘q",
     "editRoles": "Rollar",
     "rolesFor": "Rollar — {{email}}",
-    "rolesHint": "Foydalanuvchi bir nechta rolga ega bo‘lishi mumkin; huquqlar ularning birlashmasi.",
+    "rolesHint": "Foydalanuvchi bir nechta rolga ega bo‘lishi mumkin, lekin bir vaqtda faqat bittasida — tanlangan ish maydonining rolida ishlaydi. Rollarning huquqlari qo‘shilmaydi. Mijoz roli faqat alohida beriladi.",
     "selectUser": "Foydalanuvchini tanlang",
     "selectUserHint": "Vakolatlarni tahrirlash uchun «Foydalanuvchilar va rollar» yorlig‘ida foydalanuvchini tanlang.",
     "authoritiesFor": "Vakolatlar — {{email}}",
@@ -3600,8 +3600,8 @@
     "claims": {
       "title": "Sug‘urta da’volari",
       "subtitle": "Bayer to‘lamagan bo‘lsa tovon so‘rang va sug‘urtalovchi qarorini kuzating.",
-      "claimableTitle": "Da’vo bildirish mumkin",
-      "claimableHint": "Ushbu muddati o‘tgan qarzlar bo‘yicha kutish muddati tugagan.",
+      "claimableTitle": "Da’vo bildirish mumkin bo‘lgan muddati o‘tgan qarzlar",
+      "claimableHint": "Xabar qilingan har bir muddati o‘tgan qarz bo‘yicha polisdagi kutish muddati tugagach da’vo bildirish mumkin; ungacha qaysi sanadan mumkinligi ko‘rsatiladi.",
       "waiting": "Kutish muddati",
       "emptyTitle": "Hozircha da’volar yo‘q",
       "emptyHint": "Da’vo siz allaqachon xabar qilgan muddati o‘tgan qarzdan boshlanadi.",
@@ -3653,7 +3653,12 @@
         "message": "Xabar"
       },
       "listTitle": "Mening da’volarim",
-      "withdrawConfirm": "{{number}} da’vo qoralamasi qaytarib olinadi. Bu amal qaytarilmas."
+      "withdrawConfirm": "{{number}} da’vo qoralamasi qaytarib olinadi. Bu amal qaytarilmas.",
+      "howTo": {
+        "title": "Da’vo qanday boshlanadi",
+        "body": "Avval bayerning to‘lanmagan hisob-fakturasi haqida «Muddati o‘tgan qarzlar» bo‘limida xabar bering. Polis bo‘yicha kutish muddati tugagach, qarz shu sahifada paydo bo‘ladi va u bo‘yicha da’vo bildirish mumkin.",
+        "action": "Muddati o‘tgan qarzlarga o‘tish"
+      }
     }
   },
   "declarations": {

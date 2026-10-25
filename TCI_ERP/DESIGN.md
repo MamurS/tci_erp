@@ -114,7 +114,9 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
   `DetailHeader` (eyebrow naming the kind of object, the title, the status
   badge beside it, a meta line of links joined by dots, the actions);
   `KeyFigures` (the few numbers that matter, in ONE card divided by
-  hairlines, every cell left-aligned the same way; `text` for a word such as
+  hairlines, every cell left-aligned the same way and as wide as its content
+  needs — a figure never breaks onto a second line, whole cells wrap instead,
+  so a trillion with its currency stays on one line; `text` for a word such as
   a cause of loss; `muted` for "not yet"); `DescriptionList` (label → value
   rows, tabular figures, `columns={2}` instead of stretching a label away
   from its value); `Callout` (what needs attention, amber when it can wait,
@@ -399,7 +401,7 @@ const COLUMNS = [COL.code, COL.fill, labelCol('policyStatus'), COL.money, action
   is cut with an ellipsis (and the guard fails on it — reserve more).
 * Key figures and cards (`KeyFigures`, `StatCard`): values in tabular digits,
   so a refreshed figure keeps its width; the figures of one strip share one
-  height (the grid stretches them), so a meta line under one of them does not
+  height (the flex row stretches them), so a meta line under one of them does not
   make it taller than its neighbours.
 
 **The guard** (`e2e/layout/layout.spec.ts`, part of `npm run test:e2e` and
