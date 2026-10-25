@@ -226,6 +226,14 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 | engine-calculated credit limit | **Рекомендуемый лимит** (NOT «Расчётный лимит (модель)», «Расчётный лимит»); en "Recommended limit" — owner-decided 2026-10-22 | **Tavsiya etilgan limit** |
 | engine-calculated grade (`engine_grade`) | **Рекомендуемый рейтинг** (NOT «Рейтинг модели»); en "Recommended grade" — owner-decided 2026-10-24 | **Tavsiya etilgan reyting** (NOT «Model reytingi») |
 | grade in force (`rating_grade`, after confirmation) | **Рейтинг** (NOT «Действующий рейтинг»); en "Grade" — owner-decided 2026-10-24 | **Reyting** (NOT «Amaldagi reyting») |
+| manual rating (`credit_assessments.source = 'manual'`, 0073) | **Ручной рейтинг** — owner-decided 2026-10-25 | **Qo‘lda belgilangan reyting** |
+| rating proposal (0073) | **Предложение рейтинга** — owner-decided 2026-10-25 | **Reyting taklifi** |
+| escalate (a proposal up the authority levels) | **Эскалировать** — owner-decided 2026-10-25 | **Yuqoriga yo‘naltirish** |
+| group rating (0074) | **Рейтинг группы** — owner-decided 2026-10-25 | **Guruh reytingi** |
+| senior credit analyst (0074) | **Старший кредитный аналитик** — owner-decided 2026-10-25 | **Katta kredit tahlilchi** |
+| change a limit request (portal, 0075) | **Изменить запрос** — owner-decided 2026-10-25 | **So‘rovni o‘zgartirish** |
+| withdraw a limit request (portal action, 0075) | **Отозвать запрос** — owner-decided 2026-10-25 | **So‘rovni qaytarib olish** |
+| the policyholder's changes (staff section, 0075) | **Изменения страхователя** — owner-decided 2026-10-25 | **Sug‘urtalanuvchining o‘zgartirishlari** |
 | overdue notification (NOA) | Уведомление о просрочке | **xabarnoma** in every form and suffix (NOT «bildirishnoma») — owner-decided 2026-10-22 |
 | discretionary limit | Дискреционный лимит | **Diskretsion limit** |
 | deductible | Франшиза | **Franshiza** |

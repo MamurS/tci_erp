@@ -87,32 +87,31 @@ const FIGURE_TONES: Record<NonNullable<KeyFigure['tone']>, string> = {
   muted: 'text-slate-400',
 }
 
-const FIGURE_COLS: Record<number, string> = {
-  1: '',
-  2: 'sm:grid-cols-2',
-  3: 'sm:grid-cols-3',
-  4: 'sm:grid-cols-2 lg:grid-cols-4',
-  5: 'sm:grid-cols-3 lg:grid-cols-5',
-  6: 'sm:grid-cols-3 lg:grid-cols-6',
-}
-
 /**
  * The few numbers that matter, side by side in ONE card. The 1px gap over a
  * hairline background draws the dividers, so they stay right when the row
  * wraps on a narrow screen. Every cell is left-aligned the same way.
+ *
+ * Each cell is as wide as its content needs, and the spare width is shared:
+ * a figure never breaks ("42 000 000 000 UZS" on one line, a trillion too),
+ * so «90%» does not take as much room as a liability. When a row cannot hold
+ * them all, whole cells move to the next line instead of a number breaking.
  */
 export function KeyFigures({ items, className = 'mb-6' }: { items: KeyFigure[]; className?: string }) {
   return (
     <Card className={`overflow-hidden ${className}`}>
-      <div className={`grid gap-px bg-slate-200/70 ${FIGURE_COLS[items.length] ?? 'sm:grid-cols-3'}`}>
+      <div className="flex flex-wrap gap-px bg-slate-200/70">
         {items.map((item, i) => (
-          <div key={i} className="flex min-w-0 flex-col gap-1 bg-white px-5 py-4">
+          <div
+            key={i}
+            className={`flex flex-[1_1_auto] flex-col gap-1 bg-white px-5 py-4 ${item.text ? 'min-w-0 basis-40' : ''}`}
+          >
             <span className="text-[12px] font-medium text-slate-500">{item.label}</span>
             <span
               className={`${
                 item.text
                   ? 'pt-1 text-[15px] leading-snug font-semibold'
-                  : 'font-display text-[24px] leading-tight font-bold tabular-nums'
+                  : 'font-display text-[24px] leading-tight font-bold whitespace-nowrap tabular-nums'
               } ${FIGURE_TONES[item.tone ?? 'default']}`}
             >
               {item.value}
