@@ -853,6 +853,29 @@ is fine for internal test accounts and not fine for customers.
   `tests/db/group_ratings.sql` run on canonical with role impersonation
   (forced rollback, nothing left behind, counts unchanged); no new advisor
   finding
+- [x] Client changes to limit requests + DL note (migration 0075): both
+  limit request forms say, as the amount is typed, whether it is within the
+  policy's discretionary limit (equal included, as 0026's split), above it
+  and by how much, or that the policy has none (`limits/discretionary.ts`,
+  no migration). In the portal the policyholder WITHDRAWS any open request
+  or buyer proposal, AMENDS amount / payment terms / justification while
+  underwriting has not taken it (`submitted`, `information_gathering`,
+  `pending_entity` — the request is submitted again, so the band-aware
+  task, the information routing and the auto decision run on the new
+  amount), and after that REPLACES it (withdraw + a new request in one
+  transaction, `replaces_request_id`). Every change is an immutable row of
+  `tci.limit_request_amendments`, shown to staff as «Изменения
+  страхователя» on the request page; a withdrawal (either path) now cancels
+  a pending validation step and its tasks at once. See **Client limit
+  request change rules** below. **Canonical: 0075 applied 2026-10-24**
+  BEFORE merge (backward-compatible: the old portal only gains view
+  columns): the view, constraints and functions it touches verified
+  identical to a local replay of 0074 first, the whole file in one atomic
+  `execute_sql` call with its ledger row; every 0075 object
+  fingerprint-identical afterwards; the whole
+  `tests/db/client_limit_changes.sql` run on canonical with role
+  impersonation (forced rollback, nothing left behind, counts unchanged);
+  no new advisor finding
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2131,6 +2154,42 @@ is capped at its next rating.
 `senior_requires_analyst`); no API role writes the column. The group rating
 is read by the credit desk and admin (`group_rating_state`), never by sales
 or clients.
+
+### Client limit request change rules (migration 0075)
+
+**Amend before underwriting, replace after.** `tci.client_request_amendable`
+(`submitted`, `information_gathering`, `pending_entity`) is when the
+policyholder may change a request in place; `tci.client_request_open` (those
+plus `under_review`, `escalated`) is when they may withdraw it.
+`requestChanges.ts` mirrors both (contract-tested) and the portal view
+answers per row (`may_amend`, `may_withdraw`). The amount drives the band,
+the authority, the validation level and the auto decision, so it never
+changes under an underwriter's hands: once taken, `client_replace_limit_request`
+withdraws the old request and raises a new one IN ONE TRANSACTION (a refused
+new request withdraws nothing), and the new one names the old
+(`replaces_request_id`).
+
+**An amended request is submitted again.** `client_amend_limit_request`
+cancels the request's open limit tasks and emits `limit.request_amended`
+then `limit.request_submitted`, so the decision task is re-addressed to the
+underwriters covering the NEW amount, the information routing (0067) and
+the auto decision (0061) run as for any submission. A proposal (not yet a
+company) is simply updated — resolving it copies what it says then.
+Unchanged values are refused (`amendment_unchanged`).
+
+**The record never changes.** `tci.limit_request_amendments`: one row per
+change (`amended` in place, `replaced` on the replacing request), staff read
+(`limit_request_changes(request)` includes the proposal's rows), no API
+write, a trigger refuses UPDATE/DELETE for everyone.
+
+**A withdrawal closes everything, whichever path.**
+`handle_limit_withdrawal` (an AFTER INSERT trigger on
+`limit.request_withdrawn`) stamps `withdrawn_by` / `withdrawn_via` (`portal`
+from the client function's payload, else `staff`) and cancels any pending
+validation step with its tasks (`emit_validation_resolved … 'cancelled'`).
+Before 0075 the step stayed pending until a validator happened to answer.
+A withdrawn proposal is `withdrawn` (new status) and its `buyer_needs_entity`
+task is cancelled; `resolve_buyer_proposal` refuses it.
 
 ### Auto decision (ADT) rules (migration 0061)
 

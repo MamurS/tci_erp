@@ -6,12 +6,12 @@
  * request becomes a proposal for an information manager: a client never
  * creates a company in the registry, and this form has no path that does. */
 
+import { PencilLine } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
   AmountInput,
-  Badge,
   Button,
   Callout,
   Field,
@@ -22,6 +22,7 @@ import {
   Textarea,
 } from '../../components/ui'
 import { parseAmount } from '../../components/ui/amount'
+import { DlNote } from '../limits/DlNote'
 import { useEntitySearch, useRequestLimit } from './api'
 import type { ClientPolicy, EntitySearchHit } from './types'
 
@@ -54,6 +55,12 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
   const amountValue = parseAmount(amount) ?? Number.NaN
   const amountValid = Number.isFinite(amountValue) && amountValue > 0
   const canSubmit = Boolean(policyId) && buyerChosen && amountValid
+  // Said under the form while «Send» is greyed, so a disabled button is never
+  // a riddle (the «enter it by name» line above is a button, not a hint).
+  const missing = [
+    ...(buyerChosen ? [] : [t('limits.missing.buyerOrName')]),
+    ...(amountValid ? [] : [t('limits.missing.amount')]),
+  ]
 
   const reset = () => {
     setQuery('')
@@ -218,8 +225,9 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
                     setProposing(true)
                     setProposedName(query.trim())
                   }}
-                  className="rounded-md border border-dashed border-slate-300 px-3 py-1.5 text-left text-[13px] text-slate-600 hover:bg-slate-50"
+                  className="flex items-center gap-2 rounded-md border border-dashed border-accent-300 px-3 py-1.5 text-left text-[13px] font-medium text-accent-700 hover:bg-accent-50"
                 >
+                  <PencilLine className="size-4 shrink-0" aria-hidden />
                   {(hits ?? []).length
                     ? t('portal.limits.notListed')
                     : t('portal.limits.noneFound', { query: query.trim() })}
@@ -257,6 +265,15 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
           </Field>
         </div>
 
+        {policy && (
+          <DlNote
+            amount={amountValid ? amountValue : null}
+            dl={policy.discretionary_limit == null ? null : Number(policy.discretionary_limit)}
+            currency={policy.currency_code}
+            audience="client"
+          />
+        )}
+
         <Field label={t('portal.limits.justification')}>
           <Textarea
             value={justification}
@@ -265,10 +282,9 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
           />
         </Field>
 
-        {policy?.discretionary_limit != null && (
-          <p className="text-xs text-slate-400">
-            <Badge tone="neutral">{t('requests.terms.discretionary_limit')}</Badge>{' '}
-            {t('portal.limits.dlHint')}
+        {missing.length > 0 && (
+          <p className="text-[13px] text-slate-500" data-testid="request-missing">
+            {missing.join(' · ')}
           </p>
         )}
       </div>

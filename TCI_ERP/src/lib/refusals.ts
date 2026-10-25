@@ -181,6 +181,12 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'acting_role_no_session', key: 'roles.errors.noSession' },
   // a portal client holds no other role (0062)
   { fragment: 'client_role_exclusive', key: 'admin.errors.clientRoleExclusive' },
+  // the policyholder changes or withdraws a limit request (0075)
+  { fragment: 'limit_request_in_review', key: 'portal.limits.change.errors.inReview' },
+  { fragment: 'limit_request_not_open', key: 'portal.limits.change.errors.notOpen' },
+  { fragment: 'amendment_unchanged', key: 'portal.limits.change.errors.unchanged' },
+  { fragment: 'amendment_amount_invalid', key: 'portal.limits.amountInvalid' },
+  { fragment: 'amendment_terms_invalid', key: 'portal.limits.change.errors.termsInvalid' },
   // a currency with no rate cannot be weighed against an authority (0013)
   { fragment: 'no UZS rate for', key: 'limits.errors.noRate' },
 ]

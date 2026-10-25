@@ -178,6 +178,8 @@ export const LABEL_SETS = {
   grantPrimary: { keys: ['common.edit', 'admin.grant', 'common.save'], chars: 10, kind: 'button' },
   grantSecondary: { keys: ['common.delete', 'common.cancel'], chars: 9, kind: 'button' },
   limitHistory: { keys: ['portal.limits.history'], chars: 7, kind: 'button' },
+  /** A pending limit request in the portal: change it (0075); withdraw sits behind ⋯. */
+  limitRequestChange: { keys: ['portal.limits.change.action'], chars: 12, kind: 'button' },
   /** Why a bank-statement line matched, or did not (premium payments). */
   bankMatchReason: { keys: ['premium.bank.reasons.*'], chars: 20, kind: 'text' },
   /** A bank-statement line: confirm a match, or assign an unmatched one. */
