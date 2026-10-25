@@ -55,7 +55,7 @@ export function AnalysisTable<K extends string>({
   return (
     <div>
       <div className="mb-2 flex justify-end">
-        <label className="flex cursor-pointer items-center gap-1.5 text-[13px] text-slate-500">
+        <label className="flex cursor-pointer items-center gap-1.5 text-[0.8125rem] text-slate-500">
           <input
             type="checkbox"
             checked={showEmpty}
@@ -67,7 +67,7 @@ export function AnalysisTable<K extends string>({
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-        <table className="w-full border-collapse text-[13px]">
+        <table className="w-full border-collapse text-[0.8125rem]">
           <thead>
             <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
               <th className="sticky left-0 z-10 min-w-64 bg-slate-50 text-left">{t('fin.lineHeader')}</th>

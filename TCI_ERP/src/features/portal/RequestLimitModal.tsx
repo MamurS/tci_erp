@@ -225,7 +225,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
                     setProposing(true)
                     setProposedName(query.trim())
                   }}
-                  className="flex items-center gap-2 rounded-md border border-dashed border-accent-300 px-3 py-1.5 text-left text-[13px] font-medium text-accent-700 hover:bg-accent-50"
+                  className="flex items-center gap-2 rounded-md border border-dashed border-accent-300 px-3 py-1.5 text-left text-[0.8125rem] font-medium text-accent-700 hover:bg-accent-50"
                 >
                   <PencilLine className="size-4 shrink-0" aria-hidden />
                   {(hits ?? []).length
@@ -247,7 +247,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
               invalid={amount.trim() !== '' && !amountValid}
             />
             {amount.trim() !== '' && !amountValid && (
-              <span className="text-[13px] text-neg-500">{t('portal.limits.amountInvalid')}</span>
+              <span className="text-[0.8125rem] text-neg-500">{t('portal.limits.amountInvalid')}</span>
             )}
           </Field>
           <Field label={t('portal.limits.paymentTerms')}>
@@ -283,7 +283,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
         </Field>
 
         {missing.length > 0 && (
-          <p className="text-[13px] text-slate-500" data-testid="request-missing">
+          <p className="text-[0.8125rem] text-slate-500" data-testid="request-missing">
             {missing.join(' · ')}
           </p>
         )}

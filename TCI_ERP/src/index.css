@@ -11,6 +11,19 @@
 @custom-variant focus-visible (&:focus-visible:where(:root:not([data-focus-source='pointer']) *));
 
 /*
+ * Breakpoints follow the interface text size (src/lib/uiScale.ts). A media
+ * query's rem is the browser's initial font size and would not move; a
+ * container query's rem is the ROOT element's, so these thresholds scale
+ * with the chosen size exactly as the browser's own zoom would. The
+ * container is <body>, which every portal and modal sits inside.
+ */
+@custom-variant sm (@container app (width >= 40rem));
+@custom-variant md (@container app (width >= 48rem));
+@custom-variant lg (@container app (width >= 64rem));
+@custom-variant xl (@container app (width >= 80rem));
+@custom-variant 2xl (@container app (width >= 96rem));
+
+/*
  * TCI ERP design tokens — see DESIGN.md.
  * Delcreda corporate palette: navy + process blue, orange accent,
  * semantic green/red for dynamics, a five-colour rating scale.
@@ -86,7 +99,8 @@
     scrollbar-gutter: stable;
   }
   body {
-    @apply text-[14px] leading-normal text-slate-900;
+    @apply text-[0.875rem] leading-normal text-slate-900;
+    container: app / inline-size;
     background-color: #f3f6f9;
   }
   /* The portal's navy header continues into the reserved scrollbar gutter
@@ -145,4 +159,11 @@
 }
 @utility animate-fade-in {
   animation: fade-in 160ms ease-out both;
+}
+
+/* Paper is paper: whatever size the screen uses, print at 100 %. */
+@media print {
+  html {
+    font-size: 100% !important;
+  }
 }

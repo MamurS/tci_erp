@@ -55,7 +55,7 @@ function SquareDot({ cx, cy, stroke, value }: SquareDotProps) {
 
 function ChartLegend({ series }: { series: SeriesDef[] }) {
   return (
-    <div className="mb-1.5 flex flex-wrap gap-x-4 gap-y-1 font-display text-[11px] text-ink">
+    <div className="mb-1.5 flex flex-wrap gap-x-4 gap-y-1 font-display text-[0.6875rem] text-ink">
       {series.map((s, idx) => (
         <span key={s.dataKey} className="inline-flex items-center gap-1.5">
           <span className="inline-block size-2.5" style={{ background: CHART_COLORS[idx] }} />
@@ -80,7 +80,7 @@ function DynamicsLineChart({
   days: boolean
 }) {
   const axis = {
-    fontSize: 10,
+    fontSize: '0.625rem',
     fill: '#666666',
     fontFamily: 'PT Sans Narrow, Arial Narrow, sans-serif',
   }
@@ -104,7 +104,7 @@ function DynamicsLineChart({
       {variant === 'screen' && (
         <Tooltip
           formatter={(v) => (typeof v === 'number' ? formatAmount(v, locale, 0) : v)}
-          contentStyle={{ fontSize: 12, borderRadius: 8, borderColor: '#c9dde9' }}
+          contentStyle={{ fontSize: '0.75rem', borderRadius: 8, borderColor: '#c9dde9' }}
         />
       )}
       {series.map((s, idx) => (
@@ -167,7 +167,7 @@ export function DynamicCharts({
   return (
     <div className={variant === 'print' ? 'grid grid-cols-2 gap-6' : 'grid gap-5 lg:grid-cols-2'}>
       <div className="report-chart min-w-0">
-        <h3 className="mb-1 font-display text-[13px] font-bold text-accent-600">
+        <h3 className="mb-1 font-display text-[0.8125rem] font-bold text-accent-600">
           {currency ? t('report.charts2.revRecPay', { currency }) : t('report.charts.revRecPay')}
         </h3>
         <ChartLegend series={amounts} />
@@ -181,7 +181,7 @@ export function DynamicCharts({
       </div>
 
       <div className="report-chart min-w-0">
-        <h3 className="mb-1 font-display text-[13px] font-bold text-accent-600">
+        <h3 className="mb-1 font-display text-[0.8125rem] font-bold text-accent-600">
           {t('report.charts2.turnover')}
         </h3>
         <ChartLegend series={days} />

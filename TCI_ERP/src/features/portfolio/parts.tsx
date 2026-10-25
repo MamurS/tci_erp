@@ -19,7 +19,7 @@ export function ShareBar({ share, compact = false }: { share: number | null; com
           <div className="h-full rounded-full bg-accent-500" style={{ width: `${Math.round((share ?? 0) * 100)}%` }} />
         </div>
       )}
-      <span className="num w-12 shrink-0 text-right text-[12px] text-slate-600">{formatPercent(share, locale)}</span>
+      <span className="num w-12 shrink-0 text-right text-[0.75rem] text-slate-600">{formatPercent(share, locale)}</span>
     </div>
   )
 }
@@ -48,7 +48,7 @@ export function TableCard({
   return (
     <Panel title={title} hint={hint}>
       {empty ? (
-        <p className="py-4 text-[13px] text-slate-500">{empty}</p>
+        <p className="py-4 text-[0.8125rem] text-slate-500">{empty}</p>
       ) : (
         <Table dense columns={columns} fillMin={fillMin}>
           <thead>{head}</thead>

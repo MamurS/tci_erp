@@ -23,7 +23,7 @@ export function RequestHistoryTimeline({
       <SectionTitle className="mb-3">{t('requests.history')}</SectionTitle>
 
       {notes && (
-        <p className="mb-3 rounded-md bg-slate-50 px-3 py-2 text-[13px] text-slate-600">
+        <p className="mb-3 rounded-md bg-slate-50 px-3 py-2 text-[0.8125rem] text-slate-600">
           {notes}
         </p>
       )}
@@ -31,13 +31,13 @@ export function RequestHistoryTimeline({
       {isLoading ? (
         <Spinner label={t('common.loading')} />
       ) : !history?.length ? (
-        <p className="text-[13px] text-slate-400">{t('requests.noHistory')}</p>
+        <p className="text-[0.8125rem] text-slate-400">{t('requests.noHistory')}</p>
       ) : (
         <ol className="flex flex-col gap-2">
           {history.map((row) => (
             <li
               key={row.id}
-              className="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-l-2 border-slate-200 pl-3 text-[13px]"
+              className="flex flex-wrap items-baseline gap-x-2 gap-y-1 border-l-2 border-slate-200 pl-3 text-[0.8125rem]"
             >
               <Badge tone={statusTone(row.to_status)}>
                 {t(`requests.statuses.${row.to_status}`)}

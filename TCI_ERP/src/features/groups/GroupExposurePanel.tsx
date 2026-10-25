@@ -115,22 +115,22 @@ export function GroupExposurePanel({
       </div>
 
       {!groupLimit && (
-        <p className="rounded-md border border-slate-200 bg-slate-50 px-4 py-2.5 text-[13px] text-slate-600">
+        <p className="rounded-md border border-slate-200 bg-slate-50 px-4 py-2.5 text-[0.8125rem] text-slate-600">
           {t('groups.exposure.noGroupLimit')}
         </p>
       )}
       {Number(exposure?.missing_rates ?? 0) > 0 && (
-        <p className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
+        <p className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
           {t('groups.exposure.missingRates', { count: Number(exposure?.missing_rates ?? 0) })}
         </p>
       )}
 
       {lines.length === 0 ? (
-        <p className="text-[13px] text-slate-500">{t('groups.exposure.empty')}</p>
+        <p className="text-[0.8125rem] text-slate-500">{t('groups.exposure.empty')}</p>
       ) : (
         <div className="grid gap-5 lg:grid-cols-2">
           <div>
-            <h4 className="mb-1.5 text-[13px] font-semibold text-slate-700">
+            <h4 className="mb-1.5 text-[0.8125rem] font-semibold text-slate-700">
               {t('groups.exposure.byMember')}
             </h4>
             <Table dense columns={[COL.fill, COL.count, COL.amount]}>
@@ -166,7 +166,7 @@ export function GroupExposurePanel({
           </div>
 
           <div>
-            <h4 className="mb-1.5 text-[13px] font-semibold text-slate-700">
+            <h4 className="mb-1.5 text-[0.8125rem] font-semibold text-slate-700">
               {t('groups.exposure.byPolicyholder')}
             </h4>
             <Table dense columns={[COL.fill, COL.count, COL.amount]}>
@@ -229,10 +229,10 @@ function Figure({
           : 'text-slate-900'
   return (
     <div className="rounded-md border border-slate-200 bg-white px-3 py-2">
-      <p className="text-[12px] text-slate-500">{label}</p>
+      <p className="text-[0.75rem] text-slate-500">{label}</p>
       <p className={`mt-0.5 text-sm font-semibold tabular-nums ${colour}`}>{value}</p>
       {meta && (
-        <p className={`mt-0.5 text-[12px] ${tone === 'neg' ? 'text-neg-500' : 'text-slate-500'}`}>{meta}</p>
+        <p className={`mt-0.5 text-[0.75rem] ${tone === 'neg' ? 'text-neg-500' : 'text-slate-500'}`}>{meta}</p>
       )}
     </div>
   )

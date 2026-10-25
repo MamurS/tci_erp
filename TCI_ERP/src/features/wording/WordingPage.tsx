@@ -88,7 +88,7 @@ export function WordingPage() {
       />
 
       {error && (
-        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[13px] text-neg-500" role="alert">
+        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] text-neg-500" role="alert">
           {error}
         </div>
       )}

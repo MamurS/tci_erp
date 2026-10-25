@@ -18,7 +18,7 @@
   padding: var(--cd-pad-top, 20mm) var(--cd-pad-right, 15mm) var(--cd-pad-bottom, 20mm) var(--cd-pad-left, 25mm);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 56.25rem) {
   .cd-sheet {
     padding: 8mm 6mm;
   }

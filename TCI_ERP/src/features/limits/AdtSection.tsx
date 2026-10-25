@@ -166,9 +166,9 @@ function AdtBody({ state, locale }: { state: AdtState; locale: string }) {
       )}
 
       <div>
-        <h3 className="mb-2 text-[13px] font-semibold text-slate-700">{t('limits.adt.history')}</h3>
+        <h3 className="mb-2 text-[0.8125rem] font-semibold text-slate-700">{t('limits.adt.history')}</h3>
         {state.history.length === 0 ? (
-          <p className="text-[13px] text-slate-500">{t('limits.adt.historyEmpty')}</p>
+          <p className="text-[0.8125rem] text-slate-500">{t('limits.adt.historyEmpty')}</p>
         ) : (
           <Table dense columns={HISTORY_COLUMNS}>
             <thead>
@@ -315,11 +315,11 @@ function SetAdtModal({ entityId, live, onClose }: { entityId: string; live: AdtL
       }
     >
       <div className="flex flex-col gap-4">
-        <p className="text-[13px] leading-relaxed text-slate-600">{t('limits.adt.setHint')}</p>
+        <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t('limits.adt.setHint')}</p>
         {assessments.isLoading ? (
           <Skeleton className="h-10 w-full" />
         ) : latest ? (
-          <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] text-slate-700">
+          <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[0.8125rem] text-slate-700">
             <p>{t('limits.adt.latestRating', { grade: latest.rating_grade, band: bandLabel })}</p>
             <p className="mt-0.5 tabular-nums">
               {t('limits.adt.recommended', {
@@ -353,7 +353,7 @@ function SetAdtModal({ entityId, live, onClose }: { entityId: string; live: AdtL
         </Field>
 
         {latest && (
-          <p className="text-[13px] text-slate-500 tabular-nums">
+          <p className="text-[0.8125rem] text-slate-500 tabular-nums">
             {t('limits.adt.authorityIn', {
               band: bandLabel,
               amount: authority === undefined ? EM_DASH : `${formatAmount(authority, locale)} UZS`,
@@ -416,7 +416,7 @@ function DisableAdtModal({
       }
     >
       <div className="flex flex-col gap-3">
-        <p className="text-[13.5px] leading-relaxed text-slate-600">{t('limits.adt.disableConfirm')}</p>
+        <p className="text-[0.8438rem] leading-relaxed text-slate-600">{t('limits.adt.disableConfirm')}</p>
         <Field label={t('limits.adt.fields.comment')} hint={t('limits.adt.commentHint')}>
           <Textarea rows={2} value={comment} onChange={(e) => setComment(e.target.value)} />
         </Field>
@@ -468,7 +468,7 @@ function BanModal({
       }
     >
       <div className="flex flex-col gap-3">
-        <p className="text-[13.5px] leading-relaxed text-slate-600">
+        <p className="text-[0.8438rem] leading-relaxed text-slate-600">
           {t(ban ? 'limits.adt.banHint' : 'limits.adt.unbanConfirm')}
         </p>
         <Field

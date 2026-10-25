@@ -56,12 +56,12 @@ function TreeBranch({
         </Link>
         {isRoot && <Badge tone="accent">{t('groups.ultimateParent')}</Badge>}
         {node.relationshipType && (
-          <span className="text-[12px] text-slate-500">
+          <span className="text-[0.75rem] text-slate-500">
             {t(`groups.relationshipTypes.${node.relationshipType}`)}
           </span>
         )}
         {node.ownershipPct !== null && (
-          <span className="text-[12px] font-medium text-slate-700">
+          <span className="text-[0.75rem] font-medium text-slate-700">
             {formatOwnershipPct(node.ownershipPct, locale)}
           </span>
         )}

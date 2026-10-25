@@ -74,13 +74,13 @@ export function ChangePasswordPage() {
       />
 
       {mustChangePassword && (
-        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
+        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
           {t('account.forcedNotice')}
         </div>
       )}
 
       <Card className="flex flex-col gap-3 p-5">
-        <p className="text-[13px] text-slate-500">{email}</p>
+        <p className="text-[0.8125rem] text-slate-500">{email}</p>
 
         <Field label={t('account.newPassword')}>
           <PasswordInput
@@ -140,7 +140,7 @@ export function ChangePasswordPage() {
         </ul>
 
         {error && (
-          <p className="text-[13px] text-neg-500" role="alert">
+          <p className="text-[0.8125rem] text-neg-500" role="alert">
             {error}
           </p>
         )}

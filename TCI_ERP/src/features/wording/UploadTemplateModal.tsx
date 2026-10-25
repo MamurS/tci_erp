@@ -99,7 +99,7 @@ export function UploadTemplateModal({ open, onClose }: { open: boolean; onClose:
             («Choose File · No file chosen» in a Russian interface): it stays
             hidden, and a button in ours opens it. */}
         <div role="group" aria-labelledby={fileLabelId} className="flex flex-col gap-1.5">
-          <span id={fileLabelId} className="text-[12px] font-semibold tracking-wide text-slate-600 uppercase">
+          <span id={fileLabelId} className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
             {t('wording.upload.file')}
           </span>
           <input
@@ -119,25 +119,25 @@ export function UploadTemplateModal({ open, onClose }: { open: boolean; onClose:
               {file ? t('wording.upload.chooseOther') : t('wording.upload.choose')}
             </Button>
             {file ? (
-              <span className="flex min-w-0 items-center gap-1.5 text-[13px] text-slate-700">
+              <span className="flex min-w-0 items-center gap-1.5 text-[0.8125rem] text-slate-700">
                 <FileText aria-hidden className="size-4 shrink-0 text-accent-500" />
                 <span className="truncate" title={file.name}>
                   {file.name}
                 </span>
               </span>
             ) : (
-              <span className="text-[13px] text-slate-400">{t('wording.upload.noFile')}</span>
+              <span className="text-[0.8125rem] text-slate-400">{t('wording.upload.noFile')}</span>
             )}
           </div>
           <span className="text-xs text-slate-500">{t('wording.upload.fileHint', WORDING_SYNTAX)}</span>
         </div>
         {inspection?.error && (
-          <div className="rounded-md border border-neg-500/30 bg-neg-50 px-3 py-2 text-[13px] text-neg-500" role="alert">
+          <div className="rounded-md border border-neg-500/30 bg-neg-50 px-3 py-2 text-[0.8125rem] text-neg-500" role="alert">
             {t('wording.errors.invalidTemplate')} <span className="font-mono">{inspection.error}</span>
           </div>
         )}
         {inspection && !inspection.error && (
-          <div className="text-[13px] text-slate-600">
+          <div className="text-[0.8125rem] text-slate-600">
             {t('wording.upload.found', { count: inspection.placeholders.length })}
             {inspection.unknown.length > 0 && (
               <div className="mt-1 rounded-md border border-warn-500/30 bg-warn-50 px-3 py-2 text-warn-500">
@@ -182,7 +182,7 @@ export function UploadTemplateModal({ open, onClose }: { open: boolean; onClose:
           <Textarea rows={2} value={description} onChange={(e) => setDescription(e.target.value)} />
         </Field>
         {error && (
-          <div className="rounded-md border border-neg-500/30 bg-neg-50 px-3 py-2 text-[13px] text-neg-500" role="alert">
+          <div className="rounded-md border border-neg-500/30 bg-neg-50 px-3 py-2 text-[0.8125rem] text-neg-500" role="alert">
             {error}
           </div>
         )}

@@ -268,7 +268,7 @@ export function ClaimDetailPage() {
         }
       >
         {error && <Callout tone="neg" title={error} />}
-        <p className="text-[13px] leading-relaxed text-slate-600">
+        <p className="text-[0.8125rem] leading-relaxed text-slate-600">
           {pending === 'approve' ? t('claims.approveHint') : t('claims.transitionHint')}
         </p>
         <Field
@@ -303,7 +303,7 @@ function OverviewTab({ claimId }: { claimId: string }) {
                 <>
                   {t(`claims.causes.${claim.cause_of_loss}`)}
                   {claim.insolvency_reference && (
-                    <span className="block text-[12px] font-normal text-slate-500">{claim.insolvency_reference}</span>
+                    <span className="block text-[0.75rem] font-normal text-slate-500">{claim.insolvency_reference}</span>
                   )}
                 </>
               ),

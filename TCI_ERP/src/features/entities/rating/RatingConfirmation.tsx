@@ -134,7 +134,7 @@ export function RatingConfirmation({
         </Button>
       )}
       {ownRating && !proposalPending && (
-        <span className="ml-auto text-[13px] text-slate-500">{t('rating.confirmation.ownRating')}</span>
+        <span className="ml-auto text-[0.8125rem] text-slate-500">{t('rating.confirmation.ownRating')}</span>
       )}
 
       <Modal

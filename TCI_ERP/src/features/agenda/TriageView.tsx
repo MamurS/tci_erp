@@ -146,7 +146,7 @@ export function TriageView(props: TriageProps) {
       className="grid gap-5 lg:h-[var(--triage-h,36rem)] lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]"
     >
       <Card className="flex min-h-0 flex-col overflow-hidden" data-triage-pane="queue">
-        <p data-triage-pane-head className="shrink-0 border-b border-slate-100 px-4 py-2.5 text-[12.5px] text-slate-600">
+        <p data-triage-pane-head className="shrink-0 border-b border-slate-100 px-4 py-2.5 text-[0.7812rem] text-slate-600">
           {t('agenda.triage.position', { index: position, total: live.length })}
         </p>
         <div data-triage-scroll className="max-h-[60vh] min-h-0 flex-1 overflow-y-auto lg:max-h-none">
@@ -162,7 +162,7 @@ export function TriageView(props: TriageProps) {
             return (
               <div key={group}>
                 <div
-                  className={`sticky top-0 z-10 border-b border-slate-100 bg-slate-50 px-4 py-1.5 text-[11.5px] font-bold tracking-[0.08em] uppercase ${
+                  className={`sticky top-0 z-10 border-b border-slate-100 bg-slate-50 px-4 py-1.5 text-[0.7188rem] font-bold tracking-[0.08em] uppercase ${
                     kind === 'due' && group === 'overdue' ? 'text-neg-600' : 'text-slate-700'
                   }`}
                 >
@@ -238,10 +238,10 @@ function QueueItem({
         } ${gone ? 'opacity-60' : ''}`}
       >
         <span className="min-w-0 flex-1">
-          <span className={`block truncate text-[13.5px] font-semibold ${gone ? 'text-slate-600 line-through' : selected ? 'text-accent-700' : 'text-slate-900'}`}>
+          <span className={`block truncate text-[0.8438rem] font-semibold ${gone ? 'text-slate-600 line-through' : selected ? 'text-accent-700' : 'text-slate-900'}`}>
             {what}
           </span>
-          <span className="block truncate text-[12px] text-slate-600">
+          <span className="block truncate text-[0.75rem] text-slate-600">
             {gone
               ? t('agenda.triage.handled', { time: handledAt ? formatMoment(new Date(handledAt), locale).split(', ').slice(-1)[0] : '' })
               : [company, ref].filter(Boolean).join(' · ')}
@@ -251,7 +251,7 @@ function QueueItem({
           <Check aria-label={t('agenda.triage.handledLabel')} className="size-4 shrink-0 text-pos-500" />
         ) : (
           <span
-            className={`num shrink-0 text-[12.5px] font-semibold tabular-nums ${
+            className={`num shrink-0 text-[0.7812rem] font-semibold tabular-nums ${
               bucket === 'overdue' ? 'text-neg-600' : 'text-slate-700'
             }`}
           >
@@ -424,7 +424,7 @@ function DetailPanel({
             groupLimit={lead.task_type === 'limit_escalated' && lead.params?.reason === 'group_limit'}
           />
           {dueText && (
-            <span className={`text-[13px] font-semibold ${bucket === 'overdue' ? 'text-neg-600' : 'text-slate-700'}`} title={row.dueAt ? formatDue(row.dueAt, locale) : undefined}>
+            <span className={`text-[0.8125rem] font-semibold ${bucket === 'overdue' ? 'text-neg-600' : 'text-slate-700'}`} title={row.dueAt ? formatDue(row.dueAt, locale) : undefined}>
               {dueText}
             </span>
           )}
@@ -432,12 +432,12 @@ function DetailPanel({
             <OwnerAvatar task={lead} staff={staff} />
           </span>
         </div>
-        <h2 className="mt-3 text-[20px] leading-snug font-semibold text-slate-900">
+        <h2 className="mt-3 text-[1.25rem] leading-snug font-semibold text-slate-900">
           {row.kind === 'collapsed'
             ? t(`agenda.row.collapsed.${row.displayType}`, { count: row.items.length })
             : rowTitle(row, t, locale, undefined, null)}
         </h2>
-        <p className="mt-1 text-[13.5px] text-slate-600">
+        <p className="mt-1 text-[0.8438rem] text-slate-600">
           {[
             company && object ? (
               <Link key="c" to={object} className="font-medium text-accent-600 hover:underline">
@@ -458,7 +458,7 @@ function DetailPanel({
               </span>
             ))}
         </p>
-        {snoozed && <p className="mt-1 text-[13px] text-slate-600">{snoozedText(lead, t, locale, staff)}</p>}
+        {snoozed && <p className="mt-1 text-[0.8125rem] text-slate-600">{snoozedText(lead, t, locale, staff)}</p>}
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <LinkButton to={dest.path} onClick={() => onHandled(row)}>
@@ -483,7 +483,7 @@ function DetailPanel({
             </Button>
           )}
         </div>
-        <p className="mt-2 flex flex-wrap items-center gap-1 text-[12.5px] text-slate-600">
+        <p className="mt-2 flex flex-wrap items-center gap-1 text-[0.7812rem] text-slate-600">
           <CornerDownRight aria-hidden className="size-3.5 text-slate-500" />
           {t('agenda.dest.opens')}{' '}
           <span className="font-semibold text-accent-700">{dest.crumbs.map((c) => crumbText(c, t)).join(' › ')}</span>
@@ -493,13 +493,13 @@ function DetailPanel({
 
       <div data-triage-scroll className="min-h-0 flex-1 p-6 pt-5 lg:overflow-y-auto">
         <section aria-label={t('agenda.comments.title', { count: humanCount })}>
-          <h3 className="mb-3 text-[11.5px] font-bold tracking-[0.08em] text-slate-600 uppercase">
+          <h3 className="mb-3 text-[0.7188rem] font-bold tracking-[0.08em] text-slate-600 uppercase">
             {t('agenda.comments.title', { count: humanCount })}
           </h3>
           <ol className="flex flex-col gap-3">
             {thread.map((entry) =>
               entry.system ? (
-                <li key={entry.key} className="flex gap-3 rounded-md border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-[13.5px] text-slate-700">
+                <li key={entry.key} className="flex gap-3 rounded-md border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-[0.8438rem] text-slate-700">
                   <Zap aria-hidden className="mt-0.5 size-4 shrink-0 text-slate-500" />
                   <span>
                     <span className="font-semibold text-slate-800">{t('agenda.comments.systemNote')}</span>
@@ -509,20 +509,20 @@ function DetailPanel({
                 </li>
               ) : (
                 <li key={entry.key} className="flex gap-3">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent-100 text-[11px] font-bold text-accent-700">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-accent-100 text-[0.6875rem] font-bold text-accent-700">
                     {entry.who.split(/\s+/).map((w) => w[0]).slice(0, 2).join('').toUpperCase()}
                   </span>
                   <div className="min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-3.5 py-2.5">
-                    <p className="text-[12.5px] text-slate-600">
+                    <p className="text-[0.7812rem] text-slate-600">
                       <span className="font-semibold text-slate-900">{entry.who}</span>
                       {entry.role && ` · ${entry.role}`} · {formatMoment(entry.at, locale)}
                     </p>
-                    <p className="mt-1 text-[14px] whitespace-pre-line text-slate-800">{entry.body}</p>
+                    <p className="mt-1 text-[0.875rem] whitespace-pre-line text-slate-800">{entry.body}</p>
                   </div>
                 </li>
               ),
             )}
-            {thread.length === 0 && !commenting && <li className="text-[13px] text-slate-600">{t('agenda.comments.none')}</li>}
+            {thread.length === 0 && !commenting && <li className="text-[0.8125rem] text-slate-600">{t('agenda.comments.none')}</li>}
           </ol>
           {commenting && (
             <div className="mt-3">
@@ -551,10 +551,10 @@ function History({
   if (shown.length === 0) return null
   return (
     <section className="mt-6 border-t border-slate-100 pt-5">
-      <h3 className="mb-3 text-[11.5px] font-bold tracking-[0.08em] text-slate-600 uppercase">{t('agenda.history.title')}</h3>
+      <h3 className="mb-3 text-[0.7188rem] font-bold tracking-[0.08em] text-slate-600 uppercase">{t('agenda.history.title')}</h3>
       <ol className="flex flex-col gap-2">
         {shown.map((e) => (
-          <li key={e.id} className="grid grid-cols-[9rem_1fr] gap-4 text-[13.5px]">
+          <li key={e.id} className="grid grid-cols-[9rem_1fr] gap-4 text-[0.8438rem]">
             <span className="text-slate-600 tabular-nums">{formatMoment(e.created_at, i18n.language)}</span>
             <span className="text-slate-800">
               {t(`agenda.history.events.${e.event_type.replace(/\./g, '_')}`, {

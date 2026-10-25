@@ -118,7 +118,7 @@ export function SendForValidationModal({
         </Callout>
       )}
 
-      <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] text-slate-700">
+      <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[0.8125rem] text-slate-700">
         <span className="text-slate-500">{t('limits.validation.proposal')}: </span>
         {proposal}
       </div>
@@ -129,7 +129,7 @@ export function SendForValidationModal({
             <Skeleton className="h-12 w-full" />
           </div>
         ) : route.isError ? (
-          <p className="text-[13px] text-neg-500" role="alert">
+          <p className="text-[0.8125rem] text-neg-500" role="alert">
             {t('limits.validation.routeFailed')}
           </p>
         ) : preview && !preview.available ? (
@@ -161,7 +161,7 @@ export function SendForValidationModal({
       </Field>
 
       {error && (
-        <p className="text-[13px] text-neg-500" role="alert">
+        <p className="text-[0.8125rem] text-neg-500" role="alert">
           {error}
         </p>
       )}

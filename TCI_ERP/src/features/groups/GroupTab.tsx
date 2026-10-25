@@ -140,7 +140,7 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
   return (
     <div className="flex flex-col gap-5">
       {error && (
-        <p className="text-[13px] text-neg-500" role="alert">
+        <p className="text-[0.8125rem] text-neg-500" role="alert">
           {error}
         </p>
       )}
@@ -163,10 +163,10 @@ export function GroupTab({ entityId, entityName }: { entityId: string; entityNam
 
         {outside.length > 0 && (
           <div>
-            <h4 className="mb-1 text-[13px] font-semibold text-slate-700">
+            <h4 className="mb-1 text-[0.8125rem] font-semibold text-slate-700">
               {t('groups.tree.outside')}
             </h4>
-            <p className="mb-1.5 text-[12px] text-slate-500">{t('groups.tree.outsideHint')}</p>
+            <p className="mb-1.5 text-[0.75rem] text-slate-500">{t('groups.tree.outsideHint')}</p>
             <ul className="flex flex-wrap gap-2">
               {outside.map((id) => (
                 <li key={id}>

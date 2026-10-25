@@ -92,7 +92,7 @@ export function CreateOfferModal({
           />
           <span>
             {t('offers.fields.includeBrochure')}
-            <span className="block text-[12.5px] text-slate-500">{t('offers.create.brochureHint')}</span>
+            <span className="block text-[0.7812rem] text-slate-500">{t('offers.create.brochureHint')}</span>
           </span>
         </label>
         {error && <Callout tone="neg" title={error} />}

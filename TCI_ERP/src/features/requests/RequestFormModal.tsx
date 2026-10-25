@@ -93,7 +93,7 @@ export function RequestFormModal({ open, onClose }: { open: boolean; onClose: ()
 
         <div>
           <div className="mb-1.5 flex items-center justify-between">
-            <span className="text-[12px] font-semibold tracking-wide text-slate-600 uppercase">
+            <span className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
               {t('requests.buyerPackage')}
             </span>
             <Button
@@ -171,7 +171,7 @@ export function RequestFormModal({ open, onClose }: { open: boolean; onClose: ()
         </Field>
 
         {error && (
-          <p className="text-[13px] text-neg-500" role="alert">
+          <p className="text-[0.8125rem] text-neg-500" role="alert">
             {error}
           </p>
         )}

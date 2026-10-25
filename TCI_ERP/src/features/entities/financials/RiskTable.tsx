@@ -53,7 +53,7 @@ function RiskDelta({ row, delta, locale }: { row: RiskRowDef; delta: number; loc
   const improvement = direction === 'up_good' ? up : !up
   return (
     <span className={`num block ${improvement ? 'text-pos-500' : 'text-neg-500'}`}>
-      <span aria-hidden="true" className="mr-0.5 align-[1px] text-[9px]">
+      <span aria-hidden="true" className="mr-0.5 align-[1px] text-[0.5625rem]">
         {up ? '▲' : '▼'}
       </span>
       {formatValue(row, Math.abs(delta), locale)}
@@ -92,7 +92,7 @@ export function RiskTable({ periods }: { periods: RiskPeriod[] }) {
 
   return (
     <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-      <table className="w-full border-collapse text-[13px]">
+      <table className="w-full border-collapse text-[0.8125rem]">
         <thead>
           <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
             <th className="sticky left-0 z-10 min-w-56 bg-slate-50 text-left">

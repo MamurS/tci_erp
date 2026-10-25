@@ -47,7 +47,7 @@ export function DeltaCell({
   const tone = Math.abs(value) < 0.0005 ? 'text-slate-400' : improvement ? 'text-pos-500' : 'text-neg-500'
   return (
     <span className={`num block ${tone}`}>
-      <span aria-hidden="true" className="mr-0.5 text-[9px] align-[1px]">
+      <span aria-hidden="true" className="mr-0.5 text-[0.5625rem] align-[1px]">
         {arrow}
       </span>
       {formatPercent(Math.abs(value), locale)}

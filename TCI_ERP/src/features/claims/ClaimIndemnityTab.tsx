@@ -53,7 +53,7 @@ export function ClaimIndemnityTab({ claim }: { claim: Claim }) {
             {t('claims.indemnity.liveTitle')}
           </summary>
           <div className="border-t border-slate-100 px-5 pt-3 pb-5">
-            <p className="mb-4 text-[13px] text-slate-600">{t('claims.indemnity.liveExplain')}</p>
+            <p className="mb-4 text-[0.8125rem] text-slate-600">{t('claims.indemnity.liveExplain')}</p>
             <TraceCard trace={live} claim={claim} locale={locale} live />
           </div>
         </details>
@@ -102,7 +102,7 @@ function TraceCard({
             <td colSpan={2} className="font-semibold text-slate-900">
               {live ? t('claims.indemnity.payableEstimate') : t('claims.indemnity.payable')}
             </td>
-            <td className="num text-[15px] font-bold text-accent-700">
+            <td className="num text-[0.9375rem] font-bold text-accent-700">
               {formatAmount(Number(trace.payable), locale)} {currency}
             </td>
           </tr>

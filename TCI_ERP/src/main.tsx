@@ -12,9 +12,12 @@ import './index.css'
 import App from './App'
 import { AuthProvider } from './auth/AuthContext'
 import { trackFocusSource } from './lib/focusSource'
+import { initUiScale } from './lib/uiScale'
 
 // Focus rings for keyboard focus only (lib/focusSource.ts, index.css).
 trackFocusSource()
+// The interface text size before the first paint (lib/uiScale.ts).
+initUiScale()
 
 const mutationCache = new MutationCache()
 // Dev only: `[mutation] <key> <ms>` per write (lib/mutationTiming.ts). The

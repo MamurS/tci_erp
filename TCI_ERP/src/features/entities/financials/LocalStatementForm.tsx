@@ -140,8 +140,8 @@ export function LocalStatementForm({ frameworkCode, existing, onStateChange }: L
                     <span className="num truncate text-xs text-slate-400" title={line.line_code}>
                       {line.line_code}
                     </span>
-                    <div style={{ paddingLeft: `${line.indent_level * 14}px` }}>
-                      <span className="text-[13px] text-slate-700">{localName(line, locale)}</span>
+                    <div style={{ paddingLeft: `${line.indent_level * 0.875}rem` }}>
+                      <span className="text-[0.8125rem] text-slate-700">{localName(line, locale)}</span>
                       {line.is_deduction && (
                         <span className="ml-1 text-xs text-slate-400" title={t('fin.local.deductionHint')}>
                           (−)
@@ -172,7 +172,7 @@ export function LocalStatementForm({ frameworkCode, existing, onStateChange }: L
           </div>
 
           {crossChecks.length > 0 && (
-            <div className="border-t border-warn-500/30 bg-warn-50 px-4 py-2 text-[13px] text-warn-500">
+            <div className="border-t border-warn-500/30 bg-warn-50 px-4 py-2 text-[0.8125rem] text-warn-500">
               <p className="font-medium">{t('fin.local.crossCheckTitle')}</p>
               <ul className="mt-0.5 list-inside list-disc">
                 {crossChecks.map((w) => (
@@ -218,7 +218,7 @@ function LocalLineInput({
         setRaw(plain)
         onChange(parseAmount(plain))
       }}
-      className={`h-7! rounded! px-2! py-1! text-[13px]! ${
+      className={`h-7! rounded! px-2! py-1! text-[0.8125rem]! ${
         hasWarning ? 'border-warn-500/50! bg-warn-50!' : 'border-slate-200!'
       }`}
     />

@@ -37,7 +37,7 @@ export function TempPasswordPanel({
   return (
     <Card className="border-pos-500/40 bg-pos-50/40 p-4">
       <h3 className="text-sm font-semibold text-slate-900">{t('provisioning.credentials')}</h3>
-      <p className="mt-0.5 text-[13px] text-warn-500">{t('provisioning.shownOnce')}</p>
+      <p className="mt-0.5 text-[0.8125rem] text-warn-500">{t('provisioning.shownOnce')}</p>
 
       <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
         <dt className="text-slate-500">{t('provisioning.fields.email')}</dt>

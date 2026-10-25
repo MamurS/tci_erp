@@ -204,14 +204,14 @@ export function StatementFormPage() {
       />
 
       {error && (
-        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[13px] text-neg-500" role="alert">
+        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] text-neg-500" role="alert">
           {error}
         </div>
       )}
 
       {/* Accounting basis (fixed after creation) */}
       <Card className="mb-5 flex flex-wrap items-center gap-4 p-5">
-        <span className="text-[13px] font-medium text-slate-600">{t('fin.local.basis')}</span>
+        <span className="text-[0.8125rem] font-medium text-slate-600">{t('fin.local.basis')}</span>
         <Segmented
           value={basis}
           onChange={(key) => {
@@ -229,7 +229,7 @@ export function StatementFormPage() {
             },
           ]}
         />
-        <div className="basis-full text-[13px] text-slate-500">
+        <div className="basis-full text-[0.8125rem] text-slate-500">
           {basis === 'local' && templates?.length ? (
             <>
               {templates.map((x) => templateName(x, locale)).join(' + ')}
@@ -401,7 +401,7 @@ function StatementSectionGrid<K extends string>({
         ))}
       </div>
       {warnings.some((w) => w.totalKey === 'balance_equation') && (
-        <div className="border-t border-warn-500/30 bg-warn-50 px-4 py-2 text-[13px] text-warn-500">
+        <div className="border-t border-warn-500/30 bg-warn-50 px-4 py-2 text-[0.8125rem] text-warn-500">
           {t('fin.warnings.balanceEquation')}
         </div>
       )}
@@ -440,7 +440,7 @@ function LineInput<K extends string>({
   return (
     <div className={`grid grid-cols-[1fr_170px] items-center gap-2 border-t border-slate-100 px-4 py-1 ${emphasis}`}>
       <div>
-        <span className="text-[13px] text-slate-700">{t(`fin.lines.${line.key}`)}</span>
+        <span className="text-[0.8125rem] text-slate-700">{t(`fin.lines.${line.key}`)}</span>
         {warning && warning.totalKey !== 'balance_equation' && (
           <span className="ml-2 text-xs text-warn-500">
             {t('fin.warnings.subtotalMismatch', {
@@ -456,7 +456,7 @@ function LineInput<K extends string>({
           setRaw(plain)
           onChange(parseAmount(plain))
         }}
-        className={`h-7! rounded! px-2! py-1! text-[13px]! ${
+        className={`h-7! rounded! px-2! py-1! text-[0.8125rem]! ${
           warning ? 'border-warn-500/50! bg-warn-50!' : 'border-slate-200!'
         }`}
       />

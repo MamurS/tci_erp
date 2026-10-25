@@ -9,7 +9,7 @@ import { Card } from '../../components/ui'
 export function ServiceUnavailableNotice() {
   const { t } = useTranslation()
   return (
-    <Card className="border-warn-500/30 bg-warn-50 p-4 text-[13px] text-warn-500">
+    <Card className="border-warn-500/30 bg-warn-50 p-4 text-[0.8125rem] text-warn-500">
       <p className="font-medium">{t('provisioning.serviceUnavailable')}</p>
       <p className="mt-0.5">{t('provisioning.serviceUnavailableHint')}</p>
     </Card>

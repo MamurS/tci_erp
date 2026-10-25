@@ -42,7 +42,7 @@ export function LocalSourceModal({ open, onClose, statement }: LocalSourceModalP
               <h3 className="mb-2 text-sm font-semibold text-slate-900">
                 {templateName(template, locale)}
               </h3>
-              <table className="w-full border-collapse text-[13px]">
+              <table className="w-full border-collapse text-[0.8125rem]">
                 <tbody>
                   {template.statement_template_lines.map((line, idx) => {
                     const prev = template.statement_template_lines[idx - 1]
@@ -66,7 +66,7 @@ export function LocalSourceModal({ open, onClose, statement }: LocalSourceModalP
                           </td>
                           <td
                             className="border-t border-slate-100 px-2 py-1 text-slate-700"
-                            style={{ paddingLeft: `${8 + line.indent_level * 14}px` }}
+                            style={{ paddingLeft: `${0.5 + line.indent_level * 0.875}rem` }}
                           >
                             {lineName(line, locale)}
                           </td>

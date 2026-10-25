@@ -176,7 +176,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
         />
         {/* Display currency */}
         <div className="flex items-center gap-1.5">
-          <span className="text-[13px] text-slate-500">{t('fin.fx.displayCurrency')}:</span>
+          <span className="text-[0.8125rem] text-slate-500">{t('fin.fx.displayCurrency')}:</span>
           <Segmented
             value={displayCurrency}
             ariaLabel={t('fin.fx.displayCurrency')}
@@ -196,17 +196,17 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
       </div>
 
       {displayCurrency === 'original' && hasMixedCurrencyOrUnit(displayedRaw) && (
-        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
+        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
           {t('fin.mixedCurrencyWarning')}
         </div>
       )}
 
       {displayCurrency !== 'original' && ratesLoading && (
-        <div className="mb-4 text-[13px] text-slate-500">{t('fin.fx.loadingRates')}</div>
+        <div className="mb-4 text-[0.8125rem] text-slate-500">{t('fin.fx.loadingRates')}</div>
       )}
 
       {displayCurrency !== 'original' && converted.missing.length > 0 && !ratesLoading && (
-        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
           <span>{t('fin.fx.missingRates')}:</span>
           {converted.missing.map((need) => (
             <button
@@ -222,7 +222,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
       )}
 
       {displayed.some((s) => s.accounting_basis === 'local') && (
-        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-accent-100 bg-accent-50 px-4 py-2 text-[13px] text-accent-700">
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-accent-100 bg-accent-50 px-4 py-2 text-[0.8125rem] text-accent-700">
           <span>{t('fin.local.mappedIndicator')}</span>
           {displayed
             .filter((s) => s.accounting_basis === 'local')
@@ -370,7 +370,7 @@ function ManualRateModal({ need, onClose }: { need: RateNeed; onClose: () => voi
         </>
       }
     >
-      <p className="mb-3 text-[13px] text-slate-500">{t('fin.fx.manualHint')}</p>
+      <p className="mb-3 text-[0.8125rem] text-slate-500">{t('fin.fx.manualHint')}</p>
       <AmountInput
         decimals={6}
         value={raw}
@@ -409,7 +409,7 @@ function PeriodSelector({
 
   return (
     <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={t('fin.periods')}>
-      <span className="mr-1 text-[13px] text-slate-500">{t('fin.periods')}:</span>
+      <span className="mr-1 text-[0.8125rem] text-slate-500">{t('fin.periods')}:</span>
       {ordered.map((s) => {
         const active = displayedIds.includes(s.id)
         return (
@@ -485,7 +485,7 @@ function ManageStatementsModal({
     <>
       <Modal open={open} onClose={onClose} title={t('fin.manageStatements')} wide>
         {deleteFailed && (
-          <p className="mb-3 text-[13px] text-neg-500" role="alert">
+          <p className="mb-3 text-[0.8125rem] text-neg-500" role="alert">
             {t('fin.deleteStatement.failed')}
           </p>
         )}

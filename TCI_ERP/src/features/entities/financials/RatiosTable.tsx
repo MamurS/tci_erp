@@ -38,7 +38,7 @@ export function RatiosTable({ displayed }: { displayed: StatementBundle[] }) {
   return (
     <div>
       <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-        <table className="w-full border-collapse text-[13px]">
+        <table className="w-full border-collapse text-[0.8125rem]">
           <thead>
             <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
               <th className="text-left">{t('fin.ratioHeader')}</th>

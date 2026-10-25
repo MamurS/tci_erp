@@ -170,7 +170,7 @@ function SubmissionCard({
             {showTerms ? (
               <DescriptionList items={terms} />
             ) : (
-              <p className="text-[13px] text-slate-500">
+              <p className="text-[0.8125rem] text-slate-500">
                 {t('portal.submissions.termsNotYet')}
               </p>
             )}
@@ -182,7 +182,7 @@ function SubmissionCard({
                 {t('portal.submissions.buyers')}
               </h3>
               {!buyers?.length ? (
-                <p className="text-[13px] text-slate-500">{t('portal.submissions.noBuyers')}</p>
+                <p className="text-[0.8125rem] text-slate-500">{t('portal.submissions.noBuyers')}</p>
               ) : (
                 <Table dense columns={[COL.fill, COL.money]}>
                   <tbody>
@@ -206,9 +206,9 @@ function SubmissionCard({
                 {t('portal.submissions.progress')}
               </h3>
               {!history?.length ? (
-                <p className="text-[13px] text-slate-500">{t('portal.submissions.noHistory')}</p>
+                <p className="text-[0.8125rem] text-slate-500">{t('portal.submissions.noHistory')}</p>
               ) : (
-                <ol className="flex flex-col gap-1.5 text-[13px]">
+                <ol className="flex flex-col gap-1.5 text-[0.8125rem]">
                   {history.map((h) => (
                     <li key={h.id} className="flex justify-between gap-3">
                       <span className="text-slate-700">

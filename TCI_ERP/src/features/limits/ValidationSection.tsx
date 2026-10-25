@@ -255,7 +255,7 @@ export function ValidationPanel({ request, step, level, onResolved }: PanelProps
       )}
 
       {step.comment && (
-        <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] text-slate-700">
+        <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[0.8125rem] text-slate-700">
           <span className="block text-xs font-medium text-slate-500">
             {t('limits.validation.panel.authorComment', { author: step.proposed_by_name ?? EM_DASH })}
           </span>
@@ -356,7 +356,7 @@ function ProposalFacts({
     <div className="flex flex-col gap-3">
       <DescriptionList items={items} />
       {conditions.length > 0 && (
-        <div className="text-[13px]">
+        <div className="text-[0.8125rem]">
           <span className="text-slate-500">{t('limits.fields.conditions')}</span>
           <ul className="mt-1 flex list-disc flex-col gap-0.5 pl-5 text-slate-700">
             {conditions.map((c, i) => (
@@ -382,7 +382,7 @@ function BuyerKeyFigures({ entityId }: { entityId: string }) {
   const series = annualSeries(statements.data ?? [], latestAnnualType(statements.data ?? [])).slice(-2)
   const latest = series[series.length - 1]
   if (!latest) {
-    return <p className="text-[13px] text-slate-500">{t('limits.validation.panel.noFinancials')}</p>
+    return <p className="text-[0.8125rem] text-slate-500">{t('limits.validation.panel.noFinancials')}</p>
   }
   const figures = keyFigures(series)
   const show = (format: 'amount' | 'percent' | 'ratio', v: number | null) =>
@@ -404,7 +404,7 @@ function BuyerKeyFigures({ entityId }: { entityId: string }) {
   }))
   return (
     <div>
-      <p className="mb-1.5 text-[12px] font-medium text-slate-500">
+      <p className="mb-1.5 text-[0.75rem] font-medium text-slate-500">
         {t('limits.validation.panel.financials', { year: latest.fiscal_year })}
       </p>
       <KeyFigures items={items} className="" />
@@ -520,7 +520,7 @@ function ResolveModal({
         </>
       }
     >
-      <p className="text-[13px] text-slate-600">
+      <p className="text-[0.8125rem] text-slate-600">
         {t(`limits.validation.confirm.${action}`, { amount: amountText })}
         {action === 'reject' && ` ${t(`limits.validation.confirm.rejectEffect.${step.stream}`)}`}
       </p>
@@ -542,7 +542,7 @@ function ResolveModal({
       )}
 
       {outcomePreview && !passesOn && (
-        <p className="text-[13px] text-slate-600">
+        <p className="text-[0.8125rem] text-slate-600">
           {t('limits.validation.recordsAs')}{' '}
           <Badge tone={outcomeTone(outcomePreview)}>{t(`limits.outcomes.${outcomePreview}`)}</Badge>
         </p>
@@ -561,7 +561,7 @@ function ResolveModal({
         )
       )}
 
-      {action === 'forward' && <p className="text-[13px] text-slate-600">{t('limits.validation.forwardHint')}</p>}
+      {action === 'forward' && <p className="text-[0.8125rem] text-slate-600">{t('limits.validation.forwardHint')}</p>}
 
       <Field
         label={t('limits.validation.resolutionComment')}
@@ -571,7 +571,7 @@ function ResolveModal({
       </Field>
 
       {error && (
-        <p className="text-[13px] text-neg-500" role="alert">
+        <p className="text-[0.8125rem] text-neg-500" role="alert">
           {error}
         </p>
       )}
@@ -662,7 +662,7 @@ export function CommitteePanel({
         <ProposalFacts step={step} proposal={proposal.data ?? null} request={request} />
       )}
       {step.comment && (
-        <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] text-slate-700">
+        <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[0.8125rem] text-slate-700">
           <span className="block text-xs font-medium text-slate-500">
             {t('limits.validation.panel.authorComment', { author: step.proposed_by_name ?? EM_DASH })}
           </span>
@@ -686,7 +686,7 @@ export function CommitteePanel({
           },
         ]}
       />
-      <p className="text-[13px] text-slate-600">
+      <p className="text-[0.8125rem] text-slate-600">
         {t('limits.validation.committeePanel.chair', { name: committee.chair_name ?? EM_DASH })}
         {' · '}
         {t('limits.validation.committeePanel.rule')}
@@ -723,7 +723,7 @@ export function CommitteePanel({
         </Table>
       )}
       {committee.conflicts.length > 0 && (
-        <ul className="flex list-disc flex-col gap-0.5 pl-5 text-[13px] text-slate-600">
+        <ul className="flex list-disc flex-col gap-0.5 pl-5 text-[0.8125rem] text-slate-600">
           {committee.conflicts.map((c) => (
             <li key={c.member}>
               {t('limits.validation.committeePanel.conflictOf', { name: c.name ?? EM_DASH })}: {c.reason}
@@ -733,12 +733,12 @@ export function CommitteePanel({
       )}
 
       {committee.my_vote && (
-        <p className="text-[13px] text-slate-600">
+        <p className="text-[0.8125rem] text-slate-600">
           {t('limits.validation.committeePanel.myVote', { vote: t(`limits.validation.votes.${committee.my_vote}`) })}
         </p>
       )}
       {committee.i_am_conflicted && (
-        <p className="text-[13px] text-slate-600">{t('limits.validation.committeePanel.iAmConflicted')}</p>
+        <p className="text-[0.8125rem] text-slate-600">{t('limits.validation.committeePanel.iAmConflicted')}</p>
       )}
 
       {(committee.i_may_vote || committee.i_may_close) && (
@@ -764,7 +764,7 @@ export function CommitteePanel({
             </Button>
           )}
           {committee.i_may_close && !committee.quorum_met && (
-            <span className="text-[13px] text-slate-500">{t('limits.validation.committeePanel.needQuorum')}</span>
+            <span className="text-[0.8125rem] text-slate-500">{t('limits.validation.committeePanel.needQuorum')}</span>
           )}
         </div>
       )}
@@ -791,7 +791,7 @@ export function CommitteePanel({
           }
         >
           {dialog === 'close' && (
-            <p className="text-[13px] text-slate-600">
+            <p className="text-[0.8125rem] text-slate-600">
               {t('limits.validation.committeePanel.closeWillRecord')}{' '}
               <Badge tone={outcome === 'approve' ? 'pos' : outcome === 'reject' ? 'neg' : 'accent'}>
                 {t(`limits.validation.committeeOutcome.${outcome}`)}
@@ -799,7 +799,7 @@ export function CommitteePanel({
             </p>
           )}
           {dialog === 'conflict' && (
-            <p className="text-[13px] text-slate-600">{t('limits.validation.committeePanel.conflictNote')}</p>
+            <p className="text-[0.8125rem] text-slate-600">{t('limits.validation.committeePanel.conflictNote')}</p>
           )}
           <Field
             label={
@@ -814,7 +814,7 @@ export function CommitteePanel({
             <Textarea rows={3} value={comment} onChange={(e) => setComment(e.target.value)} />
           </Field>
           {error && (
-            <p className="text-[13px] text-neg-500" role="alert">
+            <p className="text-[0.8125rem] text-neg-500" role="alert">
               {error}
             </p>
           )}

@@ -180,7 +180,7 @@ export function ImportCard({ onImported }: { onImported: (importId: string) => v
               <FileUp aria-hidden />
               {t('premium.bank.import.choose')}
             </Button>
-            <span className="min-w-0 truncate text-[13px] text-slate-600" title={file?.name}>
+            <span className="min-w-0 truncate text-[0.8125rem] text-slate-600" title={file?.name}>
               {reading ? t('premium.bank.import.reading') : (file?.name ?? t('premium.bank.import.noFile'))}
             </span>
           </span>
@@ -251,7 +251,7 @@ export function ImportCard({ onImported }: { onImported: (importId: string) => v
                 >
                   {t('premium.bank.mapping.save')}
                 </Button>
-                <span className="pb-2 text-[13px] text-slate-500" role="status">
+                <span className="pb-2 text-[0.8125rem] text-slate-500" role="status">
                   {saved ? t('premium.bank.mapping.saved') : ''}
                 </span>
               </div>
@@ -305,7 +305,7 @@ function Preview({ parsed, locale }: { parsed: ReturnType<typeof applyMapping>; 
   const shown = parsed.lines.slice(0, PREVIEW_ROWS)
   return (
     <div className="flex flex-col gap-3">
-      <dl className="flex flex-wrap gap-x-6 gap-y-1 text-[13px]">
+      <dl className="flex flex-wrap gap-x-6 gap-y-1 text-[0.8125rem]">
         <div className="flex gap-1.5">
           <dt className="text-slate-500">{t('premium.bank.preview.kept')}</dt>
           <dd className="font-semibold text-slate-800 tabular-nums">{parsed.lines.length}</dd>
@@ -371,7 +371,7 @@ function Preview({ parsed, locale }: { parsed: ReturnType<typeof applyMapping>; 
                   <td>
                     <PayerPurpose payer={l.payer} purpose={l.purpose} />
                   </td>
-                  <td className="font-mono text-[12px]">{l.reference ?? EM_DASH}</td>
+                  <td className="font-mono text-[0.75rem]">{l.reference ?? EM_DASH}</td>
                 </tr>
               ))}
             </tbody>

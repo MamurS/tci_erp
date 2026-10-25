@@ -63,7 +63,7 @@ export function AuthorityView() {
       <ViewBar hint={t('limits.workbench.authority.subtitle')} />
 
       {isAdmin && (
-        <Card className="mb-5 border-accent-200 bg-accent-50/50 p-4 text-[13px] text-accent-700">
+        <Card className="mb-5 border-accent-200 bg-accent-50/50 p-4 text-[0.8125rem] text-accent-700">
           {t('admin.adminDecidesNothing')}
         </Card>
       )}
@@ -127,7 +127,7 @@ export function AuthorityView() {
                         {/* From over to: two dates side by side did not fit the panel. */}
                         <td className="text-slate-600">
                           <span className="block">{formatDate(g.valid_from, locale)}</span>
-                          <span className="block text-[12px] text-slate-500">
+                          <span className="block text-[0.75rem] text-slate-500">
                             {g.valid_to ? formatDate(g.valid_to, locale) : t('admin.openEnded')}
                           </span>
                         </td>

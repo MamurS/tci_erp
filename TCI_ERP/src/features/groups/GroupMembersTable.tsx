@@ -76,7 +76,7 @@ export function GroupMembersTable({
                   </Link>
                   {m.member_is_ultimate_parent && <Badge tone="accent">{t('groups.ultimateParent')}</Badge>}
                   {m.member_id === focusId && (
-                    <span className="whitespace-nowrap text-[12px] text-slate-400">
+                    <span className="whitespace-nowrap text-[0.75rem] text-slate-400">
                       {t('groups.members.thisCompany')}
                     </span>
                   )}

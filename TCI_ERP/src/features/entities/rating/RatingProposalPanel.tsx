@@ -109,7 +109,7 @@ export function RatingProposalPanel({
         {pending ? (
           <PendingView entityId={entityId} pending={pending} bands={bands} locale={locale} />
         ) : (
-          history.length === 0 && <p className="text-[13px] text-slate-500">{t('rating.proposals.none')}</p>
+          history.length === 0 && <p className="text-[0.8125rem] text-slate-500">{t('rating.proposals.none')}</p>
         )}
 
         {history.length > 0 && <HistoryList state={state.data} locale={locale} />}
@@ -268,7 +268,7 @@ function ProposeModal({
             onChange={(key) => setRoute(key as 'colleague' | 'escalate')}
           />
         </Field>
-        <p className="text-[13px] text-slate-500">
+        <p className="text-[0.8125rem] text-slate-500">
           {route === 'escalate' ? t('rating.proposals.routeHintEscalate') : t('rating.proposals.routeHintColleague')}
         </p>
         {error && (
@@ -395,7 +395,7 @@ function PendingView({
           {t('rating.proposals.sitsWith', { where, date: formatMoment(pending.opened_at, locale) })}
         </span>
       </div>
-      <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[13px] text-slate-700">
+      <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[0.8125rem] text-slate-700">
         <span className="block text-xs font-medium text-slate-500">
           {t('rating.proposals.reasonBy', {
             name: pending.proposed_by_name ?? EM_DASH,
@@ -405,7 +405,7 @@ function PendingView({
         <span className="whitespace-pre-line">{pending.reason}</span>
       </div>
       {!pending.is_committee && (
-        <p className="text-[13px] text-slate-600">
+        <p className="text-[0.8125rem] text-slate-600">
           {pending.answerers.length > 0
             ? t('rating.proposals.answerers', { names: pending.answerers.map((a) => a.name ?? EM_DASH).join(', ') })
             : t('rating.proposals.noAnswerers')}
@@ -429,13 +429,13 @@ function PendingView({
               },
             ]}
           />
-          <p className="text-[13px] text-slate-600">
+          <p className="text-[0.8125rem] text-slate-600">
             {t('limits.validation.committeePanel.chair', { name: committee.chair_name ?? EM_DASH })}
             {' · '}
             {t('limits.validation.committeePanel.rule')}
           </p>
           {committee.votes.length > 0 && (
-            <ul className="flex flex-col gap-1 text-[13px] text-slate-700">
+            <ul className="flex flex-col gap-1 text-[0.8125rem] text-slate-700">
               {committee.votes.map((v) => (
                 <li key={v.voter}>
                   <span className="text-slate-500">{formatMoment(v.voted_at, locale)}</span> · {v.name ?? EM_DASH} ·{' '}
@@ -446,7 +446,7 @@ function PendingView({
             </ul>
           )}
           {committee.conflicts.length > 0 && (
-            <ul className="flex flex-col gap-1 text-[13px] text-slate-500">
+            <ul className="flex flex-col gap-1 text-[0.8125rem] text-slate-500">
               {committee.conflicts.map((c) => (
                 <li key={c.member}>
                   {t('limits.validation.committeePanel.conflictOf', { name: c.name ?? EM_DASH })} — «{c.reason}»
@@ -547,7 +547,7 @@ function PendingView({
 function HistoryList({ state, locale }: { state: ProposalState; locale: string }) {
   const { t } = useTranslation()
   return (
-    <details className="text-[13px] text-slate-700">
+    <details className="text-[0.8125rem] text-slate-700">
       <summary className="cursor-pointer font-medium text-accent-700">
         {t('rating.proposals.history', { count: state.history.length })}
       </summary>

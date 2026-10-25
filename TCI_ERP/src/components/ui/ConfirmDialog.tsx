@@ -48,7 +48,7 @@ export function ConfirmDialog({
         </>
       }
     >
-      <p className="text-[13.5px] leading-relaxed text-slate-600">{message}</p>
+      <p className="text-[0.8438rem] leading-relaxed text-slate-600">{message}</p>
     </Modal>
   )
 }

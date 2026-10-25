@@ -86,9 +86,9 @@ export function MfaVerifyPage() {
         <form className="flex flex-col gap-4" onSubmit={(e) => void submit(e)}>
           <div>
             <h1 className="text-xl font-semibold text-slate-900">{t('mfaVerify.title')}</h1>
-            <p className="mt-0.5 text-[13px] text-slate-500">{t('mfaVerify.hint')}</p>
+            <p className="mt-0.5 text-[0.8125rem] text-slate-500">{t('mfaVerify.hint')}</p>
           </div>
-          <p className="text-[13px] text-slate-500">{session.user.email}</p>
+          <p className="text-[0.8125rem] text-slate-500">{session.user.email}</p>
 
           <Field label={t('mfaVerify.code')}>
             <Input
@@ -104,12 +104,12 @@ export function MfaVerifyPage() {
           </Field>
 
           {error && (
-            <p className="text-[13px] text-neg-500" role="alert">
+            <p className="text-[0.8125rem] text-neg-500" role="alert">
               {error}
             </p>
           )}
           {factorId === null && (
-            <p className="text-[13px] text-slate-500">{t('mfaVerify.noFactor')}</p>
+            <p className="text-[0.8125rem] text-slate-500">{t('mfaVerify.noFactor')}</p>
           )}
 
           <Button type="submit" disabled={busy || code.length !== 6 || !factorId} className="justify-center">

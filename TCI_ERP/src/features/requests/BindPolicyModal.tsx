@@ -42,7 +42,7 @@ export function BindPolicyModal({ request, open, onClose }: Props) {
   const message = (field: keyof BindFormValues) => {
     const error = submitted && errors[field]
     if (!error) return null
-    return <span className="text-[13px] text-neg-500">{t(`requests.bind.validation.${error}`)}</span>
+    return <span className="text-[0.8125rem] text-neg-500">{t(`requests.bind.validation.${error}`)}</span>
   }
 
   const run = async () => {
@@ -92,7 +92,7 @@ export function BindPolicyModal({ request, open, onClose }: Props) {
       </p>
 
       {missing.length > 0 && (
-        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
+        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
           {t('requests.bind.missingTerms', {
             terms: missing.map((term) => t(`requests.terms.${term}`)).join(', '),
           })}
@@ -101,7 +101,7 @@ export function BindPolicyModal({ request, open, onClose }: Props) {
 
       {serverError && (
         <div
-          className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[13px] text-neg-500"
+          className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] text-neg-500"
           role="alert"
         >
           {serverError}
@@ -132,7 +132,7 @@ export function BindPolicyModal({ request, open, onClose }: Props) {
         </div>
       </div>
 
-      <p className="mt-4 text-[13px] text-slate-500">{t('requests.bind.note')}</p>
+      <p className="mt-4 text-[0.8125rem] text-slate-500">{t('requests.bind.note')}</p>
     </Modal>
   )
 }

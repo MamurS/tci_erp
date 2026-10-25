@@ -242,7 +242,7 @@ export function DeclarationDetailPage() {
           </>
         }
       >
-        <p className="text-[13px] leading-relaxed text-slate-600">{t('declarations.disputeHint')}</p>
+        <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t('declarations.disputeHint')}</p>
         <Field label={t('declarations.fields.disputeNote')}>
           <Textarea
             rows={4}

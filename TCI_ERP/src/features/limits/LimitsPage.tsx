@@ -162,7 +162,7 @@ export function LimitsPage() {
           </Select>
         )}
         {showDecision && (
-          <label className="ml-1 inline-flex items-center gap-2 text-[13px] text-slate-600">
+          <label className="ml-1 inline-flex items-center gap-2 text-[0.8125rem] text-slate-600">
             <input
               type="checkbox"
               checked={mineOnly}
@@ -270,7 +270,7 @@ function ScopeCell({ request }: { request: LimitRequestWithRefs }) {
     return (
       <>
         <span className="block whitespace-nowrap text-slate-700">{policy.policy_number}</span>
-        <Truncate text={policy.legal_entities?.name} className="max-w-none text-[12px] text-slate-500">
+        <Truncate text={policy.legal_entities?.name} className="max-w-none text-[0.75rem] text-slate-500">
           {policy.legal_entities?.name ?? EM_DASH}
         </Truncate>
       </>
@@ -287,7 +287,7 @@ function ScopeCell({ request }: { request: LimitRequestWithRefs }) {
         >
           {submission.request_number}
         </Link>
-        <Truncate text={submission.legal_entities?.name} className="max-w-none text-[12px] text-slate-500">
+        <Truncate text={submission.legal_entities?.name} className="max-w-none text-[0.75rem] text-slate-500">
           {submission.legal_entities?.name ?? EM_DASH}
         </Truncate>
       </>

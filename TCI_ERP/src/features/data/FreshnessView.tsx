@@ -107,7 +107,7 @@ export function FreshnessView() {
                     >
                       {r.name}
                     </Link>
-                    <span className="block text-[11.5px] text-slate-500">{countryName(r.country_code)}</span>
+                    <span className="block text-[0.7188rem] text-slate-500">{countryName(r.country_code)}</span>
                   </td>
                   <td className="text-slate-600">
                     <Truncate
@@ -123,10 +123,10 @@ export function FreshnessView() {
                   <td className="whitespace-nowrap text-slate-600">
                     {r.latest_period_end ? formatDate(r.latest_period_end, locale) : '—'}
                   </td>
-                  <td className="text-[12px] whitespace-normal text-slate-500">{gaps.length ? gaps.join(', ') : '—'}</td>
+                  <td className="text-[0.75rem] whitespace-normal text-slate-500">{gaps.length ? gaps.join(', ') : '—'}</td>
                   <td className="whitespace-nowrap text-right">
                     {r.open_request_id && (
-                      <Link to={`/data/requests/${r.open_request_id}`} className="text-[13px] text-accent-600 hover:underline">
+                      <Link to={`/data/requests/${r.open_request_id}`} className="text-[0.8125rem] text-accent-600 hover:underline">
                         {t('data.freshness.openRequest')}
                       </Link>
                     )}

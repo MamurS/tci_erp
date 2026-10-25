@@ -172,7 +172,7 @@ export function RequestPage() {
             ]}
           />
           {request.note && (
-            <p className="mt-4 border-l-2 border-slate-200 pl-3 text-[13px] leading-relaxed text-slate-600">
+            <p className="mt-4 border-l-2 border-slate-200 pl-3 text-[0.8125rem] leading-relaxed text-slate-600">
               {request.note}
             </p>
           )}
@@ -201,7 +201,7 @@ export function RequestPage() {
               )}
             </div>
             {!mineToWork && open && worker && (
-              <p className="mt-3 text-[12px] text-slate-500">{t('data.request.takeFirst')}</p>
+              <p className="mt-3 text-[0.75rem] text-slate-500">{t('data.request.takeFirst')}</p>
             )}
           </Panel>
         ) : (
@@ -211,7 +211,7 @@ export function RequestPage() {
                 <Button onClick={() => setCreating('manual')}>{t('data.actions.createManually')}</Button>
               </div>
             ) : (
-              <p className="text-[13px] text-slate-500">
+              <p className="text-[0.8125rem] text-slate-500">
                 {open && worker ? t('data.request.takeFirst') : t('data.request.closed')}
               </p>
             )}
@@ -298,7 +298,7 @@ function RejectModal({
         </>
       }
     >
-      <p className="mb-3 text-[13px] text-slate-600">{t('data.request.rejectHint')}</p>
+      <p className="mb-3 text-[0.8125rem] text-slate-600">{t('data.request.rejectHint')}</p>
       <Field label={t('data.fields.reason')}>
         <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} />
       </Field>
@@ -352,7 +352,7 @@ function ReassignModal({
           </Select>
         </Field>
       ) : (
-        <p className="text-[13px] text-slate-500">{t('data.request.noOtherManagers')}</p>
+        <p className="text-[0.8125rem] text-slate-500">{t('data.request.noOtherManagers')}</p>
       )}
     </Modal>
   )
