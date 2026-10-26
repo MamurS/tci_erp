@@ -58,6 +58,7 @@ export function ClaimsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
+        band
         title={t('claims.title')}
         subtitle={t('claims.subtitle')}
         actions={

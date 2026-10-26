@@ -12,10 +12,12 @@ import {
   Button,
   Card,
   actionsCol,
+  BulkBar,
   COL,
   Combobox,
   CountryFlag,
   DescriptionList,
+  downloadCsv,
   EmptyState,
   GradeBadge,
   Highlight,
@@ -28,6 +30,7 @@ import {
   SkeletonRows,
   Table,
   TableSettings,
+  toCsv,
   Truncate,
 } from '../../components/ui'
 import type { ComboOption } from '../../components/ui'
@@ -84,12 +87,15 @@ export function EntitiesPage() {
   const [modalOpen, setModalOpen] = useState(false)
   // The quick view: a row's summary beside the list (Table v2).
   const [peekId, setPeekId] = useState<string | null>(null)
+  // Rows picked for a bulk action (the bulk bar), by id.
+  const [selected, setSelected] = useState<ReadonlySet<string>>(new Set())
 
   // The filters offer what the registry actually holds, with how many —
   // not every country of the world.
   const countryOptions = useMemo<ComboOption[]>(() => {
     const counts = new Map<string, number>()
-    for (const e of entities ?? []) counts.set(e.country_code, (counts.get(e.country_code) ?? 0) + 1)
+    for (const e of entities ?? [])
+      counts.set(e.country_code, (counts.get(e.country_code) ?? 0) + 1)
     return (countries ?? [])
       .filter((c) => counts.has(c.code))
       .map((c) => ({
@@ -107,7 +113,8 @@ export function EntitiesPage() {
   }, [entities, countries, locale, t])
   const industryOptions = useMemo<ComboOption[]>(() => {
     const counts = new Map<string, number>()
-    for (const e of entities ?? []) if (e.industry_id) counts.set(e.industry_id, (counts.get(e.industry_id) ?? 0) + 1)
+    for (const e of entities ?? [])
+      if (e.industry_id) counts.set(e.industry_id, (counts.get(e.industry_id) ?? 0) + 1)
     return (industries ?? [])
       .filter((i) => counts.has(i.code))
       .map((i) => ({
@@ -160,7 +167,15 @@ export function EntitiesPage() {
       ? periods.reduce((a, b) => (a.period_end_date > b.period_end_date ? a : b)).period_end_date
       : null
 
-  const tableColumns = [COL.fill, '9rem', '10rem', '13.5rem', COL.date, COL.grade, actionsCol([], 1)]
+  const tableColumns = [
+    COL.fill,
+    '9rem',
+    '10rem',
+    '13.5rem',
+    COL.date,
+    COL.grade,
+    actionsCol([], 1),
+  ]
   const columnLabels = [
     t('buyers.fields.name'),
     t('buyers.fields.country'),
@@ -170,20 +185,63 @@ export function EntitiesPage() {
     t('limits.fields.grade'),
     '',
   ]
+  const allSelected = filtered.length > 0 && filtered.every((e) => selected.has(e.id))
   const tableHead = (
     <thead>
       <tr>
         {columnLabels.map((label, i) => (
-          <th key={i}>{label ? label : <span className="sr-only">{t('common.actions')}</span>}</th>
+          <th key={i}>
+            {i === 0 ? (
+              <span className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  className="size-4 accent-accent-700"
+                  aria-label={t('ui.bulk.selectAll')}
+                  checked={allSelected}
+                  onChange={() =>
+                    setSelected(allSelected ? new Set() : new Set(filtered.map((e) => e.id)))
+                  }
+                />
+                {label}
+              </span>
+            ) : label ? (
+              label
+            ) : (
+              <span className="sr-only">{t('common.actions')}</span>
+            )}
+          </th>
         ))}
       </tr>
     </thead>
   )
   const peek = peekId ? (entities ?? []).find((e) => e.id === peekId) : undefined
+  const exportSelected = () => {
+    const rows = (entities ?? [])
+      .filter((e) => selected.has(e.id))
+      .map((e) => {
+        const r = roles.data?.get(e.id)
+        return [
+          e.name,
+          e.registration_number,
+          refName(e.countries, locale),
+          refName(e.industries, locale),
+          [
+            r?.is_policyholder ? t('entities.roles.policyholder') : null,
+            r?.is_buyer ? t('entities.roles.buyer') : null,
+          ]
+            .filter(Boolean)
+            .join(', '),
+          latestPeriod(e.financial_statements) ?? '',
+          grades.data?.get(e.id) ?? '',
+        ]
+      })
+    downloadCsv('companies.csv', toCsv(columnLabels.slice(0, 6), rows))
+  }
 
   return (
     <div>
       <PageHeader
+        band
         title={t('nav.entities')}
         subtitle={t('entities.subtitle')}
         // While a search finds nothing, the empty state below carries the one
@@ -297,7 +355,11 @@ export function EntitiesPage() {
         />
       ) : filtered.length === 0 ? (
         // «Add company» is in the page header; the empty state does not repeat it.
-        <EmptyState pictogram="companies" title={t('entities.empty')} hint={t('entities.emptyHint')} />
+        <EmptyState
+          pictogram="companies"
+          title={t('entities.empty')}
+          hint={t('entities.emptyHint')}
+        />
       ) : (
         <Table id="entities" columns={tableColumns} stickyHead freezeFirst>
           {tableHead}
@@ -313,15 +375,34 @@ export function EntitiesPage() {
                   className="cursor-pointer transition-colors hover:bg-slate-50"
                 >
                   <td className="font-medium text-slate-800">
-                    <Truncate text={entity.name} className="max-w-none">
-                      <Highlight text={entity.name} query={search} />
-                    </Truncate>
-                    {entity.registration_number && (
-                      // A registration number is one token: never broken.
-                      <span className="block truncate text-caption font-normal whitespace-nowrap text-slate-500 tabular-nums">
-                        <Highlight text={entity.registration_number} query={search} />
+                    <span className="flex min-w-0 items-start gap-3">
+                      <input
+                        type="checkbox"
+                        className="mt-1 size-4 shrink-0 accent-accent-700"
+                        aria-label={t('ui.bulk.select', { name: entity.name })}
+                        checked={selected.has(entity.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={() =>
+                          setSelected((prev) => {
+                            const next = new Set(prev)
+                            if (next.has(entity.id)) next.delete(entity.id)
+                            else next.add(entity.id)
+                            return next
+                          })
+                        }
+                      />
+                      <span className="min-w-0 flex-1">
+                        <Truncate text={entity.name} className="max-w-none">
+                          <Highlight text={entity.name} query={search} />
+                        </Truncate>
+                        {entity.registration_number && (
+                          // A registration number is one token: never broken.
+                          <span className="block truncate text-caption font-normal whitespace-nowrap text-slate-500 tabular-nums">
+                            <Highlight text={entity.registration_number} query={search} />
+                          </span>
+                        )}
                       </span>
-                    )}
+                    </span>
                   </td>
                   <td>
                     <Truncate text={refName(entity.countries, locale)} className="max-w-none">
@@ -335,7 +416,9 @@ export function EntitiesPage() {
                   <td>
                     <RoleBadges roles={roles.data?.get(entity.id)} />
                   </td>
-                  <td className="whitespace-nowrap text-slate-500">{latest ? formatDate(latest, locale) : EM_DASH}</td>
+                  <td className="whitespace-nowrap text-slate-500">
+                    {latest ? formatDate(latest, locale) : EM_DASH}
+                  </td>
                   <td>
                     {grade ? (
                       <GradeBadge grade={grade} />
@@ -361,12 +444,20 @@ export function EntitiesPage() {
         </Table>
       )}
 
+      <BulkBar count={selected.size} onClear={() => setSelected(new Set())}>
+        <Button variant="secondary" size="sm" onClick={exportSelected}>
+          {t('ui.bulk.exportCsv')}
+        </Button>
+      </BulkBar>
+
       <SidePanel
         open={peek !== undefined}
         title={peek?.name}
         meta={peek?.registration_number}
         onClose={() => setPeekId(null)}
-        footer={peek && <LinkButton to={`/entities/${peek.id}`}>{t('ui.quickView.openCard')}</LinkButton>}
+        footer={
+          peek && <LinkButton to={`/entities/${peek.id}`}>{t('ui.quickView.openCard')}</LinkButton>
+        }
       >
         {peek && (
           <DescriptionList
@@ -380,8 +471,14 @@ export function EntitiesPage() {
                   </span>
                 ),
               },
-              { label: t('buyers.fields.industry'), value: refName(peek.industries, locale) || EM_DASH },
-              { label: t('entities.rolesHeader'), value: <RoleBadges roles={roles.data?.get(peek.id)} /> },
+              {
+                label: t('buyers.fields.industry'),
+                value: refName(peek.industries, locale) || EM_DASH,
+              },
+              {
+                label: t('entities.rolesHeader'),
+                value: <RoleBadges roles={roles.data?.get(peek.id)} />,
+              },
               {
                 label: t('buyers.latestStatement'),
                 value: (() => {
@@ -391,7 +488,11 @@ export function EntitiesPage() {
               },
               {
                 label: t('limits.fields.grade'),
-                value: grades.data?.get(peek.id) ? <GradeBadge grade={grades.data.get(peek.id)} /> : EM_DASH,
+                value: grades.data?.get(peek.id) ? (
+                  <GradeBadge grade={grades.data.get(peek.id)} />
+                ) : (
+                  EM_DASH
+                ),
               },
             ]}
           />
@@ -403,7 +504,11 @@ export function EntitiesPage() {
         onClose={() => setModalOpen(false)}
         prefill={search.trim() ? { name: search.trim() } : undefined}
       />
-      <RequestEntityModal open={requesting} initialName={search.trim()} onClose={() => setRequesting(false)} />
+      <RequestEntityModal
+        open={requesting}
+        initialName={search.trim()}
+        onClose={() => setRequesting(false)}
+      />
     </div>
   )
 }

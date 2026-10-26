@@ -19,6 +19,12 @@ const DELTA_TONES = {
   neg: 'text-danger-600',
   neutral: 'text-slate-500',
 } as const
+// On the navy hero band: light steps of the same hues.
+const DELTA_TONES_INVERSE = {
+  pos: 'text-success-200',
+  neg: 'text-danger-200',
+  neutral: 'text-accent-100',
+} as const
 
 export interface KpiCardProps {
   label: ReactNode
@@ -41,6 +47,10 @@ export interface KpiCardProps {
   icon?: ReactNode
   /** Anything the figure needs under it (a progress bar, a breakdown). */
   children?: ReactNode
+  /** `inverse`: a tile on the navy hero band (HeroBand). */
+  tone?: 'default' | 'inverse'
+  /** A colour bar along the top (a `bg-…` class): a grade's own colour. */
+  ribbon?: string
 }
 
 export function KpiCard({
@@ -57,28 +67,48 @@ export function KpiCard({
   to,
   icon,
   children,
+  tone = 'default',
+  ribbon,
 }: KpiCardProps) {
+  const inv = tone === 'inverse'
   const { i18n } = useTranslation()
   const delta = kpiDelta(current, baseline, good)
   const path = trend ? sparklinePath(trend) : null
   const body = (
     <>
-      <span className="flex items-start justify-between gap-2 text-caption font-medium text-slate-500">
+      {ribbon && <span aria-hidden className={`absolute inset-x-0 top-0 h-1 ${ribbon}`} />}
+      <span
+        className={`flex items-start justify-between gap-2 text-caption font-medium ${inv ? 'text-accent-100' : 'text-slate-500'}`}
+      >
         <span className="min-w-0">{label}</span>
-        {icon && <span className="text-slate-500 [&_svg]:size-4">{icon}</span>}
+        {icon && (
+          <span className={`${inv ? 'text-sky-200' : 'text-slate-500'} [&_svg]:size-4`}>
+            {icon}
+          </span>
+        )}
       </span>
       <span className="flex items-baseline gap-2 whitespace-nowrap" title={title}>
-        <span className="font-display text-headline leading-none font-bold text-accent-700 tabular-nums">
+        <span
+          className={`font-display leading-none font-bold tabular-nums ${inv ? 'text-display text-white' : 'text-headline text-accent-700'}`}
+        >
           {value}
         </span>
-        {unit && <span className="text-small font-medium text-slate-500">{unit}</span>}
+        {unit && (
+          <span className={`text-small font-medium ${inv ? 'text-accent-100' : 'text-slate-500'}`}>
+            {unit}
+          </span>
+        )}
       </span>
-      {delta && meta && <span className="text-caption text-slate-500">{meta}</span>}
+      {delta && meta && (
+        <span className={`text-caption ${inv ? 'text-accent-100' : 'text-slate-500'}`}>{meta}</span>
+      )}
       <span className="flex min-h-6 items-end justify-between gap-3">
-        <span className="min-w-0 text-caption text-slate-500">
+        <span className={`min-w-0 text-caption ${inv ? 'text-accent-100' : 'text-slate-500'}`}>
           {delta ? (
             <>
-              <span className={`font-semibold tabular-nums ${DELTA_TONES[delta.tone]}`}>
+              <span
+                className={`font-semibold tabular-nums ${(inv ? DELTA_TONES_INVERSE : DELTA_TONES)[delta.tone]}`}
+              >
                 {delta.direction === 'up' ? '▲' : delta.direction === 'down' ? '▼' : '•'}{' '}
                 {formatPercent(Math.abs(delta.ratio), i18n.language, 1)}
               </span>
@@ -93,8 +123,8 @@ export function KpiCard({
             <path
               d={path}
               fill="none"
-              stroke="var(--color-data-1)"
-              strokeWidth={1.5}
+              stroke={inv ? 'var(--color-sky-300)' : 'var(--color-data-1)'}
+              strokeWidth={inv ? 2 : 1.5}
               strokeLinecap="round"
               strokeLinejoin="round"
             />
@@ -104,13 +134,18 @@ export function KpiCard({
       {children}
     </>
   )
-  const className =
-    'flex min-w-0 flex-col gap-2 rounded-lg border border-slate-200 bg-white px-4 py-4 text-left shadow-card'
+  const className = inv
+    ? 'relative flex min-w-0 flex-col gap-2 overflow-hidden rounded-xl bg-white/10 px-4 py-4 text-left ring-1 ring-white/15 backdrop-blur-sm'
+    : 'relative flex min-w-0 flex-col gap-2 overflow-hidden rounded-lg border border-slate-200 bg-white px-4 py-4 text-left shadow-card'
   return to ? (
     <Link
       to={to}
       data-kpi
-      className={`${className} transition-colors hover:border-slate-300 focus-visible:outline-2 focus-visible:outline-sky-500`}
+      className={`${className} transition-colors focus-visible:outline-2 ${
+        inv
+          ? 'hover:bg-white/15 focus-visible:outline-sky-200'
+          : 'hover:border-slate-300 focus-visible:outline-sky-500'
+      }`}
     >
       {body}
     </Link>

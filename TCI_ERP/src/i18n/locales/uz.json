@@ -202,7 +202,11 @@
     "premiumUzsUnit": "UZS ekv.",
     "premiumConverted": "Barcha valyutalar mavjud so‘nggi kurs bo‘yicha UZS ga qayta hisoblangan. Hisoblangan:",
     "premiumNoRate": "UZS kursi yo‘q, kiritilmagan: {{currencies}}",
-    "vsMonthStart": "oy boshiga nisbatan"
+    "vsMonthStart": "oy boshiga nisbatan",
+    "gradeMix": "Portfel reyting bo‘yicha",
+    "gradeMixRated_one": "Reytingi bor {{count}} ta tashkilot",
+    "gradeMixRated_other": "Reytingi bor {{count}} ta tashkilot",
+    "gradeMixEmpty": "Hali birorta tashkilotning reytingi yo‘q."
   },
   "buyers": {
     "subtitle": "Kredit bahosidagi bayerlar (debitorlar) reyestri",
@@ -2266,6 +2270,19 @@
       "openReplaced": "Avvalgi so‘rovni ochish",
       "replaces": "Almashtiradi",
       "withdrawnByPolicyholder": "sug‘urtalanuvchi tomonidan, portalda"
+    },
+    "hero": {
+      "eyebrow": "Kredit limiti so‘rovi",
+      "requested": "So‘ralgan",
+      "terms": "to‘lov muddati {{days}} kun",
+      "noTerms": "to‘lov muddati ko‘rsatilmagan",
+      "grade": "Bayer reytingi",
+      "band": "reyting diapazoni {{band}}",
+      "waiting": "Kutmoqda",
+      "days_one": "kun",
+      "days_other": "kun",
+      "since": "{{date}} da yuborilgan",
+      "notSubmitted": "hali yuborilmagan"
     }
   },
   "entities": {
@@ -2315,6 +2332,20 @@
       "identity": "Identifikatsiya",
       "profile": "Ma’lumotlar",
       "contact": "Aloqa"
+    },
+    "hero": {
+      "grade": "Reyting",
+      "score": "ball {{score}}",
+      "toRating": "Reytingni ochish",
+      "notRated": "Hali reyting yo‘q",
+      "exposure": "Amaldagi limitlar",
+      "exposurePolicies_one": "{{count}} ta polis bo‘yicha",
+      "exposurePolicies_other": "{{count}} ta polis bo‘yicha",
+      "noExposure": "Amaldagi limit yo‘q",
+      "statements": "Oxirgi hisobot",
+      "periods_one": "Bazada {{count}} ta davr",
+      "periods_other": "Bazada {{count}} ta davr",
+      "noStatements": "Hali hisobot yo‘q"
     }
   },
   "access": {
@@ -3570,6 +3601,12 @@
       "commentEmpty": "Yuborishdan oldin biror narsa yozing.",
       "commentTooLong": "Izoh 2,000 belgidan oshmasligi kerak.",
       "notYours": "Bu vazifa endi sizniki emas yoki yopilgan."
+    },
+    "hero": {
+      "overdue": "Muddati o‘tgan",
+      "today": "Bugun uchun",
+      "mine": "Menga tayinlangan",
+      "cleared": "Bugun bajarildi"
     }
   },
   "portal": {
@@ -3861,6 +3898,16 @@
         "body": "Avval bayerning to‘lanmagan hisob-fakturasi haqida «Muddati o‘tgan qarzlar» bo‘limida xabar bering. Polis bo‘yicha kutish muddati tugagach, qarz shu sahifada paydo bo‘ladi va u bo‘yicha da’vo bildirish mumkin.",
         "action": "Muddati o‘tgan qarzlarga o‘tish"
       }
+    },
+    "hero": {
+      "inForce": "Amaldagi polislar",
+      "inForceMeta_one": "{{count}} ta polisdan",
+      "inForceMeta_other": "{{count}} ta polisdan",
+      "limits": "Bayerlar limitlari",
+      "limitsMeta": "bayerlaringiz uchun tasdiqlangan",
+      "nextExpiry": "Navbatdagi uzaytirish",
+      "nextExpiryMeta": "amaldagi polis tugaydi",
+      "noActive": "amaldagi polis yo‘q"
     }
   },
   "declarations": {
@@ -5990,7 +6037,10 @@
       "label": "Tanlangan qatorlar",
       "selected_one": "{{count}} ta tanlandi",
       "selected_other": "{{count}} ta tanlandi",
-      "clear": "Tanlovni olib tashlash"
+      "clear": "Tanlovni olib tashlash",
+      "selectAll": "Barcha qatorlarni tanlash",
+      "select": "Tanlash: {{name}}",
+      "exportCsv": "CSV ga yuklab olish"
     },
     "table": {
       "settings": "Jadval ko‘rinishi",

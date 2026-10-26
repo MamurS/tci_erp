@@ -303,6 +303,23 @@ a bare `type="password"` anywhere else.
   typing; the primary button names the outcome («Создать организацию», not
   «Сохранить»); a dialog keeps its head and buttons while its body scrolls.
 
+### Signature screens — «bold fintech» (Prompt 30, phase 3, owner-chosen)
+
+The owner chose the bold direction (2026-10-26). The dashboard, the Agenda,
+the company card, the credit decision page and the portal home open with a
+`HeroBand`: a deep-navy band (accent 900 → 700) edge to edge of the content
+area, the title in white display type, an eyebrow in sky 200, and the
+screen's key figures as `KpiCard tone="inverse"` tiles (glass: white 10 %,
+a white 15 % ring), with a colour `ribbon` where a figure has one (a grade's
+own colour; red for overdue, amber for today, green for done). The brochure's
+trade mosaic (`heroMosaic.ts`, our own drawings re-coloured in the navy ramp)
+fades in from the right; the sign-in panel shows it full size (`LOGIN_PHOTO`
+takes a licensed photograph instead, when there is one). The printed risk
+report's running header is the same band, compact, so its page count holds.
+Light text on the band uses only white, accent 100 and sky 200 — the contrast
+guard checks them against the band. The rest of each screen stays calm:
+the band is the one loud element.
+
 ### Interaction rules (owner review, October 2026)
 
 Each was found on a real screen; `layoutContract.test.ts` enforces the
@@ -741,6 +758,36 @@ template's, the facts the database's (`tci.offer_merge_data`).
 * `e2e/offers/offer.spec.ts` drives the screen and the portal;
   `e2e/offers/print.spec.ts` prints the frame's document to PDF in ru/en/uz
   and expects one sheet per rendered page (`OFFER_PDF_DIR` keeps the PDFs).
+
+## Tone of voice (Prompt 30)
+
+The interface speaks like a careful colleague on the credit desk: plain,
+exact, calm. Five rules, then ten strings in each language that show them.
+
+1. **Say what happened, then what to do next.** An empty screen says what
+   it is for and offers the next step; a refusal names the rule.
+2. **Name the object.** «Отозвать запрос», never a bare «Отозвать»; uz never a
+   bare «Bekor qilish» (CLAUDE.md glossary). Buttons name the outcome.
+3. **No blame, no drama.** No exclamation marks, no «Ошибка!», no «You
+   failed to…». The system's own limits are stated as facts.
+4. **Numbers carry their unit and their baseline.** «▲ 4.2 % к началу
+   месяца», «200 000 USD», «9 дней» — never a bare percentage or amount.
+5. **The glossary is law.** Байер / Bayer, Страхователь / Sug‘urtalanuvchi,
+   Претензия / da’vo, Диапазон рейтинга / reyting diapazoni; irreversibility
+   in uz is «qaytarilmas».
+
+| # | Situation | en | ru | uz |
+|---|---|---|---|---|
+| 1 | empty registry | No companies yet. Add the first one, or ask the data desk to register it. | Организаций пока нет. Добавьте первую или попросите отдел данных её зарегистрировать. | Hali tashkilotlar yo‘q. Birinchisini qo‘shing yoki ma’lumotlar bo‘limidan ro‘yxatga olishni so‘rang. |
+| 2 | search found nothing | Nothing matches «{{query}}». Check the spelling, or request the company. | По запросу «{{query}}» ничего не найдено. Проверьте написание или запросите организацию. | «{{query}}» bo‘yicha hech narsa topilmadi. Yozilishini tekshiring yoki tashkilotni so‘rang. |
+| 3 | primary button (create) | Create company | Создать организацию | Tashkilot yaratish |
+| 4 | required field, on blur | Fill this in — it is required | Заполните — это обязательное поле | To‘ldiring — bu majburiy maydon |
+| 5 | e-mail format | Enter an address like name@company.uz | Укажите адрес вида name@company.uz | name@company.uz ko‘rinishidagi manzilni kiriting |
+| 6 | four-eyes refusal | You raised this request, so a colleague decides it. | Вы подали этот запрос, поэтому решение принимает коллега. | Bu so‘rovni siz yuborgansiz, shuning uchun qarorni hamkasbingiz qabul qiladi. |
+| 7 | inline success | Saved | Сохранено | Saqlandi |
+| 8 | irreversible confirm | Withdraw the request? This cannot be undone. | Отозвать запрос? Это действие необратимо. | So‘rovni qaytarib olasizmi? Bu amal qaytarilmas. |
+| 9 | change against baseline | ▲ 4.2 % vs start of month | ▲ 4,2 % к началу месяца | ▲ 4,2 % oy boshiga nisbatan |
+| 10 | unknown failure | Something went wrong on our side. Try again; if it repeats, tell the administrator. | Что-то пошло не так на нашей стороне. Повторите попытку; если повторится — сообщите администратору. | Biz tomonda nimadir noto‘g‘ri ketdi. Qayta urinib ko‘ring; takrorlansa, administratorga xabar bering. |
 
 ## Financial data display rules (apply everywhere)
 

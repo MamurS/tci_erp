@@ -80,6 +80,7 @@ export function RequestsPage() {
   return (
     <div>
       <PageHeader
+        band
         title={t('nav.requests')}
         subtitle={t('requests.subtitle')}
         actions={

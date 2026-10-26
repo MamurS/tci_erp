@@ -16,13 +16,14 @@ import {
   DescriptionList,
   EmptyState,
   KeyFigures,
-  PageHeader,
+  HeroBand,
+  KpiCard,
   SectionTitle,
   Spinner,
 } from '../../components/ui'
 import type { Fact } from '../../components/ui'
 import { EM_DASH, formatAmount, formatDate, formatPercent, formatRate } from '../../lib/format'
-import { useMyPolicies } from './api'
+import { useMyEntity, useMyLimits, useMyPolicies } from './api'
 import type { ClientPolicy } from './types'
 
 /** Where a client goes from home, in the order the work arises. Each path is
@@ -42,21 +43,57 @@ const STATUS_TONE: Record<string, 'pos' | 'warn' | 'neg'> = {
 }
 
 export function PortalPoliciesPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const locale = i18n.resolvedLanguage ?? 'en'
   const { data: policies, isLoading, isError } = useMyPolicies()
+  const { data: entity } = useMyEntity()
+  const { data: limits } = useMyLimits()
 
   if (isLoading) return <Spinner label={t('common.loading')} />
 
-  const hasActive = (policies ?? []).some((p) => p.status === 'active')
+  const activePolicies = (policies ?? []).filter((p) => p.status === 'active')
+  const hasActive = activePolicies.length > 0
+  const nextExpiry = activePolicies.map((p) => p.expiry_date).sort()[0] ?? null
+  // A limit the policyholder holds: released, approved in full or in part.
+  const limitsInForce = (limits ?? []).filter(
+    (l) => l.outcome === 'approved' || l.outcome === 'partial',
+  ).length
 
   return (
     <div>
-      <PageHeader title={t('portal.policies.title')} subtitle={t('portal.policies.subtitle')} />
+      <HeroBand
+        bleed="portal"
+        eyebrow={t('portal.policies.title')}
+        title={entity?.name ?? t('portal.policies.title')}
+        subtitle={t('portal.policies.subtitle')}
+      >
+        <KpiCard
+          tone="inverse"
+          label={t('portal.hero.inForce')}
+          value={formatAmount(activePolicies.length, locale)}
+          meta={t('portal.hero.inForceMeta', { count: (policies ?? []).length })}
+        />
+        <KpiCard
+          tone="inverse"
+          to="/portal/limits"
+          label={t('portal.hero.limits')}
+          value={limits ? formatAmount(limitsInForce, locale) : EM_DASH}
+          meta={t('portal.hero.limitsMeta')}
+        />
+        <KpiCard
+          tone="inverse"
+          label={t('portal.hero.nextExpiry')}
+          value={nextExpiry ? formatDate(nextExpiry, locale) : EM_DASH}
+          meta={nextExpiry ? t('portal.hero.nextExpiryMeta') : t('portal.hero.noActive')}
+        />
+      </HeroBand>
 
       {isError && <Callout tone="neg" title={t('portal.loadFailed')} className="mb-6" />}
 
       {!policies?.length ? (
-        !isError && <EmptyState title={t('portal.policies.empty')} hint={t('portal.policies.emptyHint')} />
+        !isError && (
+          <EmptyState title={t('portal.policies.empty')} hint={t('portal.policies.emptyHint')} />
+        )
       ) : (
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
           <div className="flex min-w-0 flex-col gap-8">
@@ -78,7 +115,8 @@ function PolicyOverview({ policy }: { policy: ClientPolicy }) {
   const locale = i18n.language
   const ccy = policy.currency_code
   const money = (v: number | null) => (v === null ? EM_DASH : `${formatAmount(v, locale)} ${ccy}`)
-  const days = (v: number | null) => (v === null ? EM_DASH : t('portal.days', { count: v, value: v }))
+  const days = (v: number | null) =>
+    v === null ? EM_DASH : t('portal.days', { count: v, value: v })
 
   const maxLiability =
     policy.max_liability_amount !== null
@@ -107,7 +145,9 @@ function PolicyOverview({ policy }: { policy: ClientPolicy }) {
     term('max_payment_terms_days', days(policy.max_payment_terms_days)),
     term(
       'declaration_frequency',
-      policy.declaration_frequency ? t(`policies.frequencies.${policy.declaration_frequency}`) : EM_DASH,
+      policy.declaration_frequency
+        ? t(`policies.frequencies.${policy.declaration_frequency}`)
+        : EM_DASH,
     ),
   ]
 
@@ -116,7 +156,9 @@ function PolicyOverview({ policy }: { policy: ClientPolicy }) {
       <SectionTitle
         className="mb-3"
         actions={
-          <Badge tone={STATUS_TONE[policy.status] ?? 'neutral'}>{t(`policies.statuses.${policy.status}`)}</Badge>
+          <Badge tone={STATUS_TONE[policy.status] ?? 'neutral'}>
+            {t(`policies.statuses.${policy.status}`)}
+          </Badge>
         }
       >
         {policy.policy_number}
@@ -129,7 +171,9 @@ function PolicyOverview({ policy }: { policy: ClientPolicy }) {
             // Each date stays whole; a narrow cell breaks after the dash.
             value: (
               <>
-                <span className="whitespace-nowrap">{formatDate(policy.inception_date, locale)} —</span>{' '}
+                <span className="whitespace-nowrap">
+                  {formatDate(policy.inception_date, locale)} —
+                </span>{' '}
                 <span className="whitespace-nowrap">{formatDate(policy.expiry_date, locale)}</span>
               </>
             ),
@@ -146,7 +190,10 @@ function PolicyOverview({ policy }: { policy: ClientPolicy }) {
                     Number.isInteger(Number(policy.insured_percentage)) ? 0 : 1,
                   ),
           },
-          { label: t('requests.terms.discretionary_limit'), value: money(policy.discretionary_limit) },
+          {
+            label: t('requests.terms.discretionary_limit'),
+            value: money(policy.discretionary_limit),
+          },
           { label: t('requests.terms.max_liability_amount'), value: maxLiability },
         ]}
       />
@@ -189,7 +236,10 @@ function NextSteps() {
                     {t(`portal.policies.next.${step.key}.hint`)}
                   </span>
                 </span>
-                <ChevronRight className="size-4 shrink-0 text-slate-400 group-hover:text-accent-500" aria-hidden />
+                <ChevronRight
+                  className="size-4 shrink-0 text-slate-400 group-hover:text-accent-500"
+                  aria-hidden
+                />
               </Link>
             </li>
           ))}

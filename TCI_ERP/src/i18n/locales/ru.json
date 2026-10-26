@@ -204,7 +204,13 @@
     "premiumUzsUnit": "UZS-экв.",
     "premiumConverted": "Все валюты пересчитаны в UZS по последнему имеющемуся курсу. Начислено:",
     "premiumNoRate": "Нет курса к UZS, не включено: {{currencies}}",
-    "vsMonthStart": "к началу месяца"
+    "vsMonthStart": "к началу месяца",
+    "gradeMix": "Портфель по рейтингу",
+    "gradeMixRated_one": "{{count}} организация с рейтингом",
+    "gradeMixRated_few": "{{count}} организации с рейтингом",
+    "gradeMixRated_many": "{{count}} организаций с рейтингом",
+    "gradeMixRated_other": "{{count}} организации с рейтингом",
+    "gradeMixEmpty": "Ни у одной организации пока нет рейтинга."
   },
   "buyers": {
     "subtitle": "Реестр байеров (дебиторов) на кредитной оценке",
@@ -2272,6 +2278,21 @@
       "openReplaced": "Открыть прежний запрос",
       "replaces": "Заменяет",
       "withdrawnByPolicyholder": "страхователем, в портале"
+    },
+    "hero": {
+      "eyebrow": "Запрос кредитного лимита",
+      "requested": "Запрошено",
+      "terms": "отсрочка {{days}} дн.",
+      "noTerms": "отсрочка не указана",
+      "grade": "Рейтинг байера",
+      "band": "диапазон рейтинга {{band}}",
+      "waiting": "Ожидает",
+      "days_one": "день",
+      "days_few": "дня",
+      "days_many": "дней",
+      "days_other": "дня",
+      "since": "подан {{date}}",
+      "notSubmitted": "ещё не подан"
     }
   },
   "entities": {
@@ -2321,6 +2342,24 @@
       "identity": "Идентификация",
       "profile": "Сведения",
       "contact": "Контакты"
+    },
+    "hero": {
+      "grade": "Рейтинг",
+      "score": "балл {{score}}",
+      "toRating": "Открыть рейтинг",
+      "notRated": "Рейтинга пока нет",
+      "exposure": "Действующие лимиты",
+      "exposurePolicies_one": "по {{count}} полису",
+      "exposurePolicies_few": "по {{count}} полисам",
+      "exposurePolicies_many": "по {{count}} полисам",
+      "exposurePolicies_other": "по {{count}} полиса",
+      "noExposure": "Действующих лимитов нет",
+      "statements": "Последняя отчётность",
+      "periods_one": "{{count}} период в базе",
+      "periods_few": "{{count}} периода в базе",
+      "periods_many": "{{count}} периодов в базе",
+      "periods_other": "{{count}} периода в базе",
+      "noStatements": "Отчётности пока нет"
     }
   },
   "access": {
@@ -3576,6 +3615,12 @@
       "commentEmpty": "Напишите что-нибудь перед отправкой.",
       "commentTooLong": "Комментарий — не длиннее 2,000 символов.",
       "notYours": "Задача уже не ваша или закрыта."
+    },
+    "hero": {
+      "overdue": "Просрочено",
+      "today": "На сегодня",
+      "mine": "Назначено мне",
+      "cleared": "Сделано сегодня"
     }
   },
   "portal": {
@@ -3867,6 +3912,18 @@
         "body": "Сначала сообщите о неоплаченном счёте байера в разделе «Просрочки». Когда истечёт период ожидания по полису, просрочка появится на этой странице, и по ней можно будет подать претензию.",
         "action": "Перейти к просрочкам"
       }
+    },
+    "hero": {
+      "inForce": "Действующие полисы",
+      "inForceMeta_one": "из {{count}} полиса",
+      "inForceMeta_few": "из {{count}} полисов",
+      "inForceMeta_many": "из {{count}} полисов",
+      "inForceMeta_other": "из {{count}} полиса",
+      "limits": "Лимиты на байеров",
+      "limitsMeta": "одобрены для ваших байеров",
+      "nextExpiry": "Ближайшее продление",
+      "nextExpiryMeta": "заканчивается действующий полис",
+      "noActive": "действующих полисов нет"
     }
   },
   "declarations": {
@@ -6016,7 +6073,10 @@
       "selected_few": "Выбрано {{count}}",
       "selected_many": "Выбрано {{count}}",
       "selected_other": "Выбрано {{count}}",
-      "clear": "Снять выбор"
+      "clear": "Снять выбор",
+      "selectAll": "Выбрать все строки",
+      "select": "Выбрать: {{name}}",
+      "exportCsv": "Выгрузить в CSV"
     },
     "table": {
       "settings": "Вид таблицы",

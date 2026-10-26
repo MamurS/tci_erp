@@ -951,6 +951,24 @@ is fine for internal test accounts and not fine for customers.
   #69 merged right after; all ten 0079 functions fingerprint-identical to a
   local replay afterwards; `tests/db/rating_scorecard.sql` run on canonical
   with role impersonation (forced rollback, nothing left behind)
+- [x] Redesign (Prompt 30, NO migration, three commits): **phase 1** —
+  OKLCH colour ramps with equal WCAG luminance per step (`src/design/`,
+  generated `tokens.css`, Tailwind's own palettes off), type / spacing /
+  motion tokens, reduced motion, Admin › Tokens, `contrast.test.ts` and
+  `scale.test.ts` as guards, `docs/colour-audit-2026-10.md`; **phase 2** —
+  Table v2 (density per person, sticky head, frozen column, column chooser,
+  hover actions, highlight, skeleton rows, bulk bar with CSV export, quick
+  view in a `SidePanel`), `KpiCard`, `GradeBadge` in grade colours,
+  `HumanAmount`, pictogram empty states, inline success, ⌘K over records
+  and actions in the acting role's sections, forms (labels above, blur
+  validation, outcome-named buttons, fixed dialog footer); **phase 3** —
+  «bold fintech» (the owner's choice after phase 1 looked too quiet): a navy
+  `HeroBand` with the brochure's trade mosaic and white KPI tiles on the
+  dashboard, Agenda, company card, decision page and portal home, the
+  compact band on registries and queues, a full-height brand sign-in, the
+  report masthead, and the tone-of-voice guide. See DESIGN.md «Tokens»,
+  «Components v2», «Signature screens», «Tone of voice» and
+  `docs/redesign-progress.md` (decisions and how to reverse each)
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 

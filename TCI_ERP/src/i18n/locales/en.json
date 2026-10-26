@@ -202,7 +202,11 @@
     "premiumUzsUnit": "UZS equiv.",
     "premiumConverted": "All currencies converted to UZS at the latest rate on record. Booked:",
     "premiumNoRate": "No UZS rate, not included: {{currencies}}",
-    "vsMonthStart": "vs start of month"
+    "vsMonthStart": "vs start of month",
+    "gradeMix": "The book by grade",
+    "gradeMixRated_one": "{{count}} rated company",
+    "gradeMixRated_other": "{{count}} rated companies",
+    "gradeMixEmpty": "No company has a rating yet."
   },
   "buyers": {
     "subtitle": "Register of buyers (debtors) under credit assessment",
@@ -2266,6 +2270,19 @@
       "openReplaced": "Open the earlier request",
       "replaces": "Replaces",
       "withdrawnByPolicyholder": "by the policyholder, in the portal"
+    },
+    "hero": {
+      "eyebrow": "Credit limit request",
+      "requested": "Requested",
+      "terms": "payment terms {{days}} days",
+      "noTerms": "payment terms not stated",
+      "grade": "Buyer grade",
+      "band": "rating band {{band}}",
+      "waiting": "Waiting",
+      "days_one": "day",
+      "days_other": "days",
+      "since": "submitted {{date}}",
+      "notSubmitted": "not submitted yet"
     }
   },
   "entities": {
@@ -2315,6 +2332,20 @@
       "identity": "Identification",
       "profile": "Profile",
       "contact": "Contact"
+    },
+    "hero": {
+      "grade": "Grade",
+      "score": "score {{score}}",
+      "toRating": "Open the rating",
+      "notRated": "Not rated yet",
+      "exposure": "Limits in force",
+      "exposurePolicies_one": "on {{count}} policy",
+      "exposurePolicies_other": "on {{count}} policies",
+      "noExposure": "No limit in force",
+      "statements": "Latest statements",
+      "periods_one": "{{count}} period on file",
+      "periods_other": "{{count}} periods on file",
+      "noStatements": "No statements yet"
     }
   },
   "access": {
@@ -3570,6 +3601,12 @@
       "commentEmpty": "Write something before sending.",
       "commentTooLong": "A comment can be at most 2,000 characters.",
       "notYours": "This task is no longer yours, or it has closed."
+    },
+    "hero": {
+      "overdue": "Overdue",
+      "today": "For today",
+      "mine": "Assigned to me",
+      "cleared": "Done today"
     }
   },
   "portal": {
@@ -3861,6 +3898,16 @@
         "body": "First report the buyer's unpaid invoice under Overdue accounts. When the policy's waiting period has run, the overdue account appears on this page and you can file the claim.",
         "action": "Go to Overdue accounts"
       }
+    },
+    "hero": {
+      "inForce": "Policies in force",
+      "inForceMeta_one": "of {{count}} policy",
+      "inForceMeta_other": "of {{count}} policies",
+      "limits": "Buyer limits",
+      "limitsMeta": "approved for your buyers",
+      "nextExpiry": "Next renewal",
+      "nextExpiryMeta": "a policy in force ends",
+      "noActive": "no policy in force"
     }
   },
   "declarations": {
@@ -5990,7 +6037,10 @@
       "label": "Selected rows",
       "selected_one": "{{count}} selected",
       "selected_other": "{{count}} selected",
-      "clear": "Clear selection"
+      "clear": "Clear selection",
+      "selectAll": "Select all rows",
+      "select": "Select {{name}}",
+      "exportCsv": "Export to CSV"
     },
     "table": {
       "settings": "Table view",

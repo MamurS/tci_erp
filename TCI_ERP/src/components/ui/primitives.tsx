@@ -16,6 +16,8 @@ import { buttonClassName } from './buttonStyles'
 import { FieldLabelIdContext } from './fieldContext'
 import type { ButtonVariant } from './buttonStyles'
 import { COL, tableMinWidth } from './columns'
+import { OnBandContext } from './bandContext'
+import { HeroBand } from './HeroBand'
 import { Pictogram } from './pictograms'
 import type { PictogramName } from './pictogramNames'
 import { DENSITY_CELL, hiddenColumnsCss, useDensity, useHiddenColumns } from './tablePrefs'
@@ -57,10 +59,11 @@ export function Button({
   ...rest
 }: ButtonProps) {
   const { t } = useTranslation()
+  const onBand = useContext(OnBandContext)
   return (
     <button
       type="button"
-      className={buttonClassName(variant, size, `relative ${className}`)}
+      className={buttonClassName(onBand && variant === 'primary' ? 'onBand' : variant, size, `relative ${className}`)}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       {...rest}
@@ -452,9 +455,24 @@ interface PageHeaderProps {
   actions?: ReactNode
   /** Small line above the title (section / breadcrumb). */
   eyebrow?: ReactNode
+  /** A registry's or a queue's header: the compact navy band (HeroBand).
+   * Its subtitle and actions sit on navy — plain text, buttons, a Segmented. */
+  band?: boolean
 }
 
-export function PageHeader({ title, status, subtitle, actions, eyebrow }: PageHeaderProps) {
+export function PageHeader({ title, status, subtitle, actions, eyebrow, band = false }: PageHeaderProps) {
+  if (band) {
+    return (
+      <HeroBand
+        compact
+        eyebrow={eyebrow}
+        title={title}
+        status={status && <BadgeSizeContext.Provider value="md">{status}</BadgeSizeContext.Provider>}
+        subtitle={subtitle}
+        actions={actions}
+      />
+    )
+  }
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
@@ -503,7 +521,7 @@ interface SectionPageProps {
 export function SectionPage({ title, subtitle, tabs, active, onChange, children }: SectionPageProps) {
   return (
     <div>
-      <PageHeader title={title} subtitle={subtitle} />
+      <PageHeader band title={title} subtitle={subtitle} />
       <div className="mb-5">
         <Tabs tabs={tabs} active={active} onChange={onChange} />
       </div>

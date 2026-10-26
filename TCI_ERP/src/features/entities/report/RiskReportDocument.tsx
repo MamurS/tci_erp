@@ -10,6 +10,7 @@ import type { ReactNode } from 'react'
 import { Trans } from 'react-i18next'
 import type { TFunction } from 'i18next'
 
+import { HERO_MOSAIC_URI } from '../../../components/ui/heroMosaic'
 import { BrandMark, RatingGauge, RatingLegend } from '../../../components/ui'
 import { BRAND } from '../../../lib/brand'
 import {
@@ -520,7 +521,8 @@ export function ReportHeader({
 }) {
   return (
     <header className="rpt-head">
-      <BrandMark size="xl" />
+      <img className="rpt-head-mosaic" src={HERO_MOSAIC_URI} alt="" aria-hidden="true" />
+      <BrandMark size="xl" inverse />
       <div className="text-right">
         <div className="rpt-head-title">{t('report.title')}</div>
         <div className="rpt-head-meta">

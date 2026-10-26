@@ -53,3 +53,19 @@ export function dayPart(now: Date): DayPart {
   if (hour >= 12 && hour < 18) return 'day'
   return 'evening'
 }
+
+/** The grade scale, best first (credit_engine's A1 … D). */
+export const MIX_GRADES = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D'] as const
+
+/** How many rated companies sit in each grade of the scale — every grade
+ * listed, zero included, so the bars always read against the same axis.
+ * A code outside the scale is not counted. */
+export function gradeMix(grades: Iterable<string>): { grade: (typeof MIX_GRADES)[number]; count: number }[] {
+  const counts = new Map<string, number>(MIX_GRADES.map((g) => [g, 0]))
+  for (const raw of grades) {
+    const g = raw.trim().toUpperCase()
+    const key = counts.has(g) ? g : g.startsWith('D') ? 'D' : null
+    if (key) counts.set(key, (counts.get(key) ?? 0) + 1)
+  }
+  return MIX_GRADES.map((grade) => ({ grade, count: counts.get(grade) ?? 0 }))
+}

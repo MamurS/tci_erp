@@ -8,12 +8,17 @@ import { formatCountdown } from '../auth/loginGate'
 import type { SignInFailure } from '../auth/signInErrors'
 import { isTurnstileEnabled, mountTurnstile, turnstileSiteKey } from '../auth/turnstile'
 import type { TurnstileHandle } from '../auth/turnstile'
+import { LOGIN_MOSAIC_URI } from '../components/ui/heroMosaic'
 import { BrandMark, Button, Field, Input, PasswordInput } from '../components/ui'
 import { LanguageSwitcher } from '../components/layout/LanguageSwitcher'
 import { landingPath } from '../features/portal/navigation'
 import { NewVersionNotice } from '../components/layout/NewVersionNotice'
 import { useNewVersion } from '../lib/useNewVersion'
 import { reloadIntoNewBuild } from '../lib/appVersion'
+
+/** A licensed photograph for the sign-in panel (a path under /public), or
+ * null for the trade mosaic. None has been provided yet. */
+const LOGIN_PHOTO: string | null = null
 
 export function LoginPage() {
   const { t } = useTranslation()
@@ -116,26 +121,39 @@ export function LoginPage() {
   }
 
   const tone =
-    waiting || failure?.kind === 'locked' || failure?.kind === 'rateLimited' || failure?.kind === 'throttled'
+    waiting ||
+    failure?.kind === 'locked' ||
+    failure?.kind === 'rateLimited' ||
+    failure?.kind === 'throttled'
       ? 'warn'
       : 'neg'
 
   return (
     <div className="flex min-h-screen bg-white">
       {/* Brand panel */}
-      <div className="relative hidden w-[46%] max-w-[40rem] flex-col justify-between overflow-hidden bg-gradient-to-br from-accent-600 via-accent-700 to-accent-900 p-12 text-white lg:flex">
-        <BrandPixels />
-        <BrandMark size="lg" inverse />
+      {/* Brand panel: deep navy with the brochure's trade mosaic rising from
+          the bottom (our own drawings; LOGIN_PHOTO takes a licensed photograph
+          instead once there is one — DESIGN.md «Sign-in»). */}
+      <div className="relative hidden w-[55%] max-w-[52rem] flex-col justify-between overflow-hidden bg-accent-900 bg-linear-to-b from-accent-900 via-accent-800 to-accent-900 p-12 text-white lg:flex">
+        <img
+          src={LOGIN_PHOTO ?? LOGIN_MOSAIC_URI}
+          alt=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 w-full opacity-70 select-none [mask-image:linear-gradient(to_top,black_35%,transparent_95%)]"
+        />
         <div className="relative">
-          <h2 className="font-display text-display leading-[1.05] font-bold tracking-wide uppercase">
+          <BrandMark size="lg" inverse />
+        </div>
+        <div className="relative max-w-xl">
+          <div className="mb-4 text-caption font-semibold tracking-wider text-sky-200 uppercase">
+            {t('app.company')}
+          </div>
+          <h2 className="font-display text-display leading-[1.05] font-bold text-white">
             {t('auth.heroTitle')}
           </h2>
-          <p className="mt-4 max-w-md text-lead leading-relaxed text-white/75">{t('auth.heroText')}</p>
+          <p className="mt-4 text-lead leading-relaxed text-accent-100">{t('auth.heroText')}</p>
         </div>
-        <div className="relative flex items-center gap-2 text-caption text-white/55">
-          <span className="inline-block size-2.5 bg-sky-400" aria-hidden="true" />
-          {t('app.company')}
-        </div>
+        <div className="relative h-1/3" aria-hidden="true" />
       </div>
 
       {/* Form */}
@@ -143,7 +161,10 @@ export function LoginPage() {
         <div className="absolute top-5 right-5">
           <LanguageSwitcher />
         </div>
-        <form className="flex w-full max-w-sm flex-col gap-5" onSubmit={(e) => void handleSubmit(e)}>
+        <form
+          className="flex w-full max-w-sm flex-col gap-5"
+          onSubmit={(e) => void handleSubmit(e)}
+        >
           <div className="lg:hidden">
             <BrandMark size="md" />
           </div>
@@ -238,22 +259,5 @@ export function LoginPage() {
       </div>
       <NewVersionNotice stale={offerReload} />
     </div>
-  )
-}
-
-/** The pixel-square motif of the brand, top-right of the panel. */
-function BrandPixels() {
-  const cells = [
-    [0, 0, 0.18], [1, 0, 0.32], [2, 0, 0.12], [3, 0, 0.5],
-    [1, 1, 0.14], [2, 1, 0.4], [3, 1, 0.22],
-    [2, 2, 0.2], [3, 2, 0.12],
-    [3, 3, 0.3],
-  ] as const
-  return (
-    <svg className="pointer-events-none absolute top-0 right-0 w-40 opacity-80" viewBox="0 0 4 4" aria-hidden="true">
-      {cells.map(([x, y, o]) => (
-        <rect key={`${x}-${y}`} x={x} y={y} width="0.94" height="0.94" fill="#0093d0" opacity={o} />
-      ))}
-    </svg>
   )
 }
