@@ -16,12 +16,10 @@ import {
   downloadCsv,
   EmptyState,
   Highlight,
-  Input,
   labelCol,
   LinkButton,
   QuickViewButton,
   RowActions,
-  Select,
   SelectCheckbox,
   SidePanel,
   SkeletonRows,
@@ -36,8 +34,9 @@ import { EM_DASH, formatAmount, formatDate, formatPercent, formatRate } from '..
 import { usePolicies } from './api'
 import { useAuth } from '../../auth/AuthContext'
 import { mayWritePolicies, statusTone } from './statusMachine'
-import { POLICY_STATUSES, PRODUCT_STRUCTURES } from './types'
-import type { PolicyStatus, PolicyWithRefs, ProductStructure } from './types'
+import type { PolicyWithRefs } from './types'
+import { usePageSearch } from '../../components/layout/usePageSearch'
+import { searchRows } from '../../lib/pageSearch'
 
 /** The number column also holds the row's selection box; the period sits on
  * two lines (from, to), so the register still fits a laptop with the
@@ -52,56 +51,30 @@ export function PoliciesPage() {
 
   const { data: policies, isLoading } = usePolicies()
 
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
-  const [policyholderFilter, setPolicyholderFilter] = useState('')
-  const [structureFilter, setStructureFilter] = useState('')
+  // The one search (top bar, lib/pageSearch.ts): number, policyholder,
+  // status, structure, currency — terms separated by commas, in order.
+  const { query: search, setQuery: setSearch } = usePageSearch('policies')
   // The quick view: a policy's key terms beside the list.
   const [peekId, setPeekId] = useState<string | null>(null)
   // Rows picked for the bulk bar's export, by id.
   const { selected, toggle, toggleAll, allOf, clear } = useRowSelection()
 
-  // The filter offers the companies that actually hold a policy, not the
-  // whole registry.
-  const policyholders = useMemo(() => {
-    const byId = new Map<string, string>()
-    for (const p of policies ?? []) if (p.legal_entities) byId.set(p.entity_id, p.legal_entities.name)
-    return [...byId].map(([id, name]) => ({ id, name })).sort((a, b) => a.name.localeCompare(b.name))
-  }, [policies])
-  // The filters offer only the statuses and structures the register holds,
-  // each with its count.
-  const counted = useMemo(() => {
-    const status = new Map<PolicyStatus, number>()
-    const structure = new Map<ProductStructure, number>()
-    for (const p of policies ?? []) {
-      status.set(p.status, (status.get(p.status) ?? 0) + 1)
-      structure.set(p.product_structure, (structure.get(p.product_structure) ?? 0) + 1)
-    }
-    return { status, structure }
-  }, [policies])
-  const filtering = Boolean(search.trim() || statusFilter || policyholderFilter || structureFilter)
-  const resetFilters = () => {
-    setSearch('')
-    setStatusFilter('')
-    setPolicyholderFilter('')
-    setStructureFilter('')
-  }
+  const filtering = Boolean(search.trim())
+  const resetFilters = () => setSearch('')
 
-  const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase()
-    return (policies ?? []).filter((p) => {
-      if (
-        query &&
-        !p.policy_number.toLowerCase().includes(query) &&
-        !(p.legal_entities?.name ?? '').toLowerCase().includes(query)
-      )
-        return false
-      if (statusFilter && p.status !== statusFilter) return false
-      if (policyholderFilter && p.entity_id !== policyholderFilter) return false
-      if (structureFilter && p.product_structure !== structureFilter) return false
-      return true
-    })
-  }, [policies, search, statusFilter, policyholderFilter, structureFilter])
+  const filtered = useMemo(
+    () =>
+      searchRows(policies ?? [], search, (p) => [
+        p.policy_number,
+        p.legal_entities?.name,
+        p.status,
+        t(`policies.statuses.${p.status}`),
+        p.product_structure,
+        t(`policies.structures.${p.product_structure}`),
+        p.currency_code,
+      ]),
+    [policies, search, t],
+  )
 
   const columnLabels = [
     t('policies.fields.policyNumber'),
@@ -178,53 +151,10 @@ export function PoliciesPage() {
         }
       />
 
-      {/* Fixed widths, so the four filters sit on one line at 1280px. */}
-      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('policies.searchPlaceholder')}
-          className="sm:w-64"
-        />
-        <Select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="sm:w-44"
-        >
-          <option value="">{t('policies.allStatuses')}</option>
-          {POLICY_STATUSES.filter((s) => counted.status.has(s) || s === statusFilter).map((s) => (
-            <option key={s} value={s}>
-              {t(`policies.statuses.${s}`)} ({counted.status.get(s) ?? 0})
-            </option>
-          ))}
-        </Select>
-        <Select
-          value={policyholderFilter}
-          onChange={(e) => setPolicyholderFilter(e.target.value)}
-          className="sm:w-56"
-        >
-          <option value="">{t('policies.allPolicyholders')}</option>
-          {policyholders.map((ph) => (
-            <option key={ph.id} value={ph.id}>
-              {ph.name}
-            </option>
-          ))}
-        </Select>
-        <Select
-          value={structureFilter}
-          onChange={(e) => setStructureFilter(e.target.value)}
-          className="sm:w-52"
-        >
-          <option value="">{t('policies.allStructures')}</option>
-          {PRODUCT_STRUCTURES.filter((s) => counted.structure.has(s) || s === structureFilter).map((s) => (
-            <option key={s} value={s}>
-              {t(`policies.structures.${s}`)} ({counted.structure.get(s) ?? 0})
-            </option>
-          ))}
-        </Select>
-        <div className="sm:ml-auto">
-          <TableSettings table="policies" columns={columnLabels} />
-        </div>
+      {/* Searching and filtering is the top-bar field's; the table's own
+          settings stay beside the table. */}
+      <div className="mb-4 flex justify-end">
+        <TableSettings table="policies" columns={columnLabels} />
       </div>
 
       {isLoading ? (

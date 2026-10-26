@@ -5,7 +5,7 @@
  * total in UZS. A limit in a currency with no rate is counted, never zero.
  */
 
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -14,10 +14,8 @@ import {
   COL,
   EmptyState,
   Highlight,
-  Input,
   KeyFigures,
   labelCol,
-  Select,
   SkeletonRows,
   Table,
   TableSettings,
@@ -25,11 +23,13 @@ import {
   ViewBar,
 } from '../../../components/ui'
 import { EM_DASH, formatAmount, formatCompact, formatDays } from '../../../lib/format'
-import { GRADE_BANDS, num } from '../../portfolio/aggregate'
+import { num } from '../../portfolio/aggregate'
 import { useCreditPortfolio } from '../../portfolio/api'
 import { useCountryName } from '../../portfolio/useCountryName'
 import { useSystemDecisionMarks } from '../adtApi'
-import { filterInForce, uzsTotal } from './model'
+import { uzsTotal } from './model'
+import { usePageSearch } from '../../../components/layout/usePageSearch'
+import { searchRows } from '../../../lib/pageSearch'
 import { BandBadge, EntityLink, Uzs } from './parts'
 
 export function InForceView() {
@@ -39,19 +39,26 @@ export function InForceView() {
   const { data, isLoading } = useCreditPortfolio()
   // «Авторешение (ADT)» under the amount of a limit no person decided.
   const { data: marks } = useSystemDecisionMarks()
-  const [query, setQuery] = useState('')
-  const [band, setBand] = useState('')
-  const [country, setCountry] = useState('')
-  const [currency, setCurrency] = useState('')
+  // The one search (top bar, lib/pageSearch.ts): buyer, policy,
+  // policyholder, rating band, country, currency — in order.
+  const { query } = usePageSearch('limits')
 
   const all = useMemo(() => data ?? [], [data])
   const rows = useMemo(
-    () => filterInForce(all, { query, band, country, currency }),
-    [all, query, band, country, currency],
+    () =>
+      searchRows(all, query, (r) => [
+        r.buyer_name,
+        r.policy_number,
+        r.policyholder_name,
+        r.current_band,
+        r.current_band ? t(`limits.bands.${r.current_band}`) : null,
+        r.buyer_country,
+        r.buyer_country ? countryName(r.buyer_country) : null,
+        r.currency_code,
+      ]),
+    [all, query, t, countryName],
   )
   const total = uzsTotal(rows)
-  const countries = [...new Set(all.map((r) => r.buyer_country).filter((c): c is string => Boolean(c)))].sort()
-  const currencies = [...new Set(all.map((r) => r.currency_code))].sort()
   const buyers = new Set(rows.map((r) => r.buyer_entity_id)).size
 
   // Buyer + country and policy + policyholder share a cell each (a second,
@@ -112,41 +119,8 @@ export function InForceView() {
             ]}
           />
 
-          <div className="flex flex-wrap gap-2">
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t('limits.searchPlaceholder')}
-              className="max-w-xs"
-              aria-label={t('limits.searchPlaceholder')}
-            />
-            <Select value={band} onChange={(e) => setBand(e.target.value)} className="max-w-44" aria-label={t('portfolio.credit.band')}>
-              <option value="">{t('limits.workbench.inforce.allBands')}</option>
-              {GRADE_BANDS.map((b) => (
-                <option key={b} value={b}>
-                  {t(`limits.bands.${b}`)}
-                </option>
-              ))}
-            </Select>
-            <Select value={country} onChange={(e) => setCountry(e.target.value)} className="max-w-52" aria-label={t('portfolio.credit.country')}>
-              <option value="">{t('limits.workbench.inforce.allCountries')}</option>
-              {countries.map((c) => (
-                <option key={c} value={c}>
-                  {countryName(c)}
-                </option>
-              ))}
-            </Select>
-            <Select value={currency} onChange={(e) => setCurrency(e.target.value)} className="max-w-36" aria-label={t('policies.fields.currency')}>
-              <option value="">{t('limits.workbench.inforce.allCurrencies')}</option>
-              {currencies.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </Select>
-            <div className="ml-auto">
-              <TableSettings table="limits-inforce" columns={columnLabels} />
-            </div>
+          <div className="flex justify-end">
+            <TableSettings table="limits-inforce" columns={columnLabels} />
           </div>
 
           {!rows.length ? (

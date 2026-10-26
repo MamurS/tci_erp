@@ -222,9 +222,8 @@ delays content.
   `--hide-scrollbars` by default, which is exactly what hides this shift
   (`ignoreDefaultArgs: ['--hide-scrollbars']`).
 * **Top bar:** sidebar button (when hidden), the current section (icon +
-  name), the command palette (Ctrl/⌘ K — companies by name or registration
-  number, plus every destination the caller's roles allow; icon-only below
-  640px), language switcher, account menu.
+  name), the ONE search field (Ctrl/⌘ K puts the cursor in it — see «One
+  search» below), language switcher, account menu.
 * **Pages load lazily**, one chunk per feature module (`lib/lazyPage.ts`),
   with a skeleton inside the shell while a chunk arrives. Only the Russian
   strings are bundled; en / uz are fetched on first use (`i18n/index.ts`,
@@ -305,9 +304,20 @@ a bare `type="password"` anywhere else.
   search that found nothing uses `search`.
 * **Inline success.** `useFlash()` + `Button done`: the button becomes a check
   for about a second in the same box — no toast over the content.
-* **Command palette (⌘K).** Companies, policies, claims and submissions (by
-  number; a claim by its buyer too) and actions, recent records first — only
-  in the sections the ACTING role may open (`paletteSources`).
+* **One search (owner, 2026-10-26; replaced the ⌘K palette).** One field in
+  the top bar, no popup on click. On a list page it FILTERS the page
+  (`usePageSearch('<nav key>')` reads `?q=`, `lib/pageSearch.ts` filters):
+  terms separated by commas narrow the list in order; a term equal to a value
+  of a row (a whole name, a policy number, a country code) matches exactly,
+  any other as «contains»; case, accents and the Uzbek apostrophes never
+  matter; `Highlight` marks every term. A page offers NO search box and NO
+  filter picker of its own — a country, a status, a currency, a band is one
+  more term; view switches (tabs, «All / Buyers», «Open / All») stay. While
+  typing, a list under the field shows what the last term finds elsewhere
+  (companies, policies, claims, submissions, sections — only those the
+  ACTING role may open, `paletteSources`), folded to one line on a page that
+  is being filtered; Enter opens the one exact match. No country is ever
+  required to find a company.
 * **Forms.** Labels above in sentence case; long forms in `FormSection`s;
   checked when a field is LEFT (`useTouched`, `checkRequired` / `checkEmail`
   / `checkUrl` → `ui.validation.*`), all at once on submit, never while
@@ -330,6 +340,29 @@ report's running header is the same band, compact, so its page count holds.
 Light text on the band uses only white, accent 100 and sky 200 — the contrast
 guard checks them against the band. The rest of each screen stays calm:
 the band is the one loud element.
+
+### Structure (Prompt 30, phase 4)
+
+* **A decision page is one decision column.** The work comes first — the
+  decision form, the validation step, or what is missing — and what it rests
+  on (the request, the buyer, what changed, the rule's answer) sits beside
+  it as context. Where a decision meets a limit, the limit is a `Meter`
+  (label, the figure «X of Y», a note in words; the colour repeats the note:
+  ok / near ≥ 90 % / over) and the amounts compare as bars on one scale
+  (`DecisionBar`: requested, recommended, in force, this decision).
+* **Many tabs are grouped.** A card with more than six tabs shows SECTIONS on
+  top and the active section's tabs as a switch under it; the URL keeps
+  naming the tab, so deep links never break (`entities/cardTabs.ts`).
+* **A long sheet keeps its headings.** The sheet-tab row and the table's
+  column headings stick under the top bar (`StickyTableFrame`); a sheet
+  switch sits IN the tab row, never between the row and the table, so every
+  sheet starts at one height.
+* **The client follows, never guesses.** The portal home lists what is open
+  with a simple `StatusTimeline` (steps in the policyholder's words, passed
+  steps checked, the current one named; amber when it waits on THEM).
+* **An empty choice says why.** A picker with nothing to choose is disabled
+  and the form says why and where to go (the overdue form with no buyer
+  holding a limit).
 
 ### Interaction rules (owner review, October 2026)
 

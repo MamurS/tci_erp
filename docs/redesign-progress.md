@@ -97,6 +97,50 @@ boring»); offered three directions, they chose **bold fintech**.
 * Tone of voice: DESIGN.md «Tone of voice», five rules and ten strings in
   en / ru / uz.
 
+## Phase 4 — Structure (owner, 2026-10-26: «free to change layout, forms, structure»)
+
+Re-read the brief against the screens; what it asks beyond colour:
+
+* **Credit decision page** — one decision column (the work first: the
+  decision, the validation step or what is missing; the request, the buyer
+  and what changed beside it as context); requested → recommended → in
+  force → this decision as bars on one scale (`DecisionBar`); the decider's
+  authority and the group limit as meters (`Meter`, `meterState`).
+* **One search** (owner request) — the top-bar field is a real input, no
+  popup on click. On a list page it filters the page (`usePageSearch`,
+  `lib/pageSearch.ts`): comma-separated terms applied in order, a term equal
+  to a value matching exactly, otherwise «contains»; no country is needed
+  (one more term when a name exists twice). System-wide matches of the term
+  being typed show under the field — folded to one line on a filtered page.
+  The page search boxes and the country / industry / status / policyholder /
+  structure / band / currency pickers are gone from companies, policies,
+  contracts, submissions, the credit queue, limits in force, declarations;
+  claims, overdues and the data queue are searchable for the first time.
+  View switches (tabs, «All / Policyholders / Buyers», «Open / All», «only
+  what I can decide alone») stay.
+* **Company card** — nine tabs grouped into six sections (`cardTabs.ts`;
+  `?tab=` deep links unchanged); «Open work» in the band (limit requests,
+  submissions, claims, each a way to its tab); «Quick facts» side panel.
+* **Agenda** — the buyer's grade on every buyer row; group sums in human
+  scale with the full figure on hover; «All caught up» (the one expressive
+  entrance, 400 ms, none under reduced motion) when the day's work is done.
+* **Dashboard** — the book by grade as buyers OR exposure (UZS, limits in
+  force; unrated exposure said apart).
+* **Portal** — «In progress» with simple status timelines for limit
+  requests, submissions and claims, «waiting for you» first
+  (`StatusTimeline`, `timelines.ts`); the overdue form says when no buyer
+  has a limit in force and stays inactive.
+* **Financial sheets** (owner request) — «Show empty lines» in the
+  sheet-tab row (the same gap on every sheet); the tab row and the column
+  headings stick under the top bar (`StickyTableFrame`; a table wider than
+  its frame scrolls sideways instead).
+* **Table v2 everywhere** — limits queue, limits in force, policies,
+  submissions, claims, declarations, overdues, data queue (density, column
+  chooser, sticky head, frozen first column, skeletons, quick view on the
+  queue / policies / claims / declarations, bulk CSV on policies and claims).
+* **Migration 0080** (a defect the owner found): the portal no longer lists a
+  staff DRAFT limit request — it had no action and no explanation.
+
 ## Decisions taken on the owner's behalf (all reversible)
 
 1. Tailwind names `slate` / `accent` kept for the new ramps — reverse by
@@ -132,6 +176,16 @@ boring»); offered three directions, they chose **bold fintech**.
     the data queue left the `dense` variant so the person's row density
     applies. Reverse: drop the bulk / quick-view columns of those tables and
     restore the previous widths (`git log -p` on the pages).
+13. One search replaces every page search box and filter picker (owner
+    request). Reverse per page: restore the removed `<Input>` / `<Select>` /
+    `<Combobox>` and the local state from `git log -p`; `usePageSearch`
+    can stay (it only reads `?q=`).
+14. Company card sections: Overview · Analysis (financials, rating) · Cover
+    (limits, policies, submissions) · Claims · Group · Client access.
+    Reverse: render `availableTabs` directly in `<Tabs>` again
+    (EntityDetailPage) and delete `cardTabs.ts`.
+15. Decision page: the decision column first, the request and buyer as the
+    side column. Reverse: swap the two columns back in `LimitRequestPage`.
 
 ## Latency (phase 3, production bundle, median of 5)
 

@@ -8,6 +8,8 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
+import { usePageSearch } from '../../components/layout/usePageSearch'
+import { searchRows } from '../../lib/pageSearch'
 import { useAuth } from '../../auth/AuthContext'
 import {
   Badge,
@@ -50,7 +52,15 @@ export function QueueView() {
   const mine = all.filter((r) => isOpen(r.status) && r.assigned_to === me)
   const open = all.filter((r) => isOpen(r.status))
   const closed = all.filter((r) => !isOpen(r.status))
-  const rows = scope === 'mine' ? mine : scope === 'open' ? open : closed
+  // The one search (top bar, lib/pageSearch.ts).
+  const { query: search } = usePageSearch('data')
+  const rows = searchRows(scope === 'mine' ? mine : scope === 'open' ? open : closed, search, (r) => [
+    r.request_number,
+    r.requested_name,
+    r.registration_number,
+    r.country_code,
+    r.status,
+  ])
   // Only the buyers named in SUBMISSIONS: a client's proposed buyer opens the
   // same task type but hangs off the proposal, and has a view of its own
   // («Предложенные байеры»).

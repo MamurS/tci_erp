@@ -12,7 +12,6 @@ import {
   COL,
   EmptyState,
   Highlight,
-  Input,
   labelCol,
   PageHeader,
   SkeletonRows,
@@ -22,6 +21,8 @@ import {
   Truncate,
 } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
+import { usePageSearch } from '../../components/layout/usePageSearch'
+import { searchRows } from '../../lib/pageSearch'
 import { EM_DASH } from '../../lib/format'
 import { useInsuranceRequests } from './api'
 import { RequestFormModal } from './RequestFormModal'
@@ -55,7 +56,8 @@ export function RequestsPage() {
 
   const { data: requests, isLoading } = useInsuranceRequests()
   const [tab, setTab] = useState<QueueTab>('open')
-  const [search, setSearch] = useState('')
+  // The one search (top bar, lib/pageSearch.ts).
+  const { query: search, setQuery: setSearch } = usePageSearch('requests')
   const [createOpen, setCreateOpen] = useState(false)
 
   const filtered = useMemo(() => {
@@ -65,14 +67,13 @@ export function RequestsPage() {
       if (!TAB_STATUSES[tab].includes(r.status)) return false
       return tab === 'mine' ? r.created_by === uid : true
     })
-    const query = search.trim().toLowerCase()
-    if (!query) return inTab
-    return inTab.filter(
-      (r) =>
-        r.request_number.toLowerCase().includes(query) ||
-        (r.legal_entities?.name ?? '').toLowerCase().includes(query),
-    )
-  }, [requests, tab, search, session?.user.id])
+    return searchRows(inTab, search, (r) => [
+      r.request_number,
+      r.legal_entities?.name,
+      r.status,
+      t(`requests.statuses.${r.status}`),
+    ])
+  }, [requests, tab, search, session?.user.id, t])
 
   const openCount = (requests ?? []).filter((r) => TAB_STATUSES.open.includes(r.status)).length
   const nowIso = new Date().toISOString()
@@ -120,17 +121,8 @@ export function RequestsPage() {
 
       <Tabs tabs={tabs} active={tab} onChange={(key) => setTab(key as QueueTab)} />
 
-      {/* The search is the page's own, as it was; the table view sits on
-          its right. */}
-      <div className="mt-4 mb-4 flex items-center gap-2">
-        <div className="min-w-0 flex-1">
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('requests.searchPlaceholder')}
-            className="max-w-xs"
-          />
-        </div>
+      {/* Searching is the top-bar field's; the table's settings stay here. */}
+      <div className="mt-4 mb-4 flex items-center justify-end gap-2">
         <TableSettings table="requests" columns={columnLabels} />
       </div>
 

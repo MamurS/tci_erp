@@ -14,14 +14,15 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
+import { usePageSearch } from '../../components/layout/usePageSearch'
+import { searchRows } from '../../lib/pageSearch'
 import {
   Badge,
   COL,
   EmptyState,
-  Field,
   labelCol,
   PageHeader,
-  Select,
+  Segmented,
   SkeletonRows,
   Table,
   TableSettings,
@@ -29,7 +30,6 @@ import {
 } from '../../components/ui'
 import { formatAmount } from '../../lib/format'
 import { useOverdueNotifications } from './api'
-import { NOA_STATUSES } from './types'
 import type { NoaStatus } from './types'
 
 const STATUS_TONE: Record<NoaStatus, 'warn' | 'pos' | 'negStrong' | 'neutral'> = {
@@ -48,9 +48,16 @@ export function OverduesPage() {
   const [status, setStatus] = useState<'' | NoaStatus>('open')
   const { data, isLoading, isError } = useOverdueNotifications()
 
+  // The one search (top bar, lib/pageSearch.ts); «open» or «all» is a view.
+  const { query: search } = usePageSearch('overdues')
   const rows = useMemo(
-    () => (data ?? []).filter((n) => !status || n.status === status),
-    [data, status],
+    () =>
+      searchRows(
+        (data ?? []).filter((n) => !status || n.status === status),
+        search,
+        (n) => [n.buyer_name, n.policyholder_name, n.policy_number, n.status, t(`overdues.statuses.${n.status}`)],
+      ),
+    [data, status, search, t],
   )
 
   const columnLabels = [
@@ -84,19 +91,15 @@ export function OverduesPage() {
         subtitle={t('overdues.subtitle')}
         actions={
           <div className="flex items-end gap-2">
-            <Field label={t('overdues.fields.status')}>
-              <Select value={status} onChange={(e) => setStatus(e.target.value as '' | NoaStatus)}>
-                <option value="">
-                  {t('common.all')} ({(data ?? []).length})
-                </option>
-                {/* Only the statuses the list holds, with their counts. */}
-                {NOA_STATUSES.filter((s) => s === status || (data ?? []).some((row) => row.status === s)).map((s) => (
-                  <option key={s} value={s}>
-                    {t(`overdues.statuses.${s}`)} ({(data ?? []).filter((row) => row.status === s).length})
-                  </option>
-                ))}
-              </Select>
-            </Field>
+            <Segmented
+              ariaLabel={t('overdues.fields.status')}
+              value={status === 'open' ? 'open' : 'all'}
+              options={[
+                { key: 'open', label: t('overdues.statuses.open') },
+                { key: 'all', label: t('common.all') },
+              ]}
+              onChange={(key) => setStatus(key === 'open' ? 'open' : '')}
+            />
             <TableSettings table="overdues" columns={columnLabels} />
           </div>
         }

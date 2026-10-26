@@ -8,6 +8,8 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
+import { usePageSearch } from '../../components/layout/usePageSearch'
+import { searchRows } from '../../lib/pageSearch'
 import {
   actionsCol,
   Badge,
@@ -69,15 +71,25 @@ export function ClaimsPage() {
   // Rows picked for the bulk bar's export, by id.
   const { selected, toggle, toggleAll, allOf, clear } = useRowSelection()
 
+  // The one search (top bar, lib/pageSearch.ts).
+  const { query: search } = usePageSearch('claims')
   const rows = useMemo(() => {
     const all = data ?? []
-    const filtered = scope === 'open' ? all.filter((c) => isOpen(c.status)) : all
+    const inScope = scope === 'open' ? all.filter((c) => isOpen(c.status)) : all
+    const filtered = searchRows(inScope, search, (c) => [
+      c.claim_number,
+      c.buyer_name,
+      c.policyholder_name,
+      c.policy_number,
+      c.status,
+      t(`claims.statuses.${c.status}`),
+    ])
     return [...filtered].sort(
       (a, b) =>
         QUEUE_RANK[a.status] - QUEUE_RANK[b.status] ||
         (b.assessment_age_days ?? -1) - (a.assessment_age_days ?? -1),
     )
-  }, [data, scope])
+  }, [data, scope, search, t])
 
   const columnLabels = [
     t('claims.fields.number'),

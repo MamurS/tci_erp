@@ -12,6 +12,8 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
+import { usePageSearch } from '../../components/layout/usePageSearch'
+import { normalizeSearch } from '../../lib/pageSearch'
 import {
   actionsCol,
   Badge,
@@ -19,7 +21,6 @@ import {
   Card,
   COL,
   EmptyState,
-  Input,
   labelCol,
   LinkButton,
   RowActions,
@@ -68,14 +69,15 @@ export function ContractsPage() {
   const text = useTemplateText()
 
   const [segment, setSegment] = useState<Segment>('policies')
-  const [search, setSearch] = useState('')
+  // The one search (top bar): every comma-separated term must match.
+  const { query: search, terms, setQuery: setSearch } = usePageSearch('policies')
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const activeCount = (templates ?? []).filter((x) => x.status === 'active').length
-  const query = search.trim().toLowerCase()
+  const query = search.trim()
   const matches = (...values: (string | null | undefined)[]) =>
-    !query || values.some((v) => v?.toLowerCase().includes(query))
+    terms.every((term) => values.some((v) => v && normalizeSearch(v).includes(term)))
 
   const docCount = useMemo(() => {
     const counts = new Map<string, number>()
@@ -194,13 +196,6 @@ export function ContractsPage() {
             label: `${t(`contracts.tabs.${key}`)} (${counts[key]})`,
           }))}
           onChange={(key) => setSegment(key as Segment)}
-        />
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('contracts.searchPlaceholder')}
-          aria-label={t('contracts.searchPlaceholder')}
-          className="w-full sm:w-72"
         />
       </div>
 

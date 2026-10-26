@@ -6,6 +6,8 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
+import { usePageSearch } from '../../components/layout/usePageSearch'
+import { searchRows } from '../../lib/pageSearch'
 import {
   actionsCol,
   Badge,
@@ -14,13 +16,11 @@ import {
   EmptyState,
   GradeBadge,
   Highlight,
-  Input,
   labelCol,
   LinkButton,
   QuickViewButton,
   RowActions,
   Segmented,
-  Select,
   SidePanel,
   SkeletonRows,
   Table,
@@ -80,8 +80,9 @@ export function LimitsPage() {
     // the escalated queue exists only for those who may decide
     return wanted && QUEUE_TABS.includes(wanted) && (wanted !== 'escalated' || canDecide) ? wanted : 'review'
   })
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
+  // The one search (top bar, lib/pageSearch.ts): buyer, policy, policyholder,
+  // submission, status — terms separated by commas, in order.
+  const { query: search } = usePageSearch('limits')
 
   const filtered = useMemo(() => {
     const all = requests ?? []
@@ -101,20 +102,20 @@ export function LimitsPage() {
           return r.status === 'decided' || r.status === 'withdrawn'
       }
     })
-    const query = search.trim().toLowerCase()
-    return inTab.filter((r) => {
-      if (statusFilter && r.status !== statusFilter) return false
-      if (mineOnly && !(annotated.get(r.id)?.decide_alone && !annotated.get(r.id)?.own_request)) return false
-      if (!query) return true
-      return (
-        (r.legal_entities?.name ?? '').toLowerCase().includes(query) ||
-        (r.policies?.policy_number ?? '').toLowerCase().includes(query) ||
-        (r.policies?.legal_entities?.name ?? '').toLowerCase().includes(query) ||
-        (r.insurance_requests?.request_number ?? '').toLowerCase().includes(query) ||
-        (r.insurance_requests?.legal_entities?.name ?? '').toLowerCase().includes(query)
-      )
-    })
-  }, [requests, tab, search, statusFilter, mineOnly, annotated, session?.user.id])
+    const mine = inTab.filter(
+      (r) => !mineOnly || (annotated.get(r.id)?.decide_alone && !annotated.get(r.id)?.own_request),
+    )
+    return searchRows(mine, search, (r) => [
+      r.legal_entities?.name,
+      r.policies?.policy_number,
+      r.policies?.legal_entities?.name,
+      r.insurance_requests?.request_number,
+      r.insurance_requests?.legal_entities?.name,
+      r.status,
+      t(`limits.statuses.${r.status}`),
+      r.currency_code,
+    ])
+  }, [requests, tab, search, mineOnly, annotated, session?.user.id, t])
 
   const escalatedCount = (requests ?? []).filter((r) => r.status === 'escalated').length
   const informationCount = (requests ?? []).filter((r) => r.status === 'information_gathering').length
@@ -214,25 +215,6 @@ export function LimitsPage() {
       </div>
 
       <div className="mt-4 mb-4 flex flex-wrap items-center gap-2">
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('limits.searchPlaceholder')}
-          aria-label={t('limits.searchPlaceholder')}
-          className="max-w-xs"
-        />
-        {tab === 'decided' && (
-          <Select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="max-w-44"
-            aria-label={t('limits.fields.status')}
-          >
-            <option value="">{t('policies.allStatuses')}</option>
-            <option value="decided">{t('limits.statuses.decided')}</option>
-            <option value="withdrawn">{t('limits.statuses.withdrawn')}</option>
-          </Select>
-        )}
         {showDecision && (
           <label className="ml-1 inline-flex items-center gap-2 text-small text-slate-600">
             <input

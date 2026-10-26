@@ -14,6 +14,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
+import { usePageSearch } from '../../components/layout/usePageSearch'
+import { searchRows } from '../../lib/pageSearch'
 import {
   actionsCol,
   Badge,
@@ -21,13 +23,11 @@ import {
   COL,
   DescriptionList,
   EmptyState,
-  Field,
   labelCol,
   LinkButton,
   PageHeader,
   QuickViewButton,
   RowActions,
-  Select,
   SidePanel,
   SkeletonRows,
   Spinner,
@@ -40,8 +40,6 @@ import { useDeclarations, usePolicyDeclarationFrequency } from './api'
 import type { DeclarationRow } from './api'
 import { periodEnd } from './period'
 import { resolvePeriodLink } from './periodLink'
-import { DECLARATION_STATUSES } from './types'
-import type { DeclarationStatus } from './types'
 import { STATUS_TONE } from './status'
 
 const COLUMNS = [COL.period, COL.code, COL.fill, COL.money, labelCol('declarationStatus'), actionsCol([], 1)]
@@ -51,15 +49,24 @@ export function DeclarationsPage() {
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const policyFilter = params.get('policy') ?? undefined
-  const [status, setStatus] = useState<'' | DeclarationStatus>('')
   const { data, isLoading, isError } = useDeclarations(policyFilter)
   const locale = i18n.language
   // The quick view: a declaration's summary beside the queue.
   const [peekId, setPeekId] = useState<string | null>(null)
 
+  // The one search (top bar, lib/pageSearch.ts): policy, policyholder,
+  // status, currency — the status filter is just another term.
+  const { query: search } = usePageSearch('declarations')
   const rows = useMemo(
-    () => (data ?? []).filter((d) => !status || d.status === status),
-    [data, status],
+    () =>
+      searchRows(data ?? [], search, (d) => [
+        d.policies?.policy_number,
+        d.policies?.legal_entities?.name,
+        d.status,
+        t(`declarations.statuses.${d.status}`),
+        d.currency_code,
+      ]),
+    [data, search, t],
   )
 
   // ?period=<first day> with ?policy= (the Agenda's «declaration due» link):
@@ -108,22 +115,6 @@ export function DeclarationsPage() {
         subtitle={t('declarations.subtitle')}
         actions={
           <div className="flex items-end gap-2">
-            <Field label={t('declarations.fields.status')}>
-              <Select
-                value={status}
-                onChange={(e) => setStatus(e.target.value as '' | DeclarationStatus)}
-              >
-                <option value="">
-                  {t('common.all')} ({(data ?? []).length})
-                </option>
-                {/* Only the statuses the list holds, with their counts. */}
-                {DECLARATION_STATUSES.filter((s) => s === status || (data ?? []).some((row) => row.status === s)).map((s) => (
-                  <option key={s} value={s}>
-                    {t(`declarations.statuses.${s}`)} ({(data ?? []).filter((row) => row.status === s).length})
-                  </option>
-                ))}
-              </Select>
-            </Field>
             <TableSettings table="declarations" columns={columnLabels} />
           </div>
         }
