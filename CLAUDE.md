@@ -899,6 +899,19 @@ is fine for internal test accounts and not fine for customers.
   a local replay, `tests/db/ui_scale.sql` run on canonical with role
   impersonation and rolled back, nothing left behind, no new advisor
   finding
+- [x] Person-addressed department tasks follow the acting role (migration
+  0077): a credit analyst holding credit underwriting too saw «Decide the
+  credit limit…» tasks — addressed to them by name as a covering
+  underwriter — and found no decision form behind them. Such tasks now name
+  their department (`target_role` next to `target_user`, from
+  `tci.task_work_role`; the 39 existing rows filled in-migration) and
+  `task_is_mine` / "tasks: read mine" show them only in that role;
+  `board.ts isMine` mirrors it (contract-tested). **Canonical: 0077 applied
+  2026-10-26** before merge (backward-compatible), the three objects it
+  replaces verified identical to a local replay of 0076 first, the whole
+  file in one call with its ledger row, all four objects identical
+  afterwards, `tests/db/person_task_role.sql` run on canonical with role
+  impersonation (forced rollback, nothing left behind)
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1982,7 +1995,11 @@ that role is still held; otherwise the ONLY role held; otherwise NULL — and
 NULL closes every gate. `has_role`, `is_staff` and `current_user_roles`
 answer for it, so reads are as strict as writes: a person acting as sales
 sees what a sales-only user sees. Department tasks follow the acting role;
-tasks addressed to the PERSON stay visible in every workspace. A single-role
+a task addressed to a PERSON for their department's work (a band-aware
+limit decision, a data request, a validation step) also names that role
+since 0077 (`tci.task_work_role`, filled by `open_task`) and shows only
+while the person acts in it; a task addressed to the person alone (a result
+notice, a client's task) stays visible in every workspace. A single-role
 user never sets anything. `set_acting_role` refuses a role not held
 (`acting_role_not_held`, 42501) and a token with no session
 (`acting_role_no_session`); the switch is logged `session.acting_role`.

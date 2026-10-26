@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import M65 from '../../../supabase/migrations/0065_admin_technical_only.sql?raw'
+import M77 from '../../../supabase/migrations/0077_person_task_role.sql?raw'
 
 import {
   amountOf,
@@ -235,5 +236,14 @@ $function$`)
     expect(isMine({ target_user: 'u-2', target_role: null }, me, ['admin'])).toBe(false)
     expect(isMine({ target_user: null, target_role: 'admin' }, me, ['admin'])).toBe(true)
     expect(isMine({ target_user: null, target_role: null }, null, ['sales'])).toBe(false)
+    // 0077: a person's department work is theirs only in that department's role.
+    expect(M77).toContain(`    when p_target_user is not null
+      then p_target_user = (select auth.uid())
+           and (p_target_role is null or p_target_role in (select tci.current_user_roles()))
+    else p_target_role is not null and p_target_role in (select tci.current_user_roles())`)
+    expect(isMine({ target_user: me, target_role: 'credit_underwriter' }, me, ['credit_underwriter'])).toBe(true)
+    expect(isMine({ target_user: me, target_role: 'credit_underwriter' }, me, ['credit_analyst'])).toBe(false)
+    expect(isMine({ target_user: 'u-2', target_role: 'credit_underwriter' }, me, ['credit_underwriter'])).toBe(false)
+    expect(isMine({ target_user: me, target_role: null }, me, ['credit_analyst'])).toBe(true)
   })
 })

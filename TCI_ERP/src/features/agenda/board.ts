@@ -339,16 +339,21 @@ export function assignedToMe(task: Pick<Task, 'target_user'>, me: string | null)
   return me !== null && task.target_user === me
 }
 
-/** tci.task_is_mine (0065): addressed to me by name, or to the role I act in.
- * Admin used to pass every task; since 0065 it acts on none of another
- * department's, so «Моя повестка» shows exactly what the caller may work
- * (admin keeps reading every task through the tasks read policy). */
+/** tci.task_is_mine (0077): addressed to me by name — and, when it names the
+ * role its work belongs to (a limit decision for a covering underwriter), only
+ * while I act in that role — or addressed to the role I act in. A task for a
+ * person with no role (a result notice) is mine in every workspace. Admin
+ * acts on none of another department's (0065), so «Моя повестка» shows
+ * exactly what the caller may work. */
 export function isMine(
   task: Pick<Task, 'target_user' | 'target_role'>,
   me: string | null,
   roles: readonly UserRole[],
 ): boolean {
-  return assignedToMe(task, me) || (task.target_role !== null && roles.includes(task.target_role))
+  if (task.target_user !== null) {
+    return assignedToMe(task, me) && (task.target_role === null || roles.includes(task.target_role))
+  }
+  return task.target_role !== null && roles.includes(task.target_role)
 }
 
 // ---------------------------------------------------------------------------
