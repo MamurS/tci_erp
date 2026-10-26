@@ -245,9 +245,9 @@ function InvoiceRow({
 function VerdictDetail({ line, locale }: { line: ClaimInvoiceCoverage; locale: string }) {
   const { t } = useTranslation()
   const d = line.system_detail
-  if (!d) return <p className="p-3 text-[13px] text-slate-500">{t('claims.notVerifiedYet')}</p>
+  if (!d) return <p className="p-3 text-[0.8125rem] text-slate-500">{t('claims.notVerifiedYet')}</p>
   return (
-    <div className="grid gap-3 p-3 text-[13px] sm:grid-cols-3">
+    <div className="grid gap-3 p-3 text-[0.8125rem] sm:grid-cols-3">
       <Detail label={t('claims.detail.basis')} value={d.basis ? t(`claims.basis.${d.basis}`) : EM_DASH} />
       <Detail
         label={t('claims.detail.cap')}
@@ -368,7 +368,7 @@ function OverrideModal({
       }
     >
       {error && <Callout tone="neg" title={error} />}
-      <p className="text-[13px] leading-relaxed text-slate-600">{t('claims.override.hint')}</p>
+      <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t('claims.override.hint')}</p>
       <Field label={t('claims.fields.verdict')}>
         <Select value={verdict} onChange={(e) => setVerdict(e.target.value as CoverageVerdict)}>
           {COVERAGE_VERDICTS.map((v) => (

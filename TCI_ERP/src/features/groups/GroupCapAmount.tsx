@@ -49,7 +49,7 @@ export function GroupCapAmount({
     return (
       <span className="inline-flex flex-col items-end whitespace-nowrap">
         <span>{main}</span>
-        {equivalent && <span className="text-[12px]">{equivalent}</span>}
+        {equivalent && <span className="text-[0.75rem]">{equivalent}</span>}
       </span>
     )
   }

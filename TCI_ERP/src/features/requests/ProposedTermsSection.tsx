@@ -230,7 +230,7 @@ export function ProposedTermsSection({ request }: { request: InsuranceRequestWit
           )}
         </div>
       ) : (
-        <dl className="grid grid-cols-[auto_1fr] gap-x-5 gap-y-1.5 text-[13px]">
+        <dl className="grid grid-cols-[auto_1fr] gap-x-5 gap-y-1.5 text-[0.8125rem]">
           {PROPOSED_TERM_FIELDS.filter((key) => key !== 'max_liability_premium_multiple').map((key) => (
             <div key={key} className="contents">
               <dt className="text-slate-500">{t(`requests.terms.${key}`)}</dt>
@@ -241,7 +241,7 @@ export function ProposedTermsSection({ request }: { request: InsuranceRequestWit
       )}
 
       {error && (
-        <p className="mt-2 text-[13px] text-neg-500" role="alert">
+        <p className="mt-2 text-[0.8125rem] text-neg-500" role="alert">
           {error}
         </p>
       )}

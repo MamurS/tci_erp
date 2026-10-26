@@ -46,13 +46,13 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
   return (
     <div>
       {hasPersistentNegativeCfo(columns) && (
-        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[13px] font-medium text-neg-500">
+        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] font-medium text-neg-500">
           {t('fin.cashflow.negativeCfoWarning')}
         </div>
       )}
 
       <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-        <table className="w-full border-collapse text-[13px]">
+        <table className="w-full border-collapse text-[0.8125rem]">
           <thead>
             <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
               <th className="sticky left-0 z-10 bg-slate-50 text-left">

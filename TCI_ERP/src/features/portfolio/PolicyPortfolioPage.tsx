@@ -50,7 +50,7 @@ const LOSS_BAR = { default: 'bg-accent-500', warn: 'bg-warn-500', neg: 'bg-neg-5
 /** A quiet second line under a figure. */
 function Sub({ children, tone }: { children: ReactNode; tone?: 'warn' }) {
   return (
-    <span className={`mt-0.5 block text-[11.5px] font-normal whitespace-normal ${tone === 'warn' ? 'text-warn-500' : 'text-slate-500'}`}>
+    <span className={`mt-0.5 block text-[0.7188rem] font-normal whitespace-normal ${tone === 'warn' ? 'text-warn-500' : 'text-slate-500'}`}>
       {children}
     </span>
   )
@@ -98,8 +98,8 @@ function Breakdown({
 }) {
   return (
     <div>
-      <h3 className="mb-2 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">{title}</h3>
-      <ul className="space-y-2.5 text-[13px]">
+      <h3 className="mb-2 text-[0.6875rem] font-semibold tracking-wider text-slate-400 uppercase">{title}</h3>
+      <ul className="space-y-2.5 text-[0.8125rem]">
         {items.map((item) => (
           <li key={item.key}>
             <div className="flex items-baseline justify-between gap-3">
@@ -223,7 +223,7 @@ export function PolicyPortfolioPage() {
                   return (
                     <tr key={c.currency} className="[&>td]:py-2.5 [&>td]:align-top">
                       <td className="whitespace-nowrap">
-                        <span className="font-display text-[15px] font-bold tracking-wide text-accent-600">{c.currency}</span>
+                        <span className="font-display text-[0.9375rem] font-bold tracking-wide text-accent-600">{c.currency}</span>
                         <Sub>{t('portfolio.policies.inCurrency', { count: c.policies })}</Sub>
                       </td>
                       <td className="num">
@@ -233,7 +233,7 @@ export function PolicyPortfolioPage() {
                       <td>
                         <div className="flex items-baseline justify-between gap-3 tabular-nums">
                           <span>{formatCompact(c.premiumPaid, locale)}</span>
-                          <span className="text-[12px] text-slate-500">{formatPercent(paidShare, locale, 0)}</span>
+                          <span className="text-[0.75rem] text-slate-500">{formatPercent(paidShare, locale, 0)}</span>
                         </div>
                         <Meter share={paidShare} tone="pos" />
                         {c.premiumOverdue > 0 && (
@@ -283,7 +283,7 @@ export function PolicyPortfolioPage() {
             </div>
           </Panel>
 
-          <TableCard columns={[COL.code, COL.fill, COL.date, COL.days, '10.5rem', COL.pct]}
+          <TableCard columns={[COL.code, COL.fill, COL.date, COL.days, '10.5rem', '6.5rem']}
             title={t('portfolio.policies.renewals', { days: RENEWAL_WINDOW_DAYS })}
             hint={t('portfolio.policies.renewalsHint')}
             empty={renewals.length ? null : t('portfolio.policies.noRenewals')}
@@ -312,7 +312,7 @@ export function PolicyPortfolioPage() {
             ))}
           </TableCard>
 
-          <TableCard columns={[COL.code, COL.fill, labelCol('policyStatus'), '10.5rem', '10.5rem', COL.pct]}
+          <TableCard columns={[COL.code, COL.fill, labelCol('policyStatus'), '10.5rem', '10.5rem', '6.5rem']}
             title={t('portfolio.policies.worst')}
             empty={worst.length ? null : t('portfolio.policies.noLosses')}
             head={

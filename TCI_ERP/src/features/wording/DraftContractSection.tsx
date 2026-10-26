@@ -112,7 +112,7 @@ export function DraftContractSection({ target, reference, countryCode, product }
         hint={
           draft ? (
             <span className="inline-flex items-center gap-2">
-              <span className="font-mono text-[12.5px] text-slate-600">{draft.draft_number}</span>
+              <span className="font-mono text-[0.7812rem] text-slate-600">{draft.draft_number}</span>
               <Badge tone={statusTone(draft.status)}>{t(`contractDrafts.statuses.${draft.status}`)}</Badge>
             </span>
           ) : undefined
@@ -231,7 +231,7 @@ export function DraftContractSection({ target, reference, countryCode, product }
         </Table>
       )}
       {error && (
-        <p className="mt-2 text-[13px] text-neg-500" role="alert">
+        <p className="mt-2 text-[0.8125rem] text-neg-500" role="alert">
           {error}
         </p>
       )}

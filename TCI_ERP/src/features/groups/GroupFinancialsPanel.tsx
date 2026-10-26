@@ -47,11 +47,11 @@ export function GroupFinancialsPanel({ totals, members }: GroupFinancialsPanelPr
       <SectionTitle hint={t('groups.financials.simpleSum')}>{t('groups.financials.title')}</SectionTitle>
 
       {!totals || totals.members_with_statements === 0 ? (
-        <p className="text-[13px] text-slate-500">{t('groups.financials.empty')}</p>
+        <p className="text-[0.8125rem] text-slate-500">{t('groups.financials.empty')}</p>
       ) : (
         <>
           {totals.members_missing_statements > 0 && (
-            <p className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
+            <p className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
               {t('groups.financials.missing', {
                 missing: totals.members_missing_statements,
                 total: totals.members_total,
@@ -59,7 +59,7 @@ export function GroupFinancialsPanel({ totals, members }: GroupFinancialsPanelPr
             </p>
           )}
           {totals.currencies > 1 && (
-            <p className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
+            <p className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
               {t('groups.financials.mixedCurrencies', { count: totals.currencies })}
             </p>
           )}
@@ -94,7 +94,7 @@ export function GroupFinancialsPanel({ totals, members }: GroupFinancialsPanelPr
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[13px] text-slate-500">{t('groups.financials.rankBy')}</span>
+            <span className="text-[0.8125rem] text-slate-500">{t('groups.financials.rankBy')}</span>
             <Segmented
               value={rankBy}
               onChange={(key) => setRankBy(key as RankableFigure)}
@@ -151,7 +151,7 @@ function Figure({
 }) {
   return (
     <div className="rounded-md border border-slate-200 bg-white px-3 py-2">
-      <p className="text-[12px] text-slate-500">{label}</p>
+      <p className="text-[0.75rem] text-slate-500">{label}</p>
       {/* Null is "—", never 0: absent is not nil (DESIGN.md). */}
       <p className="mt-0.5 text-sm font-semibold text-slate-900 tabular-nums">
         {value === null || value === undefined ? '—' : formatAmount(Number(value), locale)}

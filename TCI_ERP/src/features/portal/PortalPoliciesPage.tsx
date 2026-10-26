@@ -182,7 +182,7 @@ function NextSteps() {
                 <span className="block text-sm font-semibold text-accent-700">
                   {t(`portal.policies.next.${step.key}.title`)}
                 </span>
-                <span className="block text-[12.5px] leading-snug text-slate-500">
+                <span className="block text-[0.7812rem] leading-snug text-slate-500">
                   {t(`portal.policies.next.${step.key}.hint`)}
                 </span>
               </span>

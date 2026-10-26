@@ -24,7 +24,7 @@ export function NewVersionNotice({ stale }: { stale: boolean }) {
     <div
       role="status"
       data-testid="new-version-notice"
-      className="animate-fade-in fixed right-4 bottom-4 z-50 flex w-[22rem] max-w-[calc(100vw-2rem)] items-start gap-3 rounded-lg border border-slate-200 bg-white p-4 text-[13.5px] text-slate-700 shadow-pop"
+      className="animate-fade-in fixed right-4 bottom-4 z-50 flex w-[22rem] max-w-[calc(100vw-2rem)] items-start gap-3 rounded-lg border border-slate-200 bg-white p-4 text-[0.8438rem] text-slate-700 shadow-pop"
     >
       <RefreshCw className="mt-0.5 size-5 shrink-0 text-accent-600" aria-hidden />
       <div className="min-w-0 flex-1">

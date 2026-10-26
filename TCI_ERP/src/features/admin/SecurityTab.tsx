@@ -61,7 +61,7 @@ export function SecurityTab() {
       <Card className="p-4">
         <SectionTitle className="mb-2">{t('admin.security.policy.title')}</SectionTitle>
         {policy.data ? (
-          <ul className="grid gap-1 text-[13px] text-slate-600 sm:grid-cols-2">
+          <ul className="grid gap-1 text-[0.8125rem] text-slate-600 sm:grid-cols-2">
             <li>
               {policy.data.login_free_attempts !== undefined
                 ? t('admin.security.policy.loginSchedule', {
@@ -94,7 +94,7 @@ export function SecurityTab() {
         )}
         {policy.data?.login_gate_enforced !== undefined ? (
           <div
-            className={`mt-3 flex flex-wrap items-center gap-3 rounded-md border px-3 py-2 text-[13px] ${
+            className={`mt-3 flex flex-wrap items-center gap-3 rounded-md border px-3 py-2 text-[0.8125rem] ${
               policy.data.login_gate_enforced
                 ? 'border-pos-500/30 bg-pos-50 text-slate-700'
                 : 'border-warn-500/30 bg-warn-50 text-slate-700'
@@ -122,7 +122,7 @@ export function SecurityTab() {
             </Button>
           </div>
         ) : (
-          <p className="mt-3 rounded-md border border-warn-500/30 bg-warn-50 px-3 py-2 text-[13px] text-warn-500">
+          <p className="mt-3 rounded-md border border-warn-500/30 bg-warn-50 px-3 py-2 text-[0.8125rem] text-warn-500">
             {t('admin.security.hookNotice')}
           </p>
         )}
@@ -132,7 +132,7 @@ export function SecurityTab() {
       {(alerts.data?.length ?? 0) > 0 && (
         <Card className="border-neg-500/30 p-4">
           <h2 className="mb-2 text-sm font-semibold text-neg-500">{t('admin.security.alerts.title')}</h2>
-          <ul className="flex flex-col gap-1 text-[13px] text-slate-700">
+          <ul className="flex flex-col gap-1 text-[0.8125rem] text-slate-700">
             {alerts.data!.map((a) => (
               <li key={a.alert} className="flex items-center gap-2">
                 <Badge tone={a.severity === 'high' ? 'neg' : 'accent'}>{a.severity}</Badge>
@@ -144,7 +144,7 @@ export function SecurityTab() {
       )}
 
       {actionError && (
-        <p className="text-[13px] text-neg-500" role="alert">
+        <p className="text-[0.8125rem] text-neg-500" role="alert">
           {actionError}
         </p>
       )}
@@ -176,7 +176,7 @@ export function SecurityTab() {
                   <td>{when(l.locked_until)}</td>
                   <td>
                     {l.reason === 'bypass' ? (
-                      <span className="block text-[13px] whitespace-normal text-neg-500">{t('admin.security.lockouts.reasonBypass')}</span>
+                      <span className="block text-[0.8125rem] whitespace-normal text-neg-500">{t('admin.security.lockouts.reasonBypass')}</span>
                     ) : (
                       l.failures
                     )}
@@ -185,11 +185,11 @@ export function SecurityTab() {
                     {l.active ? (
                       <Badge tone="neg">{t('admin.security.lockouts.active')}</Badge>
                     ) : l.cleared_at ? (
-                      <span className="text-[13px] text-slate-500">
+                      <span className="text-[0.8125rem] text-slate-500">
                         {t('admin.security.lockouts.clearedBy', { email: l.cleared_by_email ?? '—' })}
                       </span>
                     ) : (
-                      <span className="text-[13px] text-slate-500">{t('admin.security.lockouts.expired')}</span>
+                      <span className="text-[0.8125rem] text-slate-500">{t('admin.security.lockouts.expired')}</span>
                     )}
                   </td>
                   <RowActions>
@@ -276,7 +276,7 @@ export function SecurityTab() {
       {/* --- sessions --------------------------------------------------- */}
       <section>
         <SectionTitle className="mb-2">{t('admin.security.sessions.title')}</SectionTitle>
-        <p className="mb-2 text-[13px] text-slate-500">{t('admin.security.sessions.hint')}</p>
+        <p className="mb-2 text-[0.8125rem] text-slate-500">{t('admin.security.sessions.hint')}</p>
         {sessions.isLoading ? (
           <Spinner label={t('common.loading')} />
         ) : !sessions.data?.length ? (

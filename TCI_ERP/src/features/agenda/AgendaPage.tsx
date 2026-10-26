@@ -486,7 +486,7 @@ function Chip({
       onClick={onClick}
       // The border is there in both states (navy when active), so pressing a
       // chip never changes its width and the chips beside it never move.
-      className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-3.5 text-[13px] font-medium transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-1 focus-visible:outline-none ${
+      className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-3.5 text-[0.8125rem] font-medium transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-1 focus-visible:outline-none ${
         active
           ? 'border-accent-600 bg-accent-600 text-white'
           : `bg-white text-slate-700 hover:border-slate-400 hover:text-slate-900 ${
@@ -524,11 +524,11 @@ function KeyLegend({ view }: { view: View }) {
           [['T'], t('agenda.keys.list')],
         ]
   return (
-    <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-200 pt-4 text-[12.5px] text-slate-600">
+    <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-200 pt-4 text-[0.7812rem] text-slate-600">
       {keys.map(([kbd, label]) => (
         <span key={label} className="inline-flex items-center gap-1.5">
           {kbd.map((k) => (
-            <kbd key={k} className="rounded border border-slate-300 bg-white px-1.5 py-px font-mono text-[11px] text-slate-700">
+            <kbd key={k} className="rounded border border-slate-300 bg-white px-1.5 py-px font-mono text-[0.6875rem] text-slate-700">
               {k}
             </kbd>
           ))}

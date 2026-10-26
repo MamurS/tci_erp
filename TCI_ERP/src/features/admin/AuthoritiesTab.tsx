@@ -65,13 +65,13 @@ export function AuthoritiesTab({ user }: { user: AdminUser | null }) {
       </SectionTitle>
 
       {scope === 'commercial' && (
-        <p className="rounded-md border border-slate-200 bg-slate-50 px-4 py-2.5 text-[13px] text-slate-600">
+        <p className="rounded-md border border-slate-200 bg-slate-50 px-4 py-2.5 text-[0.8125rem] text-slate-600">
           {t('admin.commercialDormant')}
         </p>
       )}
 
       {user.roles.includes('admin') && (
-        <p className="rounded-md border border-accent-500/20 bg-accent-50 px-4 py-2.5 text-[13px] text-slate-700">
+        <p className="rounded-md border border-accent-500/20 bg-accent-50 px-4 py-2.5 text-[0.8125rem] text-slate-700">
           {t('admin.adminDecidesNothing')}
         </p>
       )}
@@ -199,7 +199,7 @@ function BandRow({
             {t('common.cancel')}
           </Button>
           {error && (
-            <span className="ml-2 text-[13px] text-neg-500" role="alert">
+            <span className="ml-2 text-[0.8125rem] text-neg-500" role="alert">
               {error}
             </span>
           )}
@@ -241,7 +241,7 @@ function BandRow({
         )}
         {/* A refused delete puts the grant back; say why beside it. */}
         {error && (
-          <span className="ml-2 text-[13px] text-neg-500" role="alert">
+          <span className="ml-2 text-[0.8125rem] text-neg-500" role="alert">
             {error}
           </span>
         )}
@@ -265,7 +265,7 @@ function HistoryList({ grants }: { grants: AuthorityGrant[] }) {
         {open ? '▾' : '▸'} {t('admin.expiredGrants', { count: grants.length })}
       </button>
       {open && (
-        <ul className="mt-3 flex flex-col gap-1.5 text-[13px] text-slate-600">
+        <ul className="mt-3 flex flex-col gap-1.5 text-[0.8125rem] text-slate-600">
           {grants.map((g) => (
             <li key={g.id} className="flex flex-wrap items-center gap-2">
               <Badge tone="neutral">{t(`limits.bands.${g.grade_band}`)}</Badge>

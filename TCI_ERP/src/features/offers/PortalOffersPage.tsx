@@ -134,7 +134,7 @@ export function PortalOfferPage() {
 
   return (
     <div>
-      <Link to="/portal/offers" className="mb-3 inline-flex items-center gap-1.5 text-[13px] text-slate-600 hover:text-slate-900">
+      <Link to="/portal/offers" className="mb-3 inline-flex items-center gap-1.5 text-[0.8125rem] text-slate-600 hover:text-slate-900">
         <ArrowLeft className="size-4" />
         {t('offers.portal.back')}
       </Link>
@@ -150,7 +150,7 @@ export function PortalOfferPage() {
           <span className="flex flex-wrap gap-2">
             {offer.data && (
               <>
-                <span className="text-[12.5px] text-slate-500">{t('offers.pdfHint')}</span>
+                <span className="text-[0.7812rem] text-slate-500">{t('offers.pdfHint')}</span>
                 <Button
                   size="sm"
                   variant="secondary"

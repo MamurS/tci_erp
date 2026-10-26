@@ -660,3 +660,11 @@ template's, the facts the database's (`tci.offer_merge_data`).
 Non-blocking accounting-equation warnings are amber (`warn-*`), never red;
 red is reserved for hard errors. Warnings do not prevent saving — the
 analyst's entered figure is the source of truth.
+
+## Interface text size
+
+Every size is rem and follows the person's chosen text size (100–200 %,
+default 150 %, `src/lib/uiScale.ts`, migration 0076); the breakpoints are
+container queries in rem on `<body>`, so the layout responds to the scale
+as it would to browser zoom. Never size text or a box in px — the contract
+test refuses it; hairlines and radii stay px. Print routes hold 100 %.

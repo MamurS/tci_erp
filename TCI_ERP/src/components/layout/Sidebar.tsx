@@ -75,14 +75,14 @@ export function Sidebar({
         end={item.path === '/'}
         onClick={onNavigate}
         className={({ isActive }) =>
-          `group relative flex items-center gap-3 rounded-md px-3 py-2 text-[13.5px] transition-colors ${
+          `group relative flex items-center gap-3 rounded-md px-3 py-2 text-[0.8438rem] transition-colors ${
             isActive
               ? 'bg-white/12 font-semibold text-white before:absolute before:top-1.5 before:bottom-1.5 before:left-0 before:w-[3px] before:rounded-r before:bg-accent-400'
               : 'text-white/70 hover:bg-white/6 hover:text-white'
           }`
         }
       >
-        <Icon className="size-[18px] shrink-0" strokeWidth={1.8} />
+        <Icon className="size-[1.125rem] shrink-0" strokeWidth={1.8} />
         <span className="flex-1 truncate">{t(`nav.${item.key}`)}</span>
         {showEscalated && (
           <Count value={escalatedCount} digits={1} className="bg-brand-amber text-accent-900" title={t('limits.tabs.escalated')} />
@@ -135,7 +135,7 @@ export function Sidebar({
           .filter((section) => section.items.length > 0)
           .map((section) => (
             <div key={section.key} className="mb-5 last:mb-0">
-              <div className="mb-1.5 px-3 text-[10.5px] font-semibold tracking-[0.16em] text-white/40 uppercase">
+              <div className="mb-1.5 px-3 text-[0.6562rem] font-semibold tracking-[0.16em] text-white/40 uppercase">
                 {section.title}
               </div>
               <div className="flex flex-col gap-0.5">{section.items.map(renderItem)}</div>
@@ -143,8 +143,8 @@ export function Sidebar({
           ))}
       </nav>
 
-      <div className="shrink-0 border-t border-white/10 px-5 py-3 text-[11px] text-white/35">
-        <div className="mb-1 text-[10px] font-medium tracking-[0.08em] text-white/45 uppercase">
+      <div className="shrink-0 border-t border-white/10 px-5 py-3 text-[0.6875rem] text-white/35">
+        <div className="mb-1 text-[0.625rem] font-medium tracking-[0.08em] text-white/45 uppercase">
           {t('app.company')}
         </div>
         {t('nav.shortcutHint')}

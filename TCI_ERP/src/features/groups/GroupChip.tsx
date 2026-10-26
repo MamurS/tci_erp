@@ -48,7 +48,7 @@ export function GroupChip({ entityId, compact = false }: { entityId: string; com
   return (
     <Link
       to={`/entities/${entityId}?tab=group`}
-      className="inline-flex items-center gap-2 text-[13px] text-slate-600 hover:underline"
+      className="inline-flex items-center gap-2 text-[0.8125rem] text-slate-600 hover:underline"
     >
       <Badge tone="accent">{t('groups.chip.label')}</Badge>
       <span>{body}</span>

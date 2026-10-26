@@ -66,7 +66,7 @@ export function AmountInput({
         {...rest}
       />
       {suffix && (
-        <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[12px] font-medium text-slate-400">
+        <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[0.75rem] font-medium text-slate-400">
           {suffix}
         </span>
       )}

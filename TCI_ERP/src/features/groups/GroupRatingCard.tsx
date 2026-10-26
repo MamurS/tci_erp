@@ -61,15 +61,15 @@ export function GroupRatingCard({ entityId }: { entityId: string }) {
               {t('groups.rating.setBy', { name: active.set_by_name ?? EM_DASH, at: formatMoment(active.set_at, locale) })}
             </span>
           </span>
-          <span className="whitespace-pre-line text-[13px] text-slate-700">«{active.reason}»</span>
-          <span className="text-[13px] text-slate-600">
+          <span className="whitespace-pre-line text-[0.8125rem] text-slate-700">«{active.reason}»</span>
+          <span className="text-[0.8125rem] text-slate-600">
             {capped.length > 0
               ? t('groups.rating.cappedMembers', { names: capped.map((c) => c.name).join(', ') })
               : t('groups.rating.noneCapped')}
           </span>
         </div>
       ) : (
-        <p className="text-[13px] text-slate-500">
+        <p className="text-[0.8125rem] text-slate-500">
           {t('groups.rating.none')}
           {!may_set && (seniors.length > 0
             ? ` ${t('groups.rating.whoSets', { names: seniors.join(', ') })}`
@@ -77,10 +77,10 @@ export function GroupRatingCard({ entityId }: { entityId: string }) {
         </p>
       )}
 
-      {notice && <p className="text-[13px] text-slate-600" role="status">{notice}</p>}
+      {notice && <p className="text-[0.8125rem] text-slate-600" role="status">{notice}</p>}
 
       {history.length > 0 && (
-        <details className="text-[13px] text-slate-700">
+        <details className="text-[0.8125rem] text-slate-700">
           <summary className="cursor-pointer font-medium text-accent-700">
             {t('groups.rating.history', { count: history.length })}
           </summary>

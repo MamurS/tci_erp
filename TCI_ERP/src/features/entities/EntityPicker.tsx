@@ -123,10 +123,10 @@ export function EntityPicker({
                   >
                     <FilePlus2 className="mt-0.5 size-4 shrink-0 text-brand-orange" />
                     <span className="min-w-0">
-                      <span className="block truncate text-[13px] font-medium text-accent-700">
+                      <span className="block truncate text-[0.8125rem] font-medium text-accent-700">
                         {t('picker.request', { query: name })}
                       </span>
-                      <span className="block text-[12px] text-slate-500">{t('picker.requestHint')}</span>
+                      <span className="block text-[0.75rem] text-slate-500">{t('picker.requestHint')}</span>
                     </span>
                   </button>
                 ) : null

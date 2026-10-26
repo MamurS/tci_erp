@@ -12,11 +12,19 @@ import { PageLoading } from './PageLoading'
 import { SignInNotice } from '../../auth/SignInNotice'
 import { NewVersionNotice } from './NewVersionNotice'
 import { useNewVersion } from '../../lib/useNewVersion'
+import { useUiScaleValue } from '../../lib/uiScale'
 import { useAuth } from '../../auth/AuthContext'
 import { availableWorkspaces, rememberWorkspace, workspaceForRole, workspaceHome } from './workspaces'
 import type { WorkspaceKey } from './workspaces'
 
-const DESKTOP = '(min-width: 1024px)'
+/** The `lg` breakpoint (index.css): 64rem of the ROOT font size, so it moves
+ * with the interface text size (lib/uiScale.ts) as the CSS breakpoints do. */
+const DESKTOP_REM = 64
+
+function desktopQuery(): string {
+  const rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+  return `(min-width: ${DESKTOP_REM * rootPx}px)`
+}
 
 function readSidebar(): SidebarState {
   try {
@@ -53,15 +61,17 @@ function useWorkspace() {
 }
 
 function useIsDesktop(): boolean {
+  const scale = useUiScaleValue()
   const [matches, setMatches] = useState(() =>
-    typeof window === 'undefined' ? true : window.matchMedia(DESKTOP).matches,
+    typeof window === 'undefined' ? true : window.matchMedia(desktopQuery()).matches,
   )
   useEffect(() => {
-    const query = window.matchMedia(DESKTOP)
+    const query = window.matchMedia(desktopQuery())
     const onChange = () => setMatches(query.matches)
+    onChange()
     query.addEventListener('change', onChange)
     return () => query.removeEventListener('change', onChange)
-  }, [])
+  }, [scale])
   return matches
 }
 
@@ -250,7 +260,7 @@ export function AppShell() {
           onShowSidebar={() => setDrawerOpen(true)}
           sidebarId={SIDEBAR_ID}
         />
-        <main className="mx-auto w-full max-w-[1480px] flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-7">
+        <main className="mx-auto w-full max-w-[92.5rem] flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-7">
           <SignInNotice accountPath="/account" />
           <Suspense fallback={<PageLoading />}>
             <Outlet />

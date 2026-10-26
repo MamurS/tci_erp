@@ -82,7 +82,7 @@ export function Field({ label, hint, children, className = '' }: FieldProps) {
   return (
     <label className={`flex flex-col gap-1.5 ${className}`}>
       {label && (
-        <span id={labelId} className="text-[12px] font-semibold tracking-wide text-slate-600 uppercase">
+        <span id={labelId} className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
           {label}
         </span>
       )}
@@ -155,7 +155,7 @@ export function SectionTitle({ children, actions, hint, rule = false, className 
         <SectionTitle actions={actions} rule={rule}>
           {children}
         </SectionTitle>
-        <p className="mt-1 text-[12px] leading-relaxed text-slate-500">{hint}</p>
+        <p className="mt-1 text-[0.75rem] leading-relaxed text-slate-500">{hint}</p>
       </div>
     )
   return (
@@ -167,7 +167,7 @@ export function SectionTitle({ children, actions, hint, rule = false, className 
         rule ? 'border-b border-accent-500 pb-1.5' : ''
       } ${className}`}
     >
-      <h2 className="flex items-center gap-2 font-display text-[17px] leading-tight font-bold tracking-wide text-accent-600 uppercase">
+      <h2 className="flex items-center gap-2 font-display text-[1.0625rem] leading-tight font-bold tracking-wide text-accent-600 uppercase">
         <span aria-hidden="true" className="inline-block size-2.5 shrink-0 bg-accent-500" />
         {children}
       </h2>
@@ -284,14 +284,14 @@ export function StatCard({
         STAT_TONES[tone]
       } ${onClick ? 'cursor-pointer hover:shadow-pop focus-visible:outline-2 focus-visible:outline-accent-500' : ''} ${className}`}
     >
-      <span className="flex items-start justify-between gap-2 text-[12px] font-medium text-slate-500">
+      <span className="flex items-start justify-between gap-2 text-[0.75rem] font-medium text-slate-500">
         {label}
         {icon && <span className="text-accent-500 [&_svg]:size-4">{icon}</span>}
       </span>
-      <span className="num text-left font-display text-[26px] leading-none font-bold text-accent-600">
+      <span className="num text-left font-display text-[1.625rem] leading-none font-bold text-accent-600">
         {value}
       </span>
-      {meta && <span className="mt-0.5 text-[12px] text-slate-500">{meta}</span>}
+      {meta && <span className="mt-0.5 text-[0.75rem] text-slate-500">{meta}</span>}
     </Tag>
   )
 }
@@ -356,7 +356,7 @@ export function Segmented({ value, options, onChange, ariaLabel, tone = 'default
             disabled={option.disabled}
             aria-pressed={option.key === value}
             onClick={() => onChange(option.key)}
-            className={`rounded-[5px] px-3.5 text-[13px] font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none ${
+            className={`rounded-[5px] px-3.5 text-[0.8125rem] font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none ${
               option.key === value ? 'bg-accent-600 text-white' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
             } ${option.disabled ? 'cursor-not-allowed opacity-50' : ''}`}
           >
@@ -412,12 +412,12 @@ export function PageHeader({ title, status, subtitle, actions, eyebrow }: PageHe
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
         {eyebrow && (
-          <div className="mb-1 text-[12px] font-semibold tracking-wider text-accent-500 uppercase">
+          <div className="mb-1 text-[0.75rem] font-semibold tracking-wider text-accent-500 uppercase">
             {eyebrow}
           </div>
         )}
         <div data-badge-row className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-          <h1 className="font-display text-[28px] leading-tight font-bold tracking-wide text-accent-600 uppercase">
+          <h1 className="font-display text-[1.75rem] leading-tight font-bold tracking-wide text-accent-600 uppercase">
             {title}
           </h1>
           {status && (
@@ -488,7 +488,7 @@ export function ViewBar({ hint, actions }: ViewBarProps) {
   if (!hint && !actions) return null
   return (
     <div className="mb-5 flex min-h-9 flex-wrap items-center justify-between gap-x-6 gap-y-3">
-      {hint ? <p className="max-w-3xl min-w-0 flex-1 text-[13px] leading-relaxed text-slate-500">{hint}</p> : <span />}
+      {hint ? <p className="max-w-3xl min-w-0 flex-1 text-[0.8125rem] leading-relaxed text-slate-500">{hint}</p> : <span />}
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </div>
   )
@@ -524,7 +524,7 @@ export function EmptyState({ title, hint, action, icon }: EmptyStateProps) {
         )}
       </span>
       <p className="text-sm font-semibold text-slate-800">{title}</p>
-      {hint && <p className="max-w-md text-[13px] leading-relaxed text-slate-500">{hint}</p>}
+      {hint && <p className="max-w-md text-[0.8125rem] leading-relaxed text-slate-500">{hint}</p>}
       {action && <div className="mt-2">{action}</div>}
     </div>
   )
@@ -591,9 +591,9 @@ export function Tabs({ tabs, active, onChange, size = 'md' }: TabsProps) {
   const crowded = tabs.length > 7
   const pad =
     size === 'sm'
-      ? 'px-3 py-2 text-[13px]'
+      ? 'px-3 py-2 text-[0.8125rem]'
       : crowded
-        ? 'px-1.5 py-2.5 text-[13px] leading-5'
+        ? 'px-1.5 py-2.5 text-[0.8125rem] leading-5'
         : dense
           ? 'px-2 py-2.5 text-sm'
           : 'px-3.5 py-2.5 text-sm'
@@ -690,7 +690,7 @@ export function Modal({ open, title, onClose, children, footer, wide = false }: 
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5">
           <h2
             id={titleId}
-            className="font-display text-[17px] font-bold tracking-wide text-accent-600 uppercase"
+            className="font-display text-[1.0625rem] font-bold tracking-wide text-accent-600 uppercase"
           >
             {title}
           </h2>
@@ -769,8 +769,8 @@ export function Table({ children, dense = false, className = '', columns, fillMi
     ? 'table-fixed [:where(&_td,&_th)]:overflow-hidden [:where(&_td,&_th)]:text-ellipsis [:where(&_td)]:whitespace-nowrap [&_th]:whitespace-normal [&_th]:align-bottom [&_th]:[text-wrap:balance]'
     : '[&_th]:whitespace-nowrap'
   const head = dense
-    ? '[&_thead_th]:bg-accent-600 [&_thead_th]:text-white [&_thead_th]:font-display [&_thead_th]:text-[13px] [&_thead_th]:font-bold [&_thead_th]:tracking-wide [&_thead_th]:border-accent-600 [:where(&_tbody_tr:nth-child(even))]:bg-accent-50/60'
-    : '[&_thead_th]:bg-slate-50 [&_thead_th]:text-slate-500 [&_thead_th]:text-[12px] [&_thead_th]:font-semibold [&_thead_th]:tracking-wide [&_thead_th]:uppercase [&_thead_th]:border-slate-200'
+    ? '[&_thead_th]:bg-accent-600 [&_thead_th]:text-white [&_thead_th]:font-display [&_thead_th]:text-[0.8125rem] [&_thead_th]:font-bold [&_thead_th]:tracking-wide [&_thead_th]:border-accent-600 [:where(&_tbody_tr:nth-child(even))]:bg-accent-50/60'
+    : '[&_thead_th]:bg-slate-50 [&_thead_th]:text-slate-500 [&_thead_th]:text-[0.75rem] [&_thead_th]:font-semibold [&_thead_th]:tracking-wide [&_thead_th]:uppercase [&_thead_th]:border-slate-200'
   return (
     <div
       className={`scrollbar-thin overflow-x-auto ${
@@ -780,7 +780,7 @@ export function Table({ children, dense = false, className = '', columns, fillMi
       <table
         style={fixed ? { minWidth: tableMinWidth(columns, fillMin) } : undefined}
         onMouseOver={fixed ? titleIfCut : undefined}
-        className={`w-full border-collapse ${fixedCells} ${dense ? 'text-[13px]' : 'text-sm'} [&_th]:border-b [&_td.num]:whitespace-nowrap [:where(&_th)]:text-left [&_td]:border-b [&_td]:border-slate-100 [:where(&_tbody_tr)]:transition-colors [:where(&_tbody_tr:hover)]:bg-accent-50 [&_tbody_tr:last-child_td]:border-b-0 ${head} ${
+        className={`w-full border-collapse ${fixedCells} ${dense ? 'text-[0.8125rem]' : 'text-sm'} [&_th]:border-b [&_td.num]:whitespace-nowrap [:where(&_th)]:text-left [&_td]:border-b [&_td]:border-slate-100 [:where(&_tbody_tr)]:transition-colors [:where(&_tbody_tr:hover)]:bg-accent-50 [&_tbody_tr:last-child_td]:border-b-0 ${head} ${
           dense
             ? '[&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-1.5'
             : '[&_th]:px-4 [&_th]:py-2.5 [&_td]:px-4 [&_td]:py-2.5'

@@ -72,7 +72,7 @@ export function AutoDecisionSettingsCard() {
       ) : (
         <>
           <div
-            className={`flex flex-wrap items-center gap-3 rounded-md border px-3 py-2 text-[13px] text-slate-700 ${
+            className={`flex flex-wrap items-center gap-3 rounded-md border px-3 py-2 text-[0.8125rem] text-slate-700 ${
               settings.enabled ? 'border-pos-500/30 bg-pos-50' : 'border-warn-500/30 bg-warn-50'
             }`}
           >
@@ -110,9 +110,9 @@ export function AutoDecisionSettingsCard() {
             <Button onClick={() => write(settings.enabled)} disabled={!valid || !changed} loading={save.isPending}>
               {t('common.save')}
             </Button>
-            {!valid && <span className="text-[13px] text-warn-500">{t('admin.autoDecisions.invalid')}</span>}
+            {!valid && <span className="text-[0.8125rem] text-warn-500">{t('admin.autoDecisions.invalid')}</span>}
             {saved && !save.isPending && valid && !changed && (
-              <span className="text-[13px] text-slate-500" role="status">
+              <span className="text-[0.8125rem] text-slate-500" role="status">
                 {t('admin.autoDecisions.saved')}
               </span>
             )}

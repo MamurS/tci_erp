@@ -12,8 +12,8 @@ export function GenericBody({ row, subjects }: { row: AgendaRow; now: Date; subj
   if (facts.length === 0) return null
   return (
     <section className="mt-6 border-t border-slate-100 pt-5">
-      <h3 className="mb-2 text-[11.5px] font-bold tracking-[0.08em] text-slate-600 uppercase">{t('agenda.triage.facts')}</h3>
-      <ul className="flex flex-wrap gap-x-5 gap-y-1 text-[13.5px] text-slate-800 tabular-nums">
+      <h3 className="mb-2 text-[0.7188rem] font-bold tracking-[0.08em] text-slate-600 uppercase">{t('agenda.triage.facts')}</h3>
+      <ul className="flex flex-wrap gap-x-5 gap-y-1 text-[0.8438rem] text-slate-800 tabular-nums">
         {facts.map((fact) => (
           <li key={fact}>{fact}</li>
         ))}

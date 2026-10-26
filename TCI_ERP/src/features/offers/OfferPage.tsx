@@ -193,7 +193,7 @@ export function OfferPage() {
 
   return (
     <div>
-      <Link to={back} className="mb-3 inline-flex items-center gap-1.5 text-[13px] text-slate-600 hover:text-slate-900">
+      <Link to={back} className="mb-3 inline-flex items-center gap-1.5 text-[0.8125rem] text-slate-600 hover:text-slate-900">
         <ArrowLeft className="size-4" />
         {t('offers.edit.back', { number: offer.request_number })}
       </Link>
@@ -208,7 +208,7 @@ export function OfferPage() {
         }
         actions={
           <>
-            <span className="text-[12.5px] text-slate-500">{t('offers.pdfHint')}</span>
+            <span className="text-[0.7812rem] text-slate-500">{t('offers.pdfHint')}</span>
             <Button variant="secondary" onClick={onPdf} disabled={!doc}>
               <Download className="size-4" />
               {t('offers.actions.downloadPdf')}
@@ -260,7 +260,7 @@ export function OfferPage() {
 
           {/* Not a Field: a <label> would lend its text to the first button. */}
           <div className="flex flex-col gap-1.5">
-            <span className="text-[12px] font-semibold tracking-wide text-slate-600 uppercase">{t('offers.fields.language')}</span>
+            <span className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">{t('offers.fields.language')}</span>
             <span>
               <Segmented
                 value={offer.language}
@@ -273,7 +273,7 @@ export function OfferPage() {
           </div>
 
           <fieldset className="flex flex-col gap-1.5" disabled={!editing}>
-            <legend className="mb-1.5 text-[12px] font-semibold tracking-wide text-slate-600 uppercase">{t('offers.fields.cover')}</legend>
+            <legend className="mb-1.5 text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">{t('offers.fields.cover')}</legend>
             <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t('offers.fields.cover')}>
               {OFFER_COVERS.map((c) => (
                 <button
@@ -282,7 +282,7 @@ export function OfferPage() {
                   role="radio"
                   aria-checked={draft.cover === c}
                   onClick={() => set({ cover: c })}
-                  className={`flex flex-col items-stretch gap-1.5 rounded-md border p-1.5 text-[12px] font-medium focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 ${
+                  className={`flex flex-col items-stretch gap-1.5 rounded-md border p-1.5 text-[0.75rem] font-medium focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 ${
                     draft.cover === c ? 'border-accent-600 ring-1 ring-accent-600 text-accent-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'
                   }`}
                   data-cover={c}
@@ -314,7 +314,7 @@ export function OfferPage() {
             />
             <span>
               {t('offers.fields.includeBrochure')}
-              <span className="block text-[12.5px] text-slate-500">{t('offers.edit.brochureHint')}</span>
+              <span className="block text-[0.7812rem] text-slate-500">{t('offers.edit.brochureHint')}</span>
             </span>
           </label>
 
@@ -337,7 +337,7 @@ export function OfferPage() {
             </Field>
           )}
 
-          <dl className="mt-auto grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1.5 rounded-md bg-accent-50 p-3.5 text-[13px]">
+          <dl className="mt-auto grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1.5 rounded-md bg-accent-50 p-3.5 text-[0.8125rem]">
             <dt className="text-slate-500">{t('offers.edit.summary.number')}</dt>
             <dd className="text-right font-mono font-medium">{offer.offer_number}</dd>
             <dt className="text-slate-500">{t('offers.edit.summary.status')}</dt>
@@ -357,7 +357,7 @@ export function OfferPage() {
 
         {/* The preview takes the row's height, set by the form beside it: out
             of the flow, it cannot stretch the row to its thousands of pixels. */}
-        <div className="relative h-[calc(100vh-10rem)] min-h-[520px] min-w-0 lg:h-auto">
+        <div className="relative h-[calc(100vh-10rem)] min-h-[32.5rem] min-w-0 lg:h-auto">
           <OfferPreview ref={preview} doc={doc} className="absolute inset-0" />
         </div>
       </div>

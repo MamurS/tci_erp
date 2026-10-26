@@ -42,10 +42,10 @@ export function NoAccessPage() {
         🔒
       </p>
       <h1 className="mt-3 text-lg font-semibold text-slate-900">{t('access.denied')}</h1>
-      <p className="mt-2 text-[13px] text-slate-500">
+      <p className="mt-2 text-[0.8125rem] text-slate-500">
         {others.length > 0 ? t('access.otherRoleOpens') : t('access.deniedHint')}
       </p>
-      <p className="mt-3 text-[13px] text-slate-500">
+      <p className="mt-3 text-[0.8125rem] text-slate-500">
         {t('access.yourRoles')}:{' '}
         {heldRoles.length ? (
           heldRoles.map((r) => t(`roles.${r}`)).join(', ')
@@ -63,7 +63,7 @@ export function NoAccessPage() {
         </div>
       )}
       {error && (
-        <p className="mt-3 text-[13px] text-neg-500" role="alert">
+        <p className="mt-3 text-[0.8125rem] text-neg-500" role="alert">
           {error}
         </p>
       )}

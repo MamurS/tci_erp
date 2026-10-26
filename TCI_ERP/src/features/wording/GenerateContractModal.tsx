@@ -282,8 +282,8 @@ export function GenerateContractModal(props: GenerateContractModalProps) {
                 className="mt-1 accent-accent-600"
               />
               <span>
-                <span className="block text-[13.5px] font-medium text-slate-800">{t(`contractDrafts.regenerate.${m}`)}</span>
-                <span className="block text-[12px] text-slate-500">{t(`contractDrafts.regenerate.${m}Hint`)}</span>
+                <span className="block text-[0.8438rem] font-medium text-slate-800">{t(`contractDrafts.regenerate.${m}`)}</span>
+                <span className="block text-[0.75rem] text-slate-500">{t(`contractDrafts.regenerate.${m}Hint`)}</span>
               </span>
             </label>
           ))}
@@ -292,22 +292,22 @@ export function GenerateContractModal(props: GenerateContractModalProps) {
 
       {!(edited && mode === 'refresh') &&
         (active.length === 0 ? (
-          <p className="text-[13px] text-slate-600">{t('wording.generate.noTemplates')}</p>
+          <p className="text-[0.8125rem] text-slate-600">{t('wording.generate.noTemplates')}</p>
         ) : active.length === 1 ? (
           // One template: nothing to choose, so it is stated, not offered in a
           // dropdown that cut its name short.
           <div className="flex flex-col gap-1.5">
-            <span className="text-[12px] font-semibold tracking-wide text-slate-600 uppercase">
+            <span className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
               {t('wording.generate.template')}
             </span>
             <div className="rounded-md border border-slate-200 bg-slate-50/70 px-3 py-2.5">
-              <p className="text-[13.5px] font-medium text-slate-800">{text.name(active[0])}</p>
-              <p className="mt-0.5 text-[12px] text-slate-500">{describe(active[0]!)}</p>
+              <p className="text-[0.8438rem] font-medium text-slate-800">{text.name(active[0])}</p>
+              <p className="mt-0.5 text-[0.75rem] text-slate-500">{describe(active[0]!)}</p>
             </div>
           </div>
         ) : (
           <fieldset className="flex flex-col gap-1.5">
-            <legend className="mb-1.5 text-[12px] font-semibold tracking-wide text-slate-600 uppercase">
+            <legend className="mb-1.5 text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
               {t('wording.generate.template')}
             </legend>
             <p className="mb-1 text-xs text-slate-500">{t('wording.generate.templateHint')}</p>
@@ -330,8 +330,8 @@ export function GenerateContractModal(props: GenerateContractModalProps) {
                       className="mt-1 accent-accent-600"
                     />
                     <span className="min-w-0">
-                      <span className="block text-[13.5px] font-medium text-slate-800">{text.name(x)}</span>
-                      <span className="block text-[12px] text-slate-500">{describe(x)}</span>
+                      <span className="block text-[0.8438rem] font-medium text-slate-800">{text.name(x)}</span>
+                      <span className="block text-[0.75rem] text-slate-500">{describe(x)}</span>
                     </span>
                   </label>
                 )
@@ -344,7 +344,7 @@ export function GenerateContractModal(props: GenerateContractModalProps) {
         <Callout tone="info" title={notice} />
       )}
       {error && (
-        <p className="text-[13px] text-neg-500" role="alert">
+        <p className="text-[0.8125rem] text-neg-500" role="alert">
           {error}
         </p>
       )}

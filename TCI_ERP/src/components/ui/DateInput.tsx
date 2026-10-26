@@ -76,9 +76,12 @@ export function DateInput({
     const place = () => {
       const r = wrapRef.current?.getBoundingClientRect()
       if (!r) return
-      const height = 320
+      // The calendar is 18rem wide and about 20rem tall: in px at the
+      // interface text size (lib/uiScale.ts).
+      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
+      const height = 20 * rem
       const below = window.innerHeight - r.bottom
-      setPos({ left: Math.min(r.left, window.innerWidth - 296), top: below < height && r.top > height ? r.top - height - 4 : r.bottom + 4 })
+      setPos({ left: Math.min(r.left, window.innerWidth - 18.5 * rem), top: below < height && r.top > height ? r.top - height - 4 : r.bottom + 4 })
     }
     place()
     window.addEventListener('resize', place)
@@ -176,7 +179,7 @@ export function DateInput({
             id={gridId}
             role="dialog"
             aria-label={t('date.openCalendar')}
-            style={{ position: 'fixed', left: pos.left, top: pos.top, width: 288 }}
+            style={{ position: 'fixed', left: pos.left, top: pos.top, width: '18rem' }}
             className="animate-fade-in z-[60] rounded-lg border border-slate-200 bg-white p-3 shadow-pop"
             onKeyDown={(e) => {
               if (e.key === 'Escape') {
@@ -195,7 +198,7 @@ export function DateInput({
               >
                 <ChevronLeft className="size-4" />
               </button>
-              <span className="text-[13px] font-semibold text-slate-800">{monthTitle(view.year, view.month0, locale)}</span>
+              <span className="text-[0.8125rem] font-semibold text-slate-800">{monthTitle(view.year, view.month0, locale)}</span>
               <button
                 type="button"
                 onClick={() => shift(1)}
@@ -207,7 +210,7 @@ export function DateInput({
             </div>
             <div className="grid grid-cols-7 gap-0.5 text-center">
               {weekdayNames(locale).map((d) => (
-                <span key={d} className="py-1 text-[11px] font-medium text-slate-400">
+                <span key={d} className="py-1 text-[0.6875rem] font-medium text-slate-400">
                   {d}
                 </span>
               ))}
@@ -218,7 +221,7 @@ export function DateInput({
                     type="button"
                     disabled={outOfRange(iso)}
                     onClick={() => pick(iso)}
-                    className={`h-8 rounded text-[13px] tabular-nums transition-colors disabled:cursor-not-allowed disabled:text-slate-300 ${
+                    className={`h-8 rounded text-[0.8125rem] tabular-nums transition-colors disabled:cursor-not-allowed disabled:text-slate-300 ${
                       iso === value
                         ? 'bg-accent-600 font-semibold text-white'
                         : iso === today
@@ -238,7 +241,7 @@ export function DateInput({
                 type="button"
                 onClick={() => pick(today)}
                 disabled={outOfRange(today)}
-                className="text-[12.5px] font-medium text-accent-600 hover:underline disabled:text-slate-300"
+                className="text-[0.7812rem] font-medium text-accent-600 hover:underline disabled:text-slate-300"
               >
                 {t('date.today')}
               </button>
@@ -250,7 +253,7 @@ export function DateInput({
                     onChange('')
                     setOpen(false)
                   }}
-                  className="text-[12.5px] text-slate-500 hover:underline"
+                  className="text-[0.7812rem] text-slate-500 hover:underline"
                 >
                   {t('picker.clear')}
                 </button>

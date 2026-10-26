@@ -228,12 +228,12 @@ export function LimitRequestPage() {
       />
 
       {actionError && (
-        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[13px] text-neg-500" role="alert">
+        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] text-neg-500" role="alert">
           {actionError}
         </div>
       )}
       {notice && (
-        <div className="mb-4 rounded-md border border-pos-500/25 bg-pos-50 px-4 py-2.5 text-[13px] text-slate-800" role="status">
+        <div className="mb-4 rounded-md border border-pos-500/25 bg-pos-50 px-4 py-2.5 text-[0.8125rem] text-slate-800" role="status">
           {notice}
         </div>
       )}
@@ -478,7 +478,7 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
         <>
           {latest.rating_score === null ? (
             // A manual grade (0073) has no score to place on the scale.
-            <p className="text-[13px] text-slate-600">
+            <p className="text-[0.8125rem] text-slate-600">
               {t('rating.proposals.manualGrade', { grade: latest.rating_grade })}
               {latest.manual_reason && <> — «{latest.manual_reason}»</>}
             </p>
@@ -490,7 +490,7 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
               size="compact"
             />
           )}
-          <div className="text-[13px]">
+          <div className="text-[0.8125rem]">
             <span className="text-slate-500">{t('report.calculatedLimit')}: </span>
             <SuggestedLimit
               amount={latest.suggested_limit}
@@ -501,18 +501,18 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
           </div>
         </>
       ) : (
-        <p className="text-[13px] text-slate-500">{t('report.noAssessment')}</p>
+        <p className="text-[0.8125rem] text-slate-500">{t('report.noAssessment')}</p>
       )}
 
       <Link
         to={`/entities/${request.entity_id}`}
-        className="text-[13px] font-medium text-accent-700 hover:underline"
+        className="text-[0.8125rem] font-medium text-accent-700 hover:underline"
       >
         {t('limits.openBuyerCard')} →
       </Link>
 
       {current && (
-        <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-[13px]">
+        <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-[0.8125rem]">
           <p className="text-slate-500">{t('limits.currentEffective')}</p>
           <p className="mt-0.5">
             <Badge tone={outcomeTone(current.outcome)}>
@@ -661,7 +661,7 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
             key={o}
             type="button"
             onClick={() => setOutcome(o)}
-            className={`rounded-md border px-3 py-1.5 text-[13px] font-medium transition-colors ${
+            className={`rounded-md border px-3 py-1.5 text-[0.8125rem] font-medium transition-colors ${
               outcome === o
                 ? 'border-accent-600 bg-accent-50 text-accent-700'
                 : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
@@ -716,18 +716,18 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
       {/* Authority preflight — same conversion rule as the SQL function. */}
       {check && (
         check.withinAuthority === null ? (
-          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
+          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
             {t('limits.preflight.missingRate', { currency })}
           </div>
         ) : check.withinAuthority ? (
-          <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-2.5 text-[13px] text-slate-600">
+          <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-2.5 text-[0.8125rem] text-slate-600">
             {t('limits.preflight.within', {
               band: t(`limits.bands.${check.band}`),
               authority: formatAmount(check.authorityUzs ?? 0, locale),
             })}
           </div>
         ) : (
-          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500">
+          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
             {t('limits.preflight.exceeds', {
               band: t(`limits.bands.${check.band}`),
               authority: formatAmount(check.authorityUzs ?? 0, locale),
@@ -739,12 +739,12 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
       <GroupPreflightNotice preflight={groupCheck} />
 
       {escalatedInfo && (
-        <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[13px] text-warn-500" role="status">
+        <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500" role="status">
           {escalatedInfo}
         </div>
       )}
       {error && (
-        <p className="text-[13px] text-neg-500" role="alert">
+        <p className="text-[0.8125rem] text-neg-500" role="alert">
           {error}
         </p>
       )}
@@ -776,7 +776,7 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
           </>
         )}
         {needsAmount && !amountValid && (
-          <span className="text-[13px] text-slate-500">{t('limits.amountRequired')}</span>
+          <span className="text-[0.8125rem] text-slate-500">{t('limits.amountRequired')}</span>
         )}
       </div>
 
@@ -860,7 +860,7 @@ function ConditionsRepeater({
   return (
     <div>
       <div className="mb-1.5 flex items-center justify-between">
-        <span className="text-[13px] font-medium text-slate-600">
+        <span className="text-[0.8125rem] font-medium text-slate-600">
           {t('limits.fields.conditions')}
         </span>
         <Button

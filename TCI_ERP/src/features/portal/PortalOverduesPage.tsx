@@ -172,8 +172,8 @@ export function PortalOverduesPage() {
           <EmptyState title={t('portal.overdues.empty')} hint={t('portal.overdues.emptyHint')} />
         ) : (
           <Table
-            columns={[COL.fill, COL.money, '7rem', COL.moment, labelCol('portalCover'), labelCol('overdueStatus')]}
-            fillMin="5.5rem"
+            columns={[COL.fill, COL.money, '7.5rem', COL.moment, labelCol('portalCover'), labelCol('overdueStatus')]}
+            fillMin="5rem"
           >
             <thead>
               <tr>
@@ -195,7 +195,7 @@ export function PortalOverduesPage() {
                     {formatAmount(Number(n.overdue_amount), locale)} {n.currency_code}
                   </td>
                   <td className="num">{n.days_past_due}</td>
-                  <td className="whitespace-nowrap text-[13px]">
+                  <td className="whitespace-nowrap text-[0.8125rem]">
                     {n.reported_late ? (
                       <Badge tone="negStrong">{t('overdues.lateBy', { days: n.days_late })}</Badge>
                     ) : (
@@ -208,7 +208,7 @@ export function PortalOverduesPage() {
                     {n.limit_suspended ? (
                       <Badge tone="warn">{t('portal.overdues.suspended')}</Badge>
                     ) : (
-                      <span className="text-[13px] text-slate-500">
+                      <span className="text-[0.8125rem] text-slate-500">
                         {t('portal.overdues.noLimitAffected')}
                       </span>
                     )}

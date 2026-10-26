@@ -70,7 +70,7 @@ export function BuyerLimitsTab({ entityId }: { entityId: string }) {
           onChange={(key) => setMode(key as 'effective' | 'history')}
         />
         {exposure.data?.exposure_uzs != null && (
-          <span className="text-[13px] text-slate-500">
+          <span className="text-[0.8125rem] text-slate-500">
             {t('limits.exposureTotal')}:{' '}
             <span className="num font-semibold text-slate-800">
               {formatAmount(Number(exposure.data.exposure_uzs), locale, 0)} UZS
@@ -105,7 +105,7 @@ export function BuyerLimitsTab({ entityId }: { entityId: string }) {
               {shown.map((d) => (
                 <li
                   key={d.id}
-                  className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-md border px-3 py-2 text-[13px] ${
+                  className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-md border px-3 py-2 text-[0.8125rem] ${
                     isCurrent(d) ? 'border-slate-200 bg-white' : 'border-slate-100 bg-slate-50 opacity-80'
                   }`}
                 >

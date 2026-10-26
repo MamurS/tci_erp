@@ -35,7 +35,7 @@ export function PlaceholderReference() {
       </SectionTitle>
       {open && (
         <div id={bodyId} className="mt-4">
-          <ul className="mb-4 list-inside list-disc text-[13px] text-slate-600">
+          <ul className="mb-4 list-inside list-disc text-[0.8125rem] text-slate-600">
             <li>{t('wording.reference.syntaxValue', WORDING_SYNTAX)}</li>
             <li>{t('wording.reference.syntaxLoop', WORDING_SYNTAX)}</li>
             <li>{t('wording.reference.syntaxCondition', WORDING_SYNTAX)}</li>
@@ -49,8 +49,8 @@ export function PlaceholderReference() {
                 <tbody>
                   {PLACEHOLDERS.filter((p) => placeholderGroup(p) === group).map((p) => (
                     <tr key={p}>
-                      <td className="font-mono text-[12px] text-accent-700 select-all">{placeholderSyntax(p)}</td>
-                      <td className="text-[13px]">{t(placeholderKey(p))}</td>
+                      <td className="font-mono text-[0.75rem] text-accent-700 select-all">{placeholderSyntax(p)}</td>
+                      <td className="text-[0.8125rem]">{t(placeholderKey(p))}</td>
                     </tr>
                   ))}
                 </tbody>

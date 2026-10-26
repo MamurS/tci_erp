@@ -284,7 +284,7 @@ export function Combobox({
                   }`}
                 >
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[13.5px] text-slate-700">
+                    <div className="truncate text-[0.8438rem] text-slate-700">
                       {highlight(option.label, query).map((part, i) =>
                         part.match ? (
                           <strong key={i} className="font-semibold text-slate-950">
@@ -295,16 +295,16 @@ export function Combobox({
                         ),
                       )}
                     </div>
-                    {option.meta && <div className="mt-0.5 truncate text-[12px] text-slate-500">{option.meta}</div>}
+                    {option.meta && <div className="mt-0.5 truncate text-[0.75rem] text-slate-500">{option.meta}</div>}
                   </div>
                   {option.id === value && <Check className="mt-0.5 size-4 shrink-0 text-accent-600" />}
                 </div>
               ))}
               {result.shown.length === 0 && (
-                <div className="px-3 py-2.5 text-[13px] text-slate-500">{t('picker.noMatches')}</div>
+                <div className="px-3 py-2.5 text-[0.8125rem] text-slate-500">{t('picker.noMatches')}</div>
               )}
               {result.more > 0 && (
-                <div className="px-3 pt-1 pb-1.5 text-[12px] text-slate-400">
+                <div className="px-3 pt-1 pb-1.5 text-[0.75rem] text-slate-400">
                   {t('picker.more', { n: result.more })}
                 </div>
               )}

@@ -50,7 +50,7 @@ export function CreditAnalysisModeCard() {
         }}
         options={CREDIT_ANALYSIS_MODES.map((m) => ({ key: m, label: t(`admin.creditAnalysis.modes.${m}`) }))}
       />
-      <p className="text-[13px] text-slate-600">{t(`admin.creditAnalysis.body.${mode}`)}</p>
+      <p className="text-[0.8125rem] text-slate-600">{t(`admin.creditAnalysis.body.${mode}`)}</p>
       {error && <Callout tone="neg" title={error} />}
       <ConfirmDialog
         open={pending !== null}

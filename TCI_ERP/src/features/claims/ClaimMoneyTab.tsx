@@ -101,7 +101,7 @@ export function ClaimMoneyTab({ claim }: { claim: Claim }) {
             }
           >
             {(payments ?? []).length === 0 ? (
-              <p className="py-2 text-[13px] text-slate-500">{t('claims.money.noPayments')}</p>
+              <p className="py-2 text-[0.8125rem] text-slate-500">{t('claims.money.noPayments')}</p>
             ) : (
               <Table dense columns={[COL.date, COL.fill, COL.money]}>
                 <thead>
@@ -138,7 +138,7 @@ export function ClaimMoneyTab({ claim }: { claim: Claim }) {
             }
           >
             {(recoveries ?? []).length === 0 ? (
-              <p className="py-2 text-[13px] text-slate-500">{t('claims.money.noRecoveries')}</p>
+              <p className="py-2 text-[0.8125rem] text-slate-500">{t('claims.money.noRecoveries')}</p>
             ) : (
               <Table dense columns={[COL.fill, COL.amount, COL.amount, COL.amount]}>
                 <thead>
@@ -154,7 +154,7 @@ export function ClaimMoneyTab({ claim }: { claim: Claim }) {
                     <tr key={r.id}>
                       <td className="whitespace-nowrap">
                         {formatDate(r.received_at, locale)}
-                        <span className="block text-[11.5px] text-slate-400">
+                        <span className="block text-[0.7188rem] text-slate-400">
                           {t('claims.money.grossLessCosts', {
                             gross: formatAmount(Number(r.gross_amount), locale),
                             costs: formatAmount(Number(r.recovery_costs), locale),
@@ -221,7 +221,7 @@ function PaymentModal({ claim, onClose }: { claim: Claim; onClose: () => void })
       }
     >
       {error && <Callout tone="neg" title={error} />}
-      <p className="text-[13px] leading-relaxed text-slate-600">{t('claims.money.paymentHint')}</p>
+      <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t('claims.money.paymentHint')}</p>
       <Field label={t('claims.fields.amount')}>
         <AmountInput value={amount} onChange={setAmount} suffix={claim.currency_code} />
       </Field>
@@ -279,7 +279,7 @@ function RecoveryModal({ claim, onClose }: { claim: Claim; onClose: () => void }
       }
     >
       {error && <Callout tone="neg" title={error} />}
-      <p className="text-[13px] leading-relaxed text-slate-600">{t('claims.money.recoveryHint')}</p>
+      <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t('claims.money.recoveryHint')}</p>
       <Field label={t('claims.fields.gross')}>
         <AmountInput value={gross} onChange={setGross} suffix={claim.currency_code} />
       </Field>

@@ -43,13 +43,13 @@ export function WorkspaceSwitcher({ workspaces, current, onSwitch }: WorkspaceSw
   const label = (
     <>
       <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white/10 text-white">
-        <Icon className="size-[18px]" strokeWidth={1.8} />
+        <Icon className="size-[1.125rem]" strokeWidth={1.8} />
       </span>
       <span className="flex min-w-0 flex-1 flex-col items-start text-left leading-tight">
-        <span className="text-[10px] font-medium tracking-[0.12em] text-white/45 uppercase">
+        <span className="text-[0.625rem] font-medium tracking-[0.12em] text-white/45 uppercase">
           {t('nav.workspace')}
         </span>
-        <span className="mt-0.5 line-clamp-2 w-full text-[13px] font-semibold text-white">
+        <span className="mt-0.5 line-clamp-2 w-full text-[0.8125rem] font-semibold text-white">
           {t(`nav.workspaces.${current}.name`)}
         </span>
       </span>
@@ -97,8 +97,8 @@ export function WorkspaceSwitcher({ workspaces, current, onSwitch }: WorkspaceSw
               >
                 <ItemIcon className="mt-0.5 size-4 shrink-0 text-white/70" strokeWidth={1.8} />
                 <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="text-[13px] font-semibold text-white">{t(`nav.workspaces.${w.key}.name`)}</span>
-                  <span className="text-[11px] leading-snug text-white/50">{t(`nav.workspaces.${w.key}.hint`)}</span>
+                  <span className="text-[0.8125rem] font-semibold text-white">{t(`nav.workspaces.${w.key}.name`)}</span>
+                  <span className="text-[0.6875rem] leading-snug text-white/50">{t(`nav.workspaces.${w.key}.hint`)}</span>
                 </span>
                 {selected && <Check className="mt-0.5 size-4 shrink-0 text-accent-300" />}
               </button>

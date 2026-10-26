@@ -83,7 +83,7 @@ export function GroupLimitModal({
       }
     >
       <div className="flex flex-col gap-3">
-        <p className="text-[13px] text-slate-500">
+        <p className="text-[0.8125rem] text-slate-500">
           {t('groups.limitModalHint', { name: ultimateParentName })}
         </p>
         <div className="grid grid-cols-2 gap-3">
@@ -108,7 +108,7 @@ export function GroupLimitModal({
           <Input value={comment} onChange={(e) => setComment(e.target.value)} />
         </Field>
         {error && (
-          <p className="text-[13px] text-neg-500" role="alert">
+          <p className="text-[0.8125rem] text-neg-500" role="alert">
             {error}
           </p>
         )}

@@ -18,6 +18,6 @@ const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
 }
 
 export function buttonClassName(variant: ButtonVariant = 'primary', size: 'md' | 'sm' = 'md', className = ''): string {
-  const sizing = size === 'sm' ? 'h-8 px-2.5 text-[13px]' : 'h-9 px-3.5 text-sm'
+  const sizing = size === 'sm' ? 'h-8 px-2.5 text-[0.8125rem]' : 'h-9 px-3.5 text-sm'
   return `inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md font-medium whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 disabled:cursor-not-allowed [&_svg]:size-4 ${sizing} ${BUTTON_VARIANTS[variant]} ${className}`
 }

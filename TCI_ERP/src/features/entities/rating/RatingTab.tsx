@@ -291,7 +291,7 @@ export function RatingTab({ entityId }: { entityId: string }) {
       <div id={STATEMENT_ROW_ANCHOR_ID} className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
         <Card className="flex flex-wrap items-end gap-3 p-5">
           <label className="flex flex-col gap-1">
-            <span className="text-[13px] font-medium text-slate-600">{t('rating.statement')}</span>
+            <span className="text-[0.8125rem] font-medium text-slate-600">{t('rating.statement')}</span>
             <Select
               value={selected?.id ?? ''}
               onChange={(e) => setStatementId(e.target.value)}
@@ -318,12 +318,12 @@ export function RatingTab({ entityId }: { entityId: string }) {
             {t('rating.generateReport')}
           </Button>
           {serviceDown && (
-            <span className="text-[13px] text-neg-500" role="alert">
+            <span className="text-[0.8125rem] text-neg-500" role="alert">
               {t('rating.serviceUnavailable')}
             </span>
           )}
           {calculate.isError && !serviceDown && (
-            <span className="text-[13px] text-neg-500" role="alert">
+            <span className="text-[0.8125rem] text-neg-500" role="alert">
               {t('common.saveFailed')}
             </span>
           )}
@@ -438,7 +438,7 @@ function ResultView({
           <FactorGroup title={t('rating.strengths')} chips={chips.strengths} none={t('rating.noStrengths')} />
           <FactorGroup title={t('rating.weaknesses')} chips={chips.weaknesses} none={t('rating.noWeaknesses')} />
         </div>
-        <p className="text-[13px] text-slate-500">
+        <p className="text-[0.8125rem] text-slate-500">
           {rating.data_coverage >= 0.995
             ? t('rating.coverageFull')
             : t('rating.coverage', { pct: formatPercent(rating.data_coverage, locale, 0) })}
@@ -446,7 +446,7 @@ function ResultView({
         {rating.adjustments.length > 0 && (
           <div className="flex flex-col gap-1">
             {rating.adjustments.map((a) => (
-              <span key={a.code} className="text-[13px] text-warn-500">
+              <span key={a.code} className="text-[0.8125rem] text-warn-500">
                 {t(`rating.adjustments.${a.code}`, { defaultValue: t('rating.adjustments.other') })}:{' '}
                 {formatAmount(a.rating_before, locale, 1)} →{' '}
                 {formatAmount(a.rating_after, locale, 1)}
@@ -463,18 +463,18 @@ function ResultView({
           {formatAmount(limit.suggested_limit, locale)}{' '}
           <span className="text-lg font-medium text-slate-500">{limit.currency}</span>
         </span>
-        <span className="text-[13px] text-slate-500">
+        <span className="text-[0.8125rem] text-slate-500">
           {t('rating.model')}: {t(`rating.models.${limit.model_used}`, { defaultValue: t('rating.models.none') })}
         </span>
         {limit.reasons.length > 0 && (
-          <ul className="list-inside list-disc text-[13px] text-slate-500">
+          <ul className="list-inside list-disc text-[0.8125rem] text-slate-500">
             {limit.reasons.map((r) => {
               const reason = limitReason(r)
               return <li key={r}>{t(`rating.limitReasons.${reason.key}`, reason.params)}</li>
             })}
           </ul>
         )}
-        <details className="mt-1 w-full text-[13px] text-slate-600">
+        <details className="mt-1 w-full text-[0.8125rem] text-slate-600">
           <summary className="cursor-pointer font-medium text-accent-700">
             {t('rating.trace')}
           </summary>
@@ -553,8 +553,8 @@ function ResultView({
 function FactorGroup({ title, chips, none }: { title: string; chips: FactorChip[]; none: string }) {
   return (
     <div>
-      <h4 className="mb-1.5 text-[13px] font-semibold text-slate-600">{title}</h4>
-      {chips.length > 0 ? <FactorChipList chips={chips} /> : <p className="text-[13px] text-slate-500">{none}</p>}
+      <h4 className="mb-1.5 text-[0.8125rem] font-semibold text-slate-600">{title}</h4>
+      {chips.length > 0 ? <FactorChipList chips={chips} /> : <p className="text-[0.8125rem] text-slate-500">{none}</p>}
     </div>
   )
 }
@@ -589,7 +589,7 @@ function ScoreHistoryChart({
     return (
       <Card className="p-5">
         <SectionTitle className="mb-2">{t('rating.historyChart')}</SectionTitle>
-        <p className="text-[13px] text-slate-500">{t('rating.historyChartEmpty')}</p>
+        <p className="text-[0.8125rem] text-slate-500">{t('rating.historyChartEmpty')}</p>
       </Card>
     )
   }
@@ -622,13 +622,13 @@ function ScoreHistoryChart({
               tickFormatter={(value: number) => formatDate(new Date(value), locale)}
               padding={{ left: 28, right: 28 }}
               minTickGap={16}
-              tick={{ fontSize: 11, fill: '#64748b' }}
+              tick={{ fontSize: '0.6875rem', fill: '#64748b' }}
             />
             <YAxis
               reversed
               domain={[0, 100]}
               ticks={[0, 25, 50, 75, 100]}
-              tick={{ fontSize: 11, fill: '#64748b' }}
+              tick={{ fontSize: '0.6875rem', fill: '#64748b' }}
               width={32}
             />
             <Tooltip
@@ -651,7 +651,7 @@ function ScoreHistoryChart({
               dot={{ r: 4, fill: '#fff', stroke: CHART_COLORS[0], strokeWidth: 2 }}
               activeDot={{ r: 5 }}
             >
-              <LabelList dataKey="grade" position="top" offset={10} fontSize={11} fill="#475569" />
+              <LabelList dataKey="grade" position="top" offset={10} fontSize="0.6875rem" fill="#475569" />
             </Line>
           </LineChart>
         </ResponsiveContainer>

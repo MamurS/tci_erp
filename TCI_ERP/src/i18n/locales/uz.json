@@ -2562,6 +2562,11 @@
       "samePassword": "Yangi parol joriy paroldan farq qilishi kerak.",
       "weakPassword": "Parol server talablariga javob bermaydi. Uzunroq yoki kamroq tarqalgan parol tanlang.",
       "changeFailed": "Parolni o‘zgartirib bo‘lmadi. Qaytadan urinib ko‘ring."
+    },
+    "uiScale": {
+      "title": "Matn o‘lchami",
+      "hint": "Butun interfeys tanlangan o‘lchamda; sozlama har qanday qurilmada siz uchun saqlanadi.",
+      "notSaved": "Ushbu qurilmada qo‘llanildi, lekin hisobingizga saqlanmadi."
     }
   },
   "provisioning": {

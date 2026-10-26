@@ -87,7 +87,7 @@ export function ChangeLimitRequestModal({
               autoFocus
             />
             {amount.trim() !== '' && !amountValid && (
-              <span className="text-[13px] text-neg-500">{t('portal.limits.amountInvalid')}</span>
+              <span className="text-[0.8125rem] text-neg-500">{t('portal.limits.amountInvalid')}</span>
             )}
           </Field>
           <Field label={t('portal.limits.paymentTerms')}>
@@ -113,7 +113,7 @@ export function ChangeLimitRequestModal({
           <Textarea value={justification} onChange={(e) => setJustification(e.target.value)} rows={3} />
         </Field>
 
-        {unchanged && <p className="text-[13px] text-slate-500">{t('portal.limits.change.unchangedHint')}</p>}
+        {unchanged && <p className="text-[0.8125rem] text-slate-500">{t('portal.limits.change.unchangedHint')}</p>}
       </div>
     </Modal>
   )

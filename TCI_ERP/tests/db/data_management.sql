@@ -112,7 +112,7 @@ begin
   select * into v_task from tci.tasks
    where object_id = (select id from t_ids where k = 'r1') and status = 'open';
   if v_task.task_type::text <> 'entity_requested' or v_task.target_user <> v_first
-     or v_task.target_role is not null or v_task.priority::text <> 'high' then
+     or v_task.target_role is distinct from 'information_manager' or v_task.priority::text <> 'high' then
     raise exception 'data: task %', row_to_json(v_task);
   end if;
 

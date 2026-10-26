@@ -33,12 +33,12 @@ export function DetailHeader({ eyebrow, title, status, meta, actions }: DetailHe
     <header className="mb-6 flex flex-wrap items-start justify-between gap-x-8 gap-y-4">
       <div className="min-w-0">
         {eyebrow && (
-          <div className="mb-1 text-[12px] font-semibold tracking-wider text-accent-500 uppercase">
+          <div className="mb-1 text-[0.75rem] font-semibold tracking-wider text-accent-500 uppercase">
             {eyebrow}
           </div>
         )}
         <div data-badge-row className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-          <h1 className="font-display text-[28px] leading-tight font-bold tracking-wide text-accent-600 uppercase">
+          <h1 className="font-display text-[1.75rem] leading-tight font-bold tracking-wide text-accent-600 uppercase">
             {title}
           </h1>
           {status && (
@@ -106,17 +106,17 @@ export function KeyFigures({ items, className = 'mb-6' }: { items: KeyFigure[]; 
             key={i}
             className={`flex flex-[1_1_auto] flex-col gap-1 bg-white px-5 py-4 ${item.text ? 'min-w-0 basis-40' : ''}`}
           >
-            <span className="text-[12px] font-medium text-slate-500">{item.label}</span>
+            <span className="text-[0.75rem] font-medium text-slate-500">{item.label}</span>
             <span
               className={`${
                 item.text
-                  ? 'pt-1 text-[15px] leading-snug font-semibold'
-                  : 'font-display text-[24px] leading-tight font-bold whitespace-nowrap tabular-nums'
+                  ? 'pt-1 text-[0.9375rem] leading-snug font-semibold'
+                  : 'font-display text-[1.5rem] leading-tight font-bold whitespace-nowrap tabular-nums'
               } ${FIGURE_TONES[item.tone ?? 'default']}`}
             >
               {item.value}
             </span>
-            {item.meta && <span className="text-[12px] leading-snug text-slate-500">{item.meta}</span>}
+            {item.meta && <span className="text-[0.75rem] leading-snug text-slate-500">{item.meta}</span>}
           </div>
         ))}
       </div>
@@ -143,7 +143,7 @@ export interface Fact {
  */
 export function DescriptionList({ items, columns = 1 }: { items: Fact[]; columns?: 1 | 2 }) {
   return (
-    <dl className={`grid text-[13px] ${columns === 2 ? 'gap-x-10 md:grid-cols-2' : ''}`}>
+    <dl className={`grid text-[0.8125rem] ${columns === 2 ? 'gap-x-10 md:grid-cols-2' : ''}`}>
       {items.map((item, i) => (
         <div
           key={i}
@@ -155,7 +155,7 @@ export function DescriptionList({ items, columns = 1 }: { items: Fact[]; columns
         >
           <dt className="min-w-0 text-slate-500">
             {item.label}
-            {item.hint && <span className="mt-0.5 block text-[11.5px] text-slate-400">{item.hint}</span>}
+            {item.hint && <span className="mt-0.5 block text-[0.7188rem] text-slate-400">{item.hint}</span>}
           </dt>
           <dd className="text-right font-medium text-slate-900 tabular-nums">{item.value}</dd>
         </div>
@@ -192,9 +192,9 @@ export function Callout({ tone = 'info', title, children, action, className = ''
   return (
     <div
       role={tone === 'neg' ? 'alert' : undefined}
-      className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-[13px] text-slate-700 ${box} ${className}`}
+      className={`flex items-start gap-3 rounded-lg border px-4 py-3 text-[0.8125rem] text-slate-700 ${box} ${className}`}
     >
-      <Icon className={`mt-0.5 size-[18px] shrink-0 ${icon}`} aria-hidden />
+      <Icon className={`mt-0.5 size-[1.125rem] shrink-0 ${icon}`} aria-hidden />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-slate-800">{title}</p>
         {children && <div className="mt-0.5 leading-relaxed">{children}</div>}

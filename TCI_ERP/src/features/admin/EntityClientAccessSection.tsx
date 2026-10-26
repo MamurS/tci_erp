@@ -88,7 +88,7 @@ export function EntityClientAccessSection({ entityId }: { entityId: string }) {
       )}
 
       {errorKey && (
-        <p className="mb-3 text-[13px] text-neg-500" role="alert">
+        <p className="mb-3 text-[0.8125rem] text-neg-500" role="alert">
           {t(`provisioning.errors.${errorKey}`)}
         </p>
       )}

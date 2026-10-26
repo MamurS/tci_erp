@@ -5,7 +5,8 @@
  * visits, in en / ru / uz:
  *
  * - badges of one size class have ONE height (to the device pixel) — and
- *   it is the spec's: sm 20 px, md 24 px;
+ *   it is the spec's: sm 20 px, md 24 px at 100 % text size, scaled by the
+ *   person's size (uiScale.ts: the root font size; 30 / 36 px at 150 %);
  * - badges beside each other on a line (overlapping vertically, at most
  *   3 rem apart) share their vertical centre (±1 px);
  * - in a header (`data-badge-row`: the title and its status badges) every
@@ -51,6 +52,8 @@ async function settle(page: Page) {
 async function badgeProblems(page: Page, spec = SPEC_HEIGHT) {
   return page.evaluate((spec) => {
     const dpr = window.devicePixelRatio || 1
+    // The spec is in rem: 20 px / 24 px at a 16 px root.
+    const scale = parseFloat(getComputedStyle(document.documentElement).fontSize) / 16
     const px = (v: number) => Math.round(v * dpr) / dpr
     const text = (el: Element) => ((el as HTMLElement).innerText ?? '').replace(/\s+/g, ' ').trim().slice(0, 24)
     const shown = (el: Element) => {
@@ -64,7 +67,8 @@ async function badgeProblems(page: Page, spec = SPEC_HEIGHT) {
       const size = b.dataset.badge as 'sm' | 'md'
       const h = px(b.getBoundingClientRect().height)
       ;(heights[size] ??= new Set()).add(h)
-      if (spec[size] !== undefined && h !== spec[size]) problems.push(`«${text(b)}» (${size}) is ${h}px tall, not ${spec[size]}`)
+      const want = spec[size] === undefined ? undefined : px(spec[size] * scale)
+      if (want !== undefined && h !== want) problems.push(`«${text(b)}» (${size}) is ${h}px tall, not ${want}`)
       const s = getComputedStyle(b)
       if (s.textTransform === 'uppercase') problems.push(`«${text(b)}» (${size}) is set in capitals`)
       if (/PT Sans Narrow/i.test(s.fontFamily.split(',')[0] ?? '')) problems.push(`«${text(b)}» (${size}) is set in the display face`)

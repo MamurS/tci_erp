@@ -884,6 +884,34 @@ is fine for internal test accounts and not fine for customers.
   `tests/db/client_limit_changes.sql` run on canonical with role
   impersonation (forced rollback, nothing left behind, counts unchanged);
   no new advisor finding
+- [x] Interface text size (migration 0076, owner request 2026-10-25):
+  each person picks «Размер текста» — 100 / 125 / 150 / 175 / 200 % —
+  on the account page (staff and portal) or in the staff user menu; it is
+  kept in `tci.user_profiles.ui_scale` (NULL = the default, **150 %**) and
+  cached per browser only for the first paint. The whole interface scales:
+  every size is rem (no `text-[Npx]` left; `uiScale.test.ts` refuses new
+  ones), the root font size is the chosen per cent, and the Tailwind
+  breakpoints are CONTAINER queries in rem on `<body>` so they move with
+  it — at 200 % a 1440 px screen gets the 720 px layout, as browser zoom
+  would. Print routes (risk report, contract, offer) and `@media print`
+  hold 100 %. See **Interface text size rules** below. **Canonical: 0076
+  applied 2026-10-25** before merge (additive), fingerprints identical to
+  a local replay, `tests/db/ui_scale.sql` run on canonical with role
+  impersonation and rolled back, nothing left behind, no new advisor
+  finding
+- [x] Person-addressed department tasks follow the acting role (migration
+  0077): a credit analyst holding credit underwriting too saw «Decide the
+  credit limit…» tasks — addressed to them by name as a covering
+  underwriter — and found no decision form behind them. Such tasks now name
+  their department (`target_role` next to `target_user`, from
+  `tci.task_work_role`; the 39 existing rows filled in-migration) and
+  `task_is_mine` / "tasks: read mine" show them only in that role;
+  `board.ts isMine` mirrors it (contract-tested). **Canonical: 0077 applied
+  2026-10-26** before merge (backward-compatible), the three objects it
+  replaces verified identical to a local replay of 0076 first, the whole
+  file in one call with its ledger row, all four objects identical
+  afterwards, `tests/db/person_task_role.sql` run on canonical with role
+  impersonation (forced rollback, nothing left behind)
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1967,7 +1995,11 @@ that role is still held; otherwise the ONLY role held; otherwise NULL — and
 NULL closes every gate. `has_role`, `is_staff` and `current_user_roles`
 answer for it, so reads are as strict as writes: a person acting as sales
 sees what a sales-only user sees. Department tasks follow the acting role;
-tasks addressed to the PERSON stay visible in every workspace. A single-role
+a task addressed to a PERSON for their department's work (a band-aware
+limit decision, a data request, a validation step) also names that role
+since 0077 (`tci.task_work_role`, filled by `open_task`) and shows only
+while the person acts in it; a task addressed to the person alone (a result
+notice, a client's task) stays visible in every workspace. A single-role
 user never sets anything. `set_acting_role` refuses a role not held
 (`acting_role_not_held`, 42501) and a token with no session
 (`acting_role_no_session`); the switch is logged `session.acting_role`.
@@ -2198,6 +2230,35 @@ validation step with its tasks (`emit_validation_resolved … 'cancelled'`).
 Before 0075 the step stayed pending until a validator happened to answer.
 A withdrawn proposal is `withdrawn` (new status) and its `buyer_needs_entity`
 task is cancelled; `resolve_buyer_proposal` refuses it.
+
+### Interface text size rules (migration 0076)
+
+**One number scales everything.** `document.documentElement.style.fontSize`
+is the person's size in per cent (`src/lib/uiScale.ts`); every text size,
+spacing, column reservation and box in the app is rem, so it all follows.
+Never size text or a box in px (`text-[13px]`, `size-[18px]`, `max-w-[220px]`):
+`uiScale.test.ts` fails on it. Hairlines (borders, 1–3 px bars, radii) stay
+px on purpose.
+
+**Breakpoints are container queries.** A media query's rem is the browser's
+initial font size and would not move with the scale; a container query's
+rem is the root's. `index.css` therefore redefines `sm` / `md` / `lg` /
+`xl` / `2xl` as `@container app (width >= …rem)` with `<body>` as the `app`
+container (every portal and modal is inside it). JS that needs a breakpoint
+computes it from the root font size (AppShell's `lg` for the docked
+sidebar; DateInput's popup size) — never a px media query.
+
+**Paper is 100 %.** `usePrintScale()` pins the scale while a print route is
+open (risk report, contract print, offer print), and `@media print` forces
+100 %, so a PDF is the same whatever the screen uses. `report.css` is in rem
+(mm converted at 96/25.4 px) for the same reason: identical at 100 %,
+scaled on the Overview tab.
+
+**The server is the truth.** `useUiScaleSync` reads `ui_scale` once a
+session exists (NULL ⇒ 150 %) and applies it; the picker applies at once
+and saves through the column grant (`update (ui_scale)` on
+`user_profiles`, own row by the existing policy). The browser cache only
+seeds the sign-in page and the first paint.
 
 ### Auto decision (ADT) rules (migration 0061)
 

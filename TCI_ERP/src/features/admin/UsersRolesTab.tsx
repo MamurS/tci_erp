@@ -96,7 +96,7 @@ export function UsersRolesTab({
   return (
     <>
       <div className="mb-3 flex items-center justify-between gap-3">
-        <span className="text-[13px] text-slate-500">
+        <span className="text-[0.8125rem] text-slate-500">
           {t('admin.usersCount', { count: users?.length ?? 0 })}
         </span>
         {/* Disabled says why: the notice below, and on the button itself. */}
@@ -124,17 +124,17 @@ export function UsersRolesTab({
       )}
 
       {actionErrorKey && (
-        <p className="mb-3 text-[13px] text-neg-500" role="alert">
+        <p className="mb-3 text-[0.8125rem] text-neg-500" role="alert">
           {t(`provisioning.errors.${actionErrorKey}`)}
         </p>
       )}
       {rolesError && (
-        <p className="mb-3 text-[13px] text-neg-500" role="alert">
+        <p className="mb-3 text-[0.8125rem] text-neg-500" role="alert">
           {rolesError}
         </p>
       )}
       {managerError && (
-        <p className="mb-3 text-[13px] text-neg-500" role="alert">
+        <p className="mb-3 text-[0.8125rem] text-neg-500" role="alert">
           {managerError}
         </p>
       )}
@@ -174,7 +174,7 @@ export function UsersRolesTab({
                 {u.roles.includes('credit_analyst') && (
                   <button
                     type="button"
-                    className="ml-1 text-[12px] text-accent-700 hover:underline disabled:opacity-60"
+                    className="ml-1 text-[0.75rem] text-accent-700 hover:underline disabled:opacity-60"
                     disabled={setSenior.isPending}
                     title={t('admin.senior.hint')}
                     onClick={(e) => {
@@ -356,7 +356,7 @@ function ManagerModal({
         </>
       }
     >
-      <p className="text-[13px] text-slate-500">{t('admin.manager.hint')}</p>
+      <p className="text-[0.8125rem] text-slate-500">{t('admin.manager.hint')}</p>
       <Field label={t('admin.fields.manager')}>
         <Combobox value={picked} onChange={setPicked} options={options} openOnFocus autoFocus placeholder={t('admin.manager.placeholder')} />
       </Field>
@@ -432,7 +432,7 @@ function RolesModal({
         </>
       }
     >
-      <p className="mb-3 text-[13px] text-slate-500">{t('admin.rolesHint')}</p>
+      <p className="mb-3 text-[0.8125rem] text-slate-500">{t('admin.rolesHint')}</p>
       <div className="flex flex-col gap-2">
         {USER_ROLES.map((role) => (
           <label
@@ -459,9 +459,9 @@ function RolesModal({
           </label>
         ))}
       </div>
-      <p className="mt-3 text-[13px] text-slate-500">{t('admin.clientAloneHint')}</p>
+      <p className="mt-3 text-[0.8125rem] text-slate-500">{t('admin.clientAloneHint')}</p>
       {error && (
-        <p className="mt-2 text-[13px] text-neg-500" role="alert">
+        <p className="mt-2 text-[0.8125rem] text-neg-500" role="alert">
           {error}
         </p>
       )}

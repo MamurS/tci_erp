@@ -275,7 +275,7 @@ export function PortalLimitsPage() {
                           })}
                     </td>
                     {anyConditions && (
-                      <td className="text-[13px] text-slate-600">
+                      <td className="text-[0.8125rem] text-slate-600">
                         {rowConditions.length ? (
                           <ul className="list-inside list-disc whitespace-normal">
                             {rowConditions.map((c, i) => (

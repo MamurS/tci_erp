@@ -106,7 +106,7 @@ export function RatingsView() {
                   <Truncate text={r.buyer_name} className="max-w-none">
                     <EntityLink id={r.entity_id} name={r.buyer_name} tab={REASON_TAB[r.reason]} />
                   </Truncate>
-                  <Truncate text={countryName(r.buyer_country)} className="max-w-none text-[12px] text-slate-500" />
+                  <Truncate text={countryName(r.buyer_country)} className="max-w-none text-[0.75rem] text-slate-500" />
                 </td>
                 <td>
                   <Badge tone={REASON_TONE[r.reason]}>{t(`limits.workbench.ratings.reasons.${r.reason}`)}</Badge>

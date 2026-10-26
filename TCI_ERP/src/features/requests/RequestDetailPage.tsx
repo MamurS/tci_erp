@@ -187,7 +187,7 @@ export function RequestDetailPage() {
               ))}
             </div>
             {guardReasons.map((guard) => (
-              <p key={guard} className="text-right text-[12px] leading-snug text-warn-500">
+              <p key={guard} className="text-right text-[0.75rem] leading-snug text-warn-500">
                 {t(`requests.guards.${guard}`)}
               </p>
             ))}

@@ -240,7 +240,7 @@ function ResolveModal({
     >
       {error && (
         <div
-          className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[13px] text-neg-500"
+          className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] text-neg-500"
           role="alert"
         >
           {error}
@@ -255,7 +255,7 @@ function ResolveModal({
       </p>
 
       {proposal.justification && (
-        <p className="mb-4 rounded-md bg-slate-50 px-3 py-2 text-[13px] text-slate-600">
+        <p className="mb-4 rounded-md bg-slate-50 px-3 py-2 text-[0.8125rem] text-slate-600">
           {proposal.justification}
         </p>
       )}

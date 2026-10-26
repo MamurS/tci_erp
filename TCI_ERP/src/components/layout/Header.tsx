@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { UiScalePicker } from '../../features/account/UiScalePicker'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown, LogOut, Search, UserRound } from 'lucide-react'
@@ -70,10 +71,14 @@ export function Header({ onOpenPalette, toggleSlot, onShowSidebar, sidebarId }: 
       {section && SectionIcon && (
         <Link
           to={section.path}
-          className="hidden shrink-0 items-center gap-2 font-display text-[16px] font-bold tracking-wide text-accent-600 uppercase hover:text-accent-500 md:flex"
+          // Shrinks before the search and the menu do: a long section name
+          // (uz, at a large text size) is cut with an ellipsis, never pushing
+          // the user menu off the screen.
+          className="hidden min-w-0 items-center gap-2 font-display text-[1rem] font-bold tracking-wide text-accent-600 uppercase hover:text-accent-500 md:flex"
+          title={t(`nav.${section.key}`)}
         >
-          <SectionIcon className="size-[18px] text-accent-500" strokeWidth={2} />
-          {t(`nav.${section.key}`)}
+          <SectionIcon className="size-[1.125rem] shrink-0 text-accent-500" strokeWidth={2} />
+          <span className="truncate">{t(`nav.${section.key}`)}</span>
         </Link>
       )}
       <button
@@ -84,7 +89,7 @@ export function Header({ onOpenPalette, toggleSlot, onShowSidebar, sidebarId }: 
       >
         <Search className="size-4" />
         <span className="hidden flex-1 truncate sm:inline">{t('palette.trigger')}</span>
-        <kbd className="hidden rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[11px] font-medium text-slate-500 sm:inline">
+        <kbd className="hidden rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[0.6875rem] font-medium text-slate-500 sm:inline">
           {isMac ? '⌘K' : 'Ctrl K'}
         </kbd>
       </button>
@@ -100,13 +105,15 @@ export function Header({ onOpenPalette, toggleSlot, onShowSidebar, sidebarId }: 
           aria-expanded={menuOpen}
           className="flex items-center gap-2.5 rounded-md py-1 pr-1.5 pl-1 transition-colors hover:bg-slate-100"
         >
-          <span className="flex size-8 items-center justify-center rounded-full bg-accent-600 text-[12px] font-bold text-white">
+          <span className="flex size-8 items-center justify-center rounded-full bg-accent-600 text-[0.75rem] font-bold text-white">
             {initials(email)}
           </span>
-          <span className="hidden max-w-[220px] flex-col items-start leading-tight md:flex">
-            <span className="w-full truncate text-[13px] font-semibold text-slate-800">{email}</span>
+          {/* The name and role need the room of a wide screen; below `xl` the
+              avatar and the menu carry them (and the size follows the text size). */}
+          <span className="hidden max-w-[13.75rem] flex-col items-start leading-tight xl:flex">
+            <span className="w-full truncate text-[0.8125rem] font-semibold text-slate-800">{email}</span>
             {/* The acting role (0063): what the database answers for now. */}
-            <span className="w-full truncate text-[11px] text-slate-500" data-testid="acting-role">
+            <span className="w-full truncate text-[0.6875rem] text-slate-500" data-testid="acting-role">
               {actingRole
                 ? heldRoles.length > 1
                   ? t('roles.actingAs', { role: t(`roles.${actingRole}`) })
@@ -120,25 +127,32 @@ export function Header({ onOpenPalette, toggleSlot, onShowSidebar, sidebarId }: 
         {menuOpen && (
           <div
             role="menu"
-            className="animate-fade-in absolute right-0 mt-2 w-60 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-pop"
+            className="animate-fade-in absolute right-0 mt-2 w-[19rem] overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-pop"
           >
             <div className="border-b border-slate-100 px-3.5 py-2.5">
-              <div className="truncate text-[13px] font-semibold text-slate-800">{email}</div>
-              <div className="mt-0.5 text-[11px] leading-snug text-slate-500">
+              <div className="truncate text-[0.8125rem] font-semibold text-slate-800">{email}</div>
+              <div className="mt-0.5 text-[0.6875rem] leading-snug text-slate-500">
                 {actingRole ? t('roles.actingAs', { role: t(`roles.${actingRole}`) }) : t('roles.unassigned')}
               </div>
               {heldRoles.length > 1 && (
-                <div className="mt-1 text-[11px] leading-snug text-slate-400">
+                <div className="mt-1 text-[0.6875rem] leading-snug text-slate-400">
                   {t('roles.held', { roles: heldRoles.map((r) => t(`roles.${r}`)).join(', ') })}
                 </div>
               )}
+            </div>
+            {/* The interface text size (0076), one click away. */}
+            <div className="border-b border-slate-100 px-3.5 py-2.5">
+              <div className="mb-1.5 text-[0.6875rem] font-medium tracking-wide text-slate-500 uppercase">
+                {t('account.uiScale.title')}
+              </div>
+              <UiScalePicker compact />
             </div>
             {/* Password, second factor and sessions live on the account page. */}
             <Link
               to="/account"
               role="menuitem"
               onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-slate-700 hover:bg-slate-50"
+              className="flex items-center gap-2.5 px-3.5 py-2 text-[0.8125rem] text-slate-700 hover:bg-slate-50"
             >
               <UserRound className="size-4 text-slate-400" />
               {t('account.title')}
@@ -147,7 +161,7 @@ export function Header({ onOpenPalette, toggleSlot, onShowSidebar, sidebarId }: 
               type="button"
               role="menuitem"
               onClick={() => void signOut()}
-              className="flex w-full items-center gap-2.5 px-3.5 py-2 text-[13px] text-slate-700 hover:bg-slate-50"
+              className="flex w-full items-center gap-2.5 px-3.5 py-2 text-[0.8125rem] text-slate-700 hover:bg-slate-50"
             >
               <LogOut className="size-4 text-slate-400" />
               {t('auth.signOut')}

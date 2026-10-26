@@ -72,7 +72,7 @@ export function DueLabel({ dueAt, bucket, now, compact = false }: { dueAt: strin
         : t(compact ? 'agenda.due.daysShort' : 'agenda.due.inDays', { count: state.days })
   return (
     <span
-      className={`num shrink-0 text-[13px] font-semibold whitespace-nowrap tabular-nums ${DUE_TONE[bucket]}`}
+      className={`num shrink-0 text-[0.8125rem] font-semibold whitespace-nowrap tabular-nums ${DUE_TONE[bucket]}`}
       title={t(state.kind === 'overdue' ? 'agenda.overdueSince' : 'agenda.dueBy', { moment: formatDue(dueAt, i18n.language) })}
     >
       {text}
@@ -100,7 +100,7 @@ export function OwnerAvatar({
     return (
       <span
         title={name}
-        className="flex size-7 shrink-0 items-center justify-center rounded-full bg-accent-100 text-[10.5px] font-bold text-accent-700"
+        className="flex size-7 shrink-0 items-center justify-center rounded-full bg-accent-100 text-[0.6562rem] font-bold text-accent-700"
       >
         {member ? initials(name) : '·'}
       </span>
@@ -242,7 +242,7 @@ export function CommentComposer({
         aria-label={t('agenda.comments.placeholder')}
       />
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[12px] text-slate-600">{t('agenda.comments.hint')}</span>
+        <span className="text-[0.75rem] text-slate-600">{t('agenda.comments.hint')}</span>
         <div className="flex gap-2">
           <Button variant="secondary" size="sm" onClick={onClose}>
             {t('common.cancel')}

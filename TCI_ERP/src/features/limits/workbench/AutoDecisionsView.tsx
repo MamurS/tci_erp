@@ -115,7 +115,7 @@ export function AutoDecisionsView() {
                       <Link to={`/limits/${r.request_id}`} className="block whitespace-nowrap text-accent-600 hover:text-accent-500">
                         {r.policy_number ?? EM_DASH}
                       </Link>
-                      <Truncate text={r.policyholder_name ?? EM_DASH} className="max-w-none text-[12px] text-slate-500">
+                      <Truncate text={r.policyholder_name ?? EM_DASH} className="max-w-none text-[0.75rem] text-slate-500">
                         {r.policyholder_name ?? EM_DASH}
                       </Truncate>
                     </td>

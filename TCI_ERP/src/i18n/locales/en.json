@@ -2562,6 +2562,11 @@
       "samePassword": "The new password must differ from the current one.",
       "weakPassword": "The password does not meet the server’s requirements. Choose a longer or less common one.",
       "changeFailed": "The password could not be changed. Try again."
+    },
+    "uiScale": {
+      "title": "Text size",
+      "hint": "The whole interface at the chosen size, saved for you on every device.",
+      "notSaved": "Applied on this device; it could not be saved to your account."
     }
   },
   "provisioning": {

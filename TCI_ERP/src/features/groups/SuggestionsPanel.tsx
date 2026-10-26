@@ -41,7 +41,7 @@ export function SuggestionsPanel({
     <Card className="flex flex-col gap-3 p-5">
       <SectionTitle hint={t('groups.suggestions.hint')}>{t('groups.suggestions.title')}</SectionTitle>
       {error && (
-        <p className="text-[13px] text-neg-500" role="alert">
+        <p className="text-[0.8125rem] text-neg-500" role="alert">
           {error}
         </p>
       )}
@@ -49,7 +49,7 @@ export function SuggestionsPanel({
       {isLoading ? (
         <Skeleton className="h-16 w-full" />
       ) : suggestions.length === 0 ? (
-        <p className="text-[13px] text-slate-500">{t('groups.suggestions.empty')}</p>
+        <p className="text-[0.8125rem] text-slate-500">{t('groups.suggestions.empty')}</p>
       ) : (
         <ul className="flex flex-col gap-3">
           {suggestions.map((s) => (
@@ -153,7 +153,7 @@ function SuggestionRow({
             </>
           ) : (
             <div className="flex w-full flex-col gap-2 rounded-md bg-slate-50 p-3">
-              <p className="text-[12px] text-slate-500">{t('groups.suggestions.confirmHint')}</p>
+              <p className="text-[0.75rem] text-slate-500">{t('groups.suggestions.confirmHint')}</p>
               <div className="grid gap-2 sm:grid-cols-3">
                 <Field label={t('groups.fields.direction')}>
                   <Select

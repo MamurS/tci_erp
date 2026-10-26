@@ -179,7 +179,7 @@ function PolicyOrigin({ policyId }: { policyId: string }) {
   const { data: origin } = usePolicyOriginRequest(policyId)
   if (!origin) return null
   return (
-    <p className="mb-4 text-[13px] text-slate-500">
+    <p className="mb-4 text-[0.8125rem] text-slate-500">
       {t('policies.createdFromRequest')}{' '}
       <Link to={`/requests/${origin.id}`} className="num text-accent-700 hover:underline">
         {origin.request_number}
@@ -255,7 +255,7 @@ function StatusActions({ policy, onEdit }: { policy: PolicyWithRefs; onEdit: () 
       </Button>
       <ActionsMenu actions={menu} disabled={changeStatus.isPending} />
       {error && !pending && (
-        <span className="text-[13px] text-neg-500" role="alert">
+        <span className="text-[0.8125rem] text-neg-500" role="alert">
           {error}
         </span>
       )}
@@ -294,7 +294,7 @@ function StatusActions({ policy, onEdit }: { policy: PolicyWithRefs; onEdit: () 
             <Textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} />
           </Field>
           {error && (
-            <p className="text-[13px] text-neg-500" role="alert">
+            <p className="text-[0.8125rem] text-neg-500" role="alert">
               {error}
             </p>
           )}
@@ -413,10 +413,10 @@ function TermsCard({ policy }: { policy: PolicyWithRefs }) {
       <div className="grid gap-x-10 gap-y-5 md:grid-cols-2">
         {groups.map((group) => (
           <div key={group.titleKey}>
-            <h3 className="mb-1.5 text-[11px] font-semibold tracking-wide text-slate-400 uppercase">
+            <h3 className="mb-1.5 text-[0.6875rem] font-semibold tracking-wide text-slate-400 uppercase">
               {t(group.titleKey)}
             </h3>
-            <dl className="flex flex-col text-[13px]">
+            <dl className="flex flex-col text-[0.8125rem]">
               {group.rows.map((row) => (
                 // A long label wraps in its own column; the value stays on one
                 // line at the right, never pushed under the label.
@@ -433,7 +433,7 @@ function TermsCard({ policy }: { policy: PolicyWithRefs }) {
         ))}
       </div>
       {policy.notes && (
-        <p className="mt-4 border-t border-slate-100 pt-3 text-[13px] text-slate-500">
+        <p className="mt-4 border-t border-slate-100 pt-3 text-[0.8125rem] text-slate-500">
           {policy.notes}
         </p>
       )}
@@ -453,14 +453,14 @@ function HistoryTimeline({ policyId }: { policyId: string }) {
     <Card className="p-5">
       <SectionTitle className="mb-3">{t('policies.historyTitle')}</SectionTitle>
       {!history?.length ? (
-        <p className="text-[13px] text-slate-500">{t('policies.historyEmpty')}</p>
+        <p className="text-[0.8125rem] text-slate-500">{t('policies.historyEmpty')}</p>
       ) : (
         <ol className="flex flex-col gap-3">
           {history.map((row) => (
             <li key={row.id} className="flex gap-3">
               <span className="mt-1.5 size-2 shrink-0 rounded-full bg-accent-500" aria-hidden />
               <div className="min-w-0">
-                <p className="text-[13px] text-slate-800">
+                <p className="text-[0.8125rem] text-slate-800">
                   {t(`policies.statuses.${row.from_status}`)}
                   <span aria-hidden className="mx-1 text-slate-400">→</span>
                   <Badge tone={statusTone(row.to_status)}>
@@ -470,7 +470,7 @@ function HistoryTimeline({ policyId }: { policyId: string }) {
                 <p className="text-xs text-slate-400">
                   {formatMoment(row.changed_at, i18n.language)}
                 </p>
-                {row.comment && <p className="mt-0.5 text-[13px] text-slate-500">{row.comment}</p>}
+                {row.comment && <p className="mt-0.5 text-[0.8125rem] text-slate-500">{row.comment}</p>}
               </div>
             </li>
           ))}

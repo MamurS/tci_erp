@@ -86,7 +86,7 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
           {t('portal.claims.invoicesTitle')}
         </SectionTitle>
         {(invoices ?? []).length === 0 ? (
-          <p className="text-[13px] text-slate-500">{t('portal.claims.noInvoices')}</p>
+          <p className="text-[0.8125rem] text-slate-500">{t('portal.claims.noInvoices')}</p>
         ) : (
           <Table dense columns={[COL.code, COL.date, COL.date, COL.money, COL.money, COL.fill]}>
             <thead>
@@ -151,7 +151,7 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
         </ul>
         {editable && <UploadDocument claim={claim} onError={(e) => setError(mapError(e, t))} />}
         {(documents ?? []).length > 0 && (
-          <ul className="mt-3 space-y-1 text-[13px]">
+          <ul className="mt-3 space-y-1 text-[0.8125rem]">
             {(documents ?? []).map((d) => (
               <li key={d.id}>
                 <button
@@ -178,7 +178,7 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
         <Card className="p-5">
           <SectionTitle className="mb-1">{t('portal.claims.moneyTitle')}</SectionTitle>
           {(payments ?? []).map((p) => (
-            <p key={p.id} className="mt-2 text-[13px]">
+            <p key={p.id} className="mt-2 text-[0.8125rem]">
               {t('portal.claims.paidOn', { date: formatDate(p.paid_at, locale) })}{' '}
               <span className="num font-semibold">
                 {formatAmount(Number(p.amount), locale)} {p.currency_code}
@@ -187,9 +187,9 @@ export function PortalClaimDetail({ claim }: { claim: ClientClaim }) {
           ))}
           {(recoveries ?? []).length > 0 && (
             <>
-              <p className="mt-3 text-[13px] text-slate-600">{t('portal.claims.recoveryHint')}</p>
+              <p className="mt-3 text-[0.8125rem] text-slate-600">{t('portal.claims.recoveryHint')}</p>
               {(recoveries ?? []).map((r) => (
-                <p key={r.id} className="mt-1 text-[13px]">
+                <p key={r.id} className="mt-1 text-[0.8125rem]">
                   {t('portal.claims.recoveredOn', { date: formatDate(r.received_at, locale) })}{' '}
                   <span className="num font-semibold">
                     {formatAmount(Number(r.policyholder_share), locale)} {r.currency_code}
@@ -320,7 +320,7 @@ function UploadDocument({ claim, onError }: { claim: ClientClaim; onError: (e: u
         ref={fileRef}
         type="file"
         accept={ACCEPTED_MIME_TYPES.join(',')}
-        className="text-[13px]"
+        className="text-[0.8125rem]"
         onChange={(e) => {
           const file = e.target.files?.[0]
           if (!file) return

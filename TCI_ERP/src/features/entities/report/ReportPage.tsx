@@ -12,6 +12,7 @@
  */
 
 import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { usePrintScale } from '../../account/uiScaleApi'
 import type { TFunction } from 'i18next'
 import { ArrowLeft, Printer } from 'lucide-react'
 
@@ -28,6 +29,8 @@ import './report.css'
 type Lang = 'en' | 'ru' | 'uz'
 
 export function ReportPage() {
+  // A4 is laid out at 100 %, whatever size the screen uses (0076).
+  usePrintScale()
   const { id = '' } = useParams()
   const [searchParams] = useSearchParams()
   const langParam = searchParams.get('lang')
@@ -57,18 +60,18 @@ export function ReportPage() {
       <div className="rpt-toolbar">
         <Link
           to={`/entities/${id}`}
-          className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[13px] text-white/85 hover:bg-white/10 hover:text-white"
+          className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.8125rem] text-white/85 hover:bg-white/10 hover:text-white"
         >
           <ArrowLeft className="size-4" />
           {t('report.backToBuyer')}
         </Link>
-        <div className="flex-1 truncate text-center font-display text-[15px] tracking-wide uppercase">
+        <div className="flex-1 truncate text-center font-display text-[0.9375rem] tracking-wide uppercase">
           {entity.name}
         </div>
         <button
           type="button"
           onClick={() => window.print()}
-          className="inline-flex items-center gap-1.5 rounded-md bg-brand-orange px-3 py-1.5 text-[13px] font-semibold text-white shadow-sm hover:brightness-105"
+          className="inline-flex items-center gap-1.5 rounded-md bg-brand-orange px-3 py-1.5 text-[0.8125rem] font-semibold text-white shadow-sm hover:brightness-105"
         >
           <Printer className="size-4" />
           {t('report.print')}

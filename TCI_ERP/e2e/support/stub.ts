@@ -36,6 +36,10 @@ export interface StubOptions {
   /** Answers a REST call before `rows` and the defaults (undefined: fall
    * through) — e.g. replaying recorded fixtures (e2e/layout/fixtures.ts). */
   respond?: (request: StubRequest) => StubReply | undefined
+  /** The person's interface text size (tci.user_profiles.ui_scale, 0076).
+   * 100 by default: the geometry the layout specs were written for; the
+   * scaled screens are checked by e2e/layout/scale.spec.ts. */
+  uiScale?: number
 }
 
 /** A REST call as the stub sees it. */
@@ -93,11 +97,12 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
     respond,
     signedIn = true,
     sessionId,
+    uiScale = 100,
   } = options
   const session = fakeSession(user?.id, user?.email, sessionId)
 
   await context.addInitScript(
-    ([key, value, language, side]) => {
+    ([key, value, language, side, scale]) => {
       // Only on the first load of the test: a test that toggles the sidebar
       // and reloads must see what it chose.
       if (sessionStorage.getItem('e2e-seeded')) return
@@ -106,8 +111,9 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
       localStorage.setItem('i18nextLng', language)
       localStorage.setItem('tci-erp-lang', language)
       localStorage.setItem('tci-erp-sidebar', side)
+      localStorage.setItem('tci-erp-ui-scale', scale)
     },
-    [STORAGE_KEY, signedIn ? JSON.stringify(session) : '', lang, sidebar] as const,
+    [STORAGE_KEY, signedIn ? JSON.stringify(session) : '', lang, sidebar, String(uiScale)] as const,
   )
 
   await context.route(`${STUB_URL}/auth/v1/**`, async (route) => {
@@ -124,6 +130,13 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
     const { pathname } = new URL(request.url())
     const resource = pathname.replace(/^\/rest\/v1\/(rpc\/)?/, '')
     const single = (request.headers()['accept'] ?? '').includes('vnd.pgrst.object')
+
+    // The text size is the stub's, whatever a recorded fixture says.
+    const url = new URL(request.url())
+    if (resource === 'user_profiles' && request.method() === 'GET' && url.searchParams.get('select') === 'ui_scale') {
+      const row = { ui_scale: uiScale }
+      return route.fulfill({ json: single ? row : [row] })
+    }
 
     const reply = respond?.({
       method: request.method(),
