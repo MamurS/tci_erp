@@ -37,3 +37,32 @@ export function BulkBar({
     </div>
   )
 }
+
+/**
+ * A selection checkbox of a Table v2 registry: in the head (`ui.bulk.selectAll`)
+ * or at the start of a row's first cell (`row`), where a click selects the
+ * row without opening it.
+ */
+export function SelectCheckbox({
+  checked,
+  onChange,
+  label,
+  row = false,
+}: {
+  checked: boolean
+  onChange: () => void
+  /** What a screen reader hears: `ui.bulk.selectAll`, or `ui.bulk.select` with the row's name. */
+  label: string
+  row?: boolean
+}) {
+  return (
+    <input
+      type="checkbox"
+      className={`size-4 accent-accent-700 ${row ? 'mt-1 shrink-0' : ''}`}
+      aria-label={label}
+      checked={checked}
+      onClick={row ? (e) => e.stopPropagation() : undefined}
+      onChange={onChange}
+    />
+  )
+}

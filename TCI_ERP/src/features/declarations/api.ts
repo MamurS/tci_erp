@@ -21,7 +21,7 @@ const KEYS = {
   totals: (id: string) => ['declarations', 'totals', id] as const,
 }
 
-interface DeclarationRow extends Declaration {
+export interface DeclarationRow extends Declaration {
   policies?: { policy_number: string; legal_entities?: { name: string } | null } | null
 }
 

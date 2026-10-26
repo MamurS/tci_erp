@@ -1,5 +1,6 @@
 /** Submissions queue: status tabs over tci.insurance_requests, grouped by
- * the department the ball is currently with. */
+ * the department the ball is currently with. A registry (Table v2): the
+ * person's row density and columns, the search marked in the rows. */
 
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -10,11 +11,13 @@ import {
   Button,
   COL,
   EmptyState,
+  Highlight,
   Input,
   labelCol,
   PageHeader,
-  Spinner,
+  SkeletonRows,
   Table,
+  TableSettings,
   Tabs,
   Truncate,
 } from '../../components/ui'
@@ -40,6 +43,10 @@ const TAB_STATUSES: Record<QueueTab, readonly InsuranceRequestStatus[]> = {
   withClient: ['client_review', 'accepted'],
   closed: ['bound', 'declined', 'withdrawn'],
 }
+
+/* The buyers count is sized for its header, not its digits: «BAYERLAR» is
+   one word that cannot wrap. */
+const COLUMNS = [COL.code, COL.fill, '7.5rem', labelCol('requestStatus'), '12rem', COL.count]
 
 export function RequestsPage() {
   const { t } = useTranslation()
@@ -77,6 +84,27 @@ export function RequestsPage() {
     { key: 'closed', label: t('requests.tabs.closed') },
   ]
 
+  const columnLabels = [
+    t('requests.fields.number'),
+    t('requests.fields.applicant'),
+    t('requests.fields.buyersCount'),
+    t('requests.fields.status'),
+    t('requests.fields.waitingOn'),
+    t('requests.fields.ageDays'),
+  ]
+  const tableHead = (
+    <thead>
+      <tr>
+        <th>{columnLabels[0]}</th>
+        <th>{columnLabels[1]}</th>
+        <th className="num">{columnLabels[2]}</th>
+        <th>{columnLabels[3]}</th>
+        <th>{columnLabels[4]}</th>
+        <th className="num">{columnLabels[5]}</th>
+      </tr>
+    </thead>
+  )
+
   return (
     <div>
       <PageHeader
@@ -92,21 +120,32 @@ export function RequestsPage() {
 
       <Tabs tabs={tabs} active={tab} onChange={(key) => setTab(key as QueueTab)} />
 
-      <div className="mt-4 mb-4">
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('requests.searchPlaceholder')}
-          className="max-w-xs"
-        />
+      {/* The search is the page's own, as it was; the table view sits on
+          its right. */}
+      <div className="mt-4 mb-4 flex items-center gap-2">
+        <div className="min-w-0 flex-1">
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('requests.searchPlaceholder')}
+            className="max-w-xs"
+          />
+        </div>
+        <TableSettings table="requests" columns={columnLabels} />
       </div>
 
       {isLoading ? (
-        <Spinner label={t('common.loading')} />
+        <Table id="requests" columns={COLUMNS}>
+          {tableHead}
+          <tbody>
+            <SkeletonRows columns={COLUMNS.length} />
+          </tbody>
+        </Table>
       ) : filtered.length === 0 ? (
         // A search that found nothing says so, and offers to clear it.
         search.trim() ? (
           <EmptyState
+            pictogram="search"
             title={t('common.noMatches')}
             hint={t('common.noMatchesHint')}
             action={
@@ -116,22 +155,11 @@ export function RequestsPage() {
             }
           />
         ) : (
-          <EmptyState title={t('requests.queueEmpty')} hint={t('requests.queueEmptyHint')} />
+          <EmptyState pictogram="inbox" title={t('requests.queueEmpty')} hint={t('requests.queueEmptyHint')} />
         )
       ) : (
-        /* The buyers count is sized for its header, not its digits: «BAYERLAR» is
-           one word that cannot wrap. */
-        <Table columns={[COL.code, COL.fill, '7.5rem', labelCol('requestStatus'), '12rem', COL.count]}>
-          <thead>
-            <tr>
-              <th>{t('requests.fields.number')}</th>
-              <th>{t('requests.fields.applicant')}</th>
-              <th className="num">{t('requests.fields.buyersCount')}</th>
-              <th>{t('requests.fields.status')}</th>
-              <th>{t('requests.fields.waitingOn')}</th>
-              <th className="num">{t('requests.fields.ageDays')}</th>
-            </tr>
-          </thead>
+        <Table id="requests" columns={COLUMNS} stickyHead freezeFirst>
+          {tableHead}
           <tbody>
             {filtered.map((r) => (
               <tr
@@ -139,10 +167,12 @@ export function RequestsPage() {
                 onClick={() => void navigate(`/requests/${r.id}`)}
                 className="cursor-pointer transition-colors hover:bg-slate-50"
               >
-                <td className="font-medium whitespace-nowrap text-slate-800 tabular-nums">{r.request_number}</td>
+                <td className="font-medium whitespace-nowrap text-slate-800 tabular-nums">
+                  <Highlight text={r.request_number} query={search} />
+                </td>
                 <td className="text-slate-700">
                   <Truncate text={r.legal_entities?.name} className="max-w-none">
-                    {r.legal_entities?.name ?? EM_DASH}
+                    {r.legal_entities?.name ? <Highlight text={r.legal_entities.name} query={search} /> : EM_DASH}
                   </Truncate>
                 </td>
                 <td className="num">{r.insurance_request_buyers?.length ?? 0}</td>

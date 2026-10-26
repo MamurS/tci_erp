@@ -1556,6 +1556,9 @@
       "revokedOn": "revoked {{date}}",
       "declinedOn": "declined {{date}}",
       "decidedOn": "Decided on {{date}}"
+    },
+    "quickView": {
+      "openPolicy": "Open policy"
     }
   },
   "limits": {
@@ -2308,6 +2311,9 @@
       "groupWithinNote": "The group stays within its limit.",
       "groupNearNote": "The group would use {{pct}}% of its limit.",
       "groupOverNote": "Over the group limit — the decision will be escalated."
+    },
+    "quickView": {
+      "openRequest": "Open request"
     }
   },
   "entities": {
@@ -4061,7 +4067,10 @@
     "eyebrow": "Turnover declaration",
     "disputeHint": "The declaration goes back to the policyholder with this note; they correct it and submit it again. It earns no premium until it is accepted.",
     "disputeNoteRequired": "Say what needs correcting.",
-    "periodNotDeclared": "The declaration for {{period}} has not been submitted yet"
+    "periodNotDeclared": "The declaration for {{period}} has not been submitted yet",
+    "quickView": {
+      "openDeclaration": "Open declaration"
+    }
   },
   "premium": {
     "none": "No premium information for this policy",
@@ -4802,7 +4811,10 @@
       "belowNql": "The covered loss is below the non-qualifying loss threshold — this claim is not indemnifiable. Decline it with that reason."
     },
     "eyebrow": "Claim",
-    "indemnityPending": "Not decided yet"
+    "indemnityPending": "Not decided yet",
+    "quickView": {
+      "openClaim": "Open claim"
+    }
   },
   "groups": {
     "ultimateParent": "Ultimate parent",
@@ -5408,7 +5420,8 @@
       "registrationNumber": "Registration number",
       "assignedAt": "Assigned on",
       "note": "Note",
-      "reason": "Reason"
+      "reason": "Reason",
+      "number": "No."
     },
     "kinds": {
       "new_company": "New company",

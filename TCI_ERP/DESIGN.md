@@ -275,7 +275,18 @@ a bare `type="password"` anywhere else.
   never a spinner in an empty table. A row's quick view opens in a
   `SidePanel` beside the list (non-modal: the list stays usable, another row
   swaps it, Escape closes) with the way to the full page in its footer.
-  `BulkBar` appears at the foot once rows are selected.
+  `BulkBar` appears at the foot once rows are selected. The pieces are
+  primitives — `QuickViewButton` (the hover «eye», in `RowActions reveal`
+  sized `actionsCol([], 1)`), `SelectCheckbox` (head and row) and
+  `useRowSelection` — never hand-made again. A row click still opens the
+  full page; a link inside the row stops the click so it does not open
+  twice. In use on: companies, the credit limits queue and «Действующие
+  лимиты», policies, submissions, claims, declarations, overdue
+  notifications and the data requests queue; quick view on companies, the
+  limits queue, policies, claims and declarations; the bulk bar (CSV) on
+  companies, policies and claims. Regular rows pad a cell by 1 rem a side,
+  so a narrow column taken over from a `dense` table needs its longest
+  header word re-measured (the layout guard says which).
 * **KpiCard.** The figure is the hero (display face), its unit small beside
   it, the label above; under it a change against a STATED baseline — arrow
   and words, coloured by meaning (`good="up"|"down"|"none"`, `kpi.ts`), never

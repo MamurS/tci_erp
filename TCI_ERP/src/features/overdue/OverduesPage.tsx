@@ -5,6 +5,9 @@
  * has been overdue, and whether the notification itself was LATE. A late NOA
  * can prejudice cover, so it is flagged in red — this one really is an error
  * condition, not a warning.
+ *
+ * A registry (Table v2): the person's row density and columns, a head that
+ * stays in view, the buyer column frozen.
  */
 
 import { useMemo, useState } from 'react'
@@ -19,8 +22,9 @@ import {
   labelCol,
   PageHeader,
   Select,
-  Spinner,
+  SkeletonRows,
   Table,
+  TableSettings,
   Truncate,
 } from '../../components/ui'
 import { formatAmount } from '../../lib/format'
@@ -35,6 +39,8 @@ const STATUS_TONE: Record<NoaStatus, 'warn' | 'pos' | 'negStrong' | 'neutral'> =
   withdrawn: 'neutral',
 }
 
+const COLUMNS = [COL.fill, COL.fill, '10.5rem', '7rem', labelCol('overdueReported'), labelCol('overdueStatus')]
+
 export function OverduesPage() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
@@ -47,49 +53,71 @@ export function OverduesPage() {
     [data, status],
   )
 
+  const columnLabels = [
+    t('limits.fields.buyer'),
+    t('policies.fields.policyholder'),
+    t('overdues.fields.overdueAmount'),
+    t('overdues.fields.pastDueColumn'),
+    t('overdues.fields.reported'),
+    t('overdues.fields.status'),
+  ]
+  const tableHead = (
+    <thead>
+      <tr>
+        <th>{columnLabels[0]}</th>
+        <th>{columnLabels[1]}</th>
+        <th className="num">{columnLabels[2]}</th>
+        {/* The unit is in each cell; what the count runs from on hover. */}
+        <th className="num" title={t('overdues.pastDueHint')}>
+          {columnLabels[3]}
+        </th>
+        <th>{columnLabels[4]}</th>
+        <th>{columnLabels[5]}</th>
+      </tr>
+    </thead>
+  )
+
   return (
     <div>
       <PageHeader
         title={t('overdues.title')}
         subtitle={t('overdues.subtitle')}
         actions={
-          <Field label={t('overdues.fields.status')}>
-            <Select value={status} onChange={(e) => setStatus(e.target.value as '' | NoaStatus)}>
-              <option value="">
-                {t('common.all')} ({(data ?? []).length})
-              </option>
-              {/* Only the statuses the list holds, with their counts. */}
-              {NOA_STATUSES.filter((s) => s === status || (data ?? []).some((row) => row.status === s)).map((s) => (
-                <option key={s} value={s}>
-                  {t(`overdues.statuses.${s}`)} ({(data ?? []).filter((row) => row.status === s).length})
+          <div className="flex items-end gap-2">
+            <Field label={t('overdues.fields.status')}>
+              <Select value={status} onChange={(e) => setStatus(e.target.value as '' | NoaStatus)}>
+                <option value="">
+                  {t('common.all')} ({(data ?? []).length})
                 </option>
-              ))}
-            </Select>
-          </Field>
+                {/* Only the statuses the list holds, with their counts. */}
+                {NOA_STATUSES.filter((s) => s === status || (data ?? []).some((row) => row.status === s)).map((s) => (
+                  <option key={s} value={s}>
+                    {t(`overdues.statuses.${s}`)} ({(data ?? []).filter((row) => row.status === s).length})
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <TableSettings table="overdues" columns={columnLabels} />
+          </div>
         }
       />
 
       {isError ? (
-        <EmptyState title={t('common.loadFailed')} hint={t('common.tryAgain')} />
+        <EmptyState pictogram="error" title={t('common.loadFailed')} hint={t('common.tryAgain')} />
       ) : isLoading ? (
-        <Spinner label={t('common.loading')} />
+        <Table id="overdues" columns={COLUMNS}>
+          {tableHead}
+          <tbody>
+            <SkeletonRows columns={COLUMNS.length} />
+          </tbody>
+        </Table>
       ) : rows.length === 0 ? (
-        <EmptyState title={t('overdues.empty')} hint={t('overdues.emptyHint')} />
+        <EmptyState pictogram="inbox" title={t('overdues.empty')} hint={t('overdues.emptyHint')} />
       ) : (
-        <Table columns={[COL.fill, COL.fill, '10.5rem', '7rem', labelCol('overdueReported'), labelCol('overdueStatus')]}>
-          <thead>
-            <tr>
-              <th>{t('limits.fields.buyer')}</th>
-              <th>{t('policies.fields.policyholder')}</th>
-              <th className="num">{t('overdues.fields.overdueAmount')}</th>
-              {/* The unit is in each cell; what the count runs from on hover. */}
-              <th className="num" title={t('overdues.pastDueHint')}>
-                {t('overdues.fields.pastDueColumn')}
-              </th>
-              <th>{t('overdues.fields.reported')}</th>
-              <th>{t('overdues.fields.status')}</th>
-            </tr>
-          </thead>
+        // Two names share what is left; each may narrow to 5.5rem before the
+        // table scrolls (the sticky head's scrollbar gutter takes the rest).
+        <Table id="overdues" columns={COLUMNS} fillMin="5.5rem" stickyHead freezeFirst>
+          {tableHead}
           <tbody>
             {rows.map((n) => (
               <tr
@@ -100,7 +128,11 @@ export function OverduesPage() {
                 <td className="font-medium">
                   {/* The row opens on click; the link is what a keyboard reaches. */}
                   <Truncate text={n.buyer_name} className="max-w-none">
-                    <Link to={`/overdues/${n.id}`} className="text-accent-700 hover:underline">
+                    <Link
+                      to={`/overdues/${n.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-accent-700 hover:underline"
+                    >
                       {n.buyer_name}
                     </Link>
                   </Truncate>

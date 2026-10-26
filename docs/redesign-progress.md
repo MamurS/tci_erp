@@ -55,7 +55,13 @@ Decisions taken on the owner's behalf (reversible):
   (`SkeletonRows`), the bulk bar (`BulkBar`, first used by the companies
   registry: select rows → CSV export, `csv.ts` with formula-injection
   guard), and the quick view in a non-modal `SidePanel`. Wired into the
-  companies registry and the limits queue.
+  companies registry and the limits queue; rolled out afterwards to every
+  staff registry and queue (limits in force, policies, submissions, claims,
+  declarations, overdue notifications, data requests), with quick view on
+  the limits queue, policies, claims and declarations and the bulk bar on
+  policies and claims. Pages keep their own search and filter inputs (to be
+  replaced by the top-bar search in one sweep); `Highlight` is fed from the
+  page's search value.
 * **KpiCard** (`kpi.ts`): the figure as hero, change against a stated
   baseline coloured by meaning, sparkline; `runningCountByMonth` gives a
   register an honest baseline.
@@ -119,6 +125,13 @@ boring»); offered three directions, they chose **bold fintech**.
     viewport (the card-rows guard caught it). Reverse: drop `compact` /
     `stats` on the Agenda's `HeroBand` and restore 448 together, then re-run
     `e2e/layout/cardRows.spec.ts`.
+12. Table v2 rollout: to fit 1280 px with the selection box and the quick
+    view, the policies register shows its period on two lines (from / to)
+    and the claims queue shows the indemnity under the claimed amount (one
+    column, «Заявлено / Возмещение»); the credit queue, limits in force and
+    the data queue left the `dense` variant so the person's row density
+    applies. Reverse: drop the bulk / quick-view columns of those tables and
+    restore the previous widths (`git log -p` on the pages).
 
 ## Latency (phase 3, production bundle, median of 5)
 

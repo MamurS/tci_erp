@@ -9,7 +9,7 @@
  * `prefers-reduced-motion`.
  */
 
-import { X } from 'lucide-react'
+import { Eye, X } from 'lucide-react'
 import { useEffect, useId, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -77,5 +77,25 @@ export function SidePanel({ open, title, meta, onClose, footer, children }: Side
         </footer>
       )}
     </aside>
+  )
+}
+
+/**
+ * The «eye» that opens a row's quick view (Table v2): an icon button in the
+ * row's action cell (`RowActions reveal`, sized `actionsCol([], 1)`), named
+ * after the row for a screen reader. A row click still opens the full page.
+ */
+export function QuickViewButton({ name, onClick }: { name: string; onClick: () => void }) {
+  const { t } = useTranslation()
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={t('ui.quickView.open', { name })}
+      title={t('ui.quickView.label')}
+      className="inline-flex size-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-2 focus-visible:outline-sky-500"
+    >
+      <Eye className="size-4" aria-hidden />
+    </button>
   )
 }

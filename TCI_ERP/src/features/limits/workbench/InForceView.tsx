@@ -13,12 +13,14 @@ import {
   Card,
   COL,
   EmptyState,
+  Highlight,
   Input,
   KeyFigures,
   labelCol,
   Select,
-  Spinner,
+  SkeletonRows,
   Table,
+  TableSettings,
   Truncate,
   ViewBar,
 } from '../../../components/ui'
@@ -52,12 +54,45 @@ export function InForceView() {
   const currencies = [...new Set(all.map((r) => r.currency_code))].sort()
   const buyers = new Set(rows.map((r) => r.buyer_entity_id)).size
 
+  // Buyer + country and policy + policyholder share a cell each (a second,
+  // smaller line), the names cut with an ellipsis: eleven limits used to wrap
+  // onto three lines a row. Payment terms were «—» on almost every row, so
+  // they sit under the amount when set.
+  // The review column holds its header's longest word («CHIQISHGACHA»).
+  const columns = [COL.fill, COL.fill, COL.money, COL.amount, labelCol('limitBand'), '8.5rem']
+  const columnLabels = [
+    t('limits.fields.buyer'),
+    t('limits.fields.policyAndPolicyholder'),
+    t('limits.fields.approvedAmount'),
+    t('portfolio.credit.exposure'),
+    t('portfolio.credit.rating'),
+    t('limits.workbench.inforce.review'),
+  ]
+  const tableHead = (
+    <thead>
+      <tr>
+        <th>{columnLabels[0]}</th>
+        <th>{columnLabels[1]}</th>
+        <th className="num">{columnLabels[2]}</th>
+        <th className="num">{columnLabels[3]}</th>
+        <th>{columnLabels[4]}</th>
+        <th className="num">{columnLabels[5]}</th>
+      </tr>
+    </thead>
+  )
+
   return (
     <div>
       <ViewBar hint={t('limits.workbench.inforce.subtitle')} />
 
       {isLoading ? (
-        <Spinner />
+        // Rows in their place while the register loads, never a spinner.
+        <Table id="limits-inforce" columns={columns}>
+          {tableHead}
+          <tbody>
+            <SkeletonRows columns={columns.length} />
+          </tbody>
+        </Table>
       ) : !all.length ? (
         <Card className="p-6">
           <EmptyState title={t('portfolio.credit.empty')} hint={t('portfolio.credit.emptyHint')} />
@@ -109,6 +144,9 @@ export function InForceView() {
                 </option>
               ))}
             </Select>
+            <div className="ml-auto">
+              <TableSettings table="limits-inforce" columns={columnLabels} />
+            </div>
           </div>
 
           {!rows.length ? (
@@ -116,27 +154,18 @@ export function InForceView() {
               <EmptyState title={t('limits.workbench.inforce.noMatch')} hint={t('limits.workbench.inforce.noMatchHint')} />
             </Card>
           ) : (
-            // Buyer + country and policy + policyholder share a cell each (a
-            // second, smaller line), the names cut with an ellipsis: eleven
-            // limits used to wrap onto three lines a row. Payment terms were
-            // «—» on almost every row, so they sit under the amount when set.
-            <Table dense columns={[COL.fill, COL.fill, COL.money, COL.amount, labelCol('limitBand'), COL.days]}>
-              <thead>
-                <tr>
-                  <th>{t('limits.fields.buyer')}</th>
-                  <th>{t('limits.fields.policyAndPolicyholder')}</th>
-                  <th className="num">{t('limits.fields.approvedAmount')}</th>
-                  <th className="num">{t('portfolio.credit.exposure')}</th>
-                  <th>{t('portfolio.credit.rating')}</th>
-                  <th className="num">{t('limits.workbench.inforce.review')}</th>
-                </tr>
-              </thead>
+            // A registry (Table v2): the person's row density and columns, a
+            // head that stays in view, the buyer column frozen.
+            <Table id="limits-inforce" columns={columns} stickyHead freezeFirst>
+              {tableHead}
               <tbody>
                 {rows.map((r) => (
                   <tr key={r.decision_id}>
                     <td>
                       <Truncate text={r.buyer_name} className="max-w-none">
-                        <EntityLink id={r.buyer_entity_id} name={r.buyer_name} tab="limits" />
+                        <EntityLink id={r.buyer_entity_id} name={r.buyer_name} tab="limits">
+                          <Highlight text={r.buyer_name} query={query} />
+                        </EntityLink>
                       </Truncate>
                       <Truncate text={countryName(r.buyer_country)} className="max-w-none text-caption text-slate-500">
                         {countryName(r.buyer_country)}
@@ -144,10 +173,10 @@ export function InForceView() {
                     </td>
                     <td>
                       <Link to={`/limits/${r.request_id}`} className="block whitespace-nowrap text-accent-600 hover:text-accent-500">
-                        {r.policy_number}
+                        <Highlight text={r.policy_number} query={query} />
                       </Link>
                       <Truncate text={r.policyholder_name} className="max-w-none text-caption text-slate-500">
-                        {r.policyholder_name}
+                        <Highlight text={r.policyholder_name} query={query} />
                       </Truncate>
                     </td>
                     <td className="num">

@@ -5,6 +5,9 @@
  * obvious are: which ones are waiting on us, and which ones reported turnover
  * OUTSIDE cover. The second is amber, not red: it is a fact about the policy
  * to discuss, not an error in the data (DESIGN.md).
+ *
+ * A registry (Table v2): the person's row density and columns, and a
+ * declaration's summary in a quick view beside the queue.
  */
 
 import { useEffect, useMemo, useState } from 'react'
@@ -12,26 +15,36 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
+  actionsCol,
   Badge,
   Callout,
   COL,
+  DescriptionList,
   EmptyState,
   Field,
   labelCol,
+  LinkButton,
   PageHeader,
+  QuickViewButton,
+  RowActions,
   Select,
+  SidePanel,
+  SkeletonRows,
   Spinner,
   Table,
+  TableSettings,
   Truncate,
 } from '../../components/ui'
 import { EM_DASH, formatAmount, formatDate, formatPeriod } from '../../lib/format'
 import { useDeclarations, usePolicyDeclarationFrequency } from './api'
+import type { DeclarationRow } from './api'
 import { periodEnd } from './period'
 import { resolvePeriodLink } from './periodLink'
 import { DECLARATION_STATUSES } from './types'
 import type { DeclarationStatus } from './types'
 import { STATUS_TONE } from './status'
 
+const COLUMNS = [COL.period, COL.code, COL.fill, COL.money, labelCol('declarationStatus'), actionsCol([], 1)]
 
 export function DeclarationsPage() {
   const { t, i18n } = useTranslation()
@@ -41,6 +54,8 @@ export function DeclarationsPage() {
   const [status, setStatus] = useState<'' | DeclarationStatus>('')
   const { data, isLoading, isError } = useDeclarations(policyFilter)
   const locale = i18n.language
+  // The quick view: a declaration's summary beside the queue.
+  const [peekId, setPeekId] = useState<string | null>(null)
 
   const rows = useMemo(
     () => (data ?? []).filter((d) => !status || d.status === status),
@@ -62,28 +77,55 @@ export function DeclarationsPage() {
     if (openId) void navigate(`/declarations/${openId}`, { replace: true })
   }, [openId, navigate])
 
+  const columnLabels = [
+    t('declarations.fields.period'),
+    t('policies.fields.policyNumber'),
+    t('policies.fields.policyholder'),
+    t('declarations.fields.totalTurnover'),
+    t('declarations.fields.status'),
+    '',
+  ]
+  const tableHead = (
+    <thead>
+      <tr>
+        <th>{columnLabels[0]}</th>
+        <th>{columnLabels[1]}</th>
+        <th>{columnLabels[2]}</th>
+        <th className="num">{columnLabels[3]}</th>
+        <th>{columnLabels[4]}</th>
+        <th>
+          <span className="sr-only">{t('common.actions')}</span>
+        </th>
+      </tr>
+    </thead>
+  )
+  const peek = peekId ? (data ?? []).find((d) => d.id === peekId) : undefined
+
   return (
     <div>
       <PageHeader
         title={t('declarations.title')}
         subtitle={t('declarations.subtitle')}
         actions={
-          <Field label={t('declarations.fields.status')}>
-            <Select
-              value={status}
-              onChange={(e) => setStatus(e.target.value as '' | DeclarationStatus)}
-            >
-              <option value="">
-                {t('common.all')} ({(data ?? []).length})
-              </option>
-              {/* Only the statuses the list holds, with their counts. */}
-              {DECLARATION_STATUSES.filter((s) => s === status || (data ?? []).some((row) => row.status === s)).map((s) => (
-                <option key={s} value={s}>
-                  {t(`declarations.statuses.${s}`)} ({(data ?? []).filter((row) => row.status === s).length})
+          <div className="flex items-end gap-2">
+            <Field label={t('declarations.fields.status')}>
+              <Select
+                value={status}
+                onChange={(e) => setStatus(e.target.value as '' | DeclarationStatus)}
+              >
+                <option value="">
+                  {t('common.all')} ({(data ?? []).length})
                 </option>
-              ))}
-            </Select>
-          </Field>
+                {/* Only the statuses the list holds, with their counts. */}
+                {DECLARATION_STATUSES.filter((s) => s === status || (data ?? []).some((row) => row.status === s)).map((s) => (
+                  <option key={s} value={s}>
+                    {t(`declarations.statuses.${s}`)} ({(data ?? []).filter((row) => row.status === s).length})
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <TableSettings table="declarations" columns={columnLabels} />
+          </div>
         }
       />
 
@@ -102,22 +144,22 @@ export function DeclarationsPage() {
       )}
 
       {isError ? (
-        <EmptyState title={t('common.loadFailed')} hint={t('common.tryAgain')} />
-      ) : isLoading || openId ? (
+        <EmptyState pictogram="error" title={t('common.loadFailed')} hint={t('common.tryAgain')} />
+      ) : openId ? (
+        // On its way to the declared period's own page.
         <Spinner label={t('common.loading')} />
+      ) : isLoading ? (
+        <Table id="declarations" columns={COLUMNS}>
+          {tableHead}
+          <tbody>
+            <SkeletonRows columns={COLUMNS.length} />
+          </tbody>
+        </Table>
       ) : rows.length === 0 ? (
-        <EmptyState title={t('declarations.empty')} hint={t('declarations.emptyHint')} />
+        <EmptyState pictogram="documents" title={t('declarations.empty')} hint={t('declarations.emptyHint')} />
       ) : (
-        <Table columns={[COL.period, COL.code, COL.fill, COL.money, labelCol('declarationStatus')]}>
-          <thead>
-            <tr>
-              <th>{t('declarations.fields.period')}</th>
-              <th>{t('policies.fields.policyNumber')}</th>
-              <th>{t('policies.fields.policyholder')}</th>
-              <th className="num">{t('declarations.fields.totalTurnover')}</th>
-              <th>{t('declarations.fields.status')}</th>
-            </tr>
-          </thead>
+        <Table id="declarations" columns={COLUMNS} stickyHead freezeFirst>
+          {tableHead}
           <tbody>
             {rows.map((d) => (
               <tr
@@ -127,7 +169,11 @@ export function DeclarationsPage() {
               >
                 <td className="font-medium whitespace-nowrap">
                   {/* The row opens on click; the link is what a keyboard reaches. */}
-                  <Link to={`/declarations/${d.id}`} className="text-accent-700 hover:underline">
+                  <Link
+                    to={`/declarations/${d.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-accent-700 hover:underline"
+                  >
                     {formatPeriod(d.period_start, d.period_end, i18n.language)}
                   </Link>
                 </td>
@@ -145,11 +191,68 @@ export function DeclarationsPage() {
                     {t(`declarations.statuses.${d.status}`)}
                   </Badge>
                 </td>
+                <RowActions reveal>
+                  <QuickViewButton
+                    name={`${formatPeriod(d.period_start, d.period_end, i18n.language)} · ${d.policies?.policy_number ?? EM_DASH}`}
+                    onClick={() => setPeekId(d.id)}
+                  />
+                </RowActions>
               </tr>
             ))}
           </tbody>
         </Table>
       )}
+
+      <SidePanel
+        open={peek !== undefined}
+        title={peek && formatPeriod(peek.period_start, peek.period_end, i18n.language)}
+        meta={
+          peek && (
+            <>
+              <span className="tabular-nums">{peek.policies?.policy_number ?? EM_DASH}</span>
+              <Badge tone={STATUS_TONE[peek.status]}>{t(`declarations.statuses.${peek.status}`)}</Badge>
+            </>
+          )
+        }
+        onClose={() => setPeekId(null)}
+        footer={
+          peek && (
+            <LinkButton to={`/declarations/${peek.id}`}>{t('declarations.quickView.openDeclaration')}</LinkButton>
+          )
+        }
+      >
+        {peek && <DeclarationSummary declaration={peek} />}
+      </SidePanel>
     </div>
+  )
+}
+
+/** What the queue's reader scans before opening a declaration. */
+function DeclarationSummary({ declaration: d }: { declaration: DeclarationRow }) {
+  const { t, i18n } = useTranslation()
+  const locale = i18n.language
+  return (
+    <>
+      <DescriptionList
+        items={[
+          { label: t('policies.fields.policyholder'), value: d.policies?.legal_entities?.name ?? EM_DASH },
+          {
+            label: t('declarations.fields.totalTurnover'),
+            value: (
+              <span className="num">
+                {formatAmount(Number(d.total_insurable_turnover), locale)} {d.currency_code}
+              </span>
+            ),
+          },
+          { label: t('declarations.fields.submittedAt'), value: d.submitted_at ? formatDate(d.submitted_at, locale) : EM_DASH },
+          { label: t('declarations.fields.acceptedAt'), value: d.accepted_at ? formatDate(d.accepted_at, locale) : EM_DASH },
+        ]}
+      />
+      {d.status === 'disputed' && d.dispute_note && (
+        <Callout tone="warn" className="mt-4" title={t('declarations.fields.disputeNote')}>
+          <p className="whitespace-pre-line">{d.dispute_note}</p>
+        </Callout>
+      )}
+    </>
   )
 }

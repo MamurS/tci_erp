@@ -1556,6 +1556,9 @@
       "revokedOn": "bekor qilingan: {{date}}",
       "declinedOn": "rad etilgan: {{date}}",
       "decidedOn": "Qaror sanasi: {{date}}"
+    },
+    "quickView": {
+      "openPolicy": "Polisni ochish"
     }
   },
   "limits": {
@@ -2308,6 +2311,9 @@
       "groupWithinNote": "Guruh o‘z limiti doirasida qoladi.",
       "groupNearNote": "Guruh o‘z limitining {{pct}}% qismidan foydalanadi.",
       "groupOverNote": "Guruh limitidan oshadi — qaror yuqoriga yo‘naltiriladi."
+    },
+    "quickView": {
+      "openRequest": "So‘rovni ochish"
     }
   },
   "entities": {
@@ -4061,7 +4067,10 @@
     "eyebrow": "Aylanma deklaratsiyasi",
     "disputeHint": "Deklaratsiya ushbu izoh bilan sug‘urtalanuvchiga qaytariladi; u uni tuzatib, qayta topshiradi. Qabul qilinmaguncha u bo‘yicha mukofot hisoblanmaydi.",
     "disputeNoteRequired": "Nimani tuzatish kerakligini yozing.",
-    "periodNotDeclared": "{{period}} uchun deklaratsiya hali topshirilmagan"
+    "periodNotDeclared": "{{period}} uchun deklaratsiya hali topshirilmagan",
+    "quickView": {
+      "openDeclaration": "Deklaratsiyani ochish"
+    }
   },
   "premium": {
     "none": "Bu shartnoma bo‘yicha sug‘urta mukofoti ma‘lumotlari yo‘q",
@@ -4802,7 +4811,10 @@
       "belowNql": "Qoplangan zarar NQL chegarasidan kam — da’vo bo‘yicha tovon to‘lanmaydi. Shu asos bilan rad eting."
     },
     "eyebrow": "Da’vo",
-    "indemnityPending": "Hali aniqlanmagan"
+    "indemnityPending": "Hali aniqlanmagan",
+    "quickView": {
+      "openClaim": "Da’voni ochish"
+    }
   },
   "groups": {
     "ultimateParent": "Yakuniy bosh tashkilot",
@@ -5408,7 +5420,8 @@
       "registrationNumber": "Ro‘yxatdan o‘tish raqami",
       "assignedAt": "Biriktirilgan",
       "note": "Izoh",
-      "reason": "Sabab"
+      "reason": "Sabab",
+      "number": "№"
     },
     "kinds": {
       "new_company": "Yangi tashkilot",

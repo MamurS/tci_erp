@@ -5,7 +5,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Eye, Plus } from 'lucide-react'
+import { Plus } from 'lucide-react'
 
 import {
   Badge,
@@ -22,14 +22,17 @@ import {
   Highlight,
   LinkButton,
   PageHeader,
+  QuickViewButton,
   RowActions,
   Segmented,
+  SelectCheckbox,
   SidePanel,
   SkeletonRows,
   Table,
   TableSettings,
   toCsv,
   Truncate,
+  useRowSelection,
 } from '../../components/ui'
 import { usePageSearch } from '../../components/layout/usePageSearch'
 import { searchRows } from '../../lib/pageSearch'
@@ -70,7 +73,7 @@ export function EntitiesPage() {
   // The quick view: a row's summary beside the list (Table v2).
   const [peekId, setPeekId] = useState<string | null>(null)
   // Rows picked for a bulk action (the bulk bar), by id.
-  const [selected, setSelected] = useState<ReadonlySet<string>>(new Set())
+  const { selected, toggle, toggleAll, allOf, clear } = useRowSelection()
 
   // Name, registration number, country (code and name in every language),
   // industry, roles and grade: whatever a person would type to find it.
@@ -137,7 +140,7 @@ export function EntitiesPage() {
     t('limits.fields.grade'),
     '',
   ]
-  const allSelected = filtered.length > 0 && filtered.every((e) => selected.has(e.id))
+  const filteredIds = filtered.map((e) => e.id)
   const tableHead = (
     <thead>
       <tr>
@@ -145,14 +148,10 @@ export function EntitiesPage() {
           <th key={i}>
             {i === 0 ? (
               <span className="flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  className="size-4 accent-accent-700"
-                  aria-label={t('ui.bulk.selectAll')}
-                  checked={allSelected}
-                  onChange={() =>
-                    setSelected(allSelected ? new Set() : new Set(filtered.map((e) => e.id)))
-                  }
+                <SelectCheckbox
+                  label={t('ui.bulk.selectAll')}
+                  checked={allOf(filteredIds)}
+                  onChange={() => toggleAll(filteredIds)}
                 />
                 {label}
               </span>
@@ -300,20 +299,11 @@ export function EntitiesPage() {
                 >
                   <td className="font-medium text-slate-800">
                     <span className="flex min-w-0 items-start gap-3">
-                      <input
-                        type="checkbox"
-                        className="mt-1 size-4 shrink-0 accent-accent-700"
-                        aria-label={t('ui.bulk.select', { name: entity.name })}
+                      <SelectCheckbox
+                        row
+                        label={t('ui.bulk.select', { name: entity.name })}
                         checked={selected.has(entity.id)}
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={() =>
-                          setSelected((prev) => {
-                            const next = new Set(prev)
-                            if (next.has(entity.id)) next.delete(entity.id)
-                            else next.add(entity.id)
-                            return next
-                          })
-                        }
+                        onChange={() => toggle(entity.id)}
                       />
                       <span className="min-w-0 flex-1">
                         <Truncate text={entity.name} className="max-w-none">
@@ -351,15 +341,7 @@ export function EntitiesPage() {
                     )}
                   </td>
                   <RowActions reveal>
-                    <button
-                      type="button"
-                      onClick={() => setPeekId(entity.id)}
-                      aria-label={t('ui.quickView.open', { name: entity.name })}
-                      title={t('ui.quickView.label')}
-                      className="inline-flex size-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-2 focus-visible:outline-sky-500"
-                    >
-                      <Eye className="size-4" aria-hidden />
-                    </button>
+                    <QuickViewButton name={entity.name} onClick={() => setPeekId(entity.id)} />
                   </RowActions>
                 </tr>
               )
@@ -368,7 +350,7 @@ export function EntitiesPage() {
         </Table>
       )}
 
-      <BulkBar count={selected.size} onClear={() => setSelected(new Set())}>
+      <BulkBar count={selected.size} onClear={clear}>
         <Button variant="secondary" size="sm" onClick={exportSelected}>
           {t('ui.bulk.exportCsv')}
         </Button>
