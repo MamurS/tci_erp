@@ -5,8 +5,8 @@
  * All policies», a period, a display currency) is clicked in turn, and the
  * key-figure cells, the columns of fixed-layout tables and the tab strips
  * keep their place and width (±1 px) — when the switch shows the same
- * structure (as many cells, as many columns). A switch to a different
- * structure (an empty state, another table) has nothing to compare.
+ * structure (as many cells; a table with the same headings). A switch to a
+ * different structure (an empty state, another table) has nothing to compare.
  *
  * Found by the owner (2026-10-26): «Policies in force» → «Policies» made the
  * key-figure cells redistribute their width, and a divider vanished.
@@ -68,7 +68,10 @@ async function layout(page: Page): Promise<Boxes> {
       t++
       if (getComputedStyle(table).tableLayout !== 'fixed') continue
       const ths = [...table.querySelectorAll(':scope > thead > tr > th')]
-      out[`table ${t} (${ths.length} columns)`] = Object.fromEntries(ths.map((th, i) => [`column ${i + 1}`, box(th)]))
+      // Keyed by its headings: a switch that shows ANOTHER table (submissions
+      // ↔ generated contracts) is a different structure, not a moved one.
+      const heads = ths.map((th) => (th.textContent ?? '').trim()).join(' | ')
+      out[`table ${t} [${heads}]`] = Object.fromEntries(ths.map((th, i) => [`column ${i + 1}`, box(th)]))
     }
     main.querySelectorAll('[role="tablist"]').forEach((list, l) => {
       const tabs = [...list.querySelectorAll('[role="tab"]')]
