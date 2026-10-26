@@ -14,6 +14,18 @@ import type { CommitteeState } from '../../limits/validation'
 
 export type ProposalRoute = 'colleague' | 'level'
 
+/** How the rater sends a grade (tci.submit_rating, 0078): approve it alone,
+ * to a colleague (named, or any), or up the credit authority levels. */
+export const SUBMIT_ROUTES = ['self', 'colleague', 'level'] as const
+export type SubmitRoute = (typeof SUBMIT_ROUTES)[number]
+
+/** tci.rating_send_options: whom each route reaches before anything is sent. */
+export interface SendOptions {
+  can_self: boolean
+  colleagues: PersonRef[]
+  level: { level_id: string; rank: number; is_committee: boolean; chair_name: string | null; members: PersonRef[] } | null
+}
+
 /** tci.rating_proposal_steps.status. */
 export const PROPOSAL_STATUSES = [
   'pending',
@@ -57,13 +69,17 @@ export interface PendingProposal {
   committee?: CommitteeState
 }
 
+/** A history row: an answered step, or a grade its rater approved alone
+ * (0078: no step, status `self_approved`). */
+export type HistoryStatus = Exclude<ProposalStatus, 'pending'> | 'self_approved'
+
 export interface ProposalHistoryItem {
-  step_id: string
+  step_id: string | null
   proposal_id: string
-  route: ProposalRoute
+  route: ProposalRoute | 'self'
   rank: number | null
   is_committee: boolean
-  status: Exclude<ProposalStatus, 'pending'>
+  status: HistoryStatus
   grade: string
   resolved_grade: string | null
   reason: string
@@ -106,12 +122,13 @@ export function mayForward(pending: Pick<PendingProposal, 'route' | 'is_committe
   return !(pending.route === 'level' && pending.is_committee)
 }
 
-export function proposalTone(status: ProposalStatus): 'neutral' | 'accent' | 'pos' | 'neg' | 'warn' {
+export function proposalTone(status: ProposalStatus | HistoryStatus): 'neutral' | 'accent' | 'pos' | 'neg' | 'warn' {
   switch (status) {
     case 'pending':
       return 'warn'
     case 'approved':
     case 'modified':
+    case 'self_approved':
       return 'pos'
     case 'rejected':
       return 'neg'
@@ -126,6 +143,6 @@ export function proposalTone(status: ProposalStatus): 'neutral' | 'accent' | 'po
  * another, the proposed one when approved as is, none otherwise. */
 export function outcomeGrade(item: Pick<ProposalHistoryItem, 'status' | 'grade' | 'resolved_grade'>): string | null {
   if (item.status === 'modified') return item.resolved_grade
-  if (item.status === 'approved') return item.resolved_grade ?? item.grade
+  if (item.status === 'approved' || item.status === 'self_approved') return item.resolved_grade ?? item.grade
   return null
 }

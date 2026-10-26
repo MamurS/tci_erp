@@ -7,7 +7,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { tci } from '../../../lib/supabase'
 import type { CommitteeVote } from '../../limits/validation'
-import type { ProposalAction, ProposalState } from './proposals'
+import type { ProposalAction, ProposalState, SendOptions, SubmitRoute } from './proposals'
 
 export const proposalKey = (entityId: string) => ['buyers', entityId, 'rating-proposals'] as const
 
@@ -31,7 +31,25 @@ export interface ProposeInput {
   /** The engine rating the grade is for; null = a manual rating. */
   assessmentId: string | null
   statementId: string | null
-  escalate: boolean
+  route: SubmitRoute
+  /** A named colleague (route `colleague`); null = any colleague. */
+  colleague: string | null
+}
+
+/** Whom each route reaches (tci.rating_send_options, 0078). */
+export function useRatingSendOptions(entityId: string, assessmentId: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: ['buyers', entityId, 'rating-send-options', assessmentId],
+    enabled,
+    queryFn: async (): Promise<SendOptions> => {
+      const { data, error } = await tci().rpc('rating_send_options', {
+        p_entity_id: entityId,
+        p_assessment_id: assessmentId,
+      })
+      if (error) throw error
+      return data as SendOptions
+    },
+  })
 }
 
 type CloseResult = ProposalState & { committee: { action: 'approve' | 'reject' | 'return' } }
@@ -55,13 +73,14 @@ export function useProposalActions(entityId: string) {
   const propose = useMutation({
     mutationKey: ['rating', 'propose'],
     mutationFn: (input: ProposeInput) =>
-      call<ProposalState>('propose_rating', {
+      call<ProposalState>('submit_rating', {
         p_entity_id: entityId,
         p_grade: input.grade,
         p_reason: input.reason,
+        p_route: input.route,
+        p_colleague: input.route === 'colleague' ? input.colleague : null,
         p_assessment_id: input.assessmentId,
         p_statement_id: input.statementId,
-        p_escalate: input.escalate,
       }),
     onSuccess: settle,
   })

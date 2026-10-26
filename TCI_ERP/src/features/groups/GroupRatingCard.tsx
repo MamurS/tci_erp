@@ -9,11 +9,12 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Field, Input, Modal, SectionTitle, Select, Textarea } from '../../components/ui'
+import { Badge, Button, Card, Field, Modal, SectionTitle, Textarea } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH, formatMoment } from '../../lib/format'
 import { gradeTone } from '../../lib/grade'
 import { useGradeScale } from '../../lib/gradeScale'
+import { GradePicker } from '../entities/rating/GradePicker'
 import { refusalOr } from '../../lib/optimistic'
 import { hasRole } from '../../lib/roles'
 import { normaliseGrade } from '../entities/rating/proposals'
@@ -170,23 +171,9 @@ function GroupRatingDialog({
     >
       <div className="flex flex-col gap-4">
         <p className="text-sm text-slate-600">{kind === 'set' ? t('groups.rating.setHint') : t('groups.rating.endHint')}</p>
-        {kind === 'set' &&
-          (bands?.length ? (
-            <Field label={t('groups.rating.grade')}>
-              <Select value={grade} onChange={(e) => setGrade(e.target.value)}>
-                <option value="">{t('common.notSelected')}</option>
-                {bands.map((b) => (
-                  <option key={b.code} value={b.code}>
-                    {b.code}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-          ) : (
-            <Field label={t('groups.rating.grade')} hint={t('rating.proposals.gradeTyped')}>
-              <Input value={grade} maxLength={3} onChange={(e) => setGrade(e.target.value.toUpperCase())} />
-            </Field>
-          ))}
+        {kind === 'set' && (
+          <GradePicker value={grade} onChange={setGrade} label={t('groups.rating.grade')} bands={bands} />
+        )}
         <Field label={t('rating.proposals.reason')} hint={t('rating.proposals.reasonRequired')}>
           <Textarea value={reason} rows={3} onChange={(e) => setReason(e.target.value)} />
         </Field>

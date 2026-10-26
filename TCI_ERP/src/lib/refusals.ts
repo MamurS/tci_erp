@@ -156,6 +156,8 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'rating_assessment_mismatch', key: 'rating.proposals.errors.assessmentMismatch' },
   { fragment: 'rating_statement_mismatch', key: 'rating.proposals.errors.statementMismatch' },
   { fragment: 'rating_no_colleague', key: 'rating.proposals.errors.noColleague' },
+  { fragment: 'rating_colleague_not_eligible', key: 'rating.proposals.errors.colleagueNotEligible' },
+  { fragment: 'rating_route_invalid', key: 'rating.proposals.errors.routeInvalid' },
   { fragment: 'rating_level_missing', key: 'rating.proposals.errors.levelMissing' },
   { fragment: 'rating_not_eligible', key: 'rating.proposals.errors.notEligible' },
   { fragment: 'rating_committee_votes', key: 'rating.proposals.errors.committeeVotes' },

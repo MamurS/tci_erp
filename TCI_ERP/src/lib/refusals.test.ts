@@ -20,9 +20,10 @@ import M71 from '../../supabase/migrations/0071_authority_levels.sql?raw'
 import M73 from '../../supabase/migrations/0073_rating_proposals.sql?raw'
 import M74 from '../../supabase/migrations/0074_group_ratings.sql?raw'
 import M75 from '../../supabase/migrations/0075_client_limit_request_changes.sql?raw'
+import M78 from '../../supabase/migrations/0078_rating_self_approval.sql?raw'
 import { OPERATIONS_REFUSALS, refusalKey } from './refusals'
 
-const ALL = [M13, M26, M27, M28, M29, M54, M55, M56, M58, M60, M61, M62, M63, M65, M67, M69, M71, M73, M74, M75].join('\n')
+const ALL = [M13, M26, M27, M28, M29, M54, M55, M56, M58, M60, M61, M62, M63, M65, M67, M69, M71, M73, M74, M75, M78].join('\n')
 
 describe('operations refusal mapping — contract with 0026-0029', () => {
   it('maps only refusals the database actually raises', () => {
@@ -38,10 +39,11 @@ describe('operations refusal mapping — contract with 0026-0029', () => {
         continue
       }
       // The fragment is inside a raise literal; it may follow a placeholder
-      // ('task % not found or not yours').
+      // ('task % not found or not yours'), and in a function rebuilt from its
+      // own text the literal's quote is doubled (0078's open_rating_step).
       const escaped = fragment.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
       expect(ALL, `no exception in the migrations says "${fragment}"`).toMatch(
-        new RegExp(`raise exception '[^']*${escaped}`),
+        new RegExp(`raise exception '?'[^']*${escaped}`),
       )
     }
   })

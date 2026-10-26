@@ -88,23 +88,29 @@ const FIGURE_TONES: Record<NonNullable<KeyFigure['tone']>, string> = {
 }
 
 /**
- * The few numbers that matter, side by side in ONE card. The 1px gap over a
- * hairline background draws the dividers, so they stay right when the row
- * wraps on a narrow screen. Every cell is left-aligned the same way.
+ * The few numbers that matter, side by side in ONE card. Every cell is
+ * left-aligned the same way.
  *
- * Each cell is as wide as its content needs, and the spare width is shared:
- * a figure never breaks ("42 000 000 000 UZS" on one line, a trillion too),
- * so «90%» does not take as much room as a liability. When a row cannot hold
- * them all, whole cells move to the next line instead of a number breaking.
+ * The cells share the row EQUALLY (flex basis 0), so changing what one of
+ * them says («Policies in force» → «Policies» when a view switches) moves
+ * nothing. A figure never breaks ("42 000 000 000 UZS" on one line, a
+ * trillion too): a cell is never narrower than its figure (min-width auto =
+ * min-content, the figure is nowrap), and when a row cannot hold them all
+ * whole cells move to the next line instead of a number breaking.
+ *
+ * Each cell draws its own dividers — a 1px shadow on its left and top edge,
+ * clipped by the card where the cell starts a row. A gap over a background
+ * would vanish where two cells' fractional edges snap onto one pixel.
  */
 export function KeyFigures({ items, className = 'mb-6' }: { items: KeyFigure[]; className?: string }) {
   return (
     <Card className={`overflow-hidden ${className}`}>
-      <div className="flex flex-wrap gap-px bg-slate-200/70">
+      <div className="flex flex-wrap">
         {items.map((item, i) => (
           <div
             key={i}
-            className={`flex flex-[1_1_auto] flex-col gap-1 bg-white px-5 py-4 ${item.text ? 'min-w-0 basis-40' : ''}`}
+            data-key-figure
+            className={`flex flex-[1_1_0%] flex-col gap-1 bg-white px-5 py-4 shadow-[-1px_0_0_0_var(--color-slate-200),0_-1px_0_0_var(--color-slate-200)] ${item.text ? 'min-w-40' : ''}`}
           >
             <span className="text-[0.75rem] font-medium text-slate-500">{item.label}</span>
             <span

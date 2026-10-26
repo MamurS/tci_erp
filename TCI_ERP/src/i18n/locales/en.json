@@ -757,7 +757,7 @@
     },
     "proposals": {
       "title": "Rating proposals",
-      "hint": "A grade set by hand, or a grade sent for validation, comes into force only when a second person confirms it — a colleague, or the credit authority levels it is escalated to.",
+      "hint": "A grade set by hand, or a grade for the engine rating, you approve yourself, send to a colleague, or escalate up the credit authority levels.",
       "sendEngine": "Send for validation",
       "manualAction": "Set a rating manually",
       "none": "No rating proposals for this buyer yet.",
@@ -765,12 +765,11 @@
       "manualGrade": "Manual rating {{grade}}",
       "manualBy": "Set by {{author}}, confirmed by {{name}}, {{at}}",
       "manualTitle": "Set a rating manually",
-      "manualHint": "Propose a grade without the engine — for example a buyer without statements. Statements are optional; the reason is required. The grade comes into force when a second person confirms it.",
+      "manualHint": "Set a grade without the engine — for example a buyer without statements. Statements are optional; the reason is required. Approve it yourself, send it to a colleague, or escalate it.",
       "engineTitle": "Send the rating for validation",
-      "engineHint": "The recommended grade is {{grade}}. Propose it, or another grade of the scale, and say why. The grade comes into force when a second person confirms it.",
+      "engineHint": "The recommended grade is {{grade}}. Choose it or another grade of the scale and say why. Approve it yourself, or send it for validation.",
       "grade": "Proposed grade",
       "otherGrade": "The grade you approve",
-      "gradeTyped": "The rating scale is unavailable: type a grade such as B1.",
       "statement": "Statement it is based on",
       "statementOptional": "Optional",
       "noStatement": "No statement",
@@ -778,10 +777,11 @@
       "reasonRequired": "Required",
       "route": "Send to",
       "routes": {
+        "self": "Approve myself",
         "colleague": "A colleague",
-        "escalate": "Escalate"
+        "level": "Escalate"
       },
-      "routeHintColleague": "Any colleague who confirms ratings may confirm it; you cannot.",
+      "routeHintColleague": "With no colleague chosen, any colleague who confirms ratings may confirm it; you cannot.",
       "routeHintEscalate": "It goes to the next credit authority level that can take it, rank by rank, up to the credit committee.",
       "submitColleague": "Send for validation",
       "submitEscalate": "Escalate",
@@ -806,7 +806,8 @@
         "returned": "Returned",
         "rejected": "Rejected",
         "forwarded": "Forwarded",
-        "withdrawn": "Withdrawn"
+        "withdrawn": "Withdrawn",
+        "self_approved": "Approved by the rater"
       },
       "committeeOutcome": {
         "approve": "the grade is approved",
@@ -831,7 +832,53 @@
         "closed": "This rating proposal has already been answered.",
         "modifiedSame": "That is the proposed grade — approve it as is.",
         "withdrawNotYours": "Only whoever proposed a rating withdraws it.",
-        "manualDirect": "A manual rating comes into force only through a confirmed rating proposal."
+        "manualDirect": "A manual rating comes into force only through a confirmed rating proposal.",
+        "colleagueNotEligible": "That colleague cannot confirm this grade: they do not confirm ratings, or they already take part in it.",
+        "routeInvalid": "Unknown way to send a grade."
+      },
+      "routeHintSelf": "The grade comes into force at once under your name; the history records that you approved it yourself.",
+      "colleague": "Colleague",
+      "anyColleague": "Any colleague",
+      "escalateTo": "Goes to {{level}}",
+      "submitSelf": "Approve the grade",
+      "bySelf": "by the rater"
+    },
+    "grades": {
+      "pick": "Choose a grade to see what it says about the buyer.",
+      "A1": {
+        "name": "Excellent",
+        "risk": "minimal credit risk",
+        "description": "Exceptionally strong financial position and capacity to pay; highly resilient to adverse economic and market conditions."
+      },
+      "A2": {
+        "name": "Very good",
+        "risk": "very low credit risk",
+        "description": "Very strong financial position; the capacity to pay differs only slightly from the highest grade and withstands most adverse conditions."
+      },
+      "B1": {
+        "name": "Good",
+        "risk": "low credit risk",
+        "description": "Sound financial position and a strong capacity to pay, though somewhat more sensitive to adverse changes in economic or business conditions."
+      },
+      "B2": {
+        "name": "Acceptable",
+        "risk": "moderate credit risk",
+        "description": "Adequate capacity to pay under current conditions; adverse economic or business developments are more likely to weaken it."
+      },
+      "C1": {
+        "name": "Weak",
+        "risk": "elevated credit risk",
+        "description": "Clear weaknesses in the financial position; payment depends on stable business conditions and faces significant uncertainties."
+      },
+      "C2": {
+        "name": "Very weak",
+        "risk": "high credit risk",
+        "description": "Fragile financial position; the capacity to pay is vulnerable and depends on favourable business and economic conditions."
+      },
+      "D": {
+        "name": "Unacceptable",
+        "risk": "unacceptable for cover",
+        "description": "Default, insolvency or a financial position so impaired that payment is unlikely."
       }
     }
   },
@@ -5560,6 +5607,9 @@
       "nothing_new": "The latest version is already published",
       "request_step": "An offer is published at the sales confirmation step",
       "expired_version": "The latest version has expired — save a version with a new date"
+    },
+    "publishBlockerHints": {
+      "request_step": "The submission is still at commercial review. Once the commercial underwriter passes it on to sales confirmation, you can send the offer to the client from here; until then you can prepare it and download the PDF."
     },
     "languages": {
       "ru": "Русский",

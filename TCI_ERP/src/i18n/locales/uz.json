@@ -757,7 +757,7 @@
     },
     "proposals": {
       "title": "Reyting takliflari",
-      "hint": "Qo‘lda belgilangan yoki tasdiqlashga yuborilgan reyting faqat ikkinchi shaxs tasdiqlaganidan keyin kuchga kiradi — hamkasb yoki u yuborilgan kredit vakolat darajalari.",
+      "hint": "Qo‘lda belgilangan yoki model hisoblagan reytingni o‘zingiz tasdiqlashingiz, hamkasbga yuborishingiz yoki kredit vakolat darajalari bo‘yicha yuqoriga yo‘naltirishingiz mumkin.",
       "sendEngine": "Tasdiqlashga yuborish",
       "manualAction": "Reytingni qo‘lda belgilash",
       "none": "Bu bayer bo‘yicha hozircha reyting takliflari yo‘q.",
@@ -765,12 +765,11 @@
       "manualGrade": "Qo‘lda belgilangan reyting {{grade}}",
       "manualBy": "Belgiladi: {{author}}, tasdiqladi: {{name}}, {{at}}",
       "manualTitle": "Reytingni qo‘lda belgilash",
-      "manualHint": "Modelsiz reyting taklif qiling — masalan, hisoboti yo‘q bayer uchun. Hisobot ixtiyoriy, sabab majburiy. Reyting ikkinchi shaxs tasdiqlaganidan keyin kuchga kiradi.",
+      "manualHint": "Modelsiz reyting belgilang — masalan, hisoboti yo‘q bayer uchun. Hisobot ixtiyoriy, sabab majburiy. Reytingni o‘zingiz tasdiqlang, hamkasbga yuboring yoki yuqoriga yo‘naltiring.",
       "engineTitle": "Reytingni tasdiqlashga yuborish",
-      "engineHint": "Tavsiya etilgan reyting — {{grade}}. Uni yoki shkaladagi boshqa reytingni taklif qiling va sababini yozing. Reyting ikkinchi shaxs tasdiqlaganidan keyin kuchga kiradi.",
+      "engineHint": "Tavsiya etilgan reyting — {{grade}}. Uni yoki shkaladagi boshqa reytingni tanlang va sababini yozing. Reytingni o‘zingiz tasdiqlang yoki tasdiqlashga yuboring.",
       "grade": "Taklif etilayotgan reyting",
       "otherGrade": "Tasdiqlanayotgan reyting",
-      "gradeTyped": "Reyting shkalasi mavjud emas: reytingni kiriting, masalan B1.",
       "statement": "Asos bo‘lgan hisobot",
       "statementOptional": "Ixtiyoriy",
       "noStatement": "Hisobotsiz",
@@ -778,10 +777,11 @@
       "reasonRequired": "Majburiy",
       "route": "Kimga",
       "routes": {
+        "self": "O‘zim tasdiqlayman",
         "colleague": "Hamkasbga",
-        "escalate": "Yuqoriga yo‘naltirish"
+        "level": "Yuqoriga yo‘naltirish"
       },
-      "routeHintColleague": "Reytinglarni tasdiqlaydigan istalgan hamkasb tasdiqlashi mumkin; siz emas.",
+      "routeHintColleague": "Hamkasb tanlanmasa, reytinglarni tasdiqlaydigan istalgan hamkasb tasdiqlashi mumkin; siz emas.",
       "routeHintEscalate": "Taklif uni qabul qila oladigan keyingi kredit vakolat darajasiga, darajama-daraja, kredit qo‘mitasigacha boradi.",
       "submitColleague": "Tasdiqlashga yuborish",
       "submitEscalate": "Yuqoriga yo‘naltirish",
@@ -806,7 +806,8 @@
         "returned": "Qaytarildi",
         "rejected": "Rad etildi",
         "forwarded": "Yo‘naltirildi",
-        "withdrawn": "Qaytarib olindi"
+        "withdrawn": "Qaytarib olindi",
+        "self_approved": "Mustaqil tasdiqlangan"
       },
       "committeeOutcome": {
         "approve": "reyting tasdiqlanadi",
@@ -831,7 +832,53 @@
         "closed": "Bu reyting taklifiga allaqachon javob berilgan.",
         "modifiedSame": "Bu taklif etilgan reytingning o‘zi — uni o‘zgartirmasdan tasdiqlang.",
         "withdrawNotYours": "Reyting taklifini faqat uning muallifi qaytarib olishi mumkin.",
-        "manualDirect": "Qo‘lda belgilangan reyting faqat tasdiqlangan reyting taklifi orqali kuchga kiradi."
+        "manualDirect": "Qo‘lda belgilangan reyting faqat tasdiqlangan reyting taklifi orqali kuchga kiradi.",
+        "colleagueNotEligible": "Bu hamkasb reytingni tasdiqlay olmaydi: u reytinglarni tasdiqlamaydi yoki bu taklifda allaqachon ishtirok etmoqda.",
+        "routeInvalid": "Reytingni yuborishning noma’lum usuli."
+      },
+      "routeHintSelf": "Reyting darhol sizning nomingizdan kuchga kiradi; tarixda uni o‘zingiz tasdiqlaganingiz qayd etiladi.",
+      "colleague": "Hamkasb",
+      "anyColleague": "Istalgan hamkasb",
+      "escalateTo": "Yuboriladi: {{level}}",
+      "submitSelf": "Reytingni tasdiqlash",
+      "bySelf": "mustaqil"
+    },
+    "grades": {
+      "pick": "Reytingni tanlang — bu yerda u bayer haqida nima deyishi ko‘rinadi.",
+      "A1": {
+        "name": "A’lo",
+        "risk": "kredit qaltisligi minimal",
+        "description": "Moliyaviy holati va majburiyatlarni to‘lash qobiliyati nihoyatda kuchli; noqulay iqtisodiy va bozor sharoitlariga yuqori darajada bardoshli."
+      },
+      "A2": {
+        "name": "Juda yaxshi",
+        "risk": "kredit qaltisligi juda past",
+        "description": "Moliyaviy holati juda kuchli; to‘lash qobiliyati eng yuqori reytingdan biroz farq qiladi va ko‘pchilik noqulay sharoitlarga bardosh beradi."
+      },
+      "B1": {
+        "name": "Yaxshi",
+        "risk": "kredit qaltisligi past",
+        "description": "Moliyaviy holati barqaror va to‘lash qobiliyati yuqori, biroq iqtisodiy yoki ishbilarmonlik sharoitlarining noqulay o‘zgarishlariga biroz sezgirroq."
+      },
+      "B2": {
+        "name": "Maqbul",
+        "risk": "kredit qaltisligi o‘rtacha",
+        "description": "Joriy sharoitlarda to‘lash qobiliyati yetarli; noqulay iqtisodiy yoki ishbilarmonlik o‘zgarishlari uni zaiflashtirishi ehtimoli yuqoriroq."
+      },
+      "C1": {
+        "name": "Zaif",
+        "risk": "kredit qaltisligi oshgan",
+        "description": "Moliyaviy holatida aniq zaif tomonlar bor; to‘lovlar ishbilarmonlik sharoitlarining barqarorligiga bog‘liq va jiddiy noaniqliklarga duch keladi."
+      },
+      "C2": {
+        "name": "Juda zaif",
+        "risk": "kredit qaltisligi yuqori",
+        "description": "Moliyaviy holati beqaror; to‘lash qobiliyati zaif va qulay ishbilarmonlik hamda iqtisodiy sharoitlarga bog‘liq."
+      },
+      "D": {
+        "name": "Qabul qilinmaydigan",
+        "risk": "qaltislik sug‘urta qoplamasi uchun qabul qilinmaydi",
+        "description": "Defolt, to‘lovga qobiliyatsizlik yoki moliyaviy holat shu qadar yomonlashganki, to‘lov ehtimoli past."
       }
     }
   },
@@ -5560,6 +5607,9 @@
       "nothing_new": "Oxirgi versiya allaqachon e’lon qilingan",
       "request_step": "Taklif sotuv tasdig‘i bosqichida e’lon qilinadi",
       "expired_version": "Oxirgi versiyaning muddati o‘tgan — yangi sana bilan versiyani saqlang"
+    },
+    "publishBlockerHints": {
+      "request_step": "Ariza hali tijorat ko‘rib chiqishi bosqichida. Tijorat anderrayteri uni sotuv tasdiqlashiga o‘tkazgach, taklifni shu yerdan mijozga yuborish mumkin bo‘ladi; ungacha uni tayyorlash va PDF yuklab olish mumkin."
     },
     "languages": {
       "ru": "Русский",

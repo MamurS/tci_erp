@@ -8,7 +8,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Field, Modal, Select, Textarea } from '../../../components/ui'
+import { Badge, Button, Card, Field, Modal, Textarea } from '../../../components/ui'
 import { useAuth } from '../../../auth/AuthContext'
 import { formatMoment } from '../../../lib/format'
 import { gradeTone } from '../../../lib/grade'
@@ -18,6 +18,7 @@ import { useStaffDirectory } from '../../data/api'
 import { mayConfirmRating } from '../access'
 import type { CreditAnalysisMode } from '../../../lib/creditAnalysis'
 import { useConfirmRating } from './assessmentsApi'
+import { GradePicker } from './GradePicker'
 import type { AssessmentRow } from './assessmentsApi'
 
 export function RatingConfirmation({
@@ -57,7 +58,6 @@ export function RatingConfirmation({
 
   // Grades come from the analytics service; while it is unreachable only the
   // engine's own grade can be confirmed.
-  const grades = bands?.length ? bands.map((b) => b.code) : [engineGrade]
   const needsComment = grade !== engineGrade
   const canSubmit = !needsComment || comment.trim().length > 0
 
@@ -154,15 +154,14 @@ export function RatingConfirmation({
       >
         <div className="flex flex-col gap-4">
           <p className="text-sm text-slate-600">{t('rating.confirmation.hint', { grade: engineGrade })}</p>
-          <Field label={t('rating.confirmation.grade')}>
-            <Select value={grade} onChange={(e) => setGrade(e.target.value)}>
-              {grades.map((code) => (
-                <option key={code} value={code}>
-                  {code === engineGrade ? t('rating.confirmation.engineOption', { grade: code }) : code}
-                </option>
-              ))}
-            </Select>
-          </Field>
+          <GradePicker
+            value={grade}
+            onChange={setGrade}
+            label={t('rating.confirmation.grade')}
+            bands={bands}
+            recommended={engineGrade}
+            allowEmpty={false}
+          />
           <Field
             label={t('rating.confirmation.comment')}
             hint={needsComment ? t('rating.confirmation.commentRequired') : t('rating.confirmation.commentOptional')}

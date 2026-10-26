@@ -912,6 +912,27 @@ is fine for internal test accounts and not fine for customers.
   file in one call with its ledger row, all four objects identical
   afterwards, `tests/db/person_task_role.sql` run on canonical with role
   impersonation (forced rollback, nothing left behind)
+- [x] Rating approval is the rater's choice (migration 0078, owner
+  2026-10-26): `tci.submit_rating(entity, grade, reason, route, colleague?,
+  assessment?, statement?)` — `self` puts the grade in force at once (a
+  self-approved proposal, recorded and shown in the history; reason and the
+  group cap still apply), `colleague` sends it to a NAMED colleague (only
+  they get the task and may answer) or, with none named, to any colleague,
+  `level` escalates as before; `tci.rating_send_options` shows whom each
+  route reaches (the colleagues; the next authority level and its members)
+  before anything is sent. The rating dialogs pick the grade from the scale
+  with a description of each grade (`GradePicker`, `rating.grades.*` en/ru/uz,
+  the scale mirrored from credit_engine and contract-tested). Same batch, no
+  migration: key-figure cells share the row equally and draw their own
+  dividers (`KeyFigures`), side-by-side cards start on one line, the offer
+  page says why «send to the client» is unavailable; guarded by
+  `e2e/layout/switches.spec.ts` (view switches move nothing) and
+  `cardTops.spec.ts`. **Canonical: 0078 applied 2026-10-26** before merge
+  (backward-compatible: `propose_rating` unchanged), the six functions it
+  replaces verified identical to a local replay of 0077 first, the whole
+  file in one call with its ledger row, all eleven functions identical
+  afterwards, `tests/db/rating_self_approval.sql` run on canonical with role
+  impersonation (forced rollback, nothing left behind)
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2162,6 +2183,24 @@ writes any of the four tables (credit desk + admin read).
 (Admin › Полномочия; `underwriters_covering` still names credit underwriters
 only, so a grant never routes limit decisions to an analyst). The ADT tables
 and «Авторешения» are the analysts' to read too.
+
+### Rating approval routes (migration 0078)
+
+**The rater chooses; the limit keeps its four eyes.** `submit_rating` is the
+entry point; `propose_rating` keeps its 0073 signature and serves the
+colleague and level routes (submit_rating sets the transaction-local
+`tci.rating_target` for a named colleague, and `open_rating_step` stores it
+as `rating_proposal_steps.target_user`, refusing `rating_colleague_not_eligible`
+when that person may not answer). `self` needs both 'rate' and
+'confirm_rating'; it inserts a `rating_proposals` row with `self_approved`
+and applies it at once — `apply_rating_proposal` skips `four_eyes_own_rating`
+for that proposal only; the plain `confirm_rating` still refuses the
+calculator. A self-approver is the rating's confirmer, so in `separate` mode
+0069 keeps them off the limit decision on it. The history lists
+self-approved grades (`status = 'self_approved'`, `route = 'self'`);
+`SUBMIT_ROUTES` and the status mirror the 0078 text (contract-tested).
+No DROP anywhere: the MCP tooling still holds any statement containing it
+(probed 2026-10-26), so signatures are kept and columns only added.
 
 ### Group rating rules (migration 0074)
 

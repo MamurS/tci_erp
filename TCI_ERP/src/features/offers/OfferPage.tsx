@@ -232,6 +232,15 @@ export function OfferPage() {
         }
       />
 
+      {/* Why «Save and send to the client» is greyed out, said where it can
+          be read — a tooltip on a disabled button is easy to miss. */}
+      {publisher && blocker !== null && blocker !== 'nothing_new' && (
+        <Callout tone="info" title={t(`offers.publishBlockers.${blocker}`)} className="mb-4">
+          {blocker === 'request_step' && offer.request_status === 'commercial_review'
+            ? t('offers.publishBlockerHints.request_step')
+            : null}
+        </Callout>
+      )}
       {error && <Callout tone="neg" title={error} className="mb-4" />}
       {saved !== null && <Callout tone="pos" title={t('offers.edit.saved', { version: saved })} className="mb-4" />}
       {offer.status === 'changes_requested' && offer.client_comment && (

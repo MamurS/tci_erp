@@ -22,7 +22,6 @@ import {
   Button,
   Card,
   Field,
-  Input,
   KeyFigures,
   Modal,
   SectionTitle,
@@ -42,15 +41,17 @@ import type { CommitteeVote } from '../../limits/validation'
 import type { StatementBundle } from '../types'
 import { statementPeriodLabel } from '../types'
 import type { AssessmentRow } from './assessmentsApi'
+import { GradePicker } from './GradePicker'
 import {
   mayForward,
   normaliseGrade,
   outcomeGrade,
   proposalActionNeedsComment,
   proposalTone,
+  SUBMIT_ROUTES,
 } from './proposals'
-import type { PendingProposal, ProposalAction, ProposalState } from './proposals'
-import { useProposalActions, useRatingProposals } from './proposalsApi'
+import type { PendingProposal, ProposalAction, ProposalState, SubmitRoute } from './proposals'
+import { useProposalActions, useRatingProposals, useRatingSendOptions } from './proposalsApi'
 
 /** `?focus=rating-proposal` (the Agenda) lands here. */
 export const RATING_PROPOSAL_ANCHOR = 'rating-proposal'
@@ -130,7 +131,7 @@ export function RatingProposalPanel({
 }
 
 // ---------------------------------------------------------------------------
-// The grade picker: the scale when the service serves it, else a typed grade
+// The grade picker: the scale's grades, each with what it says (GradePicker)
 // ---------------------------------------------------------------------------
 
 function GradeField({
@@ -146,26 +147,7 @@ function GradeField({
   label: string
   recommended?: string | null
 }) {
-  const { t } = useTranslation()
-  if (bands?.length) {
-    return (
-      <Field label={label}>
-        <Select value={value} onChange={(e) => onChange(e.target.value)}>
-          <option value="">{t('common.notSelected')}</option>
-          {bands.map((b) => (
-            <option key={b.code} value={b.code}>
-              {b.code === recommended ? t('rating.confirmation.engineOption', { grade: b.code }) : b.code}
-            </option>
-          ))}
-        </Select>
-      </Field>
-    )
-  }
-  return (
-    <Field label={label} hint={t('rating.proposals.gradeTyped')}>
-      <Input value={value} maxLength={3} onChange={(e) => onChange(e.target.value.toUpperCase())} />
-    </Field>
-  )
+  return <GradePicker value={value} onChange={onChange} bands={bands} label={label} recommended={recommended} />
 }
 
 // ---------------------------------------------------------------------------
@@ -189,15 +171,21 @@ function ProposeModal({
 }) {
   const { t } = useTranslation()
   const { propose } = useProposalActions(entityId)
+  const assessmentId = kind === 'engine' ? (current?.id ?? null) : null
+  const options = useRatingSendOptions(entityId, assessmentId, true)
   const recommended = kind === 'engine' ? (current?.engine_grade ?? current?.rating_grade ?? null) : null
   const [grade, setGrade] = useState(recommended ?? '')
   const [reason, setReason] = useState('')
   const [statementId, setStatementId] = useState('')
-  const [route, setRoute] = useState<'colleague' | 'escalate'>('colleague')
+  const [route, setRoute] = useState<SubmitRoute>('colleague')
+  const [colleague, setColleague] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   const normalised = normaliseGrade(grade)
   const canSubmit = normalised !== null && reason.trim().length > 0
+  const routes: SubmitRoute[] = options.data?.can_self === false ? ['colleague', 'level'] : [...SUBMIT_ROUTES]
+  const level = options.data?.level ?? null
+  const names = (people: { name: string | null }[]) => people.map((p) => p.name ?? EM_DASH).join(', ')
 
   const submit = async () => {
     if (!normalised) return
@@ -206,9 +194,10 @@ function ProposeModal({
       await propose.mutateAsync({
         grade: normalised,
         reason: reason.trim(),
-        assessmentId: kind === 'engine' ? (current?.id ?? null) : null,
+        assessmentId,
         statementId: kind === 'manual' && statementId ? statementId : null,
-        escalate: route === 'escalate',
+        route,
+        colleague: route === 'colleague' && colleague ? colleague : null,
       })
       onClose()
     } catch (failure) {
@@ -227,7 +216,11 @@ function ProposeModal({
             {t('common.cancel')}
           </Button>
           <Button loading={propose.isPending} disabled={!canSubmit} onClick={() => void submit()}>
-            {route === 'escalate' ? t('rating.proposals.submitEscalate') : t('rating.proposals.submitColleague')}
+            {route === 'self'
+              ? t('rating.proposals.submitSelf')
+              : route === 'level'
+                ? t('rating.proposals.submitEscalate')
+                : t('rating.proposals.submitColleague')}
           </Button>
         </>
       }
@@ -261,16 +254,38 @@ function ProposeModal({
         <Field label={t('rating.proposals.route')}>
           <Segmented
             value={route}
-            options={[
-              { key: 'colleague', label: t('rating.proposals.routes.colleague') },
-              { key: 'escalate', label: t('rating.proposals.routes.escalate') },
-            ]}
-            onChange={(key) => setRoute(key as 'colleague' | 'escalate')}
+            options={routes.map((key) => ({ key, label: t(`rating.proposals.routes.${key}`) }))}
+            onChange={(key) => setRoute(key as SubmitRoute)}
           />
         </Field>
-        <p className="text-[0.8125rem] text-slate-500">
-          {route === 'escalate' ? t('rating.proposals.routeHintEscalate') : t('rating.proposals.routeHintColleague')}
-        </p>
+        {route === 'self' && <p className="text-[0.8125rem] text-slate-500">{t('rating.proposals.routeHintSelf')}</p>}
+        {route === 'colleague' && (
+          <Field label={t('rating.proposals.colleague')} hint={t('rating.proposals.routeHintColleague')}>
+            <Select value={colleague} onChange={(e) => setColleague(e.target.value)}>
+              <option value="">{t('rating.proposals.anyColleague')}</option>
+              {(options.data?.colleagues ?? []).map((p) => (
+                <option key={p.user_id} value={p.user_id}>
+                  {p.name ?? EM_DASH}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
+        {route === 'level' && (
+          <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[0.8125rem] leading-snug text-slate-600">
+            {level ? (
+              <>
+                <div className="font-semibold text-slate-800">
+                  {t('rating.proposals.escalateTo', { level: levelName(t, 'credit', level.rank, level.is_committee) })}
+                </div>
+                <p className="mt-0.5">{names(level.members)}</p>
+                <p className="mt-1 text-slate-500">{t('rating.proposals.routeHintEscalate')}</p>
+              </>
+            ) : (
+              <p>{options.isLoading ? t('common.loading') : t('rating.proposals.errors.levelMissing')}</p>
+            )}
+          </div>
+        )}
         {error && (
           <div className="text-sm text-neg-500" role="alert">
             {error}
@@ -555,7 +570,7 @@ function HistoryList({ state, locale }: { state: ProposalState; locale: string }
         {state.history.map((h) => {
           const result = outcomeGrade(h)
           return (
-            <li key={h.step_id} className="flex flex-col gap-0.5 border-l-2 border-slate-200 pl-3">
+            <li key={h.step_id ?? h.proposal_id} className="flex flex-col gap-0.5 border-l-2 border-slate-200 pl-3">
               <span className="flex flex-wrap items-center gap-2">
                 <span className="text-slate-500">{formatMoment(h.resolved_at, locale)}</span>
                 <Badge tone={proposalTone(h.status)}>{t(`rating.proposals.statuses.${h.status}`)}</Badge>
@@ -567,7 +582,11 @@ function HistoryList({ state, locale }: { state: ProposalState; locale: string }
                 )}
                 {h.manual && <Badge tone="neutral">{t('rating.proposals.manual')}</Badge>}
                 <span className="text-slate-500">
-                  {h.route === 'colleague' ? t('rating.proposals.withColleague') : levelName(t, 'credit', h.rank, h.is_committee)}
+                  {h.route === 'self'
+                    ? t('rating.proposals.bySelf')
+                    : h.route === 'colleague'
+                      ? t('rating.proposals.withColleague')
+                      : levelName(t, 'credit', h.rank, h.is_committee)}
                 </span>
               </span>
               <span className="text-slate-600">

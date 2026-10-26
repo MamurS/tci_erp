@@ -5,6 +5,7 @@
 import { describe, expect, it } from 'vitest'
 
 import M73 from '../../../../supabase/migrations/0073_rating_proposals.sql?raw'
+import M78 from '../../../../supabase/migrations/0078_rating_self_approval.sql?raw'
 import en from '../../../i18n/locales/en.json'
 import ru from '../../../i18n/locales/ru.json'
 import uz from '../../../i18n/locales/uz.json'
@@ -14,8 +15,10 @@ import {
   mayForward,
   normaliseGrade,
   outcomeGrade,
+  proposalTone,
   PROPOSAL_ACTIONS,
   PROPOSAL_STATUSES,
+  SUBMIT_ROUTES,
   proposalActionNeedsComment,
 } from './proposals'
 
@@ -74,5 +77,17 @@ describe('rating proposals mirror 0073', () => {
       const key = refusalKey({ message: `${code}: x` })
       for (const locale of [en, ru, uz]) expect(typeof leaf(locale, key), `${code} → ${key}`).toBe('string')
     }
+  })
+})
+
+describe('submit routes (mirror of tci.submit_rating, 0078)', () => {
+  it('offers exactly the routes the function accepts', () => {
+    expect(M78).toContain("if v_route not in ('self', 'colleague', 'level') then")
+    expect([...SUBMIT_ROUTES]).toEqual(['self', 'colleague', 'level'])
+  })
+  it('a self-approved grade is a history row of its own, shown as approved', () => {
+    expect(M78).toContain("''status'', ''self_approved''")
+    expect(proposalTone('self_approved')).toBe('pos')
+    expect(outcomeGrade({ status: 'self_approved', grade: 'B1', resolved_grade: 'B1' })).toBe('B1')
   })
 })
