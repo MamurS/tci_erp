@@ -757,7 +757,7 @@
     },
     "proposals": {
       "title": "Rating proposals",
-      "hint": "A grade set by hand, or a grade sent for validation, comes into force only when a second person confirms it — a colleague, or the credit authority levels it is escalated to.",
+      "hint": "A grade set by hand, or a grade for the engine rating, you approve yourself, send to a colleague, or escalate up the credit authority levels.",
       "sendEngine": "Send for validation",
       "manualAction": "Set a rating manually",
       "none": "No rating proposals for this buyer yet.",
@@ -765,12 +765,11 @@
       "manualGrade": "Manual rating {{grade}}",
       "manualBy": "Set by {{author}}, confirmed by {{name}}, {{at}}",
       "manualTitle": "Set a rating manually",
-      "manualHint": "Propose a grade without the engine — for example a buyer without statements. Statements are optional; the reason is required. The grade comes into force when a second person confirms it.",
+      "manualHint": "Set a grade without the engine — for example a buyer without statements. Statements are optional; the reason is required. Approve it yourself, send it to a colleague, or escalate it.",
       "engineTitle": "Send the rating for validation",
-      "engineHint": "The recommended grade is {{grade}}. Propose it, or another grade of the scale, and say why. The grade comes into force when a second person confirms it.",
+      "engineHint": "The recommended grade is {{grade}}. Choose it or another grade of the scale and say why. Approve it yourself, or send it for validation.",
       "grade": "Proposed grade",
       "otherGrade": "The grade you approve",
-      "gradeTyped": "The rating scale is unavailable: type a grade such as B1.",
       "statement": "Statement it is based on",
       "statementOptional": "Optional",
       "noStatement": "No statement",
@@ -778,10 +777,11 @@
       "reasonRequired": "Required",
       "route": "Send to",
       "routes": {
+        "self": "Approve myself",
         "colleague": "A colleague",
-        "escalate": "Escalate"
+        "level": "Escalate"
       },
-      "routeHintColleague": "Any colleague who confirms ratings may confirm it; you cannot.",
+      "routeHintColleague": "With no colleague chosen, any colleague who confirms ratings may confirm it; you cannot.",
       "routeHintEscalate": "It goes to the next credit authority level that can take it, rank by rank, up to the credit committee.",
       "submitColleague": "Send for validation",
       "submitEscalate": "Escalate",
@@ -806,7 +806,8 @@
         "returned": "Returned",
         "rejected": "Rejected",
         "forwarded": "Forwarded",
-        "withdrawn": "Withdrawn"
+        "withdrawn": "Withdrawn",
+        "self_approved": "Approved by the rater"
       },
       "committeeOutcome": {
         "approve": "the grade is approved",
@@ -831,7 +832,190 @@
         "closed": "This rating proposal has already been answered.",
         "modifiedSame": "That is the proposed grade — approve it as is.",
         "withdrawNotYours": "Only whoever proposed a rating withdraws it.",
-        "manualDirect": "A manual rating comes into force only through a confirmed rating proposal."
+        "manualDirect": "A manual rating comes into force only through a confirmed rating proposal.",
+        "colleagueNotEligible": "That colleague cannot confirm this grade: they do not confirm ratings, or they already take part in it.",
+        "routeInvalid": "Unknown way to send a grade."
+      },
+      "routeHintSelf": "The grade comes into force at once under your name; the history records that you approved it yourself.",
+      "colleague": "Colleague",
+      "anyColleague": "Any colleague",
+      "escalateTo": "Goes to {{level}}",
+      "submitSelf": "Approve the grade",
+      "bySelf": "by the rater"
+    },
+    "grades": {
+      "pick": "Choose a grade to see what it says about the buyer.",
+      "A1": {
+        "name": "Excellent",
+        "risk": "minimal credit risk",
+        "description": "Exceptionally strong financial position and capacity to pay; highly resilient to adverse economic and market conditions."
+      },
+      "A2": {
+        "name": "Very good",
+        "risk": "very low credit risk",
+        "description": "Very strong financial position; the capacity to pay differs only slightly from the highest grade and withstands most adverse conditions."
+      },
+      "B1": {
+        "name": "Good",
+        "risk": "low credit risk",
+        "description": "Sound financial position and a strong capacity to pay, though somewhat more sensitive to adverse changes in economic or business conditions."
+      },
+      "B2": {
+        "name": "Acceptable",
+        "risk": "moderate credit risk",
+        "description": "Adequate capacity to pay under current conditions; adverse economic or business developments are more likely to weaken it."
+      },
+      "C1": {
+        "name": "Weak",
+        "risk": "elevated credit risk",
+        "description": "Clear weaknesses in the financial position; payment depends on stable business conditions and faces significant uncertainties."
+      },
+      "C2": {
+        "name": "Very weak",
+        "risk": "high credit risk",
+        "description": "Fragile financial position; the capacity to pay is vulnerable and depends on favourable business and economic conditions."
+      },
+      "D": {
+        "name": "Unacceptable",
+        "risk": "unacceptable for cover",
+        "description": "Default, insolvency or a financial position so impaired that payment is unlikely."
+      }
+    },
+    "scorecard": {
+      "title": "Sub-grades",
+      "hint": "The grade is built from four pillars: a grade, a weight and a standard reason for each. The weighted grade is calculated; the overall grade follows it or is adjusted with a reason.",
+      "pillar": "Pillar",
+      "pillars": {
+        "general": {
+          "name": "General information",
+          "hint": "Soft information: ownership, management, track record, market position, sector and country"
+        },
+        "balance_sheet": {
+          "name": "Equity and debt",
+          "hint": "Balance sheet strength: equity, leverage, liquidity, working capital"
+        },
+        "profit_loss": {
+          "name": "Profit and loss",
+          "hint": "Performance: revenue, margins, interest cover, stability of results"
+        },
+        "payment": {
+          "name": "Payment behaviour",
+          "hint": "Our and the market's payment experience: delays, overdue notifications, claims"
+        }
+      },
+      "grade": "Sub-grade",
+      "notAssessed": "Not assessed",
+      "engineOption": "{{grade}} (engine)",
+      "weight": "Weight",
+      "reason": "Reason",
+      "pickReason": "Choose a reason",
+      "comment": "Comment",
+      "commentPlaceholder": "Comment (optional)",
+      "polarity": {
+        "pos": "Strengths",
+        "neg": "Weaknesses",
+        "neutral": "Neutral"
+      },
+      "weightSum": "Weights of the graded pillars: {{sum}} %",
+      "rebalance": "Spread the default weights",
+      "weighted": "Weighted grade",
+      "finalGrade": "Overall grade",
+      "finalGradeHint": "The weighted grade, or an adjustment of it",
+      "overallReason": "Reason for the overall grade",
+      "overallHint": "The overall grade matches the weighted one",
+      "adjusted": "{{grade}} instead of the weighted {{weighted}}: choose a reason that explains the adjustment",
+      "justification": "Justification",
+      "justificationHint": "Required: your own words for the reviewer",
+      "toSend": "To send:",
+      "problems": {
+        "nothingGraded": "grade at least one pillar",
+        "weights": "the weights of the graded pillars must add up to 100 %",
+        "pillarReason": "choose a reason for every graded pillar",
+        "overallReason": "choose a reason for the overall grade",
+        "finalGrade": "choose the overall grade",
+        "commentTooLong": "a comment is longer than 500 characters"
+      },
+      "inForce": "Sub-grades behind the grade {{grade}}",
+      "show": "Sub-grades",
+      "reasons": {
+        "not_assessed": "Not assessed",
+        "general": {
+          "long_track_record": "Long track record",
+          "strong_group_support": "Strong owner or group support",
+          "experienced_management": "Experienced management",
+          "strong_market_position": "Strong market position",
+          "diversified_customer_base": "Diversified customer base",
+          "short_track_record": "Short track record",
+          "opaque_ownership": "Opaque ownership",
+          "key_person_dependency": "Dependence on key persons",
+          "weak_market_position": "Weak market position",
+          "customer_concentration": "Customer concentration",
+          "adverse_information": "Adverse information (litigation, press)",
+          "difficult_sector_or_country": "Difficult sector or country",
+          "limited_information": "Limited information",
+          "in_line_with_peers": "In line with peers",
+          "not_assessed": "Not assessed"
+        },
+        "balance_sheet": {
+          "strong_equity_base": "Strong equity base",
+          "low_leverage": "Low leverage",
+          "strong_liquidity": "Strong liquidity",
+          "sound_working_capital": "Sound working capital",
+          "thin_equity": "Thin equity",
+          "negative_equity": "Negative equity",
+          "high_leverage": "High leverage",
+          "tight_liquidity": "Tight liquidity",
+          "stretched_working_capital": "Stretched working capital",
+          "weak_asset_quality": "Weak asset quality",
+          "outdated_statements": "Outdated statements",
+          "in_line_with_peers": "In line with peers",
+          "not_assessed": "Not assessed"
+        },
+        "profit_loss": {
+          "revenue_growth": "Revenue growth",
+          "solid_profitability": "Solid profitability",
+          "strong_interest_cover": "Strong interest cover",
+          "stable_results": "Stable results",
+          "revenue_decline": "Revenue decline",
+          "margin_pressure": "Margin pressure",
+          "loss_making": "Loss-making",
+          "weak_interest_cover": "Weak interest cover",
+          "volatile_results": "Volatile results",
+          "one_off_items": "One-off items",
+          "in_line_with_peers": "In line with peers",
+          "not_assessed": "Not assessed"
+        },
+        "payment": {
+          "prompt_payment": "Pays on time",
+          "no_negative_experience": "No negative experience",
+          "good_trade_references": "Good trade references",
+          "payment_delays": "Payment delays",
+          "overdue_notifications": "Overdue notifications",
+          "claims_history": "Claims history",
+          "collection_or_court_cases": "Collection or court cases",
+          "limited_payment_experience": "Limited payment experience",
+          "not_assessed": "Not assessed"
+        }
+      },
+      "overall": {
+        "consistent_with_subgrades": "Consistent with the sub-grades",
+        "group_support": "Group or parent support",
+        "positive_recent_developments": "Positive recent developments",
+        "group_weakness": "Weakness of the group or parent",
+        "country_or_sector_risk": "Country or sector risk",
+        "negative_recent_developments": "Negative recent developments",
+        "limited_information": "Limited information — prudence",
+        "payment_behaviour": "Payment behaviour",
+        "analyst_judgement": "Analyst's judgement (see the justification)"
+      },
+      "errors": {
+        "required": "A grade is set from its sub-grades: fill in the scorecard.",
+        "invalid": "The scorecard must list each of the four pillars once.",
+        "weights": "The weights of the graded pillars must be whole per cents adding up to 100; a pillar not assessed carries no weight.",
+        "reason": "Every graded pillar and the overall grade need a reason from their list.",
+        "grade": "A sub-grade or the overall grade is not a grade of the scale.",
+        "empty": "Grade at least one pillar.",
+        "adjustment": "The overall grade differs from the weighted one: the reason must explain the adjustment in that direction."
       }
     }
   },
@@ -2352,6 +2536,10 @@
       "errors": {
         "requiresAnalyst": "Only a credit analyst can be marked senior."
       }
+    },
+    "ratingWeights": {
+      "title": "Sub-grade weights",
+      "hint": "The default weights of the rating scorecard's four pillars, whole per cents adding up to 100. The rater starts from them and may change them for a rating."
     }
   },
   "requests": {
@@ -5560,6 +5748,9 @@
       "nothing_new": "The latest version is already published",
       "request_step": "An offer is published at the sales confirmation step",
       "expired_version": "The latest version has expired — save a version with a new date"
+    },
+    "publishBlockerHints": {
+      "request_step": "The submission is still at commercial review. Once the commercial underwriter passes it on to sales confirmation, you can send the offer to the client from here; until then you can prepare it and download the PDF."
     },
     "languages": {
       "ru": "Русский",

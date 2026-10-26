@@ -11,6 +11,7 @@ import { PageHeader, Tabs } from '../../components/ui'
 import { AuthoritiesTab } from './AuthoritiesTab'
 import { AutoDecisionSettingsCard } from './AutoDecisionSettingsCard'
 import { CreditAnalysisModeCard } from './CreditAnalysisModeCard'
+import { RatingWeightsCard } from './RatingWeightsCard'
 import { AuthorityLevelsCard } from './AuthorityLevelsCard'
 import { SecurityTab } from './SecurityTab'
 import { UsersRolesTab } from './UsersRolesTab'
@@ -60,6 +61,8 @@ export function AdminPage() {
             <AutoDecisionSettingsCard />
             {/* Who rates and who decides (0069). */}
             <CreditAnalysisModeCard />
+            {/* The rating scorecard's default pillar weights (0079). */}
+            <RatingWeightsCard />
             {/* Ranks 1–5 and the committee (0071). */}
             <AuthorityLevelsCard />
             <AuthoritiesTab user={selectedUser} />

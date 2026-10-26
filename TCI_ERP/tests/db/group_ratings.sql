@@ -101,6 +101,20 @@ begin
 end $$;
 grant execute on function pg_temp.refused(text, text, text, text) to authenticated;
 
+-- 0079: every proposal carries a scorecard; this one grades all four pillars
+-- at the proposed grade, so the weighted grade is that grade.
+create function pg_temp.sc(p_grade text) returns void language sql as $sc$
+  select set_config('tci.rating_scorecard', jsonb_build_object(
+    'grade', upper(p_grade), 'reason', 'consistent_with_subgrades',
+    'pillars', jsonb_build_array(
+      jsonb_build_object('pillar', 'general', 'grade', upper(p_grade), 'weight', 25, 'reason', 'in_line_with_peers'),
+      jsonb_build_object('pillar', 'balance_sheet', 'grade', upper(p_grade), 'weight', 25, 'reason', 'in_line_with_peers'),
+      jsonb_build_object('pillar', 'profit_loss', 'grade', upper(p_grade), 'weight', 25, 'reason', 'in_line_with_peers'),
+      jsonb_build_object('pillar', 'payment', 'grade', upper(p_grade), 'weight', 25, 'reason', 'no_negative_experience')))::text,
+    true)::text is not null
+$sc$;
+grant execute on function pg_temp.sc(text) to authenticated;
+
 do $$
 declare
   c_senior  constant uuid := '99999999-0000-4000-8000-0000000074a1';
@@ -202,8 +216,10 @@ begin
 
   -- 6. A proposal above the cap is refused; at or below it goes.
   perform pg_temp.act(c_analyst);
+  perform pg_temp.sc('A2');
   perform pg_temp.refused(format('select tci.propose_rating(%L, ''A2'', ''strong'')', c_s1), 'P0001',
     'a manual proposal above the cap', 'rating_above_group_cap');
+  perform pg_temp.sc('B2');
   v_state := tci.propose_rating(c_s1, 'B2', 'Sub-scale and dependent on the parent');
   if v_state -> 'pending' ->> 'grade' <> 'B2' then
     raise exception 'group_ratings: a proposal below the cap was refused: %', v_state;

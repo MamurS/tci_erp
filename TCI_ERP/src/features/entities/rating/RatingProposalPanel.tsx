@@ -22,7 +22,6 @@ import {
   Button,
   Card,
   Field,
-  Input,
   KeyFigures,
   Modal,
   SectionTitle,
@@ -42,15 +41,35 @@ import type { CommitteeVote } from '../../limits/validation'
 import type { StatementBundle } from '../types'
 import { statementPeriodLabel } from '../types'
 import type { AssessmentRow } from './assessmentsApi'
+import { GradePicker } from './GradePicker'
 import {
   mayForward,
   normaliseGrade,
   outcomeGrade,
   proposalActionNeedsComment,
   proposalTone,
+  SUBMIT_ROUTES,
 } from './proposals'
-import type { PendingProposal, ProposalAction, ProposalState } from './proposals'
-import { useProposalActions, useRatingProposals } from './proposalsApi'
+import type { PendingProposal, ProposalAction, ProposalState, SubmitRoute } from './proposals'
+import {
+  useProposalActions,
+  useProposalScorecards,
+  useRatingProposals,
+  useRatingSendOptions,
+  useScorecardOf,
+  useScorecardSettings,
+} from './proposalsApi'
+import { ScorecardEditor, ScorecardView } from './Scorecard'
+import {
+  DEFAULT_WEIGHTS,
+  engineSuggestions,
+  initialPillars,
+  overallReasonsFor,
+  scorecardPayload,
+  scorecardProblems,
+  weightedGrade,
+} from './scorecard'
+import type { PillarInput, StoredScorecard } from './scorecard'
 
 /** `?focus=rating-proposal` (the Agenda) lands here. */
 export const RATING_PROPOSAL_ANCHOR = 'rating-proposal'
@@ -75,6 +94,8 @@ export function RatingProposalPanel({
   const { roles } = useAuth()
   const onDesk = roles.some((r) => (CREDIT_DESK as readonly string[]).includes(r))
   const state = useRatingProposals(entityId, onDesk)
+  const scorecards = useProposalScorecards(entityId, onDesk)
+  const inForce = useScorecardOf(entityId, current?.id ?? null, onDesk)
   const [proposing, setProposing] = useState<'manual' | 'engine' | null>(null)
 
   if (!onDesk || !state.data) return null
@@ -106,13 +127,30 @@ export function RatingProposalPanel({
           {t('rating.proposals.title')}
         </SectionTitle>
 
+        {inForce.data && (
+          <details className="text-[0.8125rem] text-slate-700" data-testid="rating-scorecard-in-force">
+            <summary className="cursor-pointer font-medium text-accent-700">
+              {t('rating.scorecard.inForce', { grade: inForce.data.grade })}
+            </summary>
+            <div className="mt-2">
+              <ScorecardView card={inForce.data} locale={locale} />
+            </div>
+          </details>
+        )}
+
         {pending ? (
-          <PendingView entityId={entityId} pending={pending} bands={bands} locale={locale} />
+          <PendingView
+            entityId={entityId}
+            pending={pending}
+            bands={bands}
+            locale={locale}
+            scorecard={scorecards.data?.[pending.proposal_id] ?? null}
+          />
         ) : (
           history.length === 0 && <p className="text-[0.8125rem] text-slate-500">{t('rating.proposals.none')}</p>
         )}
 
-        {history.length > 0 && <HistoryList state={state.data} locale={locale} />}
+        {history.length > 0 && <HistoryList state={state.data} locale={locale} scorecards={scorecards.data ?? {}} />}
       </Card>
 
       {proposing && (
@@ -122,6 +160,7 @@ export function RatingProposalPanel({
           current={current}
           statements={statements}
           bands={bands}
+          locale={locale}
           onClose={() => setProposing(null)}
         />
       )}
@@ -130,7 +169,7 @@ export function RatingProposalPanel({
 }
 
 // ---------------------------------------------------------------------------
-// The grade picker: the scale when the service serves it, else a typed grade
+// The grade picker: the scale's grades, each with what it says (GradePicker)
 // ---------------------------------------------------------------------------
 
 function GradeField({
@@ -146,26 +185,7 @@ function GradeField({
   label: string
   recommended?: string | null
 }) {
-  const { t } = useTranslation()
-  if (bands?.length) {
-    return (
-      <Field label={label}>
-        <Select value={value} onChange={(e) => onChange(e.target.value)}>
-          <option value="">{t('common.notSelected')}</option>
-          {bands.map((b) => (
-            <option key={b.code} value={b.code}>
-              {b.code === recommended ? t('rating.confirmation.engineOption', { grade: b.code }) : b.code}
-            </option>
-          ))}
-        </Select>
-      </Field>
-    )
-  }
-  return (
-    <Field label={label} hint={t('rating.proposals.gradeTyped')}>
-      <Input value={value} maxLength={3} onChange={(e) => onChange(e.target.value.toUpperCase())} />
-    </Field>
-  )
+  return <GradePicker value={value} onChange={onChange} bands={bands} label={label} recommended={recommended} />
 }
 
 // ---------------------------------------------------------------------------
@@ -178,6 +198,7 @@ function ProposeModal({
   current,
   statements,
   bands,
+  locale,
   onClose,
 }: {
   entityId: string
@@ -185,30 +206,56 @@ function ProposeModal({
   current: AssessmentRow | null
   statements: StatementBundle[]
   bands: GradeBand[] | undefined
+  locale: string
   onClose: () => void
 }) {
   const { t } = useTranslation()
   const { propose } = useProposalActions(entityId)
+  const assessmentId = kind === 'engine' ? (current?.id ?? null) : null
+  const options = useRatingSendOptions(entityId, assessmentId, true)
   const recommended = kind === 'engine' ? (current?.engine_grade ?? current?.rating_grade ?? null) : null
-  const [grade, setGrade] = useState(recommended ?? '')
+  const settings = useScorecardSettings()
+  const defaults = settings.data ?? DEFAULT_WEIGHTS
+  const suggestions =
+    kind === 'engine' ? engineSuggestions(current?.calculation_trace?.rating?.components, bands) : {}
+  // Until the person touches the form it follows the defaults (which load
+  // from the server) and the engine's suggestions.
+  const [touchedPillars, setPillars] = useState<PillarInput[] | null>(null)
+  const pillars = touchedPillars ?? initialPillars(defaults, suggestions)
+  const weighted = weightedGrade(pillars)
+  const [chosenFinal, setFinal] = useState<string | null>(null)
+  const final = chosenFinal ?? weighted?.grade ?? ''
+  const [chosenOverall, setOverall] = useState<string | null>(null)
+  const allowedOverall = weighted && final ? overallReasonsFor(final, weighted.grade) : []
+  const overall =
+    chosenOverall && allowedOverall.some((r) => r.code === chosenOverall)
+      ? chosenOverall
+      : allowedOverall.length === 1
+        ? allowedOverall[0].code
+        : ''
+  const problems = scorecardProblems(pillars, final, overall)
   const [reason, setReason] = useState('')
   const [statementId, setStatementId] = useState('')
-  const [route, setRoute] = useState<'colleague' | 'escalate'>('colleague')
+  const [route, setRoute] = useState<SubmitRoute>('colleague')
+  const [colleague, setColleague] = useState('')
   const [error, setError] = useState<string | null>(null)
 
-  const normalised = normaliseGrade(grade)
-  const canSubmit = normalised !== null && reason.trim().length > 0
+  const canSubmit = problems.length === 0 && reason.trim().length > 0
+  const routes: SubmitRoute[] = options.data?.can_self === false ? ['colleague', 'level'] : [...SUBMIT_ROUTES]
+  const level = options.data?.level ?? null
+  const names = (people: { name: string | null }[]) => people.map((p) => p.name ?? EM_DASH).join(', ')
 
   const submit = async () => {
-    if (!normalised) return
+    if (!canSubmit) return
     setError(null)
     try {
       await propose.mutateAsync({
-        grade: normalised,
+        scorecard: scorecardPayload(pillars, final, overall),
         reason: reason.trim(),
-        assessmentId: kind === 'engine' ? (current?.id ?? null) : null,
+        assessmentId,
         statementId: kind === 'manual' && statementId ? statementId : null,
-        escalate: route === 'escalate',
+        route,
+        colleague: route === 'colleague' && colleague ? colleague : null,
       })
       onClose()
     } catch (failure) {
@@ -219,6 +266,7 @@ function ProposeModal({
   return (
     <Modal
       open
+      wide
       title={kind === 'manual' ? t('rating.proposals.manualTitle') : t('rating.proposals.engineTitle')}
       onClose={onClose}
       footer={
@@ -227,7 +275,11 @@ function ProposeModal({
             {t('common.cancel')}
           </Button>
           <Button loading={propose.isPending} disabled={!canSubmit} onClick={() => void submit()}>
-            {route === 'escalate' ? t('rating.proposals.submitEscalate') : t('rating.proposals.submitColleague')}
+            {route === 'self'
+              ? t('rating.proposals.submitSelf')
+              : route === 'level'
+                ? t('rating.proposals.submitEscalate')
+                : t('rating.proposals.submitColleague')}
           </Button>
         </>
       }
@@ -236,13 +288,6 @@ function ProposeModal({
         <p className="text-sm text-slate-600">
           {kind === 'manual' ? t('rating.proposals.manualHint') : t('rating.proposals.engineHint', { grade: recommended ?? EM_DASH })}
         </p>
-        <GradeField
-          value={grade}
-          onChange={setGrade}
-          bands={bands}
-          label={t('rating.proposals.grade')}
-          recommended={recommended}
-        />
         {kind === 'manual' && statements.length > 0 && (
           <Field label={t('rating.proposals.statement')} hint={t('rating.proposals.statementOptional')}>
             <Select value={statementId} onChange={(e) => setStatementId(e.target.value)}>
@@ -255,22 +300,62 @@ function ProposeModal({
             </Select>
           </Field>
         )}
-        <Field label={t('rating.proposals.reason')} hint={t('rating.proposals.reasonRequired')}>
+        <SectionTitle hint={t('rating.scorecard.hint')}>{t('rating.scorecard.title')}</SectionTitle>
+        <ScorecardEditor
+          pillars={pillars}
+          onPillars={setPillars}
+          defaults={defaults}
+          suggestions={suggestions}
+          bands={bands}
+          final={final}
+          onFinal={(g) => setFinal(g)}
+          overallReason={overall}
+          onOverallReason={setOverall}
+          locale={locale}
+        />
+        <Field label={t('rating.scorecard.justification')} hint={t('rating.scorecard.justificationHint')}>
           <Textarea value={reason} rows={3} onChange={(e) => setReason(e.target.value)} />
         </Field>
+        {problems.length > 0 && (
+          <p className="text-[0.8125rem] text-slate-500">
+            {t('rating.scorecard.toSend')} {problems.map((p) => t(`rating.scorecard.problems.${p}`)).join(' · ')}
+          </p>
+        )}
         <Field label={t('rating.proposals.route')}>
           <Segmented
             value={route}
-            options={[
-              { key: 'colleague', label: t('rating.proposals.routes.colleague') },
-              { key: 'escalate', label: t('rating.proposals.routes.escalate') },
-            ]}
-            onChange={(key) => setRoute(key as 'colleague' | 'escalate')}
+            options={routes.map((key) => ({ key, label: t(`rating.proposals.routes.${key}`) }))}
+            onChange={(key) => setRoute(key as SubmitRoute)}
           />
         </Field>
-        <p className="text-[0.8125rem] text-slate-500">
-          {route === 'escalate' ? t('rating.proposals.routeHintEscalate') : t('rating.proposals.routeHintColleague')}
-        </p>
+        {route === 'self' && <p className="text-[0.8125rem] text-slate-500">{t('rating.proposals.routeHintSelf')}</p>}
+        {route === 'colleague' && (
+          <Field label={t('rating.proposals.colleague')} hint={t('rating.proposals.routeHintColleague')}>
+            <Select value={colleague} onChange={(e) => setColleague(e.target.value)}>
+              <option value="">{t('rating.proposals.anyColleague')}</option>
+              {(options.data?.colleagues ?? []).map((p) => (
+                <option key={p.user_id} value={p.user_id}>
+                  {p.name ?? EM_DASH}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        )}
+        {route === 'level' && (
+          <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[0.8125rem] leading-snug text-slate-600">
+            {level ? (
+              <>
+                <div className="font-semibold text-slate-800">
+                  {t('rating.proposals.escalateTo', { level: levelName(t, 'credit', level.rank, level.is_committee) })}
+                </div>
+                <p className="mt-0.5">{names(level.members)}</p>
+                <p className="mt-1 text-slate-500">{t('rating.proposals.routeHintEscalate')}</p>
+              </>
+            ) : (
+              <p>{options.isLoading ? t('common.loading') : t('rating.proposals.errors.levelMissing')}</p>
+            )}
+          </div>
+        )}
         {error && (
           <div className="text-sm text-neg-500" role="alert">
             {error}
@@ -297,11 +382,13 @@ function PendingView({
   pending,
   bands,
   locale,
+  scorecard,
 }: {
   entityId: string
   pending: PendingProposal
   bands: GradeBand[] | undefined
   locale: string
+  scorecard: StoredScorecard | null
 }) {
   const { t } = useTranslation()
   const actions = useProposalActions(entityId)
@@ -404,6 +491,7 @@ function PendingView({
         </span>
         <span className="whitespace-pre-line">{pending.reason}</span>
       </div>
+      {scorecard && <ScorecardView card={scorecard} locale={locale} />}
       {!pending.is_committee && (
         <p className="text-[0.8125rem] text-slate-600">
           {pending.answerers.length > 0
@@ -544,7 +632,15 @@ function PendingView({
 // History
 // ---------------------------------------------------------------------------
 
-function HistoryList({ state, locale }: { state: ProposalState; locale: string }) {
+function HistoryList({
+  state,
+  locale,
+  scorecards,
+}: {
+  state: ProposalState
+  locale: string
+  scorecards: Record<string, StoredScorecard>
+}) {
   const { t } = useTranslation()
   return (
     <details className="text-[0.8125rem] text-slate-700">
@@ -555,7 +651,7 @@ function HistoryList({ state, locale }: { state: ProposalState; locale: string }
         {state.history.map((h) => {
           const result = outcomeGrade(h)
           return (
-            <li key={h.step_id} className="flex flex-col gap-0.5 border-l-2 border-slate-200 pl-3">
+            <li key={h.step_id ?? h.proposal_id} className="flex flex-col gap-0.5 border-l-2 border-slate-200 pl-3">
               <span className="flex flex-wrap items-center gap-2">
                 <span className="text-slate-500">{formatMoment(h.resolved_at, locale)}</span>
                 <Badge tone={proposalTone(h.status)}>{t(`rating.proposals.statuses.${h.status}`)}</Badge>
@@ -567,7 +663,11 @@ function HistoryList({ state, locale }: { state: ProposalState; locale: string }
                 )}
                 {h.manual && <Badge tone="neutral">{t('rating.proposals.manual')}</Badge>}
                 <span className="text-slate-500">
-                  {h.route === 'colleague' ? t('rating.proposals.withColleague') : levelName(t, 'credit', h.rank, h.is_committee)}
+                  {h.route === 'self'
+                    ? t('rating.proposals.bySelf')
+                    : h.route === 'colleague'
+                      ? t('rating.proposals.withColleague')
+                      : levelName(t, 'credit', h.rank, h.is_committee)}
                 </span>
               </span>
               <span className="text-slate-600">
@@ -577,6 +677,14 @@ function HistoryList({ state, locale }: { state: ProposalState; locale: string }
                 })}
                 {h.comment && <> — «{h.comment}»</>}
               </span>
+              {scorecards[h.proposal_id] && (
+                <details className="mt-1">
+                  <summary className="cursor-pointer text-accent-700">{t('rating.scorecard.show')}</summary>
+                  <div className="mt-1">
+                    <ScorecardView card={scorecards[h.proposal_id]} locale={locale} />
+                  </div>
+                </details>
+              )}
             </li>
           )
         })}

@@ -912,6 +912,41 @@ is fine for internal test accounts and not fine for customers.
   file in one call with its ledger row, all four objects identical
   afterwards, `tests/db/person_task_role.sql` run on canonical with role
   impersonation (forced rollback, nothing left behind)
+- [x] Rating approval is the rater's choice (migration 0078, owner
+  2026-10-26): `tci.submit_rating(entity, grade, reason, route, colleague?,
+  assessment?, statement?)` — `self` puts the grade in force at once (a
+  self-approved proposal, recorded and shown in the history; reason and the
+  group cap still apply), `colleague` sends it to a NAMED colleague (only
+  they get the task and may answer) or, with none named, to any colleague,
+  `level` escalates as before; `tci.rating_send_options` shows whom each
+  route reaches (the colleagues; the next authority level and its members)
+  before anything is sent. The rating dialogs pick the grade from the scale
+  with a description of each grade (`GradePicker`, `rating.grades.*` en/ru/uz,
+  the scale mirrored from credit_engine and contract-tested). Same batch, no
+  migration: key-figure cells share the row equally and draw their own
+  dividers (`KeyFigures`), side-by-side cards start on one line, the offer
+  page says why «send to the client» is unavailable; guarded by
+  `e2e/layout/switches.spec.ts` (view switches move nothing) and
+  `cardTops.spec.ts`. **Canonical: 0078 applied 2026-10-26** before merge
+  (backward-compatible: `propose_rating` unchanged), the six functions it
+  replaces verified identical to a local replay of 0077 first, the whole
+  file in one call with its ledger row, all eleven functions identical
+  afterwards, `tests/db/rating_self_approval.sql` run on canonical with role
+  impersonation (forced rollback, nothing left behind)
+- [ ] Rating scorecard (migration 0079, owner 2026-10-26, after Allianz
+  Trade's practice): every grade a person sets — approved alone, sent to a
+  colleague or escalated — is built from four PILLARS (general / equity and
+  debt / profit and loss / payment behaviour), each with a sub-grade (or «not
+  assessed»), a weight in per cent and a standard reason, plus an optional
+  comment; the database computes the weighted grade (scale position, a half
+  to the worse grade), the overall grade follows it or is adjusted with an
+  overall reason of the matching direction, and the free-text justification
+  stays required. `tci.submit_rating_scorecard` is the entry point; a
+  proposal without a scorecard is refused. Default weights 25 / 30 / 25 / 20
+  on Admin › Полномочия; the engine's factors prefill equity-and-debt and
+  P&L when the scale is served. See **Rating scorecard rules** below.
+  **Canonical: to be applied AT MERGE** (the deployed screens send no
+  scorecard)
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2162,6 +2197,61 @@ writes any of the four tables (credit desk + admin read).
 (Admin › Полномочия; `underwriters_covering` still names credit underwriters
 only, so a grant never routes limit decisions to an analyst). The ADT tables
 and «Авторешения» are the analysts' to read too.
+
+### Rating approval routes (migration 0078)
+
+**The rater chooses; the limit keeps its four eyes.** `submit_rating` is the
+entry point; `propose_rating` keeps its 0073 signature and serves the
+colleague and level routes (submit_rating sets the transaction-local
+`tci.rating_target` for a named colleague, and `open_rating_step` stores it
+as `rating_proposal_steps.target_user`, refusing `rating_colleague_not_eligible`
+when that person may not answer). `self` needs both 'rate' and
+'confirm_rating'; it inserts a `rating_proposals` row with `self_approved`
+and applies it at once — `apply_rating_proposal` skips `four_eyes_own_rating`
+for that proposal only; the plain `confirm_rating` still refuses the
+calculator. A self-approver is the rating's confirmer, so in `separate` mode
+0069 keeps them off the limit decision on it. The history lists
+self-approved grades (`status = 'self_approved'`, `route = 'self'`);
+`SUBMIT_ROUTES` and the status mirror the 0078 text (contract-tested).
+No DROP anywhere: the MCP tooling still holds any statement containing it
+(probed 2026-10-26), so signatures are kept and columns only added.
+
+### Rating scorecard rules (migration 0079)
+
+**A grade is composed, not typed.** `rating_proposals.scorecard` holds four
+pillars in a fixed order (`tci.rating_scorecard_pillars()`: general,
+balance_sheet, profit_loss, payment), each `{grade | null, weight, reason,
+comment}`. A graded pillar has a weight > 0 and a reason of ITS pillar from
+`tci.rating_scorecard_reasons()`; an ungraded one has weight 0 and the reason
+`not_assessed` (set by the database). The graded weights sum to 100.
+`tci.rating_scorecard_normalised` is the one checker — called by
+`submit_rating_scorecard` before anything is written and again by the BEFORE
+INSERT trigger on `rating_proposals`, which takes the scorecard from the
+transaction-local `tci.rating_scorecard` once and refuses a proposal without
+one (`rating_scorecard_required`). `scorecard.ts` mirrors the lists and the
+rules (contract-tested against the 0079 text).
+
+**The weighted grade is arithmetic on the scale position** (A1 = 1 … D = 7,
+`tci.rating_scale_codes()`), a half rounding to the WORSE grade. The overall
+grade is the proposal's grade; its reason is `consistent_with_subgrades`
+exactly when it equals the weighted grade, an `up` reason only when better, a
+`down` reason only when worse, `analyst_judgement` either way
+(`rating_scorecard_adjustment_reason`). The group cap (0074) applies to the
+overall grade as before. An answerer's «approve another grade» carries no
+scorecard — the history shows the proposer's scorecard and the answerer's
+grade side by side.
+
+**Where it is read.** The credit desk reads `rating_proposals.scorecard`
+through its RLS (pending proposal, history); `tci.rating_scorecard_of(assessment)`
+(security invoker) finds the scorecard behind a grade in force — the step that
+wrote that assessment first, else a proposal its rater approved alone on it.
+Default weights are `workflow_settings.rating_pillar_weights` (admin,
+`set_rating_pillar_weights`); the form spreads them over the graded pillars
+(largest remainder) and the rater may change them per rating. The engine's
+factors suggest equity-and-debt, P&L and (size, age) general sub-grades only
+when the analytics service serves the scale — zone boundaries are never
+hardcoded; the payment pillar has no engine factor. `confirm_rating` (the
+engine's grade as is, 0069) carries no scorecard.
 
 ### Group rating rules (migration 0074)
 

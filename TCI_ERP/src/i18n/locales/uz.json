@@ -757,7 +757,7 @@
     },
     "proposals": {
       "title": "Reyting takliflari",
-      "hint": "Qo‘lda belgilangan yoki tasdiqlashga yuborilgan reyting faqat ikkinchi shaxs tasdiqlaganidan keyin kuchga kiradi — hamkasb yoki u yuborilgan kredit vakolat darajalari.",
+      "hint": "Qo‘lda belgilangan yoki model hisoblagan reytingni o‘zingiz tasdiqlashingiz, hamkasbga yuborishingiz yoki kredit vakolat darajalari bo‘yicha yuqoriga yo‘naltirishingiz mumkin.",
       "sendEngine": "Tasdiqlashga yuborish",
       "manualAction": "Reytingni qo‘lda belgilash",
       "none": "Bu bayer bo‘yicha hozircha reyting takliflari yo‘q.",
@@ -765,12 +765,11 @@
       "manualGrade": "Qo‘lda belgilangan reyting {{grade}}",
       "manualBy": "Belgiladi: {{author}}, tasdiqladi: {{name}}, {{at}}",
       "manualTitle": "Reytingni qo‘lda belgilash",
-      "manualHint": "Modelsiz reyting taklif qiling — masalan, hisoboti yo‘q bayer uchun. Hisobot ixtiyoriy, sabab majburiy. Reyting ikkinchi shaxs tasdiqlaganidan keyin kuchga kiradi.",
+      "manualHint": "Modelsiz reyting belgilang — masalan, hisoboti yo‘q bayer uchun. Hisobot ixtiyoriy, sabab majburiy. Reytingni o‘zingiz tasdiqlang, hamkasbga yuboring yoki yuqoriga yo‘naltiring.",
       "engineTitle": "Reytingni tasdiqlashga yuborish",
-      "engineHint": "Tavsiya etilgan reyting — {{grade}}. Uni yoki shkaladagi boshqa reytingni taklif qiling va sababini yozing. Reyting ikkinchi shaxs tasdiqlaganidan keyin kuchga kiradi.",
+      "engineHint": "Tavsiya etilgan reyting — {{grade}}. Uni yoki shkaladagi boshqa reytingni tanlang va sababini yozing. Reytingni o‘zingiz tasdiqlang yoki tasdiqlashga yuboring.",
       "grade": "Taklif etilayotgan reyting",
       "otherGrade": "Tasdiqlanayotgan reyting",
-      "gradeTyped": "Reyting shkalasi mavjud emas: reytingni kiriting, masalan B1.",
       "statement": "Asos bo‘lgan hisobot",
       "statementOptional": "Ixtiyoriy",
       "noStatement": "Hisobotsiz",
@@ -778,10 +777,11 @@
       "reasonRequired": "Majburiy",
       "route": "Kimga",
       "routes": {
+        "self": "O‘zim tasdiqlayman",
         "colleague": "Hamkasbga",
-        "escalate": "Yuqoriga yo‘naltirish"
+        "level": "Yuqoriga yo‘naltirish"
       },
-      "routeHintColleague": "Reytinglarni tasdiqlaydigan istalgan hamkasb tasdiqlashi mumkin; siz emas.",
+      "routeHintColleague": "Hamkasb tanlanmasa, reytinglarni tasdiqlaydigan istalgan hamkasb tasdiqlashi mumkin; siz emas.",
       "routeHintEscalate": "Taklif uni qabul qila oladigan keyingi kredit vakolat darajasiga, darajama-daraja, kredit qo‘mitasigacha boradi.",
       "submitColleague": "Tasdiqlashga yuborish",
       "submitEscalate": "Yuqoriga yo‘naltirish",
@@ -806,7 +806,8 @@
         "returned": "Qaytarildi",
         "rejected": "Rad etildi",
         "forwarded": "Yo‘naltirildi",
-        "withdrawn": "Qaytarib olindi"
+        "withdrawn": "Qaytarib olindi",
+        "self_approved": "Mustaqil tasdiqlangan"
       },
       "committeeOutcome": {
         "approve": "reyting tasdiqlanadi",
@@ -831,7 +832,190 @@
         "closed": "Bu reyting taklifiga allaqachon javob berilgan.",
         "modifiedSame": "Bu taklif etilgan reytingning o‘zi — uni o‘zgartirmasdan tasdiqlang.",
         "withdrawNotYours": "Reyting taklifini faqat uning muallifi qaytarib olishi mumkin.",
-        "manualDirect": "Qo‘lda belgilangan reyting faqat tasdiqlangan reyting taklifi orqali kuchga kiradi."
+        "manualDirect": "Qo‘lda belgilangan reyting faqat tasdiqlangan reyting taklifi orqali kuchga kiradi.",
+        "colleagueNotEligible": "Bu hamkasb reytingni tasdiqlay olmaydi: u reytinglarni tasdiqlamaydi yoki bu taklifda allaqachon ishtirok etmoqda.",
+        "routeInvalid": "Reytingni yuborishning noma’lum usuli."
+      },
+      "routeHintSelf": "Reyting darhol sizning nomingizdan kuchga kiradi; tarixda uni o‘zingiz tasdiqlaganingiz qayd etiladi.",
+      "colleague": "Hamkasb",
+      "anyColleague": "Istalgan hamkasb",
+      "escalateTo": "Yuboriladi: {{level}}",
+      "submitSelf": "Reytingni tasdiqlash",
+      "bySelf": "mustaqil"
+    },
+    "grades": {
+      "pick": "Reytingni tanlang — bu yerda u bayer haqida nima deyishi ko‘rinadi.",
+      "A1": {
+        "name": "A’lo",
+        "risk": "kredit qaltisligi minimal",
+        "description": "Moliyaviy holati va majburiyatlarni to‘lash qobiliyati nihoyatda kuchli; noqulay iqtisodiy va bozor sharoitlariga yuqori darajada bardoshli."
+      },
+      "A2": {
+        "name": "Juda yaxshi",
+        "risk": "kredit qaltisligi juda past",
+        "description": "Moliyaviy holati juda kuchli; to‘lash qobiliyati eng yuqori reytingdan biroz farq qiladi va ko‘pchilik noqulay sharoitlarga bardosh beradi."
+      },
+      "B1": {
+        "name": "Yaxshi",
+        "risk": "kredit qaltisligi past",
+        "description": "Moliyaviy holati barqaror va to‘lash qobiliyati yuqori, biroq iqtisodiy yoki ishbilarmonlik sharoitlarining noqulay o‘zgarishlariga biroz sezgirroq."
+      },
+      "B2": {
+        "name": "Maqbul",
+        "risk": "kredit qaltisligi o‘rtacha",
+        "description": "Joriy sharoitlarda to‘lash qobiliyati yetarli; noqulay iqtisodiy yoki ishbilarmonlik o‘zgarishlari uni zaiflashtirishi ehtimoli yuqoriroq."
+      },
+      "C1": {
+        "name": "Zaif",
+        "risk": "kredit qaltisligi oshgan",
+        "description": "Moliyaviy holatida aniq zaif tomonlar bor; to‘lovlar ishbilarmonlik sharoitlarining barqarorligiga bog‘liq va jiddiy noaniqliklarga duch keladi."
+      },
+      "C2": {
+        "name": "Juda zaif",
+        "risk": "kredit qaltisligi yuqori",
+        "description": "Moliyaviy holati beqaror; to‘lash qobiliyati zaif va qulay ishbilarmonlik hamda iqtisodiy sharoitlarga bog‘liq."
+      },
+      "D": {
+        "name": "Qabul qilinmaydigan",
+        "risk": "qaltislik sug‘urta qoplamasi uchun qabul qilinmaydi",
+        "description": "Defolt, to‘lovga qobiliyatsizlik yoki moliyaviy holat shu qadar yomonlashganki, to‘lov ehtimoli past."
+      }
+    },
+    "scorecard": {
+      "title": "Subreytinglar",
+      "hint": "Reyting to‘rt blokdan tuziladi: har birida subreyting, vazn va ro‘yxatdagi sabab. O‘rtacha tortilgan reyting hisoblanadi; yakuniy reyting unga teng yoki sabab ko‘rsatilib tuzatiladi.",
+      "pillar": "Blok",
+      "pillars": {
+        "general": {
+          "name": "Umumiy ma’lumot",
+          "hint": "Sifat ma’lumotlari: egalar, rahbariyat, faoliyat tarixi, bozordagi o‘rni, tarmoq va mamlakat"
+        },
+        "balance_sheet": {
+          "name": "Kapital va qarz",
+          "hint": "Balans barqarorligi: kapital, qarz yuki, likvidlik, aylanma kapital"
+        },
+        "profit_loss": {
+          "name": "Foyda va zarar",
+          "hint": "Natijalar: tushum, marja, foizlarni qoplash, natijalar barqarorligi"
+        },
+        "payment": {
+          "name": "To‘lov intizomi",
+          "hint": "Bizning va bozorning to‘lov tajribasi: kechikishlar, muddati o‘tganlik haqida xabarnomalar, da’volar"
+        }
+      },
+      "grade": "Subreyting",
+      "notAssessed": "Baholanmaydi",
+      "engineOption": "{{grade}} (model bo‘yicha)",
+      "weight": "Vazn",
+      "reason": "Sabab",
+      "pickReason": "Sababni tanlang",
+      "comment": "Izoh",
+      "commentPlaceholder": "Izoh (ixtiyoriy)",
+      "polarity": {
+        "pos": "Kuchli tomonlar",
+        "neg": "Zaif tomonlar",
+        "neutral": "Neytral"
+      },
+      "weightSum": "Baholangan bloklar vaznlari yig‘indisi: {{sum}} %",
+      "rebalance": "Standart vaznlarni taqsimlash",
+      "weighted": "O‘rtacha tortilgan reyting",
+      "finalGrade": "Yakuniy reyting",
+      "finalGradeHint": "O‘rtacha tortilgan reyting yoki uning tuzatilgani",
+      "overallReason": "Yakuniy reyting sababi",
+      "overallHint": "Yakuniy reyting o‘rtacha tortilgan reytingga teng",
+      "adjusted": "O‘rtacha tortilgan {{weighted}} o‘rniga {{grade}}: tuzatishni tushuntiradigan sababni tanlang",
+      "justification": "Asoslash",
+      "justificationHint": "Majburiy: tekshiruvchi uchun o‘z izohingiz",
+      "toSend": "Yuborish uchun:",
+      "problems": {
+        "nothingGraded": "kamida bitta blokni baholang",
+        "weights": "baholangan bloklar vaznlari yig‘indisi 100 % bo‘lishi kerak",
+        "pillarReason": "har bir baholangan blok uchun sababni tanlang",
+        "overallReason": "yakuniy reyting sababini tanlang",
+        "finalGrade": "yakuniy reytingni tanlang",
+        "commentTooLong": "izoh 500 belgidan uzun"
+      },
+      "inForce": "{{grade}} reytingining subreytinglari",
+      "show": "Subreytinglar",
+      "reasons": {
+        "not_assessed": "Baholanmaydi",
+        "general": {
+          "long_track_record": "Uzoq faoliyat tarixi",
+          "strong_group_support": "Egasi yoki guruhning kuchli ko‘magi",
+          "experienced_management": "Tajribali rahbariyat",
+          "strong_market_position": "Bozorda kuchli o‘rin",
+          "diversified_customer_base": "Diversifikatsiyalangan mijozlar bazasi",
+          "short_track_record": "Qisqa faoliyat tarixi",
+          "opaque_ownership": "Mulkchilik tuzilmasi shaffof emas",
+          "key_person_dependency": "Asosiy shaxslarga bog‘liqlik",
+          "weak_market_position": "Bozorda zaif o‘rin",
+          "customer_concentration": "Bir necha mijozga jamlanganlik",
+          "adverse_information": "Salbiy ma’lumot (sudlar, matbuot)",
+          "difficult_sector_or_country": "Murakkab tarmoq yoki mamlakat",
+          "limited_information": "Cheklangan ma’lumot",
+          "in_line_with_peers": "O‘xshash kompaniyalar darajasida",
+          "not_assessed": "Baholanmaydi"
+        },
+        "balance_sheet": {
+          "strong_equity_base": "Kuchli kapital bazasi",
+          "low_leverage": "Past qarz yuki",
+          "strong_liquidity": "Yuqori likvidlik",
+          "sound_working_capital": "Sog‘lom aylanma kapital",
+          "thin_equity": "O‘z kapitali past",
+          "negative_equity": "Manfiy o‘z kapitali",
+          "high_leverage": "Yuqori qarz yuki",
+          "tight_liquidity": "Likvidlik tang",
+          "stretched_working_capital": "Aylanma kapital tang",
+          "weak_asset_quality": "Aktivlar sifati past",
+          "outdated_statements": "Eskirgan hisobot",
+          "in_line_with_peers": "O‘xshash kompaniyalar darajasida",
+          "not_assessed": "Baholanmaydi"
+        },
+        "profit_loss": {
+          "revenue_growth": "Tushum o‘sishi",
+          "solid_profitability": "Barqaror rentabellik",
+          "strong_interest_cover": "Foizlarni yuqori qoplash",
+          "stable_results": "Barqaror natijalar",
+          "revenue_decline": "Tushumning kamayishi",
+          "margin_pressure": "Marjaga bosim",
+          "loss_making": "Zarar bilan ishlash",
+          "weak_interest_cover": "Foizlarni zaif qoplash",
+          "volatile_results": "Beqaror natijalar",
+          "one_off_items": "Bir martalik moddalar",
+          "in_line_with_peers": "O‘xshash kompaniyalar darajasida",
+          "not_assessed": "Baholanmaydi"
+        },
+        "payment": {
+          "prompt_payment": "O‘z vaqtida to‘laydi",
+          "no_negative_experience": "Salbiy tajriba yo‘q",
+          "good_trade_references": "Yetkazib beruvchilarning yaxshi fikrlari",
+          "payment_delays": "To‘lovlardagi kechikishlar",
+          "overdue_notifications": "Muddati o‘tganlik haqida xabarnomalar",
+          "claims_history": "Da’volar tarixi",
+          "collection_or_court_cases": "Undirish yoki sud ishlari",
+          "limited_payment_experience": "To‘lov tajribasi kam",
+          "not_assessed": "Baholanmaydi"
+        }
+      },
+      "overall": {
+        "consistent_with_subgrades": "Subreytinglarga mos",
+        "group_support": "Guruh yoki bosh kompaniya ko‘magi",
+        "positive_recent_developments": "So‘nggi ijobiy voqealar",
+        "group_weakness": "Guruh yoki bosh kompaniyaning zaifligi",
+        "country_or_sector_risk": "Mamlakat yoki tarmoq qaltisligi",
+        "negative_recent_developments": "So‘nggi salbiy voqealar",
+        "limited_information": "Cheklangan ma’lumot — ehtiyotkorlik",
+        "payment_behaviour": "To‘lov intizomi",
+        "analyst_judgement": "Tahlilchining fikri (asoslashga qarang)"
+      },
+      "errors": {
+        "required": "Reyting subreytinglar orqali belgilanadi: bloklar bo‘yicha bahoni to‘ldiring.",
+        "invalid": "Bahoda to‘rt blokning har biri bir martadan bo‘lishi kerak.",
+        "weights": "Baholangan bloklar vaznlari — butun foizlar, yig‘indisi 100; baholanmagan blokda vazn yo‘q.",
+        "reason": "Har bir baholangan blok va yakuniy reyting uchun ro‘yxatdan sabab kerak.",
+        "grade": "Subreyting yoki yakuniy reyting shkaladan emas.",
+        "empty": "Kamida bitta blokni baholang.",
+        "adjustment": "Yakuniy reyting o‘rtacha tortilgandan farq qiladi: sabab shu yo‘nalishdagi tuzatishni tushuntirishi kerak."
       }
     }
   },
@@ -2352,6 +2536,10 @@
       "errors": {
         "requiresAnalyst": "Faqat kredit tahlilchini katta deb belgilash mumkin."
       }
+    },
+    "ratingWeights": {
+      "title": "Subreytinglar vaznlari",
+      "hint": "Reyting bahosining to‘rt bloki uchun standart vaznlar — butun foizlar, yig‘indisi 100. Tahlilchi ulardan boshlaydi va muayyan reyting uchun o‘zgartirishi mumkin."
     }
   },
   "requests": {
@@ -5560,6 +5748,9 @@
       "nothing_new": "Oxirgi versiya allaqachon e’lon qilingan",
       "request_step": "Taklif sotuv tasdig‘i bosqichida e’lon qilinadi",
       "expired_version": "Oxirgi versiyaning muddati o‘tgan — yangi sana bilan versiyani saqlang"
+    },
+    "publishBlockerHints": {
+      "request_step": "Ariza hali tijorat ko‘rib chiqishi bosqichida. Tijorat anderrayteri uni sotuv tasdiqlashiga o‘tkazgach, taklifni shu yerdan mijozga yuborish mumkin bo‘ladi; ungacha uni tayyorlash va PDF yuklab olish mumkin."
     },
     "languages": {
       "ru": "Русский",

@@ -668,3 +668,15 @@ default 150 %, `src/lib/uiScale.ts`, migration 0076); the breakpoints are
 container queries in rem on `<body>`, so the layout responds to the scale
 as it would to browser zoom. Never size text or a box in px — the contract
 test refuses it; hairlines and radii stay px. Print routes hold 100 %.
+
+## Key figures and side-by-side cards
+
+A key-figure strip shares its row EQUALLY (`flex: 1 1 0`, never narrower
+than a figure), so a label that changes with a view switch moves nothing,
+and each cell draws its own 1 px dividers (a gap over a background vanishes
+where fractional edges snap onto one pixel). Cards side by side start on
+one line: a title above the card on one side means a title above the card
+on the other. `e2e/layout/switches.spec.ts` clicks every view switch on every
+screen and fails on a moved cell, column or tab; `cardTops.spec.ts` fails
+on cards that start at different heights.
+

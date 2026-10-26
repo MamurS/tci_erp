@@ -168,29 +168,33 @@ function PolicyOverview({ policy }: { policy: ClientPolicy }) {
 
 function NextSteps() {
   const { t } = useTranslation()
+  // The title sits above the card, as each policy's number does on the left,
+  // so the two columns' cards start on one line.
   return (
-    <Card className="p-5">
-      <SectionTitle className="mb-2">{t('portal.policies.next.title')}</SectionTitle>
-      <ul className="-mx-2 flex flex-col">
-        {NEXT_STEPS.map((step) => (
-          <li key={step.key}>
-            <Link
-              to={step.path}
-              className="group flex items-center gap-3 rounded-md px-2 py-2.5 hover:bg-accent-50"
-            >
-              <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-accent-700">
-                  {t(`portal.policies.next.${step.key}.title`)}
+    <section>
+      <SectionTitle className="mb-3">{t('portal.policies.next.title')}</SectionTitle>
+      <Card className="px-5 py-3">
+        <ul className="-mx-2 flex flex-col">
+          {NEXT_STEPS.map((step) => (
+            <li key={step.key}>
+              <Link
+                to={step.path}
+                className="group flex items-center gap-3 rounded-md px-2 py-2.5 hover:bg-accent-50"
+              >
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-accent-700">
+                    {t(`portal.policies.next.${step.key}.title`)}
+                  </span>
+                  <span className="block text-[0.7812rem] leading-snug text-slate-500">
+                    {t(`portal.policies.next.${step.key}.hint`)}
+                  </span>
                 </span>
-                <span className="block text-[0.7812rem] leading-snug text-slate-500">
-                  {t(`portal.policies.next.${step.key}.hint`)}
-                </span>
-              </span>
-              <ChevronRight className="size-4 shrink-0 text-slate-300 group-hover:text-accent-500" aria-hidden />
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </Card>
+                <ChevronRight className="size-4 shrink-0 text-slate-300 group-hover:text-accent-500" aria-hidden />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Card>
+    </section>
   )
 }

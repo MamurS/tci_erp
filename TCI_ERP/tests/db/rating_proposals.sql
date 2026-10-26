@@ -101,6 +101,20 @@ begin
 end $$;
 grant execute on function pg_temp.refused(text, text, text, text) to authenticated;
 
+-- 0079: every proposal carries a scorecard; this one grades all four pillars
+-- at the proposed grade, so the weighted grade is that grade.
+create function pg_temp.sc(p_grade text) returns void language sql as $sc$
+  select set_config('tci.rating_scorecard', jsonb_build_object(
+    'grade', upper(p_grade), 'reason', 'consistent_with_subgrades',
+    'pillars', jsonb_build_array(
+      jsonb_build_object('pillar', 'general', 'grade', upper(p_grade), 'weight', 25, 'reason', 'in_line_with_peers'),
+      jsonb_build_object('pillar', 'balance_sheet', 'grade', upper(p_grade), 'weight', 25, 'reason', 'in_line_with_peers'),
+      jsonb_build_object('pillar', 'profit_loss', 'grade', upper(p_grade), 'weight', 25, 'reason', 'in_line_with_peers'),
+      jsonb_build_object('pillar', 'payment', 'grade', upper(p_grade), 'weight', 25, 'reason', 'no_negative_experience')))::text,
+    true)::text is not null
+$sc$;
+grant execute on function pg_temp.sc(text) to authenticated;
+
 do $$
 declare
   c_a1    constant uuid := '99999999-0000-4000-8000-0000000073a1';
@@ -131,10 +145,12 @@ begin
 
   -- 1. Who may propose: whoever rates; sales and admin do not.
   perform pg_temp.act(c_sales);
+  perform pg_temp.sc('B1');
   perform pg_temp.refused(format('select tci.propose_rating(%L, ''B1'', ''x'')', c_man), '42501',
     'sales proposing a rating', 'rating_propose_not_allowed');
   perform pg_temp.refused(format('select tci.rating_proposal_state(%L)', c_man), '42501', 'sales reading proposals');
   perform pg_temp.act(c_admin);
+  perform pg_temp.sc('B1');
   perform pg_temp.refused(format('select tci.propose_rating(%L, ''B1'', ''x'')', c_man), '42501',
     'admin proposing a rating', 'rating_propose_not_allowed');
 
@@ -151,8 +167,10 @@ begin
   -- 2. Manual grade to a colleague (combined mode: analysts and underwriters).
   perform pg_temp.refused(format('select tci.propose_rating(%L, ''E5'', ''x'')', c_man), 'P0001',
     'a grade off the scale', 'rating_grade_invalid');
+  perform pg_temp.sc('B1');
   perform pg_temp.refused(format('select tci.propose_rating(%L, ''B1'', ''  '')', c_man), 'P0001',
     'a proposal without a reason', 'rating_proposal_reason_required');
+  perform pg_temp.sc('B1');
   v_state := tci.propose_rating(c_man, 'b1', 'No statements: a state-owned distributor, rated by hand');
   if v_state -> 'pending' ->> 'grade' <> 'B1' or v_state -> 'pending' ->> 'route' <> 'colleague'
      or not (v_state -> 'pending' ->> 'manual')::boolean or (v_state -> 'pending' ->> 'can_answer')::boolean
@@ -165,6 +183,7 @@ begin
      or not exists (select 1 from jsonb_array_elements(v_state -> 'pending' -> 'answerers') x where (x ->> 'user_id')::uuid = c_cr) then
     raise exception 'rating_proposals: the colleagues of a combined-mode proposal are wrong: %', v_state -> 'pending' -> 'answerers';
   end if;
+  perform pg_temp.sc('B2');
   perform pg_temp.refused(format('select tci.propose_rating(%L, ''B2'', ''again'')', c_man), 'P0001',
     'a second pending proposal', 'rating_proposal_pending');
   perform pg_temp.refused(format('select tci.resolve_rating_proposal(%L, ''approve'')', v_step), '42501',
@@ -212,6 +231,7 @@ begin
   perform pg_temp.act(c_cr);
   v_eng := pg_temp.rate('A2');
   perform pg_temp.act(c_a1);
+  perform pg_temp.sc('B1');
   v_state := tci.propose_rating(c_eng, 'B1', 'The group''s debt sits with the parent', v_eng, null, true);
   v_step := (v_state -> 'pending' ->> 'step_id')::uuid;
   if v_state -> 'pending' ->> 'route' <> 'level' or (v_state -> 'pending' ->> 'rank')::int <> 1 then
@@ -275,6 +295,7 @@ begin
   perform pg_temp.act(c_cr);
   v_eng := pg_temp.rate('B2');
   perform pg_temp.act(c_a1);
+  perform pg_temp.sc('B2');
   v_state := tci.propose_rating(c_eng, 'B2', 'Recommended grade, please confirm', v_eng);
   v_step := (v_state -> 'pending' ->> 'step_id')::uuid;
   if exists (select 1 from jsonb_array_elements(v_state -> 'pending' -> 'answerers') x where (x ->> 'user_id')::uuid = c_cr) then
@@ -290,6 +311,7 @@ begin
     raise exception 'rating_proposals: the return reads wrong: %', v_state;
   end if;
   perform pg_temp.act(c_a1);
+  perform pg_temp.sc('B2');
   v_state := tci.propose_rating(c_eng, 'B2', 'With the auditor''s letter', v_eng);
   v_step := (v_state -> 'pending' ->> 'step_id')::uuid;
   v_state := tci.withdraw_rating_proposal(v_step);
@@ -306,6 +328,7 @@ begin
   perform pg_temp.act(c_admin);
   perform tci.set_credit_analysis_mode('separate');
   perform pg_temp.act(c_a1);
+  perform pg_temp.sc('B2');
   v_state := tci.propose_rating(c_eng, 'B2', 'Recommended grade, please confirm', v_eng);
   v_step := (v_state -> 'pending' ->> 'step_id')::uuid;
   if exists (select 1 from jsonb_array_elements(v_state -> 'pending' -> 'answerers') x
