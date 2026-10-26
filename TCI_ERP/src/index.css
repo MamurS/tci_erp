@@ -119,6 +119,47 @@
   animation: fade-in var(--duration-moderate-01) var(--ease-productive-entrance) both;
 }
 
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* A side panel slides in from its edge: productive entrance, 150 ms. */
+@utility animate-panel-in {
+  animation: panel-in var(--duration-moderate-01) var(--ease-productive-entrance) both;
+}
+
+/* Skeleton placeholders keep the place of what is loading; the shimmer is a
+   slow, low-contrast sweep (and none under reduced motion). */
+@keyframes skeleton-sweep {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(
+      90deg,
+      var(--color-slate-100) 0%,
+      var(--color-slate-200) 40%,
+      var(--color-slate-100) 80%
+    )
+    0 0 / 300% 100%;
+  animation: skeleton-sweep 1.4s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
 /* Reduced motion: nothing moves, the same information is shown at once. */
 @media (prefers-reduced-motion: reduce) {
   *,

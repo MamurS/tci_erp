@@ -9,9 +9,8 @@
 
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Field, Input, Select } from '../../../components/ui'
+import { Button, Field, GradeBadge, Input, Select } from '../../../components/ui'
 import { EM_DASH, formatRatio } from '../../../lib/format'
-import { gradeTone } from '../../../lib/grade'
 import { gradeCodes, isGradeCode } from '../../../lib/gradeCatalogue'
 import type { GradeBand } from '../../../lib/gradeScale'
 import { GradePicker } from './GradePicker'
@@ -182,7 +181,7 @@ export function ScorecardEditor({
           {t('rating.scorecard.weighted')}
           {weighted ? (
             <>
-              <Badge tone={gradeTone(weighted.grade)}>{weighted.grade}</Badge>
+              <GradeBadge grade={weighted.grade} />
               <span className="text-slate-500 tabular-nums">({formatRatio(weighted.value, locale)})</span>
             </>
           ) : (
@@ -245,7 +244,7 @@ export function ScorecardView({ card, locale }: { card: StoredScorecard; locale:
             <tr key={p.pillar} className="border-t border-slate-100 align-top">
               <td className="py-2 pr-2 text-slate-700">{t(`rating.scorecard.pillars.${p.pillar}.name`)}</td>
               <td className="py-2 pr-2">
-                {p.grade ? <Badge tone={gradeTone(p.grade)}>{p.grade}</Badge> : <span className="text-slate-500">{EM_DASH}</span>}
+                {p.grade ? <GradeBadge grade={p.grade} /> : <span className="text-slate-500">{EM_DASH}</span>}
               </td>
               <td className="py-2 pr-2 text-right text-slate-600 tabular-nums">{p.grade ? `${p.weight} %` : EM_DASH}</td>
               <td className="py-2 pl-2 text-slate-700">
@@ -259,12 +258,12 @@ export function ScorecardView({ card, locale }: { card: StoredScorecard; locale:
       <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-t border-slate-200 pt-2 text-slate-600">
         <span className="flex items-center gap-2">
           {t('rating.scorecard.weighted')}
-          <Badge tone={gradeTone(card.weighted_grade)}>{card.weighted_grade}</Badge>
+          <GradeBadge grade={card.weighted_grade} />
           <span className="text-slate-500 tabular-nums">({formatRatio(card.weighted_value, locale)})</span>
         </span>
         <span className="flex items-center gap-2">
           {t('rating.scorecard.finalGrade')}
-          <Badge tone={gradeTone(card.grade)}>{card.grade}</Badge>
+          <GradeBadge grade={card.grade} />
           <span className="text-slate-700">{t(`rating.scorecard.overall.${card.reason}`)}</span>
         </span>
       </div>

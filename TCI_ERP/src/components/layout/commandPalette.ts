@@ -32,3 +32,21 @@ export function sanitizeSearchTerm(raw: string): string | null {
 export function isPaletteShortcut(e: Pick<KeyboardEvent, 'key' | 'metaKey' | 'ctrlKey'>): boolean {
   return e.key.toLowerCase() === 'k' && (e.metaKey || e.ctrlKey)
 }
+
+/** What the palette can find besides sections, and the page each opens. */
+export const PALETTE_SOURCES = ['entities', 'policies', 'claims', 'requests'] as const
+export type PaletteSource = (typeof PALETTE_SOURCES)[number]
+
+export const SOURCE_PATHS: Record<PaletteSource, string> = {
+  entities: '/entities',
+  policies: '/policies',
+  claims: '/claims',
+  requests: '/requests',
+}
+
+/** The sources the ACTING role may open (the same route rule as the
+ * sidebar): a person acting as sales is not offered claims they could not
+ * open in that role. The database still decides which rows come back. */
+export function paletteSources(canOpen: (path: string) => boolean): PaletteSource[] {
+  return PALETTE_SOURCES.filter((s) => canOpen(SOURCE_PATHS[s]))
+}

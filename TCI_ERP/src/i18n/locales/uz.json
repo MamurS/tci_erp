@@ -201,7 +201,8 @@
     "tasksMore": "yana {{count}}",
     "premiumUzsUnit": "UZS ekv.",
     "premiumConverted": "Barcha valyutalar mavjud so‘nggi kurs bo‘yicha UZS ga qayta hisoblangan. Hisoblangan:",
-    "premiumNoRate": "UZS kursi yo‘q, kiritilmagan: {{currencies}}"
+    "premiumNoRate": "UZS kursi yo‘q, kiritilmagan: {{currencies}}",
+    "vsMonthStart": "oy boshiga nisbatan"
   },
   "buyers": {
     "subtitle": "Kredit bahosidagi bayerlar (debitorlar) reyestri",
@@ -2307,7 +2308,14 @@
     "portfolioSummary": "Sug‘urtalanuvchi portfeli:",
     "portfolioLimits": "amaldagi limitlar",
     "portfolioLimitsEmpty": "Bu sug‘urtalanuvchining polislari bo‘yicha hozircha limitlar yo‘q",
-    "filterCount": "Tashkilotlar: {{count}}"
+    "filterCount": "Tashkilotlar: {{count}}",
+    "saveChanges": "O‘zgarishlarni saqlash",
+    "createAction": "Tashkilot yaratish",
+    "formSections": {
+      "identity": "Identifikatsiya",
+      "profile": "Ma’lumotlar",
+      "contact": "Aloqa"
+    }
   },
   "access": {
     "denied": "Ruxsat yo‘q",
@@ -2539,7 +2547,8 @@
     },
     "ratingWeights": {
       "title": "Subreytinglar vaznlari",
-      "hint": "Reyting bahosining to‘rt bloki uchun standart vaznlar — butun foizlar, yig‘indisi 100. Tahlilchi ulardan boshlaydi va muayyan reyting uchun o‘zgartirishi mumkin."
+      "hint": "Reyting bahosining to‘rt bloki uchun standart vaznlar — butun foizlar, yig‘indisi 100. Tahlilchi ulardan boshlaydi va muayyan reyting uchun o‘zgartirishi mumkin.",
+      "save": "Vaznlarni saqlash"
     }
   },
   "requests": {
@@ -4870,7 +4879,18 @@
     "groups": {
       "recent": "Yaqinda ochilganlar",
       "companies": "Tashkilotlar",
-      "sections": "Bo‘limlar"
+      "sections": "Bo‘limlar",
+      "records": "Polislar, da’volar, sug‘urta arizalari",
+      "actions": "Amallar"
+    },
+    "sources": {
+      "policies": "Polis",
+      "claims": "Da’vo",
+      "requests": "Sug‘urta arizasi"
+    },
+    "actions": {
+      "requestCompany": "Tashkilotni so‘rash (Ma’lumotlarni boshqarish)",
+      "account": "Mening profilim va matn o‘lchami"
     }
   },
   "security": {
@@ -5963,6 +5983,37 @@
       "productive": "ishchi",
       "expressive": "ifodali",
       "reduced": "Tizimda «harakatni kamaytirish» yoqilgan bo‘lsa, hech narsa harakatlanmaydi: o‘sha holat darhol ko‘rsatiladi."
+    }
+  },
+  "ui": {
+    "bulk": {
+      "label": "Tanlangan qatorlar",
+      "selected_one": "{{count}} ta tanlandi",
+      "selected_other": "{{count}} ta tanlandi",
+      "clear": "Tanlovni olib tashlash"
+    },
+    "table": {
+      "settings": "Jadval ko‘rinishi",
+      "density": "Qatorlar zichligi",
+      "densities": {
+        "compact": "Ixcham",
+        "regular": "Odatiy",
+        "relaxed": "Keng"
+      },
+      "columns": "Ustunlar",
+      "showAll": "Barcha ustunlarni ko‘rsatish"
+    },
+    "quickView": {
+      "label": "Tezkor ko‘rish",
+      "open": "Tezkor ko‘rish: {{name}}",
+      "openCard": "Tashkilot kartochkasini ochish",
+      "openRecord": "Ochish"
+    },
+    "saved": "Saqlandi",
+    "validation": {
+      "required": "To‘ldiring — bu majburiy maydon",
+      "email": "name@company.uz ko‘rinishidagi manzilni kiriting",
+      "url": "company.uz ko‘rinishidagi sayt manzilini kiriting"
     }
   }
 }

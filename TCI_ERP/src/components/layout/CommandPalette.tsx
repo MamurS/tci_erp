@@ -1,31 +1,103 @@
 /**
- * ⌘K / Ctrl+K: jump to any section, or find an organization by name or
- * registration number. Staff only — the organization search reads
- * tci.legal_entities, which a client cannot see.
+ * ⌘K / Ctrl+K: jump to any section, or find a company (name or registration
+ * number), a policy, a claim or a submission (by its number; a claim by its
+ * buyer too), or run an action. Before anything is typed, the records opened
+ * last come first. Staff only, and only the sections the ACTING role may open
+ * (paletteSources) — the database still decides which rows come back.
  */
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowRight, Building2, CornerDownLeft, FilePlus2, History, Search } from 'lucide-react'
+import { ArrowRight, Building2, ClipboardList, CornerDownLeft, FilePlus2, FileText, FileWarning, History, Search, UserRound } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
 import { tci } from '../../lib/supabase'
-import { matchesQuery, sanitizeSearchTerm } from './commandPalette'
-import { navItemsForRoles } from './navigation'
+import { matchesQuery, paletteSources, sanitizeSearchTerm } from './commandPalette'
+import type { PaletteSource } from './commandPalette'
+import { canAccessPath, navItemsForRoles } from './navigation'
 import { RequestEntityModal } from '../../features/data/RequestEntityModal'
 import { readRecentEntities, rememberEntity } from './recentEntities'
 import type { RecentEntity } from './recentEntities'
 
 interface Hit {
   id: string
-  kind: 'nav' | 'entity' | 'recent' | 'search' | 'request'
+  kind: 'nav' | 'entity' | 'recent' | 'search' | 'request' | 'record' | 'action'
   label: string
   sub?: string
   to: string
   /** The heading this hit sits under (shown above the first of a run). */
-  group: 'recent' | 'companies' | 'sections'
+  group: 'recent' | 'companies' | 'records' | 'actions' | 'sections'
+  /** For a record: which kind (its icon). */
+  source?: Exclude<PaletteSource, 'entities'>
+}
+
+interface RecordHit {
+  id: string
+  source: Exclude<PaletteSource, 'entities'>
+  number: string
+  name: string | null
+}
+
+/** Policies, claims and submissions whose number (a claim: or buyer)
+ * contains the term — five of each at most, in the sources allowed. */
+function useRecordSearch(term: string | null, sources: readonly PaletteSource[]) {
+  return useQuery({
+    queryKey: ['palette-records', term, sources],
+    enabled: term !== null && sources.some((s) => s !== 'entities'),
+    staleTime: 30_000,
+    queryFn: async (): Promise<RecordHit[]> => {
+      const like = `%${term}%`
+      const jobs: Promise<RecordHit[]>[] = []
+      if (sources.includes('policies'))
+        jobs.push(
+          (async () => {
+            const { data, error } = await tci()
+              .from('policies')
+              .select('id, policy_number, legal_entities(name)')
+              .ilike('policy_number', like)
+              .limit(5)
+            if (error) throw error
+            return ((data ?? []) as unknown as { id: string; policy_number: string; legal_entities: { name: string } | null }[]).map(
+              (r) => ({ id: r.id, source: 'policies' as const, number: r.policy_number, name: r.legal_entities?.name ?? null }),
+            )
+          })(),
+        )
+      if (sources.includes('claims'))
+        jobs.push(
+          (async () => {
+            const { data, error } = await tci()
+              .from('v_claims')
+              .select('id, claim_number, buyer_name')
+              .or(`claim_number.ilike.${like},buyer_name.ilike.${like}`)
+              .limit(5)
+            if (error) throw error
+            return ((data ?? []) as { id: string; claim_number: string; buyer_name: string | null }[]).map((r) => ({
+              id: r.id,
+              source: 'claims' as const,
+              number: r.claim_number,
+              name: r.buyer_name,
+            }))
+          })(),
+        )
+      if (sources.includes('requests'))
+        jobs.push(
+          (async () => {
+            const { data, error } = await tci()
+              .from('insurance_requests')
+              .select('id, request_number, legal_entities(name)')
+              .ilike('request_number', like)
+              .limit(5)
+            if (error) throw error
+            return ((data ?? []) as unknown as { id: string; request_number: string; legal_entities: { name: string } | null }[]).map(
+              (r) => ({ id: r.id, source: 'requests' as const, number: r.request_number, name: r.legal_entities?.name ?? null }),
+            )
+          })(),
+        )
+      return (await Promise.all(jobs)).flat()
+    },
+  })
 }
 
 function useEntitySearch(term: string | null) {
@@ -85,7 +157,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   }, [query])
 
   const term = sanitizeSearchTerm(debounced)
-  const entities = useEntitySearch(open ? term : null)
+  const sources = useMemo(() => paletteSources((path) => canAccessPath(roles, path)), [roles])
+  const entities = useEntitySearch(open && sources.includes('entities') ? term : null)
+  const records = useRecordSearch(open ? term : null, sources)
 
   const hits: Hit[] = useMemo(() => {
     const nav = navItemsForRoles(roles)
@@ -97,17 +171,28 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
         group: 'sections' as const,
       }))
       .filter((h) => matchesQuery(h.label, query))
+    // Actions: things to start, not places to go. Asking the data desk for a
+    // company is open to every staff role (0054).
+    const actions: Hit[] = (
+      [
+        { id: 'action-request-company', kind: 'action', label: t('palette.actions.requestCompany'), to: '', group: 'actions' },
+        { id: 'action-account', kind: 'action', label: t('palette.actions.account'), to: '/account', group: 'actions' },
+      ] satisfies Hit[]
+    ).filter((h) => matchesQuery(h.label, query))
     // Before anything is typed: the companies opened last, then the sections.
     if (!query.trim()) {
-      const recents = recent.map((e) => ({
-        id: `recent-${e.id}`,
-        kind: 'recent' as const,
-        label: e.name,
-        sub: e.sub,
-        to: `/entities/${e.id}`,
-        group: 'recent' as const,
-      }))
-      return [...recents, ...nav]
+      const recents = recent
+        // A record of a section the acting role does not open is not offered.
+        .filter((e) => canAccessPath(roles, e.to ?? '/entities'))
+        .map((e) => ({
+          id: `recent-${e.id}`,
+          kind: 'recent' as const,
+          label: e.name,
+          sub: e.sub,
+          to: e.to ?? `/entities/${e.id}`,
+          group: 'recent' as const,
+        }))
+      return [...recents, ...actions, ...nav]
     }
     const found = (entities.data ?? []).map((e) => ({
       id: `entity-${e.id}`,
@@ -144,8 +229,17 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
             },
           ]
         : []
-    return [...found, ...searchAll, ...missing, ...nav]
-  }, [roles, query, term, recent, entities.data, entities.isSuccess, entities.isFetching, t])
+    const recordHits = (records.data ?? []).map((r) => ({
+      id: `record-${r.id}`,
+      kind: 'record' as const,
+      source: r.source,
+      label: r.number,
+      sub: [t(`palette.sources.${r.source}`), r.name].filter(Boolean).join(' · '),
+      to: `/${r.source}/${r.id}`,
+      group: 'records' as const,
+    }))
+    return [...found, ...searchAll, ...missing, ...recordHits, ...actions, ...nav]
+  }, [roles, query, term, recent, entities.data, entities.isSuccess, entities.isFetching, records.data, t])
 
   useEffect(() => {
     setCursor(0)
@@ -163,12 +257,19 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
   const go = (hit: Hit | undefined) => {
     if (!hit) return
     onClose()
-    if (hit.kind === 'request') {
+    if (hit.kind === 'request' || hit.id === 'action-request-company') {
       setRequestName(term ?? '')
       return
     }
-    if (hit.kind === 'entity' || hit.kind === 'recent')
-      rememberEntity({ id: hit.to.replace('/entities/', ''), name: hit.label, sub: hit.sub })
+    if (hit.kind === 'entity') rememberEntity({ id: hit.to.replace('/entities/', ''), name: hit.label, sub: hit.sub })
+    if (hit.kind === 'record') rememberEntity({ id: hit.to.split('/').pop() ?? hit.id, name: hit.label, sub: hit.sub, to: hit.to })
+    if (hit.kind === 'recent')
+      rememberEntity({
+        id: hit.id.replace('recent-', ''),
+        name: hit.label,
+        sub: hit.sub,
+        to: hit.to.startsWith('/entities/') ? undefined : hit.to,
+      })
     void navigate(hit.to)
   }
 
@@ -213,7 +314,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
         <ul className="scrollbar-thin max-h-[52vh] overflow-y-auto p-2">
           {hits.length === 0 && (
             <li className="px-3 py-8 text-center text-body text-slate-500">
-              {entities.isFetching ? t('common.loading') : t('palette.empty')}
+              {entities.isFetching || records.isFetching ? t('common.loading') : t('palette.empty')}
             </li>
           )}
           {hits.map((hit, i) => (
@@ -233,9 +334,9 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
               >
                 <span
                   className={`flex size-8 shrink-0 items-center justify-center rounded-md ${
-                    hit.kind === 'entity' || hit.kind === 'recent' || hit.kind === 'search'
-                      ? 'bg-accent-100 text-accent-600'
-                      : hit.kind === 'request'
+                    hit.kind === 'entity' || hit.kind === 'recent' || hit.kind === 'search' || hit.kind === 'record'
+                      ? 'bg-accent-100 text-accent-700'
+                      : hit.kind === 'request' || hit.kind === 'action'
                         ? 'bg-sky-50 text-sky-700'
                         : 'bg-slate-100 text-slate-600'
                   }`}
@@ -246,8 +347,16 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                     <History className="size-4" />
                   ) : hit.kind === 'search' ? (
                     <Search className="size-4" />
-                  ) : hit.kind === 'request' ? (
+                  ) : hit.kind === 'request' || hit.id === 'action-request-company' ? (
                     <FilePlus2 className="size-4" />
+                  ) : hit.kind === 'action' ? (
+                    <UserRound className="size-4" />
+                  ) : hit.source === 'policies' ? (
+                    <FileText className="size-4" />
+                  ) : hit.source === 'claims' ? (
+                    <FileWarning className="size-4" />
+                  ) : hit.source === 'requests' ? (
+                    <ClipboardList className="size-4" />
                   ) : (
                     <ArrowRight className="size-4" />
                   )}

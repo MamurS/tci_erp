@@ -9,10 +9,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Field, Modal, SectionTitle, Textarea } from '../../components/ui'
+import { Button, Card, Field, GradeBadge, Modal, SectionTitle, Textarea } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH, formatMoment } from '../../lib/format'
-import { gradeTone } from '../../lib/grade'
 import { useGradeScale } from '../../lib/gradeScale'
 import { GradePicker } from '../entities/rating/GradePicker'
 import { refusalOr } from '../../lib/optimistic'
@@ -57,7 +56,7 @@ export function GroupRatingCard({ entityId }: { entityId: string }) {
       {active ? (
         <div className="flex flex-col gap-2 text-body">
           <span className="flex flex-wrap items-center gap-2">
-            <Badge tone={gradeTone(active.grade)}>{active.grade}</Badge>
+            <GradeBadge grade={active.grade} />
             <span className="text-slate-600">
               {t('groups.rating.setBy', { name: active.set_by_name ?? EM_DASH, at: formatMoment(active.set_at, locale) })}
             </span>
@@ -88,7 +87,7 @@ export function GroupRatingCard({ entityId }: { entityId: string }) {
           <ul className="mt-2 flex flex-col gap-2">
             {history.map((h) => (
               <li key={h.id} className="flex flex-wrap items-center gap-2">
-                <Badge tone={gradeTone(h.grade)}>{h.grade}</Badge>
+                <GradeBadge grade={h.grade} />
                 <span className="text-slate-500">
                   {formatMoment(h.set_at, locale)} — {h.ended_at ? formatMoment(h.ended_at, locale) : EM_DASH}
                 </span>

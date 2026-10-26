@@ -8,7 +8,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { Button, Callout, Card, Input, SectionTitle } from '../../components/ui'
+import { Button, Callout, Card, Input, SectionTitle, useFlash } from '../../components/ui'
 import { refusalOr } from '../../lib/optimistic'
 import { tci } from '../../lib/supabase'
 import { SCORECARD_SETTINGS_KEY, useScorecardSettings } from '../entities/rating/proposalsApi'
@@ -23,6 +23,7 @@ export function RatingWeightsCard() {
   const [error, setError] = useState<string | null>(null)
   const weights = draft ?? settings.data ?? null
   const sum = weights ? PILLARS.reduce((s, p) => s + weights[p], 0) : 0
+  const [saved, flashSaved] = useFlash()
 
   const save = useMutation({
     mutationFn: async (next: Weights) => {
@@ -33,6 +34,7 @@ export function RatingWeightsCard() {
     onSuccess: (saved) => {
       queryClient.setQueryData(SCORECARD_SETTINGS_KEY, saved)
       setDraft(null)
+      flashSaved()
     },
     onError: (failure) => setError(t(refusalOr(failure, 'common.saveFailed'))),
   })
@@ -75,9 +77,10 @@ export function RatingWeightsCard() {
         <Button
           disabled={draft === null || sum !== 100}
           loading={save.isPending}
+          done={saved}
           onClick={() => draft && save.mutate(draft)}
         >
-          {t('common.save')}
+          {t('admin.ratingWeights.save')}
         </Button>
       </div>
       {error && <Callout tone="neg" title={error} />}

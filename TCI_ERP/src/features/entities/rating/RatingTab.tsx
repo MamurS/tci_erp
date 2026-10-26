@@ -24,11 +24,11 @@ import {
 import { Plus } from 'lucide-react'
 
 import {
-  Badge,
   Button,
   Card,
   COL,
   EmptyState,
+  GradeBadge,
   GradeScale,
   labelCol,
   LinkButton,
@@ -51,7 +51,6 @@ import type {
   StatementPayload,
 } from '../../../lib/analytics'
 import { EM_DASH, formatAmount, formatDate, formatMoment, formatPercent } from '../../../lib/format'
-import { gradeTone } from '../../../lib/grade'
 import { gradeChange, useGradeScale } from '../../../lib/gradeScale'
 import type { GradeBand } from '../../../lib/gradeScale'
 import { tci } from '../../../lib/supabase'
@@ -706,7 +705,7 @@ function HistoryCard({
               <td className="num">{a.rating_score === null ? EM_DASH : formatAmount(Number(a.rating_score), locale, 1)}</td>
               <td>
                 <span className="inline-flex items-center gap-2">
-                  <Badge tone={gradeTone(a.rating_grade)}>{a.rating_grade}</Badge>
+                  <GradeBadge grade={a.rating_grade} />
                   {a.source === 'manual' && <span className="text-caption text-slate-500">{t('rating.proposals.manual')}</span>}
                 </span>
               </td>

@@ -8,6 +8,7 @@
  * for running UI text. Crisp 6–10px radii, hairline borders, soft shadows.
  */
 import { Suspense, createContext, useContext, useEffect, useId, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { BADGE_TONES, BadgeSizeContext, badgeClassName } from './badgeStyles'
 import type { BadgeSize, BadgeTone } from './badgeStyles'
@@ -15,6 +16,9 @@ import { buttonClassName } from './buttonStyles'
 import { FieldLabelIdContext } from './fieldContext'
 import type { ButtonVariant } from './buttonStyles'
 import { COL, tableMinWidth } from './columns'
+import { Pictogram } from './pictograms'
+import type { PictogramName } from './pictogramNames'
+import { DENSITY_CELL, hiddenColumnsCss, useDensity, useHiddenColumns } from './tablePrefs'
 import type { ColumnWidth } from './columns'
 import type {
   ButtonHTMLAttributes,
@@ -37,9 +41,22 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
    * (invisible), so the button is exactly as wide and tall as before and
    * nothing beside it moves; it is disabled while it works. */
   loading?: boolean
+  /** Just done (useFlash): a check in the same box for about a second —
+   * the confirmation where the eye already is, instead of a toast. */
+  done?: boolean
 }
 
-export function Button({ variant = 'primary', size = 'md', className = '', loading = false, children, disabled, ...rest }: ButtonProps) {
+export function Button({
+  variant = 'primary',
+  size = 'md',
+  className = '',
+  loading = false,
+  done = false,
+  children,
+  disabled,
+  ...rest
+}: ButtonProps) {
+  const { t } = useTranslation()
   return (
     <button
       type="button"
@@ -55,6 +72,16 @@ export function Button({ variant = 'primary', size = 'md', className = '', loadi
             <span className="size-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
           </span>
         </>
+      ) : done ? (
+        <>
+          <span className="invisible contents">{children}</span>
+          <span className="animate-fade-in absolute inset-0 flex items-center justify-center" role="status">
+            <svg viewBox="0 0 16 16" className="size-4" aria-hidden="true">
+              <path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className="sr-only">{t('ui.saved')}</span>
+          </span>
+        </>
       ) : (
         children
       )}
@@ -67,28 +94,50 @@ export function Button({ variant = 'primary', size = 'md', className = '', loadi
 // ---------------------------------------------------------------------------
 
 const CONTROL_CLASSES =
-  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-body text-slate-900 shadow-[inset_0_1px_1px_rgb(0_0_0/0.03)] transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-accent-500 focus:outline-none focus:ring-3 focus:ring-accent-500/20 disabled:bg-slate-50 disabled:text-slate-400'
+  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-body text-slate-900 shadow-[inset_0_1px_1px_rgb(0_0_0/0.03)] transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-accent-500 focus:outline-none focus:ring-3 focus:ring-accent-500/20 disabled:bg-slate-50 disabled:text-slate-400 in-data-invalid:border-danger-500 in-data-invalid:focus:ring-danger-500/20'
 
 interface FieldProps {
   label?: string
   /** Helper text under the control (text, or text with a link). */
   hint?: ReactNode
+  /** What is wrong with the value, shown under the control in red once the
+   * person has left the field (validate on blur, never while typing). */
+  error?: string | null
   children: ReactNode
   className?: string
 }
 
-export function Field({ label, hint, children, className = '' }: FieldProps) {
+/** A label ABOVE its control, in sentence case (Prompt 30: easier to scan
+ * than capitals); the hint or the error under it. */
+export function Field({ label, hint, error, children, className = '' }: FieldProps) {
   const labelId = useId()
   return (
-    <label className={`flex flex-col gap-2 ${className}`}>
+    <label className={`flex flex-col gap-2 ${className}`} data-invalid={error ? '' : undefined}>
       {label && (
-        <span id={labelId} className="text-caption font-semibold tracking-wide text-slate-600 uppercase">
+        <span id={labelId} className="text-small font-medium text-slate-700">
           {label}
         </span>
       )}
       <FieldLabelIdContext.Provider value={label ? labelId : undefined}>{children}</FieldLabelIdContext.Provider>
-      {hint && <span className="text-caption text-slate-500">{hint}</span>}
+      {error ? (
+        <span className="text-caption font-medium text-danger-700" role="alert">
+          {error}
+        </span>
+      ) : (
+        hint && <span className="text-caption text-slate-500">{hint}</span>
+      )}
     </label>
+  )
+}
+
+/** A titled group of fields in a long form: what belongs together, together. */
+export function FormSection({ title, hint, children }: { title: string; hint?: ReactNode; children: ReactNode }) {
+  return (
+    <fieldset className="flex min-w-0 flex-col gap-3 border-t border-slate-100 pt-4 first:border-t-0 first:pt-0">
+      <legend className="float-left mb-1 w-full text-body font-semibold text-slate-900">{title}</legend>
+      {hint && <p className="-mt-2 text-caption text-slate-500">{hint}</p>}
+      {children}
+    </fieldset>
   )
 }
 
@@ -500,10 +549,13 @@ interface EmptyStateProps {
   title: string
   hint?: string
   action?: ReactNode
+  /** A small icon in a disc, instead of the pictogram. */
   icon?: ReactNode
+  /** The drawing that says what is missing (pictograms.tsx); `inbox` by default. */
+  pictogram?: PictogramName
 }
 
-export function EmptyState({ title, hint, action, icon }: EmptyStateProps) {
+export function EmptyState({ title, hint, action, icon, pictogram = 'inbox' }: EmptyStateProps) {
   // On the page it is its own dashed box; inside a card or a panel the card
   // already frames it, so it is only the message.
   const framed = useContext(FramedContext)
@@ -513,14 +565,13 @@ export function EmptyState({ title, hint, action, icon }: EmptyStateProps) {
         framed ? 'px-4 py-8' : 'rounded-lg border border-dashed border-slate-300 bg-white/70 px-6 py-14'
       }`}
     >
-      <span className="mb-1 flex size-11 items-center justify-center rounded-full bg-slate-100 text-slate-500 [&_svg]:size-5">
-        {icon ?? (
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="1.6" />
-            <path d="M8 9h8M8 13h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          </svg>
-        )}
-      </span>
+      {icon ? (
+        <span className="mb-1 flex size-11 items-center justify-center rounded-full bg-slate-100 text-slate-500 [&_svg]:size-5">
+          {icon}
+        </span>
+      ) : (
+        <Pictogram name={pictogram} className={`mb-1 ${framed ? 'size-12' : 'size-16'}`} />
+      )}
       <p className="text-body font-semibold text-slate-800">{title}</p>
       {hint && <p className="max-w-md text-small leading-relaxed text-slate-500">{hint}</p>}
       {action && <div className="mt-2">{action}</div>}
@@ -651,6 +702,7 @@ interface ModalProps {
 const openModals: string[] = []
 
 export function Modal({ open, title, onClose, children, footer, wide = false }: ModalProps) {
+  const { t } = useTranslation()
   const titleId = useId()
   const closeRef = useRef(onClose)
   useEffect(() => {
@@ -683,9 +735,10 @@ export function Modal({ open, title, onClose, children, footer, wide = false }: 
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`animate-fade-in w-full ${wide ? 'max-w-2xl' : 'max-w-md'} overflow-hidden rounded-xl bg-white shadow-pop ring-1 ring-slate-900/5`}
+        // The head and the buttons stay put; a long form scrolls between them.
+        className={`animate-fade-in flex max-h-[calc(100dvh-12vh)] w-full flex-col ${wide ? 'max-w-2xl' : 'max-w-md'} overflow-hidden rounded-xl bg-white shadow-pop ring-1 ring-slate-900/5`}
       >
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-5 py-4">
           <h2
             id={titleId}
             className="text-lead font-semibold text-slate-900"
@@ -695,7 +748,7 @@ export function Modal({ open, title, onClose, children, footer, wide = false }: 
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t('common.close')}
             className="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-600"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
@@ -704,9 +757,9 @@ export function Modal({ open, title, onClose, children, footer, wide = false }: 
           </button>
         </div>
         {/* Fields placed directly in a dialog are spaced evenly, never touching. */}
-        <div className="flex flex-col gap-4 px-5 py-4">{children}</div>
+        <div className="scrollbar-thin flex min-h-0 flex-col gap-4 overflow-y-auto px-5 py-4">{children}</div>
         {footer && (
-          <div className="flex justify-end gap-2 border-t border-slate-200 bg-slate-50/70 px-5 py-3">
+          <div className="flex shrink-0 justify-end gap-2 border-t border-slate-200 bg-slate-50/70 px-5 py-3">
             {footer}
           </div>
         )}
@@ -733,6 +786,15 @@ interface TableProps {
   columns?: readonly ColumnWidth[]
   /** The narrowest a fill column may get before the table scrolls sideways (6rem). */
   fillMin?: string
+  /** A registry's name for its remembered column choice (TableSettings with
+   * the same id hides and shows the columns). */
+  id?: string
+  /** A long list: the head stays in view while the rows scroll (the table
+   * scrolls inside a box as tall as the viewport allows). */
+  stickyHead?: boolean
+  /** The first column (the name) stays in view while a wide table scrolls
+   * sideways. */
+  freezeFirst?: boolean
 }
 
 /** A cut cell (or a `truncate` element in it) names its full text on hover. */
@@ -752,7 +814,12 @@ function titleIfCut(event: MouseEvent<HTMLTableElement>) {
 
 /** Scrollable table container. `dense` is the financial variant: tighter
  * rows and a sentence-case head. */
-export function Table({ children, dense = false, className = '', columns, fillMin }: TableProps) {
+export function Table({ children, dense = false, className = '', columns, fillMin, id, stickyHead = false, freezeFirst = false }: TableProps) {
+  // Row density is the person's choice (TableSettings); the financial
+  // (dense) variant keeps its own tight rows.
+  const [density] = useDensity()
+  const [hidden] = useHiddenColumns(id)
+  const visibleColumns = columns?.filter((_, i) => !hidden.includes(i))
   // On the page a table is its own card; inside a card it sits flush, its
   // rows on the card's own surface — never a box in a box.
   const framed = useContext(FramedContext)
@@ -773,17 +840,21 @@ export function Table({ children, dense = false, className = '', columns, fillMi
     : '[&_thead_th]:bg-slate-50 [&_thead_th]:text-slate-500 [&_thead_th]:text-caption [&_thead_th]:font-semibold [&_thead_th]:tracking-wide [&_thead_th]:uppercase [&_thead_th]:border-slate-200'
   return (
     <div
-      className={`scrollbar-thin overflow-x-auto ${
+      data-table={id}
+      className={`scrollbar-thin overflow-x-auto ${stickyHead ? 'max-h-[calc(100dvh-10rem)] overflow-y-auto [scrollbar-gutter:stable]' : ''} ${
         framed ? 'rounded-md' : 'rounded-lg border border-slate-200/90 bg-white shadow-card'
       } ${className}`}
     >
+      {id && hidden.length > 0 && <style>{hiddenColumnsCss(id, hidden)}</style>}
       <table
-        style={fixed ? { minWidth: tableMinWidth(columns, fillMin) } : undefined}
+        style={fixed ? { minWidth: tableMinWidth(visibleColumns ?? columns, fillMin) } : undefined}
         onMouseOver={fixed ? titleIfCut : undefined}
         className={`w-full border-collapse ${fixedCells} ${dense ? 'text-small' : 'text-body'} [&_th]:border-b [&_td.num]:whitespace-nowrap [:where(&_th)]:text-left [&_td]:border-b [&_td]:border-slate-100 [:where(&_tbody_tr)]:transition-colors [:where(&_tbody_tr:hover)]:bg-accent-50 [&_tbody_tr:last-child_td]:border-b-0 ${head} ${
-          dense
-            ? '[&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-2'
-            : '[&_th]:px-4 [&_th]:py-3 [&_td]:px-4 [&_td]:py-3'
+          dense ? '[&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-2' : `[&_th]:px-4 [&_td]:px-4 ${DENSITY_CELL[density]}`
+        } ${stickyHead ? '[&_thead_th]:sticky [&_thead_th]:top-0 [&_thead_th]:z-[2]' : ''} ${
+          freezeFirst
+            ? '[&_tr>:first-child]:sticky [&_tr>:first-child]:left-0 [&_tr>:first-child]:z-[1] [&_tbody_tr>td:first-child]:bg-white [&_tbody_tr:hover>td:first-child]:bg-accent-50 [&_thead_tr>th:first-child]:z-[3]'
+            : ''
         }`}
       >
         {fixed && (

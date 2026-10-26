@@ -8,10 +8,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Field, Modal, Textarea } from '../../../components/ui'
+import { Badge, Button, Card, Field, GradeBadge, Modal, Textarea } from '../../../components/ui'
 import { useAuth } from '../../../auth/AuthContext'
 import { formatMoment } from '../../../lib/format'
-import { gradeTone } from '../../../lib/grade'
 import type { GradeBand } from '../../../lib/gradeScale'
 import { refusalOr } from '../../../lib/optimistic'
 import { useStaffDirectory } from '../../data/api'
@@ -88,12 +87,12 @@ export function RatingConfirmation({
       ) : (
         <span className="flex items-center gap-2">
           <span className="text-slate-500">{t('rating.confirmation.engineGrade')}</span>
-          <Badge tone={gradeTone(engineGrade)}>{engineGrade}</Badge>
+          <GradeBadge grade={engineGrade} />
         </span>
       )}
       <span className="flex items-center gap-2">
         <span className="text-slate-500">{t('rating.confirmation.gradeInForce')}</span>
-        <Badge tone={gradeTone(current.rating_grade)}>{current.rating_grade}</Badge>
+        <GradeBadge grade={current.rating_grade} />
       </span>
       {/* The group's grade caps this buyer's (0074). */}
       {current.group_rating_id && <Badge tone="warn">{t('groups.rating.cappedBadge')}</Badge>}

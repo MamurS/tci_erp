@@ -201,7 +201,8 @@
     "tasksMore": "+{{count}} more",
     "premiumUzsUnit": "UZS equiv.",
     "premiumConverted": "All currencies converted to UZS at the latest rate on record. Booked:",
-    "premiumNoRate": "No UZS rate, not included: {{currencies}}"
+    "premiumNoRate": "No UZS rate, not included: {{currencies}}",
+    "vsMonthStart": "vs start of month"
   },
   "buyers": {
     "subtitle": "Register of buyers (debtors) under credit assessment",
@@ -2307,7 +2308,14 @@
     "portfolioSummary": "Policyholder portfolio:",
     "portfolioLimits": "effective limits",
     "portfolioLimitsEmpty": "No credit limits under this policyholder’s policies yet",
-    "filterCount": "Companies: {{count}}"
+    "filterCount": "Companies: {{count}}",
+    "saveChanges": "Save changes",
+    "createAction": "Create company",
+    "formSections": {
+      "identity": "Identification",
+      "profile": "Profile",
+      "contact": "Contact"
+    }
   },
   "access": {
     "denied": "No access",
@@ -2539,7 +2547,8 @@
     },
     "ratingWeights": {
       "title": "Sub-grade weights",
-      "hint": "The default weights of the rating scorecard's four pillars, whole per cents adding up to 100. The rater starts from them and may change them for a rating."
+      "hint": "The default weights of the rating scorecard's four pillars, whole per cents adding up to 100. The rater starts from them and may change them for a rating.",
+      "save": "Save weights"
     }
   },
   "requests": {
@@ -4870,7 +4879,18 @@
     "groups": {
       "recent": "Recent",
       "companies": "Companies",
-      "sections": "Sections"
+      "sections": "Sections",
+      "records": "Policies, claims, submissions",
+      "actions": "Actions"
+    },
+    "sources": {
+      "policies": "Policy",
+      "claims": "Claim",
+      "requests": "Submission"
+    },
+    "actions": {
+      "requestCompany": "Request a company (Data management)",
+      "account": "My account and text size"
     }
   },
   "security": {
@@ -5963,6 +5983,37 @@
       "productive": "productive",
       "expressive": "expressive",
       "reduced": "With «reduce motion» set in the operating system, nothing moves: the same state is shown at once."
+    }
+  },
+  "ui": {
+    "bulk": {
+      "label": "Selected rows",
+      "selected_one": "{{count}} selected",
+      "selected_other": "{{count}} selected",
+      "clear": "Clear selection"
+    },
+    "table": {
+      "settings": "Table view",
+      "density": "Row density",
+      "densities": {
+        "compact": "Compact",
+        "regular": "Regular",
+        "relaxed": "Relaxed"
+      },
+      "columns": "Columns",
+      "showAll": "Show all columns"
+    },
+    "quickView": {
+      "label": "Quick view",
+      "open": "Quick view: {{name}}",
+      "openCard": "Open company card",
+      "openRecord": "Open"
+    },
+    "saved": "Saved",
+    "validation": {
+      "required": "Fill this in — it is required",
+      "email": "Enter an address like name@company.uz",
+      "url": "Enter a web address like company.uz"
     }
   }
 }

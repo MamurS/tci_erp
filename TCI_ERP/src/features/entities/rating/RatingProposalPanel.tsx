@@ -22,6 +22,7 @@ import {
   Button,
   Card,
   Field,
+  GradeBadge,
   KeyFigures,
   Modal,
   SectionTitle,
@@ -31,7 +32,6 @@ import {
 } from '../../../components/ui'
 import { useAuth } from '../../../auth/AuthContext'
 import { EM_DASH, formatMoment } from '../../../lib/format'
-import { gradeTone } from '../../../lib/grade'
 import type { GradeBand } from '../../../lib/gradeScale'
 import { refusalOr } from '../../../lib/optimistic'
 import { DEEP_LINK_SCROLL_MARGIN } from '../../../lib/useDeepLinkFocus'
@@ -475,7 +475,7 @@ function PendingView({
         <Badge tone="warn">{t('rating.proposals.statuses.pending')}</Badge>
         <span className="flex items-center gap-2">
           <span className="text-slate-500">{t('rating.proposals.grade')}</span>
-          <Badge tone={gradeTone(pending.grade)}>{pending.grade}</Badge>
+          <GradeBadge grade={pending.grade} />
         </span>
         {pending.manual && <Badge tone="neutral">{t('rating.proposals.manual')}</Badge>}
         <span className="text-slate-600">
@@ -655,10 +655,10 @@ function HistoryList({
               <span className="flex flex-wrap items-center gap-2">
                 <span className="text-slate-500">{formatMoment(h.resolved_at, locale)}</span>
                 <Badge tone={proposalTone(h.status)}>{t(`rating.proposals.statuses.${h.status}`)}</Badge>
-                <Badge tone={gradeTone(h.grade)}>{h.grade}</Badge>
+                <GradeBadge grade={h.grade} />
                 {result && result !== h.grade && (
                   <>
-                    → <Badge tone={gradeTone(result)}>{result}</Badge>
+                    → <GradeBadge grade={result} />
                   </>
                 )}
                 {h.manual && <Badge tone="neutral">{t('rating.proposals.manual')}</Badge>}

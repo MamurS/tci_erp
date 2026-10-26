@@ -5,21 +5,29 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Plus, Search, X } from 'lucide-react'
+import { Eye, Plus, Search, X } from 'lucide-react'
 
 import {
   Badge,
   Button,
   Card,
+  actionsCol,
   COL,
   Combobox,
   CountryFlag,
+  DescriptionList,
   EmptyState,
+  GradeBadge,
+  Highlight,
   Input,
+  LinkButton,
   PageHeader,
+  RowActions,
   Segmented,
-  Spinner,
+  SidePanel,
+  SkeletonRows,
   Table,
+  TableSettings,
   Truncate,
 } from '../../components/ui'
 import type { ComboOption } from '../../components/ui'
@@ -37,7 +45,6 @@ import { RequestEntityModal } from '../data/RequestEntityModal'
 import { canWorkRequests } from '../data/requests'
 import { mayWriteEntities } from './access'
 import { EntityFormModal } from './EntityFormModal'
-import { gradeTone } from '../../lib/grade'
 import { EM_DASH, formatDate } from '../../lib/format'
 import type { EntityRoles } from './types'
 
@@ -75,6 +82,8 @@ export function EntitiesPage() {
   const [industryFilter, setIndustryFilter] = useState<string | null>(null)
   const [roleChip, setRoleChip] = useState<RoleChip>('all')
   const [modalOpen, setModalOpen] = useState(false)
+  // The quick view: a row's summary beside the list (Table v2).
+  const [peekId, setPeekId] = useState<string | null>(null)
 
   // The filters offer what the registry actually holds, with how many —
   // not every country of the world.
@@ -151,6 +160,27 @@ export function EntitiesPage() {
       ? periods.reduce((a, b) => (a.period_end_date > b.period_end_date ? a : b)).period_end_date
       : null
 
+  const tableColumns = [COL.fill, '9rem', '10rem', '13.5rem', COL.date, COL.grade, actionsCol([], 1)]
+  const columnLabels = [
+    t('buyers.fields.name'),
+    t('buyers.fields.country'),
+    t('buyers.fields.industry'),
+    t('entities.rolesHeader'),
+    t('buyers.latestStatement'),
+    t('limits.fields.grade'),
+    '',
+  ]
+  const tableHead = (
+    <thead>
+      <tr>
+        {columnLabels.map((label, i) => (
+          <th key={i}>{label ? label : <span className="sr-only">{t('common.actions')}</span>}</th>
+        ))}
+      </tr>
+    </thead>
+  )
+  const peek = peekId ? (entities ?? []).find((e) => e.id === peekId) : undefined
+
   return (
     <div>
       <PageHeader
@@ -210,16 +240,25 @@ export function EntitiesPage() {
           value={roleChip}
           onChange={(key) => setRoleChip(key as RoleChip)}
         />
+        <div className="ml-auto">
+          <TableSettings table="entities" columns={columnLabels} />
+        </div>
       </div>
 
       {isLoading ? (
-        <Spinner label={t('common.loading')} />
+        <Table id="entities" columns={tableColumns}>
+          {tableHead}
+          <tbody>
+            <SkeletonRows columns={tableColumns.length} />
+          </tbody>
+        </Table>
       ) : notFound ? (
         // A search that finds nothing is where a missing company is noticed:
         // offer to have it registered by an information manager (0054), or
         // to add it now for those whose work that is.
         <Card className="p-6">
           <EmptyState
+            pictogram="search"
             title={t('data.notFound.title', { query: search.trim() })}
             hint={t(dataDesk ? 'data.notFound.hintDesk' : 'data.notFound.hint')}
             action={
@@ -241,6 +280,7 @@ export function EntitiesPage() {
         // Emptied by the filters (or by a search too short to call the
         // company missing): say so and offer the way back, never «create».
         <EmptyState
+          pictogram="search"
           title={t('common.noMatches')}
           hint={t('common.noMatchesHint')}
           action={
@@ -257,19 +297,10 @@ export function EntitiesPage() {
         />
       ) : filtered.length === 0 ? (
         // «Add company» is in the page header; the empty state does not repeat it.
-        <EmptyState title={t('entities.empty')} hint={t('entities.emptyHint')} />
+        <EmptyState pictogram="companies" title={t('entities.empty')} hint={t('entities.emptyHint')} />
       ) : (
-        <Table columns={[COL.fill, '9rem', '10rem', '13.5rem', COL.date, COL.grade]}>
-          <thead>
-            <tr>
-              <th>{t('buyers.fields.name')}</th>
-              <th>{t('buyers.fields.country')}</th>
-              <th>{t('buyers.fields.industry')}</th>
-              <th>{t('entities.rolesHeader')}</th>
-              <th>{t('buyers.latestStatement')}</th>
-              <th>{t('limits.fields.grade')}</th>
-            </tr>
-          </thead>
+        <Table id="entities" columns={tableColumns} stickyHead freezeFirst>
+          {tableHead}
           <tbody>
             {filtered.map((entity) => {
               const latest = latestPeriod(entity.financial_statements)
@@ -282,11 +313,13 @@ export function EntitiesPage() {
                   className="cursor-pointer transition-colors hover:bg-slate-50"
                 >
                   <td className="font-medium text-slate-800">
-                    <Truncate text={entity.name} className="max-w-none" />
+                    <Truncate text={entity.name} className="max-w-none">
+                      <Highlight text={entity.name} query={search} />
+                    </Truncate>
                     {entity.registration_number && (
                       // A registration number is one token: never broken.
                       <span className="block truncate text-caption font-normal whitespace-nowrap text-slate-500 tabular-nums">
-                        {entity.registration_number}
+                        <Highlight text={entity.registration_number} query={search} />
                       </span>
                     )}
                   </td>
@@ -305,17 +338,65 @@ export function EntitiesPage() {
                   <td className="whitespace-nowrap text-slate-500">{latest ? formatDate(latest, locale) : EM_DASH}</td>
                   <td>
                     {grade ? (
-                      <Badge tone={gradeTone(grade)}>{grade}</Badge>
+                      <GradeBadge grade={grade} />
                     ) : (
                       <span className="text-slate-500">{EM_DASH}</span>
                     )}
                   </td>
+                  <RowActions reveal>
+                    <button
+                      type="button"
+                      onClick={() => setPeekId(entity.id)}
+                      aria-label={t('ui.quickView.open', { name: entity.name })}
+                      title={t('ui.quickView.label')}
+                      className="inline-flex size-8 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-2 focus-visible:outline-sky-500"
+                    >
+                      <Eye className="size-4" aria-hidden />
+                    </button>
+                  </RowActions>
                 </tr>
               )
             })}
           </tbody>
         </Table>
       )}
+
+      <SidePanel
+        open={peek !== undefined}
+        title={peek?.name}
+        meta={peek?.registration_number}
+        onClose={() => setPeekId(null)}
+        footer={peek && <LinkButton to={`/entities/${peek.id}`}>{t('ui.quickView.openCard')}</LinkButton>}
+      >
+        {peek && (
+          <DescriptionList
+            items={[
+              {
+                label: t('buyers.fields.country'),
+                value: (
+                  <span className="inline-flex items-center">
+                    <CountryFlag code={peek.country_code} className="mr-2" />
+                    {refName(peek.countries, locale)}
+                  </span>
+                ),
+              },
+              { label: t('buyers.fields.industry'), value: refName(peek.industries, locale) || EM_DASH },
+              { label: t('entities.rolesHeader'), value: <RoleBadges roles={roles.data?.get(peek.id)} /> },
+              {
+                label: t('buyers.latestStatement'),
+                value: (() => {
+                  const latest = latestPeriod(peek.financial_statements)
+                  return latest ? formatDate(latest, locale) : EM_DASH
+                })(),
+              },
+              {
+                label: t('limits.fields.grade'),
+                value: grades.data?.get(peek.id) ? <GradeBadge grade={grades.data.get(peek.id)} /> : EM_DASH,
+              },
+            ]}
+          />
+        )}
+      </SidePanel>
 
       <EntityFormModal
         open={modalOpen}

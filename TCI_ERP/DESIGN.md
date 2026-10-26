@@ -241,7 +241,8 @@ and a signals column listing only what is not zero (`pages/dashboard.ts`).
 ## Core components (`src/components/ui`)
 
 Button (primary navy / accent sky / secondary / ghost / danger, sizes
-md·sm), Input, Textarea, Select, Field (uppercase label + hint), Segmented,
+md·sm), Input, Textarea, Select, Field (sentence-case label above + hint or
+error), FormSection, Segmented,
 Card, Table (light head; dense financial variant: tighter rows), Tabs (with
 counts), Badge, Modal, EmptyState (with icon), PageHeader (eyebrow + display
 title), SectionTitle, StatCard (key figure with a coloured top rule and
@@ -258,6 +259,49 @@ positioned at a fixed size and the input reserves `pr-10`, so toggling moves
 nothing; a form that stays on screen after a successful submit changes
 `revealResetKey` to hide the password again. `passwordReveal.test.ts` refuses
 a bare `type="password"` anywhere else.
+
+### Components v2 (Prompt 30, phase 2)
+
+* **Table v2.** Row density is the person's (`tablePrefs.ts`, per browser):
+  compact 40 / regular 48 / relaxed 56 px rows at 100 % — staff screens
+  regular, the portal relaxed; the financial `dense` table keeps its own.
+  `stickyHead` keeps the head in view (the table scrolls inside a box as tall
+  as the viewport allows), `freezeFirst` keeps the name column in view while
+  a wide table scrolls sideways. A registry gives its Table an `id` and puts
+  a `TableSettings` («Вид таблицы») beside its filters: density and which
+  columns show (the first never hides; remembered per person). Row actions
+  are revealed on hover by OPACITY (`RowActions reveal`). A search marks what
+  matched (`Highlight`). Loading is `SkeletonRows` at the density's height —
+  never a spinner in an empty table. A row's quick view opens in a
+  `SidePanel` beside the list (non-modal: the list stays usable, another row
+  swaps it, Escape closes) with the way to the full page in its footer.
+  `BulkBar` appears at the foot once rows are selected.
+* **KpiCard.** The figure is the hero (display face), its unit small beside
+  it, the label above; under it a change against a STATED baseline — arrow
+  and words, coloured by meaning (`good="up"|"down"|"none"`, `kpi.ts`), never
+  by direction alone — and a sparkline. No baseline, no change: a register's
+  running count (`runningCountByMonth`) is a real baseline, a guessed one is
+  not.
+* **Badges.** One rule for every tone: the ramp's 100 tint, 700 ink, 200
+  hairline. A grade is a `GradeBadge` in the grade scale's own tint and ink
+  (A1 teal … D red), the same everywhere; `lib/grade.ts gradeTone` is retired.
+* **Human-scale amounts.** `HumanAmount` («3.18 млрд UZS») in summaries, key
+  figures and sentences, with the full value on hover and for screen
+  readers. Tables keep full values: never both styles in one column.
+* **Empty states.** `EmptyState pictogram=…` draws one of our own line
+  pictograms (`pictograms.tsx`: companies, documents, limits, claims,
+  allDone, search, chart, inbox, error — 2 px strokes, one sky accent); a
+  search that found nothing uses `search`.
+* **Inline success.** `useFlash()` + `Button done`: the button becomes a check
+  for about a second in the same box — no toast over the content.
+* **Command palette (⌘K).** Companies, policies, claims and submissions (by
+  number; a claim by its buyer too) and actions, recent records first — only
+  in the sections the ACTING role may open (`paletteSources`).
+* **Forms.** Labels above in sentence case; long forms in `FormSection`s;
+  checked when a field is LEFT (`useTouched`, `checkRequired` / `checkEmail`
+  / `checkUrl` → `ui.validation.*`), all at once on submit, never while
+  typing; the primary button names the outcome («Создать организацию», not
+  «Сохранить»); a dialog keeps its head and buttons while its body scrolls.
 
 ### Interaction rules (owner review, October 2026)
 

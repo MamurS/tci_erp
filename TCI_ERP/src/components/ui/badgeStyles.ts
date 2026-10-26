@@ -15,14 +15,16 @@ import { createContext } from 'react'
 export type BadgeTone = 'neutral' | 'accent' | 'pos' | 'neg' | 'negStrong' | 'warn'
 
 export const BADGE_TONES: Record<BadgeTone, string> = {
-  neutral: 'bg-slate-100 text-slate-600 ring-slate-200',
-  accent: 'bg-accent-50 text-accent-700 ring-accent-200',
-  pos: 'bg-pos-50 text-pos-500 ring-pos-500/20',
-  neg: 'bg-neg-50 text-neg-500 ring-neg-500/20',
+  // One rule for every tone (Prompt 30): the ramp's 100 tint with its 700
+  // ink and a 200 hairline — six steps apart, so text clears 4.5 : 1.
+  neutral: 'bg-slate-100 text-slate-700 ring-slate-200',
+  accent: 'bg-accent-100 text-accent-700 ring-accent-200',
+  pos: 'bg-success-100 text-success-700 ring-success-200',
+  neg: 'bg-danger-100 text-danger-700 ring-danger-200',
   // Solid danger for statuses that must not be mistaken for ordinary
   // termination (e.g. policy annulment vs cancellation).
-  negStrong: 'bg-neg-500 text-white ring-neg-500',
-  warn: 'bg-warn-50 text-warn-500 ring-warn-500/25',
+  negStrong: 'bg-danger-600 text-white ring-danger-600',
+  warn: 'bg-warning-100 text-warning-700 ring-warning-200',
 }
 
 export type BadgeSize = 'sm' | 'md'

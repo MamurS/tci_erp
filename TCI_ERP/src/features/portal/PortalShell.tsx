@@ -5,7 +5,7 @@
  * here hints at the internal workflow behind it.
  */
 
-import { Suspense, useEffect, useRef } from 'react'
+import { Suspense, useEffect, useMemo, useRef } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { PageLoading } from '../../components/layout/PageLoading'
 import { SignInNotice } from '../../auth/SignInNotice'
@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next'
 import { LogOut } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
-import { BrandMark } from '../../components/ui'
+import { BrandMark, TablePrefsContext } from '../../components/ui'
 import { LanguageSwitcher } from '../../components/layout/LanguageSwitcher'
 import { PORTAL_NAV_ITEMS } from './navigation'
 import { useMyEntity } from './api'
@@ -24,6 +24,9 @@ export function PortalShell() {
   const newVersion = useNewVersion()
   const { t } = useTranslation()
   const { session, signOut } = useAuth()
+  // A policyholder reads a few rows at a time: relaxed rows by default.
+  const userId = session?.user.id ?? 'anonymous'
+  const tablePrefs = useMemo(() => ({ user: userId, defaultDensity: 'relaxed' as const }), [userId])
   const { data: entity } = useMyEntity()
   const headerRef = useRef<HTMLElement>(null)
 
@@ -97,9 +100,11 @@ export function PortalShell() {
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-7">
         <SignInNotice accountPath="/portal/account" />
-        <Suspense fallback={<PageLoading />}>
-          <Outlet />
-        </Suspense>
+        <TablePrefsContext.Provider value={tablePrefs}>
+          <Suspense fallback={<PageLoading />}>
+            <Outlet />
+          </Suspense>
+        </TablePrefsContext.Provider>
       </main>
       <NewVersionNotice stale={newVersion} />
     </div>

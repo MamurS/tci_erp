@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
 import { CommandPalette } from './CommandPalette'
@@ -14,6 +14,7 @@ import { NewVersionNotice } from './NewVersionNotice'
 import { useNewVersion } from '../../lib/useNewVersion'
 import { useUiScaleValue } from '../../lib/uiScale'
 import { useAuth } from '../../auth/AuthContext'
+import { TablePrefsContext } from '../ui/tablePrefs'
 import { availableWorkspaces, rememberWorkspace, workspaceForRole, workspaceHome } from './workspaces'
 import type { WorkspaceKey } from './workspaces'
 
@@ -95,6 +96,9 @@ const SIDEBAR_ID = 'app-sidebar'
  */
 export function AppShell() {
   const newVersion = useNewVersion()
+  const { session } = useAuth()
+  const userId = session?.user.id ?? 'anonymous'
+  const tablePrefs = useMemo(() => ({ user: userId, defaultDensity: 'regular' as const }), [userId])
   const isDesktop = useIsDesktop()
   const [docked, setDocked] = useState<SidebarState>(readSidebar)
   const [peeking, setPeeking] = useState(false)
@@ -262,9 +266,11 @@ export function AppShell() {
         />
         <main className="mx-auto w-full max-w-[92.5rem] flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-7">
           <SignInNotice accountPath="/account" />
-          <Suspense fallback={<PageLoading />}>
-            <Outlet />
-          </Suspense>
+          <TablePrefsContext.Provider value={tablePrefs}>
+            <Suspense fallback={<PageLoading />}>
+              <Outlet />
+            </Suspense>
+          </TablePrefsContext.Provider>
         </main>
       </div>
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />

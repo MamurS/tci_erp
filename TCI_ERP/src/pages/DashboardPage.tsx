@@ -24,7 +24,7 @@ import {
 import type { LucideIcon } from 'lucide-react'
 
 import { useAuth } from '../auth/AuthContext'
-import { Card, PanelGrid, Skeleton } from '../components/ui'
+import { Card, KpiCard, PanelGrid, runningCountByMonth, Skeleton } from '../components/ui'
 import { contextFor, useAgendaTasks, useTaskSubjects, subjectFor } from '../features/agenda/api'
 import { activeTasks, compareTasks, displayTaskType, formatTaskParams, isOverdue, taskLink, taskTitleKey } from '../features/agenda/catalogue'
 import type { Task } from '../features/agenda/types'
@@ -116,6 +116,9 @@ export function DashboardPage() {
     declarationsAwaiting: seesDeclarations ? (compliance?.awaitingAcceptance ?? 0) : null,
   })
 
+  // The register only grows, so its size at each month start is exact.
+  const entityTrend = entities ? runningCountByMonth(entities.map((e) => e.created_at), now) : undefined
+
   const count = (v: number | undefined) => (v === undefined ? EM_DASH : formatAmount(v, locale))
 
   return (
@@ -135,44 +138,47 @@ export function DashboardPage() {
         </div>
       </div>
 
-      {/* One strip of key figures */}
-      <Card className="overflow-hidden">
-        <div className="grid divide-y divide-slate-100 sm:grid-cols-2 sm:divide-y-0 lg:auto-cols-fr lg:grid-flow-col lg:divide-x">
+      {/* Key figures: one card each, the figure first (KpiCard). A change is
+          shown only against a baseline the data really has. */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:auto-cols-fr lg:grid-flow-col">
+        <Kpi
+          to="/policies?view=registry"
+          icon={FileText}
+          label={t('dashboard.activePolicies')}
+          value={count(activePolicies)}
+        />
+        <Kpi
+          to="/entities"
+          icon={Building2}
+          label={t('dashboard.entities')}
+          value={count(entities?.length)}
+          current={entityTrend ? entityTrend[entityTrend.length - 1] : null}
+          baseline={entityTrend ? entityTrend[entityTrend.length - 2] : null}
+          baselineLabel={t('dashboard.vsMonthStart')}
+          trend={entityTrend}
+          sub={policyholders !== undefined ? t('dashboard.policyholdersSub', { count: policyholders }) : null}
+        />
+        {seesClaims && (
           <Kpi
-            to="/policies?view=registry"
-            icon={FileText}
-            label={t('dashboard.activePolicies')}
-            value={count(activePolicies)}
+            to="/claims"
+            icon={FileWarning}
+            label={t('dashboard.claimsOpen')}
+            value={count(openClaims)}
+            sub={paidThisMonth ? t('dashboard.paidSub', { count: paidThisMonth }) : null}
           />
+        )}
+        {seesOverdues && (
           <Kpi
-            to="/entities"
-            icon={Building2}
-            label={t('dashboard.entities')}
-            value={count(entities?.length)}
-            sub={policyholders !== undefined ? t('dashboard.policyholdersSub', { count: policyholders }) : null}
+            to="/overdues"
+            icon={AlarmClock}
+            label={t('dashboard.overduesOpen')}
+            value={count(openOverdues?.length)}
+            sub={lateOverdues ? t('dashboard.lateSub', { count: lateOverdues }) : null}
+            subTone="neg"
           />
-          {seesClaims && (
-            <Kpi
-              to="/claims"
-              icon={FileWarning}
-              label={t('dashboard.claimsOpen')}
-              value={count(openClaims)}
-              sub={paidThisMonth ? t('dashboard.paidSub', { count: paidThisMonth }) : null}
-            />
-          )}
-          {seesOverdues && (
-            <Kpi
-              to="/overdues"
-              icon={AlarmClock}
-              label={t('dashboard.overduesOpen')}
-              value={count(openOverdues?.length)}
-              sub={lateOverdues ? t('dashboard.lateSub', { count: lateOverdues }) : null}
-              subTone="neg"
-            />
-          )}
-          {seesDeclarations && accrual && <PremiumKpi accrual={accrual} locale={locale} />}
-        </div>
-      </Card>
+        )}
+        {seesDeclarations && accrual && <PremiumKpi accrual={accrual} locale={locale} />}
+      </div>
 
       {/* Side by side, one height (PanelGrid): the shorter card keeps its
           spare space at the bottom. */}
@@ -277,6 +283,10 @@ function Kpi({
   sub,
   subTone,
   title,
+  current,
+  baseline,
+  baselineLabel,
+  trend,
   children,
 }: {
   to: string
@@ -289,29 +299,29 @@ function Kpi({
   subTone?: 'neg'
   /** The full figures behind a rounded value, on hover. */
   title?: string
+  current?: number | null
+  baseline?: number | null
+  baselineLabel?: string
+  trend?: readonly number[]
   children?: ReactNode
 }) {
   return (
-    <Link to={to} title={title} className="group block px-5 py-4 transition-colors hover:bg-accent-50/50">
-      <div className="flex items-start gap-2 text-small leading-snug font-medium text-slate-500">
-        <Icon className="mt-px size-4 shrink-0 text-slate-500" />
-        <span>{label}</span>
-      </div>
-      {/* The unit drops under the figure when the column is narrow, instead
-          of being cut off at the card's edge. */}
-      <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <span className="num text-left font-display text-headline leading-none font-bold text-accent-600 group-hover:text-accent-500">
-          {value}
-        </span>
-        {unit && <span className="text-caption font-medium text-slate-500">{unit}</span>}
-      </div>
-      {sub && (
-        <div className={`mt-1 text-caption ${subTone === 'neg' ? 'font-medium text-neg-500' : 'text-slate-500'}`}>
-          {sub}
-        </div>
-      )}
+    <KpiCard
+      to={to}
+      icon={<Icon />}
+      label={label}
+      value={value}
+      unit={unit}
+      title={title}
+      current={current ?? null}
+      baseline={baseline ?? null}
+      baselineLabel={baselineLabel}
+      good="up"
+      trend={trend}
+      meta={sub ? <span className={subTone === 'neg' ? 'font-medium text-danger-700' : undefined}>{sub}</span> : null}
+    >
       {children}
-    </Link>
+    </KpiCard>
   )
 }
 

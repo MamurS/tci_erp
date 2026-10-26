@@ -10,18 +10,19 @@ import {
   Badge,
   COL,
   EmptyState,
+  GradeBadge,
+  Highlight,
   Input,
   labelCol,
   Segmented,
   Select,
-  Spinner,
+  SkeletonRows,
   Table,
   Truncate,
 } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { hasRole } from '../../lib/roles'
 import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
-import { gradeTone } from '../../lib/grade'
 import { useLatestGrades } from '../entities/api'
 import { useLimitRequests } from './api'
 import { REQUEST_AGE_WARN_DAYS, requestAgeDays, statusTone } from './machine'
@@ -35,6 +36,8 @@ import type { QueueRow } from './workbench/types'
 
 type QueueTab = 'drafts' | 'information' | 'review' | 'escalated' | 'decided' | 'proposals'
 const QUEUE_TABS: readonly QueueTab[] = ['drafts', 'information', 'review', 'escalated', 'decided', 'proposals']
+
+const QUEUE_COLUMNS = [COL.fill, '9.75rem', '9.5rem', labelCol('limitStatus'), '5rem', '4.5rem']
 
 export function LimitsPage() {
   const { t, i18n } = useTranslation()
@@ -177,15 +180,23 @@ export function LimitsPage() {
       {tab === 'proposals' ? (
         <BuyerProposalsSection />
       ) : isLoading ? (
-        <Spinner label={t('common.loading')} />
+        <Table dense columns={QUEUE_COLUMNS}>
+          <tbody>
+            <SkeletonRows columns={QUEUE_COLUMNS.length} />
+          </tbody>
+        </Table>
       ) : filtered.length === 0 ? (
-        <EmptyState title={t('limits.queueEmpty')} hint={t('limits.queueEmptyHint')} />
+        <EmptyState
+          pictogram={search.trim() ? 'search' : 'limits'}
+          title={t('limits.queueEmpty')}
+          hint={t('limits.queueEmptyHint')}
+        />
       ) : (
         // Two text columns share what the figures leave (cell-fill) and cut
         // with an ellipsis, so the queue fits a 1280px screen with the
         // sidebar docked instead of scrolling sideways. Dense, like every
         // other table of the credit hub.
-        <Table dense columns={[COL.fill, '9.75rem', '9.5rem', labelCol('limitStatus'), '5rem', '4.5rem']}>
+        <Table dense id="limits-queue" columns={QUEUE_COLUMNS}>
           <thead>
             <tr>
               <th>{t('limits.fields.buyer')}</th>
@@ -209,7 +220,7 @@ export function LimitsPage() {
               >
                 <td className="font-medium text-slate-800">
                   <Truncate text={r.legal_entities?.name} className="max-w-none">
-                    {r.legal_entities?.name ?? EM_DASH}
+                    {r.legal_entities?.name ? <Highlight text={r.legal_entities.name} query={search} /> : EM_DASH}
                   </Truncate>
                 </td>
                 <td>
@@ -343,5 +354,5 @@ function AuthorityCell({ row }: { row: QueueRow | undefined }) {
 
 function GradeCell({ grade }: { grade: string | undefined }) {
   if (!grade) return <span className="text-slate-500">{EM_DASH}</span>
-  return <Badge tone={gradeTone(grade)}>{grade}</Badge>
+  return <GradeBadge grade={grade} />
 }

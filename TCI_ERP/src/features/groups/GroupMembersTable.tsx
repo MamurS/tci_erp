@@ -4,9 +4,8 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, COL, Table } from '../../components/ui'
+import { Badge, COL, GradeBadge, Table } from '../../components/ui'
 import { formatAmount } from '../../lib/format'
-import { gradeTone } from '../../lib/grade'
 import type { Claim } from '../claims/types'
 import { exposureByMember } from './group'
 import type { GroupExposureLine, GroupMembership } from './types'
@@ -84,7 +83,7 @@ export function GroupMembersTable({
               </td>
               <td className="num">{m.depth}</td>
               <td>
-                {grade ? <Badge tone={gradeTone(grade)}>{grade}</Badge> : <span>—</span>}
+                {grade ? <GradeBadge grade={grade} /> : <span>—</span>}
               </td>
               <td className="num">{exp?.limits ?? 0}</td>
               <td className="num">

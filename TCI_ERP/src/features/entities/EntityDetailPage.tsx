@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query'
 
 import { tci } from '../../lib/supabase'
 
-import { Badge, Button, CountryFlag, EmptyState, LinkButton, PageHeader, Spinner, Tabs } from '../../components/ui'
+import { Button, CountryFlag, EmptyState, GradeBadge, LinkButton, PageHeader, Spinner, Tabs } from '../../components/ui'
 import { useEntity, useEntityRoles } from './api'
 import { BuyerLimitsTab } from '../limits/BuyerLimitsTab'
 import { RequestStatementsButton } from '../data/RequestStatementsButton'
@@ -30,7 +30,6 @@ import { hasRole } from '../../lib/roles'
 import { RatingTab } from './rating/RatingTab'
 import { formatAmount } from '../../lib/format'
 import { rememberEntity } from '../../components/layout/recentEntities'
-import { gradeTone } from '../../lib/grade'
 
 type TabKey =
   | 'overview'
@@ -199,12 +198,12 @@ function GradeHeaderBadge({ entityId, onClick }: { entityId: string; onClick: ()
   if (!data) return null
   return (
     <button type="button" onClick={onClick} title={t('rating.gradeTitle')} className="inline-flex rounded-full">
-      <Badge tone={gradeTone(data.rating_grade)}>
+      <GradeBadge grade={data.rating_grade}>
         {/* a manual grade (0073) has no score */}
         {data.rating_score === null
           ? data.rating_grade
           : `${data.rating_grade} · ${formatAmount(Number(data.rating_score), locale, 0)}`}
-      </Badge>
+      </GradeBadge>
     </button>
   )
 }

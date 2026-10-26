@@ -11,10 +11,10 @@
 import { useTranslation } from 'react-i18next'
 
 import { formatAmount } from '../../lib/format'
-import { gradeTone } from '../../lib/grade'
 import { scorePosition } from '../../lib/gradeScale'
 import type { GradeBand, GradeChange } from '../../lib/gradeScale'
 import { SCALE_COLORS, SCALE_LABEL_KEYS, placeScore } from '../../lib/ratingScale'
+import { GradeBadge } from './GradeBadge'
 import { Badge } from './primitives'
 
 interface GradeScaleProps {
@@ -46,9 +46,7 @@ export function GradeScale({ score, grade, bands, change, size = 'full' }: Grade
         >
           {formatAmount(score, locale, 0)}
         </span>
-        <Badge tone={gradeTone(grade)} size={compact ? 'sm' : 'md'}>
-          {grade}
-        </Badge>
+        <GradeBadge grade={grade} size={compact ? 'sm' : 'md'} />
         <span className={`text-slate-500 ${compact ? 'text-caption' : 'text-body'}`}>{bandText}</span>
         {change && (
           <Badge tone={change.improved ? 'pos' : 'neg'} size={compact ? 'sm' : 'md'}>
