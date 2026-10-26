@@ -933,6 +933,20 @@ is fine for internal test accounts and not fine for customers.
   file in one call with its ledger row, all eleven functions identical
   afterwards, `tests/db/rating_self_approval.sql` run on canonical with role
   impersonation (forced rollback, nothing left behind)
+- [ ] Rating scorecard (migration 0079, owner 2026-10-26, after Allianz
+  Trade's practice): every grade a person sets — approved alone, sent to a
+  colleague or escalated — is built from four PILLARS (general / equity and
+  debt / profit and loss / payment behaviour), each with a sub-grade (or «not
+  assessed»), a weight in per cent and a standard reason, plus an optional
+  comment; the database computes the weighted grade (scale position, a half
+  to the worse grade), the overall grade follows it or is adjusted with an
+  overall reason of the matching direction, and the free-text justification
+  stays required. `tci.submit_rating_scorecard` is the entry point; a
+  proposal without a scorecard is refused. Default weights 25 / 30 / 25 / 20
+  on Admin › Полномочия; the engine's factors prefill equity-and-debt and
+  P&L when the scale is served. See **Rating scorecard rules** below.
+  **Canonical: to be applied AT MERGE** (the deployed screens send no
+  scorecard)
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2201,6 +2215,43 @@ self-approved grades (`status = 'self_approved'`, `route = 'self'`);
 `SUBMIT_ROUTES` and the status mirror the 0078 text (contract-tested).
 No DROP anywhere: the MCP tooling still holds any statement containing it
 (probed 2026-10-26), so signatures are kept and columns only added.
+
+### Rating scorecard rules (migration 0079)
+
+**A grade is composed, not typed.** `rating_proposals.scorecard` holds four
+pillars in a fixed order (`tci.rating_scorecard_pillars()`: general,
+balance_sheet, profit_loss, payment), each `{grade | null, weight, reason,
+comment}`. A graded pillar has a weight > 0 and a reason of ITS pillar from
+`tci.rating_scorecard_reasons()`; an ungraded one has weight 0 and the reason
+`not_assessed` (set by the database). The graded weights sum to 100.
+`tci.rating_scorecard_normalised` is the one checker — called by
+`submit_rating_scorecard` before anything is written and again by the BEFORE
+INSERT trigger on `rating_proposals`, which takes the scorecard from the
+transaction-local `tci.rating_scorecard` once and refuses a proposal without
+one (`rating_scorecard_required`). `scorecard.ts` mirrors the lists and the
+rules (contract-tested against the 0079 text).
+
+**The weighted grade is arithmetic on the scale position** (A1 = 1 … D = 7,
+`tci.rating_scale_codes()`), a half rounding to the WORSE grade. The overall
+grade is the proposal's grade; its reason is `consistent_with_subgrades`
+exactly when it equals the weighted grade, an `up` reason only when better, a
+`down` reason only when worse, `analyst_judgement` either way
+(`rating_scorecard_adjustment_reason`). The group cap (0074) applies to the
+overall grade as before. An answerer's «approve another grade» carries no
+scorecard — the history shows the proposer's scorecard and the answerer's
+grade side by side.
+
+**Where it is read.** The credit desk reads `rating_proposals.scorecard`
+through its RLS (pending proposal, history); `tci.rating_scorecard_of(assessment)`
+(security invoker) finds the scorecard behind a grade in force — the step that
+wrote that assessment first, else a proposal its rater approved alone on it.
+Default weights are `workflow_settings.rating_pillar_weights` (admin,
+`set_rating_pillar_weights`); the form spreads them over the graded pillars
+(largest remainder) and the rater may change them per rating. The engine's
+factors suggest equity-and-debt, P&L and (size, age) general sub-grades only
+when the analytics service serves the scale — zone boundaries are never
+hardcoded; the payment pillar has no engine factor. `confirm_rating` (the
+engine's grade as is, 0069) carries no scorecard.
 
 ### Group rating rules (migration 0074)
 

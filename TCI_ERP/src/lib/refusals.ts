@@ -149,6 +149,15 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'rating_grade_invalid', key: 'rating.confirmation.errors.gradeInvalid' },
   { fragment: 'rating_immutable', key: 'rating.confirmation.errors.immutable' },
   { fragment: 'credit_analysis_mode_invalid', key: 'admin.creditAnalysis.errors.modeInvalid' },
+  // the rating scorecard (0079)
+  { fragment: 'rating_scorecard_required', key: 'rating.scorecard.errors.required' },
+  { fragment: 'rating_scorecard_invalid', key: 'rating.scorecard.errors.invalid' },
+  { fragment: 'rating_scorecard_weights', key: 'rating.scorecard.errors.weights' },
+  { fragment: 'rating_scorecard_reason_invalid', key: 'rating.scorecard.errors.reason' },
+  { fragment: 'rating_scorecard_grade_invalid', key: 'rating.scorecard.errors.grade' },
+  { fragment: 'rating_scorecard_grade_mismatch', key: 'rating.scorecard.errors.grade' },
+  { fragment: 'rating_scorecard_empty', key: 'rating.scorecard.errors.empty' },
+  { fragment: 'rating_scorecard_adjustment_reason', key: 'rating.scorecard.errors.adjustment' },
   // rating proposals (0073)
   { fragment: 'rating_propose_not_allowed', key: 'rating.proposals.errors.notAllowed' },
   { fragment: 'rating_proposal_reason_required', key: 'rating.proposals.errors.reasonRequired' },

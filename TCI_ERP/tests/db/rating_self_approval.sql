@@ -68,6 +68,20 @@ begin
 end $$;
 grant execute on function pg_temp.refused(text, text, text, text) to authenticated;
 
+-- 0079: every proposal carries a scorecard; this one grades all four pillars
+-- at the proposed grade, so the weighted grade is that grade.
+create function pg_temp.sc(p_grade text) returns void language sql as $sc$
+  select set_config('tci.rating_scorecard', jsonb_build_object(
+    'grade', upper(p_grade), 'reason', 'consistent_with_subgrades',
+    'pillars', jsonb_build_array(
+      jsonb_build_object('pillar', 'general', 'grade', upper(p_grade), 'weight', 25, 'reason', 'in_line_with_peers'),
+      jsonb_build_object('pillar', 'balance_sheet', 'grade', upper(p_grade), 'weight', 25, 'reason', 'in_line_with_peers'),
+      jsonb_build_object('pillar', 'profit_loss', 'grade', upper(p_grade), 'weight', 25, 'reason', 'in_line_with_peers'),
+      jsonb_build_object('pillar', 'payment', 'grade', upper(p_grade), 'weight', 25, 'reason', 'no_negative_experience')))::text,
+    true)::text is not null
+$sc$;
+grant execute on function pg_temp.sc(text) to authenticated;
+
 do $$
 declare
   c_a1    constant uuid := '99999999-0000-4000-8000-0000000078a1';
@@ -106,6 +120,7 @@ begin
   end if;
 
   -- 2. A manual grade approved by its rater alone.
+  perform pg_temp.sc('B1');
   v_state := tci.submit_rating(c_man, 'B1', 'well known buyer', 'self');
   select * into v_row from tci.credit_assessments where entity_id = c_man order by created_at desc limit 1;
   if v_row.source <> 'manual' or v_row.rating_grade <> 'B1'
@@ -125,6 +140,7 @@ begin
   returning id into v_eng;
   perform pg_temp.refused(format('select tci.confirm_rating(%L)', v_eng), '42501', 'confirming one''s own rating',
     'four_eyes_own_rating');
+  perform pg_temp.sc('B2');
   perform tci.submit_rating(c_eng, 'B2', 'checked the statements', 'self', null, v_eng);
   select * into v_row from tci.credit_assessments where id = v_eng;
   if v_row.confirmed_by <> c_a1 or v_row.rating_grade <> 'B2' then
@@ -132,6 +148,7 @@ begin
   end if;
 
   -- 4. To one named colleague: only they get the task and may answer.
+  perform pg_temp.sc('C1');
   perform tci.submit_rating(c_man, 'C1', 'payment delays', 'colleague', c_a2);
   select * into v_step from tci.rating_proposal_steps where entity_id = c_man and status = 'pending';
   perform set_config('role', 'postgres', true);  -- the answerers are internal
@@ -149,6 +166,7 @@ begin
   -- 5. To any colleague: every colleague (and, in combined mode, credit
   --    underwriting) may answer.
   perform pg_temp.act(c_a1);
+  perform pg_temp.sc('B2');
   perform tci.submit_rating(c_man, 'B2', 'improved', 'colleague');
   select * into v_step from tci.rating_proposal_steps where entity_id = c_man and status = 'pending';
   perform set_config('role', 'postgres', true);
@@ -159,6 +177,7 @@ begin
   perform tci.withdraw_rating_proposal(v_step.id);
 
   -- 6. A colleague who cannot confirm ratings is refused, and nothing is left.
+  perform pg_temp.sc('B2');
   perform pg_temp.refused(format('select tci.submit_rating(%L, ''B2'', ''x'', ''colleague'', %L)', c_man, c_sales),
     'P0001', 'sending to sales', 'rating_colleague_not_eligible');
   if exists (select 1 from tci.rating_proposal_steps where entity_id = c_man and status = 'pending') then
@@ -166,13 +185,16 @@ begin
   end if;
 
   -- 7. Refusals: an unknown route; sales and admin approve nothing alone.
+  perform pg_temp.sc('B2');
   perform pg_temp.refused(format('select tci.submit_rating(%L, ''B2'', ''x'', ''boss'')', c_man), 'P0001',
     'an unknown route', 'rating_route_invalid');
   perform pg_temp.act(c_sales);
+  perform pg_temp.sc('A1');
   perform pg_temp.refused(format('select tci.submit_rating(%L, ''A1'', ''x'', ''self'')', c_man), '42501',
     'sales approving a rating', 'rating_propose_not_allowed');
   perform pg_temp.refused(format('select tci.rating_send_options(%L)', c_man), '42501', 'sales reading the routes');
   perform pg_temp.act(c_admin);
+  perform pg_temp.sc('A1');
   perform pg_temp.refused(format('select tci.submit_rating(%L, ''A1'', ''x'', ''self'')', c_man), '42501',
     'admin approving a rating', 'rating_propose_not_allowed');
 
