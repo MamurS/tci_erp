@@ -283,7 +283,7 @@ export function PolicyPortfolioPage() {
             </div>
           </Panel>
 
-          <TableCard columns={[COL.code, COL.fill, COL.date, COL.days, '10.5rem', COL.pct]}
+          <TableCard columns={[COL.code, COL.fill, COL.date, COL.days, '10.5rem', '6.5rem']}
             title={t('portfolio.policies.renewals', { days: RENEWAL_WINDOW_DAYS })}
             hint={t('portfolio.policies.renewalsHint')}
             empty={renewals.length ? null : t('portfolio.policies.noRenewals')}
@@ -312,7 +312,7 @@ export function PolicyPortfolioPage() {
             ))}
           </TableCard>
 
-          <TableCard columns={[COL.code, COL.fill, labelCol('policyStatus'), '10.5rem', '10.5rem', COL.pct]}
+          <TableCard columns={[COL.code, COL.fill, labelCol('policyStatus'), '10.5rem', '10.5rem', '6.5rem']}
             title={t('portfolio.policies.worst')}
             empty={worst.length ? null : t('portfolio.policies.noLosses')}
             head={
