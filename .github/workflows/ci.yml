@@ -90,7 +90,7 @@ jobs:
         if: ${{ !cancelled() }}
         run: npx --yes @cyclonedx/cyclonedx-npm@2 --output-format JSON --output-file sbom-frontend.cdx.json --ignore-npm-errors
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
           name: sbom-frontend
@@ -131,7 +131,7 @@ jobs:
 
       - name: Upload traces of failures
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-traces
           path: TCI_ERP/test-results/
@@ -252,7 +252,7 @@ jobs:
           output-file: sbom-analytics-image.spdx.json
           upload-artifact: false
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: sbom-analytics-image
           path: sbom-analytics-image.spdx.json
