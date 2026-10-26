@@ -262,7 +262,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
         ref={setTabsRow}
         className="sticky top-16 z-20 flex flex-wrap items-end gap-x-4 gap-y-2 bg-canvas shadow-[inset_0_-1px_0_var(--color-slate-200)]"
       >
-        <div className="min-w-0 flex-1">
+        <div className="flex-[1_0_auto]">
           <Tabs
             size="sm"
             tabs={[
@@ -276,7 +276,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
             onChange={(key) => setSubTab(key as SubTab)}
           />
         </div>
-        <div className="flex items-center gap-4 pb-1">
+        <div className="ml-auto flex items-center gap-4 pb-1">
           {/* Only the balance sheet and the P&L have lines to hide; on the
               other sheets the switch keeps its place, unseen, so the buttons
               beside it never move. */}

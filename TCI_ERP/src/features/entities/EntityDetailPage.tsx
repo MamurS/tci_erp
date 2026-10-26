@@ -22,7 +22,6 @@ import {
   HumanAmount,
   KpiCard,
   LinkButton,
-  Segmented,
   SidePanel,
   Spinner,
   Tabs,
@@ -187,13 +186,27 @@ export function EntityDetailPage() {
         }}
       />
       {activeSection && activeSection.tabs.length > 1 && (
-        <div className="mt-4">
-          <Segmented
-            ariaLabel={t(`entities.sections.${activeSection.section}`)}
-            value={activeTab}
-            options={activeSection.tabs.map((key) => ({ key, label: t(`entities.tabs.${key}`) }))}
-            onChange={(key) => setSearchParams({ tab: key }, { replace: true })}
-          />
+        // The tabs of the active section: tabs (not a view switch) — each is
+        // its own content and its own URL.
+        <div
+          role="tablist"
+          aria-label={t(`entities.sections.${activeSection.section}`)}
+          className="mt-4 inline-flex rounded-md border border-slate-200 bg-slate-100/70 p-0.5"
+        >
+          {activeSection.tabs.map((key) => (
+            <button
+              key={key}
+              type="button"
+              role="tab"
+              aria-selected={key === activeTab}
+              onClick={() => setSearchParams({ tab: key }, { replace: true })}
+              className={`rounded-[5px] px-3 py-1 text-small font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none ${
+                key === activeTab ? 'bg-white text-accent-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {t(`entities.tabs.${key}`)}
+            </button>
+          ))}
         </div>
       )}
 

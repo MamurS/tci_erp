@@ -99,7 +99,11 @@ export function RatingProposalPanel({
   const [proposing, setProposing] = useState<'manual' | 'engine' | null>(null)
 
   if (!onDesk || !state.data) return null
-  const { pending, history, can_propose } = state.data
+  // A reply of another shape (an older server, a stub) shows nothing rather
+  // than breaking the rating tab.
+  const pending = state.data.pending ?? null
+  const history = state.data.history ?? []
+  const can_propose = state.data.can_propose ?? false
   // A grade for the engine rating is offered while it waits for a confirmation.
   const engineOpen = current !== null && current.source === 'engine' && current.confirmed_at === null
   if (!pending && history.length === 0 && !can_propose) return null

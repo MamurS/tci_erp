@@ -360,6 +360,9 @@ the band is the one loud element.
 * **The client follows, never guesses.** The portal home lists what is open
   with a simple `StatusTimeline` (steps in the policyholder's words, passed
   steps checked, the current one named; amber when it waits on THEM).
+* **Targets are big enough** (WCAG 2.2, 2.5.8): everything clickable is at
+  least 24 × 24 px or has no other target within 12 px of its centre —
+  `e2e/layout/targets.spec.ts` checks every guarded screen.
 * **An empty choice says why.** A picker with nothing to choose is disabled
   and the form says why and where to go (the overdue form with no buyer
   holding a limit).

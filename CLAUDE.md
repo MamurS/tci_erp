@@ -968,7 +968,15 @@ is fine for internal test accounts and not fine for customers.
   compact band on registries and queues, a full-height brand sign-in, the
   report masthead, and the tone-of-voice guide. See DESIGN.md «Tokens»,
   «Components v2», «Signature screens», «Tone of voice» and
-  `docs/redesign-progress.md` (decisions and how to reverse each)
+  `docs/redesign-progress.md` (decisions and how to reverse each); **phase 4** (owner: «free to change layout, forms,
+  structure») — one decision column with authority / group meters and a
+  requested → decided bar, ONE search (the top-bar field filters every list
+  page by comma-separated terms in order, exact values exactly; page search
+  boxes and filter pickers removed), company card sections + «Open work» +
+  quick facts, Agenda grade badges and «All caught up», book by grade as
+  exposure, portal status timelines, sticky financial sheets, Table v2 on
+  every registry, a WCAG 2.5.8 target-size guard (`e2e/layout/targets.spec.ts`);
+  migration 0080 hides a staff DRAFT limit request from the portal
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 

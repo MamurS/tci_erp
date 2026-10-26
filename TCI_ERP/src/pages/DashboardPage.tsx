@@ -503,6 +503,7 @@ function GradeMixPanel() {
       ) : (
         <div className="flex flex-col gap-3 px-5 py-4">
           {exposureAvailable && (
+            <div className="self-start">
             <Segmented
               ariaLabel={t('dashboard.gradeMixMeasure')}
               value={measure}
@@ -512,6 +513,7 @@ function GradeMixPanel() {
               ]}
               onChange={(key) => setMeasure(key as 'count' | 'exposure')}
             />
+            </div>
           )}
           <ul className="flex flex-col gap-2" aria-label={t('dashboard.gradeMix')}>
             {rows.map((row) => (
