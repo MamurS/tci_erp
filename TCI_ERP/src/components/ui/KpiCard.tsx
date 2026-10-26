@@ -87,14 +87,14 @@ export function KpiCard({
           </span>
         )}
       </span>
-      <span className="flex items-baseline gap-2 whitespace-nowrap" title={title}>
+      <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1" title={title}>
         <span
-          className={`font-display leading-none font-bold tabular-nums ${inv ? 'text-display text-white' : 'text-headline text-accent-700'}`}
+          className={`font-display leading-none whitespace-nowrap font-bold tabular-nums ${inv ? 'text-display text-white' : 'text-headline text-accent-700'}`}
         >
           {value}
         </span>
         {unit && (
-          <span className={`text-small font-medium ${inv ? 'text-accent-100' : 'text-slate-500'}`}>
+          <span className={`text-small font-medium whitespace-nowrap ${inv ? 'text-accent-100' : 'text-slate-500'}`}>
             {unit}
           </span>
         )}

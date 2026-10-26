@@ -169,7 +169,7 @@ export function LoginPage() {
             <BrandMark size="md" />
           </div>
           <div>
-            <h1 className="font-display text-headline leading-tight font-bold tracking-wide text-accent-700 uppercase">
+            <h1 className="font-display text-headline leading-tight font-bold text-slate-900">
               {t('auth.signInTitle')}
             </h1>
             <p className="mt-1 text-body text-slate-500">{t('auth.signInSubtitle')}</p>
