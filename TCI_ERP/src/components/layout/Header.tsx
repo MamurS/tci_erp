@@ -71,10 +71,14 @@ export function Header({ onOpenPalette, toggleSlot, onShowSidebar, sidebarId }: 
       {section && SectionIcon && (
         <Link
           to={section.path}
-          className="hidden shrink-0 items-center gap-2 font-display text-[1rem] font-bold tracking-wide text-accent-600 uppercase hover:text-accent-500 md:flex"
+          // Shrinks before the search and the menu do: a long section name
+          // (uz, at a large text size) is cut with an ellipsis, never pushing
+          // the user menu off the screen.
+          className="hidden min-w-0 items-center gap-2 font-display text-[1rem] font-bold tracking-wide text-accent-600 uppercase hover:text-accent-500 md:flex"
+          title={t(`nav.${section.key}`)}
         >
-          <SectionIcon className="size-[1.125rem] text-accent-500" strokeWidth={2} />
-          {t(`nav.${section.key}`)}
+          <SectionIcon className="size-[1.125rem] shrink-0 text-accent-500" strokeWidth={2} />
+          <span className="truncate">{t(`nav.${section.key}`)}</span>
         </Link>
       )}
       <button

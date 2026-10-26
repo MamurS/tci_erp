@@ -172,8 +172,8 @@ export function PortalOverduesPage() {
           <EmptyState title={t('portal.overdues.empty')} hint={t('portal.overdues.emptyHint')} />
         ) : (
           <Table
-            columns={[COL.fill, COL.money, '7rem', COL.moment, labelCol('portalCover'), labelCol('overdueStatus')]}
-            fillMin="5.5rem"
+            columns={[COL.fill, COL.money, '7.5rem', COL.moment, labelCol('portalCover'), labelCol('overdueStatus')]}
+            fillMin="5rem"
           >
             <thead>
               <tr>
