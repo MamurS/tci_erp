@@ -14,3 +14,13 @@ describe('matchRanges', () => {
     expect(matchRanges('Navoi', 'n')).toEqual([])
   })
 })
+
+describe('matchRanges with several terms', () => {
+  it('marks every comma-separated term, merged and in order', () => {
+    expect(matchRanges('Samarkand Textile MChJ', 'textile, sam')).toEqual([
+      [0, 3],
+      [10, 17],
+    ])
+    expect(matchRanges('abcdef', 'abc, bcd')).toEqual([[0, 4]])
+  })
+})

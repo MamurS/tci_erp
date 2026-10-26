@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { buildSignals, dayPart, gradeMix } from './dashboard'
+import { buildSignals, dayPart, gradeExposure, gradeMix } from './dashboard'
 
 describe('buildSignals', () => {
   it('keeps only non-zero signals, worst first', () => {
@@ -47,5 +47,26 @@ describe('gradeMix', () => {
       { grade: 'C2', count: 0 },
       { grade: 'D', count: 1 },
     ])
+  })
+})
+
+describe('gradeExposure', () => {
+  it('sums exposure per grade on the gradeMix axis and keeps the unrated apart', () => {
+    const grades = new Map([
+      ['a', 'B1'],
+      ['b', 'B1'],
+      ['c', 'D2'],
+    ])
+    const { rows, unrated } = gradeExposure(grades, [
+      { entity_id: 'a', exposure_uzs: '100' },
+      { entity_id: 'b', exposure_uzs: 50 },
+      { entity_id: 'c', exposure_uzs: 10 },
+      { entity_id: 'x', exposure_uzs: 7 },
+      { entity_id: 'a', exposure_uzs: null },
+    ])
+    expect(rows.find((r) => r.grade === 'B1')?.amount).toBe(150)
+    expect(rows.find((r) => r.grade === 'D')?.amount).toBe(10)
+    expect(rows).toHaveLength(7)
+    expect(unrated).toBe(7)
   })
 })

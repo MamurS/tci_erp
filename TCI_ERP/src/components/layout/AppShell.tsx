@@ -1,7 +1,8 @@
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 
-import { CommandPalette } from './CommandPalette'
+import type { GlobalSearchHandle } from './GlobalSearch'
+import { PageSearchProvider } from './pageSearchContext'
 import { Header } from './Header'
 import { Sidebar } from './Sidebar'
 import { SidebarToggle } from './SidebarToggle'
@@ -91,8 +92,8 @@ const SIDEBAR_ID = 'app-sidebar'
  * page does not move); it goes away PEEK_CLOSE_MS after the pointer has left
  * both, on Esc, and on a click outside. Clicking the toggle while peeking pins
  * the panel where it is. Nothing is animated: pin, unpin and peek are instant.
- * Below 1024px the panel is a drawer. Ctrl/⌘ B toggles it, Ctrl/⌘ K opens the
- * command palette.
+ * Below 1024px the panel is a drawer. Ctrl/⌘ B toggles it, Ctrl/⌘ K puts the
+ * cursor in the one search field of the top bar.
  */
 export function AppShell() {
   const newVersion = useNewVersion()
@@ -103,7 +104,7 @@ export function AppShell() {
   const [docked, setDocked] = useState<SidebarState>(readSidebar)
   const [peeking, setPeeking] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [paletteOpen, setPaletteOpen] = useState(false)
+  const searchRef = useRef<GlobalSearchHandle>(null)
   const openTimer = useRef<number | undefined>(undefined)
   const closeTimer = useRef<number | undefined>(undefined)
   const peekRef = useRef<HTMLDivElement>(null)
@@ -176,7 +177,7 @@ export function AppShell() {
     const onKey = (e: KeyboardEvent) => {
       if (isPaletteShortcut(e)) {
         e.preventDefault()
-        setPaletteOpen((v) => !v)
+        searchRef.current?.focus()
       } else if (isSidebarShortcut(e)) {
         e.preventDefault()
         toggle()
@@ -190,6 +191,7 @@ export function AppShell() {
   }, [toggle])
 
   return (
+    <PageSearchProvider>
     <div className="flex min-h-screen">
       {isDesktop && (
         // The one toggle. It comes BEFORE the panel in the document, so Tab
@@ -259,7 +261,7 @@ export function AppShell() {
 
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
-          onOpenPalette={() => setPaletteOpen(true)}
+          searchRef={searchRef}
           toggleSlot={pinned ? 'none' : isDesktop ? 'spacer' : 'button'}
           onShowSidebar={() => setDrawerOpen(true)}
           sidebarId={SIDEBAR_ID}
@@ -273,8 +275,8 @@ export function AppShell() {
           </TablePrefsContext.Provider>
         </main>
       </div>
-      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
       <NewVersionNotice stale={newVersion} />
     </div>
+    </PageSearchProvider>
   )
 }

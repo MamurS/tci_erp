@@ -13,6 +13,7 @@ import { statementPeriodLabel } from '../types'
 import { RISK_ROW_DIRECTIONS } from './lines'
 import { RISK_ROWS } from './risk'
 import type { RiskPeriod, RiskRowDef } from './risk'
+import { StickyTableFrame } from './StickyTableFrame'
 
 function formatValue(row: RiskRowDef, value: number | null, locale: string): string {
   if (value === null) return EM_DASH
@@ -91,7 +92,7 @@ export function RiskTable({ periods }: { periods: RiskPeriod[] }) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+    <StickyTableFrame>
       <table className="w-full border-collapse text-small">
         <thead>
           <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
@@ -183,6 +184,6 @@ export function RiskTable({ periods }: { periods: RiskPeriod[] }) {
           ))}
         </tbody>
       </table>
-    </div>
+    </StickyTableFrame>
   )
 }

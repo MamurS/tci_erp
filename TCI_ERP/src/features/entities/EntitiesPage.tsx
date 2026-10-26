@@ -3,9 +3,9 @@
  * (tci.v_entity_roles) - an entity with neither is an analysis prospect. */
 
 import { useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Eye, Plus, Search, X } from 'lucide-react'
+import { Eye, Plus } from 'lucide-react'
 
 import {
   Badge,
@@ -14,14 +14,12 @@ import {
   actionsCol,
   BulkBar,
   COL,
-  Combobox,
   CountryFlag,
   DescriptionList,
   downloadCsv,
   EmptyState,
   GradeBadge,
   Highlight,
-  Input,
   LinkButton,
   PageHeader,
   RowActions,
@@ -33,14 +31,12 @@ import {
   toCsv,
   Truncate,
 } from '../../components/ui'
-import type { ComboOption } from '../../components/ui'
-import { normalize } from '../../components/ui/combobox'
+import { usePageSearch } from '../../components/layout/usePageSearch'
+import { searchRows } from '../../lib/pageSearch'
 import {
   refName,
-  useCountries,
   useEntities,
   useEntityRoles,
-  useIndustries,
   useLatestGrades,
 } from './api'
 import { useAuth } from '../../auth/AuthContext'
@@ -61,28 +57,14 @@ export function EntitiesPage() {
   const { data: entities, isLoading } = useEntities()
   const roles = useEntityRoles()
   const grades = useLatestGrades()
-  const { data: countries } = useCountries()
-  const { data: industries } = useIndustries()
 
-  // The search lives in the URL (?q=): the command palette's «search the
-  // registry» lands here with it, and a filtered list can be linked to.
-  const [searchParams, setSearchParams] = useSearchParams()
-  const search = searchParams.get('q') ?? ''
-  const setSearch = (next: string) =>
-    setSearchParams(
-      (prev) => {
-        const params = new URLSearchParams(prev)
-        if (next) params.set('q', next)
-        else params.delete('q')
-        return params
-      },
-      { replace: true },
-    )
+  // The one search (top bar, lib/pageSearch.ts): what was typed lives in the
+  // URL (?q=); terms separated by commas narrow the list in order, a country
+  // or an industry being just another term.
+  const { query: search, setQuery: setSearch } = usePageSearch('entities')
   const [requesting, setRequesting] = useState(false)
   const { roles: myRoles } = useAuth()
   const dataDesk = canWorkRequests(myRoles)
-  const [countryFilter, setCountryFilter] = useState<string | null>(null)
-  const [industryFilter, setIndustryFilter] = useState<string | null>(null)
   const [roleChip, setRoleChip] = useState<RoleChip>('all')
   const [modalOpen, setModalOpen] = useState(false)
   // The quick view: a row's summary beside the list (Table v2).
@@ -90,77 +72,47 @@ export function EntitiesPage() {
   // Rows picked for a bulk action (the bulk bar), by id.
   const [selected, setSelected] = useState<ReadonlySet<string>>(new Set())
 
-  // The filters offer what the registry actually holds, with how many —
-  // not every country of the world.
-  const countryOptions = useMemo<ComboOption[]>(() => {
-    const counts = new Map<string, number>()
-    for (const e of entities ?? [])
-      counts.set(e.country_code, (counts.get(e.country_code) ?? 0) + 1)
-    return (countries ?? [])
-      .filter((c) => counts.has(c.code))
-      .map((c) => ({
-        id: c.code,
-        label: refName(c, locale),
-        keywords: [c.code, c.name_en, c.name_ru, c.name_uz],
-        meta: (
-          <span className="inline-flex items-center gap-2">
-            <CountryFlag code={c.code} />
-            {t('entities.filterCount', { count: counts.get(c.code) ?? 0 })}
-          </span>
-        ),
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label, locale))
-  }, [entities, countries, locale, t])
-  const industryOptions = useMemo<ComboOption[]>(() => {
-    const counts = new Map<string, number>()
-    for (const e of entities ?? [])
-      if (e.industry_id) counts.set(e.industry_id, (counts.get(e.industry_id) ?? 0) + 1)
-    return (industries ?? [])
-      .filter((i) => counts.has(i.code))
-      .map((i) => ({
-        id: i.code,
-        label: refName(i, locale),
-        keywords: [i.code, i.name_en, i.name_ru, i.name_uz],
-        meta: t('entities.filterCount', { count: counts.get(i.code) ?? 0 }),
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label, locale))
-  }, [entities, industries, locale, t])
-
-  // Case, diacritics and Uzbek apostrophes do not matter (as in every picker).
-  const query = normalize(search)
+  // Name, registration number, country (code and name in every language),
+  // industry, roles and grade: whatever a person would type to find it.
   const searchHits = useMemo(
     () =>
-      (entities ?? []).filter(
-        (e) =>
-          !query ||
-          normalize(e.name).includes(query) ||
-          normalize(e.registration_number ?? '').includes(query),
-      ),
-    [entities, query],
+      searchRows(entities ?? [], search, (e) => {
+        const r = roles.data?.get(e.id)
+        return [
+          e.name,
+          e.registration_number,
+          e.country_code,
+          e.countries?.name_en,
+          e.countries?.name_ru,
+          e.countries?.name_uz,
+          e.industries?.name_en,
+          e.industries?.name_ru,
+          e.industries?.name_uz,
+          r?.is_policyholder ? t('entities.roles.policyholder') : null,
+          r?.is_buyer ? t('entities.roles.buyer') : null,
+          grades.data?.get(e.id),
+        ]
+      }),
+    [entities, search, roles.data, grades.data, t],
   )
   const filtered = useMemo(
     () =>
       searchHits.filter((e) => {
-        if (countryFilter && e.country_code !== countryFilter) return false
-        if (industryFilter && e.industry_id !== industryFilter) return false
         const r = roles.data?.get(e.id)
         if (roleChip === 'policyholders' && !r?.is_policyholder) return false
         if (roleChip === 'buyers' && !r?.is_buyer) return false
         return true
       }),
-    [searchHits, countryFilter, industryFilter, roleChip, roles.data],
+    [searchHits, roleChip, roles.data],
   )
 
-  const filtersActive = countryFilter !== null || industryFilter !== null || roleChip !== 'all'
-  const resetFilters = () => {
-    setCountryFilter(null)
-    setIndustryFilter(null)
-    setRoleChip('all')
-  }
-  // "Not in the registry" is a fact about the SEARCH, not about the filters:
-  // a company hidden by a country filter is there, and offering to register
-  // it again would make a duplicate.
-  const notFound = !isLoading && search.trim().length >= 3 && searchHits.length === 0
+  const filtersActive = roleChip !== 'all'
+  const resetFilters = () => setRoleChip('all')
+  // "Not in the registry" is a fact about the SEARCH, not about the role
+  // switch: a company hidden by it is there, and offering to register it
+  // again would make a duplicate. The name offered is the first term.
+  const firstTerm = (search.split(',')[0] ?? '').trim()
+  const notFound = !isLoading && firstTerm.length >= 3 && searchHits.length === 0
 
   const latestPeriod = (periods: { period_end_date: string }[]): string | null =>
     periods.length
@@ -261,34 +213,6 @@ export function EntitiesPage() {
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <SearchField
-          value={search}
-          onChange={setSearch}
-          placeholder={t('entities.searchPlaceholder')}
-          clearLabel={t('picker.clear')}
-        />
-        <div className="w-52">
-          <Combobox
-            value={countryFilter}
-            onChange={setCountryFilter}
-            options={countryOptions}
-            openOnFocus
-            limit={50}
-            placeholder={t('buyers.allCountries')}
-            aria-label={t('buyers.fields.country')}
-          />
-        </div>
-        <div className="w-60">
-          <Combobox
-            value={industryFilter}
-            onChange={setIndustryFilter}
-            options={industryOptions}
-            openOnFocus
-            limit={50}
-            placeholder={t('buyers.allIndustries')}
-            aria-label={t('buyers.fields.industry')}
-          />
-        </div>
         <Segmented
           options={[
             { key: 'all', label: t('entities.roleChips.all') },
@@ -317,7 +241,7 @@ export function EntitiesPage() {
         <Card className="p-6">
           <EmptyState
             pictogram="search"
-            title={t('data.notFound.title', { query: search.trim() })}
+            title={t('data.notFound.title', { query: firstTerm })}
             hint={t(dataDesk ? 'data.notFound.hintDesk' : 'data.notFound.hint')}
             action={
               // One action, the one that fits the person: the data desk
@@ -326,7 +250,7 @@ export function EntitiesPage() {
               dataDesk ? (
                 <Button onClick={() => setModalOpen(true)}>
                   <Plus />
-                  {t('data.notFound.add', { query: search.trim() })}
+                  {t('data.notFound.add', { query: firstTerm })}
                 </Button>
               ) : (
                 <Button onClick={() => setRequesting(true)}>{t('data.notFound.request')}</Button>
@@ -334,7 +258,7 @@ export function EntitiesPage() {
             }
           />
         </Card>
-      ) : filtered.length === 0 && (filtersActive || search.trim() !== '') ? (
+      ) : filtered.length === 0 && (filtersActive || firstTerm !== '') ? (
         // Emptied by the filters (or by a search too short to call the
         // company missing): say so and offer the way back, never «create».
         <EmptyState
@@ -502,54 +426,13 @@ export function EntitiesPage() {
       <EntityFormModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        prefill={search.trim() ? { name: search.trim() } : undefined}
+        prefill={firstTerm ? { name: firstTerm } : undefined}
       />
       <RequestEntityModal
         open={requesting}
-        initialName={search.trim()}
+        initialName={firstTerm}
         onClose={() => setRequesting(false)}
       />
-    </div>
-  )
-}
-
-/** The registry's search box, with the same magnifier and × as the pickers. */
-function SearchField({
-  value,
-  onChange,
-  placeholder,
-  clearLabel,
-}: {
-  value: string
-  onChange: (next: string) => void
-  placeholder: string
-  clearLabel: string
-}) {
-  return (
-    <div className="relative w-full max-w-xs">
-      <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
-      <Input
-        type="search"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape' && value) onChange('')
-        }}
-        placeholder={placeholder}
-        aria-label={placeholder}
-        className="pr-8 pl-8 [&::-webkit-search-cancel-button]:appearance-none"
-      />
-      {value && (
-        <button
-          type="button"
-          onClick={() => onChange('')}
-          aria-label={clearLabel}
-          title={clearLabel}
-          className="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-        >
-          <X className="size-3.5" />
-        </button>
-      )}
     </div>
   )
 }

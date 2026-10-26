@@ -1,17 +1,21 @@
 import { useEffect, useRef, useState } from 'react'
+import type { RefObject } from 'react'
 import { UiScalePicker } from '../../features/account/UiScalePicker'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ChevronDown, LogOut, Search, UserRound } from 'lucide-react'
+import { ChevronDown, LogOut, UserRound } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
+import { GlobalSearch } from './GlobalSearch'
+import type { GlobalSearchHandle } from './GlobalSearch'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { SidebarToggle } from './SidebarToggle'
 import { navIcon } from './navIcons'
 import { sectionFor } from './shell'
 
 interface HeaderProps {
-  onOpenPalette: () => void
+  /** The one search field (Ctrl/⌘ K puts the cursor in it). */
+  searchRef: RefObject<GlobalSearchHandle | null>
   /**
    * What sits at the top bar's left edge: nothing (pinned panel), a blank of
    * the toggle's size (desktop, hidden panel — the fixed toggle of AppShell
@@ -32,12 +36,11 @@ function initials(email: string | undefined): string {
   return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || local[0]?.toUpperCase() || '·'
 }
 
-export function Header({ onOpenPalette, toggleSlot, onShowSidebar, sidebarId }: HeaderProps) {
+export function Header({ searchRef, toggleSlot, onShowSidebar, sidebarId }: HeaderProps) {
   const { t } = useTranslation()
   const { pathname } = useLocation()
   const section = sectionFor(pathname)
   const SectionIcon = section ? navIcon(section.key) : null
-  const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
   const { session, actingRole, heldRoles, signOut } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -74,25 +77,14 @@ export function Header({ onOpenPalette, toggleSlot, onShowSidebar, sidebarId }: 
           // Shrinks before the search and the menu do: a long section name
           // (uz, at a large text size) is cut with an ellipsis, never pushing
           // the user menu off the screen.
-          className="hidden min-w-0 items-center gap-2 text-body font-semibold text-slate-700 hover:text-slate-900 md:flex"
+          className="hidden min-w-0 items-center gap-2 text-body font-semibold text-slate-700 hover:text-slate-900 md:flex xl:shrink-0"
           title={t(`nav.${section.key}`)}
         >
           <SectionIcon className="size-[1.125rem] shrink-0 text-slate-500" strokeWidth={2} />
           <span className="truncate">{t(`nav.${section.key}`)}</span>
         </Link>
       )}
-      <button
-        type="button"
-        onClick={onOpenPalette}
-        aria-label={t('palette.trigger')}
-        className="flex h-9 shrink-0 items-center gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 text-left text-body text-slate-600 transition-colors hover:border-slate-300 hover:bg-white sm:w-full sm:max-w-md sm:shrink sm:px-3"
-      >
-        <Search className="size-4" />
-        <span className="hidden flex-1 truncate sm:inline">{t('palette.trigger')}</span>
-        <kbd className="hidden rounded border border-slate-200 bg-white px-2 py-0.5 text-caption font-medium text-slate-500 sm:inline">
-          {isMac ? '⌘K' : 'Ctrl K'}
-        </kbd>
-      </button>
+      <GlobalSearch ref={searchRef} />
 
       <div className="flex-1" />
       <LanguageSwitcher />

@@ -206,7 +206,12 @@
     "gradeMix": "Portfel reyting bo‘yicha",
     "gradeMixRated_one": "Reytingi bor {{count}} ta tashkilot",
     "gradeMixRated_other": "Reytingi bor {{count}} ta tashkilot",
-    "gradeMixEmpty": "Hali birorta tashkilotning reytingi yo‘q."
+    "gradeMixEmpty": "Hali birorta tashkilotning reytingi yo‘q.",
+    "gradeMixMeasure": "Ko‘rsatkich",
+    "gradeMixBuyers": "Bayerlar",
+    "gradeMixExposure": "Ekspozitsiya",
+    "gradeMixUzs": "Amaldagi limitlar, UZS ekv.",
+    "gradeMixUnrated": "Amaldagi limitlar, UZS ekv. Yana {{amount}} UZS reytingsiz bayerlarga to‘g‘ri keladi."
   },
   "buyers": {
     "subtitle": "Kredit bahosidagi bayerlar (debitorlar) reyestri",
@@ -2283,6 +2288,26 @@
       "days_other": "kun",
       "since": "{{date}} da yuborilgan",
       "notSubmitted": "hali yuborilmagan"
+    },
+    "bar": {
+      "title": "So‘ralgan va qaror qilingan",
+      "requested": "So‘ralgan",
+      "recommended": "Tavsiya etilgan limit",
+      "current": "Amaldagi limit",
+      "thisDecision": "Ushbu qaror",
+      "decided": "Amaldagi qaror",
+      "ofRequested": "so‘ralganning {{pct}}%",
+      "noDecision": "Hali qaror yo‘q."
+    },
+    "meters": {
+      "authority": "Vakolatingiz · reyting diapazoni {{band}}",
+      "ofUzs": "{{value}} / {{cap}} UZS ekv.",
+      "withinNote": "Vakolatingiz doirasida — o‘zingiz qaror qilishingiz mumkin.",
+      "exceedsNote": "Vakolatingizdan yuqori — qarorni tasdiqlash uchun yuboring.",
+      "group": "Guruh limiti · tashkilotlar: {{members}}",
+      "groupWithinNote": "Guruh o‘z limiti doirasida qoladi.",
+      "groupNearNote": "Guruh o‘z limitining {{pct}}% qismidan foydalanadi.",
+      "groupOverNote": "Guruh limitidan oshadi — qaror yuqoriga yo‘naltiriladi."
     }
   },
   "entities": {
@@ -2345,7 +2370,32 @@
       "statements": "Oxirgi hisobot",
       "periods_one": "Bazada {{count}} ta davr",
       "periods_other": "Bazada {{count}} ta davr",
-      "noStatements": "Hali hisobot yo‘q"
+      "noStatements": "Hali hisobot yo‘q",
+      "openWork": "Ishda",
+      "nothingOpen": "Ochiq masala yo‘q",
+      "openLimits_one": "{{count}} ta limit so‘rovi",
+      "openLimits_few": "{{count}} ta limit so‘rovi",
+      "openLimits_many": "{{count}} ta limit so‘rovi",
+      "openLimits_other": "{{count}} ta limit so‘rovi",
+      "openSubmissions_one": "{{count}} ta sug‘urta arizasi",
+      "openSubmissions_few": "{{count}} ta sug‘urta arizasi",
+      "openSubmissions_many": "{{count}} ta sug‘urta arizasi",
+      "openSubmissions_other": "{{count}} ta sug‘urta arizasi",
+      "openClaims_one": "{{count}} ta da’vo",
+      "openClaims_few": "{{count}} ta da’vo",
+      "openClaims_many": "{{count}} ta da’vo",
+      "openClaims_other": "{{count}} ta da’vo"
+    },
+    "sections": {
+      "overview": "Umumiy",
+      "analysis": "Tahlil",
+      "cover": "Sug‘urta qoplamasi",
+      "claims": "Da’volar",
+      "group": "Guruh",
+      "access": "Mijoz kirishi"
+    },
+    "facts": {
+      "open": "Qisqacha ma’lumot"
     }
   },
   "access": {
@@ -3018,7 +3068,12 @@
       "allSnoozedHint_one": "{{count}} ta vazifa kechiktirilgan va o‘zi qaytadi. Uzuq chiziqli «Kechiktirilgan» filtri uni ko‘rsatadi.",
       "allSnoozedHint_other": "{{count}} ta vazifa kechiktirilgan va o‘zi qaytadi. Uzuq chiziqli «Kechiktirilgan» filtri ularni ko‘rsatadi.",
       "allSnoozedHint_few": "{{count}} ta vazifa kechiktirilgan va o‘zi qaytadi. Uzuq chiziqli «Kechiktirilgan» filtri ularni ko‘rsatadi.",
-      "allSnoozedHint_many": "{{count}} ta vazifa kechiktirilgan va o‘zi qaytadi. Uzuq chiziqli «Kechiktirilgan» filtri ularni ko‘rsatadi."
+      "allSnoozedHint_many": "{{count}} ta vazifa kechiktirilgan va o‘zi qaytadi. Uzuq chiziqli «Kechiktirilgan» filtri ularni ko‘rsatadi.",
+      "caughtUp": "Hammasi bajarildi",
+      "caughtUpHint_one": "Bugun {{count}} ta vazifani yakunladingiz. Yangi ishlar shu yerda o‘zi paydo bo‘ladi.",
+      "caughtUpHint_other": "Bugun {{count}} ta vazifani yakunladingiz. Yangi ishlar shu yerda o‘zi paydo bo‘ladi.",
+      "caughtUpHint_few": "Bugun {{count}} ta vazifani yakunladingiz. Yangi ishlar shu yerda o‘zi paydo bo‘ladi.",
+      "caughtUpHint_many": "Bugun {{count}} ta vazifani yakunladingiz. Yangi ishlar shu yerda o‘zi paydo bo‘ladi."
     },
     "selected": "Tanlangan: {{count}}",
     "clearSelection": "Tanlovni olib tashlash",
@@ -3607,7 +3662,8 @@
       "today": "Bugun uchun",
       "mine": "Menga tayinlangan",
       "cleared": "Bugun bajarildi"
-    }
+    },
+    "buyerGrade": "Bayer reytingi: {{grade}}"
   },
   "portal": {
     "title": "Mijoz portali",
@@ -3829,7 +3885,10 @@
       },
       "listTitle": "Bildirilgan muddati o‘tgan qarzlar",
       "fillToFile": "Bayerni tanlang, muddat va summani kiriting",
-      "suspensionTitle": "Bu bayerning kredit limiti to‘xtatiladi"
+      "suspensionTitle": "Bu bayerning kredit limiti to‘xtatiladi",
+      "noBuyers": "{{policy}} polisi bo‘yicha amaldagi kredit limitiga ega bayer yo‘q, shu sababli hozircha muddati o‘tgan qarz haqida xabar beriladigan bayer yo‘q.",
+      "noBuyersOption": "Amaldagi limitga ega bayer yo‘q",
+      "toLimits": "Kredit limitlari"
     },
     "premium": {
       "title": "Sug‘urta mukofoti",
@@ -3908,6 +3967,36 @@
       "nextExpiry": "Navbatdagi uzaytirish",
       "nextExpiryMeta": "amaldagi polis tugaydi",
       "noActive": "amaldagi polis yo‘q"
+    },
+    "timeline": {
+      "title": "Ishda",
+      "open": "Ochish",
+      "yourTurn": "Javobingiz kutilmoqda",
+      "kinds": {
+        "submission": "Sug‘urta arizasi",
+        "limit": "Limit so‘rovi · {{policy}} polis",
+        "claim": "{{number}} da’vo",
+        "submissionLabel": "Sug‘urta arizasi holati",
+        "limitLabel": "Limit so‘rovi holati",
+        "claimLabel": "Da’vo holati"
+      },
+      "limit": {
+        "sent": "Yuborilgan",
+        "review": "Ko‘rib chiqilmoqda",
+        "decided": "Qaror"
+      },
+      "submission": {
+        "sent": "Yuborilgan",
+        "underwriting": "Anderrayting",
+        "yourAnswer": "Javobingiz",
+        "accepted": "Qabul qilingan"
+      },
+      "claim": {
+        "filed": "Berilgan",
+        "assessment": "Ko‘rib chiqish",
+        "decision": "Qaror",
+        "paid": "To‘langan"
+      }
     }
   },
   "declarations": {
@@ -6065,5 +6154,14 @@
       "email": "name@company.uz ko‘rinishidagi manzilni kiriting",
       "url": "company.uz ko‘rinishidagi sayt manzilini kiriting"
     }
+  },
+  "search": {
+    "placeholder": "Tashkilot, polis, da’vo, arizalarni qidirish…",
+    "placeholderPage": "Qidirish va saralash ({{page}}): nom, raqam, mamlakat — vergul bilan",
+    "clear": "Qidiruvni tozalash",
+    "elsewhere_one": "Boshqa bo‘limlarda {{count}} ta natija",
+    "elsewhere_few": "Boshqa bo‘limlarda {{count}} ta natija",
+    "elsewhere_many": "Boshqa bo‘limlarda {{count}} ta natija",
+    "elsewhere_other": "Boshqa bo‘limlarda {{count}} ta natija"
   }
 }

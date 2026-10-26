@@ -20,10 +20,13 @@ import {
   KpiCard,
   SectionTitle,
   Spinner,
+  StatusTimeline,
 } from '../../components/ui'
 import type { Fact } from '../../components/ui'
 import { EM_DASH, formatAmount, formatDate, formatPercent, formatRate } from '../../lib/format'
-import { useMyEntity, useMyLimits, useMyPolicies } from './api'
+import { useMyClaims, useMyEntity, useMyLimitRequests, useMyLimits, useMyPolicies, useMySubmissions } from './api'
+import { TIMELINE_STEPS, timelineStep, waitsOnYou } from './timelines'
+import type { TimelineKind } from './timelines'
 import type { ClientPolicy } from './types'
 
 /** Where a client goes from home, in the order the work arises. Each path is
@@ -89,6 +92,8 @@ export function PortalPoliciesPage() {
       </HeroBand>
 
       {isError && <Callout tone="neg" title={t('portal.loadFailed')} className="mb-6" />}
+
+      <InProgress />
 
       {!policies?.length ? (
         !isError && (
@@ -246,5 +251,93 @@ function NextSteps() {
         </ul>
       </Card>
     </section>
+  )
+}
+
+interface Followed {
+  id: string
+  kind: TimelineKind
+  title: string
+  sub: string
+  status: string
+  to: string
+}
+
+/** What the policyholder is waiting on, each with a simple status timeline
+ * (Prompt 30): open limit requests, submissions and offers, and claims. Shown
+ * only when something is open; what waits on THEM is marked and listed first. */
+function InProgress() {
+  const { t } = useTranslation()
+  const { data: requests } = useMyLimitRequests()
+  const { data: submissions } = useMySubmissions()
+  const { data: claims } = useMyClaims()
+  const items: Followed[] = [
+    ...(submissions ?? []).map((s) => ({
+      id: `s-${s.id}`,
+      kind: 'submission' as const,
+      title: s.request_number,
+      sub: t('portal.timeline.kinds.submission'),
+      status: s.status,
+      to: '/portal/submissions',
+    })),
+    ...(requests ?? []).map((r) => ({
+      id: `l-${r.id}`,
+      kind: 'limit' as const,
+      title: r.buyer_name ?? r.proposed_name ?? EM_DASH,
+      sub: t('portal.timeline.kinds.limit', { policy: r.policy_number }),
+      status: r.status,
+      to: '/portal/limits',
+    })),
+    ...(claims ?? []).map((c) => ({
+      id: `c-${c.id}`,
+      kind: 'claim' as const,
+      title: c.buyer_name,
+      sub: t('portal.timeline.kinds.claim', { number: c.claim_number }),
+      status: c.status,
+      to: '/portal/claims',
+    })),
+  ]
+    .filter((item) => timelineStep(item.kind, item.status) !== null)
+    .sort((a, b) => Number(waitsOnYou(b.kind, b.status)) - Number(waitsOnYou(a.kind, a.status)))
+  if (items.length === 0) return null
+  return (
+    <Card className="mb-8 p-6">
+      <SectionTitle className="mb-4">{t('portal.timeline.title')}</SectionTitle>
+      <ul className="flex flex-col divide-y divide-slate-100">
+        {items.map((item) => {
+          const step = timelineStep(item.kind, item.status) ?? 0
+          const mine = waitsOnYou(item.kind, item.status)
+          return (
+            <li
+              key={item.id}
+              className="grid items-center gap-x-8 gap-y-3 py-4 first:pt-0 last:pb-0 md:grid-cols-[minmax(0,16rem)_minmax(0,1fr)_auto]"
+            >
+              <div className="min-w-0">
+                <p className="truncate text-body font-semibold text-slate-900">{item.title}</p>
+                <p className="truncate text-small text-slate-500">{item.sub}</p>
+                {mine && (
+                  <Badge tone="warn" size="sm">
+                    {t('portal.timeline.yourTurn')}
+                  </Badge>
+                )}
+              </div>
+              <StatusTimeline
+                label={t(`portal.timeline.kinds.${item.kind}Label`)}
+                steps={TIMELINE_STEPS[item.kind].map((key) => t(`portal.timeline.${item.kind}.${key}`))}
+                current={step}
+                attention={mine}
+              />
+              <Link
+                to={item.to}
+                className="inline-flex items-center gap-1 text-small font-semibold text-accent-700 hover:underline"
+              >
+                {t('portal.timeline.open')}
+                <ChevronRight className="size-4" />
+              </Link>
+            </li>
+          )
+        })}
+      </ul>
+    </Card>
   )
 }

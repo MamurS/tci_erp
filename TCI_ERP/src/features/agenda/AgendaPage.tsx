@@ -25,6 +25,7 @@ import {
   Callout,
   EmptyState,
   HeroBand,
+  Pictogram,
   Segmented,
   Skeleton,
 } from '../../components/ui'
@@ -38,6 +39,7 @@ import {
 } from '../../lib/format'
 import { refusalKey } from '../../lib/refusals'
 import { useStaffDirectory } from '../data/api'
+import { useLatestGrades } from '../entities/api'
 import { useUzsRates } from '../declarations/api'
 import { latestUzsRate } from '../limits/authority'
 import { AgendaList } from './AgendaList'
@@ -133,6 +135,8 @@ export function AgendaPage() {
   )
 
   const { data: subjects } = useTaskSubjects(all)
+  // A buyer's row carries the buyer's grade in its colour (Prompt 30).
+  const { data: grades } = useLatestGrades()
   const { data: staff } = useStaffDirectory()
   const { data: cleared } = useClearedToday()
   const complete = useCompleteTask()
@@ -489,6 +493,20 @@ export function AgendaPage() {
         />
       ) : filtered ? (
         <EmptyState title={t('agenda.empty.filtered')} hint={t('agenda.empty.filteredHint')} />
+      ) : cleared ? (
+        // A restrained completion moment (Prompt 30): the queue was worked
+        // down today — said once, warmly, with what was done.
+        <div
+          className="flex flex-col items-center justify-center gap-2 rounded-lg border border-success-200 bg-success-50 px-6 py-14 text-center"
+          role="status"
+          data-agenda-caught-up
+        >
+          <Pictogram name="allDone" className="animate-completion-in mb-1 size-16" />
+          <p className="font-display text-title font-bold text-slate-900">{t('agenda.empty.caughtUp')}</p>
+          <p className="max-w-md text-small leading-relaxed text-slate-600">
+            {t('agenda.empty.caughtUpHint', { count: cleared })}
+          </p>
+        </div>
       ) : (
         <EmptyState
           title={t('agenda.empty.title')}
@@ -524,6 +542,7 @@ export function AgendaPage() {
           now,
           locale,
           subjects,
+          grades,
           staff,
           rateFor,
           snippetOf,

@@ -69,3 +69,23 @@ export function gradeMix(grades: Iterable<string>): { grade: (typeof MIX_GRADES)
   }
   return MIX_GRADES.map((grade) => ({ grade, count: counts.get(grade) ?? 0 }))
 }
+
+/** Exposure in UZS per grade of the scale (the same axis as gradeMix): each
+ * buyer's in-force exposure (tci.v_buyer_exposure) under its latest grade.
+ * Exposure of buyers with no grade is returned apart, never dropped. */
+export function gradeExposure(
+  grades: ReadonlyMap<string, string>,
+  exposures: Iterable<{ entity_id: string; exposure_uzs: number | string | null }>,
+): { rows: { grade: (typeof MIX_GRADES)[number]; amount: number }[]; unrated: number } {
+  const sums = new Map<string, number>(MIX_GRADES.map((g) => [g, 0]))
+  let unrated = 0
+  for (const row of exposures) {
+    const amount = Number(row.exposure_uzs ?? 0)
+    if (!Number.isFinite(amount) || amount <= 0) continue
+    const raw = grades.get(row.entity_id)?.trim().toUpperCase()
+    const key = raw ? (sums.has(raw) ? raw : raw.startsWith('D') ? 'D' : null) : null
+    if (key) sums.set(key, (sums.get(key) ?? 0) + amount)
+    else unrated += amount
+  }
+  return { rows: MIX_GRADES.map((grade) => ({ grade, amount: sums.get(grade) ?? 0 })), unrated }
+}

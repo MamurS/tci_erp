@@ -30,6 +30,8 @@ import {
   Input,
   KpiCard,
   LinkButton,
+  Meter,
+  meterState,
   Modal,
   Select,
   Spinner,
@@ -58,7 +60,10 @@ import {
   useWithdrawLimitRequest,
 } from './api'
 import { convertAtLatest, preflight } from './authority'
-import { GroupChip, GroupPreflightNotice, useGroupPreflight } from '../groups'
+import type { AuthorityPreflight } from './authority'
+import { DecisionBar } from './DecisionBar'
+import { GroupChip, GroupPreflightNotice, preflightState, useGroupPreflight } from '../groups'
+import type { GroupPreflight } from '../groups'
 import { useSystemDecisionMarks } from './adtApi'
 import { AutoDecisionPanel } from './AutoDecisionPanel'
 import { CommercialStageSection } from './CommercialStageSection'
@@ -339,13 +344,11 @@ export function LimitRequestPage() {
         </div>
       )}
 
+      {/* One decision column (Prompt 30): the work — the decision, or the
+          validation step, or what is still missing — comes first and alone;
+          the facts it rests on sit beside it as context. */}
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="flex flex-col gap-5">
-          <RequestCard request={request} locale={locale} />
-          {/* What the policyholder changed (0075). */}
-          <RequestChangesSection requestId={request.id} />
-          {/* The auto-decision rule's answer (0061): the credit desk only. */}
-          <AutoDecisionPanel requestId={request.id} />
           {/* Waiting for the buyer's data, not for a decision (0067). */}
           {request.status === 'information_gathering' && (
             <InformationSection
@@ -394,10 +397,12 @@ export function LimitRequestPage() {
           {/* The wrappers carry the ?focus= targets. Neither has a look of its
               own; `empty:hidden` keeps the commercial one out of the column's
               gap while the section renders itself away. */}
-          {showDecisionForm && (
+          {showDecisionForm ? (
             <div id="decision" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
               <DecisionForm request={request} onNotice={setNotice} />
             </div>
+          ) : (
+            <OutcomeCard request={request} />
           )}
           {/* Stage 2: commercial adjustment + the release state of the
               effective decision. Renders itself away when there is none. */}
@@ -409,7 +414,14 @@ export function LimitRequestPage() {
             />
           </div>
         </div>
-        <BuyerSnapshot request={request} locale={locale} />
+        <div className="flex flex-col gap-5">
+          <RequestCard request={request} locale={locale} />
+          <BuyerSnapshot request={request} locale={locale} />
+          {/* What the policyholder changed (0075). */}
+          <RequestChangesSection requestId={request.id} />
+          {/* The auto-decision rule's answer (0061): the credit desk only. */}
+          <AutoDecisionPanel requestId={request.id} />
+        </div>
       </div>
 
       {/* Full width: who decided, who validated, what changed. Drawn only
@@ -457,6 +469,57 @@ export function LimitRequestPage() {
         </Modal>
       )}
     </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Requested → decided, outside the form
+// ---------------------------------------------------------------------------
+
+/** The figures every requested → decided bar of this request shares: the
+ * engine's recommendation in the request's currency and the limit in force on
+ * this scope today. */
+function useBarFigures(request: LimitRequestWithRefs) {
+  const assessments = useAssessments(request.entity_id)
+  const effective = useEffectiveLimits(requestScopeFilter(request))
+  const latest = assessments.data?.[0] ?? null
+  const suggested = useSuggestedInCurrency(
+    latest?.suggested_limit ?? null,
+    latest?.limit_currency ?? null,
+    request.currency_code,
+  )
+  const current = effective.data?.[0] ?? null
+  const currentAmount =
+    current && current.currency_code === request.currency_code && current.approved_amount !== null
+      ? Number(current.approved_amount)
+      : null
+  return { recommended: suggested.value, current, currentAmount }
+}
+
+/** Where the request stands against what was asked, when this person is not
+ * deciding it: the effective decision on the scope, if any. */
+function OutcomeCard({ request }: { request: LimitRequestWithRefs }) {
+  const { t } = useTranslation()
+  const { recommended, current, currentAmount } = useBarFigures(request)
+  const outcome = current?.outcome
+  const taken =
+    outcome === 'approved' || outcome === 'partial' || outcome === 'declined' ? outcome : null
+  return (
+    <Card className="flex flex-col gap-4 p-5">
+      <SectionTitle>{t('limits.bar.title')}</SectionTitle>
+      <DecisionBar
+        currency={request.currency_code}
+        requested={Number(request.requested_amount)}
+        recommended={recommended}
+        current={null}
+        decision={
+          current
+            ? { amount: currentAmount, outcome: taken, live: false }
+            : null
+        }
+      />
+      {!current && <p className="text-small text-slate-500">{t('limits.bar.noDecision')}</p>}
+    </Card>
   )
 }
 
@@ -714,6 +777,7 @@ function DecisionForm({
 
   const currency = request.currency_code
   const latest = assessments.data?.[0] ?? null
+  const bar = useBarFigures(request)
 
   // The band comes from the assessment the decision is based on; with none
   // chosen the SQL function judges the decision as 'unrated'.
@@ -840,35 +904,27 @@ function DecisionForm({
         </div>
       )}
 
+      {/* Where this decision leaves things (Prompt 30): requested →
+          deciding on one scale, then the authority and the group limit as
+          meters — the same numbers the database refuses on. */}
+      <div className="flex flex-col gap-5 rounded-md bg-slate-50 p-4">
+        <DecisionBar
+          currency={currency}
+          requested={Number(request.requested_amount)}
+          recommended={bar.recommended}
+          current={bar.currentAmount}
+          decision={{ amount: needsAmount && amountValid ? parsedAmount : null, outcome, live: true }}
+        />
+        {check && <AuthorityMeter check={check} currency={currency} />}
+        <GroupMeter preflight={groupCheck} />
+      </div>
+
       {needsAmount && <ConditionsRepeater conditions={conditions} onChange={setConditions} />}
 
       <Field label={t('policies.transitionComment')}>
         <Textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} />
       </Field>
 
-      {/* Authority preflight — same conversion rule as the SQL function. */}
-      {check &&
-        (check.withinAuthority === null ? (
-          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
-            {t('limits.preflight.missingRate', { currency })}
-          </div>
-        ) : check.withinAuthority ? (
-          <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-small text-slate-600">
-            {t('limits.preflight.within', {
-              band: t(`limits.bands.${check.band}`),
-              authority: formatAmount(check.authorityUzs ?? 0, locale),
-            })}
-          </div>
-        ) : (
-          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
-            {t('limits.preflight.exceeds', {
-              band: t(`limits.bands.${check.band}`),
-              authority: formatAmount(check.authorityUzs ?? 0, locale),
-            })}
-          </div>
-        ))}
-
-      <GroupPreflightNotice preflight={groupCheck} />
 
       {escalatedInfo && (
         <div
@@ -982,6 +1038,88 @@ function DecisionForm({
 }
 
 // ---------------------------------------------------------------------------
+// Authority and group meters
+// ---------------------------------------------------------------------------
+
+/** The decider's authority for the band, against this decision in UZS — the
+ * conversion rule of decide_limit_request (authority.ts mirrors it). */
+function AuthorityMeter({ check, currency }: { check: AuthorityPreflight; currency: string }) {
+  const { t, i18n } = useTranslation()
+  const locale = i18n.resolvedLanguage ?? 'en'
+  const band = t(`limits.bands.${check.band}`)
+  return (
+    <Meter
+      label={t('limits.meters.authority', { band })}
+      value={check.amountUzs}
+      cap={check.authorityUzs}
+      tone={
+        check.withinAuthority === null
+          ? 'unknown'
+          : check.withinAuthority
+            ? meterState(check.amountUzs, check.authorityUzs).tone
+            : 'over'
+      }
+      figure={
+        check.amountUzs === null || check.authorityUzs === null
+          ? undefined
+          : t('limits.meters.ofUzs', {
+              value: formatAmount(check.amountUzs, locale, 0),
+              cap: formatAmount(check.authorityUzs, locale, 0),
+            })
+      }
+      note={
+        check.withinAuthority === null
+          ? t('limits.preflight.missingRate', { currency })
+          : check.withinAuthority
+            ? t('limits.meters.withinNote')
+            : t('limits.meters.exceedsNote')
+      }
+    />
+  )
+}
+
+/** The group's exposure after this decision against its limit (the SAME
+ * tci.group_exposure_preflight the decision runs). Without a group limit the
+ * words alone say where the group stands. */
+function GroupMeter({ preflight }: { preflight: GroupPreflight | null | undefined }) {
+  const { t, i18n } = useTranslation()
+  const locale = i18n.resolvedLanguage ?? 'en'
+  if (!preflight || !preflight.has_group_limit || preflight.group_limit_uzs === null) {
+    return <GroupPreflightNotice preflight={preflight} />
+  }
+  const after = Number(preflight.exposure_after_uzs)
+  const cap = Number(preflight.group_limit_uzs)
+  const state = preflightState(preflight)
+  return (
+    <Meter
+      label={t('limits.meters.group', { members: preflight.group_size })}
+      value={after}
+      cap={cap}
+      base={Number(preflight.exposure_uzs)}
+      tone={state.kind === 'over' ? 'over' : state.kind === 'warn' ? 'near' : 'ok'}
+      figure={t('limits.meters.ofUzs', {
+        value: formatAmount(after, locale, 0),
+        cap: formatAmount(cap, locale, 0),
+      })}
+      note={
+        <>
+          {state.kind === 'over'
+            ? t('limits.meters.groupOverNote')
+            : state.kind === 'warn'
+              ? t('limits.meters.groupNearNote', {
+                  pct: Number(preflight.utilisation_pct ?? 0).toFixed(1),
+                })
+              : t('limits.meters.groupWithinNote')}
+          {preflight.missing_rates > 0 && (
+            <> {t('groups.preflight.missingRates', { count: preflight.missing_rates })}</>
+          )}
+        </>
+      }
+    />
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Conditions repeater
 // ---------------------------------------------------------------------------
 
@@ -1064,6 +1202,28 @@ function ConditionsRepeater({
  * is shown in the request currency first with the original in brackets — or,
  * when there is no rate, in the original with that said out loud. Converted
  * at the latest rates through UZS (convertAtLatest), for reading only. */
+/** The engine's suggested limit in the request's currency, converted at the
+ * latest rates through UZS (convertAtLatest), for reading only. `value` is
+ * what to show in `to`; null when there is none, or no rate to convert. */
+function useSuggestedInCurrency(amount: number | string | null, from: string | null, to: string) {
+  const fromRates = useLatestRatesFor(!from || from === to ? '' : from)
+  const toRates = useLatestRatesFor(!from || from === to ? '' : to)
+  if (amount === null || amount === '' || !from) return { value: null, original: null, state: 'none' as const }
+  const original = Number(amount)
+  if (from === to) return { value: original, original, state: 'same' as const }
+  if (fromRates.isLoading || toRates.isLoading) return { value: null, original, state: 'loading' as const }
+  const converted = convertAtLatest(
+    original,
+    from,
+    to,
+    [...(fromRates.data ?? []), ...(toRates.data ?? [])],
+    new Date().toISOString().slice(0, 10),
+  )
+  return converted === null
+    ? { value: null, original, state: 'noRate' as const }
+    : { value: converted, original, state: 'converted' as const }
+}
+
 function SuggestedLimit({
   amount,
   from,
@@ -1078,25 +1238,13 @@ function SuggestedLimit({
 }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const fromRates = useLatestRatesFor(!from || from === to ? '' : from)
-  const toRates = useLatestRatesFor(!from || from === to ? '' : to)
+  const suggested = useSuggestedInCurrency(amount, from, to)
 
-  if (amount === null || amount === '' || !from)
-    return <span className={`num ${className}`}>{EM_DASH}</span>
-  const value = Number(amount)
-  const original = `${formatAmount(value, locale)} ${from}`
-  if (from === to) return <span className={`num ${className}`}>{original}</span>
-  if (fromRates.isLoading || toRates.isLoading)
+  if (suggested.original === null) return <span className={`num ${className}`}>{EM_DASH}</span>
+  const original = `${formatAmount(suggested.original, locale)} ${from}`
+  if (suggested.state === 'same' || suggested.state === 'loading')
     return <span className={`num ${className}`}>{original}</span>
-
-  const converted = convertAtLatest(
-    value,
-    from,
-    to,
-    [...(fromRates.data ?? []), ...(toRates.data ?? [])],
-    new Date().toISOString().slice(0, 10),
-  )
-  if (converted === null) {
+  if (suggested.state === 'noRate') {
     return (
       <span className={className}>
         <span className="num">{original}</span>{' '}
@@ -1109,7 +1257,7 @@ function SuggestedLimit({
   return (
     <span className={`num ${className}`}>
       {t('limits.suggestedConverted', {
-        converted: `${formatAmount(converted, locale)} ${to}`,
+        converted: `${formatAmount(suggested.value ?? 0, locale)} ${to}`,
         original,
       })}
     </span>

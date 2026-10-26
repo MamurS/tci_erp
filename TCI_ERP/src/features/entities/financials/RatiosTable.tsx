@@ -6,6 +6,7 @@ import { statementPeriodLabel } from '../types'
 import type { StatementBundle } from '../types'
 import { RATIO_DEFS, computeRatios } from './ratios'
 import type { RatioSet } from './ratios'
+import { StickyTableFrame } from './StickyTableFrame'
 
 const GROUPS = ['profitability', 'solvency', 'efficiency'] as const
 
@@ -37,7 +38,7 @@ export function RatiosTable({ displayed }: { displayed: StatementBundle[] }) {
 
   return (
     <div>
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <StickyTableFrame>
         <table className="w-full border-collapse text-small">
           <thead>
             <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
@@ -84,7 +85,7 @@ export function RatiosTable({ displayed }: { displayed: StatementBundle[] }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </StickyTableFrame>
       {anyAnnualized && (
         <p className="mt-2 text-caption text-slate-500">* {t('fin.annualizedFootnote')}</p>
       )}

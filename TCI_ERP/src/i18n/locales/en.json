@@ -206,7 +206,12 @@
     "gradeMix": "The book by grade",
     "gradeMixRated_one": "{{count}} rated company",
     "gradeMixRated_other": "{{count}} rated companies",
-    "gradeMixEmpty": "No company has a rating yet."
+    "gradeMixEmpty": "No company has a rating yet.",
+    "gradeMixMeasure": "Measure",
+    "gradeMixBuyers": "Buyers",
+    "gradeMixExposure": "Exposure",
+    "gradeMixUzs": "Limits in force, UZS equivalent.",
+    "gradeMixUnrated": "Limits in force, UZS equivalent. A further {{amount}} UZS is on buyers with no grade."
   },
   "buyers": {
     "subtitle": "Register of buyers (debtors) under credit assessment",
@@ -2283,6 +2288,26 @@
       "days_other": "days",
       "since": "submitted {{date}}",
       "notSubmitted": "not submitted yet"
+    },
+    "bar": {
+      "title": "Requested and decided",
+      "requested": "Requested",
+      "recommended": "Recommended limit",
+      "current": "Limit in force",
+      "thisDecision": "This decision",
+      "decided": "Decision in force",
+      "ofRequested": "{{pct}}% of requested",
+      "noDecision": "No decision yet."
+    },
+    "meters": {
+      "authority": "Your authority · rating band {{band}}",
+      "ofUzs": "{{value}} of {{cap}} UZS eq.",
+      "withinNote": "Within your authority — you can decide this yourself.",
+      "exceedsNote": "Beyond your authority — send the decision for validation.",
+      "group": "Group limit · {{members}} companies",
+      "groupWithinNote": "The group stays within its limit.",
+      "groupNearNote": "The group would use {{pct}}% of its limit.",
+      "groupOverNote": "Over the group limit — the decision will be escalated."
     }
   },
   "entities": {
@@ -2345,7 +2370,32 @@
       "statements": "Latest statements",
       "periods_one": "{{count}} period on file",
       "periods_other": "{{count}} periods on file",
-      "noStatements": "No statements yet"
+      "noStatements": "No statements yet",
+      "openWork": "Open work",
+      "nothingOpen": "Nothing open",
+      "openLimits_one": "{{count}} limit request",
+      "openLimits_few": "{{count}} limit requests",
+      "openLimits_many": "{{count}} limit requests",
+      "openLimits_other": "{{count}} limit requests",
+      "openSubmissions_one": "{{count}} submission",
+      "openSubmissions_few": "{{count}} submissions",
+      "openSubmissions_many": "{{count}} submissions",
+      "openSubmissions_other": "{{count}} submissions",
+      "openClaims_one": "{{count}} claim",
+      "openClaims_few": "{{count}} claims",
+      "openClaims_many": "{{count}} claims",
+      "openClaims_other": "{{count}} claims"
+    },
+    "sections": {
+      "overview": "Overview",
+      "analysis": "Analysis",
+      "cover": "Cover",
+      "claims": "Claims",
+      "group": "Group",
+      "access": "Client access"
+    },
+    "facts": {
+      "open": "Quick facts"
     }
   },
   "access": {
@@ -3018,7 +3068,12 @@
       "allSnoozedHint_one": "{{count}} task is snoozed and comes back by itself. The dashed «Snoozed» chip shows it.",
       "allSnoozedHint_other": "{{count}} tasks are snoozed and come back by themselves. The dashed «Snoozed» chip shows them.",
       "allSnoozedHint_few": "{{count}} tasks are snoozed and come back by themselves. The dashed «Snoozed» chip shows them.",
-      "allSnoozedHint_many": "{{count}} tasks are snoozed and come back by themselves. The dashed «Snoozed» chip shows them."
+      "allSnoozedHint_many": "{{count}} tasks are snoozed and come back by themselves. The dashed «Snoozed» chip shows them.",
+      "caughtUp": "All caught up",
+      "caughtUpHint_one": "You finished {{count}} task today. New work appears here by itself.",
+      "caughtUpHint_other": "You finished {{count}} tasks today. New work appears here by itself.",
+      "caughtUpHint_few": "You finished {{count}} tasks today. New work appears here by itself.",
+      "caughtUpHint_many": "You finished {{count}} tasks today. New work appears here by itself."
     },
     "selected": "{{count}} selected",
     "clearSelection": "Clear selection",
@@ -3607,7 +3662,8 @@
       "today": "For today",
       "mine": "Assigned to me",
       "cleared": "Done today"
-    }
+    },
+    "buyerGrade": "Buyer's grade: {{grade}}"
   },
   "portal": {
     "title": "Client portal",
@@ -3829,7 +3885,10 @@
       },
       "listTitle": "Reported overdue accounts",
       "fillToFile": "Choose the buyer and enter the due date and the amount",
-      "suspensionTitle": "This buyer’s credit limit will be suspended"
+      "suspensionTitle": "This buyer’s credit limit will be suspended",
+      "noBuyers": "No buyer has a credit limit in force under policy {{policy}}, so there is no account to report yet.",
+      "noBuyersOption": "No buyer with a limit in force",
+      "toLimits": "Credit limits"
     },
     "premium": {
       "title": "Premium",
@@ -3908,6 +3967,36 @@
       "nextExpiry": "Next renewal",
       "nextExpiryMeta": "a policy in force ends",
       "noActive": "no policy in force"
+    },
+    "timeline": {
+      "title": "In progress",
+      "open": "Open",
+      "yourTurn": "Waiting for you",
+      "kinds": {
+        "submission": "Submission",
+        "limit": "Credit limit request · policy {{policy}}",
+        "claim": "Claim {{number}}",
+        "submissionLabel": "Submission status",
+        "limitLabel": "Limit request status",
+        "claimLabel": "Claim status"
+      },
+      "limit": {
+        "sent": "Sent",
+        "review": "Under review",
+        "decided": "Decided"
+      },
+      "submission": {
+        "sent": "Sent",
+        "underwriting": "Underwriting",
+        "yourAnswer": "Your answer",
+        "accepted": "Accepted"
+      },
+      "claim": {
+        "filed": "Filed",
+        "assessment": "Assessment",
+        "decision": "Decision",
+        "paid": "Paid"
+      }
     }
   },
   "declarations": {
@@ -6065,5 +6154,14 @@
       "email": "Enter an address like name@company.uz",
       "url": "Enter a web address like company.uz"
     }
+  },
+  "search": {
+    "placeholder": "Search companies, policies, claims, submissions…",
+    "placeholderPage": "Search and filter ({{page}}): name, number, country — separate with commas",
+    "clear": "Clear the search",
+    "elsewhere_one": "{{count}} result elsewhere in the system",
+    "elsewhere_few": "{{count}} results elsewhere in the system",
+    "elsewhere_many": "{{count}} results elsewhere in the system",
+    "elsewhere_other": "{{count}} results elsewhere in the system"
   }
 }

@@ -134,6 +134,22 @@
   animation: panel-in var(--duration-moderate-01) var(--ease-productive-entrance) both;
 }
 
+/* A completion moment (the Agenda cleared): the one EXPRESSIVE entrance in
+   the app — 400 ms, expressive ease-out, once; nothing under reduced motion. */
+@keyframes completion-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@utility animate-completion-in {
+  animation: completion-in var(--duration-slow-01) var(--ease-expressive-entrance) both;
+}
+
 /* Skeleton placeholders keep the place of what is loading; the shimmer is a
    slow, low-contrast sweep (and none under reduced motion). */
 @keyframes skeleton-sweep {

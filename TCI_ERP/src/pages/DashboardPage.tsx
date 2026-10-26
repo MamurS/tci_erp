@@ -5,8 +5,10 @@
  * of equal cards. Every number links to the screen where it is worked.
  */
 
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import {
   AlarmClock,
@@ -31,8 +33,10 @@ import {
   KpiCard,
   PanelGrid,
   runningCountByMonth,
+  Segmented,
   Skeleton,
 } from '../components/ui'
+import { tci } from '../lib/supabase'
 import { contextFor, useAgendaTasks, useTaskSubjects, subjectFor } from '../features/agenda/api'
 import {
   activeTasks,
@@ -65,7 +69,7 @@ import {
   formatDue,
 } from '../lib/format'
 import { todayIso } from '../components/ui/dateEntry'
-import { buildSignals, dayPart, gradeMix } from './dashboard'
+import { buildSignals, dayPart, gradeExposure, gradeMix } from './dashboard'
 import type { Signal } from './dashboard'
 
 const TASKS_SHOWN = 7
@@ -450,12 +454,32 @@ function Panel({
 }
 
 /** Rated buyers per grade, as bars in the grade scale's own colours. */
+/** The book by grade, two ways on one axis: how many rated buyers sit in each
+ * grade, and how much exposure (UZS, limits in force) does — in the grade
+ * colours (Prompt 30: «grade-mix and exposure charts»). */
 function GradeMixPanel() {
   const { t, i18n } = useTranslation()
+  const locale = i18n.language
   const grades = useLatestGrades()
+  const [measure, setMeasure] = useState<'count' | 'exposure'>('count')
+  const exposures = useQuery({
+    queryKey: ['dashboard', 'exposure-by-buyer'],
+    queryFn: async () => {
+      const { data, error } = await tci().from('v_buyer_exposure').select('entity_id, exposure_uzs')
+      if (error) throw error
+      return (data ?? []) as { entity_id: string; exposure_uzs: number | string | null }[]
+    },
+  })
   const mix = gradeMix(grades.data?.values() ?? [])
   const total = mix.reduce((sum, row) => sum + row.count, 0)
-  const max = Math.max(1, ...mix.map((row) => row.count))
+  const exposure = gradeExposure(grades.data ?? new Map<string, string>(), exposures.data ?? [])
+  const rows =
+    measure === 'count'
+      ? mix.map((row) => ({ grade: row.grade, value: row.count }))
+      : exposure.rows.map((row) => ({ grade: row.grade, value: row.amount }))
+  const max = Math.max(1, ...rows.map((row) => row.value))
+  // Exposure is offered only to whoever may read it (RLS): an error hides it.
+  const exposureAvailable = !exposures.isError
   return (
     <Panel
       title={t('dashboard.gradeMix')}
@@ -477,25 +501,48 @@ function GradeMixPanel() {
       ) : total === 0 ? (
         <div className="px-5 py-6 text-body text-slate-500">{t('dashboard.gradeMixEmpty')}</div>
       ) : (
-        <ul className="flex flex-col gap-2 px-5 py-4" aria-label={t('dashboard.gradeMix')}>
-          {mix.map((row) => (
-            <li
-              key={row.grade}
-              className="grid grid-cols-[2.5rem_minmax(0,1fr)_3rem] items-center gap-3"
-            >
-              <span className="text-small font-semibold text-slate-700">{row.grade}</span>
-              <span className="h-3 overflow-hidden rounded-full bg-slate-100">
+        <div className="flex flex-col gap-3 px-5 py-4">
+          {exposureAvailable && (
+            <Segmented
+              ariaLabel={t('dashboard.gradeMixMeasure')}
+              value={measure}
+              options={[
+                { key: 'count', label: t('dashboard.gradeMixBuyers') },
+                { key: 'exposure', label: t('dashboard.gradeMixExposure') },
+              ]}
+              onChange={(key) => setMeasure(key as 'count' | 'exposure')}
+            />
+          )}
+          <ul className="flex flex-col gap-2" aria-label={t('dashboard.gradeMix')}>
+            {rows.map((row) => (
+              <li
+                key={row.grade}
+                className="grid grid-cols-[2.5rem_minmax(0,1fr)_4.5rem] items-center gap-3"
+              >
+                <span className="text-small font-semibold text-slate-700">{row.grade}</span>
+                <span className="h-3 overflow-hidden rounded-full bg-slate-100">
+                  <span
+                    className={`block h-full rounded-full ${gradeSolid(row.grade)}`}
+                    style={{ width: `${(row.value / max) * 100}%` }}
+                  />
+                </span>
                 <span
-                  className={`block h-full rounded-full ${gradeSolid(row.grade)}`}
-                  style={{ width: `${(row.count / max) * 100}%` }}
-                />
-              </span>
-              <span className="text-right text-small text-slate-600 tabular-nums">
-                {formatAmount(row.count, i18n.language)}
-              </span>
-            </li>
-          ))}
-        </ul>
+                  className="text-right text-small text-slate-600 tabular-nums"
+                  title={measure === 'exposure' ? `${formatAmount(row.value, locale)} UZS` : undefined}
+                >
+                  {measure === 'count' ? formatAmount(row.value, locale) : formatCompact(row.value, locale, 1)}
+                </span>
+              </li>
+            ))}
+          </ul>
+          {measure === 'exposure' && (
+            <p className="text-caption text-slate-500">
+              {exposure.unrated > 0
+                ? t('dashboard.gradeMixUnrated', { amount: formatCompact(exposure.unrated, locale, 1) })
+                : t('dashboard.gradeMixUzs')}
+            </p>
+          )}
+        </div>
       )}
     </Panel>
   )

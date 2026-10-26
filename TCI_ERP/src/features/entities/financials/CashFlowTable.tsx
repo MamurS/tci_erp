@@ -10,6 +10,7 @@ import { EM_DASH, formatAmount } from '../../../lib/format'
 import { statementPeriodLabel } from '../types'
 import type { CashFlowColumn, CashFlowLine, CashFlowSection } from './cashflow'
 import { hasPersistentNegativeCfo } from './cashflow'
+import { StickyTableFrame } from './StickyTableFrame'
 
 function Amount({ value, locale }: { value: number; locale: string }) {
   return (
@@ -51,7 +52,7 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <StickyTableFrame>
         <table className="w-full border-collapse text-small">
           <thead>
             <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
@@ -168,7 +169,7 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
             </tr>
           </tbody>
         </table>
-      </div>
+      </StickyTableFrame>
     </div>
   )
 }

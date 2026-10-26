@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -81,6 +82,19 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
   /** null = default (last 6 of the filtered list). */
   const [selectedIds, setSelectedIds] = useState<string[] | null>(null)
   const tableRef = useRef<HTMLDivElement>(null)
+  const [showEmpty, setShowEmpty] = useState(false)
+  // The sheet-tab row's height, for the column headings sticking under it.
+  const [tabsRow, setTabsRow] = useState<HTMLDivElement | null>(null)
+  const [tabsRowHeight, setTabsRowHeight] = useState(0)
+  useLayoutEffect(() => {
+    const row = tabsRow
+    if (!row) return
+    const measure = () => setTabsRowHeight(row.getBoundingClientRect().height)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(row)
+    return () => observer.disconnect()
+  }, [tabsRow])
 
   const all = useMemo(() => statements ?? [], [statements])
   const filteredAll = useMemo(
@@ -150,7 +164,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
   }
 
   return (
-    <div>
+    <div style={{ '--fin-tabs-h': `${tabsRowHeight}px` } as CSSProperties}>
       {/* Two aligned rows: what is shown (periods, report type, currency) with
           its export; then the views of it, with the statements themselves on
           the same line. Each wraps as a whole on a narrow screen. */}
@@ -241,7 +255,13 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
         </div>
       )}
 
-      <div className="flex flex-wrap items-end gap-x-4 gap-y-2 shadow-[inset_0_-1px_0_var(--color-slate-200)]">
+      {/* The sheet tabs stick under the top bar while the sheet scrolls, and
+          the sheet's column headings stick under them (StickyTableFrame) —
+          whose offset is this row's height, published as --fin-tabs-h. */}
+      <div
+        ref={setTabsRow}
+        className="sticky top-16 z-20 flex flex-wrap items-end gap-x-4 gap-y-2 bg-canvas shadow-[inset_0_-1px_0_var(--color-slate-200)]"
+      >
         <div className="min-w-0 flex-1">
           <Tabs
             size="sm"
@@ -256,7 +276,23 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
             onChange={(key) => setSubTab(key as SubTab)}
           />
         </div>
-        <div className="flex items-center gap-2 pb-1">
+        <div className="flex items-center gap-4 pb-1">
+          {/* Only the balance sheet and the P&L have lines to hide; on the
+              other sheets the switch keeps its place, unseen, so the buttons
+              beside it never move. */}
+          <label
+            className={`flex cursor-pointer items-center gap-2 text-small text-slate-600 ${
+              subTab === 'balance' || subTab === 'pnl' ? '' : 'invisible'
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={showEmpty}
+              onChange={(e) => setShowEmpty(e.target.checked)}
+              className="size-4 accent-accent-600"
+            />
+            {t('fin.showEmptyLines')}
+          </label>
           <Button variant="secondary" size="sm" onClick={() => setManageOpen(true)}>
             {t('fin.manageStatements')} ({all.length})
           </Button>
@@ -277,6 +313,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
             getValues={(s) => s.balance_sheets}
             verticalBaseFor={bsVerticalBase}
             deltaMode="stock"
+            showEmpty={showEmpty}
           />
         )}
         {subTab === 'pnl' && (
@@ -286,6 +323,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
             getValues={(s) => s.income_statements}
             verticalBaseFor={() => 'revenue'}
             deltaMode="like_for_like"
+            showEmpty={showEmpty}
           />
         )}
         {subTab === 'ratios' && <RatiosTable displayed={displayed} />}

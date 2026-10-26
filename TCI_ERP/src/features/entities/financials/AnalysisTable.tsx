@@ -6,7 +6,7 @@
  * where all displayed periods are null are hidden by default.
  */
 
-import { Fragment, useState } from 'react'
+import { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { statementPeriodLabel } from '../types'
@@ -15,6 +15,7 @@ import type { PeriodColumn } from './analysis'
 import { relativeChange, verticalShare } from './analysis'
 import { AmountCell, DeltaCell, ShareCell } from './cells'
 import type { LineDef, SectionDef } from './lines'
+import { StickyTableFrame } from './StickyTableFrame'
 
 type Values = Partial<Record<string, number | null>> | null
 
@@ -26,6 +27,9 @@ interface AnalysisTableProps<K extends string> {
   verticalBaseFor: (key: K) => string
   /** stock: label "Δ%"; like_for_like: label "Δ% vs <base period>". */
   deltaMode: 'stock' | 'like_for_like'
+  /** Lines with no value in any shown period — the switch sits in the
+   * sheet-tab row (FinancialsTab), so every sheet starts at one height. */
+  showEmpty: boolean
 }
 
 export function AnalysisTable<K extends string>({
@@ -34,9 +38,9 @@ export function AnalysisTable<K extends string>({
   getValues,
   verticalBaseFor,
   deltaMode,
+  showEmpty,
 }: AnalysisTableProps<K>) {
   const { t } = useTranslation()
-  const [showEmpty, setShowEmpty] = useState(false)
 
   const valueOf = (statement: StatementBundle | null, key: K): number | null => {
     if (!statement) return null
@@ -54,19 +58,7 @@ export function AnalysisTable<K extends string>({
 
   return (
     <div>
-      <div className="mb-2 flex justify-end">
-        <label className="flex cursor-pointer items-center gap-2 text-small text-slate-500">
-          <input
-            type="checkbox"
-            checked={showEmpty}
-            onChange={(e) => setShowEmpty(e.target.checked)}
-            className="accent-accent-600"
-          />
-          {t('fin.showEmptyLines')}
-        </label>
-      </div>
-
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+      <StickyTableFrame>
         <table className="w-full border-collapse text-small">
           <thead>
             <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
@@ -166,7 +158,7 @@ export function AnalysisTable<K extends string>({
             })}
           </tbody>
         </table>
-      </div>
+      </StickyTableFrame>
     </div>
   )
 }
