@@ -115,7 +115,7 @@ jobs:
           echo "BACKUP_NAME=$name" >> "$GITHUB_ENV"
 
       - name: Upload artifact (30 days)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.BACKUP_NAME }}
           path: out/
