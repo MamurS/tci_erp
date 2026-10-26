@@ -50,7 +50,7 @@ const LOSS_BAR = { default: 'bg-accent-500', warn: 'bg-warn-500', neg: 'bg-neg-5
 /** A quiet second line under a figure. */
 function Sub({ children, tone }: { children: ReactNode; tone?: 'warn' }) {
   return (
-    <span className={`mt-0.5 block text-[0.7188rem] font-normal whitespace-normal ${tone === 'warn' ? 'text-warn-500' : 'text-slate-500'}`}>
+    <span className={`mt-0.5 block text-caption font-normal whitespace-normal ${tone === 'warn' ? 'text-warn-500' : 'text-slate-500'}`}>
       {children}
     </span>
   )
@@ -71,7 +71,7 @@ function Meter({ share, tone }: { share: number | null; tone: 'pos' | 'accent' }
 
 /** The loss ratio with a bar on a 0–150 % scale and a tick at 100 %. */
 function LossRatio({ pct, locale }: { pct: number | null; locale: string }) {
-  if (pct === null) return <span className="text-slate-400">—</span>
+  if (pct === null) return <span className="text-slate-500">—</span>
   const tone = lossTone(pct)
   return (
     <div>
@@ -98,8 +98,8 @@ function Breakdown({
 }) {
   return (
     <div>
-      <h3 className="mb-2 text-[0.6875rem] font-semibold tracking-wider text-slate-400 uppercase">{title}</h3>
-      <ul className="space-y-2.5 text-[0.8125rem]">
+      <h3 className="mb-2 text-caption font-semibold tracking-wider text-slate-500 uppercase">{title}</h3>
+      <ul className="space-y-3 text-small">
         {items.map((item) => (
           <li key={item.key}>
             <div className="flex items-baseline justify-between gap-3">
@@ -221,9 +221,9 @@ export function PolicyPortfolioPage() {
                 {totals.map((c) => {
                   const paidShare = c.premiumBase > 0 ? Math.min(c.premiumPaid / c.premiumBase, 1) : null
                   return (
-                    <tr key={c.currency} className="[&>td]:py-2.5 [&>td]:align-top">
+                    <tr key={c.currency} className="[&>td]:py-3 [&>td]:align-top">
                       <td className="whitespace-nowrap">
-                        <span className="font-display text-[0.9375rem] font-bold tracking-wide text-accent-600">{c.currency}</span>
+                        <span className="text-lead font-semibold text-slate-900">{c.currency}</span>
                         <Sub>{t('portfolio.policies.inCurrency', { count: c.policies })}</Sub>
                       </td>
                       <td className="num">
@@ -233,7 +233,7 @@ export function PolicyPortfolioPage() {
                       <td>
                         <div className="flex items-baseline justify-between gap-3 tabular-nums">
                           <span>{formatCompact(c.premiumPaid, locale)}</span>
-                          <span className="text-[0.75rem] text-slate-500">{formatPercent(paidShare, locale, 0)}</span>
+                          <span className="text-caption text-slate-500">{formatPercent(paidShare, locale, 0)}</span>
                         </div>
                         <Meter share={paidShare} tone="pos" />
                         {c.premiumOverdue > 0 && (

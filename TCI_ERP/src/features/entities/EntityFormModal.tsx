@@ -177,7 +177,7 @@ export function EntityFormModal({
 
         {/* Non-blocking fuzzy duplicates while typing the name */}
         {!initial && dedup.suggestions.length > 0 && (
-          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-3 py-2 text-[0.8125rem]">
+          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-3 py-2 text-small">
             <p className="mb-1 font-medium text-warn-500">{t('entities.possibleDuplicates')}</p>
             <ul className="flex flex-col gap-0.5">
               {dedup.suggestions.map((s) => (
@@ -221,7 +221,7 @@ export function EntityFormModal({
         {/* Blocking exact duplicate on (country, registration number) */}
         {blocked && dedup.blockingEntity && (
           <div
-            className="rounded-md border border-neg-500/30 bg-neg-50 px-3 py-2 text-[0.8125rem] text-neg-500"
+            className="rounded-md border border-neg-500/30 bg-neg-50 px-3 py-2 text-small text-neg-500"
             role="alert"
           >
             {t('entities.regExists', { name: dedup.blockingEntity.name })}{' '}
@@ -267,7 +267,7 @@ export function EntityFormModal({
           </Field>
         </div>
         {error && (
-          <p className="text-[0.8125rem] text-neg-500" role="alert">
+          <p className="text-small text-neg-500" role="alert">
             {error}
           </p>
         )}

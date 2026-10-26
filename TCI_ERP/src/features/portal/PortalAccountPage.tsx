@@ -81,7 +81,7 @@ export function PortalAccountPage() {
           footer={
             <>
               {error && (
-                <p className="mb-3 text-[0.8125rem] text-neg-500" role="alert">
+                <p className="mb-3 text-small text-neg-500" role="alert">
                   {error}
                 </p>
               )}
@@ -89,7 +89,7 @@ export function PortalAccountPage() {
                 <Button loading={save.isPending} onClick={() => save.mutate()}>
                   {t('common.save')}
                 </Button>
-                {saved && <span className="text-[0.8125rem] text-pos-500">{t('portal.account.saved')}</span>}
+                {saved && <span className="text-small text-pos-500">{t('portal.account.saved')}</span>}
               </div>
             </>
           }

@@ -226,7 +226,7 @@ export function ImportLines({ importId }: { importId: string }) {
           {bySection[section].length ? (
             table(bySection[section])
           ) : (
-            <p className="rounded-lg border border-dashed border-slate-300 bg-white/70 px-4 py-3 text-[0.8125rem] text-slate-500">
+            <p className="rounded-lg border border-dashed border-slate-300 bg-white/70 px-4 py-3 text-small text-slate-500">
               {t(`premium.bank.sections.${section}Empty`)}
             </p>
           )}
@@ -245,7 +245,7 @@ export function ImportLines({ importId }: { importId: string }) {
           (bySection.processed.length ? (
             table(bySection.processed)
           ) : (
-            <p className="rounded-lg border border-dashed border-slate-300 bg-white/70 px-4 py-3 text-[0.8125rem] text-slate-500">
+            <p className="rounded-lg border border-dashed border-slate-300 bg-white/70 px-4 py-3 text-small text-slate-500">
               {t('premium.bank.sections.processedEmpty')}
             </p>
           ))}
@@ -289,10 +289,10 @@ function LineRow({ line, policy, children }: { line: BankLine; policy: PaymentPo
       </td>
       <td title={payerPurpose || undefined}>
         <span className={`block truncate leading-5 font-medium ${resolved ? '' : 'text-slate-800'}`}>{line.payer ?? EM_DASH}</span>
-        <span className="block truncate text-[0.75rem] leading-4 text-slate-500">{line.purpose ?? EM_DASH}</span>
+        <span className="block truncate text-caption leading-4 text-slate-500">{line.purpose ?? EM_DASH}</span>
       </td>
       <td>
-        <span className="block truncate font-mono text-[0.75rem] leading-5">
+        <span className="block truncate font-mono text-caption leading-5">
           {policy ? (
             <Link to={`/policies/${policy.id}?tab=premium`} className="text-accent-600 hover:underline" title={policy.policyholder ?? undefined}>
               {policy.policy_number}
@@ -301,7 +301,7 @@ function LineRow({ line, policy, children }: { line: BankLine; policy: PaymentPo
             EM_DASH
           )}
         </span>
-        <span className="block truncate text-[0.75rem] leading-4 text-slate-500" title={basis}>
+        <span className="block truncate text-caption leading-4 text-slate-500" title={basis}>
           {basis}
         </span>
       </td>
@@ -385,7 +385,7 @@ function AssignModal({
         </>
       }
     >
-      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-[0.8125rem]">
+      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-small">
         <dt className="text-slate-500">{t('premium.bank.fields.value_date')}</dt>
         <dd>{formatDate(line.value_date, locale)}</dd>
         <dt className="text-slate-500">{t('premium.bank.fields.amount')}</dt>
@@ -397,8 +397,8 @@ function AssignModal({
         <dt className="text-slate-500">{t('premium.bank.fields.purpose')}</dt>
         <dd className="min-w-0 break-words">{line.purpose ?? EM_DASH}</dd>
       </dl>
-      <div className="flex flex-col gap-1.5">
-        <span className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
+      <div className="flex flex-col gap-2">
+        <span className="text-caption font-semibold tracking-wide text-slate-600 uppercase">
           {t('premium.bank.fields.policy')}
         </span>
         <Combobox
@@ -410,7 +410,7 @@ function AssignModal({
           placeholder={t('premium.bank.assign.search')}
           aria-label={t('premium.bank.fields.policy')}
         />
-        <span className="text-xs text-slate-500">
+        <span className="text-caption text-slate-500">
           {chosen
             ? [
                 chosen.policyholder,
@@ -481,9 +481,9 @@ function IgnoreModal({
         </>
       }
     >
-      <p className="text-[0.8125rem] text-slate-600">{t('premium.bank.ignore.hint')}</p>
-      <label className="flex flex-col gap-1.5">
-        <span className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
+      <p className="text-small text-slate-600">{t('premium.bank.ignore.hint')}</p>
+      <label className="flex flex-col gap-2">
+        <span className="text-caption font-semibold tracking-wide text-slate-600 uppercase">
           {t('premium.bank.ignore.reason')}
         </span>
         <Textarea

@@ -38,7 +38,7 @@ export function RatiosTable({ displayed }: { displayed: StatementBundle[] }) {
   return (
     <div>
       <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-        <table className="w-full border-collapse text-[0.8125rem]">
+        <table className="w-full border-collapse text-small">
           <thead>
             <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
               <th className="text-left">{t('fin.ratioHeader')}</th>
@@ -55,24 +55,24 @@ export function RatiosTable({ displayed }: { displayed: StatementBundle[] }) {
                 <tr>
                   <td
                     colSpan={1 + displayed.length}
-                    className="border-b border-slate-100 px-3 pt-3 pb-1 text-xs font-semibold tracking-wide text-slate-400 uppercase"
+                    className="border-b border-slate-100 px-3 pt-3 pb-1 text-caption font-semibold tracking-wide text-slate-500 uppercase"
                   >
                     {t(`fin.ratioGroups.${group}`)}
                   </td>
                 </tr>
                 {RATIO_DEFS.filter((def) => def.group === group).map((def) => (
                   <tr key={def.key}>
-                    <td className="border-b border-slate-100 px-3 py-1.5 text-slate-700">
+                    <td className="border-b border-slate-100 px-3 py-2 text-slate-700">
                       {t(`fin.ratios.${def.key}`)}
                     </td>
                     {displayed.map((s, idx) => {
                       const ratio = ratioSets[idx][def.key]
                       return (
-                        <td key={s.id} className="border-b border-l border-slate-100 px-3 py-1.5">
+                        <td key={s.id} className="border-b border-l border-slate-100 px-3 py-2">
                           <span className={`num block ${ratio.value !== null && ratio.value < 0 ? 'text-neg-500' : ''}`}>
                             {formatValue(def.format, ratio.value)}
                             {ratio.annualized && ratio.value !== null && (
-                              <span className="text-slate-400">*</span>
+                              <span className="text-slate-500">*</span>
                             )}
                           </span>
                         </td>
@@ -86,7 +86,7 @@ export function RatiosTable({ displayed }: { displayed: StatementBundle[] }) {
         </table>
       </div>
       {anyAnnualized && (
-        <p className="mt-2 text-xs text-slate-400">* {t('fin.annualizedFootnote')}</p>
+        <p className="mt-2 text-caption text-slate-500">* {t('fin.annualizedFootnote')}</p>
       )}
     </div>
   )

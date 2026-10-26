@@ -83,7 +83,7 @@ export function EntityPicker({
           label: e.name,
           keywords: [e.registration_number],
           meta: (
-            <span className="inline-flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-2">
               <CountryFlag code={e.country_code} />
               {countryName(e.country_code)}
               {e.registration_number && <span className="num">· {e.registration_number}</span>}
@@ -119,14 +119,14 @@ export function EntityPicker({
                       close()
                       setRequesting(name)
                     }}
-                    className="flex w-full items-start gap-2.5 px-3 py-2.5 text-left hover:bg-accent-50"
+                    className="flex w-full items-start gap-3 px-3 py-3 text-left hover:bg-accent-50"
                   >
-                    <FilePlus2 className="mt-0.5 size-4 shrink-0 text-brand-orange" />
+                    <FilePlus2 className="mt-0.5 size-4 shrink-0 text-sky-600" />
                     <span className="min-w-0">
-                      <span className="block truncate text-[0.8125rem] font-medium text-accent-700">
+                      <span className="block truncate text-small font-medium text-accent-700">
                         {t('picker.request', { query: name })}
                       </span>
-                      <span className="block text-[0.75rem] text-slate-500">{t('picker.requestHint')}</span>
+                      <span className="block text-caption text-slate-500">{t('picker.requestHint')}</span>
                     </span>
                   </button>
                 ) : null

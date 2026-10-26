@@ -19,7 +19,7 @@ export function Toc({ doc, onJump }: { doc: ContractDoc; onJump: (index: number)
   return (
     <Panel title={t('contractDrafts.toc.title')}>
       {!entries.length ? (
-        <p className="text-[0.8125rem] text-slate-500">{t('contractDrafts.toc.empty')}</p>
+        <p className="text-small text-slate-500">{t('contractDrafts.toc.empty')}</p>
       ) : (
         <nav aria-label={t('contractDrafts.toc.title')} className="-mx-2 max-h-[55vh] overflow-y-auto">
           <ul className="flex flex-col">
@@ -29,8 +29,8 @@ export function Toc({ doc, onJump }: { doc: ContractDoc; onJump: (index: number)
                   type="button"
                   onClick={() => onJump(e.index)}
                   title={`${e.label ?? ''} ${e.text}`.trim()}
-                  className={`flex w-full gap-1.5 truncate rounded px-2 py-1 text-left hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-accent-500 ${
-                    e.level === 3 ? 'pl-5 text-[0.7812rem] text-slate-500' : e.level === 1 ? 'text-[0.8125rem] font-semibold text-slate-800' : 'text-[0.8125rem] font-medium text-slate-700'
+                  className={`flex w-full gap-2 truncate rounded px-2 py-1 text-left hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-accent-500 ${
+                    e.level === 3 ? 'pl-5 text-small text-slate-500' : e.level === 1 ? 'text-small font-semibold text-slate-800' : 'text-small font-medium text-slate-700'
                   }`}
                 >
                   {e.label && <span className="shrink-0 tabular-nums">{e.label}</span>}
@@ -79,10 +79,10 @@ export function CommentsPanel({
   return (
     <Panel title={t('contractDrafts.comments.title')} hint={t('contractDrafts.comments.hint')}>
       <ol className="flex flex-col gap-3">
-        {comments.length === 0 && <li className="text-[0.8125rem] text-slate-500">{t('contractDrafts.comments.empty')}</li>}
+        {comments.length === 0 && <li className="text-small text-slate-500">{t('contractDrafts.comments.empty')}</li>}
         {comments.map((c) => (
           <li key={c.id} className="rounded-md border border-slate-200 bg-slate-50/60 px-3 py-2">
-            <div className="flex flex-wrap items-center gap-x-2 text-[0.75rem] text-slate-500">
+            <div className="flex flex-wrap items-center gap-x-2 text-caption text-slate-500">
               <span className="font-medium text-slate-700">
                 {c.author_side === 'client' ? t('contractDrafts.comments.policyholder') : personName(c.author_id, staff)}
               </span>
@@ -90,7 +90,7 @@ export function CommentsPanel({
               <span className="tabular-nums">{formatMoment(c.created_at, locale)}</span>
               {versionNo(c.version_id) && <span className="tabular-nums">· v{versionNo(c.version_id)}</span>}
             </div>
-            <p className="mt-1 text-[0.8125rem] whitespace-pre-wrap text-slate-800">{c.body}</p>
+            <p className="mt-1 text-small whitespace-pre-wrap text-slate-800">{c.body}</p>
           </li>
         ))}
       </ol>
@@ -104,7 +104,7 @@ export function CommentsPanel({
           aria-label={t('contractDrafts.comments.placeholder')}
         />
         {error && (
-          <p className="text-[0.8125rem] text-neg-500" role="alert">
+          <p className="text-small text-neg-500" role="alert">
             {error}
           </p>
         )}
@@ -133,19 +133,19 @@ export function HistoryPanel({
   return (
     <Panel title={t('contractDrafts.history.title')}>
       {history.length === 0 ? (
-        <p className="text-[0.8125rem] text-slate-500">{t('contractDrafts.history.empty')}</p>
+        <p className="text-small text-slate-500">{t('contractDrafts.history.empty')}</p>
       ) : (
-        <ol className="flex flex-col gap-2.5">
+        <ol className="flex flex-col gap-3">
           {[...history].reverse().map((h) => (
-            <li key={h.id} className="text-[0.8125rem]">
+            <li key={h.id} className="text-small">
               <div className="font-medium text-slate-800">
                 {t(`contractDrafts.statuses.${h.to_status}`)}
                 <span className="font-normal text-slate-500 tabular-nums"> · v{versionNo(h.version_id) ?? EM_DASH}</span>
               </div>
-              <div className="text-[0.75rem] text-slate-500">
+              <div className="text-caption text-slate-500">
                 {personName(h.changed_by, staff)} · <span className="tabular-nums">{formatMoment(h.changed_at, locale)}</span>
               </div>
-              {h.comment && <p className="mt-0.5 text-[0.7812rem] whitespace-pre-wrap text-slate-600">«{h.comment}»</p>}
+              {h.comment && <p className="mt-0.5 text-small whitespace-pre-wrap text-slate-600">«{h.comment}»</p>}
             </li>
           ))}
         </ol>

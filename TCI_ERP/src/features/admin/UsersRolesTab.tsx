@@ -96,7 +96,7 @@ export function UsersRolesTab({
   return (
     <>
       <div className="mb-3 flex items-center justify-between gap-3">
-        <span className="text-[0.8125rem] text-slate-500">
+        <span className="text-small text-slate-500">
           {t('admin.usersCount', { count: users?.length ?? 0 })}
         </span>
         {/* Disabled says why: the notice below, and on the button itself. */}
@@ -124,17 +124,17 @@ export function UsersRolesTab({
       )}
 
       {actionErrorKey && (
-        <p className="mb-3 text-[0.8125rem] text-neg-500" role="alert">
+        <p className="mb-3 text-small text-neg-500" role="alert">
           {t(`provisioning.errors.${actionErrorKey}`)}
         </p>
       )}
       {rolesError && (
-        <p className="mb-3 text-[0.8125rem] text-neg-500" role="alert">
+        <p className="mb-3 text-small text-neg-500" role="alert">
           {rolesError}
         </p>
       )}
       {managerError && (
-        <p className="mb-3 text-[0.8125rem] text-neg-500" role="alert">
+        <p className="mb-3 text-small text-neg-500" role="alert">
           {managerError}
         </p>
       )}
@@ -164,7 +164,7 @@ export function UsersRolesTab({
               <td className="font-medium text-slate-800">
                 {u.email}
                 {u.full_name && (
-                  <span className="block text-xs font-normal text-slate-400">{u.full_name}</span>
+                  <span className="block text-caption font-normal text-slate-500">{u.full_name}</span>
                 )}
               </td>
               <td>
@@ -174,7 +174,7 @@ export function UsersRolesTab({
                 {u.roles.includes('credit_analyst') && (
                   <button
                     type="button"
-                    className="ml-1 text-[0.75rem] text-accent-700 hover:underline disabled:opacity-60"
+                    className="ml-1 text-caption text-accent-700 hover:underline disabled:opacity-60"
                     disabled={setSenior.isPending}
                     title={t('admin.senior.hint')}
                     onClick={(e) => {
@@ -211,14 +211,14 @@ export function UsersRolesTab({
                     {managerName(users, managers?.[u.user_id]) ?? t('admin.manager.none')}
                   </button>
                 ) : (
-                  <span className="text-slate-400">{EM_DASH}</span>
+                  <span className="text-slate-500">{EM_DASH}</span>
                 )}
               </td>
               <td className="text-slate-500">
                 {u.last_sign_in_at ? formatMoment(u.last_sign_in_at, i18n.language) : EM_DASH}
               </td>
               <RowActions>
-                <span className="inline-flex flex-wrap justify-end gap-1.5">
+                <span className="inline-flex flex-wrap justify-end gap-2">
                   <Button
                     variant="secondary"
                     size="sm"
@@ -356,7 +356,7 @@ function ManagerModal({
         </>
       }
     >
-      <p className="text-[0.8125rem] text-slate-500">{t('admin.manager.hint')}</p>
+      <p className="text-small text-slate-500">{t('admin.manager.hint')}</p>
       <Field label={t('admin.fields.manager')}>
         <Combobox value={picked} onChange={setPicked} options={options} openOnFocus autoFocus placeholder={t('admin.manager.placeholder')} />
       </Field>
@@ -366,7 +366,7 @@ function ManagerModal({
 
 export function RoleChips({ roles }: { roles: readonly UserRole[] }) {
   const { t } = useTranslation()
-  if (!roles.length) return <span className="text-xs text-slate-400">{t('roles.unassigned')}</span>
+  if (!roles.length) return <span className="text-caption text-slate-500">{t('roles.unassigned')}</span>
   return (
     <span className="inline-flex flex-wrap gap-1">
       {roles.map((r) => (
@@ -432,12 +432,12 @@ function RolesModal({
         </>
       }
     >
-      <p className="mb-3 text-[0.8125rem] text-slate-500">{t('admin.rolesHint')}</p>
+      <p className="mb-3 text-small text-slate-500">{t('admin.rolesHint')}</p>
       <div className="flex flex-col gap-2">
         {USER_ROLES.map((role) => (
           <label
             key={role}
-            className={`flex items-start gap-2.5 rounded-md border border-slate-200 px-3 py-2 ${
+            className={`flex items-start gap-3 rounded-md border border-slate-200 px-3 py-2 ${
               blocked(role) ? 'cursor-not-allowed opacity-60' : 'hover:bg-slate-50'
             }`}
           >
@@ -449,19 +449,19 @@ function RolesModal({
               className="mt-0.5"
             />
             <span>
-              <span className="block text-sm font-medium text-slate-800">
+              <span className="block text-body font-medium text-slate-800">
                 {t(`roles.${role}`)}
               </span>
-              <span className="block text-xs text-slate-500">
+              <span className="block text-caption text-slate-500">
                 {t(`roles.descriptions.${role}`)}
               </span>
             </span>
           </label>
         ))}
       </div>
-      <p className="mt-3 text-[0.8125rem] text-slate-500">{t('admin.clientAloneHint')}</p>
+      <p className="mt-3 text-small text-slate-500">{t('admin.clientAloneHint')}</p>
       {error && (
-        <p className="mt-2 text-[0.8125rem] text-neg-500" role="alert">
+        <p className="mt-2 text-small text-neg-500" role="alert">
           {error}
         </p>
       )}

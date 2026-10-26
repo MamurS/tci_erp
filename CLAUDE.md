@@ -933,7 +933,7 @@ is fine for internal test accounts and not fine for customers.
   file in one call with its ledger row, all eleven functions identical
   afterwards, `tests/db/rating_self_approval.sql` run on canonical with role
   impersonation (forced rollback, nothing left behind)
-- [ ] Rating scorecard (migration 0079, owner 2026-10-26, after Allianz
+- [x] Rating scorecard (migration 0079, owner 2026-10-26, after Allianz
   Trade's practice): every grade a person sets — approved alone, sent to a
   colleague or escalated — is built from four PILLARS (general / equity and
   debt / profit and loss / payment behaviour), each with a sub-grade (or «not
@@ -945,8 +945,12 @@ is fine for internal test accounts and not fine for customers.
   proposal without a scorecard is refused. Default weights 25 / 30 / 25 / 20
   on Admin › Полномочия; the engine's factors prefill equity-and-debt and
   P&L when the scale is served. See **Rating scorecard rules** below.
-  **Canonical: to be applied AT MERGE** (the deployed screens send no
-  scorecard)
+  **Canonical: 0079 applied 2026-10-26 AT MERGE** (the deployed screens
+  sent no scorecard): the functions it calls verified identical to a local
+  replay of 0078 first, the whole file in one call with its ledger row, PR
+  #69 merged right after; all ten 0079 functions fingerprint-identical to a
+  local replay afterwards; `tests/db/rating_scorecard.sql` run on canonical
+  with role impersonation (forced rollback, nothing left behind)
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 

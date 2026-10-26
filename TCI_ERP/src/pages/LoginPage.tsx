@@ -127,13 +127,13 @@ export function LoginPage() {
         <BrandPixels />
         <BrandMark size="lg" inverse />
         <div className="relative">
-          <h2 className="font-display text-[2.75rem] leading-[1.05] font-bold tracking-wide uppercase">
+          <h2 className="font-display text-display leading-[1.05] font-bold tracking-wide uppercase">
             {t('auth.heroTitle')}
           </h2>
-          <p className="mt-4 max-w-md text-[0.9375rem] leading-relaxed text-white/75">{t('auth.heroText')}</p>
+          <p className="mt-4 max-w-md text-lead leading-relaxed text-white/75">{t('auth.heroText')}</p>
         </div>
-        <div className="relative flex items-center gap-2 text-[0.75rem] text-white/55">
-          <span className="inline-block size-2.5 bg-brand-orange" aria-hidden="true" />
+        <div className="relative flex items-center gap-2 text-caption text-white/55">
+          <span className="inline-block size-2.5 bg-sky-400" aria-hidden="true" />
           {t('app.company')}
         </div>
       </div>
@@ -148,10 +148,10 @@ export function LoginPage() {
             <BrandMark size="md" />
           </div>
           <div>
-            <h1 className="font-display text-[1.875rem] leading-tight font-bold tracking-wide text-accent-600 uppercase">
+            <h1 className="font-display text-headline leading-tight font-bold tracking-wide text-accent-700 uppercase">
               {t('auth.signInTitle')}
             </h1>
-            <p className="mt-1 text-[0.875rem] text-slate-500">{t('auth.signInSubtitle')}</p>
+            <p className="mt-1 text-body text-slate-500">{t('auth.signInSubtitle')}</p>
           </div>
 
           <Field label={t('auth.email')}>
@@ -183,8 +183,8 @@ export function LoginPage() {
             <div
               className={
                 tone === 'warn'
-                  ? 'rounded-md border border-warn-500/30 bg-warn-50 px-3 py-2 text-[0.8125rem] text-warn-500'
-                  : 'rounded-md border border-neg-500/25 bg-neg-50 px-3 py-2 text-[0.8125rem] text-neg-500'
+                  ? 'rounded-md border border-warn-500/30 bg-warn-50 px-3 py-2 text-small text-warn-500'
+                  : 'rounded-md border border-neg-500/25 bg-neg-50 px-3 py-2 text-small text-neg-500'
               }
               role="alert"
             >
@@ -199,17 +199,17 @@ export function LoginPage() {
                 )}
               </p>
               {failure.kind === 'invalidCredentials' && failure.attemptsLeft === 1 && !waiting && (
-                <p className="mt-1 text-[0.7812rem]">{t('auth.lastAttemptWarning')}</p>
+                <p className="mt-1 text-small">{t('auth.lastAttemptWarning')}</p>
               )}
               {failure.kind === 'invalidCredentials' && waiting && (
-                <p className="mt-1 text-[0.7812rem]">
+                <p className="mt-1 text-small">
                   {t('auth.errors.throttled', { time: formatCountdown(waitSeconds) })}
                 </p>
               )}
             </div>
           )}
 
-          <Button type="submit" disabled={submitting || waiting} className="h-11 w-full text-[0.9375rem]">
+          <Button type="submit" disabled={submitting || waiting} className="h-11 w-full text-lead">
             {waiting
               ? t('auth.retryIn', { time: formatCountdown(waitSeconds) })
               : submitting
@@ -221,19 +221,19 @@ export function LoginPage() {
             <button
               type="button"
               onClick={() => setHelpOpen((v) => !v)}
-              className="text-[0.8125rem] font-medium text-accent-600 hover:text-accent-500 hover:underline"
+              className="text-small font-medium text-accent-600 hover:text-accent-500 hover:underline"
               aria-expanded={helpOpen}
             >
               {t('auth.forgotPassword')}
             </button>
             {helpOpen && (
-              <p className="mt-2 rounded-md bg-accent-50 px-3 py-2 text-left text-[0.7812rem] leading-relaxed text-slate-600">
+              <p className="mt-2 rounded-md bg-accent-50 px-3 py-2 text-left text-small leading-relaxed text-slate-600">
                 {t('auth.forgotPasswordHelp')}
               </p>
             )}
           </div>
 
-          <p className="text-center text-xs text-slate-400">{t('auth.noSelfSignup')}</p>
+          <p className="text-center text-caption text-slate-500">{t('auth.noSelfSignup')}</p>
         </form>
       </div>
       <NewVersionNotice stale={offerReload} />

@@ -162,7 +162,7 @@ export function LimitsPage() {
           </Select>
         )}
         {showDecision && (
-          <label className="ml-1 inline-flex items-center gap-2 text-[0.8125rem] text-slate-600">
+          <label className="ml-1 inline-flex items-center gap-2 text-small text-slate-600">
             <input
               type="checkbox"
               checked={mineOnly}
@@ -270,7 +270,7 @@ function ScopeCell({ request }: { request: LimitRequestWithRefs }) {
     return (
       <>
         <span className="block whitespace-nowrap text-slate-700">{policy.policy_number}</span>
-        <Truncate text={policy.legal_entities?.name} className="max-w-none text-[0.75rem] text-slate-500">
+        <Truncate text={policy.legal_entities?.name} className="max-w-none text-caption text-slate-500">
           {policy.legal_entities?.name ?? EM_DASH}
         </Truncate>
       </>
@@ -287,18 +287,18 @@ function ScopeCell({ request }: { request: LimitRequestWithRefs }) {
         >
           {submission.request_number}
         </Link>
-        <Truncate text={submission.legal_entities?.name} className="max-w-none text-[0.75rem] text-slate-500">
+        <Truncate text={submission.legal_entities?.name} className="max-w-none text-caption text-slate-500">
           {submission.legal_entities?.name ?? EM_DASH}
         </Truncate>
       </>
     )
   }
-  return <span className="text-slate-400">{EM_DASH}</span>
+  return <span className="text-slate-500">{EM_DASH}</span>
 }
 
 function AgeCell({ days }: { days: number | null }) {
   const { t } = useTranslation()
-  if (days === null) return <span className="text-slate-400">{EM_DASH}</span>
+  if (days === null) return <span className="text-slate-500">{EM_DASH}</span>
   const late = days > REQUEST_AGE_WARN_DAYS
   return (
     <span
@@ -342,6 +342,6 @@ function AuthorityCell({ row }: { row: QueueRow | undefined }) {
 }
 
 function GradeCell({ grade }: { grade: string | undefined }) {
-  if (!grade) return <span className="text-slate-400">{EM_DASH}</span>
+  if (!grade) return <span className="text-slate-500">{EM_DASH}</span>
   return <Badge tone={gradeTone(grade)}>{grade}</Badge>
 }

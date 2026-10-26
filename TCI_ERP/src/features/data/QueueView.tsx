@@ -78,8 +78,8 @@ export function QueueView() {
         // Compact: an empty scope is a fact, not a page — it must not push the
         // list of unresolved buyers below the fold. Each scope says its own.
         <Card className="px-5 py-4">
-          <p className="text-sm font-semibold text-slate-800">{t(`data.queue.empty.${scope}`)}</p>
-          <p className="mt-0.5 text-[0.8125rem] text-slate-500">{t(`data.queue.emptyHints.${scope}`)}</p>
+          <p className="text-body font-semibold text-slate-800">{t(`data.queue.empty.${scope}`)}</p>
+          <p className="mt-0.5 text-small text-slate-500">{t(`data.queue.emptyHints.${scope}`)}</p>
         </Card>
       ) : (
         <Table dense columns={[COL.code, labelCol('dataKind'), COL.fill, COL.person, COL.person, COL.moment, labelCol('dataStatus')]}>
@@ -106,7 +106,7 @@ export function QueueView() {
                 <td>
                   <Truncate text={r.requested_name} className="max-w-none font-medium text-slate-800" />
                   {r.country_code && (
-                    <span className="block text-[0.7188rem] text-slate-500">{countryName(r.country_code)}</span>
+                    <span className="block text-caption text-slate-500">{countryName(r.country_code)}</span>
                   )}
                 </td>
                 <td className="text-slate-600">{staffName(staff.data, r.requested_by)}</td>
@@ -136,7 +136,7 @@ export function QueueView() {
                 <li
                   key={task.id}
                   data-layout-row
-                  className="flex items-baseline justify-between gap-4 border-b border-slate-100 py-2.5 text-[0.8125rem] first:pt-0 last:border-b-0"
+                  className="flex items-baseline justify-between gap-4 border-b border-slate-100 py-3 text-small first:pt-0 last:border-b-0"
                 >
                   <span className="min-w-0 truncate font-medium text-slate-800" title={name}>
                     {name}
@@ -148,7 +148,7 @@ export function QueueView() {
                     </Link>
                   ) : (
                     number && (
-                      <span className="shrink-0 whitespace-nowrap text-slate-400">
+                      <span className="shrink-0 whitespace-nowrap text-slate-500">
                         {t('data.queue.submissionLink', { number })}
                       </span>
                     )

@@ -117,7 +117,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
         onClose={close}
         footer={<Button onClick={close}>{t('common.close')}</Button>}
       >
-        <p className="text-sm text-slate-700">
+        <p className="text-body text-slate-700">
           {t(done === 'proposal'
             ? 'portal.limits.sentProposal'
             : 'portal.limits.sentRequest')}
@@ -160,10 +160,10 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
         {picked ? (
           <Field label={t('portal.limits.buyer')}>
             <div className="flex items-center justify-between rounded-md border border-slate-300 bg-slate-50 px-3 py-2">
-              <span className="text-sm font-medium text-slate-900">
+              <span className="text-body font-medium text-slate-900">
                 {picked.name}
                 {picked.registration_number && (
-                  <span className="ml-2 num text-xs text-slate-400">
+                  <span className="ml-2 num text-caption text-slate-500">
                     {picked.registration_number}
                   </span>
                 )}
@@ -201,7 +201,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
               placeholder={t('portal.limits.searchPlaceholder')}
             />
             {query.trim().length > 0 && query.trim().length < 3 && (
-              <span className="text-xs text-slate-400">{t('portal.limits.searchMin')}</span>
+              <span className="text-caption text-slate-500">{t('portal.limits.searchMin')}</span>
             )}
             {isFetching && <Spinner />}
             {query.trim().length >= 3 && !isFetching && (
@@ -211,10 +211,10 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
                     key={hit.id}
                     type="button"
                     onClick={() => setPicked(hit)}
-                    className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-1.5 text-left text-sm hover:bg-slate-50"
+                    className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2 text-left text-body hover:bg-slate-50"
                   >
                     <span>{hit.name}</span>
-                    <span className="num text-xs text-slate-400">
+                    <span className="num text-caption text-slate-500">
                       {hit.registration_number ?? ''} {hit.country_code ?? ''}
                     </span>
                   </button>
@@ -225,7 +225,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
                     setProposing(true)
                     setProposedName(query.trim())
                   }}
-                  className="flex items-center gap-2 rounded-md border border-dashed border-accent-300 px-3 py-1.5 text-left text-[0.8125rem] font-medium text-accent-700 hover:bg-accent-50"
+                  className="flex items-center gap-2 rounded-md border border-dashed border-accent-300 px-3 py-2 text-left text-small font-medium text-accent-700 hover:bg-accent-50"
                 >
                   <PencilLine className="size-4 shrink-0" aria-hidden />
                   {(hits ?? []).length
@@ -247,7 +247,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
               invalid={amount.trim() !== '' && !amountValid}
             />
             {amount.trim() !== '' && !amountValid && (
-              <span className="text-[0.8125rem] text-neg-500">{t('portal.limits.amountInvalid')}</span>
+              <span className="text-small text-neg-500">{t('portal.limits.amountInvalid')}</span>
             )}
           </Field>
           <Field label={t('portal.limits.paymentTerms')}>
@@ -258,7 +258,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
               suffix={t('policies.terms.daysSuffix')}
             />
             {policy?.max_payment_terms_days != null && (
-              <span className="text-xs text-slate-400">
+              <span className="text-caption text-slate-500">
                 {t('portal.limits.maxTerms', { days: policy.max_payment_terms_days })}
               </span>
             )}
@@ -283,7 +283,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
         </Field>
 
         {missing.length > 0 && (
-          <p className="text-[0.8125rem] text-slate-500" data-testid="request-missing">
+          <p className="text-small text-slate-500" data-testid="request-missing">
             {missing.join(' · ')}
           </p>
         )}

@@ -126,7 +126,7 @@ function Terms({ request, locale }: { request: InsuranceRequestWithRefs; locale:
       {anySet ? (
         <DescriptionList columns={2} items={items} />
       ) : (
-        <p className="text-[0.8125rem] text-slate-600">{t('agenda.triage.submission.noTerms')}</p>
+        <p className="text-small text-slate-600">{t('agenda.triage.submission.noTerms')}</p>
       )}
     </Section>
   )

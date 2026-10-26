@@ -35,10 +35,10 @@ export function SessionsSection() {
         <Button variant="secondary" disabled={busy} onClick={() => void signOutOthers()}>
           {t('account.sessions.signOutOthers')}
         </Button>
-        {done && <span className="text-[0.8125rem] text-pos-500">{t('account.sessions.signedOutOthers')}</span>}
+        {done && <span className="text-small text-pos-500">{t('account.sessions.signedOutOthers')}</span>}
       </div>
       {error && (
-        <p className="mt-3 text-[0.8125rem] text-neg-500" role="alert">
+        <p className="mt-3 text-small text-neg-500" role="alert">
           {error}
         </p>
       )}

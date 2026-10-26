@@ -114,7 +114,7 @@ export function InsurerProfileCard({ canEdit }: { canEdit: boolean }) {
           {save.isPending ? t('common.saving') : t('common.save')}
         </Button>
         {message && (
-          <span className={`text-[0.8125rem] ${message.tone === 'ok' ? 'text-pos-500' : 'text-neg-500'}`}>{message.text}</span>
+          <span className={`text-small ${message.tone === 'ok' ? 'text-pos-500' : 'text-neg-500'}`}>{message.text}</span>
         )}
       </div>
     </Card>

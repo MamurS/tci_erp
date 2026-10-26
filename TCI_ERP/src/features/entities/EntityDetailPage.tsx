@@ -112,7 +112,7 @@ export function EntityDetailPage() {
       <PageHeader
         title={
           <>
-            <CountryFlag code={entity.country_code} className="mr-2.5" />
+            <CountryFlag code={entity.country_code} className="mr-3" />
             {entity.name}
           </>
         }

@@ -106,14 +106,14 @@ export function RatingsView() {
                   <Truncate text={r.buyer_name} className="max-w-none">
                     <EntityLink id={r.entity_id} name={r.buyer_name} tab={REASON_TAB[r.reason]} />
                   </Truncate>
-                  <Truncate text={countryName(r.buyer_country)} className="max-w-none text-[0.75rem] text-slate-500" />
+                  <Truncate text={countryName(r.buyer_country)} className="max-w-none text-caption text-slate-500" />
                 </td>
                 <td>
                   <Badge tone={REASON_TONE[r.reason]}>{t(`limits.workbench.ratings.reasons.${r.reason}`)}</Badge>
                 </td>
                 <td>
                   {/* Unrated is already the row's reason; the column stays a dash. */}
-                  {r.grade ? <BandBadge band={r.band} grade={r.grade} /> : <span className="text-slate-400">{EM_DASH}</span>}
+                  {r.grade ? <BandBadge band={r.band} grade={r.grade} /> : <span className="text-slate-500">{EM_DASH}</span>}
                 </td>
                 <td className="whitespace-nowrap text-slate-500">{formatDate(r.rated_at, locale)}</td>
                 <td className="num">{r.latest_fiscal_year ?? EM_DASH}</td>

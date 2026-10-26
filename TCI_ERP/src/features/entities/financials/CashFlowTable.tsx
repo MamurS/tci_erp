@@ -46,13 +46,13 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
   return (
     <div>
       {hasPersistentNegativeCfo(columns) && (
-        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] font-medium text-neg-500">
+        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-3 text-small font-medium text-neg-500">
           {t('fin.cashflow.negativeCfoWarning')}
         </div>
       )}
 
       <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-        <table className="w-full border-collapse text-[0.8125rem]">
+        <table className="w-full border-collapse text-small">
           <thead>
             <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
               <th className="sticky left-0 z-10 bg-slate-50 text-left">
@@ -60,7 +60,7 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
               </th>
               {columns.map((column) => (
                 <th key={column.statement.id} className="border-l border-slate-200 text-right">
-                  <div className="flex items-center justify-end gap-1.5">
+                  <div className="flex items-center justify-end gap-2">
                     <span title={`${statementPeriodLabel(column.previous)} → ${statementPeriodLabel(column.statement)}`}>
                       {statementPeriodLabel(column.statement)}
                     </span>
@@ -81,14 +81,14 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
                 <tr>
                   <td
                     colSpan={1 + columns.length}
-                    className="border-b border-slate-100 bg-white px-3 pt-3 pb-1 text-xs font-semibold tracking-wide text-slate-400 uppercase"
+                    className="border-b border-slate-100 bg-white px-3 pt-3 pb-1 text-caption font-semibold tracking-wide text-slate-500 uppercase"
                   >
                     {t(`fin.cashflow.sections.${section.key}`)}
                   </td>
                 </tr>
                 {linesOf(section.key).map((lineKey) => (
                   <tr key={lineKey}>
-                    <td className="sticky left-0 z-10 border-b border-slate-100 bg-white px-3 py-1.5 text-slate-700">
+                    <td className="sticky left-0 z-10 border-b border-slate-100 bg-white px-3 py-2 text-slate-700">
                       {t(`fin.cashflow.lines.${lineKey}`)}
                     </td>
                     {columns.map((column) => {
@@ -96,12 +96,12 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
                       return (
                         <td
                           key={column.statement.id}
-                          className="border-b border-l border-slate-100 px-3 py-1.5"
+                          className="border-b border-l border-slate-100 px-3 py-2"
                         >
                           {cell?.hasData ? (
                             <Amount value={cell.value} locale={locale} />
                           ) : (
-                            <span className="num block text-slate-400">{EM_DASH}</span>
+                            <span className="num block text-slate-500">{EM_DASH}</span>
                           )}
                         </td>
                       )
@@ -109,13 +109,13 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
                   </tr>
                 ))}
                 <tr className="bg-slate-50 font-medium">
-                  <td className="sticky left-0 z-10 border-b border-slate-200 bg-slate-50 px-3 py-1.5 text-slate-800">
+                  <td className="sticky left-0 z-10 border-b border-slate-200 bg-slate-50 px-3 py-2 text-slate-800">
                     {t(`fin.cashflow.subtotals.${section.subtotalKey}`)}
                   </td>
                   {columns.map((column) => (
                     <td
                       key={column.statement.id}
-                      className="border-b border-l border-slate-200 px-3 py-1.5"
+                      className="border-b border-l border-slate-200 px-3 py-2"
                     >
                       <Amount value={column[section.subtotalKey]} locale={locale} />
                     </td>
@@ -125,23 +125,23 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
             ))}
 
             <tr className="bg-slate-100 font-semibold [&>td]:border-t [&>td]:border-slate-300">
-              <td className="sticky left-0 z-10 bg-slate-100 px-3 py-1.5">
+              <td className="sticky left-0 z-10 bg-slate-100 px-3 py-2">
                 {t('fin.cashflow.netChange')}
               </td>
               {columns.map((column) => (
-                <td key={column.statement.id} className="border-l border-slate-200 px-3 py-1.5">
+                <td key={column.statement.id} className="border-l border-slate-200 px-3 py-2">
                   <Amount value={column.netChange} locale={locale} />
                 </td>
               ))}
             </tr>
             <tr>
-              <td className="sticky left-0 z-10 bg-white px-3 py-1.5 text-slate-500">
+              <td className="sticky left-0 z-10 bg-white px-3 py-2 text-slate-500">
                 {t('fin.cashflow.deltaCash')}
               </td>
               {columns.map((column) => (
-                <td key={column.statement.id} className="border-l border-slate-100 px-3 py-1.5">
+                <td key={column.statement.id} className="border-l border-slate-100 px-3 py-2">
                   {column.deltaCash === null ? (
-                    <span className="num block text-slate-400">{EM_DASH}</span>
+                    <span className="num block text-slate-500">{EM_DASH}</span>
                   ) : (
                     <Amount value={column.deltaCash} locale={locale} />
                   )}
@@ -149,13 +149,13 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
               ))}
             </tr>
             <tr>
-              <td className="sticky left-0 z-10 bg-white px-3 py-1.5 text-slate-500">
+              <td className="sticky left-0 z-10 bg-white px-3 py-2 text-slate-500">
                 {t('fin.cashflow.reconciliation')}
               </td>
               {columns.map((column) => (
-                <td key={column.statement.id} className="border-l border-slate-100 px-3 py-1.5 text-right">
+                <td key={column.statement.id} className="border-l border-slate-100 px-3 py-2 text-right">
                   {column.reconciled === null ? (
-                    <span className="text-slate-400">{EM_DASH}</span>
+                    <span className="text-slate-500">{EM_DASH}</span>
                   ) : column.reconciled ? (
                     <span className="text-pos-500">{t('fin.cashflow.ok')}</span>
                   ) : (

@@ -38,7 +38,7 @@ export function GroupChip({ entityId, compact = false }: { entityId: string; com
       <Link
         to={`/entities/${entityId}?tab=group`}
         title={body}
-        className="inline-flex items-center gap-1.5 text-accent-600 hover:underline"
+        className="inline-flex items-center gap-2 text-accent-600 hover:underline"
       >
         <Network className="size-3.5" aria-hidden />
         {t('groups.chip.short', { parent: parentName })}
@@ -48,7 +48,7 @@ export function GroupChip({ entityId, compact = false }: { entityId: string; com
   return (
     <Link
       to={`/entities/${entityId}?tab=group`}
-      className="inline-flex items-center gap-2 text-[0.8125rem] text-slate-600 hover:underline"
+      className="inline-flex items-center gap-2 text-small text-slate-600 hover:underline"
     >
       <Badge tone="accent">{t('groups.chip.label')}</Badge>
       <span>{body}</span>

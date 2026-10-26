@@ -45,8 +45,8 @@ export function ReportModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[0.8125rem] font-medium text-slate-600">
+        <div className="flex flex-col gap-2">
+          <span className="text-small font-medium text-slate-600">
             {t('rating.reportModal.language')}
           </span>
           <Segmented
@@ -59,8 +59,8 @@ export function ReportModal({
             onChange={setLang}
           />
         </div>
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[0.8125rem] font-medium text-slate-600">
+        <div className="flex flex-col gap-2">
+          <span className="text-small font-medium text-slate-600">
             {t('rating.reportModal.reportType')}
           </span>
           <Segmented
@@ -72,8 +72,8 @@ export function ReportModal({
             onChange={setReportType}
           />
         </div>
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[0.8125rem] font-medium text-slate-600">
+        <div className="flex flex-col gap-2">
+          <span className="text-small font-medium text-slate-600">
             {t('rating.reportModal.currency')}
           </span>
           <Segmented

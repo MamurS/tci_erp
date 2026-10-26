@@ -201,7 +201,7 @@ export function Combobox({
 
   return (
     <div className="relative">
-      <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-slate-400" />
+      <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
       <input
         ref={inputRef}
         type="text"
@@ -232,7 +232,7 @@ export function Combobox({
           if (!open) setEditing(false)
         }}
         onKeyDown={onKeyDown}
-        className={`h-9 w-full rounded-md border bg-white py-1.5 pr-8 pl-8 text-sm text-slate-900 shadow-[inset_0_1px_1px_rgb(0_0_0/0.03)] transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-accent-500 focus:ring-3 focus:ring-accent-500/20 focus:outline-none disabled:bg-slate-50 disabled:text-slate-500 ${
+        className={`h-9 w-full rounded-md border bg-white py-2 pr-8 pl-8 text-body text-slate-900 shadow-[inset_0_1px_1px_rgb(0_0_0/0.03)] transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-accent-500 focus:ring-3 focus:ring-accent-500/20 focus:outline-none disabled:bg-slate-50 disabled:text-slate-500 ${
           invalid ? 'border-neg-500' : 'border-slate-300'
         } ${selected && !editing ? 'font-medium' : ''}`}
       />
@@ -245,7 +245,7 @@ export function Combobox({
           onMouseDown={(e) => e.preventDefault()}
           onClick={clear}
           aria-label={t('picker.clear')}
-          className="absolute top-1/2 right-1.5 flex size-6 -translate-y-1/2 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          className="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"
         >
           <X className="size-3.5" />
         </button>
@@ -279,15 +279,15 @@ export function Combobox({
                   aria-selected={index === active}
                   onMouseEnter={() => setActive(index)}
                   onClick={() => pick(option)}
-                  className={`flex cursor-pointer items-start gap-2.5 px-3 py-2 ${
+                  className={`flex cursor-pointer items-start gap-3 px-3 py-2 ${
                     index === active ? 'bg-accent-50' : ''
                   }`}
                 >
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[0.8438rem] text-slate-700">
+                    <div className="truncate text-body text-slate-700">
                       {highlight(option.label, query).map((part, i) =>
                         part.match ? (
-                          <strong key={i} className="font-semibold text-slate-950">
+                          <strong key={i} className="font-semibold text-slate-900">
                             {part.text}
                           </strong>
                         ) : (
@@ -295,16 +295,16 @@ export function Combobox({
                         ),
                       )}
                     </div>
-                    {option.meta && <div className="mt-0.5 truncate text-[0.75rem] text-slate-500">{option.meta}</div>}
+                    {option.meta && <div className="mt-0.5 truncate text-caption text-slate-500">{option.meta}</div>}
                   </div>
                   {option.id === value && <Check className="mt-0.5 size-4 shrink-0 text-accent-600" />}
                 </div>
               ))}
               {result.shown.length === 0 && (
-                <div className="px-3 py-2.5 text-[0.8125rem] text-slate-500">{t('picker.noMatches')}</div>
+                <div className="px-3 py-3 text-small text-slate-500">{t('picker.noMatches')}</div>
               )}
               {result.more > 0 && (
-                <div className="px-3 pt-1 pb-1.5 text-[0.75rem] text-slate-400">
+                <div className="px-3 pt-1 pb-2 text-caption text-slate-500">
                   {t('picker.more', { n: result.more })}
                 </div>
               )}

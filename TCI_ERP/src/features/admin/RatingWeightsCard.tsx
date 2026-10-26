@@ -44,7 +44,7 @@ export function RatingWeightsCard() {
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           {PILLARS.map((pillar) => (
             <label key={pillar} className="flex flex-col gap-1">
-              <span className="text-[0.8125rem] font-medium text-slate-700">
+              <span className="text-small font-medium text-slate-700">
                 {t(`rating.scorecard.pillars.${pillar}.name`)}
               </span>
               <span className="relative">
@@ -62,7 +62,7 @@ export function RatingWeightsCard() {
                     setDraft({ ...weights, [pillar]: Number.isFinite(n) ? Math.min(Math.max(n, 0), 100) : 0 })
                   }}
                 />
-                <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[0.8125rem] text-slate-400">
+                <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-small text-slate-500">
                   %
                 </span>
               </span>
@@ -71,7 +71,7 @@ export function RatingWeightsCard() {
         </div>
       )}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <span className="text-[0.8125rem] text-slate-600">{t('rating.scorecard.weightSum', { sum })}</span>
+        <span className="text-small text-slate-600">{t('rating.scorecard.weightSum', { sum })}</span>
         <Button
           disabled={draft === null || sum !== 100}
           loading={save.isPending}

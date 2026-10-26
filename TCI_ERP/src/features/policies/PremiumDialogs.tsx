@@ -72,8 +72,8 @@ export function InvoiceDialog({
       }
     >
       <div className="space-y-4">
-        <p className="text-sm text-slate-600">{t('premium.invoice.hint')}</p>
-        <dl className="grid grid-cols-2 gap-3 text-sm">
+        <p className="text-body text-slate-600">{t('premium.invoice.hint')}</p>
+        <dl className="grid grid-cols-2 gap-3 text-body">
           <div>
             <dt className="text-slate-500">{t('premium.fields.dueDate')}</dt>
             <dd className="font-medium text-slate-900">{formatDate(instalment.due_date, i18n.language)}</dd>
@@ -163,7 +163,7 @@ export function PaymentDialog({
       }
     >
       <div className="space-y-4">
-        <p className="text-sm text-slate-600">{t('premium.payment.hint', { amount: money(outstanding) })}</p>
+        <p className="text-body text-slate-600">{t('premium.payment.hint', { amount: money(outstanding) })}</p>
         <div className="grid grid-cols-[1fr_8rem] gap-3">
           <Field label={t('premium.fields.amount')}>
             <AmountInput value={amount} onChange={setAmount} suffix={currency} autoFocus invalid={Boolean(error) && !(value > 0)} />
@@ -240,7 +240,7 @@ export function ReverseDialog({
       }
     >
       <div className="space-y-4">
-        <p className="text-sm text-slate-600">{t('premium.reverse.hint')}</p>
+        <p className="text-body text-slate-600">{t('premium.reverse.hint')}</p>
         <Field label={t('premium.fields.reason')}>
           <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} maxLength={500} autoFocus />
         </Field>

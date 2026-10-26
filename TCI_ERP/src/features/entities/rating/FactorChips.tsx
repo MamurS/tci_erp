@@ -18,7 +18,7 @@ export function FactorChipList({
     badgeClassName('sm', chip.kind === 'strength' ? 'bg-pos-50 text-pos-500 ring-pos-500/20' : 'bg-neg-50 text-neg-500 ring-neg-500/20')
 
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-wrap gap-2">
       {chips.map((chip) =>
         onChipClick ? (
           <button

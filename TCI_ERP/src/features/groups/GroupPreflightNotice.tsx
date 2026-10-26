@@ -60,7 +60,7 @@ export function GroupPreflightNotice({ preflight }: GroupPreflightNoticeProps) {
   return (
     <div
       role="status"
-      className={`rounded-md border px-4 py-2.5 text-[0.8125rem] ${TONE_CLASS[state.tone]}`}
+      className={`rounded-md border px-4 py-3 text-small ${TONE_CLASS[state.tone]}`}
     >
       {body}
       {preflight.missing_rates > 0 && (

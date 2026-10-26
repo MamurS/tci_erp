@@ -54,7 +54,7 @@ export function StatusModal({
         </>
       }
     >
-      <p className="text-[0.8438rem] text-slate-600">{t(`contractDrafts.status.${action.action}.body`)}</p>
+      <p className="text-body text-slate-600">{t(`contractDrafts.status.${action.action}.body`)}</p>
       <Field
         label={action.needsReason ? t('contractDrafts.status.reason') : t('contractDrafts.status.comment')}
         hint={action.needsReason ? t('contractDrafts.status.reasonHint') : undefined}
@@ -62,7 +62,7 @@ export function StatusModal({
         <Textarea rows={3} value={comment} maxLength={1000} onChange={(e) => setComment(e.target.value)} />
       </Field>
       {error && (
-        <p className="text-[0.8125rem] text-neg-500" role="alert">
+        <p className="text-small text-neg-500" role="alert">
           {error}
         </p>
       )}
@@ -128,7 +128,7 @@ export function SignModal({
         <Input type="file" accept="application/pdf,.pdf" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
       </Field>
       {error && (
-        <p className="text-[0.8125rem] text-neg-500" role="alert">
+        <p className="text-small text-neg-500" role="alert">
           {error}
         </p>
       )}
@@ -172,7 +172,7 @@ export function SaveModal({
         </>
       }
     >
-      <p className="text-[0.8438rem] text-slate-600">{t('contractDrafts.save.body', { version: baseVersionNo + 1 })}</p>
+      <p className="text-body text-slate-600">{t('contractDrafts.save.body', { version: baseVersionNo + 1 })}</p>
       <Field label={t('contractDrafts.save.note')} hint={t('contractDrafts.save.noteHint')}>
         <Input
           autoFocus
@@ -185,7 +185,7 @@ export function SaveModal({
         />
       </Field>
       {error && (
-        <p className="text-[0.8125rem] text-neg-500" role="alert">
+        <p className="text-small text-neg-500" role="alert">
           {error}
         </p>
       )}

@@ -67,7 +67,7 @@ export function Button({ variant = 'primary', size = 'md', className = '', loadi
 // ---------------------------------------------------------------------------
 
 const CONTROL_CLASSES =
-  'w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 shadow-[inset_0_1px_1px_rgb(0_0_0/0.03)] transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-accent-500 focus:outline-none focus:ring-3 focus:ring-accent-500/20 disabled:bg-slate-50 disabled:text-slate-400'
+  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-body text-slate-900 shadow-[inset_0_1px_1px_rgb(0_0_0/0.03)] transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-accent-500 focus:outline-none focus:ring-3 focus:ring-accent-500/20 disabled:bg-slate-50 disabled:text-slate-400'
 
 interface FieldProps {
   label?: string
@@ -80,14 +80,14 @@ interface FieldProps {
 export function Field({ label, hint, children, className = '' }: FieldProps) {
   const labelId = useId()
   return (
-    <label className={`flex flex-col gap-1.5 ${className}`}>
+    <label className={`flex flex-col gap-2 ${className}`}>
       {label && (
-        <span id={labelId} className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
+        <span id={labelId} className="text-caption font-semibold tracking-wide text-slate-600 uppercase">
           {label}
         </span>
       )}
       <FieldLabelIdContext.Provider value={label ? labelId : undefined}>{children}</FieldLabelIdContext.Provider>
-      {hint && <span className="text-xs text-slate-500">{hint}</span>}
+      {hint && <span className="text-caption text-slate-500">{hint}</span>}
     </label>
   )
 }
@@ -134,7 +134,8 @@ export function Card({ children, className = '', ...rest }: CardProps) {
 }
 
 // ---------------------------------------------------------------------------
-// Section title — the brand marker: a process-blue square + condensed caps
+// Section title — the body face, semibold, sentence case (Prompt 30: the
+// display face is for page titles and key figures only; no decorative marker)
 // ---------------------------------------------------------------------------
 
 interface SectionTitleProps {
@@ -155,7 +156,7 @@ export function SectionTitle({ children, actions, hint, rule = false, className 
         <SectionTitle actions={actions} rule={rule}>
           {children}
         </SectionTitle>
-        <p className="mt-1 text-[0.75rem] leading-relaxed text-slate-500">{hint}</p>
+        <p className="mt-1 text-caption leading-relaxed text-slate-500">{hint}</p>
       </div>
     )
   return (
@@ -164,13 +165,10 @@ export function SectionTitle({ children, actions, hint, rule = false, className 
     // button never hangs over the content below.
     <div
       className={`flex min-h-8 flex-wrap items-center justify-between gap-x-3 gap-y-2 ${
-        rule ? 'border-b border-accent-500 pb-1.5' : ''
+        rule ? 'border-b border-slate-200 pb-2' : ''
       } ${className}`}
     >
-      <h2 className="flex items-center gap-2 font-display text-[1.0625rem] leading-tight font-bold tracking-wide text-accent-600 uppercase">
-        <span aria-hidden="true" className="inline-block size-2.5 shrink-0 bg-accent-500" />
-        {children}
-      </h2>
+      <h2 className="flex items-center gap-2 text-lead leading-tight font-semibold text-slate-900">{children}</h2>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>
   )
@@ -262,7 +260,7 @@ interface StatCardProps {
 const STAT_TONES: Record<NonNullable<StatCardProps['tone']>, string> = {
   default: 'border-t-accent-500',
   pos: 'border-t-pos-500',
-  warn: 'border-t-brand-orange',
+  warn: 'border-t-warning-400',
   neg: 'border-t-neg-500',
 }
 
@@ -280,18 +278,18 @@ export function StatCard({
     <Tag
       type={onClick ? 'button' : undefined}
       onClick={onClick}
-      className={`group flex flex-col gap-1 rounded-lg border border-slate-200/90 border-t-[3px] bg-white px-4 pt-3 pb-3.5 text-left shadow-card transition-shadow ${
+      className={`group flex flex-col gap-1 rounded-lg border border-slate-200/90 border-t-[3px] bg-white px-4 pt-3 pb-4 text-left shadow-card transition-shadow ${
         STAT_TONES[tone]
       } ${onClick ? 'cursor-pointer hover:shadow-pop focus-visible:outline-2 focus-visible:outline-accent-500' : ''} ${className}`}
     >
-      <span className="flex items-start justify-between gap-2 text-[0.75rem] font-medium text-slate-500">
+      <span className="flex items-start justify-between gap-2 text-caption font-medium text-slate-500">
         {label}
-        {icon && <span className="text-accent-500 [&_svg]:size-4">{icon}</span>}
+        {icon && <span className="text-slate-500 [&_svg]:size-4">{icon}</span>}
       </span>
-      <span className="num text-left font-display text-[1.625rem] leading-none font-bold text-accent-600">
+      <span className="num text-left font-display text-headline leading-none font-bold text-accent-600">
         {value}
       </span>
-      {meta && <span className="mt-0.5 text-[0.75rem] text-slate-500">{meta}</span>}
+      {meta && <span className="mt-0.5 text-caption text-slate-500">{meta}</span>}
     </Tag>
   )
 }
@@ -356,7 +354,7 @@ export function Segmented({ value, options, onChange, ariaLabel, tone = 'default
             disabled={option.disabled}
             aria-pressed={option.key === value}
             onClick={() => onChange(option.key)}
-            className={`rounded-[5px] px-3.5 text-[0.8125rem] font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none ${
+            className={`rounded-[5px] px-3 text-small font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none ${
               option.key === value ? 'bg-accent-600 text-white' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
             } ${option.disabled ? 'cursor-not-allowed opacity-50' : ''}`}
           >
@@ -379,7 +377,7 @@ export function Segmented({ value, options, onChange, ariaLabel, tone = 'default
           disabled={option.disabled}
           aria-pressed={option.key === value}
           onClick={() => onChange(option.key)}
-          className={`rounded-[5px] px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none ${
+          className={`rounded-[5px] px-3 py-1 text-caption font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none ${
             option.key === value
               ? 'bg-white text-accent-600 shadow-sm ring-1 ring-slate-200'
               : 'text-slate-600 hover:text-slate-900'
@@ -412,12 +410,12 @@ export function PageHeader({ title, status, subtitle, actions, eyebrow }: PageHe
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
         {eyebrow && (
-          <div className="mb-1 text-[0.75rem] font-semibold tracking-wider text-accent-500 uppercase">
+          <div className="mb-1 text-caption font-semibold tracking-wider text-accent-500 uppercase">
             {eyebrow}
           </div>
         )}
-        <div data-badge-row className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-          <h1 className="font-display text-[1.75rem] leading-tight font-bold tracking-wide text-accent-600 uppercase">
+        <div data-badge-row className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <h1 className="font-display text-headline leading-tight font-bold tracking-wide text-accent-700 uppercase">
             {title}
           </h1>
           {status && (
@@ -426,7 +424,7 @@ export function PageHeader({ title, status, subtitle, actions, eyebrow }: PageHe
             </BadgeSizeContext.Provider>
           )}
         </div>
-        {subtitle && <p className="mt-1 max-w-3xl text-sm text-slate-500">{subtitle}</p>}
+        {subtitle && <p className="mt-1 max-w-3xl text-body text-slate-500">{subtitle}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
@@ -488,7 +486,7 @@ export function ViewBar({ hint, actions }: ViewBarProps) {
   if (!hint && !actions) return null
   return (
     <div className="mb-5 flex min-h-9 flex-wrap items-center justify-between gap-x-6 gap-y-3">
-      {hint ? <p className="max-w-3xl min-w-0 flex-1 text-[0.8125rem] leading-relaxed text-slate-500">{hint}</p> : <span />}
+      {hint ? <p className="max-w-3xl min-w-0 flex-1 text-small leading-relaxed text-slate-500">{hint}</p> : <span />}
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </div>
   )
@@ -515,7 +513,7 @@ export function EmptyState({ title, hint, action, icon }: EmptyStateProps) {
         framed ? 'px-4 py-8' : 'rounded-lg border border-dashed border-slate-300 bg-white/70 px-6 py-14'
       }`}
     >
-      <span className="mb-1 flex size-11 items-center justify-center rounded-full bg-accent-50 text-accent-500 [&_svg]:size-5">
+      <span className="mb-1 flex size-11 items-center justify-center rounded-full bg-slate-100 text-slate-500 [&_svg]:size-5">
         {icon ?? (
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="1.6" />
@@ -523,8 +521,8 @@ export function EmptyState({ title, hint, action, icon }: EmptyStateProps) {
           </svg>
         )}
       </span>
-      <p className="text-sm font-semibold text-slate-800">{title}</p>
-      {hint && <p className="max-w-md text-[0.8125rem] leading-relaxed text-slate-500">{hint}</p>}
+      <p className="text-body font-semibold text-slate-800">{title}</p>
+      {hint && <p className="max-w-md text-small leading-relaxed text-slate-500">{hint}</p>}
       {action && <div className="mt-2">{action}</div>}
     </div>
   )
@@ -560,7 +558,7 @@ export function Count({
       data-badge="sm"
       title={title}
       style={{ minWidth: `calc(${digits}ch + 0.75rem)` }}
-      className={`inline-flex h-5 shrink-0 items-center justify-center rounded-full px-1.5 font-sans text-xs leading-4 font-medium tabular-nums normal-case ${className}`}
+      className={`inline-flex h-5 shrink-0 items-center justify-center rounded-full px-2 font-sans text-caption leading-4 font-medium tabular-nums normal-case ${className}`}
     >
       {value}
     </span>
@@ -591,12 +589,12 @@ export function Tabs({ tabs, active, onChange, size = 'md' }: TabsProps) {
   const crowded = tabs.length > 7
   const pad =
     size === 'sm'
-      ? 'px-3 py-2 text-[0.8125rem]'
+      ? 'px-3 py-2 text-small'
       : crowded
-        ? 'px-1.5 py-2.5 text-[0.8125rem] leading-5'
+        ? 'px-1 py-3 text-small leading-5'
         : dense
-          ? 'px-2 py-2.5 text-sm'
-          : 'px-3.5 py-2.5 text-sm'
+          ? 'px-2 py-3 text-body'
+          : 'px-3 py-3 text-body'
   // The rule under the tabs is an inset shadow, not a border: the selected
   // tab's underline then sits ON it without a negative margin, so the strip
   // never overflows vertically (which showed a stray scrollbar on Windows).
@@ -614,7 +612,7 @@ export function Tabs({ tabs, active, onChange, size = 'md' }: TabsProps) {
             role="tab"
             aria-selected={selected}
             onClick={() => onChange(tab.key)}
-            className={`flex shrink-0 items-center gap-1.5 border-b-2 font-medium whitespace-nowrap transition-colors ${pad} ${
+            className={`flex shrink-0 items-center ${crowded ? 'gap-1' : 'gap-2'} border-b-2 font-medium whitespace-nowrap transition-colors ${pad} ${
               selected
                 ? 'border-accent-500 text-accent-600'
                 : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-800'
@@ -687,10 +685,10 @@ export function Modal({ open, title, onClose, children, footer, wide = false }: 
         aria-labelledby={titleId}
         className={`animate-fade-in w-full ${wide ? 'max-w-2xl' : 'max-w-md'} overflow-hidden rounded-xl bg-white shadow-pop ring-1 ring-slate-900/5`}
       >
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5">
+        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
           <h2
             id={titleId}
-            className="font-display text-[1.0625rem] font-bold tracking-wide text-accent-600 uppercase"
+            className="text-lead font-semibold text-slate-900"
           >
             {title}
           </h2>
@@ -698,7 +696,7 @@ export function Modal({ open, title, onClose, children, footer, wide = false }: 
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            className="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-600"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -752,8 +750,8 @@ function titleIfCut(event: MouseEvent<HTMLTableElement>) {
   }
 }
 
-/** Scrollable table container. `dense` is the financial variant: the navy
- * header band of the risk report, condensed caps, zebra rows. */
+/** Scrollable table container. `dense` is the financial variant: tighter
+ * rows and a sentence-case head. */
 export function Table({ children, dense = false, className = '', columns, fillMin }: TableProps) {
   // On the page a table is its own card; inside a card it sits flush, its
   // rows on the card's own surface — never a box in a box.
@@ -768,9 +766,11 @@ export function Table({ children, dense = false, className = '', columns, fillMi
   const fixedCells = fixed
     ? 'table-fixed [:where(&_td,&_th)]:overflow-hidden [:where(&_td,&_th)]:text-ellipsis [:where(&_td)]:whitespace-nowrap [&_th]:whitespace-normal [&_th]:align-bottom [&_th]:[text-wrap:balance]'
     : '[&_th]:whitespace-nowrap'
+  // Navy is the sidebar's: every table head is light (Prompt 30) — the
+  // financial (dense) one in the condensed face, as narrow as its figures, without zebra rows.
   const head = dense
-    ? '[&_thead_th]:bg-accent-600 [&_thead_th]:text-white [&_thead_th]:font-display [&_thead_th]:text-[0.8125rem] [&_thead_th]:font-bold [&_thead_th]:tracking-wide [&_thead_th]:border-accent-600 [:where(&_tbody_tr:nth-child(even))]:bg-accent-50/60'
-    : '[&_thead_th]:bg-slate-50 [&_thead_th]:text-slate-500 [&_thead_th]:text-[0.75rem] [&_thead_th]:font-semibold [&_thead_th]:tracking-wide [&_thead_th]:uppercase [&_thead_th]:border-slate-200'
+    ? '[&_thead_th]:bg-slate-50 [&_thead_th]:text-slate-600 [&_thead_th]:font-display [&_thead_th]:text-small [&_thead_th]:font-bold [&_thead_th]:border-slate-200'
+    : '[&_thead_th]:bg-slate-50 [&_thead_th]:text-slate-500 [&_thead_th]:text-caption [&_thead_th]:font-semibold [&_thead_th]:tracking-wide [&_thead_th]:uppercase [&_thead_th]:border-slate-200'
   return (
     <div
       className={`scrollbar-thin overflow-x-auto ${
@@ -780,10 +780,10 @@ export function Table({ children, dense = false, className = '', columns, fillMi
       <table
         style={fixed ? { minWidth: tableMinWidth(columns, fillMin) } : undefined}
         onMouseOver={fixed ? titleIfCut : undefined}
-        className={`w-full border-collapse ${fixedCells} ${dense ? 'text-[0.8125rem]' : 'text-sm'} [&_th]:border-b [&_td.num]:whitespace-nowrap [:where(&_th)]:text-left [&_td]:border-b [&_td]:border-slate-100 [:where(&_tbody_tr)]:transition-colors [:where(&_tbody_tr:hover)]:bg-accent-50 [&_tbody_tr:last-child_td]:border-b-0 ${head} ${
+        className={`w-full border-collapse ${fixedCells} ${dense ? 'text-small' : 'text-body'} [&_th]:border-b [&_td.num]:whitespace-nowrap [:where(&_th)]:text-left [&_td]:border-b [&_td]:border-slate-100 [:where(&_tbody_tr)]:transition-colors [:where(&_tbody_tr:hover)]:bg-accent-50 [&_tbody_tr:last-child_td]:border-b-0 ${head} ${
           dense
-            ? '[&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-1.5'
-            : '[&_th]:px-4 [&_th]:py-2.5 [&_td]:px-4 [&_td]:py-2.5'
+            ? '[&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-2'
+            : '[&_th]:px-4 [&_th]:py-3 [&_td]:px-4 [&_td]:py-3'
         }`}
       >
         {fixed && (
@@ -830,7 +830,7 @@ export function RowActions({ children, reveal = false }: { children: ReactNode; 
 
 export function Spinner({ label }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2.5 py-12 text-sm text-slate-500" role="status">
+    <div className="flex items-center justify-center gap-3 py-12 text-body text-slate-500" role="status">
       <span className="size-4 animate-spin rounded-full border-2 border-accent-100 border-t-accent-500" />
       {label}
     </div>

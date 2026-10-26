@@ -196,7 +196,7 @@ export function DeclarationDetailPage() {
                       </Badge>
                     </td>
                     <td className="num">{formatAmount(Number(l.covered_amount), locale)}</td>
-                    <td className={`num ${excess > 0 ? 'font-medium text-warn-500' : 'text-slate-400'}`}>
+                    <td className={`num ${excess > 0 ? 'font-medium text-warn-500' : 'text-slate-500'}`}>
                       {excess > 0 ? formatAmount(excess, locale) : EM_DASH}
                     </td>
                     <td className="num">
@@ -242,7 +242,7 @@ export function DeclarationDetailPage() {
           </>
         }
       >
-        <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t('declarations.disputeHint')}</p>
+        <p className="text-small leading-relaxed text-slate-600">{t('declarations.disputeHint')}</p>
         <Field label={t('declarations.fields.disputeNote')}>
           <Textarea
             rows={4}

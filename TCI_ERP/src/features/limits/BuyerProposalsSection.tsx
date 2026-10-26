@@ -240,14 +240,14 @@ function ResolveModal({
     >
       {error && (
         <div
-          className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] text-neg-500"
+          className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-3 text-small text-neg-500"
           role="alert"
         >
           {error}
         </div>
       )}
 
-      <p className="mb-4 text-sm text-slate-600">
+      <p className="mb-4 text-body text-slate-600">
         {t('limits.proposals.intro', {
           policyholder: proposal.policies?.legal_entities?.name ?? EM_DASH,
           policy: proposal.policies?.policy_number ?? EM_DASH,
@@ -255,7 +255,7 @@ function ResolveModal({
       </p>
 
       {proposal.justification && (
-        <p className="mb-4 rounded-md bg-slate-50 px-3 py-2 text-[0.8125rem] text-slate-600">
+        <p className="mb-4 rounded-md bg-slate-50 px-3 py-2 text-small text-slate-600">
           {proposal.justification}
         </p>
       )}
@@ -266,17 +266,17 @@ function ResolveModal({
 
       {(matches ?? []).length > 0 && (
         <div className="mt-2 flex flex-col gap-1">
-          <p className="text-xs text-slate-400">{t('limits.proposals.maybeExisting')}</p>
+          <p className="text-caption text-slate-500">{t('limits.proposals.maybeExisting')}</p>
           {(matches ?? []).map((match) => (
             <button
               key={match.id}
               type="button"
               disabled={busy}
               onClick={() => resolve.mutate(match.id)}
-              className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-1.5 text-left text-sm hover:bg-slate-50 disabled:opacity-50"
+              className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2 text-left text-body hover:bg-slate-50 disabled:opacity-50"
             >
               <span>{match.name}</span>
-              <span className="num text-xs text-slate-400">
+              <span className="num text-caption text-slate-500">
                 {match.registration_number ?? ''}
               </span>
             </button>
@@ -285,7 +285,7 @@ function ResolveModal({
       )}
 
       <div className="mt-5 border-t border-slate-100 pt-4">
-        <p className="mb-3 text-xs text-slate-400">{t('limits.proposals.orCreate')}</p>
+        <p className="mb-3 text-caption text-slate-500">{t('limits.proposals.orCreate')}</p>
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label={t('limits.proposals.companyName')}>
             <Input value={name} onChange={(e) => setName(e.target.value)} />

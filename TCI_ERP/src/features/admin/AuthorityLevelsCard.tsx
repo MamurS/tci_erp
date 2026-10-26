@@ -89,7 +89,7 @@ export function AuthorityLevelsCard() {
       </SectionTitle>
 
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-[0.8125rem] font-medium text-slate-600">{t('admin.levels.routing')}</span>
+        <span className="text-small font-medium text-slate-600">{t('admin.levels.routing')}</span>
         <Segmented
           value={routing.data ?? 'direct'}
           tone="solid"
@@ -97,7 +97,7 @@ export function AuthorityLevelsCard() {
           options={AUTHORITY_ROUTINGS.map((r) => ({ key: r, label: t(`admin.levels.routings.${r}`) }))}
           onChange={(key) => void run(writes.routing.mutateAsync(key as AuthorityRouting))}
         />
-        <span className="min-w-0 flex-1 text-[0.8125rem] text-slate-500">
+        <span className="min-w-0 flex-1 text-small text-slate-500">
           {t(`limits.validation.routing.${routing.data ?? 'direct'}`)}
         </span>
       </div>
@@ -137,19 +137,19 @@ export function AuthorityLevelsCard() {
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-1.5 text-[0.8125rem]">
+                <div className="flex flex-wrap items-center gap-2 text-small">
                   <span className="text-slate-500">{t('admin.levels.members')}:</span>
-                  {here.length === 0 && <span className="text-slate-400">{t('admin.levels.nobody')}</span>}
+                  {here.length === 0 && <span className="text-slate-500">{t('admin.levels.nobody')}</span>}
                   {here.map((m) => (
                     <span
                       key={m.id}
-                      className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white py-0.5 pr-1 pl-2.5"
+                      className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white py-0.5 pr-1 pl-3"
                     >
                       {name(m.user_id)}
                       {level.chair_id === m.user_id && <Badge tone="accent">{t('admin.levels.chair')}</Badge>}
                       <button
                         type="button"
-                        className="rounded-full px-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                        className="rounded-full px-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
                         aria-label={t('admin.levels.remove', { name: name(m.user_id) })}
                         onClick={() => void run(writes.endMember.mutateAsync(m.id))}
                       >
@@ -177,7 +177,7 @@ export function AuthorityLevelsCard() {
                 </div>
 
                 {level.is_committee && here.length > 0 && (
-                  <div className="flex flex-wrap items-center gap-2 text-[0.8125rem]">
+                  <div className="flex flex-wrap items-center gap-2 text-small">
                     <span className="text-slate-500">{t('admin.levels.chair')}:</span>
                     <Select
                       className="h-8 min-w-44"
@@ -267,7 +267,7 @@ function LevelGrantModal({
         </>
       }
     >
-      <p className="text-[0.8125rem] text-slate-600">{t('admin.levels.setAuthorityHint')}</p>
+      <p className="text-small text-slate-600">{t('admin.levels.setAuthorityHint')}</p>
       <div className="grid gap-3 sm:grid-cols-3">
         <Field label={t('admin.fields.band')}>
           <Select value={band} onChange={(e) => setBand(e.target.value as GradeBand)}>
@@ -292,7 +292,7 @@ function LevelGrantModal({
         </Field>
       </div>
       {error && (
-        <p className="text-[0.8125rem] text-neg-500" role="alert">
+        <p className="text-small text-neg-500" role="alert">
           {error}
         </p>
       )}

@@ -134,7 +134,7 @@ export function ValidationHistory({
                 <td className="align-top text-slate-500">
                   {formatMoment(step.created_at, locale)}
                   {step.resolved_at && (
-                    <span className="block text-xs text-slate-400">
+                    <span className="block text-caption text-slate-500">
                       {t('limits.validation.history.resolvedAt', { date: formatMoment(step.resolved_at, locale) })}
                     </span>
                   )}
@@ -151,7 +151,7 @@ export function ValidationHistory({
                           to: addressee(step),
                         })}
                   </span>
-                  <span className="block text-xs text-slate-500">
+                  <span className="block text-caption text-slate-500">
                     {[
                       t(`limits.stages.${step.stream}`),
                       t(`limits.validation.kinds.${step.kind}`),
@@ -159,13 +159,13 @@ export function ValidationHistory({
                     ].join(' · ')}
                   </span>
                   {step.comment && i === 0 && (
-                    <span className="mt-1 block text-xs text-slate-700">
+                    <span className="mt-1 block text-caption text-slate-700">
                       <span className="text-slate-500">{t('limits.validation.history.authorComment')}: </span>
                       {step.comment}
                     </span>
                   )}
                   {step.resolution_comment && (
-                    <span className="mt-1 block text-xs text-slate-700">
+                    <span className="mt-1 block text-caption text-slate-700">
                       <span className="text-slate-500">{t('limits.validation.history.validatorComment')}: </span>
                       {step.resolution_comment}
                     </span>
@@ -178,7 +178,7 @@ export function ValidationHistory({
                     <>
                       {formatAmount(step.amount, locale)} {step.currency_code}
                       {step.payment_terms_days !== null && step.stream === 'commercial' && (
-                        <span className="block text-xs text-slate-500">
+                        <span className="block text-caption text-slate-500">
                           {t('policies.terms.days', { count: step.payment_terms_days })}
                         </span>
                       )}
@@ -236,7 +236,7 @@ export function ValidationPanel({ request, step, level, onResolved }: PanelProps
               })
         }
         actions={
-          <span className="inline-flex gap-1.5">
+          <span className="inline-flex gap-2">
             <Badge tone={step.kind === 'required' ? 'warn' : 'accent'}>{t(`limits.validation.kinds.${step.kind}`)}</Badge>
             <Badge tone="neutral">{t(`limits.stages.${step.stream}`)}</Badge>
           </span>
@@ -255,8 +255,8 @@ export function ValidationPanel({ request, step, level, onResolved }: PanelProps
       )}
 
       {step.comment && (
-        <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[0.8125rem] text-slate-700">
-          <span className="block text-xs font-medium text-slate-500">
+        <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-small text-slate-700">
+          <span className="block text-caption font-medium text-slate-500">
             {t('limits.validation.panel.authorComment', { author: step.proposed_by_name ?? EM_DASH })}
           </span>
           <span className="whitespace-pre-line">{step.comment}</span>
@@ -356,7 +356,7 @@ function ProposalFacts({
     <div className="flex flex-col gap-3">
       <DescriptionList items={items} />
       {conditions.length > 0 && (
-        <div className="text-[0.8125rem]">
+        <div className="text-small">
           <span className="text-slate-500">{t('limits.fields.conditions')}</span>
           <ul className="mt-1 flex list-disc flex-col gap-0.5 pl-5 text-slate-700">
             {conditions.map((c, i) => (
@@ -382,7 +382,7 @@ function BuyerKeyFigures({ entityId }: { entityId: string }) {
   const series = annualSeries(statements.data ?? [], latestAnnualType(statements.data ?? [])).slice(-2)
   const latest = series[series.length - 1]
   if (!latest) {
-    return <p className="text-[0.8125rem] text-slate-500">{t('limits.validation.panel.noFinancials')}</p>
+    return <p className="text-small text-slate-500">{t('limits.validation.panel.noFinancials')}</p>
   }
   const figures = keyFigures(series)
   const show = (format: 'amount' | 'percent' | 'ratio', v: number | null) =>
@@ -404,7 +404,7 @@ function BuyerKeyFigures({ entityId }: { entityId: string }) {
   }))
   return (
     <div>
-      <p className="mb-1.5 text-[0.75rem] font-medium text-slate-500">
+      <p className="mb-2 text-caption font-medium text-slate-500">
         {t('limits.validation.panel.financials', { year: latest.fiscal_year })}
       </p>
       <KeyFigures items={items} className="" />
@@ -520,7 +520,7 @@ function ResolveModal({
         </>
       }
     >
-      <p className="text-[0.8125rem] text-slate-600">
+      <p className="text-small text-slate-600">
         {t(`limits.validation.confirm.${action}`, { amount: amountText })}
         {action === 'reject' && ` ${t(`limits.validation.confirm.rejectEffect.${step.stream}`)}`}
       </p>
@@ -538,11 +538,11 @@ function ResolveModal({
         </div>
       )}
       {action === 'approve_modified' && (
-        <p className="text-xs text-slate-500">{t(`limits.validation.modifyScope.${step.stream}`)}</p>
+        <p className="text-caption text-slate-500">{t(`limits.validation.modifyScope.${step.stream}`)}</p>
       )}
 
       {outcomePreview && !passesOn && (
-        <p className="text-[0.8125rem] text-slate-600">
+        <p className="text-small text-slate-600">
           {t('limits.validation.recordsAs')}{' '}
           <Badge tone={outcomeTone(outcomePreview)}>{t(`limits.outcomes.${outcomePreview}`)}</Badge>
         </p>
@@ -561,7 +561,7 @@ function ResolveModal({
         )
       )}
 
-      {action === 'forward' && <p className="text-[0.8125rem] text-slate-600">{t('limits.validation.forwardHint')}</p>}
+      {action === 'forward' && <p className="text-small text-slate-600">{t('limits.validation.forwardHint')}</p>}
 
       <Field
         label={t('limits.validation.resolutionComment')}
@@ -571,7 +571,7 @@ function ResolveModal({
       </Field>
 
       {error && (
-        <p className="text-[0.8125rem] text-neg-500" role="alert">
+        <p className="text-small text-neg-500" role="alert">
           {error}
         </p>
       )}
@@ -647,7 +647,7 @@ export function CommitteePanel({
           date: formatMoment(step.created_at, locale),
         })}
         actions={
-          <span className="inline-flex gap-1.5">
+          <span className="inline-flex gap-2">
             <Badge tone={step.kind === 'required' ? 'warn' : 'accent'}>{t(`limits.validation.kinds.${step.kind}`)}</Badge>
             <Badge tone="neutral">{t(`limits.stages.${step.stream}`)}</Badge>
           </span>
@@ -662,8 +662,8 @@ export function CommitteePanel({
         <ProposalFacts step={step} proposal={proposal.data ?? null} request={request} />
       )}
       {step.comment && (
-        <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[0.8125rem] text-slate-700">
-          <span className="block text-xs font-medium text-slate-500">
+        <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-small text-slate-700">
+          <span className="block text-caption font-medium text-slate-500">
             {t('limits.validation.panel.authorComment', { author: step.proposed_by_name ?? EM_DASH })}
           </span>
           <span className="whitespace-pre-line">{step.comment}</span>
@@ -686,7 +686,7 @@ export function CommitteePanel({
           },
         ]}
       />
-      <p className="text-[0.8125rem] text-slate-600">
+      <p className="text-small text-slate-600">
         {t('limits.validation.committeePanel.chair', { name: committee.chair_name ?? EM_DASH })}
         {' · '}
         {t('limits.validation.committeePanel.rule')}
@@ -710,7 +710,7 @@ export function CommitteePanel({
                     {v.name ?? EM_DASH}
                     {v.voter === committee.chair_id && ` · ${t('limits.validation.committeePanel.chairMark')}`}
                   </span>
-                  {v.comment && <span className="block text-xs text-slate-600">{v.comment}</span>}
+                  {v.comment && <span className="block text-caption text-slate-600">{v.comment}</span>}
                 </td>
                 <td>
                   <Badge tone={v.vote === 'approve' ? 'pos' : v.vote === 'reject' ? 'neg' : 'neutral'}>
@@ -723,7 +723,7 @@ export function CommitteePanel({
         </Table>
       )}
       {committee.conflicts.length > 0 && (
-        <ul className="flex list-disc flex-col gap-0.5 pl-5 text-[0.8125rem] text-slate-600">
+        <ul className="flex list-disc flex-col gap-0.5 pl-5 text-small text-slate-600">
           {committee.conflicts.map((c) => (
             <li key={c.member}>
               {t('limits.validation.committeePanel.conflictOf', { name: c.name ?? EM_DASH })}: {c.reason}
@@ -733,12 +733,12 @@ export function CommitteePanel({
       )}
 
       {committee.my_vote && (
-        <p className="text-[0.8125rem] text-slate-600">
+        <p className="text-small text-slate-600">
           {t('limits.validation.committeePanel.myVote', { vote: t(`limits.validation.votes.${committee.my_vote}`) })}
         </p>
       )}
       {committee.i_am_conflicted && (
-        <p className="text-[0.8125rem] text-slate-600">{t('limits.validation.committeePanel.iAmConflicted')}</p>
+        <p className="text-small text-slate-600">{t('limits.validation.committeePanel.iAmConflicted')}</p>
       )}
 
       {(committee.i_may_vote || committee.i_may_close) && (
@@ -764,7 +764,7 @@ export function CommitteePanel({
             </Button>
           )}
           {committee.i_may_close && !committee.quorum_met && (
-            <span className="text-[0.8125rem] text-slate-500">{t('limits.validation.committeePanel.needQuorum')}</span>
+            <span className="text-small text-slate-500">{t('limits.validation.committeePanel.needQuorum')}</span>
           )}
         </div>
       )}
@@ -791,7 +791,7 @@ export function CommitteePanel({
           }
         >
           {dialog === 'close' && (
-            <p className="text-[0.8125rem] text-slate-600">
+            <p className="text-small text-slate-600">
               {t('limits.validation.committeePanel.closeWillRecord')}{' '}
               <Badge tone={outcome === 'approve' ? 'pos' : outcome === 'reject' ? 'neg' : 'accent'}>
                 {t(`limits.validation.committeeOutcome.${outcome}`)}
@@ -799,7 +799,7 @@ export function CommitteePanel({
             </p>
           )}
           {dialog === 'conflict' && (
-            <p className="text-[0.8125rem] text-slate-600">{t('limits.validation.committeePanel.conflictNote')}</p>
+            <p className="text-small text-slate-600">{t('limits.validation.committeePanel.conflictNote')}</p>
           )}
           <Field
             label={
@@ -814,7 +814,7 @@ export function CommitteePanel({
             <Textarea rows={3} value={comment} onChange={(e) => setComment(e.target.value)} />
           </Field>
           {error && (
-            <p className="text-[0.8125rem] text-neg-500" role="alert">
+            <p className="text-small text-neg-500" role="alert">
               {error}
             </p>
           )}

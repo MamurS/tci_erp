@@ -118,7 +118,7 @@ export function SendForValidationModal({
         </Callout>
       )}
 
-      <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[0.8125rem] text-slate-700">
+      <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-small text-slate-700">
         <span className="text-slate-500">{t('limits.validation.proposal')}: </span>
         {proposal}
       </div>
@@ -129,7 +129,7 @@ export function SendForValidationModal({
             <Skeleton className="h-12 w-full" />
           </div>
         ) : route.isError ? (
-          <p className="text-[0.8125rem] text-neg-500" role="alert">
+          <p className="text-small text-neg-500" role="alert">
             {t('limits.validation.routeFailed')}
           </p>
         ) : preview && !preview.available ? (
@@ -137,15 +137,15 @@ export function SendForValidationModal({
             {t('limits.validation.noLevel')}
           </Callout>
         ) : preview && preview.available ? (
-          <div className="flex flex-col gap-1.5 rounded-md border border-accent-600 bg-accent-50 px-3 py-2 text-sm">
+          <div className="flex flex-col gap-2 rounded-md border border-accent-600 bg-accent-50 px-3 py-2 text-body">
             <span className="font-medium text-slate-800">{destination}</span>
-            <span className="text-xs text-slate-600">
+            <span className="text-caption text-slate-600">
               {t(preview.is_committee ? 'limits.validation.routeVoters' : 'limits.validation.routeMembers', {
                 names: names(preview.members),
               })}
             </span>
             {preview.fyi.length > 0 && (
-              <span className="text-xs text-slate-500">
+              <span className="text-caption text-slate-500">
                 {t('limits.validation.routeFyi', { names: names(preview.fyi) })}
               </span>
             )}
@@ -161,7 +161,7 @@ export function SendForValidationModal({
       </Field>
 
       {error && (
-        <p className="text-[0.8125rem] text-neg-500" role="alert">
+        <p className="text-small text-neg-500" role="alert">
           {error}
         </p>
       )}

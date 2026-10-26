@@ -37,8 +37,8 @@ export function RequestChangesSection({ requestId }: { requestId: string }) {
       </SectionTitle>
       <ol className="flex flex-col gap-3">
         {changes.map((a) => (
-          <li key={a.id} className="text-sm">
-            <p className="text-xs text-slate-500">
+          <li key={a.id} className="text-body">
+            <p className="text-caption text-slate-500">
               {formatMoment(a.amended_at, locale)} · {t(`limits.changes.kinds.${a.kind}`)}
               {a.kind === 'replaced' && a.replaced_request_id && (
                 <>

@@ -243,7 +243,7 @@ export function CreditPortfolioPage() {
                     <Truncate text={g.ultimate_parent_name} className="max-w-none">
                       <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} tab="group" />
                     </Truncate>
-                    <span className="block text-[0.75rem] text-slate-500">
+                    <span className="block text-caption text-slate-500">
                       {t('portfolio.credit.membersWithLimits', { count: g.members_with_limits })}
                     </span>
                   </td>
@@ -297,7 +297,7 @@ function AttentionPanel({ rows }: { rows: readonly CreditPortfolioRow[] }) {
           <li key={item.key}>
             <Link
               to={`/limits?view=${item.view}`}
-              className="group flex items-center gap-3 rounded-md px-2 py-2 text-[0.8125rem] text-slate-700 hover:bg-accent-50"
+              className="group flex items-center gap-3 rounded-md px-2 py-2 text-small text-slate-700 hover:bg-accent-50"
             >
               <span className="min-w-0 flex-1 truncate" title={item.label}>
                 {item.label}

@@ -97,8 +97,8 @@ export function MappingEditor({ rows, mapping, onChange }: Props) {
       </Field>
       {/* Not a Field: a <label> around buttons would press the first one
           when its caption is clicked. */}
-      <div className="flex flex-col gap-1.5 sm:col-span-2">
-        <span className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
+      <div className="flex flex-col gap-2 sm:col-span-2">
+        <span className="text-caption font-semibold tracking-wide text-slate-600 uppercase">
           {t('premium.bank.mapping.amountLayout')}
         </span>
         <Segmented
@@ -182,7 +182,7 @@ export function MappingEditor({ rows, mapping, onChange }: Props) {
           ))}
         </Select>
       </Field>
-      <label className="flex items-start gap-2.5 pt-6 text-[0.8125rem] text-slate-700 sm:col-span-2">
+      <label className="flex items-start gap-3 pt-6 text-small text-slate-700 sm:col-span-2">
         <input
           type="checkbox"
           className="mt-0.5 size-4 accent-accent-600"
@@ -191,7 +191,7 @@ export function MappingEditor({ rows, mapping, onChange }: Props) {
         />
         <span>
           <span className="font-medium text-slate-800">{t('premium.bank.mapping.skipDebits')}</span>
-          <span className="block text-xs text-slate-500">{t('premium.bank.mapping.skipDebitsHint')}</span>
+          <span className="block text-caption text-slate-500">{t('premium.bank.mapping.skipDebitsHint')}</span>
         </span>
       </label>
     </div>

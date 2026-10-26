@@ -12,10 +12,10 @@ interface BrandMarkProps {
 }
 
 const SIZES: Record<NonNullable<BrandMarkProps['size']>, string> = {
-  sm: 'text-[1.25rem]',
-  md: 'text-[1.625rem]',
-  lg: 'text-[2.125rem]',
-  xl: 'text-[2.75rem]',
+  sm: 'text-title',
+  md: 'text-headline',
+  lg: 'text-display',
+  xl: 'text-display',
 }
 
 export function BrandMark({ size = 'md', inverse = false, className = '' }: BrandMarkProps) {

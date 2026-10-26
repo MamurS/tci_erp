@@ -74,13 +74,13 @@ export function RegistryPanel({
           ) : search.isError ? (
             <Callout tone="warn" title={t('data.registry.failed')} />
           ) : search.data && !search.data.length ? (
-            <p className="text-[0.8125rem] text-slate-500">{t('data.registry.none')}</p>
+            <p className="text-small text-slate-500">{t('data.registry.none')}</p>
           ) : (
             <ul>
               {(search.data ?? []).map((record) => (
                 <li
                   key={`${record.source}:${record.source_id}`}
-                  className="flex items-start justify-between gap-4 border-b border-slate-100 py-3 text-[0.8125rem] first:pt-0 last:border-b-0"
+                  className="flex items-start justify-between gap-4 border-b border-slate-100 py-3 text-small first:pt-0 last:border-b-0"
                 >
                   <div className="min-w-0">
                     <p className="font-medium text-slate-900">{record.name}</p>
@@ -102,7 +102,7 @@ export function RegistryPanel({
                         href={record.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-slate-400 hover:text-accent-600"
+                        className="text-slate-500 hover:text-accent-600"
                         title={t('data.registry.openSource')}
                         aria-label={t('data.registry.openSource')}
                       >

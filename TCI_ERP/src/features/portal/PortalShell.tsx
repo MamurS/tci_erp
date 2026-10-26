@@ -52,7 +52,7 @@ export function PortalShell() {
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-4 px-6 py-3">
           <div className="flex flex-col">
             <BrandMark size="sm" inverse />
-            <span className="mt-1 text-[0.6562rem] font-medium tracking-[0.18em] text-white/55 uppercase">
+            <span className="mt-1 text-caption font-medium tracking-[0.18em] text-white/55 uppercase">
               {t('portal.title')}
             </span>
           </div>
@@ -63,13 +63,13 @@ export function PortalShell() {
           <div className="flex flex-col items-end leading-tight">
             {/* The company, not the role: a portal user has exactly one role
                 and being told so every page is noise. */}
-            <span className="text-[0.8125rem] font-semibold">{entity?.name ?? session?.user.email}</span>
-            {entity && <span className="text-xs text-white/60">{session?.user.email}</span>}
+            <span className="text-small font-semibold">{entity?.name ?? session?.user.email}</span>
+            {entity && <span className="text-caption text-white/60">{session?.user.email}</span>}
           </div>
           <button
             type="button"
             onClick={() => void signOut()}
-            className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[0.8125rem] text-white/80 hover:bg-white/10 hover:text-white"
+            className="flex items-center gap-2 rounded-md px-3 py-2 text-small text-white/80 hover:bg-white/10 hover:text-white"
           >
             <LogOut className="size-4" />
             {t('auth.signOut')}
@@ -82,7 +82,7 @@ export function PortalShell() {
               to={item.path}
               end={item.path === '/portal'}
               className={({ isActive }) =>
-                `border-b-[3px] px-3 py-2.5 text-[0.8438rem] transition-colors ${
+                `border-b-[3px] px-3 py-3 text-body transition-colors ${
                   isActive
                     ? 'border-accent-400 font-semibold text-white'
                     : 'border-transparent text-white/70 hover:text-white'

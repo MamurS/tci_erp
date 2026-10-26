@@ -68,7 +68,7 @@ export function CreateOfferModal({
       }
     >
       <div className="space-y-4">
-        <p className="text-sm text-slate-600">{t('offers.create.hint')}</p>
+        <p className="text-body text-slate-600">{t('offers.create.hint')}</p>
         <div className="grid grid-cols-2 gap-3">
           <Field label={t('offers.fields.language')} hint={t('offers.create.languageHint')}>
             <Select value={language} onChange={(e) => setLanguage(e.target.value as OfferLang)}>
@@ -83,7 +83,7 @@ export function CreateOfferModal({
             <DateInput value={validUntil} onChange={setValidUntil} min={today} />
           </Field>
         </div>
-        <label className="flex items-start gap-2 text-sm text-slate-700">
+        <label className="flex items-start gap-2 text-body text-slate-700">
           <input
             type="checkbox"
             className="mt-0.5 size-4 accent-accent-600"
@@ -92,7 +92,7 @@ export function CreateOfferModal({
           />
           <span>
             {t('offers.fields.includeBrochure')}
-            <span className="block text-[0.7812rem] text-slate-500">{t('offers.create.brochureHint')}</span>
+            <span className="block text-small text-slate-500">{t('offers.create.brochureHint')}</span>
           </span>
         </label>
         {error && <Callout tone="neg" title={error} />}
@@ -134,7 +134,7 @@ export function WithdrawOfferModal({ offer, onClose }: { offer: OfferRow; onClos
       }
     >
       <div className="space-y-4">
-        <p className="text-sm text-slate-600">{out ? t('offers.withdraw.hintPublished') : t('offers.withdraw.hintDraft')}</p>
+        <p className="text-body text-slate-600">{out ? t('offers.withdraw.hintPublished') : t('offers.withdraw.hintDraft')}</p>
         <Field label={t('offers.fields.reason')}>
           <Textarea value={reason} onChange={(e) => setReason(e.target.value)} rows={3} maxLength={500} autoFocus />
         </Field>

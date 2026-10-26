@@ -5910,5 +5910,59 @@
       "navy": "To‘q ko‘k",
       "blue": "Ko‘k"
     }
+  },
+  "tokens": {
+    "title": "Dizayn tokenlari",
+    "subtitle": "Interfeysning barcha ranglari, o‘lchamlari, oraliqlari va harakati bitta manbadan (src/design/palette.ts). Faqat administrator uchun.",
+    "colour": {
+      "title": "Rang shkalalari (OKLCH)",
+      "hint": "Har bir tus uchun o‘nta pog‘ona; har bir pog‘onada barcha tuslarning yorqinligi bir xil, shuning uchun bitta tus uchun o‘tgan juftlik hammasi uchun o‘tadi. Namuna ostida: hex, OKLCH, oq fondagi kontrast.",
+      "ruleText": "Matn: pog‘onalar orasi kamida 5 — eng kuchsiz juftlik {{ratio}} : 1 (≥ {{min}} kerak).",
+      "ruleGraphic": "Belgilar, yirik matn, grafika: pog‘onalar orasi kamida 4 — eng kuchsizi {{ratio}} : 1 (≥ {{min}} kerak).",
+      "hue": "tus {{hue}}° · to‘yinganlik {{chroma}}",
+      "canvas": "Sahifa foni {{hex}} — undagi ikkinchi darajali matn (neytral 500): {{ratio}} : 1"
+    },
+    "ramps": {
+      "slate": "Neytral — fonlar, matn, chegaralar (iliq kulrang)",
+      "accent": "Brend to‘q ko‘k — asosiy amallar, tanlov, sarlavhalar",
+      "sky": "Ikkinchi brend rangi — havolalar, fokus, ajratish",
+      "success": "Muvaffaqiyat, o‘sish, tasdiqlangan",
+      "warning": "Ogohlantirish, diqqat, muddat yaqin",
+      "danger": "Xato, zarar, muddati o‘tgan, rad etilgan",
+      "info": "Ma’lumot",
+      "violet": "Ma’lumotlar — toifalar",
+      "teal": "Ma’lumotlar — toifalar",
+      "magenta": "Ma’lumotlar — toifalar"
+    },
+    "grades": {
+      "title": "Reyting shkalasi A1 → D",
+      "hint": "Mahsulotning asosiy rangi: belgilarda tus va to‘q matn, chiziqlar va grafiklarda to‘yingan rang.",
+      "pairs": "tusdagi matn {{tint}} : 1 · oqdagi rang {{solid}} : 1"
+    },
+    "data": {
+      "title": "Ma’lumotlar palitralari",
+      "hint": "Toifalar doimiy tartibda (qo‘shnilari tus bo‘yicha farq qiladi); qiymatlar uchun bir tusli shkala.",
+      "categorical": "Toifalar",
+      "sequential": "Ketma-ket"
+    },
+    "type": {
+      "title": "Shrift shkalasi",
+      "hint": "Yetti o‘lcham, uchta qalinlik. Sarlavha shrifti faqat sahifa sarlavhalari va asosiy raqamlar uchun. Summalar va sonlar uchun jadval raqamlari.",
+      "regular": "Oddiy 400",
+      "medium": "O‘rta 500",
+      "semibold": "Yarim qalin 600"
+    },
+    "space": {
+      "title": "Oraliqlar, burchaklar, soyalar",
+      "hint": "4 px to‘r (2 px faqat ingichka siljishlar uchun); yumshoq burchaklar; tinch holatda sezilar-sezilmas ko‘tarilish, qalqib chiquvchi oynalar uchun bitta yumshoq soya."
+    },
+    "motion": {
+      "title": "Harakat",
+      "hint": "Ishchi (70–150 ms) kundalik amallar uchun, ifodali (240–400 ms) kamdan-kam lahzalar uchun.",
+      "play": "Ishga tushirish",
+      "productive": "ishchi",
+      "expressive": "ifodali",
+      "reduced": "Tizimda «harakatni kamaytirish» yoqilgan bo‘lsa, hech narsa harakatlanmaydi: o‘sha holat darhol ko‘rsatiladi."
+    }
   }
 }

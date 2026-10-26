@@ -624,8 +624,8 @@ function EditorScreen({
 
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-4 py-2.5 shadow-card">
-        <p className="min-w-0 text-[0.8125rem] text-slate-600" aria-live="polite">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-card">
+        <p className="min-w-0 text-small text-slate-600" aria-live="polite">
           {t('contractDrafts.editor.editing', { version: draft.current_version_no })}
           <span className="ml-2 inline-block min-w-[16rem] text-slate-500">
             {dirty

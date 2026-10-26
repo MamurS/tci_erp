@@ -78,7 +78,7 @@ export function RatingConfirmation({
   }
 
   return (
-    <Card className="flex flex-wrap items-center gap-x-5 gap-y-2 p-5 text-sm" data-testid="rating-confirmation">
+    <Card className="flex flex-wrap items-center gap-x-5 gap-y-2 p-5 text-body" data-testid="rating-confirmation">
       {manual ? (
         // A manual grade (0073): set by a person, confirmed by a second one.
         <span className="flex items-center gap-2">
@@ -134,7 +134,7 @@ export function RatingConfirmation({
         </Button>
       )}
       {ownRating && !proposalPending && (
-        <span className="ml-auto text-[0.8125rem] text-slate-500">{t('rating.confirmation.ownRating')}</span>
+        <span className="ml-auto text-small text-slate-500">{t('rating.confirmation.ownRating')}</span>
       )}
 
       <Modal
@@ -153,7 +153,7 @@ export function RatingConfirmation({
         }
       >
         <div className="flex flex-col gap-4">
-          <p className="text-sm text-slate-600">{t('rating.confirmation.hint', { grade: engineGrade })}</p>
+          <p className="text-body text-slate-600">{t('rating.confirmation.hint', { grade: engineGrade })}</p>
           <GradePicker
             value={grade}
             onChange={setGrade}
@@ -169,7 +169,7 @@ export function RatingConfirmation({
             <Textarea value={comment} rows={3} onChange={(e) => setComment(e.target.value)} />
           </Field>
           {error && (
-            <div className="text-sm text-neg-500" role="alert">
+            <div className="text-body text-neg-500" role="alert">
               {error}
             </div>
           )}

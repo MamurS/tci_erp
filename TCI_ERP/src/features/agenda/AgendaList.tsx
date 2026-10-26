@@ -112,8 +112,8 @@ function GroupSection({ group, ctx }: { group: RowGroup; ctx: ListContext }) {
             group.kind === 'due' ? DOT[group.key as Bucket] : 'bg-slate-400'
           }`}
         />
-        <span className={`text-[0.75rem] font-bold tracking-[0.08em] uppercase ${tone}`}>{label}</span>
-        <span className="text-[0.7812rem] text-slate-600 tabular-nums">
+        <span className={`text-caption font-semibold tracking-[0.08em] uppercase ${tone}`}>{label}</span>
+        <span className="text-small text-slate-600 tabular-nums">
           {[
             t('agenda.groupMeta.items', { count: group.rows.length }),
             tasks !== group.rows.length ? t('agenda.groupMeta.tasks', { count: tasks }) : null,
@@ -128,7 +128,7 @@ function GroupSection({ group, ctx }: { group: RowGroup; ctx: ListContext }) {
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
-            className="ml-auto text-[0.8125rem] font-semibold text-accent-600 hover:underline focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none"
+            className="ml-auto text-small font-semibold text-accent-600 hover:underline focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none"
           >
             {open ? t('agenda.hide') : t('agenda.showAll')}
           </button>
@@ -202,11 +202,11 @@ function RowView({ row, ctx }: { row: AgendaRow; ctx: ListContext }) {
               data-row-link={row.key}
               data-agenda-title
               onFocus={() => ctx.onFocusRow(row.key)}
-              className="block truncate text-[0.875rem] font-semibold text-slate-900 after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
+              className="block truncate text-body font-semibold text-slate-900 after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
             >
               {title}
             </Link>
-            <p data-agenda-context className="mt-0.5 truncate text-[0.7812rem] text-slate-600 tabular-nums">
+            <p data-agenda-context className="mt-0.5 truncate text-small text-slate-600 tabular-nums">
               {snoozed && (
                 <span className="text-slate-600">{snoozedText(row.lead, t, locale, ctx.staff)} · </span>
               )}
@@ -279,7 +279,7 @@ function SubRows({ row, bucket, now }: { row: AgendaRow; bucket: Bucket; now: Da
   const locale = i18n.language
   const multiplePolicies = new Set(row.items.map((i) => i.params?.policy_id)).size > 1
   return (
-    <ul className="bg-slate-50/50 text-[0.8125rem]">
+    <ul className="bg-slate-50/50 text-small">
       {row.items.map((item: Task) => {
         const state = dueState(item.due_at, now)
         const href = instalmentDestination(item)

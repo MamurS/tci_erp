@@ -187,7 +187,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
         className="animate-fade-in w-full max-w-xl overflow-hidden rounded-xl bg-white shadow-pop ring-1 ring-slate-900/5"
       >
         <div className="flex items-center gap-3 border-b border-slate-200 px-4">
-          <Search className="size-[1.125rem] shrink-0 text-slate-400" />
+          <Search className="size-[1.125rem] shrink-0 text-slate-500" />
           <input
             ref={inputRef}
             value={query}
@@ -205,21 +205,21 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
               if (e.key === 'Enter') go(hits[cursor])
             }}
             placeholder={t('palette.placeholder')}
-            className="h-14 flex-1 bg-transparent text-[0.9375rem] text-slate-900 outline-none placeholder:text-slate-400"
+            className="h-14 flex-1 bg-transparent text-lead text-slate-900 outline-none placeholder:text-slate-400"
           />
-          <kbd className="rounded border border-slate-200 px-1.5 py-0.5 text-[0.6875rem] text-slate-400">Esc</kbd>
+          <kbd className="rounded border border-slate-200 px-2 py-0.5 text-caption text-slate-500">Esc</kbd>
         </div>
 
         <ul className="scrollbar-thin max-h-[52vh] overflow-y-auto p-2">
           {hits.length === 0 && (
-            <li className="px-3 py-8 text-center text-sm text-slate-500">
+            <li className="px-3 py-8 text-center text-body text-slate-500">
               {entities.isFetching ? t('common.loading') : t('palette.empty')}
             </li>
           )}
           {hits.map((hit, i) => (
             <li key={hit.id}>
               {hit.group !== hits[i - 1]?.group && (
-                <div className="px-3 pt-2 pb-1 text-[0.6875rem] font-semibold tracking-wide text-slate-400 uppercase">
+                <div className="px-3 pt-2 pb-1 text-caption font-semibold tracking-wide text-slate-500 uppercase">
                   {t(`palette.groups.${hit.group}`)}
                 </div>
               )}
@@ -227,7 +227,7 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                 type="button"
                 onMouseEnter={() => setCursor(i)}
                 onClick={() => go(hit)}
-                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors ${
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-3 text-left transition-colors ${
                   i === cursor ? 'bg-accent-50' : ''
                 }`}
               >
@@ -236,8 +236,8 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                     hit.kind === 'entity' || hit.kind === 'recent' || hit.kind === 'search'
                       ? 'bg-accent-100 text-accent-600'
                       : hit.kind === 'request'
-                        ? 'bg-brand-orange/10 text-brand-orange'
-                        : 'bg-slate-100 text-slate-500'
+                        ? 'bg-sky-50 text-sky-700'
+                        : 'bg-slate-100 text-slate-600'
                   }`}
                 >
                   {hit.kind === 'entity' ? (
@@ -253,15 +253,15 @@ export function CommandPalette({ open, onClose }: CommandPaletteProps) {
                   )}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium text-slate-900">{hit.label}</span>
-                  {hit.sub && <span className="block truncate text-xs text-slate-500">{hit.sub}</span>}
+                  <span className="block truncate text-body font-medium text-slate-900">{hit.label}</span>
+                  {hit.sub && <span className="block truncate text-caption text-slate-500">{hit.sub}</span>}
                 </span>
                 {i === cursor && <CornerDownLeft className="size-4 text-slate-400" />}
               </button>
             </li>
           ))}
         </ul>
-        <div className="flex items-center gap-4 border-t border-slate-100 bg-slate-50/70 px-4 py-2 text-[0.6875rem] text-slate-500">
+        <div className="flex items-center gap-4 border-t border-slate-100 bg-slate-50/70 px-4 py-2 text-caption text-slate-500">
           <span>↑↓ {t('palette.hintNavigate')}</span>
           <span>↵ {t('palette.hintOpen')}</span>
         </div>

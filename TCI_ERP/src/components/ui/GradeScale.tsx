@@ -40,16 +40,16 @@ export function GradeScale({ score, grade, bands, change, size = 'full' }: Grade
 
   return (
     <div className={compact ? 'w-60' : 'w-full'}>
-      <div className={`flex flex-wrap items-center gap-x-3 gap-y-1 ${compact ? 'mb-1.5' : 'mb-2.5'}`}>
+      <div className={`flex flex-wrap items-center gap-x-3 gap-y-1 ${compact ? 'mb-2' : 'mb-3'}`}>
         <span
-          className={`font-display leading-none font-bold text-accent-600 ${compact ? 'text-[1.625rem]' : 'text-[2.75rem]'}`}
+          className={`font-display leading-none font-bold text-accent-600 ${compact ? 'text-headline' : 'text-display'}`}
         >
           {formatAmount(score, locale, 0)}
         </span>
         <Badge tone={gradeTone(grade)} size={compact ? 'sm' : 'md'}>
           {grade}
         </Badge>
-        <span className={`text-slate-500 ${compact ? 'text-xs' : 'text-sm'}`}>{bandText}</span>
+        <span className={`text-slate-500 ${compact ? 'text-caption' : 'text-body'}`}>{bandText}</span>
         {change && (
           <Badge tone={change.improved ? 'pos' : 'neg'} size={compact ? 'sm' : 'md'}>
             <span aria-hidden="true">{change.improved ? '▼' : '▲'}</span>
@@ -79,7 +79,7 @@ export function GradeScale({ score, grade, bands, change, size = 'full' }: Grade
       </div>
 
       {!compact && (
-        <div className="relative mt-1 h-4 text-[0.625rem] text-slate-400">
+        <div className="relative mt-1 h-4 text-caption text-slate-400">
           {(bands ?? []).slice(0, -1).map((band) => (
             <span
               key={band.code}
@@ -94,7 +94,7 @@ export function GradeScale({ score, grade, bands, change, size = 'full' }: Grade
           <span className="absolute right-0">100</span>
         </div>
       )}
-      {!compact && <p className="mt-1 text-xs text-slate-400">{t('rating.scaleHint')}</p>}
+      {!compact && <p className="mt-1 text-caption text-slate-500">{t('rating.scaleHint')}</p>}
     </div>
   )
 }

@@ -86,12 +86,12 @@ export function RatingGauge({ score, previousScore, t: tProp, className = '' }: 
           </>
         )}
       </svg>
-      <div className="-mt-1 font-display text-[2.5rem] leading-none font-bold text-accent-600">
+      <div className="-mt-1 font-display text-display leading-none font-bold text-accent-600">
         {score === null ? '—' : Math.round(score)}
       </div>
       {change && (
         <div
-          className={`mt-1.5 text-[0.75rem] ${
+          className={`mt-2 text-caption ${
             change.direction === 'worse'
               ? 'text-neg-500'
               : change.direction === 'better'
@@ -128,14 +128,14 @@ export function RatingLegend({ t: tProp, score, className = '' }: RatingLegendPr
       : placement.lower === point || placement.upper === point)
   return (
     <div className={className}>
-      <div className="mb-1 font-display text-[0.6875rem] font-bold tracking-wide text-accent-600 uppercase">
+      <div className="mb-1 font-display text-caption font-bold tracking-wide text-accent-600 uppercase">
         {t('rating.legendTitle')}
       </div>
       <div className="grid grid-cols-10 gap-px">
         {SCALE_POINTS.map((point) => (
           <div
             key={point}
-            className={`py-0.5 text-center font-display text-[0.75rem] font-bold text-white ${
+            className={`py-0.5 text-center font-display text-caption font-bold text-white ${
               isActive(point) ? 'ring-2 ring-accent-600 ring-inset' : ''
             }`}
             style={{ backgroundColor: colorForPoint(point) }}
@@ -148,7 +148,7 @@ export function RatingLegend({ t: tProp, score, className = '' }: RatingLegendPr
         {SCALE_POINTS.map((point) => (
           <div
             key={point}
-            className="text-center font-display text-[0.625rem] leading-tight [overflow-wrap:anywhere] text-slate-500 hyphens-auto"
+            className="text-center font-display text-caption leading-tight [overflow-wrap:anywhere] text-slate-500 hyphens-auto"
           >
             {t(`rating.scale10.${SCALE_LABEL_KEYS[point]}`)}
           </div>

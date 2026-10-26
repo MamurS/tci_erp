@@ -60,13 +60,13 @@ export function AmountInput({
             if (document.activeElement === el) el.setSelectionRange(at, at)
           })
         }}
-        className={`num h-9 w-full rounded-md border bg-white py-1.5 pl-3 text-right text-sm text-slate-900 tabular-nums shadow-[inset_0_1px_1px_rgb(0_0_0/0.03)] transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-accent-500 focus:ring-3 focus:ring-accent-500/20 focus:outline-none disabled:bg-slate-50 disabled:text-slate-400 ${
+        className={`num h-9 w-full rounded-md border bg-white py-2 pl-3 text-right text-body text-slate-900 tabular-nums shadow-[inset_0_1px_1px_rgb(0_0_0/0.03)] transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-accent-500 focus:ring-3 focus:ring-accent-500/20 focus:outline-none disabled:bg-slate-50 disabled:text-slate-400 ${
           suffix ? 'pr-12' : 'pr-3'
         } ${invalid ? 'border-neg-500' : 'border-slate-300'} ${className}`}
         {...rest}
       />
       {suffix && (
-        <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-[0.75rem] font-medium text-slate-400">
+        <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-caption font-medium text-slate-500">
           {suffix}
         </span>
       )}

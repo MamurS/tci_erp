@@ -157,7 +157,7 @@ export function ContractsPage() {
       />
 
       {error && (
-        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] text-neg-500" role="alert">
+        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-3 text-small text-neg-500" role="alert">
           {error}
         </div>
       )}
@@ -167,7 +167,7 @@ export function ContractsPage() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="max-w-2xl">
               <div className="font-semibold text-slate-800">{t('contracts.noTemplates.title')}</div>
-              <p className="mt-1 text-[0.8125rem] leading-relaxed text-slate-600">
+              <p className="mt-1 text-small leading-relaxed text-slate-600">
                 {canManageTemplates ? t('contracts.noTemplates.hintManager') : t('contracts.noTemplates.hintOther')}
               </p>
             </div>
@@ -233,7 +233,7 @@ export function ContractsPage() {
                       <Truncate text={p.legal_entities?.name} className="max-w-none">
                         {p.legal_entities?.name ?? EM_DASH}
                       </Truncate>
-                      <span className="block text-[0.75rem] text-slate-500">{t(`policies.structures.${p.product_structure}`)}</span>
+                      <span className="block text-caption text-slate-500">{t(`policies.structures.${p.product_structure}`)}</span>
                     </td>
                     <td className="whitespace-nowrap text-slate-500">
                       {formatDate(p.inception_date, locale)} — {formatDate(p.expiry_date, locale)}
@@ -376,7 +376,7 @@ export function ContractsPage() {
                       </td>
                       <td>
                         <Truncate text={`${name} v${d.template_version}`} className="max-w-none">
-                          {name} <span className="text-xs text-slate-400 tabular-nums">v{d.template_version}</span>
+                          {name} <span className="text-caption text-slate-500 tabular-nums">v{d.template_version}</span>
                         </Truncate>
                       </td>
                       <td className="whitespace-nowrap">{languageName(d.language, locale)}</td>

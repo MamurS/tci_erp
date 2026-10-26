@@ -121,12 +121,12 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                   <td>
                     {/* requested → approved pair (DESIGN.md pair styling) */}
                     <span className="num block">
-                      <span className="text-slate-400">
+                      <span className="text-slate-500">
                         {formatAmount(Number(limit.requested_amount), locale)}
                       </span>
-                      <span aria-hidden className="mx-1 text-slate-300">→</span>
+                      <span aria-hidden className="mx-1 text-slate-500">→</span>
                       {noCover || limit.approved_amount === null ? (
-                        <span className="text-slate-400">{EM_DASH}</span>
+                        <span className="text-slate-500">{EM_DASH}</span>
                       ) : (
                         <span className="font-semibold">
                           {formatAmount(Number(limit.approved_amount), locale)}
@@ -136,7 +136,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                       {/* Conditions flagged beside the amount they qualify. */}
                       {limit.conditions_count > 0 && !noCover && (
                         <span
-                          className="ml-1.5 text-warn-500"
+                          className="ml-2 text-warn-500"
                           title={t('limits.conditionsTooltip', { count: limit.conditions_count })}
                         >
                           ⚑ {limit.conditions_count}
@@ -146,7 +146,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                     {/* Stage pairing: what credit decided vs what commercial
                         made of it (migration 0020 keeps both rows). */}
                     {limit.commercially_adjusted && (
-                      <span className="num block text-xs text-slate-400">
+                      <span className="num block text-caption text-slate-500">
                         {t('limits.stagePair', {
                           credit: formatAmount(Number(limit.credit_amount), locale),
                           commercial: formatAmount(Number(limit.approved_amount), locale),
@@ -154,7 +154,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                       </span>
                     )}
                     {marks?.get(limit.decision_id) && (
-                      <span className="block text-xs text-accent-600">{t(marks.get(limit.decision_id) as string)}</span>
+                      <span className="block text-caption text-accent-600">{t(marks.get(limit.decision_id) as string)}</span>
                     )}
                   </td>
                   <td>
@@ -207,18 +207,18 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                 </td>
                 <td>
                   <span className="num block">
-                    <span className="text-slate-400">
+                    <span className="text-slate-500">
                       {formatAmount(Number(r.requested_amount), locale)}
                     </span>
-                    <span aria-hidden className="mx-1 text-slate-300">→</span>
-                    <span className="text-slate-400">{EM_DASH}</span> {r.currency_code}
+                    <span aria-hidden className="mx-1 text-slate-500">→</span>
+                    <span className="text-slate-500">{EM_DASH}</span> {r.currency_code}
                   </span>
                 </td>
                 <td>
                   <Badge tone={statusTone(r.status)}>{t(`limits.statuses.${r.status}`)}</Badge>
                 </td>
-                <td className="text-slate-400">{EM_DASH}</td>
-                <td className="text-slate-300">{EM_DASH}</td>
+                <td className="text-slate-500">{EM_DASH}</td>
+                <td className="text-slate-500">{EM_DASH}</td>
               </tr>
             ))}
           </tbody>

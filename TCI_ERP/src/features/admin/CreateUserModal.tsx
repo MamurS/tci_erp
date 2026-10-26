@@ -125,10 +125,10 @@ export function CreateUserModal({
         </Field>
 
         {clientOnly ? (
-          <p className="text-[0.8125rem] text-slate-500">{t('provisioning.clientOnlyHint')}</p>
+          <p className="text-small text-slate-500">{t('provisioning.clientOnlyHint')}</p>
         ) : (
           <Field label={t('provisioning.fields.roles')}>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {USER_ROLES.map((role) => {
                 const active = selectedRoles.includes(role)
                 return (
@@ -140,7 +140,7 @@ export function CreateUserModal({
                         prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role],
                       )
                     }
-                    className={`rounded-md border px-2.5 py-1 text-[0.8125rem] font-medium transition-colors ${
+                    className={`rounded-md border px-3 py-1 text-small font-medium transition-colors ${
                       active
                         ? 'border-accent-600 bg-accent-50 text-accent-700'
                         : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
@@ -162,10 +162,10 @@ export function CreateUserModal({
           </Field>
         )}
 
-        <p className="text-xs text-slate-400">{t('provisioning.noEmailHint')}</p>
+        <p className="text-caption text-slate-500">{t('provisioning.noEmailHint')}</p>
 
         {errorKey && (
-          <p className="text-[0.8125rem] text-neg-500" role="alert">
+          <p className="text-small text-neg-500" role="alert">
             {t(`provisioning.errors.${errorKey}`)}
           </p>
         )}

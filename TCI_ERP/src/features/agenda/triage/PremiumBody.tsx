@@ -33,8 +33,8 @@ export function PremiumBody({ row, now, subjects }: { row: AgendaRow; now: Date;
           page Table: the panel is narrow, and five columns at page padding
           would scroll sideways. */}
       <div className="overflow-hidden rounded-md border border-slate-200">
-        <table className="w-full text-[0.8125rem]">
-          <thead className="bg-slate-50 text-[0.7188rem] font-semibold tracking-wide text-slate-600 uppercase">
+        <table className="w-full text-small">
+          <thead className="bg-slate-50 text-caption font-semibold tracking-wide text-slate-600 uppercase">
             <tr className="border-b border-slate-200">
               <th className="px-3 py-2 text-left">
                 {t('agenda.triage.premium.policy')} · {t('agenda.triage.premium.policyholder')}
@@ -58,7 +58,7 @@ export function PremiumBody({ row, now, subjects }: { row: AgendaRow; now: Date;
                 <tr key={item.id}>
                   <td className="w-full max-w-0 px-3 py-2">
                     <span className="block font-medium whitespace-nowrap text-slate-900 tabular-nums">{number ?? EM_DASH}</span>
-                    <Truncate text={policy?.holder ?? EM_DASH} className="max-w-full text-[0.7812rem] text-slate-600" />
+                    <Truncate text={policy?.holder ?? EM_DASH} className="max-w-full text-small text-slate-600" />
                   </td>
                   <td className="px-3 py-2 text-right text-slate-800 tabular-nums">{String(p.sequence ?? EM_DASH)}</td>
                   <td className="px-3 py-2 whitespace-nowrap text-slate-800 tabular-nums">
@@ -84,7 +84,7 @@ export function PremiumBody({ row, now, subjects }: { row: AgendaRow; now: Date;
           </tbody>
         </table>
       </div>
-      <p className="mt-3 text-[0.8438rem] text-slate-800 tabular-nums">
+      <p className="mt-3 text-body text-slate-800 tabular-nums">
         <span className="text-slate-600">{t('agenda.triage.premium.total')} </span>
         <span className="font-semibold">
           {isLoading || total.uzs === null ? EM_DASH : `${formatAmount(total.uzs, locale)} UZS`}

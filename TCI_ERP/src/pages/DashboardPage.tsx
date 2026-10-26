@@ -123,13 +123,13 @@ export function DashboardPage() {
       {/* Greeting */}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <div className="text-[0.75rem] font-semibold tracking-[0.14em] text-accent-500 uppercase">
+          <div className="text-caption font-semibold tracking-[0.14em] text-accent-500 uppercase">
             {formatLongDate(now, locale)}
           </div>
-          <h1 className="mt-1 font-display text-[1.75rem] leading-tight font-bold tracking-wide text-accent-600 uppercase">
+          <h1 className="mt-1 font-display text-headline leading-tight font-bold tracking-wide text-accent-700 uppercase">
             {t(`dashboard.greeting.${dayPart(now)}`)}
           </h1>
-          <p className="mt-0.5 text-[0.8125rem] text-slate-500">
+          <p className="mt-0.5 text-small text-slate-500">
             {roles.length ? roles.map((r) => t(`roles.${r}`)).join(' · ') : t('roles.unassigned')}
           </p>
         </div>
@@ -184,7 +184,7 @@ export function DashboardPage() {
             action={
               <Link
                 to="/agenda"
-                className="inline-flex items-center gap-1 text-[0.8125rem] font-medium text-accent-600 hover:text-accent-500"
+                className="inline-flex items-center gap-1 text-small font-medium text-accent-600 hover:text-accent-500"
               >
                 {t('dashboard.allTasks', { count: tasks.length })}
                 <ArrowRight className="size-3.5" />
@@ -212,7 +212,7 @@ export function DashboardPage() {
                   />
                 ))}
                 {tasks.length > TASKS_SHOWN && (
-                  <li className="px-5 py-2.5 text-[0.7812rem] text-slate-500">
+                  <li className="px-5 py-3 text-small text-slate-500">
                     <Link to="/agenda" className="hover:text-accent-600">
                       {t('dashboard.tasksMore', { count: tasks.length - TASKS_SHOWN })}
                     </Link>
@@ -249,13 +249,13 @@ export function DashboardPage() {
                       >
                         <Icon className="size-4" />
                       </span>
-                      <span className="flex-1 text-[0.8438rem] text-slate-700">
+                      <span className="flex-1 text-body text-slate-700">
                         {t(`dashboard.signalLabels.${signal.key}`)}
                       </span>
-                      <span className="num font-display text-[1.25rem] font-bold text-accent-600">
+                      <span className="num font-display text-title font-bold text-accent-600">
                         {formatAmount(signal.count, locale)}
                       </span>
-                      <ChevronRight className="size-4 text-slate-300 group-hover:text-accent-500" />
+                      <ChevronRight className="size-4 text-slate-400 group-hover:text-accent-500" />
                     </Link>
                   </li>
                 )
@@ -293,20 +293,20 @@ function Kpi({
 }) {
   return (
     <Link to={to} title={title} className="group block px-5 py-4 transition-colors hover:bg-accent-50/50">
-      <div className="flex items-start gap-2 text-[0.7812rem] leading-snug font-medium text-slate-500">
-        <Icon className="mt-px size-4 shrink-0 text-accent-500" />
+      <div className="flex items-start gap-2 text-small leading-snug font-medium text-slate-500">
+        <Icon className="mt-px size-4 shrink-0 text-slate-500" />
         <span>{label}</span>
       </div>
       {/* The unit drops under the figure when the column is narrow, instead
           of being cut off at the card's edge. */}
-      <div className="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-        <span className="num text-left font-display text-[1.875rem] leading-none font-bold text-accent-600 group-hover:text-accent-500">
+      <div className="mt-2 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+        <span className="num text-left font-display text-headline leading-none font-bold text-accent-600 group-hover:text-accent-500">
           {value}
         </span>
-        {unit && <span className="text-[0.75rem] font-medium text-slate-500">{unit}</span>}
+        {unit && <span className="text-caption font-medium text-slate-500">{unit}</span>}
       </div>
       {sub && (
-        <div className={`mt-1 text-[0.75rem] ${subTone === 'neg' ? 'font-medium text-neg-500' : 'text-slate-500'}`}>
+        <div className={`mt-1 text-caption ${subTone === 'neg' ? 'font-medium text-neg-500' : 'text-slate-500'}`}>
           {sub}
         </div>
       )}
@@ -356,9 +356,9 @@ function PremiumKpi({ accrual, locale }: { accrual: PremiumAccrualUzs; locale: s
           <div className="h-full rounded-full bg-accent-500" style={{ width: `${Math.min(100, ratio * 100)}%` }} />
         </div>
       )}
-      {showBreakdown && <div className="mt-2 text-[0.7188rem] leading-snug text-slate-500">{breakdown}</div>}
+      {showBreakdown && <div className="mt-2 text-caption leading-snug text-slate-500">{breakdown}</div>}
       {missingRates.length > 0 && (
-        <div className="mt-1 text-[0.7188rem] leading-snug font-medium text-warn-500">
+        <div className="mt-1 text-caption leading-snug font-medium text-warn-500">
           {t('dashboard.premiumNoRate', { currencies: missingRates.join(', ') })}
         </div>
       )}
@@ -369,9 +369,8 @@ function PremiumKpi({ accrual, locale }: { accrual: PremiumAccrualUzs; locale: s
 function Panel({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
   return (
     <Card className="overflow-hidden">
-      <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-3.5">
-        <h2 className="flex items-center gap-2 font-display text-[1rem] font-bold tracking-wide text-accent-600 uppercase">
-          <span aria-hidden="true" className="inline-block size-2 bg-accent-500" />
+      <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+        <h2 className="flex items-center gap-2 text-lead font-semibold text-slate-900">
           {title}
         </h2>
         {action}
@@ -383,7 +382,7 @@ function Panel({ title, action, children }: { title: string; action?: ReactNode;
 
 function AllClear({ text }: { text: string }) {
   return (
-    <div className="flex items-center gap-3 px-5 py-6 text-[0.8438rem] text-slate-500">
+    <div className="flex items-center gap-3 px-5 py-6 text-body text-slate-500">
       <CheckCircle2 className="size-5 shrink-0 text-pos-500" />
       {text}
     </div>
@@ -392,7 +391,7 @@ function AllClear({ text }: { text: string }) {
 
 const PRIORITY_DOT: Record<Task['priority'], string> = {
   urgent: 'bg-neg-500',
-  high: 'bg-brand-orange',
+  high: 'bg-warning-400',
   normal: 'bg-accent-300',
 }
 
@@ -414,12 +413,12 @@ function TaskLine({
   const overdue = isOverdue(task, now)
   const body = (
     <>
-      <span className={`mt-1.5 size-2 shrink-0 rounded-full ${overdue ? 'bg-neg-500' : PRIORITY_DOT[task.priority]}`} />
+      <span className={`mt-2 size-2 shrink-0 rounded-full ${overdue ? 'bg-neg-500' : PRIORITY_DOT[task.priority]}`} />
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[0.8438rem] font-medium text-slate-800">
+        <span className="block truncate text-body font-medium text-slate-800">
           {t(taskTitleKey(task, now), { ...formatTaskParams(task.params, locale), subject: subject ?? EM_DASH })}
         </span>
-        <span className="mt-0.5 flex min-w-0 gap-x-2 text-[0.75rem] text-slate-500">
+        <span className="mt-0.5 flex min-w-0 gap-x-2 text-caption text-slate-500">
           {/* What the task is about; the kind of task only when nothing names it. */}
           <span className="min-w-0 truncate">{context ?? t(`agenda.taskTypes.${displayTaskType(task, now)}`)}</span>
           {task.due_at && (
@@ -429,7 +428,7 @@ function TaskLine({
           )}
         </span>
       </span>
-      {href && <ChevronRight className="mt-1 size-4 shrink-0 text-slate-300 group-hover:text-accent-500" />}
+      {href && <ChevronRight className="mt-1 size-4 shrink-0 text-slate-400 group-hover:text-accent-500" />}
     </>
   )
   return (

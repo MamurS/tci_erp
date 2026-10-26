@@ -166,13 +166,13 @@ export function PolicyFormPage() {
     const warning = validation.warnings[field]
     if (error) {
       return (
-        <p className="mt-0.5 text-xs text-neg-500" role="alert">
+        <p className="mt-0.5 text-caption text-neg-500" role="alert">
           {t(`policies.validation.${error}`)}
         </p>
       )
     }
     if (warning) {
-      return <p className="mt-0.5 text-xs text-warn-500">{t(`policies.validation.${warning}`)}</p>
+      return <p className="mt-0.5 text-caption text-warn-500">{t(`policies.validation.${warning}`)}</p>
     }
     return null
   }
@@ -439,7 +439,7 @@ export function PolicyFormPage() {
 
       <div className="sticky bottom-0 z-20 -mx-4 mt-6 -mb-6 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-4px_12px_-6px_rgb(0_36_60/0.12)] backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:-mb-7 lg:px-8">
         {saveError ? (
-          <p className="mr-auto text-[0.8125rem] text-neg-500" role="alert">
+          <p className="mr-auto text-small text-neg-500" role="alert">
             {t('common.saveFailed')}
           </p>
         ) : (
@@ -447,7 +447,7 @@ export function PolicyFormPage() {
           blocked && (
             // Why Save is greyed out: the red messages are above, possibly
             // scrolled out of view.
-            <p className="mr-auto text-[0.8125rem] text-neg-500" role="alert">
+            <p className="mr-auto text-small text-neg-500" role="alert">
               {t('policies.form.fixErrors')}
             </p>
           )

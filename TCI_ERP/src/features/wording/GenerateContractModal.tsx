@@ -270,7 +270,7 @@ export function GenerateContractModal(props: GenerateContractModalProps) {
           {(['refresh', 'fresh'] as const).map((m) => (
             <label
               key={m}
-              className={`flex cursor-pointer items-start gap-3 rounded-md border px-3 py-2.5 ${
+              className={`flex cursor-pointer items-start gap-3 rounded-md border px-3 py-3 ${
                 mode === m ? 'border-accent-500 bg-accent-50/70 ring-1 ring-accent-500' : 'border-slate-200 hover:bg-slate-50'
               }`}
             >
@@ -282,8 +282,8 @@ export function GenerateContractModal(props: GenerateContractModalProps) {
                 className="mt-1 accent-accent-600"
               />
               <span>
-                <span className="block text-[0.8438rem] font-medium text-slate-800">{t(`contractDrafts.regenerate.${m}`)}</span>
-                <span className="block text-[0.75rem] text-slate-500">{t(`contractDrafts.regenerate.${m}Hint`)}</span>
+                <span className="block text-body font-medium text-slate-800">{t(`contractDrafts.regenerate.${m}`)}</span>
+                <span className="block text-caption text-slate-500">{t(`contractDrafts.regenerate.${m}Hint`)}</span>
               </span>
             </label>
           ))}
@@ -292,32 +292,32 @@ export function GenerateContractModal(props: GenerateContractModalProps) {
 
       {!(edited && mode === 'refresh') &&
         (active.length === 0 ? (
-          <p className="text-[0.8125rem] text-slate-600">{t('wording.generate.noTemplates')}</p>
+          <p className="text-small text-slate-600">{t('wording.generate.noTemplates')}</p>
         ) : active.length === 1 ? (
           // One template: nothing to choose, so it is stated, not offered in a
           // dropdown that cut its name short.
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
+          <div className="flex flex-col gap-2">
+            <span className="text-caption font-semibold tracking-wide text-slate-600 uppercase">
               {t('wording.generate.template')}
             </span>
-            <div className="rounded-md border border-slate-200 bg-slate-50/70 px-3 py-2.5">
-              <p className="text-[0.8438rem] font-medium text-slate-800">{text.name(active[0])}</p>
-              <p className="mt-0.5 text-[0.75rem] text-slate-500">{describe(active[0]!)}</p>
+            <div className="rounded-md border border-slate-200 bg-slate-50/70 px-3 py-3">
+              <p className="text-body font-medium text-slate-800">{text.name(active[0])}</p>
+              <p className="mt-0.5 text-caption text-slate-500">{describe(active[0]!)}</p>
             </div>
           </div>
         ) : (
-          <fieldset className="flex flex-col gap-1.5">
-            <legend className="mb-1.5 text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-2 text-caption font-semibold tracking-wide text-slate-600 uppercase">
               {t('wording.generate.template')}
             </legend>
-            <p className="mb-1 text-xs text-slate-500">{t('wording.generate.templateHint')}</p>
+            <p className="mb-1 text-caption text-slate-500">{t('wording.generate.templateHint')}</p>
             <div className="flex max-h-72 flex-col gap-2 overflow-y-auto">
               {active.map((x) => {
                 const selected = x.id === templateId
                 return (
                   <label
                     key={x.id}
-                    className={`flex cursor-pointer items-start gap-3 rounded-md border px-3 py-2.5 transition-colors ${
+                    className={`flex cursor-pointer items-start gap-3 rounded-md border px-3 py-3 transition-colors ${
                       selected ? 'border-accent-500 bg-accent-50/70 ring-1 ring-accent-500' : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                     }`}
                   >
@@ -330,8 +330,8 @@ export function GenerateContractModal(props: GenerateContractModalProps) {
                       className="mt-1 accent-accent-600"
                     />
                     <span className="min-w-0">
-                      <span className="block text-[0.8438rem] font-medium text-slate-800">{text.name(x)}</span>
-                      <span className="block text-[0.75rem] text-slate-500">{describe(x)}</span>
+                      <span className="block text-body font-medium text-slate-800">{text.name(x)}</span>
+                      <span className="block text-caption text-slate-500">{describe(x)}</span>
                     </span>
                   </label>
                 )
@@ -339,12 +339,12 @@ export function GenerateContractModal(props: GenerateContractModalProps) {
             </div>
           </fieldset>
         ))}
-      {active.length > 0 && <p className="text-xs text-slate-500">{t('contractDrafts.generateNote')}</p>}
+      {active.length > 0 && <p className="text-caption text-slate-500">{t('contractDrafts.generateNote')}</p>}
       {notice && (
         <Callout tone="info" title={notice} />
       )}
       {error && (
-        <p className="text-[0.8125rem] text-neg-500" role="alert">
+        <p className="text-small text-neg-500" role="alert">
           {error}
         </p>
       )}

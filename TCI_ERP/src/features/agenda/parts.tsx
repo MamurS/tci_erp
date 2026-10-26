@@ -72,7 +72,7 @@ export function DueLabel({ dueAt, bucket, now, compact = false }: { dueAt: strin
         : t(compact ? 'agenda.due.daysShort' : 'agenda.due.inDays', { count: state.days })
   return (
     <span
-      className={`num shrink-0 text-[0.8125rem] font-semibold whitespace-nowrap tabular-nums ${DUE_TONE[bucket]}`}
+      className={`num shrink-0 text-small font-semibold whitespace-nowrap tabular-nums ${DUE_TONE[bucket]}`}
       title={t(state.kind === 'overdue' ? 'agenda.overdueSince' : 'agenda.dueBy', { moment: formatDue(dueAt, i18n.language) })}
     >
       {text}
@@ -100,7 +100,7 @@ export function OwnerAvatar({
     return (
       <span
         title={name}
-        className="flex size-7 shrink-0 items-center justify-center rounded-full bg-accent-100 text-[0.6562rem] font-bold text-accent-700"
+        className="flex size-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-caption font-semibold text-slate-700"
       >
         {member ? initials(name) : '·'}
       </span>
@@ -110,7 +110,7 @@ export function OwnerAvatar({
   return (
     <span
       title={t('agenda.owner.department', { role })}
-      className="flex size-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500"
+      className="flex size-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-600"
     >
       <Users aria-label={t('agenda.owner.department', { role })} className="size-3.5" />
     </span>
@@ -242,7 +242,7 @@ export function CommentComposer({
         aria-label={t('agenda.comments.placeholder')}
       />
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[0.75rem] text-slate-600">{t('agenda.comments.hint')}</span>
+        <span className="text-caption text-slate-600">{t('agenda.comments.hint')}</span>
         <div className="flex gap-2">
           <Button variant="secondary" size="sm" onClick={onClose}>
             {t('common.cancel')}

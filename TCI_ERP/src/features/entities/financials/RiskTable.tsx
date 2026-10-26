@@ -46,14 +46,14 @@ const BAND_TONE: Record<string, 'pos' | 'warn' | 'neg'> = {
 /** Direction-aware Δ: ▲/▼ with green = improvement, red = deterioration. */
 function RiskDelta({ row, delta, locale }: { row: RiskRowDef; delta: number; locale: string }) {
   if (Math.abs(delta) < 1e-9) {
-    return <span className="num block text-slate-400">{formatValue(row, 0, locale)}</span>
+    return <span className="num block text-slate-500">{formatValue(row, 0, locale)}</span>
   }
   const direction = RISK_ROW_DIRECTIONS[row.key] ?? 'up_good'
   const up = delta > 0
   const improvement = direction === 'up_good' ? up : !up
   return (
     <span className={`num block ${improvement ? 'text-pos-500' : 'text-neg-500'}`}>
-      <span aria-hidden="true" className="mr-0.5 align-[1px] text-[0.5625rem]">
+      <span aria-hidden="true" className="mr-0.5 align-[1px] text-caption">
         {up ? '▲' : '▼'}
       </span>
       {formatValue(row, Math.abs(delta), locale)}
@@ -92,7 +92,7 @@ export function RiskTable({ periods }: { periods: RiskPeriod[] }) {
 
   return (
     <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-      <table className="w-full border-collapse text-[0.8125rem]">
+      <table className="w-full border-collapse text-small">
         <thead>
           <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
             <th className="sticky left-0 z-10 min-w-56 bg-slate-50 text-left">
@@ -103,7 +103,7 @@ export function RiskTable({ periods }: { periods: RiskPeriod[] }) {
                 <th className="border-l border-slate-200 text-right">
                   {statementPeriodLabel(period.statement)}
                 </th>
-                <th className="text-right text-xs font-normal text-slate-400">
+                <th className="text-right text-caption font-normal text-slate-500">
                   {t('fin.risk.change')}
                 </th>
               </Fragment>
@@ -117,7 +117,7 @@ export function RiskTable({ periods }: { periods: RiskPeriod[] }) {
                 <tr>
                   <td
                     colSpan={1 + periods.length * 2}
-                    className="border-b border-slate-100 bg-white px-3 pt-3 pb-1 text-xs font-semibold tracking-wide text-slate-400 uppercase"
+                    className="border-b border-slate-100 bg-white px-3 pt-3 pb-1 text-caption font-semibold tracking-wide text-slate-500 uppercase"
                   >
                     {t(`fin.risk.groups.${group}`)}
                   </td>
@@ -127,10 +127,10 @@ export function RiskTable({ periods }: { periods: RiskPeriod[] }) {
                 const norm = normLabel(row)
                 return (
                   <tr key={row.key}>
-                    <td className="sticky left-0 z-10 border-b border-slate-100 bg-white px-3 py-1.5 text-slate-700">
+                    <td className="sticky left-0 z-10 border-b border-slate-100 bg-white px-3 py-2 text-slate-700">
                       {t(`fin.risk.rows.${row.key}`)}
                       {norm && (
-                        <span className="ml-1 text-xs text-slate-400">
+                        <span className="ml-1 text-caption text-slate-500">
                           ({t('fin.risk.norm')} {norm})
                         </span>
                       )}
@@ -143,7 +143,7 @@ export function RiskTable({ periods }: { periods: RiskPeriod[] }) {
                       return (
                         <Fragment key={period.statement.id}>
                           <td
-                            className={`border-b border-l border-slate-100 px-3 py-1.5 ${
+                            className={`border-b border-l border-slate-100 px-3 py-2 ${
                               breach ? 'bg-neg-50' : meets ? 'bg-pos-50' : ''
                             }`}
                           >
@@ -158,7 +158,7 @@ export function RiskTable({ periods }: { periods: RiskPeriod[] }) {
                             >
                               {formatValue(row, value, locale)}
                               {row.key === 'z_score' && period.zBand && (
-                                <span className="ml-1.5">
+                                <span className="ml-2">
                                   <Badge tone={BAND_TONE[period.zBand]}>
                                     {t(`fin.risk.bands.${period.zBand}`)}
                                   </Badge>
@@ -166,9 +166,9 @@ export function RiskTable({ periods }: { periods: RiskPeriod[] }) {
                               )}
                             </span>
                           </td>
-                          <td className="border-b border-slate-100 px-3 py-1.5">
+                          <td className="border-b border-slate-100 px-3 py-2">
                             {delta === null ? (
-                              <span className="num block text-slate-300">{EM_DASH}</span>
+                              <span className="num block text-slate-500">{EM_DASH}</span>
                             ) : (
                               <RiskDelta row={row} delta={delta} locale={locale} />
                             )}

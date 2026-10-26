@@ -180,7 +180,7 @@ export function ImportCard({ onImported }: { onImported: (importId: string) => v
               <FileUp aria-hidden />
               {t('premium.bank.import.choose')}
             </Button>
-            <span className="min-w-0 truncate text-[0.8125rem] text-slate-600" title={file?.name}>
+            <span className="min-w-0 truncate text-small text-slate-600" title={file?.name}>
               {reading ? t('premium.bank.import.reading') : (file?.name ?? t('premium.bank.import.noFile'))}
             </span>
           </span>
@@ -251,7 +251,7 @@ export function ImportCard({ onImported }: { onImported: (importId: string) => v
                 >
                   {t('premium.bank.mapping.save')}
                 </Button>
-                <span className="pb-2 text-[0.8125rem] text-slate-500" role="status">
+                <span className="pb-2 text-small text-slate-500" role="status">
                   {saved ? t('premium.bank.mapping.saved') : ''}
                 </span>
               </div>
@@ -305,20 +305,20 @@ function Preview({ parsed, locale }: { parsed: ReturnType<typeof applyMapping>; 
   const shown = parsed.lines.slice(0, PREVIEW_ROWS)
   return (
     <div className="flex flex-col gap-3">
-      <dl className="flex flex-wrap gap-x-6 gap-y-1 text-[0.8125rem]">
-        <div className="flex gap-1.5">
+      <dl className="flex flex-wrap gap-x-6 gap-y-1 text-small">
+        <div className="flex gap-2">
           <dt className="text-slate-500">{t('premium.bank.preview.kept')}</dt>
           <dd className="font-semibold text-slate-800 tabular-nums">{parsed.lines.length}</dd>
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex gap-2">
           <dt className="text-slate-500">{t('premium.bank.preview.debits')}</dt>
           <dd className="font-semibold text-slate-800 tabular-nums">{parsed.debits}</dd>
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex gap-2">
           <dt className="text-slate-500">{t('premium.bank.preview.skipped')}</dt>
           <dd className="font-semibold text-slate-800 tabular-nums">{parsed.skipped}</dd>
         </div>
-        <div className="flex gap-1.5">
+        <div className="flex gap-2">
           <dt className="text-slate-500">{t('premium.bank.preview.errors')}</dt>
           <dd className="font-semibold text-slate-800 tabular-nums">{parsed.errors.length}</dd>
         </div>
@@ -347,7 +347,7 @@ function Preview({ parsed, locale }: { parsed: ReturnType<typeof applyMapping>; 
 
       {shown.length > 0 && (
         <>
-          <p className="text-xs text-slate-500">
+          <p className="text-caption text-slate-500">
             {t('premium.bank.preview.first', { count: shown.length, total: parsed.lines.length })}
           </p>
           <Table dense columns={['4.5rem', COL.date, COL.money, COL.fill, COL.code]}>
@@ -371,7 +371,7 @@ function Preview({ parsed, locale }: { parsed: ReturnType<typeof applyMapping>; 
                   <td>
                     <PayerPurpose payer={l.payer} purpose={l.purpose} />
                   </td>
-                  <td className="font-mono text-[0.75rem]">{l.reference ?? EM_DASH}</td>
+                  <td className="font-mono text-caption">{l.reference ?? EM_DASH}</td>
                 </tr>
               ))}
             </tbody>
@@ -385,11 +385,11 @@ function Preview({ parsed, locale }: { parsed: ReturnType<typeof applyMapping>; 
 /** «Payer · purpose» on one line, cut with the whole text on hover. */
 function PayerPurpose({ payer, purpose }: { payer: string | null; purpose: string | null }) {
   const full = [payer, purpose].filter(Boolean).join(' · ')
-  if (!full) return <span className="text-slate-400">{EM_DASH}</span>
+  if (!full) return <span className="text-slate-500">{EM_DASH}</span>
   return (
     <span className="block truncate" title={full}>
       {payer && <span className="font-medium text-slate-800">{payer}</span>}
-      {payer && purpose && <span className="text-slate-400"> · </span>}
+      {payer && purpose && <span className="text-slate-500"> · </span>}
       {purpose && <span className="text-slate-600">{purpose}</span>}
     </span>
   )

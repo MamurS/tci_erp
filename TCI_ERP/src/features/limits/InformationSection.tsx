@@ -58,7 +58,7 @@ export function InformationSection({
   }
 
   return (
-    <Card className="flex flex-col gap-3 border-warn-500/30 bg-warn-50 p-5 text-sm text-slate-800" role="note">
+    <Card className="flex flex-col gap-3 border-warn-500/30 bg-warn-50 p-5 text-body text-slate-800" role="note">
       <div className="font-semibold">{t('limits.information.title')}</div>
       <p>{t('limits.information.hint')}</p>
       {missing.length > 0 && (
@@ -108,7 +108,7 @@ export function InformationSection({
             </>
           }
         >
-          <p className="mb-3 text-sm text-slate-600">{t('limits.information.waiveHint')}</p>
+          <p className="mb-3 text-body text-slate-600">{t('limits.information.waiveHint')}</p>
           <Field label={t('limits.information.waiveComment')}>
             <Textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={3} />
           </Field>

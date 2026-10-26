@@ -164,13 +164,13 @@ function SubmissionCard({
       {expanded && (
         <div className="mt-4 grid items-start gap-5 border-t border-slate-100 pt-4 lg:grid-cols-2">
           <div>
-            <h3 className="mb-2 text-sm font-semibold text-slate-700">
+            <h3 className="mb-2 text-body font-semibold text-slate-700">
               {t('portal.submissions.terms')}
             </h3>
             {showTerms ? (
               <DescriptionList items={terms} />
             ) : (
-              <p className="text-[0.8125rem] text-slate-500">
+              <p className="text-small text-slate-500">
                 {t('portal.submissions.termsNotYet')}
               </p>
             )}
@@ -178,11 +178,11 @@ function SubmissionCard({
 
           <div className="flex flex-col gap-5">
             <div>
-              <h3 className="mb-2 text-sm font-semibold text-slate-700">
+              <h3 className="mb-2 text-body font-semibold text-slate-700">
                 {t('portal.submissions.buyers')}
               </h3>
               {!buyers?.length ? (
-                <p className="text-[0.8125rem] text-slate-500">{t('portal.submissions.noBuyers')}</p>
+                <p className="text-small text-slate-500">{t('portal.submissions.noBuyers')}</p>
               ) : (
                 <Table dense columns={[COL.fill, COL.money]}>
                   <tbody>
@@ -202,19 +202,19 @@ function SubmissionCard({
             </div>
 
             <div>
-              <h3 className="mb-2 text-sm font-semibold text-slate-700">
+              <h3 className="mb-2 text-body font-semibold text-slate-700">
                 {t('portal.submissions.progress')}
               </h3>
               {!history?.length ? (
-                <p className="text-[0.8125rem] text-slate-500">{t('portal.submissions.noHistory')}</p>
+                <p className="text-small text-slate-500">{t('portal.submissions.noHistory')}</p>
               ) : (
-                <ol className="flex flex-col gap-1.5 text-[0.8125rem]">
+                <ol className="flex flex-col gap-2 text-small">
                   {history.map((h) => (
                     <li key={h.id} className="flex justify-between gap-3">
                       <span className="text-slate-700">
                         {t(`portal.submissions.statuses.${h.to_status}`)}
                       </span>
-                      <span className="text-slate-400">{formatMoment(h.changed_at, locale)}</span>
+                      <span className="text-slate-500">{formatMoment(h.changed_at, locale)}</span>
                     </li>
                   ))}
                 </ol>
@@ -293,7 +293,7 @@ function RespondModal({
       }
     >
       {error && <Callout tone="neg" title={error} />}
-      <p className="text-sm leading-relaxed text-slate-600">
+      <p className="text-body leading-relaxed text-slate-600">
         {t(`portal.submissions.confirm.${action}`, { number: submission.request_number })}
       </p>
       {needsComment && (

@@ -112,7 +112,7 @@ export function DraftContractSection({ target, reference, countryCode, product }
         hint={
           draft ? (
             <span className="inline-flex items-center gap-2">
-              <span className="font-mono text-[0.7812rem] text-slate-600">{draft.draft_number}</span>
+              <span className="font-mono text-small text-slate-600">{draft.draft_number}</span>
               <Badge tone={statusTone(draft.status)}>{t(`contractDrafts.statuses.${draft.status}`)}</Badge>
             </span>
           ) : undefined
@@ -172,14 +172,14 @@ export function DraftContractSection({ target, reference, countryCode, product }
                   <td className="tabular-nums">
                     <span className={current ? 'font-semibold text-slate-900' : 'text-slate-600'}>v{v.version_no}</span>
                     {current && (
-                      <span className="ml-1.5 inline-block size-1.5 rounded-full bg-accent-500 align-middle" title={t('contractDrafts.current')} />
+                      <span className="ml-2 inline-block size-1.5 rounded-full bg-accent-500 align-middle" title={t('contractDrafts.current')} />
                     )}
                   </td>
                   <td>
                     {status ? (
                       <Badge tone={current ? statusTone(status) : 'neutral'}>{t(`contractDrafts.statuses.${status}`)}</Badge>
                     ) : (
-                      <span className="text-slate-400">{EM_DASH}</span>
+                      <span className="text-slate-500">{EM_DASH}</span>
                     )}
                   </td>
                   <td className="tabular-nums">{formatMoment(v.created_at, locale)}</td>
@@ -231,7 +231,7 @@ export function DraftContractSection({ target, reference, countryCode, product }
         </Table>
       )}
       {error && (
-        <p className="mt-2 text-[0.8125rem] text-neg-500" role="alert">
+        <p className="mt-2 text-small text-neg-500" role="alert">
           {error}
         </p>
       )}
@@ -260,7 +260,7 @@ export function DraftContractSection({ target, reference, countryCode, product }
                     <td>
                       <Truncate text={`${name} v${d.template_version} · ${languageName(d.language, locale)}`} className="max-w-none">
                         {name}{' '}
-                        <span className="text-xs text-slate-400">
+                        <span className="text-caption text-slate-500">
                           <span className="tabular-nums">v{d.template_version}</span> · {languageName(d.language, locale)}
                         </span>
                       </Truncate>

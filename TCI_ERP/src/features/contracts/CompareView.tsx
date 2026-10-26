@@ -48,7 +48,7 @@ function LineView({ line, side }: { line: DiffLine; side: 'both' | 'before' | 'a
             : line.segments
           : [{ op: 'equal', text: shown.text }]
   const className =
-    shown.kind === 'title' ? 'text-[1.2em] font-bold' : shown.kind === 'heading' ? 'mt-3 font-bold' : shown.kind === 'row' ? 'cd-diff-row' : ''
+    shown.kind === 'title' ? 'text-[1.2em] font-semibold' : shown.kind === 'heading' ? 'mt-3 font-semibold' : shown.kind === 'row' ? 'cd-diff-row' : ''
   return (
     <p className={`cd-diff-line ${className}`} data-op={line.op === 'equal' ? undefined : line.op}>
       {label && (
@@ -57,7 +57,7 @@ function LineView({ line, side }: { line: DiffLine; side: 'both' | 'before' | 'a
         </span>
       )}
       {shown.kind === 'pageBreak' ? (
-        <span className="text-slate-400">{t('contractDrafts.editor.pageBreak')}</span>
+        <span className="text-slate-500">{t('contractDrafts.editor.pageBreak')}</span>
       ) : (
         <Segments segments={segments} side={side} />
       )}
@@ -118,7 +118,7 @@ export function CompareView({
       </div>
 
       {summary && (
-        <p className="text-[0.8125rem] text-slate-600" aria-live="polite">
+        <p className="text-small text-slate-600" aria-live="polite">
           {summary.inserted + summary.deleted + summary.changed === 0
             ? t('contractDrafts.compare.same')
             : t('contractDrafts.compare.summary', {
@@ -149,7 +149,7 @@ export function CompareView({
         <PanelGrid cols="lg:grid-cols-2" gap="gap-4">
           {(['before', 'after'] as const).map((side) => (
             <article key={side} className="cd-sheet" style={{ ...sheetStyle(b.data?.content.attrs?.layout), padding: '10mm' }}>
-              <div className="mb-3 text-[0.75rem] font-semibold tracking-wide text-slate-500 uppercase">
+              <div className="mb-3 text-caption font-semibold tracking-wide text-slate-500 uppercase">
                 v{side === 'before' ? older : newer}
               </div>
               <div className="cdoc">

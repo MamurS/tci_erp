@@ -34,7 +34,7 @@ export function GroupCapAmount({
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const original = toNumber(amount)
-  if (original === null || !currency) return <span className="text-slate-400">{EM_DASH}</span>
+  if (original === null || !currency) return <span className="text-slate-500">{EM_DASH}</span>
 
   const uzs = toNumber(amountUzs)
   const main = `${formatAmount(original, locale)} ${currency}`
@@ -49,14 +49,14 @@ export function GroupCapAmount({
     return (
       <span className="inline-flex flex-col items-end whitespace-nowrap">
         <span>{main}</span>
-        {equivalent && <span className="text-[0.75rem]">{equivalent}</span>}
+        {equivalent && <span className="text-caption">{equivalent}</span>}
       </span>
     )
   }
   return (
     <span className="whitespace-nowrap">
       {main}
-      {equivalent && <span className="ml-1.5 font-normal">{equivalent}</span>}
+      {equivalent && <span className="ml-2 font-normal">{equivalent}</span>}
     </span>
   )
 }

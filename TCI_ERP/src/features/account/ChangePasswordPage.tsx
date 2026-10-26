@@ -74,13 +74,13 @@ export function ChangePasswordPage() {
       />
 
       {mustChangePassword && (
-        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
+        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
           {t('account.forcedNotice')}
         </div>
       )}
 
       <Card className="flex flex-col gap-3 p-5">
-        <p className="text-[0.8125rem] text-slate-500">{email}</p>
+        <p className="text-small text-slate-500">{email}</p>
 
         <Field label={t('account.newPassword')}>
           <PasswordInput
@@ -91,7 +91,7 @@ export function ChangePasswordPage() {
             onBlur={() => setTouched(true)}
           />
           {password && (
-            <p className="mt-1 text-xs">
+            <p className="mt-1 text-caption">
               <span className="text-slate-500">{t('account.strength')}: </span>
               <span
                 className={
@@ -118,7 +118,7 @@ export function ChangePasswordPage() {
           />
         </Field>
 
-        <ul className="flex flex-col gap-0.5 text-xs text-slate-500">
+        <ul className="flex flex-col gap-0.5 text-caption text-slate-500">
           <Rule ok={password.length >= MIN_PASSWORD_LENGTH} touched={touched}>
             {t('account.rules.length', { count: MIN_PASSWORD_LENGTH })}
           </Rule>
@@ -140,7 +140,7 @@ export function ChangePasswordPage() {
         </ul>
 
         {error && (
-          <p className="text-[0.8125rem] text-neg-500" role="alert">
+          <p className="text-small text-neg-500" role="alert">
             {error}
           </p>
         )}
@@ -170,7 +170,7 @@ function Rule({
   touched: boolean
   children: React.ReactNode
 }) {
-  const tone = ok ? 'text-pos-500' : touched ? 'text-neg-500' : 'text-slate-400'
+  const tone = ok ? 'text-pos-500' : touched ? 'text-neg-500' : 'text-slate-500'
   return (
     <li className={tone}>
       <span aria-hidden className="mr-1">

@@ -74,7 +74,7 @@ export function DataBody(props: { row: AgendaRow; now: Date; subjects: TaskSubje
         ]}
       />
       {request.resolution_note && (
-        <p className="mt-3 border-l-2 border-slate-200 pl-3 text-[0.8125rem] leading-relaxed text-slate-700">{request.resolution_note}</p>
+        <p className="mt-3 border-l-2 border-slate-200 pl-3 text-small leading-relaxed text-slate-700">{request.resolution_note}</p>
       )}
     </Section>
   )

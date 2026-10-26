@@ -168,11 +168,11 @@ export function RequestsPage() {
 function WaitingOn({ request }: { request: InsuranceRequestWithRefs }) {
   const { t } = useTranslation()
   const role = owningRole(request.status)
-  if (!role) return <span className="text-slate-300">{EM_DASH}</span>
+  if (!role) return <span className="text-slate-500">{EM_DASH}</span>
   return <Truncate text={t(`roles.${role}`)} className="max-w-none" />
 }
 
 function AgeCell({ days }: { days: number | null }) {
-  if (days === null) return <span className="num block text-slate-400">{EM_DASH}</span>
+  if (days === null) return <span className="num block text-slate-500">{EM_DASH}</span>
   return <span className={`num block ${days > 10 ? 'text-warn-500' : ''}`}>{days}</span>
 }

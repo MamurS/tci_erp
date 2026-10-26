@@ -291,7 +291,7 @@ export function RatingTab({ entityId }: { entityId: string }) {
       <div id={STATEMENT_ROW_ANCHOR_ID} className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
         <Card className="flex flex-wrap items-end gap-3 p-5">
           <label className="flex flex-col gap-1">
-            <span className="text-[0.8125rem] font-medium text-slate-600">{t('rating.statement')}</span>
+            <span className="text-small font-medium text-slate-600">{t('rating.statement')}</span>
             <Select
               value={selected?.id ?? ''}
               onChange={(e) => setStatementId(e.target.value)}
@@ -318,12 +318,12 @@ export function RatingTab({ entityId }: { entityId: string }) {
             {t('rating.generateReport')}
           </Button>
           {serviceDown && (
-            <span className="text-[0.8125rem] text-neg-500" role="alert">
+            <span className="text-small text-neg-500" role="alert">
               {t('rating.serviceUnavailable')}
             </span>
           )}
           {calculate.isError && !serviceDown && (
-            <span className="text-[0.8125rem] text-neg-500" role="alert">
+            <span className="text-small text-neg-500" role="alert">
               {t('common.saveFailed')}
             </span>
           )}
@@ -438,7 +438,7 @@ function ResultView({
           <FactorGroup title={t('rating.strengths')} chips={chips.strengths} none={t('rating.noStrengths')} />
           <FactorGroup title={t('rating.weaknesses')} chips={chips.weaknesses} none={t('rating.noWeaknesses')} />
         </div>
-        <p className="text-[0.8125rem] text-slate-500">
+        <p className="text-small text-slate-500">
           {rating.data_coverage >= 0.995
             ? t('rating.coverageFull')
             : t('rating.coverage', { pct: formatPercent(rating.data_coverage, locale, 0) })}
@@ -446,7 +446,7 @@ function ResultView({
         {rating.adjustments.length > 0 && (
           <div className="flex flex-col gap-1">
             {rating.adjustments.map((a) => (
-              <span key={a.code} className="text-[0.8125rem] text-warn-500">
+              <span key={a.code} className="text-small text-warn-500">
                 {t(`rating.adjustments.${a.code}`, { defaultValue: t('rating.adjustments.other') })}:{' '}
                 {formatAmount(a.rating_before, locale, 1)} →{' '}
                 {formatAmount(a.rating_after, locale, 1)}
@@ -459,22 +459,22 @@ function ResultView({
       {/* Limit card */}
       <Card className="flex flex-col items-start gap-2 p-5">
         <SectionTitle>{t('rating.limitTitle')}</SectionTitle>
-        <span className="num text-3xl font-bold text-slate-900">
+        <span className="num text-headline font-semibold text-slate-900">
           {formatAmount(limit.suggested_limit, locale)}{' '}
-          <span className="text-lg font-medium text-slate-500">{limit.currency}</span>
+          <span className="text-title font-medium text-slate-500">{limit.currency}</span>
         </span>
-        <span className="text-[0.8125rem] text-slate-500">
+        <span className="text-small text-slate-500">
           {t('rating.model')}: {t(`rating.models.${limit.model_used}`, { defaultValue: t('rating.models.none') })}
         </span>
         {limit.reasons.length > 0 && (
-          <ul className="list-inside list-disc text-[0.8125rem] text-slate-500">
+          <ul className="list-inside list-disc text-small text-slate-500">
             {limit.reasons.map((r) => {
               const reason = limitReason(r)
               return <li key={r}>{t(`rating.limitReasons.${reason.key}`, reason.params)}</li>
             })}
           </ul>
         )}
-        <details className="mt-1 w-full text-[0.8125rem] text-slate-600">
+        <details className="mt-1 w-full text-small text-slate-600">
           <summary className="cursor-pointer font-medium text-accent-700">
             {t('rating.trace')}
           </summary>
@@ -522,7 +522,7 @@ function ResultView({
                 <td
                   className={`num ${
                     c.score === null
-                      ? 'text-slate-400'
+                      ? 'text-slate-500'
                       : c.score <= 40
                         ? 'text-pos-500'
                         : c.score >= 60
@@ -553,8 +553,8 @@ function ResultView({
 function FactorGroup({ title, chips, none }: { title: string; chips: FactorChip[]; none: string }) {
   return (
     <div>
-      <h4 className="mb-1.5 text-[0.8125rem] font-semibold text-slate-600">{title}</h4>
-      {chips.length > 0 ? <FactorChipList chips={chips} /> : <p className="text-[0.8125rem] text-slate-500">{none}</p>}
+      <h4 className="mb-2 text-small font-semibold text-slate-600">{title}</h4>
+      {chips.length > 0 ? <FactorChipList chips={chips} /> : <p className="text-small text-slate-500">{none}</p>}
     </div>
   )
 }
@@ -589,7 +589,7 @@ function ScoreHistoryChart({
     return (
       <Card className="p-5">
         <SectionTitle className="mb-2">{t('rating.historyChart')}</SectionTitle>
-        <p className="text-[0.8125rem] text-slate-500">{t('rating.historyChartEmpty')}</p>
+        <p className="text-small text-slate-500">{t('rating.historyChartEmpty')}</p>
       </Card>
     )
   }
@@ -705,9 +705,9 @@ function HistoryCard({
               <td>{periodOf(a.statement_id)}</td>
               <td className="num">{a.rating_score === null ? EM_DASH : formatAmount(Number(a.rating_score), locale, 1)}</td>
               <td>
-                <span className="inline-flex items-center gap-1.5">
+                <span className="inline-flex items-center gap-2">
                   <Badge tone={gradeTone(a.rating_grade)}>{a.rating_grade}</Badge>
-                  {a.source === 'manual' && <span className="text-xs text-slate-500">{t('rating.proposals.manual')}</span>}
+                  {a.source === 'manual' && <span className="text-caption text-slate-500">{t('rating.proposals.manual')}</span>}
                 </span>
               </td>
               <td className="num">
@@ -722,7 +722,7 @@ function HistoryCard({
       {/* Which version of the scoring model produced these — an audit
           detail, so a footnote rather than a column. */}
       {versions.length > 0 && (
-        <p className="mt-2 text-xs text-slate-400">{t('rating.engineFootnote', { versions: versions.join(', ') })}</p>
+        <p className="mt-2 text-caption text-slate-500">{t('rating.engineFootnote', { versions: versions.join(', ') })}</p>
       )}
     </div>
   )

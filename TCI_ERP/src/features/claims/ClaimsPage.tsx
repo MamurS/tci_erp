@@ -132,7 +132,7 @@ function ClaimRow({ claim, locale }: { claim: Claim; locale: string }) {
             {claim.buyer_name}
           </Link>
         </Truncate>
-        <Truncate text={claim.policyholder_name} className="max-w-none text-[0.75rem] text-slate-500" />
+        <Truncate text={claim.policyholder_name} className="max-w-none text-caption text-slate-500" />
       </td>
       <td className="num">
         {formatAmount(Number(claim.claimed_amount), locale)} {claim.currency_code}

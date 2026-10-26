@@ -55,7 +55,7 @@ export function CountryFlag({ code, className = '', title }: CountryFlagProps) {
   if (!loaders.has(iso)) {
     return (
       <span
-        className={`inline-flex h-[1em] items-center rounded-[3px] bg-slate-100 px-1 font-mono text-[0.6em] font-semibold text-slate-500 ${className}`}
+        className={`inline-flex h-[1em] items-center rounded-[3px] bg-slate-100 px-1 font-mono text-[0.6em] font-semibold text-slate-600 ${className}`}
         title={title ?? iso}
       >
         {iso}

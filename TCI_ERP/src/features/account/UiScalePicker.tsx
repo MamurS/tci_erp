@@ -13,8 +13,8 @@ export function UiScalePicker({ compact = false }: { compact?: boolean }) {
   const save = useSaveUiScale()
 
   return (
-    <div className="flex flex-col gap-1.5">
-      {!compact && <span className="text-[0.8125rem] text-slate-600">{t('account.uiScale.hint')}</span>}
+    <div className="flex flex-col gap-2">
+      {!compact && <span className="text-small text-slate-600">{t('account.uiScale.hint')}</span>}
       <div role="radiogroup" aria-label={t('account.uiScale.title')} className="inline-flex flex-wrap gap-1">
         {UI_SCALES.map((value) => {
           const active = value === scale
@@ -25,7 +25,7 @@ export function UiScalePicker({ compact = false }: { compact?: boolean }) {
               role="radio"
               aria-checked={active}
               onClick={() => save.mutate(value)}
-              className={`rounded-md border px-2.5 py-1 text-[0.8125rem] tabular-nums transition-colors ${
+              className={`rounded-md border px-3 py-1 text-small tabular-nums transition-colors ${
                 active
                   ? 'border-accent-600 bg-accent-600 font-semibold text-white'
                   : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
@@ -37,7 +37,7 @@ export function UiScalePicker({ compact = false }: { compact?: boolean }) {
         })}
       </div>
       {save.isError && (
-        <span className="text-[0.8125rem] text-slate-500" role="status">
+        <span className="text-small text-slate-500" role="status">
           {t('account.uiScale.notSaved')}
         </span>
       )}

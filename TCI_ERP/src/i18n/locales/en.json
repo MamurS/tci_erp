@@ -5910,5 +5910,59 @@
       "navy": "Navy",
       "blue": "Blue"
     }
+  },
+  "tokens": {
+    "title": "Design tokens",
+    "subtitle": "Every colour, size, space and motion of the interface, generated from one source (src/design/palette.ts). Admin only.",
+    "colour": {
+      "title": "Colour ramps (OKLCH)",
+      "hint": "Ten steps per hue; at every step all hues have the same luminance, so a pair that passes for one passes for all. Under each swatch: hex, OKLCH, contrast on white.",
+      "ruleText": "Text: steps at least 5 apart — the weakest such pair is {{ratio}} : 1 (≥ {{min}} required).",
+      "ruleGraphic": "Icons, large text, graphics: steps at least 4 apart — the weakest is {{ratio}} : 1 (≥ {{min}} required).",
+      "hue": "hue {{hue}}° · chroma {{chroma}}",
+      "canvas": "Page canvas {{hex}} — secondary text (neutral 500) on it: {{ratio}} : 1"
+    },
+    "ramps": {
+      "slate": "Neutral — backgrounds, text, borders (warm grey)",
+      "accent": "Brand navy — primary actions, selection, titles",
+      "sky": "Secondary brand — links, focus, highlights",
+      "success": "Success, growth, approved",
+      "warning": "Warning, attention, due soon",
+      "danger": "Error, loss, overdue, declined",
+      "info": "Information",
+      "violet": "Data — categorical",
+      "teal": "Data — categorical",
+      "magenta": "Data — categorical"
+    },
+    "grades": {
+      "title": "Grade scale A1 → D",
+      "hint": "The signature colour: badges use the tint with the ink, bars and charts the solid.",
+      "pairs": "ink on tint {{tint}} : 1 · solid on white {{solid}} : 1"
+    },
+    "data": {
+      "title": "Data palettes",
+      "hint": "Categorical series in a fixed order (neighbours differ in hue); one-hue sequential scale for magnitude.",
+      "categorical": "Categorical",
+      "sequential": "Sequential"
+    },
+    "type": {
+      "title": "Type scale",
+      "hint": "Seven sizes, three weights. The display face only for page titles and key figures. Tabular figures for money and counts.",
+      "regular": "Regular 400",
+      "medium": "Medium 500",
+      "semibold": "Semibold 600"
+    },
+    "space": {
+      "title": "Spacing, radii, elevation",
+      "hint": "A 4 px grid (2 px only for hairline offsets); soft radii; a hairline lift at rest, one soft shadow for overlays."
+    },
+    "motion": {
+      "title": "Motion",
+      "hint": "Productive (70–150 ms) for task work, expressive (240–400 ms) for rare moments.",
+      "play": "Play",
+      "productive": "productive",
+      "expressive": "expressive",
+      "reduced": "With «reduce motion» set in the operating system, nothing moves: the same state is shown at once."
+    }
   }
 }

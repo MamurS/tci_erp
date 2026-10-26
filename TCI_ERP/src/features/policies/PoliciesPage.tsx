@@ -178,7 +178,7 @@ export function PoliciesPage() {
                   </Truncate>
                   {/* The structure under the name: a column of its own pushed
                       the register past a laptop's width. */}
-                  <span className="block text-[0.75rem] text-slate-500">{t(`policies.structures.${p.product_structure}`)}</span>
+                  <span className="block text-caption text-slate-500">{t(`policies.structures.${p.product_structure}`)}</span>
                 </td>
                 <td className="whitespace-nowrap text-slate-500">
                   {formatDate(p.inception_date, locale)} — {formatDate(p.expiry_date, locale)}

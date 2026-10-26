@@ -8,7 +8,7 @@ import type { LineDirection } from './lines'
 export function AmountCell({ value }: { value: number | null }) {
   const { i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  if (value === null) return <span className="num block text-slate-400">{EM_DASH}</span>
+  if (value === null) return <span className="num block text-slate-500">{EM_DASH}</span>
   return (
     <span className={`num block ${value < 0 ? 'text-neg-500' : ''}`}>
       {formatAmount(value, locale)}
@@ -20,7 +20,7 @@ export function ShareCell({ value }: { value: number | null }) {
   const { i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   return (
-    <span className="num block text-slate-400">
+    <span className="num block text-slate-500">
       {value === null ? EM_DASH : formatPercent(value, locale)}
     </span>
   )
@@ -39,15 +39,15 @@ export function DeltaCell({
 }) {
   const { i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  if (value === null) return <span className="num block text-slate-400">{EM_DASH}</span>
+  if (value === null) return <span className="num block text-slate-500">{EM_DASH}</span>
 
   const up = value > 0
   const arrow = up ? '▲' : '▼'
   const improvement = direction === 'up_good' ? up : !up
-  const tone = Math.abs(value) < 0.0005 ? 'text-slate-400' : improvement ? 'text-pos-500' : 'text-neg-500'
+  const tone = Math.abs(value) < 0.0005 ? 'text-slate-500' : improvement ? 'text-pos-500' : 'text-neg-500'
   return (
     <span className={`num block ${tone}`}>
-      <span aria-hidden="true" className="mr-0.5 text-[0.5625rem] align-[1px]">
+      <span aria-hidden="true" className="mr-0.5 text-caption align-[1px]">
         {arrow}
       </span>
       {formatPercent(Math.abs(value), locale)}

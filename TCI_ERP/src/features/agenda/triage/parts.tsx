@@ -29,11 +29,11 @@ export function FigureStrip({ figures }: { figures: Figure[] }) {
     <div className="mt-6 grid gap-3 border-t border-slate-100 pt-5 sm:grid-cols-3">
       {figures.map((figure, i) => (
         <div key={i} className={`flex min-w-0 flex-col gap-1 rounded-lg border px-4 py-3 ${FIGURE_TONE[figure.tone ?? 'default']}`}>
-          <span className="text-[0.7812rem] text-slate-600">{figure.label}</span>
-          <span className="flex min-w-0 flex-wrap items-center gap-2 text-[1.25rem] leading-tight font-semibold text-slate-900 tabular-nums">
+          <span className="text-small text-slate-600">{figure.label}</span>
+          <span className="flex min-w-0 flex-wrap items-center gap-2 text-title leading-tight font-semibold text-slate-900 tabular-nums">
             {figure.value}
           </span>
-          {figure.sub && <span className="text-[0.7812rem] leading-snug text-slate-700 tabular-nums">{figure.sub}</span>}
+          {figure.sub && <span className="text-small leading-snug text-slate-700 tabular-nums">{figure.sub}</span>}
         </div>
       ))}
     </div>
@@ -43,7 +43,7 @@ export function FigureStrip({ figures }: { figures: Figure[] }) {
 /** A dot that carries the colour of a sub line whose text stays dark. */
 export function Dot({ tone }: { tone: 'pos' | 'neg' | 'warn' }) {
   const colour = tone === 'pos' ? 'bg-pos-500' : tone === 'neg' ? 'bg-neg-500' : 'bg-warn-500'
-  return <span aria-hidden className={`mr-1.5 inline-block size-2 rounded-full align-middle ${colour}`} />
+  return <span aria-hidden className={`mr-2 inline-block size-2 rounded-full align-middle ${colour}`} />
 }
 
 /** A status as the Agenda shows it: neutral text with a coloured dot. The
@@ -63,7 +63,7 @@ export function StatusBadge({ tone, children }: { tone?: string; children: React
 export function Section({ title, children, className = '' }: { title: ReactNode; children: ReactNode; className?: string }) {
   return (
     <section className={`mt-6 border-t border-slate-100 pt-5 ${className}`}>
-      <h3 className="mb-2.5 text-[0.7188rem] font-bold tracking-[0.08em] text-slate-600 uppercase">{title}</h3>
+      <h3 className="mb-3 text-caption font-semibold tracking-[0.08em] text-slate-600 uppercase">{title}</h3>
       {children}
     </section>
   )
@@ -71,7 +71,7 @@ export function Section({ title, children, className = '' }: { title: ReactNode;
 
 /** The heading alone, for two sections side by side under one divider. */
 export function SubTitle({ children }: { children: ReactNode }) {
-  return <h3 className="mb-2.5 text-[0.7188rem] font-bold tracking-[0.08em] text-slate-600 uppercase">{children}</h3>
+  return <h3 className="mb-3 text-caption font-semibold tracking-[0.08em] text-slate-600 uppercase">{children}</h3>
 }
 
 export function BodySkeleton({ strip = true }: { strip?: boolean }) {
@@ -107,7 +107,7 @@ const CHIP_TONE = {
 export function ChipList({ chips }: { chips: ChipItem[] }) {
   if (chips.length === 0) return null
   return (
-    <ul className="flex flex-wrap gap-1.5">
+    <ul className="flex flex-wrap gap-2">
       {chips.map((chip) => (
         <li key={chip.key} data-badge="sm" title={chip.text} className={`${badgeClassName('sm', CHIP_TONE[chip.tone ?? 'none'])} tabular-nums`}>
           {chip.tone === 'pos' && <Dot tone="pos" />}
@@ -120,5 +120,5 @@ export function ChipList({ chips }: { chips: ChipItem[] }) {
 
 /** A quiet sentence under a section. */
 export function Muted({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <p className={`text-[0.8125rem] text-slate-600 ${className}`}>{children}</p>
+  return <p className={`text-small text-slate-600 ${className}`}>{children}</p>
 }

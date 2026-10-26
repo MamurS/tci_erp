@@ -204,14 +204,14 @@ export function StatementFormPage() {
       />
 
       {error && (
-        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] text-neg-500" role="alert">
+        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-3 text-small text-neg-500" role="alert">
           {error}
         </div>
       )}
 
       {/* Accounting basis (fixed after creation) */}
       <Card className="mb-5 flex flex-wrap items-center gap-4 p-5">
-        <span className="text-[0.8125rem] font-medium text-slate-600">{t('fin.local.basis')}</span>
+        <span className="text-small font-medium text-slate-600">{t('fin.local.basis')}</span>
         <Segmented
           value={basis}
           onChange={(key) => {
@@ -229,12 +229,12 @@ export function StatementFormPage() {
             },
           ]}
         />
-        <div className="basis-full text-[0.8125rem] text-slate-500">
+        <div className="basis-full text-small text-slate-500">
           {basis === 'local' && templates?.length ? (
             <>
               {templates.map((x) => templateName(x, locale)).join(' + ')}
               {countryFramework?.legal_basis && (
-                <span className="block text-xs text-slate-400">{countryFramework.legal_basis}</span>
+                <span className="block text-caption text-slate-500">{countryFramework.legal_basis}</span>
               )}
             </>
           ) : countryFramework?.kind === 'ifrs' ? (
@@ -312,7 +312,7 @@ export function StatementFormPage() {
         <Field label={t('fin.fields.source')}>
           <Input value={source} onChange={(e) => setSource(e.target.value)} />
         </Field>
-        <label className="flex items-center gap-2 self-end pb-1.5 text-sm text-slate-700">
+        <label className="flex items-center gap-2 self-end pb-2 text-body text-slate-700">
           <input
             type="checkbox"
             checked={audited}
@@ -376,15 +376,15 @@ function StatementSectionGrid<K extends string>({
 
   return (
     <Card className="overflow-hidden">
-      <div className="border-b border-slate-200 bg-slate-50 px-4 py-2.5">
-        <h2 className="text-sm font-semibold text-slate-900">{title}</h2>
-        {hint && <p className="text-xs text-slate-500">{hint}</p>}
+      <div className="border-b border-slate-200 bg-slate-50 px-4 py-3">
+        <h2 className="text-body font-semibold text-slate-900">{title}</h2>
+        {hint && <p className="text-caption text-slate-500">{hint}</p>}
       </div>
       <div>
         {sections.map((section) => (
           <div key={section.sectionKey}>
             {sections.length > 1 && (
-              <div className="bg-white px-4 pt-3 pb-1 text-xs font-semibold tracking-wide text-slate-400 uppercase">
+              <div className="bg-white px-4 pt-3 pb-1 text-caption font-semibold tracking-wide text-slate-500 uppercase">
                 {t(`fin.sections.${section.sectionKey}`)}
               </div>
             )}
@@ -401,7 +401,7 @@ function StatementSectionGrid<K extends string>({
         ))}
       </div>
       {warnings.some((w) => w.totalKey === 'balance_equation') && (
-        <div className="border-t border-warn-500/30 bg-warn-50 px-4 py-2 text-[0.8125rem] text-warn-500">
+        <div className="border-t border-warn-500/30 bg-warn-50 px-4 py-2 text-small text-warn-500">
           {t('fin.warnings.balanceEquation')}
         </div>
       )}
@@ -440,9 +440,9 @@ function LineInput<K extends string>({
   return (
     <div className={`grid grid-cols-[1fr_170px] items-center gap-2 border-t border-slate-100 px-4 py-1 ${emphasis}`}>
       <div>
-        <span className="text-[0.8125rem] text-slate-700">{t(`fin.lines.${line.key}`)}</span>
+        <span className="text-small text-slate-700">{t(`fin.lines.${line.key}`)}</span>
         {warning && warning.totalKey !== 'balance_equation' && (
-          <span className="ml-2 text-xs text-warn-500">
+          <span className="ml-2 text-caption text-warn-500">
             {t('fin.warnings.subtotalMismatch', {
               expected: formatAmount(warning.expected, locale),
             })}
@@ -456,7 +456,7 @@ function LineInput<K extends string>({
           setRaw(plain)
           onChange(parseAmount(plain))
         }}
-        className={`h-7! rounded! px-2! py-1! text-[0.8125rem]! ${
+        className={`h-7! rounded! px-2! py-1! text-small! ${
           warning ? 'border-warn-500/50! bg-warn-50!' : 'border-slate-200!'
         }`}
       />

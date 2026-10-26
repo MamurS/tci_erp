@@ -122,7 +122,7 @@ export function OverduesPage() {
                       {t('overdues.lateBy', { days: n.days_late })}
                     </Badge>
                   ) : (
-                    <span className="text-[0.8125rem] text-slate-500">
+                    <span className="text-small text-slate-500">
                       {t('overdues.onTime')}
                     </span>
                   )}

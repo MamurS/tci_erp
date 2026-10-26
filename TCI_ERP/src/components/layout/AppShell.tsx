@@ -192,7 +192,7 @@ export function AppShell() {
         // goes from it straight into the menu while the panel is shown.
         <div
           ref={toggleRef}
-          className="fixed top-3.5 left-5 z-[60]"
+          className="fixed top-4 left-5 z-[60]"
           onMouseEnter={schedulePeek}
           onMouseLeave={collapsed ? scheduleUnpeek : undefined}
         >

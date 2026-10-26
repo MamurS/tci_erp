@@ -65,13 +65,13 @@ export function AuthoritiesTab({ user }: { user: AdminUser | null }) {
       </SectionTitle>
 
       {scope === 'commercial' && (
-        <p className="rounded-md border border-slate-200 bg-slate-50 px-4 py-2.5 text-[0.8125rem] text-slate-600">
+        <p className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-small text-slate-600">
           {t('admin.commercialDormant')}
         </p>
       )}
 
       {user.roles.includes('admin') && (
-        <p className="rounded-md border border-accent-500/20 bg-accent-50 px-4 py-2.5 text-[0.8125rem] text-slate-700">
+        <p className="rounded-md border border-accent-500/20 bg-accent-50 px-4 py-3 text-small text-slate-700">
           {t('admin.adminDecidesNothing')}
         </p>
       )}
@@ -199,7 +199,7 @@ function BandRow({
             {t('common.cancel')}
           </Button>
           {error && (
-            <span className="ml-2 text-[0.8125rem] text-neg-500" role="alert">
+            <span className="ml-2 text-small text-neg-500" role="alert">
               {error}
             </span>
           )}
@@ -209,7 +209,7 @@ function BandRow({
   }
 
   return (
-    <tr className={`h-12 ${grant ? '' : 'text-slate-400'}`}>
+    <tr className={`h-12 ${grant ? '' : 'text-slate-500'}`}>
       <td className="font-medium text-slate-800">{t(`limits.bands.${band}`)}</td>
       <td>
         <span className="num block">
@@ -241,7 +241,7 @@ function BandRow({
         )}
         {/* A refused delete puts the grant back; say why beside it. */}
         {error && (
-          <span className="ml-2 text-[0.8125rem] text-neg-500" role="alert">
+          <span className="ml-2 text-small text-neg-500" role="alert">
             {error}
           </span>
         )}
@@ -259,20 +259,20 @@ function HistoryList({ grants }: { grants: AuthorityGrant[] }) {
     <Card className="p-5">
       <button
         type="button"
-        className="text-sm font-semibold text-slate-900"
+        className="text-body font-semibold text-slate-900"
         onClick={() => setOpen((v) => !v)}
       >
         {open ? '▾' : '▸'} {t('admin.expiredGrants', { count: grants.length })}
       </button>
       {open && (
-        <ul className="mt-3 flex flex-col gap-1.5 text-[0.8125rem] text-slate-600">
+        <ul className="mt-3 flex flex-col gap-2 text-small text-slate-600">
           {grants.map((g) => (
             <li key={g.id} className="flex flex-wrap items-center gap-2">
               <Badge tone="neutral">{t(`limits.bands.${g.grade_band}`)}</Badge>
               <span className="num">
                 {formatAmount(Number(g.max_amount), locale)} {g.currency_code}
               </span>
-              <span className="text-slate-400">
+              <span className="text-slate-500">
                 {formatDate(g.valid_from, locale)} — {g.valid_to ? formatDate(g.valid_to, locale) : t('admin.openEnded')}
               </span>
             </li>

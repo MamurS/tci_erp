@@ -138,7 +138,7 @@ export function InForceView() {
                       <Truncate text={r.buyer_name} className="max-w-none">
                         <EntityLink id={r.buyer_entity_id} name={r.buyer_name} tab="limits" />
                       </Truncate>
-                      <Truncate text={countryName(r.buyer_country)} className="max-w-none text-[0.75rem] text-slate-500">
+                      <Truncate text={countryName(r.buyer_country)} className="max-w-none text-caption text-slate-500">
                         {countryName(r.buyer_country)}
                       </Truncate>
                     </td>
@@ -146,21 +146,21 @@ export function InForceView() {
                       <Link to={`/limits/${r.request_id}`} className="block whitespace-nowrap text-accent-600 hover:text-accent-500">
                         {r.policy_number}
                       </Link>
-                      <Truncate text={r.policyholder_name} className="max-w-none text-[0.75rem] text-slate-500">
+                      <Truncate text={r.policyholder_name} className="max-w-none text-caption text-slate-500">
                         {r.policyholder_name}
                       </Truncate>
                     </td>
                     <td className="num">
                       {formatAmount(num(r.approved_amount), locale)} {r.currency_code}
                       {r.payment_terms_days != null && (
-                        <span className="block text-[0.75rem] text-slate-500" title={t('limits.fields.paymentTerms')}>
+                        <span className="block text-caption text-slate-500" title={t('limits.fields.paymentTerms')}>
                           {t('limits.workbench.inforce.terms', {
                             terms: t('policies.terms.days', { count: r.payment_terms_days }),
                           })}
                         </span>
                       )}
                       {marks?.get(r.decision_id) && (
-                        <span className="block text-[0.75rem] text-accent-600">{t(marks.get(r.decision_id) as string)}</span>
+                        <span className="block text-caption text-accent-600">{t(marks.get(r.decision_id) as string)}</span>
                       )}
                     </td>
                     <td className="num">
@@ -180,7 +180,7 @@ export function InForceView() {
                       }
                     >
                       {r.days_to_review === null ? (
-                        <span className="text-slate-400" title={t('limits.noReviewDate')}>
+                        <span className="text-slate-500" title={t('limits.noReviewDate')}>
                           {EM_DASH}
                         </span>
                       ) : (

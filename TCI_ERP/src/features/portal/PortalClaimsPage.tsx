@@ -258,7 +258,7 @@ export function PortalClaimsPage() {
       />
 
       {(claims ?? []).some((c) => c.decision_reason && c.status === 'declined') && (
-        <p className="text-xs text-slate-500">
+        <p className="text-caption text-slate-500">
           {t('portal.claims.declinedNote', { at: formatMoment(new Date(), locale) })}
         </p>
       )}
@@ -324,7 +324,7 @@ function FileClaimModal({
           },
         ]}
       />
-      <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t('portal.claims.file.hint')}</p>
+      <p className="text-small leading-relaxed text-slate-600">{t('portal.claims.file.hint')}</p>
       <Field label={t('portal.claims.fields.cause')}>
         <Select
           value={cause}
@@ -383,7 +383,7 @@ function RespondModal({
         </>
       }
     >
-      <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t('portal.claims.respond.hint')}</p>
+      <p className="text-small leading-relaxed text-slate-600">{t('portal.claims.respond.hint')}</p>
       <Field label={t('portal.claims.fields.message')}>
         <Textarea rows={3} value={comment} onChange={(e) => setComment(e.target.value)} />
       </Field>

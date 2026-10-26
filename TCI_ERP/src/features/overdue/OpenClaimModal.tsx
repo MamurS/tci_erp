@@ -69,7 +69,7 @@ export function OpenClaimModal({ noa, onClose }: { noa: OverdueNotification; onC
           },
         ]}
       />
-      <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t('overdues.openClaim.hint')}</p>
+      <p className="text-small leading-relaxed text-slate-600">{t('overdues.openClaim.hint')}</p>
       <Field label={t('claims.fields.cause')}>
         <Select value={cause} onChange={(e) => setCause(e.target.value as CauseOfLoss)}>
           {CAUSES_OF_LOSS.map((c) => (

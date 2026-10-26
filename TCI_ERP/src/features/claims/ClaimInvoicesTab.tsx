@@ -197,7 +197,7 @@ function InvoiceRow({
         <td>
           <div className="flex flex-wrap gap-1">
             {line.effective_verdict === null ? (
-              <span className="text-slate-400">{EM_DASH}</span>
+              <span className="text-slate-500">{EM_DASH}</span>
             ) : (
               <Badge tone={verdictTone(line.effective_verdict)}>
                 {t(`claims.verdicts.${line.effective_verdict}`)}
@@ -221,7 +221,7 @@ function InvoiceRow({
               type="button"
               title={t('claims.actions.override')}
               aria-label={t('claims.actions.override')}
-              className="rounded-md p-1.5 text-slate-400 hover:bg-accent-50 hover:text-accent-600"
+              className="rounded-md p-2 text-slate-500 hover:bg-accent-50 hover:text-accent-600"
               onClick={onOverride}
             >
               <PenLine className="size-4" aria-hidden />
@@ -245,9 +245,9 @@ function InvoiceRow({
 function VerdictDetail({ line, locale }: { line: ClaimInvoiceCoverage; locale: string }) {
   const { t } = useTranslation()
   const d = line.system_detail
-  if (!d) return <p className="p-3 text-[0.8125rem] text-slate-500">{t('claims.notVerifiedYet')}</p>
+  if (!d) return <p className="p-3 text-small text-slate-500">{t('claims.notVerifiedYet')}</p>
   return (
-    <div className="grid gap-3 p-3 text-[0.8125rem] sm:grid-cols-3">
+    <div className="grid gap-3 p-3 text-small sm:grid-cols-3">
       <Detail label={t('claims.detail.basis')} value={d.basis ? t(`claims.basis.${d.basis}`) : EM_DASH} />
       <Detail
         label={t('claims.detail.cap')}
@@ -275,12 +275,12 @@ function VerdictDetail({ line, locale }: { line: ClaimInvoiceCoverage; locale: s
       />
       {line.is_overridden && (
         <div className="sm:col-span-3 rounded-md bg-white p-3">
-          <p className="text-xs text-slate-500">{t('claims.detail.systemSaid')}</p>
+          <p className="text-caption text-slate-500">{t('claims.detail.systemSaid')}</p>
           <p className="font-medium">
             {t(`claims.verdicts.${line.system_verdict!}`)} ·{' '}
             {formatAmount(Number(line.system_covered_amount ?? 0), locale)}
           </p>
-          <p className="mt-2 text-xs text-slate-500">{t('claims.detail.overrideJustification')}</p>
+          <p className="mt-2 text-caption text-slate-500">{t('claims.detail.overrideJustification')}</p>
           <p>{line.override_justification}</p>
         </div>
       )}
@@ -291,7 +291,7 @@ function VerdictDetail({ line, locale }: { line: ClaimInvoiceCoverage; locale: s
 function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs text-slate-500">{label}</p>
+      <p className="text-caption text-slate-500">{label}</p>
       <p className="font-medium text-slate-800 tabular-nums">{value}</p>
     </div>
   )
@@ -368,7 +368,7 @@ function OverrideModal({
       }
     >
       {error && <Callout tone="neg" title={error} />}
-      <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t('claims.override.hint')}</p>
+      <p className="text-small leading-relaxed text-slate-600">{t('claims.override.hint')}</p>
       <Field label={t('claims.fields.verdict')}>
         <Select value={verdict} onChange={(e) => setVerdict(e.target.value as CoverageVerdict)}>
           {COVERAGE_VERDICTS.map((v) => (

@@ -62,6 +62,7 @@ const PortalOfferPrintPage = lazyPage(offers, 'PortalOfferPrintPage')
 const PortalOffersPage = lazyPage(offers, 'PortalOffersPage')
 const PortalOfferPage = lazyPage(offers, 'PortalOfferPage')
 const AdminPage = lazyPage(() => import('./features/admin'), 'AdminPage')
+const TokensPage = lazyPage(() => import('./features/admin'), 'TokensPage')
 const AgendaPage = lazyPage(() => import('./features/agenda'), 'AgendaPage')
 const account = () => import('./features/account')
 const AccountPage = lazyPage(account, 'AccountPage')
@@ -186,6 +187,7 @@ export default function App() {
                     offers are prepared. */}
                 <Route path="brochure" element={<Navigate to="/requests" replace />} />
                 <Route path="admin" element={<AdminPage />} />
+                <Route path="admin/tokens" element={<TokensPage />} />
               </Route>
             </Route>
             </Route>

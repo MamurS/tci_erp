@@ -70,7 +70,7 @@ export function BuyerLimitsTab({ entityId }: { entityId: string }) {
           onChange={(key) => setMode(key as 'effective' | 'history')}
         />
         {exposure.data?.exposure_uzs != null && (
-          <span className="text-[0.8125rem] text-slate-500">
+          <span className="text-small text-slate-500">
             {t('limits.exposureTotal')}:{' '}
             <span className="num font-semibold text-slate-800">
               {formatAmount(Number(exposure.data.exposure_uzs), locale, 0)} UZS
@@ -91,7 +91,7 @@ export function BuyerLimitsTab({ entityId }: { entityId: string }) {
         if (!shown.length) return null
         return (
           <Card key={chain.policyId} className="p-5">
-            <h3 className="mb-2 text-sm font-semibold text-slate-900">
+            <h3 className="mb-2 text-body font-semibold text-slate-900">
               {scope?.policy ? (
                 <Link to={`/policies/${chain.policyId}`} className="text-accent-700 hover:underline">
                   {scope.title}
@@ -105,7 +105,7 @@ export function BuyerLimitsTab({ entityId }: { entityId: string }) {
               {shown.map((d) => (
                 <li
                   key={d.id}
-                  className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-md border px-3 py-2 text-[0.8125rem] ${
+                  className={`flex flex-wrap items-baseline gap-x-3 gap-y-1 rounded-md border px-3 py-2 text-small ${
                     isCurrent(d) ? 'border-slate-200 bg-white' : 'border-slate-100 bg-slate-50 opacity-80'
                   }`}
                 >
@@ -124,7 +124,7 @@ export function BuyerLimitsTab({ entityId }: { entityId: string }) {
                     </Badge>
                   )}
                   <DecisionMark reasonKey={d.system_reason_key} />
-                  <span className="ml-auto text-xs text-slate-400">
+                  <span className="ml-auto text-caption text-slate-500">
                     {formatDate(d.decided_at, locale)}
                   </span>
                   {d.comment && <p className="w-full text-slate-500">{d.comment}</p>}

@@ -165,7 +165,7 @@ export function CommercialStageSection({
       </SectionTitle>
 
       {/* The chain as decided: credit → commercial. Both rows stay visible. */}
-      <div className="flex flex-col gap-1.5 text-[0.8125rem]">
+      <div className="flex flex-col gap-2 text-small">
         <div className="flex flex-wrap items-baseline gap-x-3 rounded-md border border-slate-200 px-3 py-2">
           <Badge tone="neutral">{t('limits.stages.credit')}</Badge>
           <span className="num font-semibold">
@@ -206,18 +206,18 @@ export function CommercialStageSection({
       </div>
 
       {mayAdjustByRole && ownRefusal !== null ? (
-        <p className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-slate-800" role="note">
+        <p className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-slate-800" role="note">
           {t(fourEyesNoticeKey(ownRefusal, 'commercial'))}
         </p>
       ) : !mayAdjust ? (
-        <p className="text-[0.8125rem] text-slate-400">{t('limits.commercial.readOnly')}</p>
+        <p className="text-small text-slate-500">{t('limits.commercial.readOnly')}</p>
       ) : validation ? (
         // adjust_limit_commercial refuses while anything on this request is on
         // validation; the line at the top of the page says with whom.
-        <p className="text-[0.8125rem] text-slate-500">{t(`limits.validation.adjustLocked.${validation.stream}`)}</p>
+        <p className="text-small text-slate-500">{t(`limits.validation.adjustLocked.${validation.stream}`)}</p>
       ) : (
         <>
-          <p className="text-[0.8125rem] text-slate-500">{t('limits.commercial.scopeHint')}</p>
+          <p className="text-small text-slate-500">{t('limits.commercial.scopeHint')}</p>
           <div className="grid gap-3 sm:grid-cols-2">
             {/* No placeholders: a grey «250,000» in the box read as a value
                 already entered. What stands today is said under the box. */}
@@ -256,7 +256,7 @@ export function CommercialStageSection({
           </Field>
 
           {isReduction && (
-            <div className="rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] text-neg-500">
+            <div className="rounded-md border border-neg-500/30 bg-neg-50 px-4 py-3 text-small text-neg-500">
               {t('limits.commercial.reductionWarning')}
             </div>
           )}
@@ -265,11 +265,11 @@ export function CommercialStageSection({
           {/* 0060: a reduction is never authority-checked. */}
           {check && !isReduction && (
             check.withinAuthority === null ? (
-              <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
+              <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
                 {t('limits.preflight.missingRate', { currency: limit.currency_code })}
               </div>
             ) : check.withinAuthority ? (
-              <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-2.5 text-[0.8125rem] text-slate-600">
+              <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-small text-slate-600">
                 {t('limits.commercial.within', {
                   band: t(`limits.bands.${check.band}`),
                   authority: formatAmount(check.authorityUzs ?? 0, locale),
@@ -277,7 +277,7 @@ export function CommercialStageSection({
               </div>
             ) : (
               // Amber, not red: not a refusal — the way on is a validator.
-              <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
+              <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
                 {t('limits.commercial.exceeds', {
                   band: t(`limits.bands.${check.band}`),
                   authority: formatAmount(check.authorityUzs ?? 0, locale),
@@ -293,12 +293,12 @@ export function CommercialStageSection({
           )}
 
           {result && (
-            <p className="text-[0.8125rem] text-pos-500" role="status">
+            <p className="text-small text-pos-500" role="status">
               {result}
             </p>
           )}
           {error && (
-            <p className="text-[0.8125rem] text-neg-500" role="alert">
+            <p className="text-small text-neg-500" role="alert">
               {error}
             </p>
           )}
@@ -327,10 +327,10 @@ export function CommercialStageSection({
             )}
             {/* A disabled button says why. */}
             {!adjust.isPending && !amountValid && (
-              <span className="text-[0.8125rem] text-slate-500">{t('limits.commercial.enterAmount')}</span>
+              <span className="text-small text-slate-500">{t('limits.commercial.enterAmount')}</span>
             )}
             {!adjust.isPending && overAuthority && (
-              <span className="text-[0.8125rem] text-slate-500">{t('limits.commercial.overAuthority')}</span>
+              <span className="text-small text-slate-500">{t('limits.commercial.overAuthority')}</span>
             )}
           </div>
         </>

@@ -175,8 +175,8 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
           }}
         />
         {/* Display currency */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-[0.8125rem] text-slate-500">{t('fin.fx.displayCurrency')}:</span>
+        <div className="flex items-center gap-2">
+          <span className="text-small text-slate-500">{t('fin.fx.displayCurrency')}:</span>
           <Segmented
             value={displayCurrency}
             ariaLabel={t('fin.fx.displayCurrency')}
@@ -196,17 +196,17 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
       </div>
 
       {displayCurrency === 'original' && hasMixedCurrencyOrUnit(displayedRaw) && (
-        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
+        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
           {t('fin.mixedCurrencyWarning')}
         </div>
       )}
 
       {displayCurrency !== 'original' && ratesLoading && (
-        <div className="mb-4 text-[0.8125rem] text-slate-500">{t('fin.fx.loadingRates')}</div>
+        <div className="mb-4 text-small text-slate-500">{t('fin.fx.loadingRates')}</div>
       )}
 
       {displayCurrency !== 'original' && converted.missing.length > 0 && !ratesLoading && (
-        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
           <span>{t('fin.fx.missingRates')}:</span>
           {converted.missing.map((need) => (
             <button
@@ -222,7 +222,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
       )}
 
       {displayed.some((s) => s.accounting_basis === 'local') && (
-        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-accent-100 bg-accent-50 px-4 py-2 text-[0.8125rem] text-accent-700">
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-accent-100 bg-accent-50 px-4 py-2 text-small text-accent-700">
           <span>{t('fin.local.mappedIndicator')}</span>
           {displayed
             .filter((s) => s.accounting_basis === 'local')
@@ -294,10 +294,10 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
       </div>
 
       {displayCurrency !== 'original' && (
-        <p className="mt-2 text-xs text-slate-400">{t('fin.fx.growthFootnote')}</p>
+        <p className="mt-2 text-caption text-slate-500">{t('fin.fx.growthFootnote')}</p>
       )}
       {displayCurrency !== 'original' && converted.footnotes.length > 0 && (
-        <p className="mt-2 text-xs text-slate-400">
+        <p className="mt-2 text-caption text-slate-500">
           {t('fin.fx.footnote')}:{' '}
           {converted.footnotes
             .map(
@@ -370,7 +370,7 @@ function ManualRateModal({ need, onClose }: { need: RateNeed; onClose: () => voi
         </>
       }
     >
-      <p className="mb-3 text-[0.8125rem] text-slate-500">{t('fin.fx.manualHint')}</p>
+      <p className="mb-3 text-small text-slate-500">{t('fin.fx.manualHint')}</p>
       <AmountInput
         decimals={6}
         value={raw}
@@ -408,8 +408,8 @@ function PeriodSelector({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={t('fin.periods')}>
-      <span className="mr-1 text-[0.8125rem] text-slate-500">{t('fin.periods')}:</span>
+    <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t('fin.periods')}>
+      <span className="mr-1 text-small text-slate-500">{t('fin.periods')}:</span>
       {ordered.map((s) => {
         const active = displayedIds.includes(s.id)
         return (
@@ -424,7 +424,7 @@ function PeriodSelector({
             })}
             // Shown periods are filled, hidden ones are outlined: the state is
             // readable at a glance, not only on hover.
-            className={`inline-flex h-7 items-center gap-1 rounded-md border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 ${
+            className={`inline-flex h-7 items-center gap-1 rounded-md border px-3 text-caption font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 ${
               active
                 ? 'border-accent-600 bg-accent-600 text-white hover:bg-accent-700'
                 : 'border-slate-300 bg-white text-slate-500 hover:border-slate-400 hover:text-slate-700'
@@ -434,7 +434,7 @@ function PeriodSelector({
             {statementPeriodLabel(s)}
             {s.report_type === 'management' && (
               <span
-                className={active ? 'text-amber-300' : 'text-warn-500'}
+                className={active ? 'text-warning-200' : 'text-warn-500'}
                 title={t('fin.reportTypes.management')}
               >
                 •
@@ -485,7 +485,7 @@ function ManageStatementsModal({
     <>
       <Modal open={open} onClose={onClose} title={t('fin.manageStatements')} wide>
         {deleteFailed && (
-          <p className="mb-3 text-[0.8125rem] text-neg-500" role="alert">
+          <p className="mb-3 text-small text-neg-500" role="alert">
             {t('fin.deleteStatement.failed')}
           </p>
         )}
@@ -506,7 +506,7 @@ function ManageStatementsModal({
                   <span className="font-medium whitespace-nowrap text-slate-800">{statementPeriodLabel(s)}</span>
                   {/* What the statement is, under its period: kind, form, status. */}
                   <span className="mt-1 flex flex-wrap items-center gap-1">
-                    <span className="mr-0.5 text-xs text-slate-500">{t(`fin.kinds.${s.statement_kind}`)}</span>
+                    <span className="mr-0.5 text-caption text-slate-500">{t(`fin.kinds.${s.statement_kind}`)}</span>
                     <Badge tone={s.accounting_basis === 'local' ? 'accent' : 'neutral'}>
                       {s.accounting_basis === 'local'
                         ? localBadge(s.template_id)

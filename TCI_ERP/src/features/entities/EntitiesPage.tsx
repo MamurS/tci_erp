@@ -88,7 +88,7 @@ export function EntitiesPage() {
         label: refName(c, locale),
         keywords: [c.code, c.name_en, c.name_ru, c.name_uz],
         meta: (
-          <span className="inline-flex items-center gap-1.5">
+          <span className="inline-flex items-center gap-2">
             <CountryFlag code={c.code} />
             {t('entities.filterCount', { count: counts.get(c.code) ?? 0 })}
           </span>
@@ -285,14 +285,14 @@ export function EntitiesPage() {
                     <Truncate text={entity.name} className="max-w-none" />
                     {entity.registration_number && (
                       // A registration number is one token: never broken.
-                      <span className="block truncate text-xs font-normal whitespace-nowrap text-slate-400 tabular-nums">
+                      <span className="block truncate text-caption font-normal whitespace-nowrap text-slate-500 tabular-nums">
                         {entity.registration_number}
                       </span>
                     )}
                   </td>
                   <td>
                     <Truncate text={refName(entity.countries, locale)} className="max-w-none">
-                      <CountryFlag code={entity.country_code} className="mr-1.5" />
+                      <CountryFlag code={entity.country_code} className="mr-2" />
                       {refName(entity.countries, locale)}
                     </Truncate>
                   </td>
@@ -307,7 +307,7 @@ export function EntitiesPage() {
                     {grade ? (
                       <Badge tone={gradeTone(grade)}>{grade}</Badge>
                     ) : (
-                      <span className="text-slate-400">{EM_DASH}</span>
+                      <span className="text-slate-500">{EM_DASH}</span>
                     )}
                   </td>
                 </tr>
@@ -341,7 +341,7 @@ function SearchField({
 }) {
   return (
     <div className="relative w-full max-w-xs">
-      <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-slate-400" />
+      <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
       <Input
         type="search"
         value={value}
@@ -359,7 +359,7 @@ function SearchField({
           onClick={() => onChange('')}
           aria-label={clearLabel}
           title={clearLabel}
-          className="absolute top-1/2 right-1.5 flex size-6 -translate-y-1/2 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          className="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"
         >
           <X className="size-3.5" />
         </button>

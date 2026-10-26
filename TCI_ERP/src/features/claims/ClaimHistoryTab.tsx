@@ -28,9 +28,9 @@ export function ClaimHistoryTab({ claimId }: { claimId: string }) {
         {data.map((row) => (
           <li
             key={row.id}
-            className="flex flex-col gap-1.5 border-b border-slate-100 py-3.5 first:pt-0 last:border-0 last:pb-0 sm:flex-row sm:gap-6"
+            className="flex flex-col gap-2 border-b border-slate-100 py-4 first:pt-0 last:border-0 last:pb-0 sm:flex-row sm:gap-6"
           >
-            <div className="w-44 shrink-0 pt-0.5 text-[0.8125rem] whitespace-nowrap text-slate-500 tabular-nums">
+            <div className="w-44 shrink-0 pt-0.5 text-small whitespace-nowrap text-slate-500 tabular-nums">
               {formatMoment(row.changed_at, locale)}
             </div>
             <div className="min-w-0 flex-1">
@@ -38,13 +38,13 @@ export function ClaimHistoryTab({ claimId }: { claimId: string }) {
                 <Badge tone={CLAIM_STATUS_TONE[row.from_status]}>
                   {t(`claims.statuses.${row.from_status}`)}
                 </Badge>
-                <span className="text-slate-400">→</span>
+                <span className="text-slate-500">→</span>
                 <Badge tone={CLAIM_STATUS_TONE[row.to_status]}>
                   {t(`claims.statuses.${row.to_status}`)}
                 </Badge>
               </div>
               {row.comment && (
-                <p className="mt-2 border-l-2 border-slate-200 pl-3 text-[0.8125rem] leading-relaxed text-slate-600">
+                <p className="mt-2 border-l-2 border-slate-200 pl-3 text-small leading-relaxed text-slate-600">
                   {row.comment}
                 </p>
               )}

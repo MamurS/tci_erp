@@ -48,13 +48,13 @@ export function LinkExistingPanel({ initialQuery, onLink }: { initialQuery: stri
       {candidates.isFetching ? (
         <Spinner />
       ) : !candidates.data?.length ? (
-        <p className="text-[0.8125rem] text-slate-500">{t('data.link.none')}</p>
+        <p className="text-small text-slate-500">{t('data.link.none')}</p>
       ) : (
         <ul>
           {candidates.data.map((c) => (
             <li
               key={c.id}
-              className="flex items-center justify-between gap-4 border-b border-slate-100 py-2.5 text-[0.8125rem] first:pt-0 last:border-b-0"
+              className="flex items-center justify-between gap-4 border-b border-slate-100 py-3 text-small first:pt-0 last:border-b-0"
             >
               <div className="min-w-0">
                 <p className="font-medium text-slate-900">{c.name}</p>

@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { PageHeader, Tabs } from '../../components/ui'
+import { LinkButton, PageHeader, Tabs } from '../../components/ui'
 import { AuthoritiesTab } from './AuthoritiesTab'
 import { AutoDecisionSettingsCard } from './AutoDecisionSettingsCard'
 import { CreditAnalysisModeCard } from './CreditAnalysisModeCard'
@@ -32,7 +32,15 @@ export function AdminPage() {
 
   return (
     <div>
-      <PageHeader title={t('nav.admin')} subtitle={t('admin.subtitle')} />
+      <PageHeader
+        title={t('nav.admin')}
+        subtitle={t('admin.subtitle')}
+        actions={
+          <LinkButton variant="secondary" to="/admin/tokens">
+            {t('tokens.title')}
+          </LinkButton>
+        }
+      />
 
       <Tabs
         tabs={[

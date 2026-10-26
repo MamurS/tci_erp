@@ -228,12 +228,12 @@ export function LimitRequestPage() {
       />
 
       {actionError && (
-        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] text-neg-500" role="alert">
+        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-3 text-small text-neg-500" role="alert">
           {actionError}
         </div>
       )}
       {notice && (
-        <div className="mb-4 rounded-md border border-pos-500/25 bg-pos-50 px-4 py-2.5 text-[0.8125rem] text-slate-800" role="status">
+        <div className="mb-4 rounded-md border border-pos-500/25 bg-pos-50 px-4 py-3 text-small text-slate-800" role="status">
           {notice}
         </div>
       )}
@@ -271,12 +271,12 @@ export function LimitRequestPage() {
             </div>
           )}
           {mayDecideByRole && ownRefusal !== null && (
-            <Card className="border-warn-500/30 bg-warn-50 p-5 text-sm text-slate-800" role="note">
+            <Card className="border-warn-500/30 bg-warn-50 p-5 text-body text-slate-800" role="note">
               {t(fourEyesNoticeKey(ownRefusal, 'credit'))}
             </Card>
           )}
           {awaitingSenior && (
-            <Card className="border-warn-500/30 bg-warn-50 p-5 text-sm text-warn-500">
+            <Card className="border-warn-500/30 bg-warn-50 p-5 text-body text-warn-500">
               {t('limits.awaitingSenior')}
             </Card>
           )}
@@ -331,7 +331,7 @@ export function LimitRequestPage() {
             </>
           }
         >
-          <p className="mb-3 text-sm text-slate-600">{t('limits.withdrawConfirm')}</p>
+          <p className="mb-3 text-body text-slate-600">{t('limits.withdrawConfirm')}</p>
           <Field label={t('policies.transitionComment')}>
             <Input value={withdrawComment} onChange={(e) => setWithdrawComment(e.target.value)} />
           </Field>
@@ -358,7 +358,7 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
   return (
     <Card className="p-5">
       <SectionTitle className="mb-3">{t('limits.requestCard')}</SectionTitle>
-      <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+      <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-body">
         <dt className="text-slate-500">{t('limits.fields.buyer')}</dt>
         <dd>
           <Link to={`/entities/${request.entity_id}`} className="text-accent-700 hover:underline">
@@ -396,7 +396,7 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
               <span className="ml-2 text-slate-500">
                 {request.insurance_requests?.legal_entities?.name ?? ''}
               </span>
-              <span className="mt-0.5 block text-xs text-slate-400">{t('limits.preBindScope')}</span>
+              <span className="mt-0.5 block text-caption text-slate-500">{t('limits.preBindScope')}</span>
             </dd>
           </>
         )}
@@ -442,7 +442,7 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
         {timeline
           .filter((step) => step.at)
           .map((step) => (
-            <li key={step.key} className="text-xs text-slate-500">
+            <li key={step.key} className="text-caption text-slate-500">
               <span className="font-medium text-slate-700">
                 {t(`limits.timeline.${step.key}`)}
               </span>{' '}
@@ -478,7 +478,7 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
         <>
           {latest.rating_score === null ? (
             // A manual grade (0073) has no score to place on the scale.
-            <p className="text-[0.8125rem] text-slate-600">
+            <p className="text-small text-slate-600">
               {t('rating.proposals.manualGrade', { grade: latest.rating_grade })}
               {latest.manual_reason && <> — «{latest.manual_reason}»</>}
             </p>
@@ -490,7 +490,7 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
               size="compact"
             />
           )}
-          <div className="text-[0.8125rem]">
+          <div className="text-small">
             <span className="text-slate-500">{t('report.calculatedLimit')}: </span>
             <SuggestedLimit
               amount={latest.suggested_limit}
@@ -501,18 +501,18 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
           </div>
         </>
       ) : (
-        <p className="text-[0.8125rem] text-slate-500">{t('report.noAssessment')}</p>
+        <p className="text-small text-slate-500">{t('report.noAssessment')}</p>
       )}
 
       <Link
         to={`/entities/${request.entity_id}`}
-        className="text-[0.8125rem] font-medium text-accent-700 hover:underline"
+        className="text-small font-medium text-accent-700 hover:underline"
       >
         {t('limits.openBuyerCard')} →
       </Link>
 
       {current && (
-        <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-[0.8125rem]">
+        <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-small">
           <p className="text-slate-500">{t('limits.currentEffective')}</p>
           <p className="mt-0.5">
             <Badge tone={outcomeTone(current.outcome)}>
@@ -523,7 +523,7 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
                 ? `${formatAmount(Number(current.approved_amount), locale)} ${current.currency_code}`
                 : EM_DASH}
             </span>
-            <span className="ml-2 whitespace-nowrap text-slate-400">
+            <span className="ml-2 whitespace-nowrap text-slate-500">
               {current.valid_until
                 ? t('limits.validUntil', { date: formatDate(current.valid_until, locale) })
                 : t('limits.untilReview')}
@@ -535,21 +535,21 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
             </p>
           )}
           {current.commercially_adjusted && (
-            <p className="num mt-1 text-xs text-slate-500">
+            <p className="num mt-1 text-caption text-slate-500">
               {t('limits.stagePair', {
                 credit: formatAmount(Number(current.credit_amount), locale),
                 commercial: formatAmount(Number(current.approved_amount), locale),
               })}
             </p>
           )}
-          <p className="mt-1.5">
+          <p className="mt-2">
             <ReleaseBadge
               facts={current}
               salesWindowHours={windowHours ?? 24}
               nowIso={nowIso}
             />
           </p>
-          <p className="mt-1 text-xs text-warn-500">{t('limits.willSupersede')}</p>
+          <p className="mt-1 text-caption text-warn-500">{t('limits.willSupersede')}</p>
         </div>
       )}
     </Card>
@@ -661,7 +661,7 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
             key={o}
             type="button"
             onClick={() => setOutcome(o)}
-            className={`rounded-md border px-3 py-1.5 text-[0.8125rem] font-medium transition-colors ${
+            className={`rounded-md border px-3 py-2 text-small font-medium transition-colors ${
               outcome === o
                 ? 'border-accent-600 bg-accent-50 text-accent-700'
                 : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
@@ -677,7 +677,7 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
           <Field label={t('limits.fields.approvedAmount')}>
             <AmountInput value={amount} onChange={setAmount} suffix={currency} />
             {latest && (
-              <p className="mt-0.5 text-xs text-slate-400">
+              <p className="mt-0.5 text-caption text-slate-500">
                 {t('report.calculatedLimit')}:{' '}
                 <SuggestedLimit amount={latest.suggested_limit} from={latest.limit_currency} to={currency} />
               </p>
@@ -716,18 +716,18 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
       {/* Authority preflight — same conversion rule as the SQL function. */}
       {check && (
         check.withinAuthority === null ? (
-          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
+          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
             {t('limits.preflight.missingRate', { currency })}
           </div>
         ) : check.withinAuthority ? (
-          <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-2.5 text-[0.8125rem] text-slate-600">
+          <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-small text-slate-600">
             {t('limits.preflight.within', {
               band: t(`limits.bands.${check.band}`),
               authority: formatAmount(check.authorityUzs ?? 0, locale),
             })}
           </div>
         ) : (
-          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
+          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
             {t('limits.preflight.exceeds', {
               band: t(`limits.bands.${check.band}`),
               authority: formatAmount(check.authorityUzs ?? 0, locale),
@@ -739,12 +739,12 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
       <GroupPreflightNotice preflight={groupCheck} />
 
       {escalatedInfo && (
-        <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500" role="status">
+        <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500" role="status">
           {escalatedInfo}
         </div>
       )}
       {error && (
-        <p className="text-[0.8125rem] text-neg-500" role="alert">
+        <p className="text-small text-neg-500" role="alert">
           {error}
         </p>
       )}
@@ -776,7 +776,7 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
           </>
         )}
         {needsAmount && !amountValid && (
-          <span className="text-[0.8125rem] text-slate-500">{t('limits.amountRequired')}</span>
+          <span className="text-small text-slate-500">{t('limits.amountRequired')}</span>
         )}
       </div>
 
@@ -859,8 +859,8 @@ function ConditionsRepeater({
 
   return (
     <div>
-      <div className="mb-1.5 flex items-center justify-between">
-        <span className="text-[0.8125rem] font-medium text-slate-600">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-small font-medium text-slate-600">
           {t('limits.fields.conditions')}
         </span>
         <Button
@@ -875,7 +875,7 @@ function ConditionsRepeater({
         </Button>
       </div>
       {conditions.length === 0 ? (
-        <p className="text-xs text-slate-400">{t('limits.noConditions')}</p>
+        <p className="text-caption text-slate-500">{t('limits.noConditions')}</p>
       ) : (
         <div className="flex flex-col gap-2">
           {conditions.map((c, index) => (

@@ -115,14 +115,14 @@ function PortalDraftView({ draft }: { draft: PortalDraft }) {
       <div className="flex flex-col gap-5">
         {draft.status === 'signed' && <Callout tone="pos" title={t('contractDrafts.portal.signed')} />}
         <Panel title={t('contractDrafts.portal.comments')} hint={canComment ? t('contractDrafts.portal.commentsHint') : t('contractDrafts.portal.commentsClosed')}>
-          <ol className="flex flex-col gap-2.5">
-            {(comments ?? []).length === 0 && <li className="text-[0.8125rem] text-slate-500">{t('contractDrafts.portal.noComments')}</li>}
+          <ol className="flex flex-col gap-3">
+            {(comments ?? []).length === 0 && <li className="text-small text-slate-500">{t('contractDrafts.portal.noComments')}</li>}
             {(comments ?? []).map((c) => (
               <li key={c.id} className="rounded-md border border-slate-200 bg-slate-50/60 px-3 py-2">
-                <div className="text-[0.75rem] text-slate-500 tabular-nums">
+                <div className="text-caption text-slate-500 tabular-nums">
                   {formatMoment(c.created_at, locale)} · v{c.version_no}
                 </div>
-                <p className="mt-1 text-[0.8125rem] whitespace-pre-wrap text-slate-800">{c.body}</p>
+                <p className="mt-1 text-small whitespace-pre-wrap text-slate-800">{c.body}</p>
               </li>
             ))}
           </ol>
@@ -137,11 +137,11 @@ function PortalDraftView({ draft }: { draft: PortalDraft }) {
                 aria-label={t('contractDrafts.portal.placeholder')}
               />
               {error && (
-                <p className="text-[0.8125rem] text-neg-500" role="alert">
+                <p className="text-small text-neg-500" role="alert">
                   {error}
                 </p>
               )}
-              {sent && <p className="text-[0.8125rem] text-pos-500">{t('contractDrafts.portal.sent')}</p>}
+              {sent && <p className="text-small text-pos-500">{t('contractDrafts.portal.sent')}</p>}
               <div className="flex justify-end">
                 <Button size="sm" disabled={!body.trim() || comment.isPending} onClick={send}>
                   {t('contractDrafts.portal.send')}

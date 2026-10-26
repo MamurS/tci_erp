@@ -35,22 +35,22 @@ export function PlaceholderReference() {
       </SectionTitle>
       {open && (
         <div id={bodyId} className="mt-4">
-          <ul className="mb-4 list-inside list-disc text-[0.8125rem] text-slate-600">
+          <ul className="mb-4 list-inside list-disc text-small text-slate-600">
             <li>{t('wording.reference.syntaxValue', WORDING_SYNTAX)}</li>
             <li>{t('wording.reference.syntaxLoop', WORDING_SYNTAX)}</li>
             <li>{t('wording.reference.syntaxCondition', WORDING_SYNTAX)}</li>
           </ul>
           {PLACEHOLDER_GROUPS.map((group) => (
             <div key={group} className="mb-4 last:mb-0">
-              <h3 className="mb-1 text-xs font-semibold tracking-wide text-slate-400 uppercase">
+              <h3 className="mb-1 text-caption font-semibold tracking-wide text-slate-500 uppercase">
                 {t(`wording.reference.groups.${group}`, WORDING_SYNTAX)}
               </h3>
               <Table dense columns={['50%', COL.fill]}>
                 <tbody>
                   {PLACEHOLDERS.filter((p) => placeholderGroup(p) === group).map((p) => (
                     <tr key={p}>
-                      <td className="font-mono text-[0.75rem] text-accent-700 select-all">{placeholderSyntax(p)}</td>
-                      <td className="text-[0.8125rem]">{t(placeholderKey(p))}</td>
+                      <td className="font-mono text-caption text-accent-700 select-all">{placeholderSyntax(p)}</td>
+                      <td className="text-small">{t(placeholderKey(p))}</td>
                     </tr>
                   ))}
                 </tbody>
