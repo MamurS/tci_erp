@@ -51,7 +51,7 @@ export function SidebarToggle({ action, onClick, onMouseEnter, onMouseLeave, ton
         className="pointer-events-none absolute top-full left-0 z-10 mt-2 flex items-center gap-2 rounded-md bg-slate-900 px-2 py-1 text-caption font-medium whitespace-nowrap text-white opacity-0 shadow-lg transition-opacity delay-0 group-hover:opacity-100 group-hover:delay-500 group-focus-visible:opacity-100"
       >
         {label}
-        <span className="text-white/55">{isMac ? '⌘B' : 'Ctrl+B'}</span>
+        <span className="text-white/70">{isMac ? '⌘B' : 'Ctrl+B'}</span>
       </span>
     </button>
   )

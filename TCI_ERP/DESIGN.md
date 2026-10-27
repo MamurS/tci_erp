@@ -913,6 +913,15 @@ and `data-mode` on `<html>`:
   light passes in dark; the page is a little darker than the cards; black
   stays black and the veil under a dialog (`scrim`) stays the theme's navy.
   «Auto» follows the device and changes with it.
+* **Light chrome** (owner, 2026-10-27: «much lighter»): in light mode a
+  colour theme other than blue draws its menu, bands and name bar as pale
+  tints of itself with near-black text — the same contrast-space reflection,
+  taking step 900 to luminance 0.85 (`lightChromeTokens`), so every pair
+  keeps its contrast exactly. A band's action buttons
+  (`data-chrome-actions`) keep the theme's ordinary colours, white. Blue
+  keeps its navy chrome; dark mode keeps dark chrome in every theme.
+  Translucent text on chrome is at least 70 % opacity (blending does not
+  reflect; the audit checks it).
 * **What stays light**: brand surfaces (`data-brand-surface` — the sidebar,
   hero bands, the card's name bar, the sign-in panel, the portal header, the
   menu toggle over the menu) keep their navy and their white; documents

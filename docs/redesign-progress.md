@@ -227,6 +227,13 @@ Re-read the brief against the screens; what it asks beyond colour:
     Print is always the house blue on white. Reverse: drop
     `renderThemeCss()` from `renderTokensCss`, the picker rows, and 0082's
     columns are inert.
+23. Light chrome for the colour themes (owner: «much lighter»): salad,
+    teal, plum and graphite draw the menu, bands and name bar as pale tints
+    with dark text in light mode; blue keeps its navy. Reverse: drop the
+    light-chrome blocks in `renderThemeCss`.
+24. The round gauge left the Rating tab (owner: it repeated the straight
+    scale); the score-change note sits under the scale. The gauge stays on
+    the risk report. Reverse: `git log -p` on `RatingTab.tsx`.
 
 ## Latency (phase 3, production bundle, median of 5)
 

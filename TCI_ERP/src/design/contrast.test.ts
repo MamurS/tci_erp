@@ -33,6 +33,7 @@ import {
   THEME_NAMES,
   colorTokens,
   darkColorTokens,
+  lightChromeTokens,
   worstContrastAt,
 } from './palette'
 
@@ -91,6 +92,11 @@ function darkSurface(file: string): string {
   return TOKENS['accent-600']
 }
 
+/** The brand surfaces (data-brand-surface): in light mode a colour theme
+ * draws them in its light chrome (palette.ts lightChromeTokens). */
+const BRAND_SURFACE =
+  /(layout[\\/](Sidebar|SidebarToggle|WorkspaceSwitcher)|PortalShell|LoginPage|HeroBand|CardStickyBar)\.tsx$/
+
 /** Drawn in the light colours of their theme in every mode: the brand
  * surfaces (data-brand-surface) and paper (data-paper, the print routes). */
 const LIGHT_ALWAYS =
@@ -115,11 +121,15 @@ const EXEMPT_VARIANTS = /(^|:)(disabled|placeholder|group-disabled|aria-disabled
  * is drawn in them, and the surfaces mirror light mode's: a colour that is
  * light in light mode sits on the dark counterpart of its dark surface.
  */
-function audit(light: Record<string, string> = TOKENS, dark?: Record<string, string>): Finding[] {
+function audit(
+  light: Record<string, string> = TOKENS,
+  dark?: Record<string, string>,
+  chrome?: Record<string, string>,
+): Finding[] {
   const findings: Finding[] = []
   for (const file of files(SRC)) {
     const source = readFileSync(file, 'utf8')
-    TOKENS = dark && !LIGHT_ALWAYS.test(file) ? dark : light
+    TOKENS = dark && !LIGHT_ALWAYS.test(file) ? dark : chrome && BRAND_SURFACE.test(file) ? chrome : light
     for (const raw of classStrings(source)) {
       const tokens = raw.split(/\s+/).filter(Boolean)
       // The background a colour sits on: the one with the same structural
@@ -203,7 +213,10 @@ describe('every colour theme, light and dark, passes too (0082)', () => {
     for (const mode of ['light', 'dark'] as const) {
       if (theme === DEFAULT_THEME && mode === 'light') continue
       it(`${theme} · ${mode}`, () => {
-        const findings = mode === 'light' ? audit(light) : audit(light, darkColorTokens(theme))
+        const findings =
+          mode === 'light'
+            ? audit(light, undefined, theme === DEFAULT_THEME ? undefined : lightChromeTokens(theme))
+            : audit(light, darkColorTokens(theme))
         expect(
           findings.map((f) => `${f.file}: ${f.pair} = ${f.ratio.toFixed(2)} < ${f.need} — "${f.classes}"`),
         ).toEqual([])
