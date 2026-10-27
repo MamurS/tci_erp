@@ -52,6 +52,7 @@ import type { EntityRoles } from './types'
 import { IndustrySectorBadge } from '../risk/badges'
 import { CountryRiskCompact, CountryWithRisk, IndustryWithSector, RiskSubline } from '../risk/integrationBadges'
 import { SanctionsCell } from '../sanctions/components'
+import { TierMark } from '../tiers'
 
 type RoleChip = 'all' | 'policyholders' | 'buyers'
 
@@ -128,7 +129,8 @@ export function EntitiesPage() {
     COL.fill,
     '9rem',
     '10rem',
-    '13.5rem',
+    // roles + a policyholder's tier (0094)
+    '19rem',
     COL.date,
     COL.grade,
     // 0091: the sanctions screening state, its own column
@@ -338,7 +340,11 @@ export function EntitiesPage() {
                     </RiskSubline>
                   </td>
                   <td>
-                    <RoleBadges roles={roles.data?.get(entity.id)} />
+                    <span className="flex min-w-0 flex-wrap items-center gap-1">
+                      <RoleBadges roles={roles.data?.get(entity.id)} />
+                      {/* 0094: a policyholder's tier */}
+                      <TierMark entityId={entity.id} />
+                    </span>
                   </td>
                   <td className="whitespace-nowrap text-slate-500">
                     {latest ? formatDate(latest, locale) : EM_DASH}

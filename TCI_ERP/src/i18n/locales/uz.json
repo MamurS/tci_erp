@@ -2428,7 +2428,8 @@
       "users": "Foydalanuvchilar va rollar",
       "authorities": "Vakolatlar",
       "security": "Xavfsizlik",
-      "risk": "Risklar"
+      "risk": "Risklar",
+      "tiers": "Sug‘urtalanuvchilar darajalari"
     },
     "noUsers": "Hozircha foydalanuvchilar yo‘q",
     "editRoles": "Rollar",
@@ -7444,6 +7445,84 @@
       "matchOutcome": "Moslikni tasdiqlang yoki yolg‘on deb belgilang.",
       "matchResolved": "Bu moslik allaqachon ko‘rib chiqilgan.",
       "screeningPending": "Ushbu bayer bo‘yicha ehtimoliy sanksiyaviy moslik hali ko‘rib chiqilmagan: limit ma’qullanishidan oldin kredit tahlilchi uni tasdiqlashi yoki yolg‘on deb belgilashi kerak."
+    }
+  },
+  "tiers": {
+    "name": {
+      "bronze": "Bronza",
+      "silver": "Kumush",
+      "gold": "Oltin",
+      "platinum": "Platina"
+    },
+    "badgeHint": "Sug‘urtalanuvchi darajasi: {{tier}} — sug‘urtalangan aylanma va mukofot bo‘yicha",
+    "badgeManualHint": "Sug‘urtalanuvchi darajasi: {{tier}} — tijorat anderraytingi tomonidan qo‘lda belgilangan",
+    "manualShort": "qo‘lda",
+    "panel": {
+      "title": "Sug‘urtalanuvchi darajasi",
+      "hint": "Mijozga xizmat ko‘rsatuvchilar uchun xizmat toifasi — so‘nggi o‘n ikki oydagi sug‘urtalangan aylanma va amaldagi polislar bo‘yicha mukofot asosida, UZSda. U limit, mukofot yoki vakolatni belgilamaydi.",
+      "setByHand": "Qo‘lda belgilash",
+      "backToAutomatic": "Avtomatik darajaga qaytarish",
+      "manualLine": "Qo‘lda belgilagan: {{who}}, {{when}}",
+      "automaticLine": "Avtomatik — quyidagi ikki ko‘rsatkichning kattasi bo‘yicha",
+      "manualReason": "Sabab: «{{reason}}»",
+      "manualUntil": "{{date}} gacha amal qiladi, so‘ng avtomatik daraja qaytadi.",
+      "manualOpen": "Tijorat anderraytingi avtomatik darajaga qaytarmaguncha amal qiladi.",
+      "automaticWouldBe": "Avtomatik daraja — {{tier}}.",
+      "missingRates_one": "Kursi yo‘q valyutadagi {{count}} ta summa hisobga olinmadi — daraja yuqoriroq bo‘lishi mumkin.",
+      "missingRates_other": "Kursi yo‘q valyutalardagi {{count}} ta summa hisobga olinmadi — daraja yuqoriroq bo‘lishi mumkin.",
+      "toNext": "«{{tier}}» darajasigacha",
+      "nextNeeds": "«{{tier}}» darajasiga yana {{missing}} UZS kerak ({{threshold}} UZSdan)",
+      "top": "Eng yuqori darajaga erishilgan."
+    },
+    "measure": {
+      "turnover_uzs": "Sug‘urtalangan aylanma, 12 oy",
+      "premium_uzs": "Mukofot, amaldagi polislar"
+    },
+    "basis": {
+      "declared_one": "{{count}} ta qabul qilingan deklaratsiya bo‘yicha qoplangan aylanma",
+      "declared_other": "{{count}} ta qabul qilingan deklaratsiya bo‘yicha qoplangan aylanma",
+      "estimated": "So‘nggi 12 oyda qabul qilingan deklaratsiya yo‘q — amaldagi polislar bo‘yicha kutilayotgan yillik aylanma",
+      "none": "Deklaratsiya ham, kutilayotgan aylanma ham yo‘q",
+      "premium_one": "{{count}} ta amaldagi polis bo‘yicha hisoblangan va minimal mukofotning kattasi",
+      "premium_other": "{{count}} ta amaldagi polis bo‘yicha hisoblangan va minimal mukofotning kattasi"
+    },
+    "history": {
+      "title": "Qo‘lda belgilangan darajalar",
+      "setBy": "belgilagan: {{who}}, {{when}}",
+      "until": "{{date}} gacha",
+      "ended": "Yakunlagan: {{who}}, {{when}}"
+    },
+    "set": {
+      "title": "{{name}} darajasini qo‘lda belgilash",
+      "submit": "Belgilash: {{tier}}",
+      "intro": "Avtomatik daraja — {{tier}}. Qo‘lda belgilangan daraja tugash sanasigacha yoki avtomatik darajaga qaytarilguncha amal qiladi; sabab saqlanadi.",
+      "tier": "Daraja",
+      "reason": "Sabab",
+      "reasonHint": "Daraja nima uchun avtomatikdan farq qiladi — masalan, strategik mijoz yoki to‘lov intizomi tekshirilmoqda.",
+      "until": "Gacha (ixtiyoriy)",
+      "untilHint": "Avtomatik darajaga qaytarilguncha amal qilishi uchun bo‘sh qoldiring."
+    },
+    "end": {
+      "title": "Avtomatik darajaga qaytarish",
+      "submit": "Avtomatik darajaga qaytarish",
+      "intro": "Daraja yana sug‘urtalangan aylanma va mukofotga bog‘liq bo‘ladi. Qo‘lda belgilangan daraja tarixda qoladi.",
+      "reason": "Sabab"
+    },
+    "thresholds": {
+      "title": "Sug‘urtalanuvchilar darajalari",
+      "hint": "So‘nggi o‘n ikki oydagi sug‘urtalangan aylanma yoki amaldagi polislar bo‘yicha mukofot darajaga erishadigan chegaralar, UZSda. Kumushdan pasti — bronza.",
+      "rising": "Har bir chegara noldan katta bo‘lishi va kumushdan platinagacha o‘sib borishi kerak.",
+      "rule": "Ko‘rsatkich chegarada darajaga erishadi; daraja — ikki ko‘rsatkichning kattasi.",
+      "save": "Chegaralarni saqlash"
+    },
+    "errors": {
+      "unknown": "Bunday daraja yo‘q.",
+      "reasonRequired": "Daraja nima uchun qo‘lda belgilanayotganini ko‘rsating.",
+      "reasonTooLong": "Sabab juda uzun (ko‘pi bilan 2 000 belgi).",
+      "untilPast": "Tugash sanasi o‘tib ketgan.",
+      "notPolicyholder": "Tashkilotda polis yo‘q, shuning uchun uning darajasi yo‘q.",
+      "noOverride": "Daraja allaqachon avtomatik.",
+      "thresholdsInvalid": "Har bir chegara noldan katta bo‘lishi va kumushdan platinagacha o‘sib borishi kerak."
     }
   }
 }

@@ -122,6 +122,35 @@ export const GRADE_COLORS: Record<GradeKey, GradeColors> = Object.fromEntries(
 ) as Record<GradeKey, GradeColors>
 
 // ---------------------------------------------------------------------------
+// Policyholder tiers (0094): bronze, silver, gold, platinum — a TINT (badge
+// background, step 100), a LINE (hairline, step 200), a SOLID (the medal,
+// step 400) and an INK (text, step 700 — ≥ 7 : 1 on the tint).
+// ---------------------------------------------------------------------------
+
+export const TIER_SPECS = {
+  bronze: { hue: 50, chroma: 0.11 },
+  silver: { hue: 250, chroma: 0.02 },
+  gold: { hue: 88, chroma: 0.15 },
+  platinum: { hue: 285, chroma: 0.07 },
+} as const
+
+export type TierKey = keyof typeof TIER_SPECS
+
+export interface TierColors {
+  tint: string
+  line: string
+  solid: string
+  ink: string
+}
+
+export const TIER_COLORS: Record<TierKey, TierColors> = Object.fromEntries(
+  Object.entries(TIER_SPECS).map(([tier, spec]) => {
+    const ramp = buildRamp(spec)
+    return [tier, { tint: ramp[100], line: ramp[200], solid: ramp[400], ink: ramp[700] }]
+  }),
+) as Record<TierKey, TierColors>
+
+// ---------------------------------------------------------------------------
 // Data palettes
 // ---------------------------------------------------------------------------
 
@@ -292,6 +321,12 @@ export function colorTokens(theme: ThemeName): Record<string, string> {
     out[`grade-${key}-deep`] = colors.deep
   }
   ;(['A1', 'B1', 'B2', 'C2', 'D'] as const).forEach((g, i) => (out[`scale-${i + 1}`] = GRADE_COLORS[g].solid))
+  for (const [tier, colors] of Object.entries(TIER_COLORS)) {
+    out[`tier-${tier}-tint`] = colors.tint
+    out[`tier-${tier}-line`] = colors.line
+    out[`tier-${tier}`] = colors.solid
+    out[`tier-${tier}-ink`] = colors.ink
+  }
   const categorical = [ramps.accent[400], ...CATEGORICAL.slice(1, 4), ramps.sky[400], ...CATEGORICAL.slice(5)]
   categorical.forEach((hex, i) => (out[`data-${i + 1}`] = hex))
   STEPS.slice(1).forEach((s, i) => (out[`seq-${i + 1}`] = ramps.sky[s]))
@@ -461,6 +496,13 @@ export function renderTokensCss(): string {
   }
   lines.push('  /* The five-colour presentation gauge (ratingScale.ts) reads the grade solids. */')
   ;(['A1', 'B1', 'B2', 'C2', 'D'] as const).forEach((g, i) => lines.push(`  --color-scale-${i + 1}: ${GRADE_COLORS[g].solid};`))
+  lines.push('  /* Policyholder tiers (0094): tint, line, solid, ink. */')
+  for (const [tier, colors] of Object.entries(TIER_COLORS)) {
+    lines.push(`  --color-tier-${tier}-tint: ${colors.tint};`)
+    lines.push(`  --color-tier-${tier}-line: ${colors.line};`)
+    lines.push(`  --color-tier-${tier}: ${colors.solid};`)
+    lines.push(`  --color-tier-${tier}-ink: ${colors.ink};`)
+  }
   lines.push('  /* The theme picker\'s swatches: each theme\'s brand colour (fixed in every theme and mode). */')
   for (const theme of THEME_NAMES) lines.push(`  --color-swatch-${theme}: ${buildRamp(THEMES[theme].accent)[600]};`)
   lines.push('  /* Data palettes. */')

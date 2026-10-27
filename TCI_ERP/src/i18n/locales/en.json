@@ -2428,7 +2428,8 @@
       "users": "Users & roles",
       "authorities": "Authorities",
       "security": "Security",
-      "risk": "Risk"
+      "risk": "Risk",
+      "tiers": "Policyholder tiers"
     },
     "noUsers": "No users yet",
     "editRoles": "Roles",
@@ -7444,6 +7445,84 @@
       "matchOutcome": "Confirm or clear the match.",
       "matchResolved": "This match has already been reviewed.",
       "screeningPending": "A possible sanctions match on this buyer is not reviewed yet: a credit analyst must confirm or clear it before a limit can be approved."
+    }
+  },
+  "tiers": {
+    "name": {
+      "bronze": "Bronze",
+      "silver": "Silver",
+      "gold": "Gold",
+      "platinum": "Platinum"
+    },
+    "badgeHint": "Policyholder tier: {{tier}} — from insured turnover and premium",
+    "badgeManualHint": "Policyholder tier: {{tier}} — set by hand by commercial underwriting",
+    "manualShort": "manual",
+    "panel": {
+      "title": "Policyholder tier",
+      "hint": "A service class for the people who look after the client — from the insured turnover of the last twelve months and the premium of the current policies, in UZS. It decides no limit, premium or authority.",
+      "setByHand": "Set by hand",
+      "backToAutomatic": "Return to automatic",
+      "manualLine": "Set by hand by {{who}} on {{when}}",
+      "automaticLine": "Automatic — the higher of the two measures below",
+      "manualReason": "Reason: «{{reason}}»",
+      "manualUntil": "Holds until {{date}}, then the automatic tier returns.",
+      "manualOpen": "Holds until commercial underwriting returns it to automatic.",
+      "automaticWouldBe": "The automatic tier would be {{tier}}.",
+      "missingRates_one": "{{count}} amount is in a currency without a rate and is left out — the tier may be higher.",
+      "missingRates_other": "{{count}} amounts are in currencies without a rate and are left out — the tier may be higher.",
+      "toNext": "Progress to {{tier}}",
+      "nextNeeds": "{{missing}} UZS more for {{tier}} (from {{threshold}} UZS)",
+      "top": "The highest tier is reached."
+    },
+    "measure": {
+      "turnover_uzs": "Insured turnover, 12 months",
+      "premium_uzs": "Premium, current policies"
+    },
+    "basis": {
+      "declared_one": "Covered turnover of {{count}} accepted declaration",
+      "declared_other": "Covered turnover of {{count}} accepted declarations",
+      "estimated": "No declaration accepted in the last 12 months — the estimated annual turnover of the current policies",
+      "none": "No declaration and no estimated turnover",
+      "premium_one": "Earned or minimum premium, whichever is higher, of {{count}} current policy",
+      "premium_other": "Earned or minimum premium, whichever is higher, of {{count}} current policies"
+    },
+    "history": {
+      "title": "Tiers set by hand",
+      "setBy": "set by {{who}}, {{when}}",
+      "until": "until {{date}}",
+      "ended": "Ended by {{who}}, {{when}}"
+    },
+    "set": {
+      "title": "Set the tier of {{name}} by hand",
+      "submit": "Set {{tier}}",
+      "intro": "The automatic tier is {{tier}}. A tier set by hand wins until its end date or until it is returned to automatic, and is recorded with the reason.",
+      "tier": "Tier",
+      "reason": "Reason",
+      "reasonHint": "Why the tier differs from the automatic one — for example a strategic account or payment discipline under review.",
+      "until": "Until (optional)",
+      "untilHint": "Leave empty to keep it until it is returned to automatic."
+    },
+    "end": {
+      "title": "Return to the automatic tier",
+      "submit": "Return to automatic",
+      "intro": "The tier will follow the insured turnover and the premium again. The tier set by hand stays in the history.",
+      "reason": "Reason"
+    },
+    "thresholds": {
+      "title": "Policyholder tiers",
+      "hint": "The thresholds in UZS at which the insured turnover of the last twelve months or the premium of the current policies reaches each tier. Below silver is bronze.",
+      "rising": "Every threshold must be above zero and rise from silver to platinum.",
+      "rule": "A measure reaches a tier at its threshold; the tier is the higher of the two measures.",
+      "save": "Save the thresholds"
+    },
+    "errors": {
+      "unknown": "That tier does not exist.",
+      "reasonRequired": "Say why the tier is set by hand.",
+      "reasonTooLong": "The reason is too long (at most 2,000 characters).",
+      "untilPast": "The end date has already passed.",
+      "notPolicyholder": "This company holds no policy, so it has no tier.",
+      "noOverride": "The tier is already automatic.",
+      "thresholdsInvalid": "Every threshold must be above zero and rise from silver to platinum."
     }
   }
 }

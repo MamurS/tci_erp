@@ -61,6 +61,7 @@ import { CountryRiskBadges, IndustrySectorBadge } from '../risk/badges'
 import { useAgencyRatingsLine } from './rating/agencyRatingsApi'
 import { CountryWithRisk, IndustryWithSector } from '../risk/integrationBadges'
 import { SanctionsMark } from '../sanctions/components'
+import { TierMark } from '../tiers'
 
 type TabKey = CardTab
 
@@ -157,6 +158,8 @@ export function EntityDetailPage() {
               onClick={() => setSearchParams({ tab: 'rating' }, { replace: true })}
             />
             <RoleBadges roles={roles} />
+            {/* 0094: a policyholder's tier */}
+            <TierMark entityId={id} />
             {/* 0091: a sanction or a possible match, beside the name */}
             <SanctionsMark entityId={id} />
           </BadgeSizeContext.Provider>

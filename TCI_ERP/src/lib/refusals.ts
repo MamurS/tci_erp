@@ -171,6 +171,14 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'task_transfer_not_yours', key: 'agenda.transfer.errors.notYours' },
   { fragment: 'task_transfer_too_many', key: 'agenda.transfer.errors.tooMany' },
   { fragment: 'task_transfer_none', key: 'agenda.transfer.errors.none' },
+  // policyholder tiers (0094)
+  { fragment: 'tier_unknown', key: 'tiers.errors.unknown' },
+  { fragment: 'tier_reason_required', key: 'tiers.errors.reasonRequired' },
+  { fragment: 'tier_reason_too_long', key: 'tiers.errors.reasonTooLong' },
+  { fragment: 'tier_until_past', key: 'tiers.errors.untilPast' },
+  { fragment: 'tier_not_policyholder', key: 'tiers.errors.notPolicyholder' },
+  { fragment: 'tier_no_override', key: 'tiers.errors.noOverride' },
+  { fragment: 'tier_thresholds_invalid', key: 'tiers.errors.thresholdsInvalid' },
   // sanctions screening (0091)
   { fragment: 'sanctions_import_only', key: 'sanctions.errors.importOnly' },
   { fragment: 'sanctions_list_unknown', key: 'sanctions.errors.listUnknown' },
