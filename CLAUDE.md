@@ -1072,6 +1072,18 @@ is fine for internal test accounts and not fine for customers.
   setting moved from 6 to 4. `tests/db/country_risk_upkeep.sql` run on
   canonical with role impersonation (forced rollback, nothing left behind,
   counts unchanged); no new advisor finding
+- [x] External ratings for reference (migration 0088, owner 2026-10-27):
+  Allianz Trade's Country Risk Rating per country (Country Grade AA–D +
+  Country Risk Level 1–4, e.g. «BB2») as a column of «Sectors & Country Risk
+  Categories», entered by admin or a credit analyst one country at a time or
+  as a list pasted from the publication; and a company's PUBLIC ratings by
+  rating agencies (S&P, Moody's, Fitch, Ahbor-Reyting, SAIPRO, ACRA, Expert
+  RA or another named one; scale, term, outlook) in «Рейтинги агентств» on the
+  company card's rating tab, right under our grade, and in its quick facts,
+  entered by the information desk and credit analysts. Both are immutable
+  histories, staff-read, and never read by a decision, the cover matrix or the
+  engine (asserted in the migration). See **External ratings rules** below.
+  **Not yet applied to canonical.**
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2660,6 +2672,38 @@ above `concentration_warn_pct` (40) for the C/D or the 5–7 share or when every
 buyer sits in one C/D sector, lists blocked parties, and computes an
 exposure-weighted premium loading hint from the table. Staff only, like every
 0085 table and view (RLS `is_staff()`, no API write).
+
+### External ratings rules (migration 0088)
+
+**A reference, never a driver.** `tci.country_reference_ratings` (Allianz
+Trade) and `tci.entity_agency_ratings` (rating agencies) are shown beside the
+OECD category and beside our grade, never in their place. 0088 asserts that no
+function but their writers and no view but their own names either table, so
+the cover matrix, the auto decision and the engine cannot start reading them
+by accident — a change that wants them to drive anything is a decision for the
+owner, not a refactor.
+
+**Entries are history.** No API role writes either table; a trigger refuses
+UPDATE for everyone. The rating in use is the latest by the publication or
+rating-action date, then by entry time (`v_country_reference_ratings`,
+`v_entity_agency_ratings`): a rating read from an older publication is kept
+and not used. A row without a rating records that the source stopped rating
+(a note is required). Every entry names where it was read.
+
+**The scales are the sources'.** Allianz Trade: `^(AA|A|BB|B|C|D)([1-4])$`
+(`tci.parse_reference_rating`, mirrored by `sectors/referenceRatings.ts`); the
+badge is toned by the short-term level and never green. Agency ratings are
+stored as the agency writes them (letters, digits, `+ - . / ( )`, ≤ 20); only
+S&P / Fitch (BBB- and above) and Moody's (Baa3 and above) on the international
+long-term scale are classed investment or speculative grade
+(`entities/rating/agencyRatings.ts`) — no class is invented for a national
+scale.
+
+**Who writes.** Allianz Trade ratings: admin (reference data) and credit
+analysts. Agency ratings: the information desk and credit analysts — admin
+never (a company's data is business data, 0065). Allianz Trade's ratings are
+its published content: the screen says they are entered for internal
+reference under its terms of use.
 
 ### Credit workbench rules (migration 0053)
 

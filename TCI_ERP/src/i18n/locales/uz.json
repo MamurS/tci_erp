@@ -6561,7 +6561,16 @@
       "overrideEndReason": "Ichki toifa nima uchun tugatilayotganini yozing.",
       "sanctionsManageOnly": "Sanksiyalarni administrator yuritadi.",
       "sanctionsLiftReason": "Belgi nima uchun olib tashlanayotganini yozing.",
-      "concentrationScope": "Polis yoki sug‘urta arizasini ko‘rsating."
+      "concentrationScope": "Polis yoki sug‘urta arizasini ko‘rsating.",
+      "referenceSource": "Noma’lum reyting manbasi.",
+      "referenceAsOf": "E’lon qilingan sanani kiriting; u kelajakda bo‘lishi mumkin emas.",
+      "referenceReference": "Reyting qayerdan olinganini ko‘rsating.",
+      "referenceInvalid": "Bu shkala reytingi emas (AA1 … D4).",
+      "referenceClearedNote": "Mamlakat nega endi baholanmasligini ko‘rsating.",
+      "referenceUnchanged": "Bu nashrdagi bu reyting allaqachon yozilgan.",
+      "referenceUnknown": "Ro‘yxatda mamlakatlar ro‘yxatimizda bo‘lmagan mamlakat bor.",
+      "referenceDuplicate": "Mamlakat ro‘yxatda ikki marta uchraydi.",
+      "referenceEmpty": "Ro‘yxatda birorta ham reyting yo‘q."
     },
     "badges": {
       "compact": {
@@ -6874,7 +6883,8 @@
         "internal": "Ichki toifa",
         "inUse": "Qo‘llaniladi",
         "sanctions": "Sanksiyalar",
-        "pending": "Taklif"
+        "pending": "Taklif",
+        "reference": "Allianz Trade"
       },
       "source": {
         "oecd": "IHTT",
@@ -6947,6 +6957,128 @@
         "rejected": "Rad etilgan",
         "ended": "To‘xtatilgan"
       }
+    },
+    "reference": {
+      "columnTitle": "Allianz Trade mamlakat reytingi, ma’lumot uchun — qarorlar OECD va ichki toifalardan foydalanadi",
+      "action": "Allianz Trade reytinglari",
+      "title": "Allianz Trade mamlakat reytinglari",
+      "intro": "Allianz Trade mamlakat bahosini (AA — eng past qaltislik … D) va qisqa muddatli qaltislik darajasini (1 — past … 4 — yuqori) birga, masalan «BB2» ko‘rinishida e’lon qiladi. OECD toifasi yonida ma’lumot uchun ko‘rsatiladi; qarorlar undan foydalanmaydi.",
+      "one": {
+        "tab": "Bitta mamlakat",
+        "submit": "Reytingni saqlash",
+        "now": "Hozir:",
+        "clear": "Allianz Trade bu mamlakatni endi baholamaydi",
+        "rating": "Reyting",
+        "ratingHint": "E’lon qilinganidek: AA1 … D4.",
+        "note": "Izoh",
+        "noteHint": "Ixtiyoriy."
+      },
+      "list": {
+        "tab": "Ro‘yxat",
+        "submit_one": "{{count}} ta reytingni yuklash",
+        "submit_other": "{{count}} ta reytingni yuklash",
+        "label": "Reytinglar, har satrda bitta mamlakat",
+        "hint": "Mamlakat kodi (DE yoki DEU) va reyting, masalan «DE A1». # bilan boshlangan satrlar o‘tkazib yuboriladi.",
+        "rows_one": "{{count}} ta mamlakat o‘qildi",
+        "rows_other": "{{count}} ta mamlakat o‘qildi",
+        "unknown": "Mamlakatlar ro‘yxatimizda yo‘q, o‘tkazib yuborildi: {{codes}}",
+        "done": "Yuklandi: {{inserted}}; avval yozilgan: {{unchanged}}.",
+        "error": {
+          "line": "{{line}}-satr: mamlakat kodi va reyting kerak — «{{value}}»",
+          "country": "{{line}}-satr: «{{value}}» mamlakat kodi emas",
+          "rating": "{{line}}-satr: «{{value}}» shkala reytingi emas (AA1 … D4) — {{code}}",
+          "duplicate": "{{line}}-satr: {{code}} {{first}}-satrda allaqachon bor"
+        }
+      },
+      "none": "reyting yo‘q",
+      "notRated": "Baholanmaydi",
+      "reads": "Mamlakat bahosi {{grade}}, qaltislik darajasi {{level}} ({{label}})",
+      "badgeTitle": "Allianz Trade {{code}}: mamlakat bahosi {{grade}}, qaltislik darajasi {{level}} ({{label}})",
+      "level": {
+        "low": "past",
+        "medium": "o‘rtacha",
+        "sensitive": "sezilarli",
+        "high": "yuqori"
+      },
+      "asOf": "E’lon qilingan sana",
+      "asOfHint": "Reyting olingan Allianz Trade nashrining sanasi.",
+      "asOfShort": "{{date}} holatiga",
+      "reference": "Manba",
+      "referenceHint": "Hisobot yoki sahifa, masalan «Country Risk Atlas 2026», yoki uning manzili.",
+      "licence": "Allianz Trade reytinglari uning e’lon qilingan materiallaridir: ularni faqat ichki ma’lumot uchun, foydalanish shartlariga muvofiq kiriting.",
+      "errors": {
+        "country": "Mamlakatni tanlang",
+        "rating": "Shkala reytingini kiriting, AA1 … D4",
+        "list": "Qizil bilan belgilangan satrlarni tuzating yoki kamida bitta reyting kiriting"
+      }
+    }
+  },
+  "agencyRatings": {
+    "title": "Agentlik reytinglari",
+    "hint": "Reyting agentliklarining ochiq kredit reytinglari, ma’lumot uchun. Qarorlar yuqoridagi bizning reytingimizdan foydalanadi.",
+    "factsLabel": "Agentlik reytinglari",
+    "add": "Reyting harakatini qo‘shish",
+    "update": "Yangi harakat",
+    "showHistory": "Tarix",
+    "hideHistory": "Tarixni yashirish",
+    "history": "Barcha yozuvlar, yangilari yuqorida",
+    "empty": "Agentlik reytinglari yozilmagan",
+    "emptyHint": "Agentlik tashkilotni baholaganda axborot bo‘limi yoki kredit tahlilchi ochiq reytingni yozib qo‘yadi.",
+    "emptyHintWriter": "Agar agentlik bu tashkilotni ochiq baholasa, reytingni sanasi va e’lon qilingan manbasi bilan yozib qo‘ying.",
+    "withdrawn": "Qaytarib olingan",
+    "enteredOn": "{{date}} kiritilgan",
+    "modalTitle": "Agentlikning reyting harakati",
+    "modalIntro": "Yangi reyting, prognoz o‘zgarishi yoki qaytarib olish — agentlik e’lon qilganidek. Barcha yozuvlar saqlanadi.",
+    "otherAgency": "Boshqa agentlik…",
+    "noOutlook": "Prognozsiz",
+    "withdrawnCheck": "Agentlik reytingni qaytarib oldi",
+    "ratingHint": "Agentlik yozganidek: BB-, Ba3, A-1+, uzA+, AA(uzb).",
+    "asOfHint": "Reyting harakati sanasi.",
+    "referenceHint": "Press-reliz, hisobot yoki uning manzili.",
+    "save": "Reytingni saqlash",
+    "fields": {
+      "agency": "Agentlik",
+      "agencyName": "Agentlik nomi",
+      "scale": "Shkala",
+      "scaleOnly": "Shkala",
+      "term": "Muddat",
+      "rating": "Reyting",
+      "outlook": "Prognoz",
+      "asOf": "Sana",
+      "reference": "Manba",
+      "note": "Izoh"
+    },
+    "scale": {
+      "international": "Xalqaro",
+      "national": "Milliy"
+    },
+    "term": {
+      "long": "uzoq muddatli",
+      "short": "qisqa muddatli"
+    },
+    "class": {
+      "investment": "investitsion daraja",
+      "speculative": "spekulyativ daraja"
+    },
+    "outlook": {
+      "positive": "Ijobiy",
+      "stable": "Barqaror",
+      "negative": "Salbiy",
+      "developing": "Rivojlanayotgan",
+      "watch_positive": "Ko‘rib chiqilmoqda: ijobiy",
+      "watch_negative": "Ko‘rib chiqilmoqda: salbiy",
+      "watch_developing": "Ko‘rib chiqilmoqda: noaniq"
+    },
+    "errors": {
+      "agency": "Noma’lum agentlik.",
+      "agencyName": "Agentlik nomini kiriting.",
+      "scale": "Shkala va muddatni tanlang.",
+      "asOf": "Reyting harakati sanasini kiriting; u kelajakda bo‘lishi mumkin emas.",
+      "reference": "Reyting qayerda e’lon qilinganini ko‘rsating.",
+      "rating": "Reytingni agentlik yozganidek kiriting (harflar, raqamlar, + - . / ( ), 20 belgigacha).",
+      "withdrawnNote": "Reyting nega qaytarib olinganini ko‘rsating.",
+      "outlook": "Bu prognozni bunday reyting bilan yozib bo‘lmaydi.",
+      "unchanged": "Bu reyting harakati allaqachon yozilgan."
     }
   }
 }

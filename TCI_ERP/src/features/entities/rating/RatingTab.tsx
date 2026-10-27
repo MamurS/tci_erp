@@ -56,6 +56,7 @@ import { tci } from '../../../lib/supabase'
 import { useUiTextScaleValue } from '../../../lib/uiScale'
 import { DEEP_LINK_SCROLL_MARGIN, useDeepLinkFocus } from '../../../lib/useDeepLinkFocus'
 import { AdtSection } from '../../limits/AdtSection'
+import { AgencyRatingsPanel } from './AgencyRatingsPanel'
 import { ADT_FOCUS } from '../../limits/adt'
 import { useEntity, useStatements } from '../api'
 import type { StatementBundle } from '../types'
@@ -269,6 +270,8 @@ export function RatingTab({ entityId }: { entityId: string }) {
             proposalPending={Boolean(proposals.data?.pending)}
           />
         )}
+        {/* Agencies' public ratings beside ours, for reference (0088). */}
+        <AgencyRatingsPanel entityId={entityId} />
         <RatingProposalPanel
           entityId={entityId}
           current={assessments.data?.[0] ?? null}
@@ -353,6 +356,9 @@ export function RatingTab({ entityId }: { entityId: string }) {
           proposalPending={Boolean(proposals.data?.pending)}
         />
       )}
+
+      {/* Agencies' public ratings beside ours, for reference (0088). */}
+      <AgencyRatingsPanel entityId={entityId} />
 
       {/* Manual grades and grades sent for validation (0073). */}
       <RatingProposalPanel

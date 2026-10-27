@@ -6561,7 +6561,16 @@
       "overrideEndReason": "Say why the internal category ends.",
       "sanctionsManageOnly": "Sanctions are maintained by the administrator.",
       "sanctionsLiftReason": "Say why the flag is lifted.",
-      "concentrationScope": "Name a policy or a submission."
+      "concentrationScope": "Name a policy or a submission.",
+      "referenceSource": "Unknown rating source.",
+      "referenceAsOf": "Enter the publication date; it cannot be in the future.",
+      "referenceReference": "Say where the rating was read.",
+      "referenceInvalid": "This is not a rating of the scale (AA1 … D4).",
+      "referenceClearedNote": "Say why the country is no longer rated.",
+      "referenceUnchanged": "This rating of this publication is already recorded.",
+      "referenceUnknown": "The list holds a country that is not in our country list.",
+      "referenceDuplicate": "A country appears twice in the list.",
+      "referenceEmpty": "The list holds no rating."
     },
     "badges": {
       "compact": {
@@ -6874,7 +6883,8 @@
         "internal": "Internal category",
         "inUse": "In use",
         "sanctions": "Sanctions",
-        "pending": "Proposal"
+        "pending": "Proposal",
+        "reference": "Allianz Trade"
       },
       "source": {
         "oecd": "OECD",
@@ -6947,6 +6957,128 @@
         "rejected": "Rejected",
         "ended": "Ended"
       }
+    },
+    "reference": {
+      "columnTitle": "Allianz Trade's Country Risk Rating, for reference — decisions use the OECD and internal categories",
+      "action": "Allianz Trade ratings",
+      "title": "Allianz Trade country ratings",
+      "intro": "Allianz Trade publishes a Country Grade (AA lowest risk … D) and a short-term Country Risk Level (1 low … 4 high), together as e.g. «BB2». Shown beside the OECD category for reference; no decision uses it.",
+      "one": {
+        "tab": "One country",
+        "submit": "Save the rating",
+        "now": "Now:",
+        "clear": "Allianz Trade no longer rates this country",
+        "rating": "Rating",
+        "ratingHint": "As published: AA1 … D4.",
+        "note": "Note",
+        "noteHint": "Optional."
+      },
+      "list": {
+        "tab": "A list",
+        "submit_one": "Import {{count}} rating",
+        "submit_other": "Import {{count}} ratings",
+        "label": "Ratings, one country per line",
+        "hint": "Country code (DE or DEU) and rating, e.g. «DE A1». Lines starting with # are skipped.",
+        "rows_one": "{{count}} country read",
+        "rows_other": "{{count}} countries read",
+        "unknown": "Not in our country list, left out: {{codes}}",
+        "done": "Imported: {{inserted}}; already recorded: {{unchanged}}.",
+        "error": {
+          "line": "Line {{line}}: expected a country code and a rating — «{{value}}»",
+          "country": "Line {{line}}: «{{value}}» is not a country code",
+          "rating": "Line {{line}}: «{{value}}» is not a rating of the scale (AA1 … D4) — {{code}}",
+          "duplicate": "Line {{line}}: {{code}} already appears on line {{first}}"
+        }
+      },
+      "none": "no rating",
+      "notRated": "Not rated",
+      "reads": "Country Grade {{grade}}, risk level {{level}} ({{label}})",
+      "badgeTitle": "Allianz Trade {{code}}: Country Grade {{grade}}, risk level {{level}} ({{label}})",
+      "level": {
+        "low": "low",
+        "medium": "medium",
+        "sensitive": "sensitive",
+        "high": "high"
+      },
+      "asOf": "Publication date",
+      "asOfHint": "The date of the Allianz Trade publication it was read from.",
+      "asOfShort": "as of {{date}}",
+      "reference": "Read in",
+      "referenceHint": "The report or page, e.g. «Country Risk Atlas 2026» or its address.",
+      "licence": "Allianz Trade's ratings are its published content: enter them for internal reference only, under its terms of use.",
+      "errors": {
+        "country": "Choose the country",
+        "rating": "Enter a rating of the scale, AA1 … D4",
+        "list": "Correct the lines marked in red, or paste at least one rating"
+      }
+    }
+  },
+  "agencyRatings": {
+    "title": "Agency ratings",
+    "hint": "Public credit ratings by rating agencies, for reference. Our grade above is what decisions use.",
+    "factsLabel": "Agency ratings",
+    "add": "Add a rating action",
+    "update": "New action",
+    "showHistory": "History",
+    "hideHistory": "Hide history",
+    "history": "Every entry, newest first",
+    "empty": "No agency rating recorded",
+    "emptyHint": "The information desk or a credit analyst records a public rating when an agency rates the company.",
+    "emptyHintWriter": "If an agency rates this company publicly, record its rating with the date and where it was published.",
+    "withdrawn": "Withdrawn",
+    "enteredOn": "entered {{date}}",
+    "modalTitle": "Agency rating action",
+    "modalIntro": "A new rating, a change of outlook or a withdrawal, as the agency published it. Every entry is kept.",
+    "otherAgency": "Another agency…",
+    "noOutlook": "No outlook",
+    "withdrawnCheck": "The agency withdrew the rating",
+    "ratingHint": "As the agency writes it: BB-, Ba3, A-1+, uzA+, AA(uzb).",
+    "asOfHint": "The date of the rating action.",
+    "referenceHint": "The press release, report or its address.",
+    "save": "Save the rating",
+    "fields": {
+      "agency": "Agency",
+      "agencyName": "Agency name",
+      "scale": "Scale",
+      "scaleOnly": "Scale",
+      "term": "Term",
+      "rating": "Rating",
+      "outlook": "Outlook",
+      "asOf": "Date",
+      "reference": "Source",
+      "note": "Note"
+    },
+    "scale": {
+      "international": "International",
+      "national": "National"
+    },
+    "term": {
+      "long": "long-term",
+      "short": "short-term"
+    },
+    "class": {
+      "investment": "investment grade",
+      "speculative": "speculative grade"
+    },
+    "outlook": {
+      "positive": "Positive",
+      "stable": "Stable",
+      "negative": "Negative",
+      "developing": "Developing",
+      "watch_positive": "Watch positive",
+      "watch_negative": "Watch negative",
+      "watch_developing": "Watch developing"
+    },
+    "errors": {
+      "agency": "Unknown agency.",
+      "agencyName": "Name the agency.",
+      "scale": "Choose the scale and the term.",
+      "asOf": "Enter the date of the rating action; it cannot be in the future.",
+      "reference": "Say where the rating was published.",
+      "rating": "Enter the rating as the agency writes it (letters, digits, + - . / ( ) only, up to 20 characters).",
+      "withdrawnNote": "Say why the rating was withdrawn.",
+      "outlook": "This outlook cannot be recorded with this rating.",
+      "unchanged": "This rating action is already recorded."
     }
   }
 }

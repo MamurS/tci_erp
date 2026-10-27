@@ -57,6 +57,7 @@ import { firstTabOf, SECTION_OF, sectionsFor } from './cardTabs'
 import type { CardTab } from './cardTabs'
 import { rememberEntity } from '../../components/layout/recentEntities'
 import { CountryRiskBadges, IndustrySectorBadge } from '../risk/badges'
+import { useAgencyRatingsLine } from './rating/agencyRatingsApi'
 import { CountryWithRisk, IndustryWithSector } from '../risk/integrationBadges'
 
 type TabKey = CardTab
@@ -475,6 +476,7 @@ function EntityFacts({ entity }: { entity: EntityWithRefs }) {
   const name = (ref: { name_en: string; name_ru: string; name_uz: string } | null) =>
     ref ? (ref[`name_${lang}`] ?? ref.name_en) : EM_DASH
   const or = (v: string | null) => (v && v.trim() ? v : EM_DASH)
+  const agencyLine = useAgencyRatingsLine(entity.id)
   const items: Fact[] = [
     { label: t('buyers.fields.legalForm'), value: or(entity.legal_form) },
     {
@@ -486,6 +488,7 @@ function EntityFacts({ entity }: { entity: EntityWithRefs }) {
       value: <IndustryWithSector name={name(entity.industries)} industryCode={entity.industry_id} />,
     },
     { label: t('buyers.fields.registrationNumber'), value: or(entity.registration_number) },
+    { label: t('agencyRatings.factsLabel'), value: agencyLine ?? EM_DASH },
     { label: t('buyers.fields.foundedDate'), value: entity.founded_date ? formatDate(entity.founded_date, locale) : EM_DASH },
     {
       label: t('buyers.fields.website'),
