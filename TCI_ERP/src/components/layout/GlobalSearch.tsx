@@ -33,6 +33,7 @@ import { RequestEntityModal } from '../../features/data/RequestEntityModal'
 import { matchesQuery, paletteSources, sanitizeSearchTerm } from './commandPalette'
 import type { PaletteSource } from './commandPalette'
 import { useEntitySearch, useRecordSearch } from './globalSearchApi'
+import { SEARCH_FIELD_CLASS } from '../ui/searchField'
 import { canAccessPath, navItemsForRoles } from './navigation'
 import { usePageSearchScope } from './usePageSearch'
 import { rememberEntity } from './recentEntities'
@@ -252,7 +253,7 @@ export const GlobalSearch = forwardRef<GlobalSearchHandle>(function GlobalSearch
             enter()
           }
         }}
-        className="h-11 w-full rounded-full border border-slate-200 bg-white pr-11 pl-11 text-body text-slate-900 shadow-sm transition-shadow outline-none placeholder:text-slate-500 hover:shadow-md focus:border-accent-500 focus:shadow-md [&::-webkit-search-cancel-button]:appearance-none"
+        className={`h-11 border-slate-200 pr-11 pl-11 ${SEARCH_FIELD_CLASS}`}
       />
       {query && (
         <button

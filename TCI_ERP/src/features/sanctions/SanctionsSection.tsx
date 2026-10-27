@@ -15,7 +15,7 @@ import { lazy, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, COL, EmptyState, Field, Input, Panel, SectionPage, Segmented, Table } from '../../components/ui'
+import { Badge, COL, EmptyState, Field, Panel, SearchInput, SectionPage, Segmented, Table } from '../../components/ui'
 import { formatDate } from '../../lib/format'
 import { usePendingMatches, useSanctionsLists, useSanctionsSearch } from './api'
 import { CopyNameButton, MatchesTable, SearchToolsList } from './components'
@@ -70,7 +70,7 @@ function CheckView() {
       <Panel title={t('sanctions.check.title')} hint={t('sanctions.check.hint')}>
         <div className="flex flex-wrap items-end gap-3">
           <Field label={t('sanctions.check.name')} className="min-w-64 flex-1">
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder={t('sanctions.check.placeholder')} />
+            <SearchInput value={name} onChange={setName} placeholder={t('sanctions.check.placeholder')} />
           </Field>
           <Segmented
             value={who}

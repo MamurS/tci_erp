@@ -17,6 +17,8 @@ import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { Check, Search, X } from 'lucide-react'
 
+import { SEARCH_FIELD_CLASS } from './searchField'
+
 import { highlight, matchOptions } from './combobox'
 import type { ComboMatchable } from './combobox'
 
@@ -201,7 +203,7 @@ export function Combobox({
 
   return (
     <div className="relative">
-      <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-400" />
+      <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-slate-500" />
       <input
         ref={inputRef}
         type="text"
@@ -232,9 +234,9 @@ export function Combobox({
           if (!open) setEditing(false)
         }}
         onKeyDown={onKeyDown}
-        className={`h-9 w-full rounded-md border bg-white py-2 pr-8 pl-8 text-body text-slate-900 shadow-[inset_0_1px_1px_rgb(0_0_0/0.03)] transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-accent-500 focus:ring-3 focus:ring-accent-500/20 focus:outline-none disabled:bg-slate-50 disabled:text-slate-500 ${
-          invalid ? 'border-neg-500' : 'border-slate-300'
-        } ${selected && !editing ? 'font-medium' : ''}`}
+        className={`h-9 py-2 pr-9 pl-9 ${SEARCH_FIELD_CLASS} ${invalid ? 'border-neg-500' : 'border-slate-300'} ${
+          selected && !editing ? 'font-medium' : ''
+        }`}
       />
       {showBadge && (
         <span className="pointer-events-none absolute top-1/2 right-8 -translate-y-1/2">{freeTextBadge}</span>

@@ -17,6 +17,7 @@ import {
   Field,
   Input,
   Modal,
+  SearchInput,
   Select,
   Spinner,
   Textarea,
@@ -200,11 +201,7 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
           </>
         ) : (
           <Field label={t('portal.limits.buyer')}>
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t('portal.limits.searchPlaceholder')}
-            />
+            <SearchInput value={query} onChange={setQuery} placeholder={t('portal.limits.searchPlaceholder')} />
             {query.trim().length > 0 && query.trim().length < 3 && (
               <span className="text-caption text-slate-500">{t('portal.limits.searchMin')}</span>
             )}
