@@ -14,6 +14,7 @@ import {
   EmptyState,
   KeyFigures,
   labelCol,
+  LinkRow,
   Spinner,
   Table,
   Truncate,
@@ -102,14 +103,23 @@ export function ClaimsSection({
           </thead>
           <tbody>
             {(claims ?? []).map((c) => (
-              <tr key={c.id}>
+              // The row opens the claim; the buyer (on a policy) opens the
+              // company, the policy number (on a company) the policy.
+              <LinkRow key={c.id} to={`/claims/${c.id}`}>
                 <td>
                   <Link to={`/claims/${c.id}`} className="text-accent-600 hover:underline">
                     {c.claim_number}
                   </Link>
                 </td>
                 <td>
-                  <Truncate text={policyId ? c.buyer_name : c.policy_number} className="max-w-none" />
+                  <Truncate text={policyId ? c.buyer_name : c.policy_number} className="max-w-none">
+                    <Link
+                      to={policyId ? `/entities/${c.buyer_entity_id}` : `/policies/${c.policy_id}`}
+                      className="hover:text-accent-600 hover:underline"
+                    >
+                      {policyId ? c.buyer_name : c.policy_number}
+                    </Link>
+                  </Truncate>
                 </td>
                 <td className="num">
                   {formatAmount(Number(c.claimed_amount), locale)} {c.currency_code}
@@ -124,7 +134,7 @@ export function ClaimsSection({
                     {t(`claims.statuses.${c.status}`)}
                   </Badge>
                 </td>
-              </tr>
+              </LinkRow>
             ))}
           </tbody>
         </Table>

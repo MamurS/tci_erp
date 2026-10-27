@@ -3,7 +3,7 @@
  * export, and a policy's key terms in a quick view beside the list. */
 
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -18,6 +18,7 @@ import {
   Highlight,
   labelCol,
   LinkButton,
+  LinkRow,
   QuickViewButton,
   RowActions,
   SelectCheckbox,
@@ -185,11 +186,9 @@ export function PoliciesPage() {
           {tableHead}
           <tbody>
             {filtered.map((p) => (
-              <tr
-                key={p.id}
-                onClick={() => void navigate(`/policies/${p.id}`)}
-                className="cursor-pointer transition-colors hover:bg-slate-50"
-              >
+              // The row opens the policy; the policyholder's name opens the
+              // company, the quick view stays on its own button.
+              <LinkRow key={p.id} to={`/policies/${p.id}`} className="transition-colors hover:bg-slate-50">
                 <td className="font-medium whitespace-nowrap text-slate-800">
                   <span className="flex items-start gap-3">
                     <SelectCheckbox
@@ -205,7 +204,13 @@ export function PoliciesPage() {
                 </td>
                 <td className="text-slate-600">
                   <Truncate text={p.legal_entities?.name} className="max-w-none">
-                    {p.legal_entities?.name ? <Highlight text={p.legal_entities.name} query={search} /> : EM_DASH}
+                    {p.legal_entities?.name ? (
+                      <Link to={`/entities/${p.entity_id}`} className="hover:text-accent-600 hover:underline">
+                        <Highlight text={p.legal_entities.name} query={search} />
+                      </Link>
+                    ) : (
+                      EM_DASH
+                    )}
                   </Truncate>
                   {/* The structure under the name: a column of its own pushed
                       the register past a laptop's width. */}
@@ -226,7 +231,7 @@ export function PoliciesPage() {
                 <RowActions reveal>
                   <QuickViewButton name={p.policy_number} onClick={() => setPeekId(p.id)} />
                 </RowActions>
-              </tr>
+              </LinkRow>
             ))}
           </tbody>
         </Table>

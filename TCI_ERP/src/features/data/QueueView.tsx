@@ -5,7 +5,7 @@
  */
 
 import { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { usePageSearch } from '../../components/layout/usePageSearch'
@@ -16,6 +16,7 @@ import {
   Card,
   COL,
   labelCol,
+  LinkRow,
   Panel,
   Segmented,
   SkeletonRows,
@@ -39,7 +40,6 @@ const COLUMNS = [COL.code, labelCol('dataKind'), COL.fill, COL.person, COL.perso
 export function QueueView() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const navigate = useNavigate()
   const { session } = useAuth()
   const me = session?.user.id
   const countryName = useCountryName()
@@ -129,24 +129,21 @@ export function QueueView() {
           {tableHead}
           <tbody>
             {rows.map((r) => (
-              <tr
-                key={r.id}
-                onClick={() => void navigate(`/data/requests/${r.id}`)}
-                className="cursor-pointer transition-colors hover:bg-slate-50"
-              >
-                <td className="whitespace-nowrap">
-                  {/* The row opens on click; the link is what a keyboard reaches. */}
-                  <Link
-                    to={`/data/requests/${r.id}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="font-medium text-accent-600 hover:underline"
-                  >
-                    {r.request_number}
-                  </Link>
-                </td>
+              // The row opens the request (and is what a keyboard reaches);
+              // the company, once there is one, opens the company.
+              <LinkRow key={r.id} to={`/data/requests/${r.id}`} className="transition-colors hover:bg-slate-50">
+                <td className="whitespace-nowrap font-medium text-slate-800">{r.request_number}</td>
                 <td className="whitespace-nowrap text-slate-600">{t(`data.kinds.${r.kind}`)}</td>
                 <td>
-                  <Truncate text={r.requested_name} className="max-w-none font-medium text-slate-800" />
+                  {r.entity_id && r.requested_name ? (
+                    <Truncate text={r.requested_name} className="max-w-none">
+                      <Link to={`/entities/${r.entity_id}`} className="font-medium text-accent-600 hover:underline">
+                        {r.requested_name}
+                      </Link>
+                    </Truncate>
+                  ) : (
+                    <Truncate text={r.requested_name} className="max-w-none font-medium text-slate-800" />
+                  )}
                   {r.country_code && (
                     <span className="block text-caption text-slate-500">{countryName(r.country_code)}</span>
                   )}
@@ -165,7 +162,7 @@ export function QueueView() {
                 <td>
                   <Badge tone={STATUS_TONE[r.status]}>{t(`data.statuses.${r.status}`)}</Badge>
                 </td>
-              </tr>
+              </LinkRow>
             ))}
           </tbody>
         </Table>

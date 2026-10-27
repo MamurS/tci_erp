@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next'
 import {
   Card,
   COL,
+  LinkRow,
   SectionTitle,
   Segmented,
   Table,
@@ -114,7 +115,7 @@ export function GroupFinancialsPanel({ totals, members }: GroupFinancialsPanelPr
             </thead>
             <tbody>
               {ranked.map((m) => (
-                <tr key={m.member_id}>
+                <LinkRow key={m.member_id} to={`/entities/${m.member_id}`}>
                   <td>
                     <Link to={`/entities/${m.member_id}`} className="text-accent-700 hover:underline">
                       {m.member_name}
@@ -125,7 +126,7 @@ export function GroupFinancialsPanel({ totals, members }: GroupFinancialsPanelPr
                   <td className="num">
                     {formatAmount(Number(m[rankBy]), locale)}
                   </td>
-                </tr>
+                </LinkRow>
               ))}
             </tbody>
           </Table>

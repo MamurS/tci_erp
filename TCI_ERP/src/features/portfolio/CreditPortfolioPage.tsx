@@ -20,6 +20,7 @@ import {
   COL,
   EmptyState,
   labelCol,
+  LinkRow,
   Panel,
   PanelGrid,
   Skeleton,
@@ -155,7 +156,8 @@ export function CreditPortfolioPage() {
             }
           >
             {buyers.map((b) => (
-              <tr key={b.buyerId}>
+              // A row is a buyer: it opens the company.
+              <LinkRow key={b.buyerId} to={`/entities/${b.buyerId}`}>
                 <td>
                   <Truncate text={b.buyerName} className="max-w-none">
                     {buyerLink(b.buyerId, b.buyerName)}
@@ -180,7 +182,7 @@ export function CreditPortfolioPage() {
                 <td>
                   <ShareBar share={totals.exposureUzs > 0 ? b.exposureUzs / totals.exposureUzs : null} />
                 </td>
-              </tr>
+              </LinkRow>
             ))}
           </TableCard>
 
@@ -222,7 +224,8 @@ export function CreditPortfolioPage() {
               }
             >
               {(groups ?? []).map((g) => (
-                <tr key={g.ultimate_parent_id}>
+                // A row is a group: it opens its parent's «Группа» tab.
+                <LinkRow key={g.ultimate_parent_id} to={`/entities/${g.ultimate_parent_id}?tab=group`}>
                   <td>
                     <Truncate text={g.ultimate_parent_name} className="max-w-none">
                       <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} tab="group" />
@@ -232,7 +235,7 @@ export function CreditPortfolioPage() {
                     </span>
                   </td>
                   <td className="num">{uzs(Number(g.exposure_uzs))}</td>
-                </tr>
+                </LinkRow>
               ))}
             </TableCard>
           </PanelGrid>

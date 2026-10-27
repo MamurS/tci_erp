@@ -1,7 +1,7 @@
 /** "Policies & portfolio" tab — the entity as POLICYHOLDER: their policies
  * plus the effective limits granted to buyers under those policies. */
 
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 
@@ -15,6 +15,7 @@ import {
   COL,
   EmptyState,
   labelCol,
+  LinkRow,
   SectionTitle,
   Skeleton,
   Spinner,
@@ -97,11 +98,7 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
             </thead>
             <tbody>
               {policies.map((p) => (
-                <tr
-                  key={p.id}
-                  onClick={() => void navigate(`/policies/${p.id}`)}
-                  className="cursor-pointer transition-colors hover:bg-slate-50"
-                >
+                <LinkRow key={p.id} to={`/policies/${p.id}`} className="transition-colors hover:bg-slate-50">
                   <td className="font-medium whitespace-nowrap text-slate-800">{p.policy_number}</td>
                   <td className="text-slate-500">{t(`policies.structures.${p.product_structure}`)}</td>
                   <td className="whitespace-nowrap text-slate-500">
@@ -111,7 +108,7 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
                   <td>
                     <Badge tone={statusTone(p.status)}>{t(`policies.statuses.${p.status}`)}</Badge>
                   </td>
-                </tr>
+                </LinkRow>
               ))}
             </tbody>
           </Table>
@@ -145,27 +142,46 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
               </tr>
             </thead>
             <tbody>
-              {limits.data.map((l) => (
-                <tr key={l.decision_id}>
-                  <td className="font-medium text-slate-800">
-                    <Truncate text={l.legal_entities?.name || EM_DASH} className="max-w-none" />
-                  </td>
-                  <td className="whitespace-nowrap text-slate-500">
-                    {policies.find((p) => p.id === l.policy_id)?.policy_number ?? EM_DASH}
-                  </td>
-                  <td className="num">
-                    {l.approved_amount !== null
-                      ? `${formatAmount(Number(l.approved_amount), locale)} ${l.currency_code}`
-                      : EM_DASH}
-                  </td>
-                  <td>
-                    <Badge tone={outcomeTone(l.outcome)}>{t(`limits.outcomes.${l.outcome}`)}</Badge>
-                  </td>
-                  <td className="whitespace-nowrap text-slate-500">
-                    {l.valid_until ? formatDate(l.valid_until, locale) : t('limits.untilReview')}
-                  </td>
-                </tr>
-              ))}
+              {limits.data.map((l) => {
+                const policyNumber = policies.find((p) => p.id === l.policy_id)?.policy_number
+                // The row opens the limit; the buyer opens the company, the
+                // policy number the policy.
+                return (
+                  <LinkRow key={l.decision_id} to={`/limits/${l.request_id}`}>
+                    <td>
+                      {l.legal_entities?.name ? (
+                        <Truncate text={l.legal_entities.name} className="max-w-none">
+                          <Link to={`/entities/${l.entity_id}`} className="font-medium text-accent-600 hover:text-accent-500">
+                            {l.legal_entities.name}
+                          </Link>
+                        </Truncate>
+                      ) : (
+                        <span className="text-slate-500">{EM_DASH}</span>
+                      )}
+                    </td>
+                    <td className="whitespace-nowrap">
+                      {policyNumber ? (
+                        <Link to={`/policies/${l.policy_id}`} className="text-accent-600 hover:text-accent-500">
+                          {policyNumber}
+                        </Link>
+                      ) : (
+                        <span className="text-slate-500">{EM_DASH}</span>
+                      )}
+                    </td>
+                    <td className="num">
+                      {l.approved_amount !== null
+                        ? `${formatAmount(Number(l.approved_amount), locale)} ${l.currency_code}`
+                        : EM_DASH}
+                    </td>
+                    <td>
+                      <Badge tone={outcomeTone(l.outcome)}>{t(`limits.outcomes.${l.outcome}`)}</Badge>
+                    </td>
+                    <td className="whitespace-nowrap text-slate-500">
+                      {l.valid_until ? formatDate(l.valid_until, locale) : t('limits.untilReview')}
+                    </td>
+                  </LinkRow>
+                )
+              })}
             </tbody>
           </Table>
         )}

@@ -9,7 +9,8 @@
  */
 
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import type { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { usePageSearch } from '../../components/layout/usePageSearch'
@@ -23,6 +24,7 @@ import {
   EmptyState,
   labelCol,
   LinkButton,
+  LinkRow,
   RowActions,
   Segmented,
   Spinner,
@@ -50,12 +52,14 @@ import { useInstallStandardTemplates, useTemplateText } from './standardTemplate
 
 type Segment = 'policies' | 'submissions' | 'drafts' | 'register'
 
-const rowLink = 'cursor-pointer transition-colors hover:bg-slate-50'
+const rowHover = 'transition-colors hover:bg-slate-50'
+/** A name or number inside a row that opens its own object (the row opens
+ * the row's). */
+const quietLink = 'hover:text-accent-600 hover:underline'
 
 export function ContractsPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const navigate = useNavigate()
   const { roles } = useAuth()
   const canManageTemplates = roles.includes('admin') || roles.includes('commercial_underwriter')
   const canGenerate = roles.some((r) => r === 'commercial_underwriter' || r === 'sales')
@@ -222,11 +226,19 @@ export function ContractsPage() {
               </thead>
               <tbody>
                 {policyRows.map((p) => (
-                  <tr key={p.id} className={rowLink} onClick={() => void navigate(`/policies/${p.id}?tab=contract`)}>
+                  // The row opens the policy's «Договор» tab; the policyholder
+                  // opens the company.
+                  <LinkRow key={p.id} to={`/policies/${p.id}?tab=contract`} className={rowHover}>
                     <td className="font-medium whitespace-nowrap text-accent-700 tabular-nums">{p.policy_number}</td>
                     <td className="text-slate-600">
                       <Truncate text={p.legal_entities?.name} className="max-w-none">
-                        {p.legal_entities?.name ?? EM_DASH}
+                        {p.legal_entities?.name ? (
+                          <Link to={`/entities/${p.entity_id}`} className={quietLink}>
+                            {p.legal_entities.name}
+                          </Link>
+                        ) : (
+                          EM_DASH
+                        )}
                       </Truncate>
                       <span className="block text-caption text-slate-500">{t(`policies.structures.${p.product_structure}`)}</span>
                     </td>
@@ -237,7 +249,7 @@ export function ContractsPage() {
                       <Badge tone={statusTone(p.status)}>{t(`policies.statuses.${p.status}`)}</Badge>
                     </td>
                     <td className="num">{docCount.get(p.id) ?? 0}</td>
-                  </tr>
+                  </LinkRow>
                 ))}
               </tbody>
             </Table>
@@ -265,11 +277,18 @@ export function ContractsPage() {
               </thead>
               <tbody>
                 {submissionRows.map((r) => (
-                  <tr key={r.id} className={rowLink} onClick={() => void navigate(`/requests/${r.id}`)}>
+                  // The row opens the submission; the applicant opens the company.
+                  <LinkRow key={r.id} to={`/requests/${r.id}`} className={rowHover}>
                     <td className="font-medium whitespace-nowrap text-accent-700 tabular-nums">{r.request_number}</td>
                     <td className="text-slate-600">
                       <Truncate text={r.legal_entities?.name} className="max-w-none">
-                        {r.legal_entities?.name ?? EM_DASH}
+                        {r.legal_entities?.name ? (
+                          <Link to={`/entities/${r.entity_id}`} className={quietLink}>
+                            {r.legal_entities.name}
+                          </Link>
+                        ) : (
+                          EM_DASH
+                        )}
                       </Truncate>
                     </td>
                     <td className="whitespace-nowrap text-slate-500">
@@ -279,7 +298,7 @@ export function ContractsPage() {
                       <Badge tone={requestStatusTone(r.status)}>{t(`requests.statuses.${r.status}`)}</Badge>
                     </td>
                     <td className="num">{docCount.get(r.id) ?? 0}</td>
-                  </tr>
+                  </LinkRow>
                 ))}
               </tbody>
             </Table>
@@ -307,17 +326,28 @@ export function ContractsPage() {
               <tbody>
                 {draftRows.map((d) => {
                   const holder = d.policies?.legal_entities?.name ?? d.insurance_requests?.legal_entities?.name ?? EM_DASH
+                  const holderId = d.policies?.entity_id ?? d.insurance_requests?.entity_id
+                  // The row opens the draft; «for» opens the policy or the
+                  // submission, the policyholder the company.
                   return (
-                    <tr key={d.id} className={rowLink} onClick={() => void navigate(draftPath(d.id))}>
+                    <LinkRow key={d.id} to={draftPath(d.id)} className={rowHover}>
                       <td className="font-mono text-accent-700">{d.draft_number}</td>
                       <td>
-                        {d.policy_id
-                          ? t('contracts.forPolicy', { number: d.policies?.policy_number ?? EM_DASH })
-                          : t('contracts.forSubmission', { number: d.insurance_requests?.request_number ?? EM_DASH })}
+                        <ContractSubject policyId={d.policy_id} requestId={d.insurance_request_id}>
+                          {d.policy_id
+                            ? t('contracts.forPolicy', { number: d.policies?.policy_number ?? EM_DASH })
+                            : t('contracts.forSubmission', { number: d.insurance_requests?.request_number ?? EM_DASH })}
+                        </ContractSubject>
                       </td>
                       <td className="text-slate-600">
                         <Truncate text={holder} className="max-w-none">
-                          {holder}
+                          {holderId ? (
+                            <Link to={`/entities/${holderId}`} className={quietLink}>
+                              {holder}
+                            </Link>
+                          ) : (
+                            holder
+                          )}
                         </Truncate>
                       </td>
                       <td>
@@ -325,7 +355,7 @@ export function ContractsPage() {
                       </td>
                       <td className="tabular-nums">v{d.current_version_no}</td>
                       <td className="tabular-nums">{formatMoment(d.updated_at, locale)}</td>
-                    </tr>
+                    </LinkRow>
                   )
                 })}
               </tbody>
@@ -354,20 +384,20 @@ export function ContractsPage() {
                 {registerRows.map((d) => {
                   const name = text.name(d.wording_templates)
                   return (
-                    <tr
+                    // A generated document has no page: the row opens its
+                    // policy's «Договор» tab or its submission.
+                    <LinkRow
                       key={d.id}
-                      className={rowLink}
-                      onClick={() =>
-                        void navigate(
-                          d.policy_id ? `/policies/${d.policy_id}?tab=contract` : `/requests/${d.insurance_request_id ?? ''}`,
-                        )
-                      }
+                      to={d.policy_id ? `/policies/${d.policy_id}?tab=contract` : `/requests/${d.insurance_request_id ?? ''}`}
+                      className={rowHover}
                     >
                       <td className="whitespace-nowrap tabular-nums">{formatMoment(d.generated_at, locale)}</td>
-                      <td className="whitespace-nowrap text-accent-700">
-                        {d.policy_id
-                          ? t('contracts.forPolicy', { number: d.policies?.policy_number ?? EM_DASH })
-                          : t('contracts.forSubmission', { number: d.insurance_requests?.request_number ?? EM_DASH })}
+                      <td className="whitespace-nowrap">
+                        <ContractSubject policyId={d.policy_id} requestId={d.insurance_request_id}>
+                          {d.policy_id
+                            ? t('contracts.forPolicy', { number: d.policies?.policy_number ?? EM_DASH })
+                            : t('contracts.forSubmission', { number: d.insurance_requests?.request_number ?? EM_DASH })}
+                        </ContractSubject>
                       </td>
                       <td>
                         <Truncate text={`${name} v${d.template_version}`} className="max-w-none">
@@ -379,16 +409,12 @@ export function ContractsPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={(e) => {
-                            // The row opens the policy; this button only downloads.
-                            e.stopPropagation()
-                            download(d.storage_path, d.file_name)
-                          }}
+                          onClick={() => download(d.storage_path, d.file_name)}
                         >
                           {t('wording.templates.download')}
                         </Button>
                       </RowActions>
-                    </tr>
+                    </LinkRow>
                   )
                 })}
               </tbody>
@@ -415,5 +441,24 @@ function NoMatches({ onReset }: { onReset: () => void }) {
         </Button>
       }
     />
+  )
+}
+
+/** What a contract is for — a policy or a submission — as a link to it. */
+function ContractSubject({
+  policyId,
+  requestId,
+  children,
+}: {
+  policyId: string | null
+  requestId: string | null
+  children: ReactNode
+}) {
+  const to = policyId ? `/policies/${policyId}` : requestId ? `/requests/${requestId}` : null
+  if (!to) return <>{children}</>
+  return (
+    <Link to={to} className="text-accent-700 hover:underline">
+      {children}
+    </Link>
   )
 }

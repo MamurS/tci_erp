@@ -14,6 +14,7 @@ import {
   COL,
   EmptyState,
   labelCol,
+  LinkRow,
   Segmented,
   Spinner,
   Table,
@@ -99,12 +100,14 @@ export function RatingsView() {
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.entity_id}>
+              // The row opens the work (the buyer's rating or financials tab);
+              // the name opens the company.
+              <LinkRow key={r.entity_id} to={`/entities/${r.entity_id}?tab=${REASON_TAB[r.reason]}`}>
                 {/* The country is a second line under the name, so the name
                     keeps the width the counts would otherwise take. */}
                 <td>
                   <Truncate text={r.buyer_name} className="max-w-none">
-                    <EntityLink id={r.entity_id} name={r.buyer_name} tab={REASON_TAB[r.reason]} />
+                    <EntityLink id={r.entity_id} name={r.buyer_name} />
                   </Truncate>
                   <Truncate text={countryName(r.buyer_country)} className="max-w-none text-caption text-slate-500" />
                 </td>
@@ -119,7 +122,7 @@ export function RatingsView() {
                 <td className="num">{r.latest_fiscal_year ?? EM_DASH}</td>
                 <td className="num">{formatAmount(r.open_requests, locale)}</td>
                 <td className="num">{formatAmount(r.limits_in_force, locale)}</td>
-              </tr>
+              </LinkRow>
             ))}
           </tbody>
         </Table>

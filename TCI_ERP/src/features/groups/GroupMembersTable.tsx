@@ -4,7 +4,7 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, COL, GradeBadge, Table } from '../../components/ui'
+import { Badge, COL, GradeBadge, LinkRow, Table } from '../../components/ui'
 import { formatAmount } from '../../lib/format'
 import type { Claim } from '../claims/types'
 import { exposureByMember } from './group'
@@ -65,7 +65,8 @@ export function GroupMembersTable({
           const grade = grades?.get(m.member_id)
           const exp = exposure.get(m.member_id)
           return (
-            <tr key={m.member_id}>
+            // A member row is the company: anywhere on it opens the company.
+            <LinkRow key={m.member_id} to={`/entities/${m.member_id}`}>
               <td>
                 {/* Name, badge and «эта организация» wrap as whole pieces,
                     never a label broken over two lines. */}
@@ -90,7 +91,7 @@ export function GroupMembersTable({
                 {exp ? formatAmount(exp.exposureUzs, locale) : '—'}
               </td>
               <td className="num">{openClaims.get(m.member_id) ?? 0}</td>
-            </tr>
+            </LinkRow>
           )
         })}
       </tbody>

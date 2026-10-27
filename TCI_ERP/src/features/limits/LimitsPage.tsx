@@ -3,7 +3,7 @@
  * (tci.v_limit_request_queue decides that, not the screen). */
 
 import { useMemo, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { usePageSearch } from '../../components/layout/usePageSearch'
@@ -18,6 +18,7 @@ import {
   Highlight,
   labelCol,
   LinkButton,
+  LinkRow,
   QuickViewButton,
   RowActions,
   Segmented,
@@ -35,6 +36,7 @@ import { useLimitRequests } from './api'
 import { REQUEST_AGE_WARN_DAYS, requestAgeDays, statusTone } from './machine'
 import { BuyerProposalsSection } from './BuyerProposalsSection'
 import { useLimitQueue } from './workbench/api'
+import { EntityLink } from './workbench/parts'
 import { queueIndex } from './workbench/model'
 import type { LimitRequestWithRefs } from './types'
 import { useValidationLevels, useValidationState } from './validationApi'
@@ -59,7 +61,6 @@ const QUEUE_COLUMNS = [
 export function LimitsPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const navigate = useNavigate()
   const { session, roles } = useAuth()
   // Only those who may decide need the escalated queue (credit underwriting;
   // since 0063 admin decides nothing).
@@ -257,14 +258,18 @@ export function LimitsPage() {
           {tableHead}
           <tbody>
             {filtered.map((r) => (
-              <tr
-                key={r.id}
-                onClick={() => void navigate(`/limits/${r.id}`)}
-                className="cursor-pointer transition-colors hover:bg-slate-50"
-              >
+              // The row opens the request; the buyer opens the company, the
+              // policy number the policy, the submission number the submission.
+              <LinkRow key={r.id} to={`/limits/${r.id}`} className="transition-colors hover:bg-slate-50">
                 <td className="font-medium text-slate-800">
                   <Truncate text={r.legal_entities?.name} className="max-w-none">
-                    {r.legal_entities?.name ? <Highlight text={r.legal_entities.name} query={search} /> : EM_DASH}
+                    {r.legal_entities?.name ? (
+                      <EntityLink id={r.entity_id} name={r.legal_entities.name}>
+                        <Highlight text={r.legal_entities.name} query={search} />
+                      </EntityLink>
+                    ) : (
+                      EM_DASH
+                    )}
                   </Truncate>
                 </td>
                 <td>
@@ -295,7 +300,7 @@ export function LimitsPage() {
                     onClick={() => setPeekId(r.id)}
                   />
                 </RowActions>
-              </tr>
+              </LinkRow>
             ))}
           </tbody>
         </Table>
@@ -394,8 +399,9 @@ function ScopeLine({ request }: { request: LimitRequestWithRefs }) {
 }
 
 /** Where the limit would sit: the policy and its policyholder, or — before a
- * policy exists — the submission and its applicant, linking to the
- * submission. One column, two lines, instead of two half-empty columns. */
+ * policy exists — the submission and its applicant, each linking to its own
+ * page (the applicant's company is not in the row, so it stays text). One
+ * column, two lines, instead of two half-empty columns. */
 function ScopeCell({ request }: { request: LimitRequestWithRefs }) {
   const { t } = useTranslation()
   const policy = request.policies
@@ -403,9 +409,20 @@ function ScopeCell({ request }: { request: LimitRequestWithRefs }) {
   if (policy) {
     return (
       <>
-        <span className="block whitespace-nowrap text-slate-700">{policy.policy_number}</span>
+        <Link
+          to={`/policies/${request.policy_id}`}
+          className="block whitespace-nowrap text-accent-600 hover:text-accent-500"
+        >
+          {policy.policy_number}
+        </Link>
         <Truncate text={policy.legal_entities?.name} className="max-w-none text-caption text-slate-500">
-          {policy.legal_entities?.name ?? EM_DASH}
+          {policy.legal_entities?.name ? (
+            <Link to={`/entities/${policy.entity_id}`} className="text-slate-500 hover:text-accent-600 hover:underline">
+              {policy.legal_entities.name}
+            </Link>
+          ) : (
+            EM_DASH
+          )}
         </Truncate>
       </>
     )
@@ -415,7 +432,6 @@ function ScopeCell({ request }: { request: LimitRequestWithRefs }) {
       <>
         <Link
           to={`/requests/${request.insurance_request_id}`}
-          onClick={(e) => e.stopPropagation()}
           title={t('limits.preBindScope')}
           className="block whitespace-nowrap text-accent-600 hover:text-accent-500"
         >

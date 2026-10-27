@@ -20,6 +20,7 @@ import {
   COL,
   EmptyState,
   LinkButton,
+  LinkRow,
   RowActions,
   SectionTitle,
   Table,
@@ -167,8 +168,9 @@ export function DraftContractSection({ target, reference, countryCode, product }
                   ? t('contractDrafts.sources.restoredFrom', { version: v.restored_from_version })
                   : t(`contractDrafts.sources.${v.source}`)
               const line = `${source} · ${template}${v.change_note ? ` — «${v.change_note}»` : ''}`
+              // The row opens the version, as «view» does.
               return (
-                <tr key={v.id}>
+                <LinkRow key={v.id} to={versionPath(draft.id, v.version_no)}>
                   <td className="tabular-nums">
                     <span className={current ? 'font-semibold text-slate-900' : 'text-slate-600'}>v{v.version_no}</span>
                     {current && (
@@ -224,7 +226,7 @@ export function DraftContractSection({ target, reference, countryCode, product }
                       />
                     </span>
                   </RowActions>
-                </tr>
+                </LinkRow>
               )
             })}
           </tbody>

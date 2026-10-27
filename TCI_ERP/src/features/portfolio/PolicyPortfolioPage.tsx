@@ -16,6 +16,7 @@ import {
   COL,
   EmptyState,
   labelCol,
+  LinkRow,
   Panel,
   Segmented,
   Spinner,
@@ -132,6 +133,12 @@ export function PolicyPortfolioPage() {
   const policyLink = (r: PolicyPortfolioRow) => (
     <Link to={`/policies/${r.policy_id}`} className="font-medium whitespace-nowrap text-accent-600 hover:text-accent-500">
       {r.policy_number}
+    </Link>
+  )
+  // A row opens its policy; the policyholder's name opens the company.
+  const policyholderLink = (r: PolicyPortfolioRow) => (
+    <Link to={`/entities/${r.policyholder_entity_id}`} className="hover:text-accent-600 hover:underline">
+      {r.policyholder_name}
     </Link>
   )
 
@@ -260,16 +267,16 @@ export function PolicyPortfolioPage() {
             }
           >
             {renewals.map((r) => (
-              <tr key={r.policy_id}>
+              <LinkRow key={r.policy_id} to={`/policies/${r.policy_id}`}>
                 <td>{policyLink(r)}</td>
                 <td className="text-slate-600">
-                  <Truncate text={r.policyholder_name}>{r.policyholder_name}</Truncate>
+                  <Truncate text={r.policyholder_name}>{policyholderLink(r)}</Truncate>
                 </td>
                 <td className="text-slate-500">{formatDate(r.expiry_date, locale)}</td>
                 <td className="num">{formatDays(r.days_to_expiry, locale)}</td>
                 <td className="num">{money(r.premium_base, r.currency_code)}</td>
                 <td className={`num ${LOSS_TEXT[lossTone(num(r.loss_ratio_pct))]}`}>{pct(num(r.loss_ratio_pct))}</td>
-              </tr>
+              </LinkRow>
             ))}
           </TableCard>
 
@@ -288,10 +295,10 @@ export function PolicyPortfolioPage() {
             }
           >
             {worst.map((r) => (
-              <tr key={r.policy_id}>
+              <LinkRow key={r.policy_id} to={`/policies/${r.policy_id}`}>
                 <td>{policyLink(r)}</td>
                 <td className="text-slate-600">
-                  <Truncate text={r.policyholder_name}>{r.policyholder_name}</Truncate>
+                  <Truncate text={r.policyholder_name}>{policyholderLink(r)}</Truncate>
                 </td>
                 <td>
                   <Badge tone={statusTone(r.status as Parameters<typeof statusTone>[0])}>
@@ -301,7 +308,7 @@ export function PolicyPortfolioPage() {
                 <td className="num">{money(r.premium_base, r.currency_code)}</td>
                 <td className="num">{money(r.incurred, r.currency_code)}</td>
                 <td className={`num ${LOSS_TEXT[lossTone(num(r.loss_ratio_pct))]}`}>{pct(num(r.loss_ratio_pct))}</td>
-              </tr>
+              </LinkRow>
             ))}
           </TableCard>
         </div>

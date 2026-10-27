@@ -11,7 +11,7 @@
  */
 
 import { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { usePageSearch } from '../../components/layout/usePageSearch'
@@ -21,6 +21,7 @@ import {
   COL,
   EmptyState,
   labelCol,
+  LinkRow,
   PageHeader,
   Segmented,
   SkeletonRows,
@@ -43,7 +44,6 @@ const COLUMNS = [COL.fill, COL.fill, '10.5rem', '7rem', labelCol('overdueReporte
 
 export function OverduesPage() {
   const { t, i18n } = useTranslation()
-  const navigate = useNavigate()
   const locale = i18n.language
   const [status, setStatus] = useState<'' | NoaStatus>('open')
   const { data, isLoading, isError } = useOverdueNotifications()
@@ -123,25 +123,25 @@ export function OverduesPage() {
           {tableHead}
           <tbody>
             {rows.map((n) => (
-              <tr
-                key={n.id}
-                onClick={() => void navigate(`/overdues/${n.id}`)}
-                className="cursor-pointer transition-colors hover:bg-slate-50"
-              >
+              // The row opens the notification; the buyer opens the company,
+              // the policyholder theirs.
+              <LinkRow key={n.id} to={`/overdues/${n.id}`} className="transition-colors hover:bg-slate-50">
                 <td className="font-medium">
-                  {/* The row opens on click; the link is what a keyboard reaches. */}
                   <Truncate text={n.buyer_name} className="max-w-none">
-                    <Link
-                      to={`/overdues/${n.id}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-accent-700 hover:underline"
-                    >
+                    <Link to={`/entities/${n.buyer_entity_id}`} className="text-accent-700 hover:underline">
                       {n.buyer_name}
                     </Link>
                   </Truncate>
                 </td>
-                <td className="text-slate-500">
-                  <Truncate text={n.policyholder_name} className="max-w-none" />
+                <td>
+                  <Truncate text={n.policyholder_name} className="max-w-none">
+                    <Link
+                      to={`/entities/${n.policyholder_entity_id}`}
+                      className="text-slate-500 hover:text-accent-600 hover:underline"
+                    >
+                      {n.policyholder_name}
+                    </Link>
+                  </Truncate>
                 </td>
                 <td>
                   <span className="num block">
@@ -165,7 +165,7 @@ export function OverduesPage() {
                 <td>
                   <Badge tone={STATUS_TONE[n.status]}>{t(`overdues.statuses.${n.status}`)}</Badge>
                 </td>
-              </tr>
+              </LinkRow>
             ))}
           </tbody>
         </Table>

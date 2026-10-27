@@ -16,6 +16,7 @@ import {
   COL,
   EmptyState,
   KeyFigures,
+  LinkRow,
   labelCol,
   Select,
   Spinner,
@@ -103,20 +104,32 @@ export function AutoDecisionsView() {
             <tbody>
               {rows.map((r) => {
                 const left = adtNumber(r.adt_remaining_now)
+                // The row opens the limit; the buyer opens the company, the
+                // policy number the policy, the policyholder theirs.
                 return (
-                  <tr key={r.attempt_id}>
+                  <LinkRow key={r.attempt_id} to={`/limits/${r.request_id}`}>
                     <td>{formatDate(r.decided_at, locale)}</td>
                     <td>
                       <Truncate text={r.buyer_name} className="max-w-none">
-                        <EntityLink id={r.buyer_id} name={r.buyer_name} tab="rating" />
+                        <EntityLink id={r.buyer_id} name={r.buyer_name} />
                       </Truncate>
                     </td>
                     <td>
-                      <Link to={`/limits/${r.request_id}`} className="block whitespace-nowrap text-accent-600 hover:text-accent-500">
-                        {r.policy_number ?? EM_DASH}
-                      </Link>
+                      {r.policy_id && r.policy_number ? (
+                        <Link to={`/policies/${r.policy_id}`} className="block whitespace-nowrap text-accent-600 hover:text-accent-500">
+                          {r.policy_number}
+                        </Link>
+                      ) : (
+                        <span className="block whitespace-nowrap">{r.policy_number ?? EM_DASH}</span>
+                      )}
                       <Truncate text={r.policyholder_name ?? EM_DASH} className="max-w-none text-caption text-slate-500">
-                        {r.policyholder_name ?? EM_DASH}
+                        {r.policyholder_id && r.policyholder_name ? (
+                          <Link to={`/entities/${r.policyholder_id}`} className="text-slate-500 hover:text-accent-600 hover:underline">
+                            {r.policyholder_name}
+                          </Link>
+                        ) : (
+                          (r.policyholder_name ?? EM_DASH)
+                        )}
                       </Truncate>
                     </td>
                     <td className="num">
@@ -132,7 +145,7 @@ export function AutoDecisionsView() {
                         {t(`limits.lifecycles.${r.lifecycle}`)}
                       </Badge>
                     </td>
-                  </tr>
+                  </LinkRow>
                 )
               })}
             </tbody>
