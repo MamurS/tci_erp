@@ -400,10 +400,11 @@ begin
   -- 5. A country flag: no new cover in SQL whatever the authority, an urgent
   --    task per in-force limit, the count reported, the client told only
   --    that cover is not available.
-  perform pg_temp.act(c_an1);
-  perform pg_temp.refused('select tci.set_sanction_flag(''country'', ''RU'', null, ''EU'', ''EU Regulation 833/2014'')',
-                          '42501', 'a sanctions flag by an analyst', 'sanctions_manage_only');
+  -- 0091: flags are the credit analysts'; admin only reads them.
   perform pg_temp.act(c_admin);
+  perform pg_temp.refused('select tci.set_sanction_flag(''country'', ''RU'', null, ''EU'', ''EU Regulation 833/2014'')',
+                          '42501', 'a sanctions flag by admin', 'sanctions_manage_only');
+  perform pg_temp.act(c_an1);
   v := tci.set_sanction_flag('country', 'RU', null, 'EU', 'EU Regulation 833/2014', 'Annex IV', current_date, null);
   if (v ->> 'limits_to_review')::int < 1 then
     raise exception 'sector_country_risk: the in-force limit was not counted: %', v;
@@ -438,7 +439,7 @@ begin
   perform pg_temp.act(c_cu0);
   perform tci.complete_task((select id from tci.tasks where task_type = 'sanctions_limit_review' and object_id = v_req_ru and status = 'open'));
   -- Lifting is stamped and reopens the path.
-  perform pg_temp.act(c_admin);
+  perform pg_temp.act(c_an1);
   perform pg_temp.refused(format('select tci.lift_sanction_flag(%L, '' '')', (v ->> 'flag_id')::uuid),
                           'P0001', 'a lift without a reason', 'sanctions_lift_reason');
   perform tci.lift_sanction_flag((v ->> 'flag_id')::uuid, 'Delisted.');
@@ -450,7 +451,7 @@ begin
   end if;
 
   -- 6. A company flag blocks a buyer in a clean country.
-  perform pg_temp.act(c_admin);
+  perform pg_temp.act(c_an1);
   v := tci.set_sanction_flag('entity', null, c_de, 'OFAC', 'SDN List', 'SDN-1', current_date, null);
   if (v ->> 'limits_to_review')::int <> 0 then
     raise exception 'sector_country_risk: a buyer without limits produced review tasks: %', v;
