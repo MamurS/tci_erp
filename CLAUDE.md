@@ -1027,6 +1027,29 @@ is fine for internal test accounts and not fine for customers.
   committed file), identical to a replay of 0083 afterwards; smoke with a
   forced rollback (six refused, five accepted, sales still refused), counts
   unchanged, no new advisor finding
+- [x] Sector, country and sanctions risk (Prompt 31, migrations
+  0084–0085): one sector per industry with versioned A–D reviews (outlook,
+  seven factors, optional four eyes, stale / overdue, the quarterly task),
+  OECD country risk imports with an internal override (head of credit
+  analysis approves), sanctions flags that refuse cover in SQL on every
+  path, the cover matrix (a rank floor by country category, +1 for a D
+  sector) in `decide_limit_request` / `submit_limit_for_validation` and the
+  auto decision, credit_engine 0.2.0 notches and caps, «Сектора» and the
+  badges, warnings and concentration panel on the working screens. See
+  **Sector, country and sanctions rules** above. **Canonical: 0084 and
+  0085 sections 1–13 applied 2026-10-27** (section 10 rebuilt from the
+  functions' own bodies), all 45 0085 functions, policies and views
+  identical to a local replay, `tests/db/sector_country_risk.sql` run on
+  canonical with role impersonation (forced rollback, nothing left behind,
+  counts unchanged), no new advisor finding; section 14 (the removal
+  guards) and the ledger row are the owner's step,
+  `docs/deploy/canonical-apply-0085.sql`. **Data loaded 2026-10-27 at the
+  owner's request:** the OECD list valid as of 16 October 2026 (176
+  countries; high-income footnotes 6/7/8 as category 0, note 5 left
+  unclassified, Kosovo left out — not in `tci.countries`), and an initial
+  grade for all 21 sectors (1 A, 11 B, 9 C), each marked in its narrative
+  as AI-proposed from general knowledge, to be confirmed at the next
+  quarterly review
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
