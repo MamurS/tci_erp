@@ -156,7 +156,11 @@
     "noMatches": "Nothing matches",
     "noMatchesHint": "Change the search or reset the filters.",
     "resetFilters": "Reset filters",
-    "actions": "Actions"
+    "actions": "Actions",
+    "split": {
+      "resize": "Resize the panes",
+      "hint": "Drag to resize · double-click to reset"
+    }
   },
   "dashboard": {
     "welcome": "Welcome, {{email}}",

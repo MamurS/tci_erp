@@ -156,7 +156,11 @@
     "noMatches": "Hech narsa topilmadi",
     "noMatchesHint": "Qidiruv shartlarini o‘zgartiring yoki filtrlarni tozalang.",
     "resetFilters": "Filtrlarni tozalash",
-    "actions": "Amallar"
+    "actions": "Amallar",
+    "split": {
+      "resize": "Panellar kengligini o‘zgartirish",
+      "hint": "Kenglikni o‘zgartirish uchun torting · ikki marta bosish — qaytarish"
+    }
   },
   "dashboard": {
     "welcome": "Xush kelibsiz, {{email}}",

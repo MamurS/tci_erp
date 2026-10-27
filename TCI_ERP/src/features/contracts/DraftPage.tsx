@@ -327,7 +327,7 @@ function DraftScreen({
             )}
           </div>
 
-          <div className="grid items-start gap-5 xl:grid-cols-[17rem_minmax(0,1fr)]">
+          <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,clamp(calc(17rem*var(--ui-text,1)),24%,28rem))_minmax(0,1fr)]">
             <aside className="order-2 flex flex-col gap-5 xl:order-1">
               {doc && (
                 <Toc
@@ -701,7 +701,7 @@ function EditorScreen({
         </Callout>
       )}
 
-      <div className="grid items-start gap-5 xl:grid-cols-[17rem_minmax(0,1fr)]">
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,clamp(calc(17rem*var(--ui-text,1)),24%,28rem))_minmax(0,1fr)]">
         <aside className="order-2 xl:order-1 xl:sticky xl:top-4">
           {doc && <Toc doc={doc} onJump={(i) => editorRef.current?.scrollToBlock(i)} />}
         </aside>
