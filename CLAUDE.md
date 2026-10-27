@@ -1018,6 +1018,10 @@ is fine for internal test accounts and not fine for customers.
   file), identical to a replay of 0082 afterwards; `tests/db/ui_theme.sql`
   run on canonical with role impersonation (forced rollback, nothing left
   behind, counts unchanged); no new advisor finding
+- [x] ADT capped at five auto decisions (migration 0083, owner 2026-10-27):
+  «Количество авторешений» is a 1–5 list instead of a free number field;
+  the table refuses more than five. **Canonical: 0083 NOT applied yet** —
+  additive (the one ADT there has five), awaiting the owner's yes
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2475,6 +2479,10 @@ AFTER the Agenda mapping) collects EVERY failing reason
 underwriter. There is no partial auto decision: above the ADT amount or the
 recommended limit is a reason, never a reduction. Amounts are compared in
 UZS; a missing rate is `fx_missing`, never a pass.
+
+**At most five auto decisions per ADT (0083, owner 2026-10-27).** The form
+offers 1–5 from a list; `buyer_adt_total_count_max` bounds every insert,
+next to 0061's 1–1000 check. `ADT_COUNT_BOUNDS` mirrors it (contract-tested).
 
 **The ADT is set within authority and replaced, never edited.**
 `set_buyer_adt` takes the band from the buyer's latest rating and refuses

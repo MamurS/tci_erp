@@ -2210,7 +2210,6 @@
       "setHint": "Agar tavsiya etilgan limit uni qamrasa va to‘xtatuvchi omil bo‘lmasa, avtomatik qaror so‘ralgan limitni shu summagacha darhol tasdiqlaydi. Yangi ADT joriysini almashtiradi; har bir avtomatik qaror, summasidan qat’i nazar, bittasini sarflaydi.",
       "latestRating": "Oxirgi reyting {{grade}} · {{band}} reyting diapazoni",
       "recommended": "Tavsiya etilgan limit: {{amount}}",
-      "countHint": "{{min}} dan {{max}} gacha.",
       "authorityIn": "«{{band}}» reyting diapazonidagi vakolatingiz: {{amount}}",
       "beyondAuthority": "«{{band}}» reyting diapazonidagi vakolatingizdan yuqori — rad etiladi.",
       "noRate": "{{currency}} uchun UZS kursi yo‘q: summani vakolatingiz bilan solishtirib bo‘lmaydi.",
