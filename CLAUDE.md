@@ -1103,6 +1103,43 @@ is fine for internal test accounts and not fine for customers.
   afterwards; `tests/db/ui_badge_ink.sql` run on canonical with role
   impersonation (forced rollback, nothing left behind); no new advisor
   finding
+- [x] Sanctions screening (migrations 0090–0091, owner 2026-10-27): the
+  official lists (OFAC SDN, UN, EU, UK or another named one) imported as
+  published in batches, a party missing from a newer file delisted (never
+  deleted); beneficial owners per company; automatic screening of the
+  company, the companies above it (ownership / control, cycle-safe) and all
+  their beneficial owners when a rating is created, a limit request is
+  submitted, an owner, a link or the name changes, and after an import; a
+  possible match is remembered per (company, subject, name, entry), one
+  `sanctions_match_review` per company for the LEAST-LOADED credit analyst,
+  who confirms (a sanctions flag, 0085) or clears it; a pending match stops
+  the auto decision and refuses an approving credit decision; the lists
+  reminder `sanctions_list_due`; «Санкции» (check a name, matches, lists,
+  flags) for all staff, the sanctions tab and mark on the company card, a
+  sanctions column in the registries; flags are the credit analysts' now.
+  See **Sanctions screening rules** below
+- [x] Agenda task hand-over (migration 0092): one task or many handed to an
+  active colleague of the same department with an optional note
+  (`transfer_tasks`, immutable `task_transfers`); validation and rating
+  proposal steps are never handed on. Same batch, no migration: the risk
+  report follows the text size, pages use up to 160 rem (the portal 96), the
+  Google-style search field, resizable list + detail panes (Agenda triage,
+  offer editor — `SplitHandle`), and pastel badges and sidebar counters by
+  default (0093 restates the `ui_badge_ink` default: NULL = pastel)
+- [x] Policyholder tiers (migration 0094, owner 2026-10-27): bronze /
+  silver / gold / platinum from the insured turnover of the last twelve
+  months and the premium of the current policies (UZS, equal qualifies, the
+  higher measure wins), thresholds on Admin › Уровни страхователей, a tier
+  set by hand by commercial underwriting with a reason and an optional end;
+  badge on the card header and both registries, panel on the card's
+  policies tab. See **Policyholder tier rules** below.
+  **Canonical: 0090–0094 applied 2026-10-27** before merge (owner's go-ahead;
+  additive — the deployed screens read none of it): the three functions 0091
+  replaces and `workflow_settings` verified identical to a local replay of
+  0089 first; each file executed from its ledger row after an md5 check
+  against the committed file (0091 sent in four chunks into its ledger row,
+  each prefix md5-checked); 0091's and 0094's closing checks passed on
+  canonical; six policyholders tiered at once (four silver, two gold)
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1640,6 +1677,11 @@ runs). Write every UPDATE in a canonical script or smoke with an explicit
 `WHERE` — `tests/db/wording.sql` does — and when a call times out, first
 check that nothing reached the database (it never does), then find the
 statement the check objects to; still never disguise it.
+
+*Update 2026-10-27:* the word DELETE inside a quoted SQL string (a guard's
+`tg_op = 'DELETE'` branch, sent as a ledger row's text) was held too, while
+«deleted» in a comment and `deleted_at` passed. Keep guards BEFORE UPDATE
+only (no API role holds DELETE) and build batches without temporary tables.
 
 ### Sign-in notice rules (migration 0062)
 
@@ -2733,6 +2775,69 @@ analysts. Agency ratings: the information desk and credit analysts — admin
 never (a company's data is business data, 0065). Allianz Trade's ratings are
 its published content: the screen says they are entered for internal
 reference under its terms of use.
+
+### Sanctions screening rules (migrations 0090–0091)
+
+**The lists are the publishers' files, versioned.** An import is loaded in
+batches (`add_sanctions_list_entries`, ≤ 1000 parties) and takes effect at
+`finish_sanctions_list_import`: the previous import of the list is
+superseded and a party missing from the new file is DELISTED (stamped, its
+pending matches retired). A file with fewer than 90 % of the parties in use
+needs `p_confirm_shrink`; an older or identical file is refused. Credit
+analysts and admin import; everyone on staff reads.
+
+**Screening is automatic and remembered.** `screen_entity_internal` screens
+the company, the companies above it (live ownership / control, cycle-safe,
+capped at the group depth) and every live beneficial owner, people against
+people and companies against companies (`sanctions_normalise`: Cyrillic and
+Uzbek Latin, diacritics, legal forms; the 300 nearest names by trigram
+distance; `sanctions_name_score` = similarity, or 0.9 when every word of one
+name is in the other), at or above `sanctions_match_threshold` (0.60). A
+match is unique per (company, subject, name, list entry): a cleared one is
+never raised again for the same name. It runs on `rating.created` and
+`limit.request_submitted` (before the information routing and the auto
+decision), when an owner, a link or a name changes, and lazily after an
+import (`rescreen_sanctions_due`, from `refresh_agenda` and the import
+screen).
+
+**A pending match blocks.** It is an ADT stop (`sanctions_match`, last) and a
+BEFORE INSERT trigger refuses an approving or partial credit decision for
+every writer (`sanctions_screening_pending`). One `sanctions_match_review`
+per company goes to the least-loaded active credit analyst
+(`pick_credit_analyst`), who confirms — a sanctions flag through
+`set_sanction_flag`, with its limit reviews — or clears, with a note.
+`may_manage_sanctions` is credit analysts only (admin reads).
+
+### Task hand-over rules (migration 0092)
+
+**A task moves by name, in its department.** `transfer_tasks(tasks, to,
+note)` takes only tasks the caller may work (`task_is_mine`), open, never
+`limit_validation` or `rating_proposal` (eligibility decides those) nor a
+client's; the colleague must hold the task's role (or the caller's acting
+role for a person-only task) and be active. The task becomes theirs
+(`target_user`, `target_role`), its snooze is cleared, the note lands as a
+comment, and `task_transfers` records it (immutable). A colleague who
+already has the same task open keeps theirs; the moved copy is cancelled
+(`merged`).
+
+### Policyholder tier rules (migration 0094)
+
+**Measured, never decided by.** Insured turnover = covered turnover of
+accepted declarations ending in the last twelve months (any policy), else
+the estimated annual turnover of the current policies (`turnover_basis`);
+premium = greatest(earned, minimum) of the current policies; both in UZS at
+the latest rate, missing rates counted. Each measure reaches the highest
+tier whose threshold it meets (equal qualifies); the automatic tier is the
+higher of the two (`tiers/model.ts` mirrors it, contract-tested). No
+function but the two tier writers reads the tiers (asserted): a tier is a
+service class, not an input to a limit, a premium or an authority. Staff
+only; clients do not see it.
+
+**A manual tier is a record.** `set_policyholder_tier` (commercial
+underwriting, a reason, optionally until a date) ends the previous one and
+wins while live; `end_policyholder_tier_override` returns to automatic. Rows
+are ended once, never changed. Thresholds are admin's
+(`set_policyholder_tier_thresholds`, rising from silver to platinum).
 
 ### Credit workbench rules (migration 0053)
 
