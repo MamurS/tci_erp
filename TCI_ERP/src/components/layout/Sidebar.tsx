@@ -83,7 +83,7 @@ export function Sidebar({
         }
       >
         <Icon className="size-4 shrink-0" strokeWidth={1.75} />
-        <span className="flex-1 truncate">{t(`nav.${item.key}`)}</span>
+        <span className="flex-1 truncate" title={t(`nav.${item.key}`)}>{t(`nav.${item.key}`)}</span>
         {showEscalated && (
           <Count value={escalatedCount} digits={1} className="bg-warning-300 text-slate-900" title={t('limits.tabs.escalated')} />
         )}
