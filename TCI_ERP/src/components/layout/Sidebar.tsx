@@ -85,16 +85,17 @@ export function Sidebar({
         <Icon className="size-4 shrink-0" strokeWidth={1.75} />
         <span className="flex-1 truncate" title={t(`nav.${item.key}`)}>{t(`nav.${item.key}`)}</span>
         {showEscalated && (
-          <Count value={escalatedCount} digits={1} className="bg-warning-300 text-slate-900" title={t('limits.tabs.escalated')} />
+          <Count value={escalatedCount} digits={1} className="bg-warning-100 text-warning-800 in-data-[badge-ink=white]:bg-warning-300 in-data-[badge-ink=white]:text-slate-900" title={t('limits.tabs.escalated')} />
         )}
         {/* Overdue gets its own tone: an overdue count is a different
-            statement from a busy one. */}
+            statement from a busy one. Pastel like every badge (0093); the
+            bold look with «Bold, white text» (data-badge-ink). */}
         {showAgenda && (
           <span className="flex items-center gap-1">
             {agenda.overdue > 0 && (
-              <Count value={agenda.overdue} digits={1} className="bg-neg-500 text-white" title={t('agenda.groups.overdue')} />
+              <Count value={agenda.overdue} digits={1} className="bg-danger-100 text-danger-700 in-data-[badge-ink=white]:bg-neg-500 in-data-[badge-ink=white]:text-white" title={t('agenda.groups.overdue')} />
             )}
-            <Count value={agenda.open} digits={1} className="bg-white/15 text-white" title={t('agenda.openCount')} />
+            <Count value={agenda.open} digits={1} className="bg-accent-100 text-accent-800 in-data-[badge-ink=white]:bg-white/15 in-data-[badge-ink=white]:text-white" title={t('agenda.openCount')} />
           </span>
         )}
       </NavLink>
