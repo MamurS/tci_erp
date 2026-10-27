@@ -5145,7 +5145,7 @@
     },
     "actions": {
       "addRelationship": "Bog‘lanish qo‘shish",
-      "endRelationship": "To‘xtatish",
+      "endRelationship": "Bog‘lanishni to‘xtatish",
       "setGroupLimit": "Guruh limitini belgilash",
       "changeGroupLimit": "Guruh limitini o‘zgartirish",
       "endGroupLimit": "Guruh limitini olib tashlash"

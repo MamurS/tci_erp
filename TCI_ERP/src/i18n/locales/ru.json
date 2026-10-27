@@ -5163,7 +5163,7 @@
     },
     "actions": {
       "addRelationship": "Добавить связь",
-      "endRelationship": "Прекратить",
+      "endRelationship": "Прекратить связь",
       "setGroupLimit": "Установить групповой лимит",
       "changeGroupLimit": "Изменить групповой лимит",
       "endGroupLimit": "Снять групповой лимит"

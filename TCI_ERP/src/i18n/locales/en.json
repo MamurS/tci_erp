@@ -5145,7 +5145,7 @@
     },
     "actions": {
       "addRelationship": "Record a relationship",
-      "endRelationship": "End",
+      "endRelationship": "End relationship",
       "setGroupLimit": "Set a group limit",
       "changeGroupLimit": "Change the group limit",
       "endGroupLimit": "Remove the group limit"
