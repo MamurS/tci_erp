@@ -71,6 +71,7 @@ export function TransferModal({
   return (
     <Modal
       open
+      wide
       title={t('agenda.transfer.title')}
       onClose={onClose}
       footer={
@@ -89,7 +90,7 @@ export function TransferModal({
       {offered.length === 0 ? (
         <EmptyState pictogram="allDone" title={t('agenda.transfer.nothing')} hint={t('agenda.transfer.nothingHint')} />
       ) : (
-        <fieldset className="flex flex-col gap-1">
+        <fieldset className="flex min-w-0 flex-col gap-1">
           <legend className="mb-2 flex w-full items-center justify-between text-small font-medium text-slate-700">
             <span>{t('agenda.transfer.tasks', { count: picked.size })}</span>
             <span className="flex gap-2">
@@ -101,7 +102,7 @@ export function TransferModal({
               </Button>
             </span>
           </legend>
-          <ul className="scrollbar-thin flex max-h-72 flex-col overflow-y-auto rounded-md border border-slate-200">
+          <ul className="scrollbar-thin flex max-h-72 min-w-0 flex-col overflow-x-hidden overflow-y-auto rounded-md border border-slate-200">
             {offered.map((row) => (
               <li key={row.key} className="border-b border-slate-100 last:border-b-0">
                 <label className="flex cursor-pointer items-center gap-3 px-3 py-2 hover:bg-slate-50">
