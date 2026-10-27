@@ -1041,9 +1041,12 @@ is fine for internal test accounts and not fine for customers.
   functions' own bodies), all 45 0085 functions, policies and views
   identical to a local replay, `tests/db/sector_country_risk.sql` run on
   canonical with role impersonation (forced rollback, nothing left behind,
-  counts unchanged), no new advisor finding; section 14 (the removal
-  guards) and the ledger row are the owner's step,
-  `docs/deploy/canonical-apply-0085.sql`. **Data loaded 2026-10-27 at the
+  counts unchanged), no new advisor finding; section 14 (the five removal
+  guards) and the ledger row by the owner with
+  `docs/deploy/canonical-apply-0085.sql` (2026-10-27, since removed — in
+  git history), verified afterwards: the five BEFORE DELETE row triggers
+  present, enabled and identical to a local replay, one ledger row for
+  0085, the data counts unchanged. **Data loaded 2026-10-27 at the
   owner's request:** the OECD list valid as of 16 October 2026 (176
   countries; high-income footnotes 6/7/8 as category 0, note 5 left
   unclassified, Kosovo left out — not in `tci.countries`), and an initial
