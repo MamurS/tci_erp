@@ -35,6 +35,7 @@ import { PolicyLimitsSection } from '../limits/PolicyLimitsSection'
 import { usePolicyOriginRequest } from '../requests/api'
 import { DraftContractSection } from '../wording'
 import { PolicyPremiumTab } from './PolicyPremiumTab'
+import { ConcentrationPanel } from '../risk/integrationConcentration'
 import { useAuth } from '../../auth/AuthContext'
 import { useChangePolicyStatus, usePolicy, usePolicyStatusHistory } from './api'
 import {
@@ -162,6 +163,8 @@ function PolicyBody({ policy, policyId }: { policy: PolicyWithRefs; policyId: st
             <HistoryTimeline policyId={policyId} />
           </PanelGrid>
           <PolicyLimitsSection policy={policy} />
+          {/* Prompt 31: the book by sector grade and country category. */}
+          <ConcentrationPanel scope="policy" id={policyId} />
         </div>
       )}
     </>

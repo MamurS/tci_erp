@@ -4300,6 +4300,10 @@
         "decision": "Решение",
         "paid": "Выплачена"
       }
+    },
+    "errors": {
+      "coverCountry": "Покрытие для этой страны недоступно.",
+      "coverCompany": "Покрытие для этого байера недоступно."
     }
   },
   "declarations": {
@@ -6543,6 +6547,117 @@
       "sanctionsManageOnly": "Санкции ведёт администратор.",
       "sanctionsLiftReason": "Укажите, почему отметка снимается.",
       "concentrationScope": "Укажите полис или заявку."
+    },
+    "badges": {
+      "compact": {
+        "oecd": "ОЭСР {{category}}",
+        "internal": "Вн. {{category}}",
+        "unclassified": "ОЭСР —"
+      }
+    },
+    "decision": {
+      "sector": "Сектор",
+      "sectorNotGraded": "рейтинга сектора нет",
+      "country": "Страна",
+      "countryInactive": "страновой риск не применяется: список ОЭСР ещё не загружен",
+      "company": "Организация",
+      "sanctionLine": "{{party}}: {{regime}} — {{source}}, с {{date}}",
+      "scope": {
+        "entity": "Организация",
+        "country": "Страна"
+      },
+      "regimes": {
+        "UN": "ООН",
+        "OFAC": "OFAC",
+        "EU": "ЕС",
+        "UK": "Великобритания",
+        "national": "Национальный",
+        "other": "Иной"
+      },
+      "blockTitle": "Покрытие недоступно",
+      "blockDeclineStill": "Отказ остаётся возможным.",
+      "warningsTitle": "Риск сектора и страны",
+      "noLevel": "уровня полномочий нет",
+      "approveBlocked": "Одобрение невозможно: покрытие для этого байера недоступно. Можно записать только отказ.",
+      "adjustBlocked": "Покрытие для этого байера недоступно (санкции): корректировка лимита невозможна. Отзыв лимита остаётся за кредитным андеррайтингом.",
+      "warnings": {
+        "sectorGrade": "Рейтинг сектора {{grade}}: байер работает в слабом секторе.",
+        "sectorOutlook": "Прогноз по сектору негативный.",
+        "sectorStale": "Обзор сектора — за прошлый квартал: рейтинг сектора может быть устаревшим.",
+        "countryCategory": "Высокий страновой риск: категория {{category}} (0 — наименьший … 7 — наибольший).",
+        "countryUnclassified": "Страна не классифицирована ОЭСР — это не категория 0.",
+        "rank": "По матрице покрытия это решение требует: {{required}}; у вас: {{mine}}. Одобрение уйдёт на валидацию."
+      }
+    },
+    "concentration": {
+      "title": "Концентрация",
+      "hintPolicy": "Действующие лимиты полиса по рейтингу сектора и категории страны, в UZS-эквиваленте.",
+      "hintSubmission": "Байеры пакета по запрошенным суммам — по рейтингу сектора и категории страны, в UZS-эквиваленте.",
+      "unavailable": "Не удалось загрузить концентрацию.",
+      "emptyPolicy": "На полисе пока нет действующих лимитов.",
+      "emptySubmission": "Ни один байер пакета ещё не сопоставлен с организацией.",
+      "blockedTitle": "Покрытие недоступно",
+      "blockedCompany": "организация под санкциями",
+      "blockedCountry": "её страна под санкциями",
+      "warnTitle": "Концентрация выше порога {{pct}}",
+      "reasons": {
+        "shareCd": "{{share}} суммы — в секторах с рейтингом C или D (порог {{pct}}).",
+        "shareCat57": "{{share}} суммы — в странах категорий 5–7 (порог {{pct}}).",
+        "singleCdSector": "Все байеры — в одном секторе с рейтингом C или D."
+      },
+      "total": "Всего",
+      "shareCd": "Доля секторов C/D",
+      "shareCat57": "Доля категорий 5–7",
+      "threshold": "Порог",
+      "ratesMissing_one": "У {{count}} байера нет курса UZS для его валюты — его сумма не учтена (это не ноль).",
+      "ratesMissing_few": "У {{count}} байеров нет курса UZS для их валюты — их суммы не учтены (это не ноль).",
+      "ratesMissing_many": "У {{count}} байеров нет курса UZS для их валюты — их суммы не учтены (это не ноль).",
+      "ratesMissing_other": "У {{count}} байера нет курса UZS для его валюты — его сумма не учтена (это не ноль).",
+      "bySector": "Рейтинг сектора",
+      "byCountry": "Категория страны",
+      "buyers": "Байеры",
+      "amountUzs": "Сумма, UZS-экв.",
+      "share": "Доля",
+      "sectorNone": "Без рейтинга сектора",
+      "sectorKey": "Сектор {{grade}}",
+      "countryUnclassified": "Не классифицирована",
+      "countryKey": "Категория {{category}}",
+      "countryInactive": "Страновой риск пока не применяется: список ОЭСР не загружен.",
+      "loading": "Надбавка к премии (ориентир)",
+      "loadingNote": "для информации; премия не меняется"
+    },
+    "trace": {
+      "title": "Сектор и страна",
+      "base": "базовый",
+      "final": "итоговый",
+      "unchanged": "сектор и страна рейтинг не меняют",
+      "sectorNoChange": "Сектор {{grade}}: без изменений",
+      "sectorNotch_one": "Сектор {{grade}}: {{signed}} ступень, {{from}} → {{to}}",
+      "sectorNotch_few": "Сектор {{grade}}: {{signed}} ступени, {{from}} → {{to}}",
+      "sectorNotch_many": "Сектор {{grade}}: {{signed}} ступеней, {{from}} → {{to}}",
+      "sectorNotch_other": "Сектор {{grade}}: {{signed}} ступени, {{from}} → {{to}}",
+      "sectorCap": "Сектор {{grade}}: потолок {{cap}} — {{from}} → {{to}}",
+      "countryInactive": "Страна: не применяется — список ОЭСР ещё не загружен",
+      "countryNoChange": "Страна ({{country}}): без изменений",
+      "countryCap": "Страна ({{country}}): потолок {{cap}} — {{from}} → {{to}}",
+      "countryNotch_one": "Страна ({{country}}): {{signed}} ступень, {{from}} → {{to}}",
+      "countryNotch_few": "Страна ({{country}}): {{signed}} ступени, {{from}} → {{to}}",
+      "countryNotch_many": "Страна ({{country}}): {{signed}} ступеней, {{from}} → {{to}}",
+      "countryNotch_other": "Страна ({{country}}): {{signed}} ступени, {{from}} → {{to}}",
+      "capSector": "Потолок {{cap}} (сектор): {{from}} → {{to}}",
+      "capCountry": "Потолок {{cap}} (страна): {{from}} → {{to}}",
+      "capBoth": "Потолок {{cap}} (сектор и страна): {{from}} → {{to}}",
+      "country": {
+        "oecd": "категория ОЭСР {{category}}",
+        "internal": "внутренняя категория {{category}}",
+        "unclassified": "не классифицирована"
+      },
+      "context": {
+        "sector": "рейтинг сектора {{grade}}",
+        "noSector": "рейтинга сектора нет",
+        "countryInactive": "страновой риск не применён"
+      },
+      "contextLine": "Учтено: {{sector}}; страна — {{country}}."
     }
   }
 }

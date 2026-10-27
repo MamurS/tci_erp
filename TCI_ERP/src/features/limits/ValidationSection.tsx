@@ -51,6 +51,7 @@ import { preflight } from './authority'
 import { outcomeTone } from './machine'
 import type { LimitRequestWithRefs } from './types'
 import { levelName } from './levelName'
+import { useDecisionRisk } from '../risk/integrationHooks'
 import {
   actionNeedsComment,
   chainsOf,
@@ -460,8 +461,18 @@ function ResolveModal({
   // beyond it is refused.
   const passesOn = levelStep && action === 'approve' && beyond
 
+  // Prompt 31: no approval grants cover to a sanctioned company or country
+  // (0085 refuses it for every path, the levels and the committee included).
+  // A credit step proposing a decline may still be approved.
+  const { ctx: risk } = useDecisionRisk(request.entity_id)
+  const coverStop =
+    Boolean(risk?.cover_block) &&
+    (action === 'approve' || action === 'approve_modified') &&
+    (step.stream === 'commercial' || step.outcome !== 'declined')
+
   const commentMissing = actionNeedsComment(action) && comment.trim() === ''
   const blocked =
+    coverStop ||
     commentMissing ||
     (action === 'approve_modified' && !amountValid) ||
     (action === 'approve_modified' && beyond) ||
@@ -562,6 +573,12 @@ function ResolveModal({
       )}
 
       {action === 'forward' && <p className="text-small text-slate-600">{t('limits.validation.forwardHint')}</p>}
+
+      {coverStop && (
+        <Callout tone="neg" title={t('risk.decision.blockTitle')}>
+          {t(risk?.cover_block === 'company' ? 'risk.errors.coverCompany' : 'risk.errors.coverCountry')}
+        </Callout>
+      )}
 
       <Field
         label={t('limits.validation.resolutionComment')}

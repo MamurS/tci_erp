@@ -79,6 +79,9 @@ import {
   ValidationStatusLine,
 } from './ValidationSection'
 import { RequestChangesSection } from './RequestChangesSection'
+import { BuyerRiskFacts, BuyerRiskNotices } from '../risk/integrationDecision'
+import { useDecisionRisk } from '../risk/integrationHooks'
+import { outcomeBlocked, rankShort } from '../risk/integration'
 import { myPendingStep, validationKind } from './validation'
 import type { NeedsValidation } from './validation'
 import {
@@ -94,6 +97,7 @@ import {
   canStartReview,
   canSubmit,
   canWithdraw,
+  isOpen,
   outcomeTone,
   statusTone,
   requestAgeDays,
@@ -394,6 +398,14 @@ export function LimitRequestPage() {
               {t('limits.awaitingSenior')}
             </Card>
           )}
+          {/* Prompt 31: no cover for a sanctioned party (red), and the sector
+              and country warnings (amber) — the cover matrix's rank warning
+              only to the credit decider, whose rank it is. */}
+          <BuyerRiskNotices
+            entityId={request.entity_id}
+            showRank={showDecisionForm}
+            showWarnings={isOpen(request.status)}
+          />
           {/* The wrappers carry the ?focus= targets. Neither has a look of its
               own; `empty:hidden` keeps the commercial one out of the column's
               gap while the section renders itself away. */}
@@ -695,6 +707,9 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
         <p className="text-small text-slate-500">{t('report.noAssessment')}</p>
       )}
 
+      {/* The buyer's sector and country, with their badges (Prompt 31). */}
+      <BuyerRiskFacts entityId={request.entity_id} />
+
       <Link
         to={`/entities/${request.entity_id}`}
         className="text-small font-medium text-accent-700 hover:underline"
@@ -765,7 +780,7 @@ function DecisionForm({
   )
   const assessments = useAssessments(request.entity_id)
 
-  const [outcome, setOutcome] = useState<'approved' | 'partial' | 'declined'>('approved')
+  const [chosenOutcome, setOutcome] = useState<'approved' | 'partial' | 'declined'>('approved')
   const [amount, setAmount] = useState(amountToPlain(request.requested_amount))
   const [validFrom, setValidFrom] = useState(new Date().toISOString().slice(0, 10))
   const [validUntil, setValidUntil] = useState('')
@@ -778,6 +793,12 @@ function DecisionForm({
   const currency = request.currency_code
   const latest = assessments.data?.[0] ?? null
   const bar = useBarFigures(request)
+  // Prompt 31: a sanctioned company or country gets no cover — only a
+  // decline remains (the database refuses the rest whatever is sent) — and
+  // the cover matrix may need a higher authority rank than the decider's.
+  const { ctx: risk } = useDecisionRisk(request.entity_id)
+  const coverBlocked = Boolean(risk?.cover_block)
+  const outcome = outcomeBlocked(chosenOutcome, risk) ? 'declined' : chosenOutcome
 
   // The band comes from the assessment the decision is based on; with none
   // chosen the SQL function judges the decision as 'unrated'.
@@ -808,7 +829,10 @@ function DecisionForm({
     [needsAmount, amountValid, parsedAmount, currency, band, myAuthority, rates, todayIso],
   )
 
-  const overAuthority = check !== null && check.withinAuthority === false
+  // The cover matrix alone may send an approval up the levels (0085): the
+  // database answers needs_validation, so the form offers only that.
+  const rankRequired = needsAmount && rankShort(risk)
+  const overAuthority = (check !== null && check.withinAuthority === false) || rankRequired
 
   const handleDecide = async () => {
     setError(null)
@@ -856,7 +880,10 @@ function DecisionForm({
             key={o}
             type="button"
             onClick={() => setOutcome(o)}
-            className={`rounded-md border px-3 py-2 text-small font-medium transition-colors ${
+            // No cover for a sanctioned party: only the decline stays.
+            disabled={outcomeBlocked(o, risk)}
+            title={outcomeBlocked(o, risk) ? t('risk.decision.approveBlocked') : undefined}
+            className={`rounded-md border px-3 py-2 text-small font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
               outcome === o
                 ? 'border-accent-600 bg-accent-50 text-accent-700'
                 : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
@@ -866,6 +893,11 @@ function DecisionForm({
           </button>
         ))}
       </div>
+      {coverBlocked && (
+        <p className="text-small text-neg-500" role="note">
+          {t('risk.decision.approveBlocked')}
+        </p>
+      )}
 
       {needsAmount && (
         <div className="grid gap-3 md:grid-cols-2">
@@ -982,7 +1014,7 @@ function DecisionForm({
           amount={needsAmount ? parsedAmount : null}
           currency={currency}
           kind={
-            validationOpen.needs
+            validationOpen.needs || rankRequired
               ? 'required'
               : validationKind({
                   amountUzs: needsAmount ? (check?.amountUzs ?? null) : null,

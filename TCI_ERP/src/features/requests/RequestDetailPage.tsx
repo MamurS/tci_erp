@@ -20,6 +20,7 @@ import {
 } from './api'
 import { BindPolicyModal } from './BindPolicyModal'
 import { BuyerPackageTable } from './BuyerPackageTable'
+import { ConcentrationPanel } from '../risk/integrationConcentration'
 import { EntityResolutionSection } from './EntityResolutionSection'
 import { ProposedTermsSection } from './ProposedTermsSection'
 import { RequestHistoryTimeline } from './RequestHistoryTimeline'
@@ -216,6 +217,8 @@ export function RequestDetailPage() {
         <div id="buyers" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
           <BuyerPackageTable request={request} buyers={buyers ?? []} />
         </div>
+        {/* Prompt 31: the package by sector grade and country category. */}
+        <ConcentrationPanel scope="submission" id={request.id} />
         {request.status === 'sales_confirmation' && (
           <div id="sales-window" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
             <SalesWindowPanel request={request} />

@@ -4284,6 +4284,10 @@
         "decision": "Decision",
         "paid": "Paid"
       }
+    },
+    "errors": {
+      "coverCountry": "Cover is not available for this country.",
+      "coverCompany": "Cover is not available for this buyer."
     }
   },
   "declarations": {
@@ -6507,6 +6511,111 @@
       "sanctionsManageOnly": "Sanctions are maintained by the administrator.",
       "sanctionsLiftReason": "Say why the flag is lifted.",
       "concentrationScope": "Name a policy or a submission."
+    },
+    "badges": {
+      "compact": {
+        "oecd": "OECD {{category}}",
+        "internal": "Int. {{category}}",
+        "unclassified": "OECD —"
+      }
+    },
+    "decision": {
+      "sector": "Sector",
+      "sectorNotGraded": "no sector grade",
+      "country": "Country",
+      "countryInactive": "country risk not applied: no OECD list imported yet",
+      "company": "Company",
+      "sanctionLine": "{{party}}: {{regime}} — {{source}}, since {{date}}",
+      "scope": {
+        "entity": "Company",
+        "country": "Country"
+      },
+      "regimes": {
+        "UN": "UN",
+        "OFAC": "OFAC",
+        "EU": "EU",
+        "UK": "UK",
+        "national": "National",
+        "other": "Other"
+      },
+      "blockTitle": "Cover is not available",
+      "blockDeclineStill": "A decline remains possible.",
+      "warningsTitle": "Sector and country risk",
+      "noLevel": "no authority level",
+      "approveBlocked": "Approval is not possible: cover is not available for this buyer. Only a decline can be recorded.",
+      "adjustBlocked": "Cover is not available for this buyer (sanctions): the limit cannot be adjusted. Revoking the limit stays with credit underwriting.",
+      "warnings": {
+        "sectorGrade": "Sector grade {{grade}}: the buyer trades in a weak sector.",
+        "sectorOutlook": "The sector's outlook is negative.",
+        "sectorStale": "The sector review is from an earlier quarter — the sector grade may be out of date.",
+        "countryCategory": "High country risk: category {{category}} (0 lowest … 7 highest).",
+        "countryUnclassified": "The country is not classified by the OECD — which is not category 0.",
+        "rank": "Under the cover matrix this decision needs: {{required}}; you have: {{mine}}. An approval will go to validation."
+      }
+    },
+    "concentration": {
+      "title": "Concentration",
+      "hintPolicy": "The in-force limits of this policy by sector grade and country category, in UZS equivalent.",
+      "hintSubmission": "The package's buyers at the amounts requested, by sector grade and country category, in UZS equivalent.",
+      "unavailable": "The concentration could not be loaded.",
+      "emptyPolicy": "No in-force limits on this policy yet.",
+      "emptySubmission": "No buyer of the package is matched to a company yet.",
+      "blockedTitle": "Cover is not available",
+      "blockedCompany": "the company is under sanctions",
+      "blockedCountry": "its country is under sanctions",
+      "warnTitle": "Concentration above the threshold of {{pct}}",
+      "reasons": {
+        "shareCd": "{{share}} of the amount is in sectors graded C or D (threshold {{pct}}).",
+        "shareCat57": "{{share}} of the amount is in countries of category 5–7 (threshold {{pct}}).",
+        "singleCdSector": "All buyers are in one sector, graded C or D."
+      },
+      "total": "Total",
+      "shareCd": "Share in C/D sectors",
+      "shareCat57": "Share in categories 5–7",
+      "threshold": "Threshold",
+      "ratesMissing_one": "{{count}} buyer has no UZS rate for its currency — its amount is not counted (which is not zero).",
+      "ratesMissing_other": "{{count}} buyers have no UZS rate for their currency — their amounts are not counted (which is not zero).",
+      "bySector": "Sector grade",
+      "byCountry": "Country category",
+      "buyers": "Buyers",
+      "amountUzs": "Amount, UZS eq.",
+      "share": "Share",
+      "sectorNone": "No sector grade",
+      "sectorKey": "Sector {{grade}}",
+      "countryUnclassified": "Not classified",
+      "countryKey": "Category {{category}}",
+      "countryInactive": "Country risk is not applied yet: no OECD list has been imported.",
+      "loading": "Premium loading (hint)",
+      "loadingNote": "for information; the premium is not changed"
+    },
+    "trace": {
+      "title": "Sector and country",
+      "base": "base",
+      "final": "final",
+      "unchanged": "sector and country leave the grade unchanged",
+      "sectorNoChange": "Sector {{grade}}: no change",
+      "sectorNotch_one": "Sector {{grade}}: {{signed}} notch, {{from}} → {{to}}",
+      "sectorNotch_other": "Sector {{grade}}: {{signed}} notches, {{from}} → {{to}}",
+      "sectorCap": "Sector {{grade}}: cap {{cap}} — {{from}} → {{to}}",
+      "countryInactive": "Country: not applied — no OECD list imported yet",
+      "countryNoChange": "Country ({{country}}): no change",
+      "countryCap": "Country ({{country}}): cap {{cap}} — {{from}} → {{to}}",
+      "countryNotch_one": "Country ({{country}}): {{signed}} notch, {{from}} → {{to}}",
+      "countryNotch_other": "Country ({{country}}): {{signed}} notches, {{from}} → {{to}}",
+      "capSector": "Cap {{cap}} (sector): {{from}} → {{to}}",
+      "capCountry": "Cap {{cap}} (country): {{from}} → {{to}}",
+      "capBoth": "Cap {{cap}} (sector and country): {{from}} → {{to}}",
+      "country": {
+        "oecd": "OECD category {{category}}",
+        "internal": "internal category {{category}}",
+        "unclassified": "not classified"
+      },
+      "context": {
+        "sector": "sector grade {{grade}}",
+        "noSector": "no sector grade",
+        "countryInactive": "country risk not applied"
+      },
+      "contextLine": "Taken into account: {{sector}}; country — {{country}}."
     }
   }
 }

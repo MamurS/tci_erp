@@ -79,6 +79,7 @@ import { RATING_PROPOSAL_ANCHOR, RatingProposalPanel } from './RatingProposalPan
 import { useRatingProposals } from './proposalsApi'
 import { CHART_COLORS } from '../report/DynamicCharts'
 import { ReportModal } from './ReportModal'
+import { RiskTraceLines } from './RiskTraceLines'
 
 /** The engine's stored result, or null for a manual rating (0073), whose
  * trace is empty. */
@@ -440,6 +441,8 @@ function ResultView({
           )}
           <ScoreChangeNote score={rating.score} previousScore={previousScore} align="start" />
           <RatingLegend score={rating.score} />
+          {/* Prompt 31: how the sector and the country moved the grade. */}
+          <RiskTraceLines rating={rating} />
         </div>
         <div className="grid gap-4 lg:grid-cols-2">
           <FactorGroup title={t('rating.strengths')} chips={chips.strengths} none={t('rating.noStrengths')} />

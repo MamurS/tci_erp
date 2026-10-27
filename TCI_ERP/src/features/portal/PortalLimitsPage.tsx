@@ -34,7 +34,7 @@ import {
   Truncate,
 } from '../../components/ui'
 import { EM_DASH, formatAmount, formatDate, formatMoment } from '../../lib/format'
-import { refusalOr } from '../../lib/optimistic'
+import { clientRefusalOr } from '../risk/integration'
 import {
   useMyLimitConditions,
   useMyLimitHistory,
@@ -117,7 +117,7 @@ export function PortalLimitsPage() {
       await withdraw.mutateAsync({ id: row.id, comment: withdrawReason.trim() || null })
       setNotice(t('portal.limits.change.withdrawn'))
     } catch (failure) {
-      setActionError(t(refusalOr(failure, 'portal.limits.change.withdrawFailed')))
+      setActionError(t(clientRefusalOr(failure, 'portal.limits.change.withdrawFailed')))
     }
     setWithdrawReason('')
   }

@@ -28,6 +28,7 @@ import {
 import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
 import { hasRole } from '../../lib/roles'
 import { tci } from '../../lib/supabase'
+import { staffCoverRefusal } from '../risk/integration'
 
 interface BuyerProposal {
   id: string
@@ -194,8 +195,12 @@ function ResolveModal({
     onSuccess: done,
     onError: (err) => {
       const code = (err as { code?: string } | null)?.code
+      // No cover for a sanctioned buyer or country (0085), said by name.
+      const cover = staffCoverRefusal(err)
       setError(
-        code === 'P0001'
+        cover
+          ? t(cover)
+          : code === 'P0001'
           ? t('limits.proposals.refused')
           : code === '42501'
             ? t('limits.proposals.notAllowed')

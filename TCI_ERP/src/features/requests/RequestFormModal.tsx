@@ -13,6 +13,7 @@ import { AmountInput, Button, Field, Modal, Textarea } from '../../components/ui
 import { parseAmount } from '../../components/ui/amount'
 import { EntityPicker } from '../entities/EntityPicker'
 import { useCreateInsuranceRequest } from './api'
+import { refusalOr } from '../../lib/optimistic'
 import type { RequestBuyerInput } from './types'
 
 interface DraftBuyer extends Omit<RequestBuyerInput, 'requested_amount'> {
@@ -64,8 +65,10 @@ export function RequestFormModal({ open, onClose }: { open: boolean; onClose: ()
       reset()
       onClose()
       void navigate(`/requests/${created.id}`)
-    } catch {
-      setError(t('requests.createFailed'))
+    } catch (failure) {
+      // A deliberate refusal is named — no cover for a sanctioned
+      // policyholder or buyer (0085) among them; only the unknown is generic.
+      setError(t(refusalOr(failure, 'requests.createFailed')))
     }
   }
 

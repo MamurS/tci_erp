@@ -23,6 +23,7 @@ import {
 } from '../../components/ui'
 import { parseAmount } from '../../components/ui/amount'
 import { DlNote } from '../limits/DlNote'
+import { clientCoverRefusal } from '../risk/integration'
 import { useEntitySearch, useRequestLimit } from './api'
 import type { ClientPolicy, EntitySearchHit } from './types'
 
@@ -97,10 +98,14 @@ export function RequestLimitModal({ policies, open, onClose }: Props) {
       setDone(result.kind)
     } catch (err) {
       // The function's refusals are deterministic and named; anything else is
-      // genuinely unknown and says so.
+      // genuinely unknown and says so. No cover (0085) is said in the
+      // client's own words — never «sanctions», never a regime.
       const code = (err as { code?: string } | null)?.code
+      const cover = clientCoverRefusal(err)
       setError(
-        code === 'P0001'
+        cover
+          ? t(cover)
+          : code === 'P0001'
           ? t('portal.limits.requestRefused')
           : code === '42501'
             ? t('portal.limits.requestNotAllowed')

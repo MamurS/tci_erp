@@ -2131,7 +2131,14 @@ begin
     select b.entity_id, coalesce(b.amount_uzs, 0) as amount_uzs, b.amount_uzs is null as rate_missing,
            coalesce(tci.entity_sector_grade(b.entity_id), 'none') as sector_grade,
            e.industry_id,
-           coalesce((select r.category::text from tci.country_risk(e.country_code) r), 'unclassified') as country_key,
+           -- the country part is silent until an OECD list exists or the
+           -- country has an approved internal category, as in the cover matrix
+           case when (tci.oecd_latest_import()).id is null
+                     and not exists (select 1 from tci.country_risk_overrides o
+                                      where o.country_code = e.country_code and o.status = 'approved')
+                then 'inactive'
+                else coalesce((select r.category::text from tci.country_risk(e.country_code) r), 'unclassified')
+           end as country_key,
            tci.cover_block(b.entity_id) as block
       from buyers b join tci.legal_entities e on e.id = b.entity_id
   ),

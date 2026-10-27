@@ -4284,6 +4284,10 @@
         "decision": "Qaror",
         "paid": "To‘langan"
       }
+    },
+    "errors": {
+      "coverCountry": "Bu mamlakat uchun qoplash mumkin emas.",
+      "coverCompany": "Bu bayer uchun qoplash mumkin emas."
     }
   },
   "declarations": {
@@ -6507,6 +6511,111 @@
       "sanctionsManageOnly": "Sanksiyalarni administrator yuritadi.",
       "sanctionsLiftReason": "Belgi nima uchun olib tashlanayotganini yozing.",
       "concentrationScope": "Polis yoki sug‘urta arizasini ko‘rsating."
+    },
+    "badges": {
+      "compact": {
+        "oecd": "IHTT {{category}}",
+        "internal": "Ichki {{category}}",
+        "unclassified": "IHTT —"
+      }
+    },
+    "decision": {
+      "sector": "Sektor",
+      "sectorNotGraded": "sektor reytingi yo‘q",
+      "country": "Mamlakat",
+      "countryInactive": "mamlakat riski qo‘llanmaydi: IHTT ro‘yxati hali yuklanmagan",
+      "company": "Tashkilot",
+      "sanctionLine": "{{party}}: {{regime}} — {{source}}, {{date}} dan",
+      "scope": {
+        "entity": "Tashkilot",
+        "country": "Mamlakat"
+      },
+      "regimes": {
+        "UN": "BMT",
+        "OFAC": "OFAC",
+        "EU": "YeI",
+        "UK": "Buyuk Britaniya",
+        "national": "Milliy",
+        "other": "Boshqa"
+      },
+      "blockTitle": "Qoplash mumkin emas",
+      "blockDeclineStill": "Rad etish mumkin bo‘lib qoladi.",
+      "warningsTitle": "Sektor va mamlakat riski",
+      "noLevel": "vakolat darajasi yo‘q",
+      "approveBlocked": "Limitni tasdiqlab bo‘lmaydi: bu bayer uchun qoplash mumkin emas. Faqat rad etishni qayd etish mumkin.",
+      "adjustBlocked": "Bu bayer uchun qoplash mumkin emas (sanksiyalar): limitni tuzatib bo‘lmaydi. Limitni bekor qilish kredit anderrayteri zimmasida qoladi.",
+      "warnings": {
+        "sectorGrade": "Sektor reytingi {{grade}}: bayer zaif sektorda faoliyat yuritadi.",
+        "sectorOutlook": "Sektor bo‘yicha prognoz salbiy.",
+        "sectorStale": "Sektor sharhi o‘tgan chorakka tegishli — sektor reytingi eskirgan bo‘lishi mumkin.",
+        "countryCategory": "Mamlakat riski yuqori: {{category}}-toifa (0 — eng past … 7 — eng yuqori).",
+        "countryUnclassified": "Mamlakat IHTT tomonidan tasniflanmagan — bu 0-toifa emas.",
+        "rank": "Qoplash matritsasiga ko‘ra bu qaror uchun kerak: {{required}}; sizda: {{mine}}. Ijobiy qaror tasdiqlash uchun yuboriladi."
+      }
+    },
+    "concentration": {
+      "title": "Konsentratsiya",
+      "hintPolicy": "Polisning amaldagi limitlari sektor reytingi va mamlakat toifasi bo‘yicha, UZS ekvivalentida.",
+      "hintSubmission": "Paketdagi bayerlar so‘ralgan summalar bo‘yicha — sektor reytingi va mamlakat toifasi kesimida, UZS ekvivalentida.",
+      "unavailable": "Konsentratsiyani yuklab bo‘lmadi.",
+      "emptyPolicy": "Polisda hozircha amaldagi limitlar yo‘q.",
+      "emptySubmission": "Paketdagi birorta bayer hali tashkilot bilan bog‘lanmagan.",
+      "blockedTitle": "Qoplash mumkin emas",
+      "blockedCompany": "tashkilot sanksiya ostida",
+      "blockedCountry": "uning mamlakati sanksiya ostida",
+      "warnTitle": "Konsentratsiya {{pct}} chegarasidan yuqori",
+      "reasons": {
+        "shareCd": "Summaning {{share}} qismi C yoki D reytingli sektorlarda (chegara {{pct}}).",
+        "shareCat57": "Summaning {{share}} qismi 5–7-toifali mamlakatlarda (chegara {{pct}}).",
+        "singleCdSector": "Barcha bayerlar C yoki D reytingli bitta sektorda."
+      },
+      "total": "Jami",
+      "shareCd": "C/D sektorlari ulushi",
+      "shareCat57": "5–7-toifalar ulushi",
+      "threshold": "Chegara",
+      "ratesMissing_one": "{{count}} ta bayer valyutasi uchun UZS kursi yo‘q — uning summasi hisobga olinmagan (bu nol emas).",
+      "ratesMissing_other": "{{count}} ta bayer valyutasi uchun UZS kursi yo‘q — ularning summalari hisobga olinmagan (bu nol emas).",
+      "bySector": "Sektor reytingi",
+      "byCountry": "Mamlakat toifasi",
+      "buyers": "Bayerlar",
+      "amountUzs": "Summa, UZS ekv.",
+      "share": "Ulush",
+      "sectorNone": "Sektor reytingisiz",
+      "sectorKey": "Sektor {{grade}}",
+      "countryUnclassified": "Tasniflanmagan",
+      "countryKey": "{{category}}-toifa",
+      "countryInactive": "Mamlakat riski hali qo‘llanmaydi: IHTT ro‘yxati yuklanmagan.",
+      "loading": "Mukofotga ustama (mo‘ljal)",
+      "loadingNote": "ma’lumot uchun; mukofot o‘zgarmaydi"
+    },
+    "trace": {
+      "title": "Sektor va mamlakat",
+      "base": "asosiy",
+      "final": "yakuniy",
+      "unchanged": "sektor va mamlakat reytingni o‘zgartirmaydi",
+      "sectorNoChange": "Sektor {{grade}}: o‘zgarishsiz",
+      "sectorNotch_one": "Sektor {{grade}}: {{signed}} pog‘ona, {{from}} → {{to}}",
+      "sectorNotch_other": "Sektor {{grade}}: {{signed}} pog‘ona, {{from}} → {{to}}",
+      "sectorCap": "Sektor {{grade}}: yuqori chegara {{cap}} — {{from}} → {{to}}",
+      "countryInactive": "Mamlakat: qo‘llanmaydi — IHTT ro‘yxati hali yuklanmagan",
+      "countryNoChange": "Mamlakat ({{country}}): o‘zgarishsiz",
+      "countryCap": "Mamlakat ({{country}}): yuqori chegara {{cap}} — {{from}} → {{to}}",
+      "countryNotch_one": "Mamlakat ({{country}}): {{signed}} pog‘ona, {{from}} → {{to}}",
+      "countryNotch_other": "Mamlakat ({{country}}): {{signed}} pog‘ona, {{from}} → {{to}}",
+      "capSector": "Yuqori chegara {{cap}} (sektor): {{from}} → {{to}}",
+      "capCountry": "Yuqori chegara {{cap}} (mamlakat): {{from}} → {{to}}",
+      "capBoth": "Yuqori chegara {{cap}} (sektor va mamlakat): {{from}} → {{to}}",
+      "country": {
+        "oecd": "IHTT {{category}}-toifasi",
+        "internal": "ichki {{category}}-toifa",
+        "unclassified": "tasniflanmagan"
+      },
+      "context": {
+        "sector": "sektor reytingi {{grade}}",
+        "noSector": "sektor reytingi yo‘q",
+        "countryInactive": "mamlakat riski qo‘llanmagan"
+      },
+      "contextLine": "Hisobga olingan: {{sector}}; mamlakat — {{country}}."
     }
   }
 }

@@ -56,6 +56,8 @@ import { CardStickyBar } from './CardStickyBar'
 import { firstTabOf, SECTION_OF, sectionsFor } from './cardTabs'
 import type { CardTab } from './cardTabs'
 import { rememberEntity } from '../../components/layout/recentEntities'
+import { CountryRiskBadges, IndustrySectorBadge } from '../risk/badges'
+import { CountryWithRisk, IndustryWithSector } from '../risk/integrationBadges'
 
 type TabKey = CardTab
 
@@ -153,8 +155,12 @@ export function EntityDetailPage() {
           </BadgeSizeContext.Provider>
         }
         subtitle={
-          <span className="tabular-nums">
-            {entity.registration_number ?? t('entities.noRegNumber')}
+          <span className="inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="tabular-nums">{entity.registration_number ?? t('entities.noRegNumber')}</span>
+            {/* Prompt 31: the sector grade beside the industry, the country's
+                category and any sanctions flag (staff only). */}
+            <IndustrySectorBadge industryCode={entity.industry_id} />
+            <CountryRiskBadges countryCode={entity.country_code} entityId={entity.id} />
           </span>
         }
         actions={
@@ -471,8 +477,14 @@ function EntityFacts({ entity }: { entity: EntityWithRefs }) {
   const or = (v: string | null) => (v && v.trim() ? v : EM_DASH)
   const items: Fact[] = [
     { label: t('buyers.fields.legalForm'), value: or(entity.legal_form) },
-    { label: t('buyers.fields.country'), value: name(entity.countries) },
-    { label: t('buyers.fields.industry'), value: name(entity.industries) },
+    {
+      label: t('buyers.fields.country'),
+      value: <CountryWithRisk name={name(entity.countries)} countryCode={entity.country_code} entityId={entity.id} />,
+    },
+    {
+      label: t('buyers.fields.industry'),
+      value: <IndustryWithSector name={name(entity.industries)} industryCode={entity.industry_id} />,
+    },
     { label: t('buyers.fields.registrationNumber'), value: or(entity.registration_number) },
     { label: t('buyers.fields.foundedDate'), value: entity.founded_date ? formatDate(entity.founded_date, locale) : EM_DASH },
     {
