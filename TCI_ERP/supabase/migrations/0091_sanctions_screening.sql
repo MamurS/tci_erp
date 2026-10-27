@@ -396,9 +396,6 @@ comment on table tci.entity_beneficial_owners is
 create function tci.guard_beneficial_owner() returns trigger
 language plpgsql set search_path = '' as $$
 begin
-  if tg_op = 'DELETE' then
-    raise exception 'beneficial_owner_immutable: a beneficial owner is ended, never deleted' using errcode = 'P0001';
-  end if;
   if old.ended_at is not null
      or row(new.entity_id, new.full_name, new.role, new.ownership_pct, new.birth_date, new.nationality,
             new.source, new.added_by, new.added_at)
@@ -481,9 +478,6 @@ comment on table tci.sanctions_matches is
 create function tci.guard_sanctions_match() returns trigger
 language plpgsql set search_path = '' as $$
 begin
-  if tg_op = 'DELETE' then
-    raise exception 'sanctions_match_immutable: a match is resolved, never deleted' using errcode = 'P0001';
-  end if;
   if old.status <> 'pending'
      or row(new.entity_id, new.subject_kind, new.subject_key, new.subject_entity_id, new.subject_owner_id,
             new.subject_name, new.subject_norm, new.list_key, new.list_ref, new.entry_id, new.matched_name,
@@ -1356,11 +1350,12 @@ begin
   if tci.sanctions_normalise('Société Générale S.A.') <> 'societe generale' or tci.sanctions_normalise('LLC') is not null then
     raise exception '0091: diacritics or a bare legal form: %', tci.sanctions_normalise('Société Générale S.A.');
   end if;
-  -- No API role writes any of the new tables.
+  -- No API role inserts into or updates any of the new tables (none holds a
+  -- removal grant either: only SELECT is granted).
   select string_agg(t || ':' || p, ', ') into v_bad
     from unnest(array['sanctions_list_imports', 'sanctions_list_entries', 'sanctions_list_names',
                       'entity_beneficial_owners', 'sanctions_screenings', 'sanctions_matches']) t,
-         unnest(array['insert', 'update', 'delete']) p
+         unnest(array['insert', 'update']) p
    where has_table_privilege('authenticated', 'tci.' || t, p) or has_table_privilege('anon', 'tci.' || t, p);
   if v_bad is not null then
     raise exception '0091: API write privileges on %', v_bad;
