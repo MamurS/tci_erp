@@ -3,7 +3,6 @@
  * (tci.v_entity_roles) - an entity with neither is an analysis prospect. */
 
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { Plus } from 'lucide-react'
 
@@ -21,6 +20,7 @@ import {
   GradeBadge,
   Highlight,
   LinkButton,
+  LinkRow,
   PageHeader,
   QuickViewButton,
   RowActions,
@@ -55,7 +55,6 @@ type RoleChip = 'all' | 'policyholders' | 'buyers'
 export function EntitiesPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const navigate = useNavigate()
 
   const { data: entities, isLoading } = useEntities()
   const roles = useEntityRoles()
@@ -292,11 +291,7 @@ export function EntitiesPage() {
               const grade = grades.data?.get(entity.id)
               const industry = refName(entity.industries, locale)
               return (
-                <tr
-                  key={entity.id}
-                  onClick={() => void navigate(`/entities/${entity.id}`)}
-                  className="cursor-pointer transition-colors hover:bg-slate-50"
-                >
+                <LinkRow key={entity.id} to={`/entities/${entity.id}`} className="transition-colors hover:bg-slate-50">
                   <td className="font-medium text-slate-800">
                     <span className="flex min-w-0 items-start gap-3">
                       <SelectCheckbox
@@ -343,7 +338,7 @@ export function EntitiesPage() {
                   <RowActions reveal>
                     <QuickViewButton name={entity.name} onClick={() => setPeekId(entity.id)} />
                   </RowActions>
-                </tr>
+                </LinkRow>
               )
             })}
           </tbody>

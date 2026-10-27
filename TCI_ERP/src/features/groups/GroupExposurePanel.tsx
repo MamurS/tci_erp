@@ -15,6 +15,7 @@ import {
   Button,
   Card,
   COL,
+  LinkRow,
   SectionTitle,
   Table,
 } from '../../components/ui'
@@ -143,7 +144,7 @@ export function GroupExposurePanel({
               </thead>
               <tbody>
                 {byMember.map((row) => (
-                  <tr key={row.memberId}>
+                  <LinkRow key={row.memberId} to={`/entities/${row.memberId}`}>
                     <td>
                       <Link
                         to={`/entities/${row.memberId}`}
@@ -159,7 +160,7 @@ export function GroupExposurePanel({
                     </td>
                     <td className="num">{row.limits}</td>
                     <td className="num">{formatAmount(row.exposureUzs, locale)}</td>
-                  </tr>
+                  </LinkRow>
                 ))}
               </tbody>
             </Table>
@@ -179,7 +180,7 @@ export function GroupExposurePanel({
               </thead>
               <tbody>
                 {byPolicyholder.map((row) => (
-                  <tr key={row.policyholderId}>
+                  <LinkRow key={row.policyholderId} to={`/entities/${row.policyholderId}`}>
                     <td>
                       <Link
                         to={`/entities/${row.policyholderId}`}
@@ -190,7 +191,7 @@ export function GroupExposurePanel({
                     </td>
                     <td className="num">{row.policies}</td>
                     <td className="num">{formatAmount(row.exposureUzs, locale)}</td>
-                  </tr>
+                  </LinkRow>
                 ))}
               </tbody>
             </Table>

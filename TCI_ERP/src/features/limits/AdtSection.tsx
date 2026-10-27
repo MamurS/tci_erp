@@ -43,6 +43,7 @@ import { useCurrencies } from '../entities/api'
 import { useAssessments } from '../entities/rating/assessmentsApi'
 import {
   ADT_COUNT_BOUNDS,
+  ADT_COUNT_CHOICES,
   ADT_FOCUS,
   adtFormValid,
   adtStatusTone,
@@ -267,7 +268,7 @@ function SetAdtModal({ entityId, live, onClose }: { entityId: string; live: AdtL
 
   const [amount, setAmount] = useState(live ? amountToPlain(live.max_amount) : '')
   const [currency, setCurrency] = useState(live?.currency ?? latest?.limit_currency ?? 'UZS')
-  const [count, setCount] = useState(live ? String(live.total) : '')
+  const [count, setCount] = useState(String(live ? Math.min(live.total, ADT_COUNT_BOUNDS.max) : ADT_COUNT_BOUNDS.max))
   const [comment, setComment] = useState('')
   const [error, setError] = useState<string | null>(null)
   const save = useSetBuyerAdt()
@@ -345,12 +346,18 @@ function SetAdtModal({ entityId, live, onClose }: { entityId: string; live: AdtL
             </Select>
           </Field>
         </div>
-        <Field
-          label={t('limits.adt.fields.count')}
-          hint={t('limits.adt.countHint', { min: ADT_COUNT_BOUNDS.min, max: ADT_COUNT_BOUNDS.max })}
-        >
-          <AmountInput decimals={0} value={count} onChange={setCount} />
-        </Field>
+        {/* One to five, from a list (0083): a short field, as wide as the currency. */}
+        <div className="sm:w-32">
+          <Field label={t('limits.adt.fields.count')}>
+            <Select value={count} onChange={(e) => setCount(e.target.value)}>
+              {ADT_COUNT_CHOICES.map((n) => (
+                <option key={n} value={String(n)}>
+                  {n}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        </div>
 
         {latest && (
           <p className="text-small text-slate-500 tabular-nums">

@@ -11,6 +11,7 @@ import M34 from '../../../supabase/migrations/0034_indemnity_recoveries.sql?raw'
 import M61 from '../../../supabase/migrations/0061_auto_decisions.sql?raw'
 import M63 from '../../../supabase/migrations/0063_acting_role.sql?raw'
 import M73 from '../../../supabase/migrations/0073_rating_proposals.sql?raw'
+import M83 from '../../../supabase/migrations/0083_adt_count_max.sql?raw'
 import en from '../../i18n/locales/en.json'
 import ru from '../../i18n/locales/ru.json'
 import uz from '../../i18n/locales/uz.json'
@@ -18,6 +19,7 @@ import { OPERATIONS_REFUSALS, refusalKey } from '../../lib/refusals'
 import {
   ADT_BUYER_STOPS,
   ADT_COUNT_BOUNDS,
+  ADT_COUNT_CHOICES,
   ADT_REVIEW_REASONS,
   ADT_SETTINGS_BOUNDS,
   ADT_STATUSES,
@@ -240,7 +242,9 @@ describe('settings', () => {
     expect(M61).toContain('check (adt_financials_max_age_months between 3 and 60)')
     expect(M61).toContain('total_count       integer not null check (total_count between 1 and 1000)')
     expect(ADT_SETTINGS_BOUNDS).toEqual({ validityMonths: { min: 1, max: 60 }, financialsMaxAgeMonths: { min: 3, max: 60 } })
-    expect(ADT_COUNT_BOUNDS).toEqual({ min: 1, max: 1000 })
+    expect(M83).toContain('add constraint buyer_adt_total_count_max check (total_count <= 5);')
+    expect(ADT_COUNT_BOUNDS).toEqual({ min: 1, max: 5 })
+    expect(ADT_COUNT_CHOICES).toEqual([1, 2, 3, 4, 5])
     expect(settingsValid({ validityMonths: 12, financialsMaxAgeMonths: 15 })).toBe(true)
     expect(settingsValid({ validityMonths: 0, financialsMaxAgeMonths: 15 })).toBe(false)
     expect(settingsValid({ validityMonths: 12, financialsMaxAgeMonths: 2 })).toBe(false)

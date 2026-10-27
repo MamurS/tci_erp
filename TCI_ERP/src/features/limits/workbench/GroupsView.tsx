@@ -14,6 +14,7 @@ import {
   COL,
   EmptyState,
   labelCol,
+  LinkRow,
   Spinner,
   Table,
   Truncate,
@@ -70,11 +71,13 @@ export function GroupsView() {
           <tbody>
             {rows.map((g) => {
               const state = groupState(g)
+              // The row opens the group (the parent's «Группа» tab); the
+              // name opens the parent company itself.
               return (
-                <tr key={g.ultimate_parent_id}>
+                <LinkRow key={g.ultimate_parent_id} to={`/entities/${g.ultimate_parent_id}?tab=group`}>
                   <td>
                     <Truncate text={g.ultimate_parent_name} className="max-w-none">
-                      <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} tab="group" />
+                      <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} />
                     </Truncate>
                     <Truncate
                       text={countryName(g.ultimate_parent_country)}
@@ -107,7 +110,7 @@ export function GroupsView() {
                   <td>
                     <Badge tone={STATE_TONE[state]}>{t(`limits.workbench.groups.states.${state}`)}</Badge>
                   </td>
-                </tr>
+                </LinkRow>
               )
             })}
           </tbody>

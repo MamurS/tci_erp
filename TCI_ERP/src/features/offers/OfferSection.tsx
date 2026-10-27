@@ -25,6 +25,7 @@ import {
   COL,
   EmptyState,
   labelCol,
+  LinkRow,
   RowActions,
   SectionTitle,
   Table,
@@ -205,8 +206,9 @@ export function OfferSection({ requestId, requestStatus, entityId, termsReady }:
               const state = versionState(v.version_no, shown.published_version_no)
               const newest = i === 0
               const editable = writer && newest && canEdit(shown)
+              // The row opens the version, as «view» does.
               return (
-                <tr key={v.id}>
+                <LinkRow key={v.id} to={offerEditPath(shown.id, newest ? null : v.version_no)}>
                   <td className="tabular-nums">
                     <span className={newest ? 'font-semibold text-slate-900' : 'text-slate-600'}>v{v.version_no}</span>
                   </td>
@@ -265,7 +267,7 @@ export function OfferSection({ requestId, requestStatus, entityId, termsReady }:
                       />
                     </span>
                   </RowActions>
-                </tr>
+                </LinkRow>
               )
             })}
           </tbody>

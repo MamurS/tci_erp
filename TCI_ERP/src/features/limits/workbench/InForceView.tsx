@@ -14,6 +14,7 @@ import {
   COL,
   EmptyState,
   Highlight,
+  LinkRow,
   KeyFigures,
   labelCol,
   SkeletonRows,
@@ -134,10 +135,12 @@ export function InForceView() {
               {tableHead}
               <tbody>
                 {rows.map((r) => (
-                  <tr key={r.decision_id}>
+                  // The row opens the limit; the buyer opens the company, the
+                  // policy number the policy, the policyholder theirs.
+                  <LinkRow key={r.decision_id} to={`/limits/${r.request_id}`}>
                     <td>
                       <Truncate text={r.buyer_name} className="max-w-none">
-                        <EntityLink id={r.buyer_entity_id} name={r.buyer_name} tab="limits">
+                        <EntityLink id={r.buyer_entity_id} name={r.buyer_name}>
                           <Highlight text={r.buyer_name} query={query} />
                         </EntityLink>
                       </Truncate>
@@ -146,11 +149,13 @@ export function InForceView() {
                       </Truncate>
                     </td>
                     <td>
-                      <Link to={`/limits/${r.request_id}`} className="block whitespace-nowrap text-accent-600 hover:text-accent-500">
+                      <Link to={`/policies/${r.policy_id}`} className="block whitespace-nowrap text-accent-600 hover:text-accent-500">
                         <Highlight text={r.policy_number} query={query} />
                       </Link>
-                      <Truncate text={r.policyholder_name} className="max-w-none text-caption text-slate-500">
-                        <Highlight text={r.policyholder_name} query={query} />
+                      <Truncate text={r.policyholder_name} className="max-w-none text-caption">
+                        <Link to={`/entities/${r.policyholder_entity_id}`} className="text-slate-500 hover:text-accent-600 hover:underline">
+                          <Highlight text={r.policyholder_name} query={query} />
+                        </Link>
                       </Truncate>
                     </td>
                     <td className="num">
@@ -190,7 +195,7 @@ export function InForceView() {
                         formatDays(r.days_to_review, locale)
                       )}
                     </td>
-                  </tr>
+                  </LinkRow>
                 ))}
               </tbody>
             </Table>

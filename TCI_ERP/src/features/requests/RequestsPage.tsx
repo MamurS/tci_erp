@@ -3,7 +3,7 @@
  * person's row density and columns, the search marked in the rows. */
 
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -13,6 +13,7 @@ import {
   EmptyState,
   Highlight,
   labelCol,
+  LinkRow,
   PageHeader,
   SkeletonRows,
   Table,
@@ -51,7 +52,6 @@ const COLUMNS = [COL.code, COL.fill, '7.5rem', labelCol('requestStatus'), '12rem
 
 export function RequestsPage() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const { session, roles } = useAuth()
 
   const { data: requests, isLoading } = useInsuranceRequests()
@@ -154,17 +154,20 @@ export function RequestsPage() {
           {tableHead}
           <tbody>
             {filtered.map((r) => (
-              <tr
-                key={r.id}
-                onClick={() => void navigate(`/requests/${r.id}`)}
-                className="cursor-pointer transition-colors hover:bg-slate-50"
-              >
+              // The row opens the submission; the applicant opens the company.
+              <LinkRow key={r.id} to={`/requests/${r.id}`} className="transition-colors hover:bg-slate-50">
                 <td className="font-medium whitespace-nowrap text-slate-800 tabular-nums">
                   <Highlight text={r.request_number} query={search} />
                 </td>
                 <td className="text-slate-700">
                   <Truncate text={r.legal_entities?.name} className="max-w-none">
-                    {r.legal_entities?.name ? <Highlight text={r.legal_entities.name} query={search} /> : EM_DASH}
+                    {r.legal_entities?.name ? (
+                      <Link to={`/entities/${r.entity_id}`} className="text-accent-600 hover:text-accent-500">
+                        <Highlight text={r.legal_entities.name} query={search} />
+                      </Link>
+                    ) : (
+                      EM_DASH
+                    )}
                   </Truncate>
                 </td>
                 <td className="num">{r.insurance_request_buyers?.length ?? 0}</td>
@@ -177,7 +180,7 @@ export function RequestsPage() {
                 <td>
                   <AgeCell days={requestAgeDays(r.submitted_at, nowIso)} />
                 </td>
-              </tr>
+              </LinkRow>
             ))}
           </tbody>
         </Table>

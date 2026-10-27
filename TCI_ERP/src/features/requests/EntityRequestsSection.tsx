@@ -1,7 +1,7 @@
 /** «Заявки на страхование» on the company card: submissions where this
  * company is the applicant, or appears in someone's buyer package. */
 
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -10,6 +10,7 @@ import {
   EmptyState,
   labelCol,
   labelsCol,
+  LinkRow,
   Spinner,
   Table,
   Truncate,
@@ -20,7 +21,6 @@ import { owningRole, requestAgeDays, statusTone } from './machine'
 
 export function EntityRequestsSection({ entityId }: { entityId: string }) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const { data: rows, isLoading } = useRequestsForEntity(entityId)
   const nowIso = new Date().toISOString()
 
@@ -46,11 +46,9 @@ export function EntityRequestsSection({ entityId }: { entityId: string }) {
           const owner = owningRole(request.status)
           const age = requestAgeDays(request.submitted_at, nowIso)
           return (
-            <tr
-              key={request.id}
-              onClick={() => void navigate(`/requests/${request.id}`)}
-              className="cursor-pointer transition-colors hover:bg-slate-50"
-            >
+            // The row opens the submission; the applicant, when it is
+            // another company, opens that company.
+            <LinkRow key={request.id} to={`/requests/${request.id}`} className="transition-colors hover:bg-slate-50">
               <td className="font-medium whitespace-nowrap text-slate-800 tabular-nums">{request.request_number}</td>
               <td>
                 <span className="flex flex-wrap gap-1">
@@ -61,7 +59,15 @@ export function EntityRequestsSection({ entityId }: { entityId: string }) {
                 </span>
               </td>
               <td className="text-slate-600">
-                <Truncate text={request.legal_entities?.name}>{request.legal_entities?.name ?? EM_DASH}</Truncate>
+                <Truncate text={request.legal_entities?.name}>
+                  {request.legal_entities?.name && request.entity_id !== entityId ? (
+                    <Link to={`/entities/${request.entity_id}`} className="text-accent-600 hover:text-accent-500">
+                      {request.legal_entities.name}
+                    </Link>
+                  ) : (
+                    (request.legal_entities?.name ?? EM_DASH)
+                  )}
+                </Truncate>
               </td>
               <td>
                 <Badge tone={statusTone(request.status)}>
@@ -70,7 +76,7 @@ export function EntityRequestsSection({ entityId }: { entityId: string }) {
               </td>
               <td className="text-slate-500">{owner ? <Truncate text={t(`roles.${owner}`)} className="max-w-none" /> : EM_DASH}</td>
               <td className="num">{age ?? EM_DASH}</td>
-            </tr>
+            </LinkRow>
           )
         })}
       </tbody>

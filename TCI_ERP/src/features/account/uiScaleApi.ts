@@ -1,5 +1,5 @@
-/** The person's zoom (0076, tci.user_profiles.ui_scale) and text size (0081,
- * ui_text_scale) on the server: read once a session exists, written by the
+/** The person's zoom (0076, tci.user_profiles.ui_scale), text size (0081,
+ * ui_text_scale), colour theme and light / dark mode (0082) on the server: read once a session exists, written by the
  * pickers. The values are APPLIED through lib/uiScale.ts, which also caches
  * them for the next first paint. */
 
@@ -9,6 +9,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../../auth/AuthContext'
 import { pinUiScale, setUiScale, setUiTextScale, uiScaleOrDefault, uiTextScaleOrDefault } from '../../lib/uiScale'
 import type { UiScale, UiTextScale } from '../../lib/uiScale'
+import { pinPaperColours, setUiMode, setUiTheme, uiModeOrDefault, uiThemeOrDefault } from '../../lib/uiTheme'
+import type { UiMode, UiTheme } from '../../lib/uiTheme'
 import { tci } from '../../lib/supabase'
 
 const key = (userId: string) => ['ui-scale', userId] as const
@@ -52,11 +54,17 @@ export function useSaveUiScale() {
   })
 }
 
-/** Print routes: the page is laid out at 100 % while it is open. */
+/** Print routes: the page is laid out at 100 %, in the house colours
+ * (default theme, light), while it is open — paper is the same whatever the
+ * screen uses. */
 export function usePrintScale() {
   useEffect(() => {
     pinUiScale(100)
-    return () => pinUiScale(null)
+    pinPaperColours(true)
+    return () => {
+      pinUiScale(null)
+      pinPaperColours(false)
+    }
   }, [])
 }
 
@@ -107,6 +115,72 @@ export function useSaveUiTextScale() {
     },
     onSuccess: (_data, text) => {
       if (userId) queryClient.setQueryData(textKey(userId), text)
+    },
+  })
+}
+
+// ---------------------------------------------------------------------------
+// The colour theme and light / dark mode (0082, ui_theme / ui_mode). Their own
+// query, as the text size: a database without the columns leaves the
+// default (blue, light) and the sizes untouched.
+// ---------------------------------------------------------------------------
+
+const themeKey = (userId: string) => ['ui-theme', userId] as const
+
+interface ThemeRow {
+  ui_theme: string | null
+  ui_mode: string | null
+}
+
+/** Mounted once under the auth provider: applies the server's choice. */
+export function useUiThemeSync() {
+  const { session } = useAuth()
+  const userId = session?.user.id ?? null
+  const query = useQuery({
+    queryKey: themeKey(userId ?? ''),
+    enabled: Boolean(userId),
+    staleTime: Infinity,
+    retry: false,
+    queryFn: async (): Promise<ThemeRow | null> => {
+      const { data, error } = await tci()
+        .from('user_profiles')
+        .select('ui_theme, ui_mode')
+        .eq('user_id', userId!)
+        .maybeSingle()
+      if (error) throw error
+      return (data as ThemeRow | null) ?? null
+    },
+  })
+  useEffect(() => {
+    if (!query.isSuccess) return
+    setUiTheme(uiThemeOrDefault(query.data?.ui_theme))
+    setUiMode(uiModeOrDefault(query.data?.ui_mode))
+  }, [query.isSuccess, query.data])
+}
+
+/** Applies at once; saves for the person, as the sizes do. */
+export function useSaveUiTheme() {
+  const { session } = useAuth()
+  const userId = session?.user.id ?? null
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationKey: ['ui-theme', 'save'],
+    mutationFn: async (change: { theme?: UiTheme; mode?: UiMode }) => {
+      if (change.theme) setUiTheme(change.theme)
+      if (change.mode) setUiMode(change.mode)
+      if (!userId) return
+      const patch: Partial<ThemeRow> = {}
+      if (change.theme) patch.ui_theme = change.theme
+      if (change.mode) patch.ui_mode = change.mode
+      const { error } = await tci().from('user_profiles').update(patch).eq('user_id', userId)
+      if (error) throw error
+    },
+    onSuccess: (_data, change) => {
+      if (!userId) return
+      queryClient.setQueryData<ThemeRow | null>(themeKey(userId), (old) => ({
+        ui_theme: change.theme ?? old?.ui_theme ?? null,
+        ui_mode: change.mode ?? old?.ui_mode ?? null,
+      }))
     },
   })
 }

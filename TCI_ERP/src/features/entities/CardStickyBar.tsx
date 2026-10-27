@@ -64,6 +64,7 @@ export function CardStickyBar({
       <div ref={bar} data-card-sticky className="sticky top-16 z-30">
         <div
           aria-hidden={!stuck}
+          data-brand-surface
           className={`${BLEED} flex h-12 items-center gap-3 bg-accent-900 text-white transition-opacity duration-[var(--duration-fast-02)] ${
             stuck ? 'opacity-100' : 'pointer-events-none opacity-0'
           }`}

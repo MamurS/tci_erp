@@ -85,8 +85,15 @@ export const ADT_SETTINGS_BOUNDS = {
   financialsMaxAgeMonths: { min: 3, max: 60 },
 } as const
 
-/** Bounds of an ADT (buyer_adt.total_count, max_amount). */
-export const ADT_COUNT_BOUNDS = { min: 1, max: 1000 } as const
+/** Bounds of an ADT's number of auto decisions (buyer_adt.total_count:
+ * 0061's 1–1000, capped at five by 0083 — owner, 2026-10-27). */
+export const ADT_COUNT_BOUNDS = { min: 1, max: 5 } as const
+
+/** What the form offers: every count from one to five. */
+export const ADT_COUNT_CHOICES: readonly number[] = Array.from(
+  { length: ADT_COUNT_BOUNDS.max - ADT_COUNT_BOUNDS.min + 1 },
+  (_, i) => ADT_COUNT_BOUNDS.min + i,
+)
 
 // ---------------------------------------------------------------------------
 // Who

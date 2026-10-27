@@ -2210,7 +2210,6 @@
       "setHint": "Auto decisions approve a requested limit up to this amount at once, if the recommended limit covers it and nothing stops it. The new ADT replaces the current one; each auto decision uses one, whatever its amount.",
       "latestRating": "Latest rating {{grade}} · rating band {{band}}",
       "recommended": "Recommended limit: {{amount}}",
-      "countHint": "From {{min}} to {{max}}.",
       "authorityIn": "Your authority in rating band {{band}}: {{amount}}",
       "beyondAuthority": "Above your authority in rating band {{band}} — it will be refused.",
       "noRate": "No UZS rate for {{currency}}: the amount cannot be weighed against your authority.",
@@ -2858,6 +2857,24 @@
     },
     "display": {
       "title": "Display"
+    },
+    "uiTheme": {
+      "title": "Colour theme",
+      "hint": "The colour of the menu, the bands, the buttons and the links.",
+      "names": {
+        "blue": "Blue",
+        "salad": "Salad green",
+        "teal": "Teal",
+        "plum": "Plum",
+        "graphite": "Graphite"
+      },
+      "mode": {
+        "title": "Light or dark",
+        "hint": "Auto follows your device. Printed pages are always light.",
+        "light": "Light",
+        "dark": "Dark",
+        "auto": "Auto"
+      }
     }
   },
   "provisioning": {

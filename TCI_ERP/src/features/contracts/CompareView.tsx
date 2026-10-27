@@ -139,7 +139,7 @@ export function CompareView({
         <Spinner />
       ) : layout === 'inline' ? (
         <article className="cd-sheet" style={sheetStyle(b.data?.content.attrs?.layout)}>
-          <div className="cdoc">
+          <div data-paper className="cdoc">
             {lines.map((line, i) => (
               <LineView key={i} line={line} side="both" />
             ))}
@@ -152,7 +152,7 @@ export function CompareView({
               <div className="mb-3 text-caption font-semibold tracking-wide text-slate-500 uppercase">
                 v{side === 'before' ? older : newer}
               </div>
-              <div className="cdoc">
+              <div data-paper className="cdoc">
                 {lines.map((line, i) => (
                   <LineView key={i} line={line} side={side} />
                 ))}

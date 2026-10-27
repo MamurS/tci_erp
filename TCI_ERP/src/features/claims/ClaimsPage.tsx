@@ -5,7 +5,7 @@
  * in a quick view beside the queue. */
 
 import { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { usePageSearch } from '../../components/layout/usePageSearch'
@@ -21,6 +21,7 @@ import {
   EmptyState,
   labelCol,
   LinkButton,
+  LinkRow,
   PageHeader,
   QuickViewButton,
   RowActions,
@@ -63,7 +64,6 @@ const COLUMNS = ['11rem', COL.fill, COL.money, '7rem', labelCol('claimStatus'), 
 export function ClaimsPage() {
   const { t, i18n } = useTranslation()
   const locale = i18n.language
-  const navigate = useNavigate()
   const { data, isLoading } = useClaims()
   const [scope, setScope] = useState<'open' | 'all'>('open')
   // The quick view: a claim's summary beside the queue.
@@ -211,7 +211,6 @@ export function ClaimsPage() {
                 locale={locale}
                 selected={selected.has(c.id)}
                 onToggle={() => toggle(c.id)}
-                onOpen={() => void navigate(`/claims/${c.id}`)}
                 onPeek={() => setPeekId(c.id)}
               />
             ))}
@@ -256,19 +255,19 @@ function ClaimRow({
   locale,
   selected,
   onToggle,
-  onOpen,
   onPeek,
 }: {
   claim: Claim
   locale: string
   selected: boolean
   onToggle: () => void
-  onOpen: () => void
   onPeek: () => void
 }) {
   const { t } = useTranslation()
+  // The row opens the claim; the buyer opens the company, the policyholder
+  // theirs, the quick view stays on its own button.
   return (
-    <tr onClick={onOpen} className="cursor-pointer transition-colors hover:bg-slate-50">
+    <LinkRow to={`/claims/${claim.id}`} className="transition-colors hover:bg-slate-50">
       <td className="whitespace-nowrap">
         <span className="flex items-start gap-3">
           <SelectCheckbox
@@ -278,12 +277,7 @@ function ClaimRow({
             onChange={onToggle}
           />
           <span className="min-w-0 truncate">
-            {/* The row opens on click; the link is what a keyboard reaches. */}
-            <Link
-              to={`/claims/${claim.id}`}
-              onClick={(e) => e.stopPropagation()}
-              className="font-medium text-accent-600 hover:underline"
-            >
+            <Link to={`/claims/${claim.id}`} className="font-medium text-accent-600 hover:underline">
               {claim.claim_number}
             </Link>
             {claim.noa_reported_late && (
@@ -296,15 +290,18 @@ function ClaimRow({
       </td>
       <td className="cell-fill">
         <Truncate text={claim.buyer_name} className="max-w-none">
-          <Link
-            to={`/entities/${claim.buyer_entity_id}`}
-            onClick={(e) => e.stopPropagation()}
-            className="hover:underline"
-          >
+          <Link to={`/entities/${claim.buyer_entity_id}`} className="hover:underline">
             {claim.buyer_name}
           </Link>
         </Truncate>
-        <Truncate text={claim.policyholder_name} className="max-w-none text-caption text-slate-500" />
+        <Truncate text={claim.policyholder_name} className="max-w-none text-caption">
+          <Link
+            to={`/entities/${claim.policyholder_entity_id}`}
+            className="text-slate-500 hover:text-accent-600 hover:underline"
+          >
+            {claim.policyholder_name}
+          </Link>
+        </Truncate>
       </td>
       <td className="num">
         {formatAmount(Number(claim.claimed_amount), locale)} {claim.currency_code}
@@ -325,7 +322,7 @@ function ClaimRow({
       <RowActions reveal>
         <QuickViewButton name={claim.claim_number} onClick={onPeek} />
       </RowActions>
-    </tr>
+    </LinkRow>
   )
 }
 

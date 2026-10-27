@@ -15,6 +15,7 @@ import {
   COL,
   EmptyState,
   labelCol,
+  LinkRow,
   Segmented,
   Spinner,
   Table,
@@ -98,13 +99,12 @@ export function FreshnessView() {
                 r.missing_address && t('data.freshness.gap.address'),
                 r.missing_industry && t('data.freshness.gap.industry'),
               ].filter(Boolean) as string[]
+              // The row opens the work (the company's tab the gap is on); the
+              // name opens the company, «open request» the data request.
               return (
-                <tr key={r.entity_id}>
+                <LinkRow key={r.entity_id} to={`/entities/${r.entity_id}?tab=${REASON_TAB[r.reason]}`}>
                   <td>
-                    <Link
-                      to={`/entities/${r.entity_id}?tab=${REASON_TAB[r.reason]}`}
-                      className="font-medium text-accent-600 hover:underline"
-                    >
+                    <Link to={`/entities/${r.entity_id}`} className="font-medium text-accent-600 hover:underline">
                       {r.name}
                     </Link>
                     <span className="block text-caption text-slate-500">{countryName(r.country_code)}</span>
@@ -131,7 +131,7 @@ export function FreshnessView() {
                       </Link>
                     )}
                   </td>
-                </tr>
+                </LinkRow>
               )
             })}
           </tbody>

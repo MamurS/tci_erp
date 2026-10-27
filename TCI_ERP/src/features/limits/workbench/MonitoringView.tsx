@@ -14,6 +14,7 @@ import {
   COL,
   EmptyState,
   labelCol,
+  LinkRow,
   Spinner,
   Truncate,
   ViewBar,
@@ -74,15 +75,19 @@ export function MonitoringView() {
             }
           >
             {reviews.map((r) => (
-              <tr key={r.decision_id}>
+              // Each row opens its own object (the limit, the notification,
+              // the group); a name or a number inside opens what it names.
+              <LinkRow key={r.decision_id} to={`/limits/${r.request_id}`}>
                 <td>
                   <Truncate text={r.buyer_name} className="max-w-none">
-                    <Link to={`/limits/${r.request_id}`} className="font-medium text-accent-600 hover:text-accent-500">
-                      {r.buyer_name}
-                    </Link>
+                    <EntityLink id={r.buyer_entity_id} name={r.buyer_name} />
                   </Truncate>
                 </td>
-                <td className="whitespace-nowrap text-slate-600">{r.policy_number}</td>
+                <td className="whitespace-nowrap">
+                  <Link to={`/policies/${r.policy_id}`} className="text-accent-600 hover:text-accent-500">
+                    {r.policy_number}
+                  </Link>
+                </td>
                 <td className="num whitespace-nowrap">
                   {formatAmount(num(r.approved_amount), locale)} {r.currency_code}
                 </td>
@@ -92,7 +97,7 @@ export function MonitoringView() {
                 >
                   {formatDays(r.days_to_review, locale)}
                 </td>
-              </tr>
+              </LinkRow>
             ))}
           </TableCard>
 
@@ -110,10 +115,10 @@ export function MonitoringView() {
             }
           >
             {worse.map((r) => (
-              <tr key={r.decision_id}>
+              <LinkRow key={r.decision_id} to={`/limits/${r.request_id}`}>
                 <td>
                   <Truncate text={r.buyer_name} className="max-w-none">
-                    <EntityLink id={r.buyer_entity_id} name={r.buyer_name} tab="rating" />
+                    <EntityLink id={r.buyer_entity_id} name={r.buyer_name} />
                   </Truncate>
                 </td>
                 <td>
@@ -125,7 +130,7 @@ export function MonitoringView() {
                 <td className="num">
                   <Uzs value={r.amount_uzs} />
                 </td>
-              </tr>
+              </LinkRow>
             ))}
           </TableCard>
 
@@ -144,17 +149,20 @@ export function MonitoringView() {
             }
           >
             {openNoas.map((n) => (
-              <tr key={n.id}>
+              <LinkRow key={n.id} to={`/overdues/${n.id}`}>
                 <td>
                   <Truncate text={n.buyer_name} className="max-w-none">
-                    <Link to={`/overdues/${n.id}`} className="font-medium text-accent-600 hover:text-accent-500">
-                      {n.buyer_name}
-                    </Link>
+                    <EntityLink id={n.buyer_entity_id} name={n.buyer_name} />
                   </Truncate>
                 </td>
-                <td className="text-slate-600">
+                <td>
                   <Truncate text={n.policyholder_name} className="max-w-none">
-                    {n.policyholder_name}
+                    <Link
+                      to={`/entities/${n.policyholder_entity_id}`}
+                      className="text-slate-600 hover:text-accent-600 hover:underline"
+                    >
+                      {n.policyholder_name}
+                    </Link>
                   </Truncate>
                 </td>
                 <td className="num whitespace-nowrap">
@@ -168,7 +176,7 @@ export function MonitoringView() {
                     <Badge tone="warn">{t('limits.workbench.monitoring.notSuspended')}</Badge>
                   )}
                 </td>
-              </tr>
+              </LinkRow>
             ))}
           </TableCard>
 
@@ -186,10 +194,10 @@ export function MonitoringView() {
             }
           >
             {atRisk.map((g) => (
-              <tr key={g.ultimate_parent_id}>
+              <LinkRow key={g.ultimate_parent_id} to={`/entities/${g.ultimate_parent_id}?tab=group`}>
                 <td>
                   <Truncate text={g.ultimate_parent_name} className="max-w-none">
-                    <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} tab="group" />
+                    <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} />
                   </Truncate>
                 </td>
                 <td className="num">
@@ -203,7 +211,7 @@ export function MonitoringView() {
                     {formatPercent((num(g.utilisation_pct) ?? 0) / 100, locale)}
                   </Badge>
                 </td>
-              </tr>
+              </LinkRow>
             ))}
           </TableCard>
         </div>

@@ -1,7 +1,7 @@
 /** «Коммерческие предложения» on the company card — prospects included: every
  * offer prepared for this organisation, with its status (expired derived),
- * validity and the submission it belongs to. The number opens the offer
- * screen; «Скачать PDF» prints the version the client sees (or the latest)
+ * validity and the submission it belongs to. The row opens the offer
+ * screen, the submission number the submission; «Скачать PDF» prints the version the client sees (or the latest)
  * through the same renderer as the preview. */
 
 import { useState } from 'react'
@@ -10,7 +10,19 @@ import { Link } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { Download } from 'lucide-react'
 
-import { actionsCol, Badge, Callout, Card, COL, EmptyState, labelCol, RowActions, SectionTitle, Table } from '../../components/ui'
+import {
+  actionsCol,
+  Badge,
+  Callout,
+  Card,
+  COL,
+  EmptyState,
+  labelCol,
+  LinkRow,
+  RowActions,
+  SectionTitle,
+  Table,
+} from '../../components/ui'
 import { formatDate, formatMoment } from '../../lib/format'
 import { countriesQuery } from '../entities/api'
 import { offerVersionQuery, useEntityOffers } from './api'
@@ -67,7 +79,9 @@ export function EntityOffersList({ entityId }: { entityId: string }) {
           </thead>
           <tbody>
             {offers.map((o) => (
-              <tr key={o.id}>
+              // The row opens the offer; the submission number opens the
+              // submission at its offer.
+              <LinkRow key={o.id} to={offerEditPath(o.id, o.published_version_no ?? o.current_version_no)}>
                 <td>
                   <Link
                     to={offerEditPath(o.id, o.published_version_no ?? o.current_version_no)}
@@ -99,7 +113,7 @@ export function EntityOffersList({ entityId }: { entityId: string }) {
                     <Download />
                   </button>
                 </RowActions>
-              </tr>
+              </LinkRow>
             ))}
           </tbody>
         </Table>

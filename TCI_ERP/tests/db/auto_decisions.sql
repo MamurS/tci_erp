@@ -141,6 +141,12 @@ begin
   exception when insufficient_privilege then null;
   end;
   perform pg_temp.act(c_credit);
+  -- At most five auto decisions per ADT (0083).
+  begin
+    perform tci.set_buyer_adt(c_buyer, 200000, 'UZS', 6);
+    raise exception 'auto_decisions: an ADT of six auto decisions was accepted';
+  exception when check_violation then null;
+  end;
   v_adt := tci.set_buyer_adt(c_buyer, 200000, 'UZS', 2, null, 'Annual review');
   if v_adt.grade_band <> 'B' then
     raise exception 'auto_decisions: the ADT did not take the rating band';
@@ -308,7 +314,7 @@ begin
   end if;
   perform pg_temp.owner();
 
-  raise notice 'auto_decisions: OK — ADT within the setter''s authority and hidden from sales/commercial, switch off sends all to underwriters, auto decision released at once with policy terms, counter shared across policyholders, charged one whatever the amount, exhausted => review task and underwriter, new review replaces, no partial auto decisions, every stop factor, downgrade suspends, report for the credit desk only';
+  raise notice 'auto_decisions: OK — ADT within the setter''s authority and at most five decisions, hidden from sales/commercial, switch off sends all to underwriters, auto decision released at once with policy terms, counter shared across policyholders, charged one whatever the amount, exhausted => review task and underwriter, new review replaces, no partial auto decisions, every stop factor, downgrade suspends, report for the credit desk only';
 end;
 $$;
 

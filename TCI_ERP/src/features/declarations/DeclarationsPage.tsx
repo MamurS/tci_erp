@@ -25,6 +25,7 @@ import {
   EmptyState,
   labelCol,
   LinkButton,
+  LinkRow,
   PageHeader,
   QuickViewButton,
   RowActions,
@@ -153,22 +154,23 @@ export function DeclarationsPage() {
           {tableHead}
           <tbody>
             {rows.map((d) => (
-              <tr
-                key={d.id}
-                onClick={() => void navigate(`/declarations/${d.id}`)}
-                className="cursor-pointer transition-colors hover:bg-slate-50"
-              >
+              // The row opens the declaration; the policy number opens the
+              // policy, the quick view stays on its own button.
+              <LinkRow key={d.id} to={`/declarations/${d.id}`} className="transition-colors hover:bg-slate-50">
                 <td className="font-medium whitespace-nowrap">
-                  {/* The row opens on click; the link is what a keyboard reaches. */}
-                  <Link
-                    to={`/declarations/${d.id}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="text-accent-700 hover:underline"
-                  >
+                  <Link to={`/declarations/${d.id}`} className="text-accent-700 hover:underline">
                     {formatPeriod(d.period_start, d.period_end, i18n.language)}
                   </Link>
                 </td>
-                <td className="whitespace-nowrap text-slate-600">{d.policies?.policy_number ?? EM_DASH}</td>
+                <td className="whitespace-nowrap text-slate-600">
+                  {d.policies?.policy_number ? (
+                    <Link to={`/policies/${d.policy_id}`} className="hover:text-accent-600 hover:underline">
+                      {d.policies.policy_number}
+                    </Link>
+                  ) : (
+                    EM_DASH
+                  )}
+                </td>
                 <td className="text-slate-500">
                   <Truncate text={d.policies?.legal_entities?.name ?? EM_DASH} className="max-w-none" />
                 </td>
@@ -188,7 +190,7 @@ export function DeclarationsPage() {
                     onClick={() => setPeekId(d.id)}
                   />
                 </RowActions>
-              </tr>
+              </LinkRow>
             ))}
           </tbody>
         </Table>

@@ -104,6 +104,7 @@ export default function ContractEditor({ initial, stale, context, onChange, ref 
     editorProps: {
       attributes: {
         class: 'cdoc',
+        'data-paper': '',
         'aria-label': t('contractDrafts.editor.area'),
         spellcheck: 'true',
       },

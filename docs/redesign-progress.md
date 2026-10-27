@@ -206,7 +206,27 @@ Re-read the brief against the screens; what it asks beyond colour:
 19. Company card: the sections stick with a slim navy name bar
     (`CardStickyBar`); the period / currency controls do NOT stick (they
     would take a third row of the screen). Reverse: render `<Tabs>` in
-    place of `<CardStickyBar>` in `EntityDetailPage`.
+    place of `<CardStickyBar>` in `EntityDetailPage`. *Superseded by 21 for
+    the financial sheets.*
+20. A list row opens its object; every link in it opens its own (owner,
+    2026-10-27): `LinkRow` on every list whose rows have a page, the first
+    link re-pointed from the row's object to the one it names. Version rows
+    (contract drafts, offers) open the version; group and rating-worklist
+    rows open the company on its group / rating tab while the name opens the
+    company; rows that open a detail in place (portal claims, declarations,
+    contracts; admin users) keep doing so — they have no route of their own.
+    Reverse: `LinkRow` → `tr` and the links back, from `git log -p`.
+21. The financial sheets' period / currency row sticks with the sheet tabs
+    (owner request, reversing the «do NOT stick» of 19 for this tab); the
+    notices under it scroll. Reverse: move the controls row out of the
+    sticky block in `FinancialsTab`.
+22. Colour themes and dark mode (owner, 2026-10-27, migration 0082): blue
+    (default), salad green, teal, plum, graphite; light / dark / auto per
+    person. The menu and bands stay at the darkest steps so white text reads
+    on them — a theme shows its light tints in highlights and selections.
+    Print is always the house blue on white. Reverse: drop
+    `renderThemeCss()` from `renderTokensCss`, the picker rows, and 0082's
+    columns are inert.
 
 ## Latency (phase 3, production bundle, median of 5)
 

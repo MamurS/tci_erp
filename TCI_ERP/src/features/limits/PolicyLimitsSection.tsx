@@ -2,7 +2,7 @@
  * open requests for this policy, and the Request-limit entry point. */
 
 import { useMemo, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import {
@@ -11,6 +11,7 @@ import {
   COL,
   EmptyState,
   labelCol,
+  LinkRow,
   SectionTitle,
   Table,
   Truncate,
@@ -27,7 +28,6 @@ import { RequestLimitModal } from './RequestLimitModal'
 export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const navigate = useNavigate()
 
   const { data: effective } = useEffectiveLimits({ policyId: policy.id })
   // A system-made decision names its mark (an auto decision, a suspension).
@@ -97,8 +97,10 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
               // A revoked or declined limit is no cover at all: «—», not
               // «0 USD», and no «until review» on something that is gone.
               const noCover = limit.outcome === 'revoked' || limit.outcome === 'declined'
+              // The row opens the limit; the buyer opens the company, the
+              // status badge the open request on it.
               return (
-                <tr key={limit.decision_id}>
+                <LinkRow key={limit.decision_id} to={`/limits/${limit.request_id}`}>
                   <td>
                     <div className="flex min-w-0 items-center gap-2">
                       <Truncate text={buyerName(limit.entity_id)} className="max-w-none min-w-0">
@@ -191,18 +193,16 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                       nowIso={nowIso}
                     />
                   </td>
-                </tr>
+                </LinkRow>
               )
             })}
             {openOnly.map((r) => (
-              <tr
-                key={r.id}
-                onClick={() => void navigate(`/limits/${r.id}`)}
-                className="cursor-pointer transition-colors hover:bg-slate-50"
-              >
+              <LinkRow key={r.id} to={`/limits/${r.id}`} className="transition-colors hover:bg-slate-50">
                 <td>
-                  <Truncate text={buyerName(r.entity_id)} className="max-w-none font-medium text-slate-800">
-                    {buyerName(r.entity_id)}
+                  <Truncate text={buyerName(r.entity_id)} className="max-w-none min-w-0">
+                    <Link to={`/entities/${r.entity_id}`} className="font-medium text-accent-700 hover:underline">
+                      {buyerName(r.entity_id)}
+                    </Link>
                   </Truncate>
                 </td>
                 <td>
@@ -219,7 +219,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                 </td>
                 <td className="text-slate-500">{EM_DASH}</td>
                 <td className="text-slate-500">{EM_DASH}</td>
-              </tr>
+              </LinkRow>
             ))}
           </tbody>
         </Table>

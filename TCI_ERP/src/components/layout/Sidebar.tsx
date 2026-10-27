@@ -104,6 +104,7 @@ export function Sidebar({
   return (
     <aside
       id={id}
+      data-brand-surface
       className="flex h-full w-[calc(16rem*var(--ui-text,1))] flex-col bg-gradient-to-b from-accent-800 to-accent-900 text-white"
       aria-label={t('nav.title')}
     >

@@ -22,6 +22,7 @@ import {
   Field,
   labelCol,
   LinkButton,
+  LinkRow,
   Modal,
   PageHeader,
   Spinner,
@@ -70,7 +71,8 @@ export function PortalOffersPage() {
           </thead>
           <tbody>
             {offers.map((o) => (
-              <tr key={o.id}>
+              // The row opens the offer, as «Открыть» does.
+              <LinkRow key={o.id} to={portalOfferPath(o.id)}>
                 <td className="font-mono">{o.offer_number}</td>
                 <td>{o.request_number}</td>
                 <td className="tabular-nums">{o.published_at ? formatDate(o.published_at, locale) : '—'}</td>
@@ -83,7 +85,7 @@ export function PortalOffersPage() {
                     {t('offers.portal.open')}
                   </LinkButton>
                 </td>
-              </tr>
+              </LinkRow>
             ))}
           </tbody>
         </Table>
