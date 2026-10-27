@@ -1020,8 +1020,13 @@ is fine for internal test accounts and not fine for customers.
   behind, counts unchanged); no new advisor finding
 - [x] ADT capped at five auto decisions (migration 0083, owner 2026-10-27):
   «Количество авторешений» is a 1–5 list instead of a free number field;
-  the table refuses more than five. **Canonical: 0083 NOT applied yet** —
-  additive (the one ADT there has five), awaiting the owner's yes
+  the table refuses more than five. **Canonical: 0083 applied 2026-10-27**
+  before merge (owner's yes; additive — the one ADT there has five): the
+  `buyer_adt` constraints verified identical to a local replay of 0082
+  first, the file in one call with its ledger row (md5-identical to the
+  committed file), identical to a replay of 0083 afterwards; smoke with a
+  forced rollback (six refused, five accepted, sales still refused), counts
+  unchanged, no new advisor finding
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
