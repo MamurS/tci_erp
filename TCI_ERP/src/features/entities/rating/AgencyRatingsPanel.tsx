@@ -115,7 +115,7 @@ function RatingsTable({
 }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const columns = [COL.fill, '11rem', '10rem', '10rem', '8rem', COL.fill, ...(onUpdate ? ['9rem'] : [])]
+  const columns = ['11rem', '9rem', '10rem', '15rem', '8rem', COL.fill, ...(onUpdate ? ['9rem'] : [])]
   return (
     <Table dense columns={columns}>
       <thead>
@@ -140,16 +140,17 @@ function RatingsTable({
           return (
             <tr key={r.id}>
               <td className="font-medium text-slate-800">{agencyName(r.agency, r.agency_name)}</td>
-              <td className="text-small text-slate-600">
-                {t(`agencyRatings.scale.${r.scale}`)} · {t(`agencyRatings.term.${r.term}`)}
+              <td className="whitespace-normal text-small text-slate-600">
+                {t(`agencyRatings.scale.${r.scale}`)}
+                <span className="block text-caption text-slate-500">{t(`agencyRatings.term.${r.term}`)}</span>
               </td>
               <td>
                 {r.rating ? (
-                  <span className="inline-flex items-center gap-2">
+                  <span className="flex flex-col items-start gap-0.5">
                     <Badge tone="neutral">
                       <span className="font-mono">{r.rating}</span>
                     </Badge>
-                    {cls && <span className="text-caption text-slate-500">{t(`agencyRatings.class.${cls}`)}</span>}
+                    {cls && <span className="text-caption whitespace-normal text-slate-500">{t(`agencyRatings.class.${cls}`)}</span>}
                   </span>
                 ) : (
                   <span className="text-small text-slate-500" title={r.note ?? undefined}>
