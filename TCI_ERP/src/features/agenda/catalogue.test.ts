@@ -30,6 +30,8 @@ import PROPOSALS_ENUMS from '../../../supabase/migrations/0072_rating_proposals_
 import PROPOSALS from '../../../supabase/migrations/0073_rating_proposals.sql?raw'
 import RISK_ENUMS from '../../../supabase/migrations/0084_sector_country_risk_enums.sql?raw'
 import RISK from '../../../supabase/migrations/0085_sector_country_risk.sql?raw'
+import UPKEEP_ENUMS from '../../../supabase/migrations/0086_country_risk_tasks_enums.sql?raw'
+import UPKEEP from '../../../supabase/migrations/0087_country_risk_upkeep.sql?raw'
 import {
   AGENDA_GROUPS,
   agendaCounts,
@@ -105,6 +107,7 @@ describe('task type enum', () => {
       ...LEVELS_ENUMS.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
       ...PROPOSALS_ENUMS.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
       ...RISK_ENUMS.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
+      ...UPKEEP_ENUMS.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
     ].map((m) => m[1])
     expect([...created, ...appended]).toEqual([...TASK_TYPES])
   })
@@ -160,7 +163,10 @@ describe('task type enum', () => {
     // 0084 adds the five sector, country and sanctions types (0085 uses them).
     const addedRisk = RISK_ENUMS.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
     expect(addedRisk).toHaveLength(5)
-    expect(TASK_TYPES).toHaveLength(48)
+    // 0086 adds the OECD reminder and the country downgrade review (0087 uses them).
+    const addedUpkeep = UPKEEP_ENUMS.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
+    expect(addedUpkeep).toHaveLength(2)
+    expect(TASK_TYPES).toHaveLength(50)
   })
 
   it('lists exactly the values of tci.task_priority', () => {
@@ -176,10 +182,11 @@ describe('completion rules', () => {
     expect(Object.keys(COMPLETION_RULES).sort()).toEqual([...TASK_TYPES].sort())
   })
 
-  it('marks exactly the nine types the migrations call manual', () => {
+  it('marks exactly the ten types the migrations call manual', () => {
     const manual = TASK_TYPES.filter((type) => COMPLETION_RULES[type] === 'manual')
     expect([...manual].sort()).toEqual([
       'claim_declined_review',
+      'country_downgrade_review',
       'entity_request_resolved',
       'limit_validation_fyi',
       'limit_validation_result',
@@ -189,6 +196,7 @@ describe('completion rules', () => {
       'submission_declined',
       'uncovered_excess_review',
     ])
+    expect(UPKEEP).toContain('complete_task: country_downgrade_review is the tenth manual type.')
     expect(RISK).toContain('-- complete_task: sector_downgrade_review and sanctions_limit_review are the\n-- eighth and ninth manual types.')
     expect(PROPOSALS).toContain('-- complete_task: rating_proposal_result is the seventh manual type.')
     expect(VALIDATION).toContain('limit_validation_result  the author (a person)      normal; MANUAL close')
@@ -199,7 +207,10 @@ describe('completion rules', () => {
     expect(PHASE5).toContain('claim_declined_review is MANUAL for the same reason as submission_declined')
   })
 
-  it('mirrors the guard in tci.complete_task as 0085 restated it', () => {
+  it('mirrors the guard in tci.complete_task as 0087 restated it', () => {
+    expect(UPKEEP).toContain(
+      "      'sector_downgrade_review', 'sanctions_limit_review',\n      -- 0087: a person decides when the buyers in countries a new OECD\n      -- list made worse have been looked at.\n      'country_downgrade_review') then",
+    )
     expect(RISK).toContain(
       "     ('submission_declined', 'uncovered_excess_review', 'claim_declined_review',\n      'entity_request_resolved', 'limit_validation_result', 'limit_validation_fyi',\n      'rating_proposal_result',\n      -- 0085: a person decides when the buyers of a downgraded sector, or a\n      -- limit on a sanctioned party, have been looked at.\n      'sector_downgrade_review', 'sanctions_limit_review') then",
     )
@@ -213,6 +224,7 @@ describe('completion rules', () => {
       'rating_proposal_result',
       'sector_downgrade_review',
       'sanctions_limit_review',
+      'country_downgrade_review',
     ]
     for (const type of TASK_TYPES) {
       expect(canCompleteByHand(type)).toBe(MANUAL.includes(type))
@@ -223,7 +235,7 @@ describe('completion rules', () => {
     // Each header row is "<type>  <target>  AUTO ..." or "... MANUAL - ...".
     // A row may continue on the next comment lines (0060 wraps
     // limit_validation's), so the rule is read up to the next type's row.
-    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}\n${PAYMENTS}\n${CONTRACTS}\n${OFFERS}\n${VALIDATION}\n${INFO}\n${LEVELS}\n${PROPOSALS}\n${RISK}`.split('\n')
+    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}\n${PAYMENTS}\n${CONTRACTS}\n${OFFERS}\n${VALIDATION}\n${INFO}\n${LEVELS}\n${PROPOSALS}\n${RISK}\n${UPKEEP}`.split('\n')
     // 0061 has no catalogue table in its header: adt_review's rule is read
     // from its mapping instead (the next test).
     for (const type of TASK_TYPES.filter((t) => t !== 'adt_review')) {

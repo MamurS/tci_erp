@@ -73,6 +73,11 @@ export const TASK_TYPES = [
   'sector_downgrade_review',
   'sanctions_limit_review',
   'country_override_approval',
+  // Keeping the OECD list current (migrations 0086–0087): admin is reminded
+  // to check for a newer list; credit underwriting looks at the buyers in
+  // countries a new list made worse
+  'oecd_review_due',
+  'country_downgrade_review',
 ] as const
 
 export type TaskType = (typeof TASK_TYPES)[number]
@@ -111,6 +116,10 @@ export type TaskObjectType =
   | 'sector'
   // an internal country grade waiting for the head of credit analysis (0085)
   | 'country_risk_override'
+  // the OECD list in use (the nil uuid when there is none) — the reminder (0087)
+  | 'country_risk_list'
+  // an imported OECD list that made countries worse (0087)
+  | 'country_risk_import'
 
 export interface Task {
   id: string

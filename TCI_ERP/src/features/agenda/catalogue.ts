@@ -107,6 +107,11 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   sector_downgrade_review: 'manual',
   sanctions_limit_review: 'manual',
   country_override_approval: 'auto',
+  // Keeping the OECD list current (0087): the reminder is answered by an
+  // import (or retired when the setting moves); the downgrade review is
+  // credit underwriting's to close, the tenth manual type.
+  oecd_review_due: 'auto',
+  country_downgrade_review: 'manual',
 }
 
 /** Mirrors tci.complete_task's guard (as 0060 restates it): it refuses
@@ -208,6 +213,10 @@ export function taskLink(
       return `/sectors/${task.object_id}`
     case 'country_risk_override':
       return `/sectors?view=countries&override=${task.object_id}`
+    case 'country_risk_list':
+      return '/admin?tab=risk&focus=oecd'
+    case 'country_risk_import':
+      return '/sectors?view=countries'
     default:
       return null
   }
@@ -343,6 +352,8 @@ export const OBJECT_FILTERS = [
   'rating_proposal_step',
   'sector',
   'country_risk_override',
+  'country_risk_list',
+  'country_risk_import',
 ] as const satisfies readonly TaskObjectType[]
 
 export interface AgendaFilters {
