@@ -12,6 +12,8 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
+import { usePageSearch } from '../../components/layout/usePageSearch'
+import { normalizeSearch } from '../../lib/pageSearch'
 import {
   actionsCol,
   Badge,
@@ -19,7 +21,6 @@ import {
   Card,
   COL,
   EmptyState,
-  Input,
   labelCol,
   LinkButton,
   RowActions,
@@ -68,14 +69,15 @@ export function ContractsPage() {
   const text = useTemplateText()
 
   const [segment, setSegment] = useState<Segment>('policies')
-  const [search, setSearch] = useState('')
+  // The one search (top bar): every comma-separated term must match.
+  const { query: search, terms, setQuery: setSearch } = usePageSearch('policies')
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const activeCount = (templates ?? []).filter((x) => x.status === 'active').length
-  const query = search.trim().toLowerCase()
+  const query = search.trim()
   const matches = (...values: (string | null | undefined)[]) =>
-    !query || values.some((v) => v?.toLowerCase().includes(query))
+    terms.every((term) => values.some((v) => v && normalizeSearch(v).includes(term)))
 
   const docCount = useMemo(() => {
     const counts = new Map<string, number>()
@@ -157,7 +159,7 @@ export function ContractsPage() {
       />
 
       {error && (
-        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] text-neg-500" role="alert">
+        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-3 text-small text-neg-500" role="alert">
           {error}
         </div>
       )}
@@ -167,7 +169,7 @@ export function ContractsPage() {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="max-w-2xl">
               <div className="font-semibold text-slate-800">{t('contracts.noTemplates.title')}</div>
-              <p className="mt-1 text-[0.8125rem] leading-relaxed text-slate-600">
+              <p className="mt-1 text-small leading-relaxed text-slate-600">
                 {canManageTemplates ? t('contracts.noTemplates.hintManager') : t('contracts.noTemplates.hintOther')}
               </p>
             </div>
@@ -194,13 +196,6 @@ export function ContractsPage() {
             label: `${t(`contracts.tabs.${key}`)} (${counts[key]})`,
           }))}
           onChange={(key) => setSegment(key as Segment)}
-        />
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('contracts.searchPlaceholder')}
-          aria-label={t('contracts.searchPlaceholder')}
-          className="w-full sm:w-72"
         />
       </div>
 
@@ -233,7 +228,7 @@ export function ContractsPage() {
                       <Truncate text={p.legal_entities?.name} className="max-w-none">
                         {p.legal_entities?.name ?? EM_DASH}
                       </Truncate>
-                      <span className="block text-[0.75rem] text-slate-500">{t(`policies.structures.${p.product_structure}`)}</span>
+                      <span className="block text-caption text-slate-500">{t(`policies.structures.${p.product_structure}`)}</span>
                     </td>
                     <td className="whitespace-nowrap text-slate-500">
                       {formatDate(p.inception_date, locale)} — {formatDate(p.expiry_date, locale)}
@@ -376,7 +371,7 @@ export function ContractsPage() {
                       </td>
                       <td>
                         <Truncate text={`${name} v${d.template_version}`} className="max-w-none">
-                          {name} <span className="text-xs text-slate-400 tabular-nums">v{d.template_version}</span>
+                          {name} <span className="text-caption text-slate-500 tabular-nums">v{d.template_version}</span>
                         </Truncate>
                       </td>
                       <td className="whitespace-nowrap">{languageName(d.language, locale)}</td>

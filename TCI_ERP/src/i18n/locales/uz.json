@@ -201,7 +201,17 @@
     "tasksMore": "yana {{count}}",
     "premiumUzsUnit": "UZS ekv.",
     "premiumConverted": "Barcha valyutalar mavjud so‘nggi kurs bo‘yicha UZS ga qayta hisoblangan. Hisoblangan:",
-    "premiumNoRate": "UZS kursi yo‘q, kiritilmagan: {{currencies}}"
+    "premiumNoRate": "UZS kursi yo‘q, kiritilmagan: {{currencies}}",
+    "vsMonthStart": "oy boshiga nisbatan",
+    "gradeMix": "Portfel reyting bo‘yicha",
+    "gradeMixRated_one": "Reytingi bor {{count}} ta tashkilot",
+    "gradeMixRated_other": "Reytingi bor {{count}} ta tashkilot",
+    "gradeMixEmpty": "Hali birorta tashkilotning reytingi yo‘q.",
+    "gradeMixMeasure": "Ko‘rsatkich",
+    "gradeMixBuyers": "Bayerlar",
+    "gradeMixExposure": "Ekspozitsiya",
+    "gradeMixUzs": "Amaldagi limitlar, UZS ekv.",
+    "gradeMixUnrated": "Amaldagi limitlar, UZS ekv. Yana {{amount}} UZS reytingsiz bayerlarga to‘g‘ri keladi."
   },
   "buyers": {
     "subtitle": "Kredit bahosidagi bayerlar (debitorlar) reyestri",
@@ -1546,6 +1556,9 @@
       "revokedOn": "bekor qilingan: {{date}}",
       "declinedOn": "rad etilgan: {{date}}",
       "decidedOn": "Qaror sanasi: {{date}}"
+    },
+    "quickView": {
+      "openPolicy": "Polisni ochish"
     }
   },
   "limits": {
@@ -2265,6 +2278,42 @@
       "openReplaced": "Avvalgi so‘rovni ochish",
       "replaces": "Almashtiradi",
       "withdrawnByPolicyholder": "sug‘urtalanuvchi tomonidan, portalda"
+    },
+    "hero": {
+      "eyebrow": "Kredit limiti so‘rovi",
+      "requested": "So‘ralgan",
+      "terms": "to‘lov muddati {{days}} kun",
+      "noTerms": "to‘lov muddati ko‘rsatilmagan",
+      "grade": "Bayer reytingi",
+      "band": "reyting diapazoni {{band}}",
+      "waiting": "Kutmoqda",
+      "days_one": "kun",
+      "days_other": "kun",
+      "since": "{{date}} da yuborilgan",
+      "notSubmitted": "hali yuborilmagan"
+    },
+    "bar": {
+      "title": "So‘ralgan va qaror qilingan",
+      "requested": "So‘ralgan",
+      "recommended": "Tavsiya etilgan limit",
+      "current": "Amaldagi limit",
+      "thisDecision": "Ushbu qaror",
+      "decided": "Amaldagi qaror",
+      "ofRequested": "so‘ralganning {{pct}}%",
+      "noDecision": "Hali qaror yo‘q."
+    },
+    "meters": {
+      "authority": "Vakolatingiz · reyting diapazoni {{band}}",
+      "ofUzs": "{{value}} / {{cap}} UZS ekv.",
+      "withinNote": "Vakolatingiz doirasida — o‘zingiz qaror qilishingiz mumkin.",
+      "exceedsNote": "Vakolatingizdan yuqori — qarorni tasdiqlash uchun yuboring.",
+      "group": "Guruh limiti · tashkilotlar: {{members}}",
+      "groupWithinNote": "Guruh o‘z limiti doirasida qoladi.",
+      "groupNearNote": "Guruh o‘z limitining {{pct}}% qismidan foydalanadi.",
+      "groupOverNote": "Guruh limitidan oshadi — qaror yuqoriga yo‘naltiriladi."
+    },
+    "quickView": {
+      "openRequest": "So‘rovni ochish"
     }
   },
   "entities": {
@@ -2307,7 +2356,53 @@
     "portfolioSummary": "Sug‘urtalanuvchi portfeli:",
     "portfolioLimits": "amaldagi limitlar",
     "portfolioLimitsEmpty": "Bu sug‘urtalanuvchining polislari bo‘yicha hozircha limitlar yo‘q",
-    "filterCount": "Tashkilotlar: {{count}}"
+    "filterCount": "Tashkilotlar: {{count}}",
+    "saveChanges": "O‘zgarishlarni saqlash",
+    "createAction": "Tashkilot yaratish",
+    "formSections": {
+      "identity": "Identifikatsiya",
+      "profile": "Ma’lumotlar",
+      "contact": "Aloqa"
+    },
+    "hero": {
+      "grade": "Reyting",
+      "score": "ball {{score}}",
+      "toRating": "Reytingni ochish",
+      "notRated": "Hali reyting yo‘q",
+      "exposure": "Amaldagi limitlar",
+      "exposurePolicies_one": "{{count}} ta polis bo‘yicha",
+      "exposurePolicies_other": "{{count}} ta polis bo‘yicha",
+      "noExposure": "Amaldagi limit yo‘q",
+      "statements": "Oxirgi hisobot",
+      "periods_one": "Bazada {{count}} ta davr",
+      "periods_other": "Bazada {{count}} ta davr",
+      "noStatements": "Hali hisobot yo‘q",
+      "openWork": "Ishda",
+      "nothingOpen": "Ochiq masala yo‘q",
+      "openLimits_one": "{{count}} ta limit so‘rovi",
+      "openLimits_few": "{{count}} ta limit so‘rovi",
+      "openLimits_many": "{{count}} ta limit so‘rovi",
+      "openLimits_other": "{{count}} ta limit so‘rovi",
+      "openSubmissions_one": "{{count}} ta sug‘urta arizasi",
+      "openSubmissions_few": "{{count}} ta sug‘urta arizasi",
+      "openSubmissions_many": "{{count}} ta sug‘urta arizasi",
+      "openSubmissions_other": "{{count}} ta sug‘urta arizasi",
+      "openClaims_one": "{{count}} ta da’vo",
+      "openClaims_few": "{{count}} ta da’vo",
+      "openClaims_many": "{{count}} ta da’vo",
+      "openClaims_other": "{{count}} ta da’vo"
+    },
+    "sections": {
+      "overview": "Umumiy",
+      "analysis": "Tahlil",
+      "cover": "Sug‘urta qoplamasi",
+      "claims": "Da’volar",
+      "group": "Guruh",
+      "access": "Mijoz kirishi"
+    },
+    "facts": {
+      "open": "Qisqacha ma’lumot"
+    }
   },
   "access": {
     "denied": "Ruxsat yo‘q",
@@ -2539,7 +2634,8 @@
     },
     "ratingWeights": {
       "title": "Subreytinglar vaznlari",
-      "hint": "Reyting bahosining to‘rt bloki uchun standart vaznlar — butun foizlar, yig‘indisi 100. Tahlilchi ulardan boshlaydi va muayyan reyting uchun o‘zgartirishi mumkin."
+      "hint": "Reyting bahosining to‘rt bloki uchun standart vaznlar — butun foizlar, yig‘indisi 100. Tahlilchi ulardan boshlaydi va muayyan reyting uchun o‘zgartirishi mumkin.",
+      "save": "Vaznlarni saqlash"
     }
   },
   "requests": {
@@ -2752,9 +2848,16 @@
       "changeFailed": "Parolni o‘zgartirib bo‘lmadi. Qaytadan urinib ko‘ring."
     },
     "uiScale": {
-      "title": "Matn o‘lchami",
-      "hint": "Butun interfeys tanlangan o‘lchamda; sozlama har qanday qurilmada siz uchun saqlanadi.",
+      "title": "Masshtab",
+      "hint": "Butun interfeys — matn, oraliqlar va bloklar — tanlangan o‘lchamda, brauzerdagi masshtab kabi.",
       "notSaved": "Ushbu qurilmada qo‘llanildi, lekin hisobingizga saqlanmadi."
+    },
+    "uiText": {
+      "title": "Matn o‘lchami",
+      "hint": "Faqat matn kattalashadi; oraliqlar va joylashuv masshtab belgilaganidek qoladi."
+    },
+    "display": {
+      "title": "Ko‘rinish"
     }
   },
   "provisioning": {
@@ -2978,7 +3081,12 @@
       "allSnoozedHint_one": "{{count}} ta vazifa kechiktirilgan va o‘zi qaytadi. Uzuq chiziqli «Kechiktirilgan» filtri uni ko‘rsatadi.",
       "allSnoozedHint_other": "{{count}} ta vazifa kechiktirilgan va o‘zi qaytadi. Uzuq chiziqli «Kechiktirilgan» filtri ularni ko‘rsatadi.",
       "allSnoozedHint_few": "{{count}} ta vazifa kechiktirilgan va o‘zi qaytadi. Uzuq chiziqli «Kechiktirilgan» filtri ularni ko‘rsatadi.",
-      "allSnoozedHint_many": "{{count}} ta vazifa kechiktirilgan va o‘zi qaytadi. Uzuq chiziqli «Kechiktirilgan» filtri ularni ko‘rsatadi."
+      "allSnoozedHint_many": "{{count}} ta vazifa kechiktirilgan va o‘zi qaytadi. Uzuq chiziqli «Kechiktirilgan» filtri ularni ko‘rsatadi.",
+      "caughtUp": "Hammasi bajarildi",
+      "caughtUpHint_one": "Bugun {{count}} ta vazifani yakunladingiz. Yangi ishlar shu yerda o‘zi paydo bo‘ladi.",
+      "caughtUpHint_other": "Bugun {{count}} ta vazifani yakunladingiz. Yangi ishlar shu yerda o‘zi paydo bo‘ladi.",
+      "caughtUpHint_few": "Bugun {{count}} ta vazifani yakunladingiz. Yangi ishlar shu yerda o‘zi paydo bo‘ladi.",
+      "caughtUpHint_many": "Bugun {{count}} ta vazifani yakunladingiz. Yangi ishlar shu yerda o‘zi paydo bo‘ladi."
     },
     "selected": "Tanlangan: {{count}}",
     "clearSelection": "Tanlovni olib tashlash",
@@ -3561,7 +3669,14 @@
       "commentEmpty": "Yuborishdan oldin biror narsa yozing.",
       "commentTooLong": "Izoh 2,000 belgidan oshmasligi kerak.",
       "notYours": "Bu vazifa endi sizniki emas yoki yopilgan."
-    }
+    },
+    "hero": {
+      "overdue": "Muddati o‘tgan",
+      "today": "Bugun uchun",
+      "mine": "Menga tayinlangan",
+      "cleared": "Bugun bajarildi"
+    },
+    "buyerGrade": "Bayer reytingi: {{grade}}"
   },
   "portal": {
     "title": "Mijoz portali",
@@ -3783,7 +3898,10 @@
       },
       "listTitle": "Bildirilgan muddati o‘tgan qarzlar",
       "fillToFile": "Bayerni tanlang, muddat va summani kiriting",
-      "suspensionTitle": "Bu bayerning kredit limiti to‘xtatiladi"
+      "suspensionTitle": "Bu bayerning kredit limiti to‘xtatiladi",
+      "noBuyers": "{{policy}} polisi bo‘yicha amaldagi kredit limitiga ega bayer yo‘q, shu sababli hozircha muddati o‘tgan qarz haqida xabar beriladigan bayer yo‘q.",
+      "noBuyersOption": "Amaldagi limitga ega bayer yo‘q",
+      "toLimits": "Kredit limitlari"
     },
     "premium": {
       "title": "Sug‘urta mukofoti",
@@ -3852,6 +3970,46 @@
         "body": "Avval bayerning to‘lanmagan hisob-fakturasi haqida «Muddati o‘tgan qarzlar» bo‘limida xabar bering. Polis bo‘yicha kutish muddati tugagach, qarz shu sahifada paydo bo‘ladi va u bo‘yicha da’vo bildirish mumkin.",
         "action": "Muddati o‘tgan qarzlarga o‘tish"
       }
+    },
+    "hero": {
+      "inForce": "Amaldagi polislar",
+      "inForceMeta_one": "{{count}} ta polisdan",
+      "inForceMeta_other": "{{count}} ta polisdan",
+      "limits": "Bayerlar limitlari",
+      "limitsMeta": "bayerlaringiz uchun tasdiqlangan",
+      "nextExpiry": "Navbatdagi uzaytirish",
+      "nextExpiryMeta": "amaldagi polis tugaydi",
+      "noActive": "amaldagi polis yo‘q"
+    },
+    "timeline": {
+      "title": "Ishda",
+      "open": "Ochish",
+      "yourTurn": "Javobingiz kutilmoqda",
+      "kinds": {
+        "submission": "Sug‘urta arizasi",
+        "limit": "Limit so‘rovi · {{policy}} polis",
+        "claim": "{{number}} da’vo",
+        "submissionLabel": "Sug‘urta arizasi holati",
+        "limitLabel": "Limit so‘rovi holati",
+        "claimLabel": "Da’vo holati"
+      },
+      "limit": {
+        "sent": "Yuborilgan",
+        "review": "Ko‘rib chiqilmoqda",
+        "decided": "Qaror"
+      },
+      "submission": {
+        "sent": "Yuborilgan",
+        "underwriting": "Anderrayting",
+        "yourAnswer": "Javobingiz",
+        "accepted": "Qabul qilingan"
+      },
+      "claim": {
+        "filed": "Berilgan",
+        "assessment": "Ko‘rib chiqish",
+        "decision": "Qaror",
+        "paid": "To‘langan"
+      }
     }
   },
   "declarations": {
@@ -3916,7 +4074,10 @@
     "eyebrow": "Aylanma deklaratsiyasi",
     "disputeHint": "Deklaratsiya ushbu izoh bilan sug‘urtalanuvchiga qaytariladi; u uni tuzatib, qayta topshiradi. Qabul qilinmaguncha u bo‘yicha mukofot hisoblanmaydi.",
     "disputeNoteRequired": "Nimani tuzatish kerakligini yozing.",
-    "periodNotDeclared": "{{period}} uchun deklaratsiya hali topshirilmagan"
+    "periodNotDeclared": "{{period}} uchun deklaratsiya hali topshirilmagan",
+    "quickView": {
+      "openDeclaration": "Deklaratsiyani ochish"
+    }
   },
   "premium": {
     "none": "Bu shartnoma bo‘yicha sug‘urta mukofoti ma‘lumotlari yo‘q",
@@ -4657,7 +4818,10 @@
       "belowNql": "Qoplangan zarar NQL chegarasidan kam — da’vo bo‘yicha tovon to‘lanmaydi. Shu asos bilan rad eting."
     },
     "eyebrow": "Da’vo",
-    "indemnityPending": "Hali aniqlanmagan"
+    "indemnityPending": "Hali aniqlanmagan",
+    "quickView": {
+      "openClaim": "Da’voni ochish"
+    }
   },
   "groups": {
     "ultimateParent": "Yakuniy bosh tashkilot",
@@ -4870,7 +5034,18 @@
     "groups": {
       "recent": "Yaqinda ochilganlar",
       "companies": "Tashkilotlar",
-      "sections": "Bo‘limlar"
+      "sections": "Bo‘limlar",
+      "records": "Polislar, da’volar, sug‘urta arizalari",
+      "actions": "Amallar"
+    },
+    "sources": {
+      "policies": "Polis",
+      "claims": "Da’vo",
+      "requests": "Sug‘urta arizasi"
+    },
+    "actions": {
+      "requestCompany": "Tashkilotni so‘rash (Ma’lumotlarni boshqarish)",
+      "account": "Mening profilim va matn o‘lchami"
     }
   },
   "security": {
@@ -5252,7 +5427,8 @@
       "registrationNumber": "Ro‘yxatdan o‘tish raqami",
       "assignedAt": "Biriktirilgan",
       "note": "Izoh",
-      "reason": "Sabab"
+      "reason": "Sabab",
+      "number": "№"
     },
     "kinds": {
       "new_company": "Yangi tashkilot",
@@ -5910,5 +6086,102 @@
       "navy": "To‘q ko‘k",
       "blue": "Ko‘k"
     }
+  },
+  "tokens": {
+    "title": "Dizayn tokenlari",
+    "subtitle": "Interfeysning barcha ranglari, o‘lchamlari, oraliqlari va harakati bitta manbadan (src/design/palette.ts). Faqat administrator uchun.",
+    "colour": {
+      "title": "Rang shkalalari (OKLCH)",
+      "hint": "Har bir tus uchun o‘nta pog‘ona; har bir pog‘onada barcha tuslarning yorqinligi bir xil, shuning uchun bitta tus uchun o‘tgan juftlik hammasi uchun o‘tadi. Namuna ostida: hex, OKLCH, oq fondagi kontrast.",
+      "ruleText": "Matn: pog‘onalar orasi kamida 5 — eng kuchsiz juftlik {{ratio}} : 1 (≥ {{min}} kerak).",
+      "ruleGraphic": "Belgilar, yirik matn, grafika: pog‘onalar orasi kamida 4 — eng kuchsizi {{ratio}} : 1 (≥ {{min}} kerak).",
+      "hue": "tus {{hue}}° · to‘yinganlik {{chroma}}",
+      "canvas": "Sahifa foni {{hex}} — undagi ikkinchi darajali matn (neytral 500): {{ratio}} : 1"
+    },
+    "ramps": {
+      "slate": "Neytral — fonlar, matn, chegaralar (iliq kulrang)",
+      "accent": "Brend to‘q ko‘k — asosiy amallar, tanlov, sarlavhalar",
+      "sky": "Ikkinchi brend rangi — havolalar, fokus, ajratish",
+      "success": "Muvaffaqiyat, o‘sish, tasdiqlangan",
+      "warning": "Ogohlantirish, diqqat, muddat yaqin",
+      "danger": "Xato, zarar, muddati o‘tgan, rad etilgan",
+      "info": "Ma’lumot",
+      "violet": "Ma’lumotlar — toifalar",
+      "teal": "Ma’lumotlar — toifalar",
+      "magenta": "Ma’lumotlar — toifalar"
+    },
+    "grades": {
+      "title": "Reyting shkalasi A1 → D",
+      "hint": "Mahsulotning asosiy rangi: belgilarda tus va to‘q matn, chiziqlar va grafiklarda to‘yingan rang.",
+      "pairs": "tusdagi matn {{tint}} : 1 · oqdagi rang {{solid}} : 1"
+    },
+    "data": {
+      "title": "Ma’lumotlar palitralari",
+      "hint": "Toifalar doimiy tartibda (qo‘shnilari tus bo‘yicha farq qiladi); qiymatlar uchun bir tusli shkala.",
+      "categorical": "Toifalar",
+      "sequential": "Ketma-ket"
+    },
+    "type": {
+      "title": "Shrift shkalasi",
+      "hint": "Yetti o‘lcham, uchta qalinlik. Sarlavha shrifti faqat sahifa sarlavhalari va asosiy raqamlar uchun. Summalar va sonlar uchun jadval raqamlari.",
+      "regular": "Oddiy 400",
+      "medium": "O‘rta 500",
+      "semibold": "Yarim qalin 600"
+    },
+    "space": {
+      "title": "Oraliqlar, burchaklar, soyalar",
+      "hint": "4 px to‘r (2 px faqat ingichka siljishlar uchun); yumshoq burchaklar; tinch holatda sezilar-sezilmas ko‘tarilish, qalqib chiquvchi oynalar uchun bitta yumshoq soya."
+    },
+    "motion": {
+      "title": "Harakat",
+      "hint": "Ishchi (70–150 ms) kundalik amallar uchun, ifodali (240–400 ms) kamdan-kam lahzalar uchun.",
+      "play": "Ishga tushirish",
+      "productive": "ishchi",
+      "expressive": "ifodali",
+      "reduced": "Tizimda «harakatni kamaytirish» yoqilgan bo‘lsa, hech narsa harakatlanmaydi: o‘sha holat darhol ko‘rsatiladi."
+    }
+  },
+  "ui": {
+    "bulk": {
+      "label": "Tanlangan qatorlar",
+      "selected_one": "{{count}} ta tanlandi",
+      "selected_other": "{{count}} ta tanlandi",
+      "clear": "Tanlovni olib tashlash",
+      "selectAll": "Barcha qatorlarni tanlash",
+      "select": "Tanlash: {{name}}",
+      "exportCsv": "CSV ga yuklab olish"
+    },
+    "table": {
+      "settings": "Jadval ko‘rinishi",
+      "density": "Qatorlar zichligi",
+      "densities": {
+        "compact": "Ixcham",
+        "regular": "Odatiy",
+        "relaxed": "Keng"
+      },
+      "columns": "Ustunlar",
+      "showAll": "Barcha ustunlarni ko‘rsatish"
+    },
+    "quickView": {
+      "label": "Tezkor ko‘rish",
+      "open": "Tezkor ko‘rish: {{name}}",
+      "openCard": "Tashkilot kartochkasini ochish",
+      "openRecord": "Ochish"
+    },
+    "saved": "Saqlandi",
+    "validation": {
+      "required": "To‘ldiring — bu majburiy maydon",
+      "email": "name@company.uz ko‘rinishidagi manzilni kiriting",
+      "url": "company.uz ko‘rinishidagi sayt manzilini kiriting"
+    }
+  },
+  "search": {
+    "placeholder": "Tashkilot, polis, da’vo, arizalarni qidirish…",
+    "placeholderPage": "Qidirish va saralash ({{page}}): nom, raqam, mamlakat — vergul bilan",
+    "clear": "Qidiruvni tozalash",
+    "elsewhere_one": "Boshqa bo‘limlarda {{count}} ta natija",
+    "elsewhere_few": "Boshqa bo‘limlarda {{count}} ta natija",
+    "elsewhere_many": "Boshqa bo‘limlarda {{count}} ta natija",
+    "elsewhere_other": "Boshqa bo‘limlarda {{count}} ta natija"
   }
 }

@@ -22,6 +22,7 @@ import {
   Button,
   Card,
   Field,
+  GradeBadge,
   KeyFigures,
   Modal,
   SectionTitle,
@@ -31,7 +32,6 @@ import {
 } from '../../../components/ui'
 import { useAuth } from '../../../auth/AuthContext'
 import { EM_DASH, formatMoment } from '../../../lib/format'
-import { gradeTone } from '../../../lib/grade'
 import type { GradeBand } from '../../../lib/gradeScale'
 import { refusalOr } from '../../../lib/optimistic'
 import { DEEP_LINK_SCROLL_MARGIN } from '../../../lib/useDeepLinkFocus'
@@ -99,7 +99,11 @@ export function RatingProposalPanel({
   const [proposing, setProposing] = useState<'manual' | 'engine' | null>(null)
 
   if (!onDesk || !state.data) return null
-  const { pending, history, can_propose } = state.data
+  // A reply of another shape (an older server, a stub) shows nothing rather
+  // than breaking the rating tab.
+  const pending = state.data.pending ?? null
+  const history = state.data.history ?? []
+  const can_propose = state.data.can_propose ?? false
   // A grade for the engine rating is offered while it waits for a confirmation.
   const engineOpen = current !== null && current.source === 'engine' && current.confirmed_at === null
   if (!pending && history.length === 0 && !can_propose) return null
@@ -128,7 +132,7 @@ export function RatingProposalPanel({
         </SectionTitle>
 
         {inForce.data && (
-          <details className="text-[0.8125rem] text-slate-700" data-testid="rating-scorecard-in-force">
+          <details className="text-small text-slate-700" data-testid="rating-scorecard-in-force">
             <summary className="cursor-pointer font-medium text-accent-700">
               {t('rating.scorecard.inForce', { grade: inForce.data.grade })}
             </summary>
@@ -147,7 +151,7 @@ export function RatingProposalPanel({
             scorecard={scorecards.data?.[pending.proposal_id] ?? null}
           />
         ) : (
-          history.length === 0 && <p className="text-[0.8125rem] text-slate-500">{t('rating.proposals.none')}</p>
+          history.length === 0 && <p className="text-small text-slate-500">{t('rating.proposals.none')}</p>
         )}
 
         {history.length > 0 && <HistoryList state={state.data} locale={locale} scorecards={scorecards.data ?? {}} />}
@@ -285,7 +289,7 @@ function ProposeModal({
       }
     >
       <div className="flex flex-col gap-4">
-        <p className="text-sm text-slate-600">
+        <p className="text-body text-slate-600">
           {kind === 'manual' ? t('rating.proposals.manualHint') : t('rating.proposals.engineHint', { grade: recommended ?? EM_DASH })}
         </p>
         {kind === 'manual' && statements.length > 0 && (
@@ -317,7 +321,7 @@ function ProposeModal({
           <Textarea value={reason} rows={3} onChange={(e) => setReason(e.target.value)} />
         </Field>
         {problems.length > 0 && (
-          <p className="text-[0.8125rem] text-slate-500">
+          <p className="text-small text-slate-500">
             {t('rating.scorecard.toSend')} {problems.map((p) => t(`rating.scorecard.problems.${p}`)).join(' · ')}
           </p>
         )}
@@ -328,7 +332,7 @@ function ProposeModal({
             onChange={(key) => setRoute(key as SubmitRoute)}
           />
         </Field>
-        {route === 'self' && <p className="text-[0.8125rem] text-slate-500">{t('rating.proposals.routeHintSelf')}</p>}
+        {route === 'self' && <p className="text-small text-slate-500">{t('rating.proposals.routeHintSelf')}</p>}
         {route === 'colleague' && (
           <Field label={t('rating.proposals.colleague')} hint={t('rating.proposals.routeHintColleague')}>
             <Select value={colleague} onChange={(e) => setColleague(e.target.value)}>
@@ -342,7 +346,7 @@ function ProposeModal({
           </Field>
         )}
         {route === 'level' && (
-          <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[0.8125rem] leading-snug text-slate-600">
+          <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-small leading-snug text-slate-600">
             {level ? (
               <>
                 <div className="font-semibold text-slate-800">
@@ -357,7 +361,7 @@ function ProposeModal({
           </div>
         )}
         {error && (
-          <div className="text-sm text-neg-500" role="alert">
+          <div className="text-body text-neg-500" role="alert">
             {error}
           </div>
         )}
@@ -471,19 +475,19 @@ function PendingView({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-body">
         <Badge tone="warn">{t('rating.proposals.statuses.pending')}</Badge>
         <span className="flex items-center gap-2">
           <span className="text-slate-500">{t('rating.proposals.grade')}</span>
-          <Badge tone={gradeTone(pending.grade)}>{pending.grade}</Badge>
+          <GradeBadge grade={pending.grade} />
         </span>
         {pending.manual && <Badge tone="neutral">{t('rating.proposals.manual')}</Badge>}
         <span className="text-slate-600">
           {t('rating.proposals.sitsWith', { where, date: formatMoment(pending.opened_at, locale) })}
         </span>
       </div>
-      <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[0.8125rem] text-slate-700">
-        <span className="block text-xs font-medium text-slate-500">
+      <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-small text-slate-700">
+        <span className="block text-caption font-medium text-slate-500">
           {t('rating.proposals.reasonBy', {
             name: pending.proposed_by_name ?? EM_DASH,
             date: formatMoment(pending.proposed_at, locale),
@@ -493,7 +497,7 @@ function PendingView({
       </div>
       {scorecard && <ScorecardView card={scorecard} locale={locale} />}
       {!pending.is_committee && (
-        <p className="text-[0.8125rem] text-slate-600">
+        <p className="text-small text-slate-600">
           {pending.answerers.length > 0
             ? t('rating.proposals.answerers', { names: pending.answerers.map((a) => a.name ?? EM_DASH).join(', ') })
             : t('rating.proposals.noAnswerers')}
@@ -517,13 +521,13 @@ function PendingView({
               },
             ]}
           />
-          <p className="text-[0.8125rem] text-slate-600">
+          <p className="text-small text-slate-600">
             {t('limits.validation.committeePanel.chair', { name: committee.chair_name ?? EM_DASH })}
             {' · '}
             {t('limits.validation.committeePanel.rule')}
           </p>
           {committee.votes.length > 0 && (
-            <ul className="flex flex-col gap-1 text-[0.8125rem] text-slate-700">
+            <ul className="flex flex-col gap-1 text-small text-slate-700">
               {committee.votes.map((v) => (
                 <li key={v.voter}>
                   <span className="text-slate-500">{formatMoment(v.voted_at, locale)}</span> · {v.name ?? EM_DASH} ·{' '}
@@ -534,7 +538,7 @@ function PendingView({
             </ul>
           )}
           {committee.conflicts.length > 0 && (
-            <ul className="flex flex-col gap-1 text-[0.8125rem] text-slate-500">
+            <ul className="flex flex-col gap-1 text-small text-slate-500">
               {committee.conflicts.map((c) => (
                 <li key={c.member}>
                   {t('limits.validation.committeePanel.conflictOf', { name: c.name ?? EM_DASH })} — «{c.reason}»
@@ -606,7 +610,7 @@ function PendingView({
       >
         <div className="flex flex-col gap-4">
           {dialog?.kind === 'close' && (
-            <p className="text-sm text-slate-600">{`${t('limits.validation.committeePanel.closeWillRecord')} ${t(`rating.proposals.committeeOutcome.${outcome}`)}`}</p>
+            <p className="text-body text-slate-600">{`${t('limits.validation.committeePanel.closeWillRecord')} ${t(`rating.proposals.committeeOutcome.${outcome}`)}`}</p>
           )}
           {needsGrade && (
             <GradeField value={grade} onChange={setGrade} bands={bands} label={t('rating.proposals.otherGrade')} />
@@ -618,7 +622,7 @@ function PendingView({
             <Textarea value={comment} rows={3} onChange={(e) => setComment(e.target.value)} />
           </Field>
           {error && (
-            <div className="text-sm text-neg-500" role="alert">
+            <div className="text-body text-neg-500" role="alert">
               {error}
             </div>
           )}
@@ -643,7 +647,7 @@ function HistoryList({
 }) {
   const { t } = useTranslation()
   return (
-    <details className="text-[0.8125rem] text-slate-700">
+    <details className="text-small text-slate-700">
       <summary className="cursor-pointer font-medium text-accent-700">
         {t('rating.proposals.history', { count: state.history.length })}
       </summary>
@@ -655,10 +659,10 @@ function HistoryList({
               <span className="flex flex-wrap items-center gap-2">
                 <span className="text-slate-500">{formatMoment(h.resolved_at, locale)}</span>
                 <Badge tone={proposalTone(h.status)}>{t(`rating.proposals.statuses.${h.status}`)}</Badge>
-                <Badge tone={gradeTone(h.grade)}>{h.grade}</Badge>
+                <GradeBadge grade={h.grade} />
                 {result && result !== h.grade && (
                   <>
-                    → <Badge tone={gradeTone(result)}>{result}</Badge>
+                    → <GradeBadge grade={result} />
                   </>
                 )}
                 {h.manual && <Badge tone="neutral">{t('rating.proposals.manual')}</Badge>}

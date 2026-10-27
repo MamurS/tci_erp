@@ -70,7 +70,7 @@ function HandedOver({ reasons, at }: { reasons: readonly string[]; at: string })
   return (
     <Callout tone="info" title={t('limits.auto.attempt.toUnderwriter')}>
       <p>{t('limits.auto.attempt.toUnderwriterHint', { date: formatMoment(at, locale) })}</p>
-      <ul className="mt-1.5 list-disc pl-5">
+      <ul className="mt-2 list-disc pl-5">
         {reasons.map((r) => (
           <li key={r}>{isKnownReason(r) ? t(`limits.auto.reasons.${r}`) : t('limits.auto.attempt.otherReason')}</li>
         ))}

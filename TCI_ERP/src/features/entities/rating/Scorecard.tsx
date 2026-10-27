@@ -9,9 +9,8 @@
 
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Field, Input, Select } from '../../../components/ui'
+import { Button, Field, GradeBadge, Input, Select } from '../../../components/ui'
 import { EM_DASH, formatRatio } from '../../../lib/format'
-import { gradeTone } from '../../../lib/grade'
 import { gradeCodes, isGradeCode } from '../../../lib/gradeCatalogue'
 import type { GradeBand } from '../../../lib/gradeScale'
 import { GradePicker } from './GradePicker'
@@ -74,12 +73,12 @@ export function ScorecardEditor({
           return (
             <div key={pillar} className="rounded-md border border-slate-200 px-3 py-3">
               <div className="mb-2">
-                <span className="block text-sm font-semibold text-slate-800">{t(`rating.scorecard.pillars.${pillar}.name`)}</span>
-                <span className="block text-[0.75rem] text-slate-500">{t(`rating.scorecard.pillars.${pillar}.hint`)}</span>
+                <span className="block text-body font-semibold text-slate-800">{t(`rating.scorecard.pillars.${pillar}.name`)}</span>
+                <span className="block text-caption text-slate-500">{t(`rating.scorecard.pillars.${pillar}.hint`)}</span>
               </div>
               <div className="grid gap-2 md:grid-cols-[minmax(0,11rem)_6rem_minmax(0,1fr)]">
                 <label className="flex flex-col gap-1">
-                  <span className="text-[0.75rem] font-medium text-slate-500">{t('rating.scorecard.grade')}</span>
+                  <span className="text-caption font-medium text-slate-500">{t('rating.scorecard.grade')}</span>
                   <Select
                     value={row.grade ?? ''}
                     aria-label={`${t(`rating.scorecard.pillars.${pillar}.name`)} — ${t('rating.scorecard.grade')}`}
@@ -96,7 +95,7 @@ export function ScorecardEditor({
                   </Select>
                 </label>
                 <label className="flex flex-col gap-1">
-                  <span className="text-[0.75rem] font-medium text-slate-500">{t('rating.scorecard.weight')}</span>
+                  <span className="text-caption font-medium text-slate-500">{t('rating.scorecard.weight')}</span>
                   <span className="relative">
                     <Input
                       type="number"
@@ -113,13 +112,13 @@ export function ScorecardEditor({
                         set(pillar, { weight: Number.isFinite(n) ? Math.min(Math.max(n, 0), 100) : 0 })
                       }}
                     />
-                    <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-[0.8125rem] text-slate-400">
+                    <span className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-small text-slate-500">
                       %
                     </span>
                   </span>
                 </label>
                 <label className="flex min-w-0 flex-col gap-1">
-                  <span className="text-[0.75rem] font-medium text-slate-500">{t('rating.scorecard.reason')}</span>
+                  <span className="text-caption font-medium text-slate-500">{t('rating.scorecard.reason')}</span>
                   <Select
                     value={graded ? (row.reason ?? '') : ''}
                     disabled={!graded}
@@ -155,7 +154,7 @@ export function ScorecardEditor({
         })}
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md bg-slate-50 px-3 py-2 text-[0.8125rem]">
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md bg-slate-50 px-3 py-2 text-small">
         <span className={sum === 100 ? 'text-slate-600' : 'font-medium text-slate-800'}>
           <span
             aria-hidden
@@ -182,11 +181,11 @@ export function ScorecardEditor({
           {t('rating.scorecard.weighted')}
           {weighted ? (
             <>
-              <Badge tone={gradeTone(weighted.grade)}>{weighted.grade}</Badge>
+              <GradeBadge grade={weighted.grade} />
               <span className="text-slate-500 tabular-nums">({formatRatio(weighted.value, locale)})</span>
             </>
           ) : (
-            <span className="text-slate-400">{EM_DASH}</span>
+            <span className="text-slate-500">{EM_DASH}</span>
           )}
         </span>
       </div>
@@ -224,7 +223,7 @@ export function ScorecardEditor({
 export function ScorecardView({ card, locale }: { card: StoredScorecard; locale: string }) {
   const { t } = useTranslation()
   return (
-    <div className="flex flex-col gap-2 text-[0.8125rem]" data-testid="rating-scorecard-view">
+    <div className="flex flex-col gap-2 text-small" data-testid="rating-scorecard-view">
       <table className="w-full table-fixed border-collapse">
         <colgroup>
           <col className="w-[34%]" />
@@ -233,7 +232,7 @@ export function ScorecardView({ card, locale }: { card: StoredScorecard; locale:
           <col />
         </colgroup>
         <thead>
-          <tr className="text-left text-[0.75rem] text-slate-500">
+          <tr className="text-left text-caption text-slate-500">
             <th className="py-1 pr-2 font-medium">{t('rating.scorecard.pillar')}</th>
             <th className="py-1 pr-2 font-medium">{t('rating.scorecard.grade')}</th>
             <th className="py-1 pr-2 text-right font-medium">{t('rating.scorecard.weight')}</th>
@@ -243,12 +242,12 @@ export function ScorecardView({ card, locale }: { card: StoredScorecard; locale:
         <tbody>
           {card.pillars.map((p) => (
             <tr key={p.pillar} className="border-t border-slate-100 align-top">
-              <td className="py-1.5 pr-2 text-slate-700">{t(`rating.scorecard.pillars.${p.pillar}.name`)}</td>
-              <td className="py-1.5 pr-2">
-                {p.grade ? <Badge tone={gradeTone(p.grade)}>{p.grade}</Badge> : <span className="text-slate-400">{EM_DASH}</span>}
+              <td className="py-2 pr-2 text-slate-700">{t(`rating.scorecard.pillars.${p.pillar}.name`)}</td>
+              <td className="py-2 pr-2">
+                {p.grade ? <GradeBadge grade={p.grade} /> : <span className="text-slate-500">{EM_DASH}</span>}
               </td>
-              <td className="py-1.5 pr-2 text-right text-slate-600 tabular-nums">{p.grade ? `${p.weight} %` : EM_DASH}</td>
-              <td className="py-1.5 pl-2 text-slate-700">
+              <td className="py-2 pr-2 text-right text-slate-600 tabular-nums">{p.grade ? `${p.weight} %` : EM_DASH}</td>
+              <td className="py-2 pl-2 text-slate-700">
                 {p.grade ? t(`rating.scorecard.reasons.${p.pillar}.${p.reason}`) : t('rating.scorecard.reasons.not_assessed')}
                 {p.comment && <span className="block text-slate-500">«{p.comment}»</span>}
               </td>
@@ -259,12 +258,12 @@ export function ScorecardView({ card, locale }: { card: StoredScorecard; locale:
       <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-t border-slate-200 pt-2 text-slate-600">
         <span className="flex items-center gap-2">
           {t('rating.scorecard.weighted')}
-          <Badge tone={gradeTone(card.weighted_grade)}>{card.weighted_grade}</Badge>
+          <GradeBadge grade={card.weighted_grade} />
           <span className="text-slate-500 tabular-nums">({formatRatio(card.weighted_value, locale)})</span>
         </span>
         <span className="flex items-center gap-2">
           {t('rating.scorecard.finalGrade')}
-          <Badge tone={gradeTone(card.grade)}>{card.grade}</Badge>
+          <GradeBadge grade={card.grade} />
           <span className="text-slate-700">{t(`rating.scorecard.overall.${card.reason}`)}</span>
         </span>
       </div>

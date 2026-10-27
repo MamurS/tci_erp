@@ -62,7 +62,7 @@ export function GradePicker({
       </Field>
       {/* The space is kept whether or not a grade is chosen, so choosing one
           moves nothing below it. */}
-      <div className="min-h-[4.5rem] rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-[0.8125rem] leading-snug">
+      <div className="min-h-[4.5rem] rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-small leading-snug">
         {isGradeCode(value) ? (
           <>
             <div className="font-semibold text-slate-800">

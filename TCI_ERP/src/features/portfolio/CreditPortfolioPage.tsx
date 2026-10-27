@@ -19,7 +19,6 @@ import {
   Card,
   COL,
   EmptyState,
-  KeyFigures,
   labelCol,
   Panel,
   PanelGrid,
@@ -83,22 +82,7 @@ export function CreditPortfolioPage() {
         </Card>
       ) : (
         <div className="grid gap-5">
-          <KeyFigures
-            className=""
-            items={[
-              {
-                label: t('portfolio.credit.exposure'),
-                value: uzs(totals.exposureUzs),
-                meta:
-                  totals.missingRates > 0
-                    ? t('portfolio.credit.exposureMissing', { count: totals.missingRates })
-                    : undefined,
-              },
-              { label: t('portfolio.credit.limits'), value: formatAmount(totals.limits, locale) },
-              { label: t('portfolio.credit.buyers'), value: formatAmount(totals.buyers, locale) },
-              { label: t('portfolio.credit.policies'), value: formatAmount(totals.policies, locale) },
-            ]}
-          />
+          {/* The book's key figures are on the section's band (BookFigures). */}
 
           <AttentionPanel rows={rows} />
 
@@ -243,7 +227,7 @@ export function CreditPortfolioPage() {
                     <Truncate text={g.ultimate_parent_name} className="max-w-none">
                       <EntityLink id={g.ultimate_parent_id} name={g.ultimate_parent_name} tab="group" />
                     </Truncate>
-                    <span className="block text-[0.75rem] text-slate-500">
+                    <span className="block text-caption text-slate-500">
                       {t('portfolio.credit.membersWithLimits', { count: g.members_with_limits })}
                     </span>
                   </td>
@@ -297,7 +281,7 @@ function AttentionPanel({ rows }: { rows: readonly CreditPortfolioRow[] }) {
           <li key={item.key}>
             <Link
               to={`/limits?view=${item.view}`}
-              className="group flex items-center gap-3 rounded-md px-2 py-2 text-[0.8125rem] text-slate-700 hover:bg-accent-50"
+              className="group flex items-center gap-3 rounded-md px-2 py-2 text-small text-slate-700 hover:bg-accent-50"
             >
               <span className="min-w-0 flex-1 truncate" title={item.label}>
                 {item.label}

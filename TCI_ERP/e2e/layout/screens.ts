@@ -79,6 +79,7 @@ export const ROUTES: Record<string, RouteEntry> = {
     skip: 'the demo book holds no data request to record (re-record once one exists and give it role info); the page is a request form with its own facts, no register',
   },
   '/brochure': { skip: REDIRECT },
+  '/admin/tokens': { skip: 'the design token preview: swatches and samples, no table or list' },
   '/admin': {
     skip: 'admin only, and an admin session needs a second factor that a headless sign-in cannot pass — no demo admin to record; its tables use the same fixed columns and are held by the static contract',
   },

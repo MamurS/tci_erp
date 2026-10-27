@@ -27,14 +27,14 @@ export function ScoreChangeNote({
   const t = tProp ?? tHook
   const locale = localeProp ?? i18n.resolvedLanguage ?? 'en'
 
-  if (score === null) return <p className="mt-1.5 text-center text-[0.75rem] text-slate-500">{t('rating.notRated')}</p>
+  if (score === null) return <p className="mt-2 text-center text-caption text-slate-500">{t('rating.notRated')}</p>
   const change = scoreChange(score, previousScore)
   if (!change) return null
   const delta = formatAmount(Math.abs(change.delta), locale, 1)
   const tone =
     change.direction === 'better' ? 'text-pos-500' : change.direction === 'worse' ? 'text-neg-500' : 'text-slate-500'
   return (
-    <p className={`mt-1.5 text-center text-[0.75rem] ${tone}`}>
+    <p className={`mt-2 text-center text-caption ${tone}`}>
       {t(`rating.scoreChange.${change.direction}`, { delta })}
     </p>
   )

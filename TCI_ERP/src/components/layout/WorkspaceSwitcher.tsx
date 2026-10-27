@@ -46,10 +46,10 @@ export function WorkspaceSwitcher({ workspaces, current, onSwitch }: WorkspaceSw
         <Icon className="size-[1.125rem]" strokeWidth={1.8} />
       </span>
       <span className="flex min-w-0 flex-1 flex-col items-start text-left leading-tight">
-        <span className="text-[0.625rem] font-medium tracking-[0.12em] text-white/45 uppercase">
+        <span className="text-caption font-medium tracking-[0.12em] text-white/70 uppercase">
           {t('nav.workspace')}
         </span>
-        <span className="mt-0.5 line-clamp-2 w-full text-[0.8125rem] font-semibold text-white">
+        <span className="mt-0.5 line-clamp-2 w-full text-small font-semibold text-white">
           {t(`nav.workspaces.${current}.name`)}
         </span>
       </span>
@@ -57,7 +57,7 @@ export function WorkspaceSwitcher({ workspaces, current, onSwitch }: WorkspaceSw
   )
 
   if (!several) {
-    return <div className="flex items-center gap-2.5 rounded-lg px-2 py-1.5">{label}</div>
+    return <div className="flex items-center gap-3 rounded-lg px-2 py-2">{label}</div>
   }
 
   return (
@@ -67,7 +67,7 @@ export function WorkspaceSwitcher({ workspaces, current, onSwitch }: WorkspaceSw
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="listbox"
         aria-expanded={open}
-        className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-white/8"
+        className="flex w-full items-center gap-3 rounded-lg px-2 py-2 transition-colors hover:bg-white/8"
       >
         {label}
         <ChevronsUpDown className="size-4 shrink-0 text-white/50" />
@@ -91,14 +91,14 @@ export function WorkspaceSwitcher({ workspaces, current, onSwitch }: WorkspaceSw
                   setOpen(false)
                   if (!selected) onSwitch(w.key)
                 }}
-                className={`flex w-full items-start gap-2.5 px-3 py-2 text-left transition-colors hover:bg-white/8 ${
+                className={`flex w-full items-start gap-3 px-3 py-2 text-left transition-colors hover:bg-white/8 ${
                   selected ? 'bg-white/6' : ''
                 }`}
               >
                 <ItemIcon className="mt-0.5 size-4 shrink-0 text-white/70" strokeWidth={1.8} />
                 <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="text-[0.8125rem] font-semibold text-white">{t(`nav.workspaces.${w.key}.name`)}</span>
-                  <span className="text-[0.6875rem] leading-snug text-white/50">{t(`nav.workspaces.${w.key}.hint`)}</span>
+                  <span className="text-small font-semibold text-white">{t(`nav.workspaces.${w.key}.name`)}</span>
+                  <span className="text-caption leading-snug text-white/70">{t(`nav.workspaces.${w.key}.hint`)}</span>
                 </span>
                 {selected && <Check className="mt-0.5 size-4 shrink-0 text-accent-300" />}
               </button>

@@ -129,9 +129,9 @@ export function OfferSection({ requestId, requestStatus, entityId, termsReady }:
         hint={
           shown ? (
             <span className="inline-flex items-center gap-2">
-              <span className="font-mono text-[0.7812rem] text-slate-600">{shown.offer_number}</span>
+              <span className="font-mono text-small text-slate-600">{shown.offer_number}</span>
               <Badge tone={statusTone(shown.effective_status)}>{t(`offers.statuses.${shown.effective_status}`)}</Badge>
-              <span className="text-[0.7812rem] text-slate-500">
+              <span className="text-small text-slate-500">
                 {t('offers.validUntil', { date: formatDate(shown.valid_until, locale) })}
               </span>
             </span>
@@ -226,7 +226,7 @@ export function OfferSection({ requestId, requestStatus, entityId, termsReady }:
                   </td>
                   <td>
                     <Truncate text={v.note ?? ''} className="max-w-none">
-                      {v.note ?? <span className="text-slate-400">{EM_DASH}</span>}
+                      {v.note ?? <span className="text-slate-500">{EM_DASH}</span>}
                     </Truncate>
                   </td>
                   <RowActions>
@@ -274,8 +274,8 @@ export function OfferSection({ requestId, requestStatus, entityId, termsReady }:
 
       {earlier.length > 0 && (
         <div className="mt-4">
-          <p className="mb-1.5 text-[0.75rem] font-semibold tracking-wide text-slate-500 uppercase">{t('offers.earlier')}</p>
-          <ul className="flex flex-col gap-1 text-[0.8125rem]">
+          <p className="mb-2 text-caption font-semibold tracking-wide text-slate-500 uppercase">{t('offers.earlier')}</p>
+          <ul className="flex flex-col gap-1 text-small">
             {earlier.map((o) => (
               <li key={o.id} className="flex items-center gap-2">
                 <Link to={offerEditPath(o.id, o.published_version_no ?? o.current_version_no)} className="font-mono text-accent-600 hover:underline">

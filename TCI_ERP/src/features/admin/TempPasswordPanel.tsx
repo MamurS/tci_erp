@@ -36,10 +36,10 @@ export function TempPasswordPanel({
 
   return (
     <Card className="border-pos-500/40 bg-pos-50/40 p-4">
-      <h3 className="text-sm font-semibold text-slate-900">{t('provisioning.credentials')}</h3>
-      <p className="mt-0.5 text-[0.8125rem] text-warn-500">{t('provisioning.shownOnce')}</p>
+      <h3 className="text-body font-semibold text-slate-900">{t('provisioning.credentials')}</h3>
+      <p className="mt-0.5 text-small text-warn-500">{t('provisioning.shownOnce')}</p>
 
-      <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
+      <dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-body">
         <dt className="text-slate-500">{t('provisioning.fields.email')}</dt>
         <dd className="font-medium text-slate-900">{user.email}</dd>
         <dt className="text-slate-500">{t('provisioning.fields.tempPassword')}</dt>
@@ -54,12 +54,12 @@ export function TempPasswordPanel({
           {t('provisioning.done')}
         </Button>
         {copied === 'ok' && (
-          <span className="text-xs text-pos-500" role="status">
+          <span className="text-caption text-pos-500" role="status">
             {t('provisioning.copied')}
           </span>
         )}
         {copied === 'failed' && (
-          <span className="text-xs text-warn-500" role="status">
+          <span className="text-caption text-warn-500" role="status">
             {t('provisioning.copyFailed')}
           </span>
         )}

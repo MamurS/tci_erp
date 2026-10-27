@@ -1,4 +1,5 @@
-import { useMemo, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -68,10 +69,23 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const subParam = searchParams.get('sub')
   const subTab: SubTab = SUB_TABS.includes(subParam as SubTab) ? (subParam as SubTab) : 'balance'
+  // Where the sheet-tab row sits in the page when nothing sticks: a sheet
+  // switched to while the row is stuck starts right under it, so the table
+  // keeps its place on the screen whatever its length (owner, 2026-10-27).
+  const sheetAnchor = useRef<HTMLDivElement>(null)
   const setSubTab = (key: SubTab) => {
+    const anchor = sheetAnchor.current
+    const stuckAt = tabsRow ? parseFloat(getComputedStyle(tabsRow).top) : NaN
+    const stuck = anchor !== null && Number.isFinite(stuckAt) && anchor.getBoundingClientRect().top < stuckAt
     const next = new URLSearchParams(searchParams)
     next.set('sub', key)
     setSearchParams(next, { replace: true })
+    if (stuck && anchor) {
+      requestAnimationFrame(() => {
+        anchor.style.scrollMarginTop = `${stuckAt}px`
+        anchor.scrollIntoView({ block: 'start' })
+      })
+    }
   }
   const [manageOpen, setManageOpen] = useState(false)
   const [sourceStatement, setSourceStatement] = useState<StatementBundle | null>(null)
@@ -81,6 +95,19 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
   /** null = default (last 6 of the filtered list). */
   const [selectedIds, setSelectedIds] = useState<string[] | null>(null)
   const tableRef = useRef<HTMLDivElement>(null)
+  const [showEmpty, setShowEmpty] = useState(false)
+  // The sheet-tab row's height, for the column headings sticking under it.
+  const [tabsRow, setTabsRow] = useState<HTMLDivElement | null>(null)
+  const [tabsRowHeight, setTabsRowHeight] = useState(0)
+  useLayoutEffect(() => {
+    const row = tabsRow
+    if (!row) return
+    const measure = () => setTabsRowHeight(row.getBoundingClientRect().height)
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(row)
+    return () => observer.disconnect()
+  }, [tabsRow])
 
   const all = useMemo(() => statements ?? [], [statements])
   const filteredAll = useMemo(
@@ -150,7 +177,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
   }
 
   return (
-    <div>
+    <div style={{ '--fin-tabs-h': `${tabsRowHeight}px` } as CSSProperties}>
       {/* Two aligned rows: what is shown (periods, report type, currency) with
           its export; then the views of it, with the statements themselves on
           the same line. Each wraps as a whole on a narrow screen. */}
@@ -175,8 +202,8 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
           }}
         />
         {/* Display currency */}
-        <div className="flex items-center gap-1.5">
-          <span className="text-[0.8125rem] text-slate-500">{t('fin.fx.displayCurrency')}:</span>
+        <div className="flex items-center gap-2">
+          <span className="text-small text-slate-500">{t('fin.fx.displayCurrency')}:</span>
           <Segmented
             value={displayCurrency}
             ariaLabel={t('fin.fx.displayCurrency')}
@@ -196,17 +223,17 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
       </div>
 
       {displayCurrency === 'original' && hasMixedCurrencyOrUnit(displayedRaw) && (
-        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
+        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
           {t('fin.mixedCurrencyWarning')}
         </div>
       )}
 
       {displayCurrency !== 'original' && ratesLoading && (
-        <div className="mb-4 text-[0.8125rem] text-slate-500">{t('fin.fx.loadingRates')}</div>
+        <div className="mb-4 text-small text-slate-500">{t('fin.fx.loadingRates')}</div>
       )}
 
       {displayCurrency !== 'original' && converted.missing.length > 0 && !ratesLoading && (
-        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
           <span>{t('fin.fx.missingRates')}:</span>
           {converted.missing.map((need) => (
             <button
@@ -222,7 +249,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
       )}
 
       {displayed.some((s) => s.accounting_basis === 'local') && (
-        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-accent-100 bg-accent-50 px-4 py-2 text-[0.8125rem] text-accent-700">
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-accent-100 bg-accent-50 px-4 py-2 text-small text-accent-700">
           <span>{t('fin.local.mappedIndicator')}</span>
           {displayed
             .filter((s) => s.accounting_basis === 'local')
@@ -241,8 +268,16 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
         </div>
       )}
 
-      <div className="flex flex-wrap items-end gap-x-4 gap-y-2 shadow-[inset_0_-1px_0_var(--color-slate-200)]">
-        <div className="min-w-0 flex-1">
+      {/* The sheet tabs stick under the top bar and the company card's bar
+          (--card-sticky-h) while the sheet scrolls, and
+          the sheet's column headings stick under them (StickyTableFrame) —
+          whose offset is this row's height, published as --fin-tabs-h. */}
+      <div ref={sheetAnchor} aria-hidden />
+      <div
+        ref={setTabsRow}
+        className="sticky top-[calc(4rem+var(--card-sticky-h,0px))] z-20 flex flex-wrap items-end gap-x-4 gap-y-2 bg-canvas shadow-[inset_0_-1px_0_var(--color-slate-200)]"
+      >
+        <div className="flex-[1_0_auto]">
           <Tabs
             size="sm"
             tabs={[
@@ -256,7 +291,23 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
             onChange={(key) => setSubTab(key as SubTab)}
           />
         </div>
-        <div className="flex items-center gap-2 pb-1">
+        <div className="ml-auto flex items-center gap-4 pb-1">
+          {/* Only the balance sheet and the P&L have lines to hide; on the
+              other sheets the switch keeps its place, unseen, so the buttons
+              beside it never move. */}
+          <label
+            className={`flex cursor-pointer items-center gap-2 text-small text-slate-600 ${
+              subTab === 'balance' || subTab === 'pnl' ? '' : 'invisible'
+            }`}
+          >
+            <input
+              type="checkbox"
+              checked={showEmpty}
+              onChange={(e) => setShowEmpty(e.target.checked)}
+              className="size-4 accent-accent-600"
+            />
+            {t('fin.showEmptyLines')}
+          </label>
           <Button variant="secondary" size="sm" onClick={() => setManageOpen(true)}>
             {t('fin.manageStatements')} ({all.length})
           </Button>
@@ -269,7 +320,12 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
         </div>
       </div>
 
-      <div className="mt-4" ref={tableRef}>
+      {/* Never shorter than the screen under the sticky rows, so a short
+          sheet can still be shown from where a long one was. */}
+      <div
+        className="mt-4 min-h-[calc(100dvh-4rem-var(--card-sticky-h,0px)-var(--fin-tabs-h,0px)-1rem)]"
+        ref={tableRef}
+      >
         {subTab === 'balance' && (
           <AnalysisTable
             columns={applyDisplayCurrency(balanceSheetColumns(displayedRaw), displayed)}
@@ -277,6 +333,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
             getValues={(s) => s.balance_sheets}
             verticalBaseFor={bsVerticalBase}
             deltaMode="stock"
+            showEmpty={showEmpty}
           />
         )}
         {subTab === 'pnl' && (
@@ -286,6 +343,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
             getValues={(s) => s.income_statements}
             verticalBaseFor={() => 'revenue'}
             deltaMode="like_for_like"
+            showEmpty={showEmpty}
           />
         )}
         {subTab === 'ratios' && <RatiosTable displayed={displayed} />}
@@ -294,10 +352,10 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
       </div>
 
       {displayCurrency !== 'original' && (
-        <p className="mt-2 text-xs text-slate-400">{t('fin.fx.growthFootnote')}</p>
+        <p className="mt-2 text-caption text-slate-500">{t('fin.fx.growthFootnote')}</p>
       )}
       {displayCurrency !== 'original' && converted.footnotes.length > 0 && (
-        <p className="mt-2 text-xs text-slate-400">
+        <p className="mt-2 text-caption text-slate-500">
           {t('fin.fx.footnote')}:{' '}
           {converted.footnotes
             .map(
@@ -370,7 +428,7 @@ function ManualRateModal({ need, onClose }: { need: RateNeed; onClose: () => voi
         </>
       }
     >
-      <p className="mb-3 text-[0.8125rem] text-slate-500">{t('fin.fx.manualHint')}</p>
+      <p className="mb-3 text-small text-slate-500">{t('fin.fx.manualHint')}</p>
       <AmountInput
         decimals={6}
         value={raw}
@@ -408,8 +466,8 @@ function PeriodSelector({
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={t('fin.periods')}>
-      <span className="mr-1 text-[0.8125rem] text-slate-500">{t('fin.periods')}:</span>
+    <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t('fin.periods')}>
+      <span className="mr-1 text-small text-slate-500">{t('fin.periods')}:</span>
       {ordered.map((s) => {
         const active = displayedIds.includes(s.id)
         return (
@@ -424,7 +482,7 @@ function PeriodSelector({
             })}
             // Shown periods are filled, hidden ones are outlined: the state is
             // readable at a glance, not only on hover.
-            className={`inline-flex h-7 items-center gap-1 rounded-md border px-2.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 ${
+            className={`inline-flex h-7 items-center gap-1 rounded-md border px-3 text-caption font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-500 ${
               active
                 ? 'border-accent-600 bg-accent-600 text-white hover:bg-accent-700'
                 : 'border-slate-300 bg-white text-slate-500 hover:border-slate-400 hover:text-slate-700'
@@ -434,7 +492,7 @@ function PeriodSelector({
             {statementPeriodLabel(s)}
             {s.report_type === 'management' && (
               <span
-                className={active ? 'text-amber-300' : 'text-warn-500'}
+                className={active ? 'text-warning-200' : 'text-warn-500'}
                 title={t('fin.reportTypes.management')}
               >
                 •
@@ -485,7 +543,7 @@ function ManageStatementsModal({
     <>
       <Modal open={open} onClose={onClose} title={t('fin.manageStatements')} wide>
         {deleteFailed && (
-          <p className="mb-3 text-[0.8125rem] text-neg-500" role="alert">
+          <p className="mb-3 text-small text-neg-500" role="alert">
             {t('fin.deleteStatement.failed')}
           </p>
         )}
@@ -506,7 +564,7 @@ function ManageStatementsModal({
                   <span className="font-medium whitespace-nowrap text-slate-800">{statementPeriodLabel(s)}</span>
                   {/* What the statement is, under its period: kind, form, status. */}
                   <span className="mt-1 flex flex-wrap items-center gap-1">
-                    <span className="mr-0.5 text-xs text-slate-500">{t(`fin.kinds.${s.statement_kind}`)}</span>
+                    <span className="mr-0.5 text-caption text-slate-500">{t(`fin.kinds.${s.statement_kind}`)}</span>
                     <Badge tone={s.accounting_basis === 'local' ? 'accent' : 'neutral'}>
                       {s.accounting_basis === 'local'
                         ? localBadge(s.template_id)

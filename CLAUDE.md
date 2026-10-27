@@ -933,7 +933,7 @@ is fine for internal test accounts and not fine for customers.
   file in one call with its ledger row, all eleven functions identical
   afterwards, `tests/db/rating_self_approval.sql` run on canonical with role
   impersonation (forced rollback, nothing left behind)
-- [ ] Rating scorecard (migration 0079, owner 2026-10-26, after Allianz
+- [x] Rating scorecard (migration 0079, owner 2026-10-26, after Allianz
   Trade's practice): every grade a person sets — approved alone, sent to a
   colleague or escalated — is built from four PILLARS (general / equity and
   debt / profit and loss / payment behaviour), each with a sub-grade (or «not
@@ -945,8 +945,64 @@ is fine for internal test accounts and not fine for customers.
   proposal without a scorecard is refused. Default weights 25 / 30 / 25 / 20
   on Admin › Полномочия; the engine's factors prefill equity-and-debt and
   P&L when the scale is served. See **Rating scorecard rules** below.
-  **Canonical: to be applied AT MERGE** (the deployed screens send no
-  scorecard)
+  **Canonical: 0079 applied 2026-10-26 AT MERGE** (the deployed screens
+  sent no scorecard): the functions it calls verified identical to a local
+  replay of 0078 first, the whole file in one call with its ledger row, PR
+  #69 merged right after; all ten 0079 functions fingerprint-identical to a
+  local replay afterwards; `tests/db/rating_scorecard.sql` run on canonical
+  with role impersonation (forced rollback, nothing left behind)
+- [x] Redesign (Prompt 30, NO migration, three commits): **phase 1** —
+  OKLCH colour ramps with equal WCAG luminance per step (`src/design/`,
+  generated `tokens.css`, Tailwind's own palettes off), type / spacing /
+  motion tokens, reduced motion, Admin › Tokens, `contrast.test.ts` and
+  `scale.test.ts` as guards, `docs/colour-audit-2026-10.md`; **phase 2** —
+  Table v2 (density per person, sticky head, frozen column, column chooser,
+  hover actions, highlight, skeleton rows, bulk bar with CSV export, quick
+  view in a `SidePanel`), `KpiCard`, `GradeBadge` in grade colours,
+  `HumanAmount`, pictogram empty states, inline success, ⌘K over records
+  and actions in the acting role's sections, forms (labels above, blur
+  validation, outcome-named buttons, fixed dialog footer); **phase 3** —
+  «bold fintech» (the owner's choice after phase 1 looked too quiet): a navy
+  `HeroBand` with the brochure's trade mosaic and white KPI tiles on the
+  dashboard, Agenda, company card, decision page and portal home, the
+  compact band on registries and queues, a full-height brand sign-in, the
+  report masthead, and the tone-of-voice guide. See DESIGN.md «Tokens»,
+  «Components v2», «Signature screens», «Tone of voice» and
+  `docs/redesign-progress.md` (decisions and how to reverse each); **phase 4** (owner: «free to change layout, forms,
+  structure») — one decision column with authority / group meters and a
+  requested → decided bar, ONE search (the top-bar field filters every list
+  page by comma-separated terms in order, exact values exactly; page search
+  boxes and filter pickers removed), company card sections + «Open work» +
+  quick facts, Agenda grade badges and «All caught up», book by grade as
+  exposure, portal status timelines, sticky financial sheets, Table v2 on
+  every registry, a WCAG 2.5.8 target-size guard (`e2e/layout/targets.spec.ts`);
+  migration 0080 hides a staff DRAFT limit request from the portal.
+  **Canonical: 0080 applied 2026-10-27** before merge (owner's yes; the
+  deployed portal only stops listing drafts): the view it replaces verified
+  identical to a local replay of 0079 first, the whole file in one call with
+  its ledger row, identical to a replay of 0080 afterwards;
+  `tests/db/client_no_staff_drafts.sql` run on canonical with role
+  impersonation (forced rollback, nothing left behind, counts unchanged);
+  the real portal accounts checked read-only — no draft listed; no new
+  advisor finding
+- [x] Text size apart from zoom + owner review (migration 0081, 2026-10-27):
+  «Размер текста» (100 / 110 / 125 / 140 / 150 %, NULL = 100 %,
+  `tci.user_profiles.ui_text_scale`) multiplies only the type tokens and the
+  boxes and columns that hold text; «Масштаб» (0076) still scales everything.
+  Same batch, no migration: «Кредитные лимиты» and «Полисы» carry their
+  book's figures on the navy band on every view; English «in force» →
+  «Active»; the company card's sections stick with a slim name bar; the
+  financial sheets' sticky head no longer lets the body show between its
+  rows, and switching sheets keeps the table in place. See **Interface
+  text size rules** below and DESIGN.md «Zoom and text size».
+  **Canonical: 0081 applied 2026-10-27** before merge (owner's yes;
+  additive): `user_profiles` verified identical to a local replay of 0080
+  first (columns, column and table grants, constraints), the whole file in
+  one call with its ledger row (its text md5-identical to the committed
+  file), identical to a replay of 0081 afterwards;
+  `tests/db/ui_text_scale.sql` run on canonical with role impersonation
+  (forced rollback, nothing left behind, counts unchanged); no new advisor
+  finding
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2349,6 +2405,17 @@ session exists (NULL ⇒ 150 %) and applies it; the picker applies at once
 and saves through the column grant (`update (ui_scale)` on
 `user_profiles`, own row by the existing policy). The browser cache only
 seeds the sign-in page and the first paint.
+
+**The text size is a second number (0081).** `--ui-text` on `<html>`
+(`ui_text_scale` / 100, NULL ⇒ 1) multiplies the seven type tokens
+(`textSized` in `src/design/palette.ts`), the `h-text-*` / `leading-text-*`
+utilities (badges, counters, one-line hints), every table column and min
+width (the Table primitive), the Agenda's tag and due tracks, the sidebar
+width and the hero tiles' least width — nothing else: spacing, breakpoints
+and other boxes keep the zoom's geometry. Inline SVG labels read
+`useUiTextScaleValue()`. It is read in its OWN query (`useUiTextScaleSync`),
+so a database without the column leaves the text at 100 % and the zoom
+working. Print routes pin it to 100 % with the zoom.
 
 ### Auto decision (ADT) rules (migration 0061)
 

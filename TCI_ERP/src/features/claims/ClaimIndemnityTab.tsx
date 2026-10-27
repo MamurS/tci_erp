@@ -48,12 +48,12 @@ export function ClaimIndemnityTab({ claim }: { claim: Claim }) {
 
       {frozen && (
         <details className="group rounded-lg border border-slate-200/90 bg-white shadow-card">
-          <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-3.5 text-sm font-semibold text-slate-700 hover:text-slate-900 [&::-webkit-details-marker]:hidden">
+          <summary className="flex cursor-pointer list-none items-center gap-2 px-5 py-4 text-body font-semibold text-slate-700 hover:text-slate-900 [&::-webkit-details-marker]:hidden">
             <ChevronRight className="size-4 text-slate-400 transition-transform group-open:rotate-90" aria-hidden />
             {t('claims.indemnity.liveTitle')}
           </summary>
           <div className="border-t border-slate-100 px-5 pt-3 pb-5">
-            <p className="mb-4 text-[0.8125rem] text-slate-600">{t('claims.indemnity.liveExplain')}</p>
+            <p className="mb-4 text-small text-slate-600">{t('claims.indemnity.liveExplain')}</p>
             <TraceCard trace={live} claim={claim} locale={locale} live />
           </div>
         </details>
@@ -98,11 +98,11 @@ function TraceCard({
           ))}
           {/* The result closes the table it is derived in; before approval it
               is an estimate and says so. */}
-          <tr className="!bg-accent-50 [&>td]:border-t [&>td]:border-accent-200 [&>td]:py-2.5">
+          <tr className="!bg-accent-50 [&>td]:border-t [&>td]:border-accent-200 [&>td]:py-3">
             <td colSpan={2} className="font-semibold text-slate-900">
               {live ? t('claims.indemnity.payableEstimate') : t('claims.indemnity.payable')}
             </td>
-            <td className="num text-[0.9375rem] font-bold text-accent-700">
+            <td className="num text-lead font-semibold text-accent-700">
               {formatAmount(Number(trace.payable), locale)} {currency}
             </td>
           </tr>
@@ -182,7 +182,7 @@ function StepRow({
     <tr className={failed ? 'bg-neg-50' : undefined}>
       {/* A trace reads as sentences: its two text columns wrap, never cut. */}
       <td className="whitespace-normal">
-        <span className="mr-2 text-slate-400">{index + 1}</span>
+        <span className="mr-2 text-slate-500">{index + 1}</span>
         {t(step.key)}
         {isThreshold && (
           <span className="ml-2">
@@ -192,14 +192,14 @@ function StepRow({
           </span>
         )}
         {isThreshold && failed && Number(d.shortfall) > 0 && (
-          <span className="ml-2 text-xs text-neg-500">
+          <span className="ml-2 text-caption text-neg-500">
             {t('claims.indemnity.nqlShortfall', {
               amount: `${formatAmount(Number(d.shortfall), locale)} ${currency}`,
             })}
           </span>
         )}
         {step.key === 'claims.indemnity.step.aggregateFirstLoss' && Number(d.already_consumed) > 0 && (
-          <span className="ml-2 text-xs text-slate-500">
+          <span className="ml-2 text-caption text-slate-500">
             {t('claims.indemnity.aflConsumed', {
               amount: `${formatAmount(Number(d.already_consumed), locale)} ${currency}`,
             })}

@@ -11,8 +11,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown, ChevronRight, MessageSquare } from 'lucide-react'
 
-import { ActionsMenu, Card, LinkButton } from '../../components/ui'
-import { formatAmount, formatDate } from '../../lib/format'
+import { ActionsMenu, Card, GradeBadge, LinkButton } from '../../components/ui'
+import { formatAmount, formatCompact, formatDate } from '../../lib/format'
 import type { StaffMember } from '../data/types'
 import type { TaskSubjects } from './api'
 import { dueState, rowBucket, sumUzs } from './board'
@@ -24,7 +24,7 @@ import { CommentComposer, DueLabel, OwnerAvatar, SnoozeMenu, TypeTag } from './p
 import { rowActions } from './rowActions'
 import { ROW_GRID, TRACK } from './rowGrid'
 import { snoozedText } from './snooze'
-import { companyOf, itemMoney, referenceOf, rowFacts, rowTitle } from './rowText'
+import { buyerOf, companyOf, itemMoney, referenceOf, rowFacts, rowTitle } from './rowText'
 import type { Task } from './types'
 
 export interface RowSnippet {
@@ -37,6 +37,8 @@ export interface ListContext {
   now: Date
   locale: string
   subjects: TaskSubjects | undefined
+  /** The latest grade per company: a buyer's row carries it in its colour. */
+  grades: Map<string, string> | undefined
   staff: Map<string, StaffMember> | undefined
   rateFor: (currency: string) => number | null
   snippetOf: (row: AgendaRow) => RowSnippet | null
@@ -112,12 +114,16 @@ function GroupSection({ group, ctx }: { group: RowGroup; ctx: ListContext }) {
             group.kind === 'due' ? DOT[group.key as Bucket] : 'bg-slate-400'
           }`}
         />
-        <span className={`text-[0.75rem] font-bold tracking-[0.08em] uppercase ${tone}`}>{label}</span>
-        <span className="text-[0.7812rem] text-slate-600 tabular-nums">
+        <span className={`text-caption font-semibold tracking-[0.08em] uppercase ${tone}`}>{label}</span>
+        <span
+          className="text-small text-slate-600 tabular-nums"
+          title={money.uzs !== null ? `${formatAmount(money.uzs, i18n.language)} UZS` : undefined}
+        >
           {[
             t('agenda.groupMeta.items', { count: group.rows.length }),
             tasks !== group.rows.length ? t('agenda.groupMeta.tasks', { count: tasks }) : null,
-            money.uzs !== null ? `${formatAmount(money.uzs, i18n.language)} UZS` : null,
+            // Human scale in a summary; the full figure on hover (Prompt 30).
+            money.uzs !== null ? `${formatCompact(money.uzs, i18n.language, 1)} UZS` : null,
             money.missingRates > 0 ? t('agenda.groupMeta.noRate', { count: money.missingRates }) : null,
           ]
             .filter(Boolean)
@@ -128,7 +134,7 @@ function GroupSection({ group, ctx }: { group: RowGroup; ctx: ListContext }) {
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
-            className="ml-auto text-[0.8125rem] font-semibold text-accent-600 hover:underline focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none"
+            className="ml-auto text-small font-semibold text-accent-600 hover:underline focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none"
           >
             {open ? t('agenda.hide') : t('agenda.showAll')}
           </button>
@@ -165,6 +171,8 @@ function RowView({ row, ctx }: { row: AgendaRow; ctx: ListContext }) {
   const snoozed = row.tasks.some((task) => isSnoozed(task, ctx.now))
   const focused = ctx.focusedKey === row.key
   const commenting = ctx.commentingKey === row.key
+  const buyer = buyerOf(row.lead, ctx.subjects)
+  const buyerGrade = buyer ? (ctx.grades?.get(buyer) ?? null) : null
 
   return (
     <li
@@ -197,16 +205,20 @@ function RowView({ row, ctx }: { row: AgendaRow; ctx: ListContext }) {
         </span>
         <div className={`${TRACK.main} flex min-w-0 items-center gap-3`}>
           <div className="min-w-0 flex-1 py-2">
-            <Link
-              to={object}
-              data-row-link={row.key}
-              data-agenda-title
-              onFocus={() => ctx.onFocusRow(row.key)}
-              className="block truncate text-[0.875rem] font-semibold text-slate-900 after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
-            >
-              {title}
-            </Link>
-            <p data-agenda-context className="mt-0.5 truncate text-[0.7812rem] text-slate-600 tabular-nums">
+            <div className="flex min-w-0 items-center gap-2">
+              <Link
+                to={object}
+                data-row-link={row.key}
+                data-agenda-title
+                onFocus={() => ctx.onFocusRow(row.key)}
+                className="min-w-0 truncate text-body font-semibold text-slate-900 after:absolute after:inset-0 after:content-[''] focus-visible:outline-none"
+              >
+                {title}
+              </Link>
+              {/* The buyer's grade in its signature colour (Prompt 30). */}
+              <GradeBadge grade={buyerGrade} size="sm" title={t('agenda.buyerGrade', { grade: buyerGrade ?? '' })} />
+            </div>
+            <p data-agenda-context className="mt-0.5 truncate text-small text-slate-600 tabular-nums">
               {snoozed && (
                 <span className="text-slate-600">{snoozedText(row.lead, t, locale, ctx.staff)} · </span>
               )}
@@ -279,7 +291,7 @@ function SubRows({ row, bucket, now }: { row: AgendaRow; bucket: Bucket; now: Da
   const locale = i18n.language
   const multiplePolicies = new Set(row.items.map((i) => i.params?.policy_id)).size > 1
   return (
-    <ul className="bg-slate-50/50 text-[0.8125rem]">
+    <ul className="bg-slate-50/50 text-small">
       {row.items.map((item: Task) => {
         const state = dueState(item.due_at, now)
         const href = instalmentDestination(item)

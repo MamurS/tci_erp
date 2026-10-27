@@ -18,8 +18,8 @@ import type { LiabilityBasis } from './maxLiability'
 export function ChoiceField({ label, children, className = '' }: { label: string; children: ReactNode; className?: string }) {
   const id = useId()
   return (
-    <div role="group" aria-labelledby={id} className={`flex flex-col gap-1.5 ${className}`}>
-      <span id={id} className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
+    <div role="group" aria-labelledby={id} className={`flex flex-col gap-2 ${className}`}>
+      <span id={id} className="text-caption font-semibold tracking-wide text-slate-600 uppercase">
         {label}
       </span>
       {/* The height of an input, so a switch lines up with the fields beside it. */}
@@ -53,8 +53,8 @@ export function MaxLiabilityField({
   const { t } = useTranslation()
   const id = useId()
   return (
-    <div role="group" aria-labelledby={id} className="flex flex-col gap-1.5">
-      <span id={id} className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
+    <div role="group" aria-labelledby={id} className="flex flex-col gap-2">
+      <span id={id} className="text-caption font-semibold tracking-wide text-slate-600 uppercase">
         {label ?? t('policies.terms.maxLiability')}
       </span>
       {/* The basis beside the figure, on the input's line: the caption stays

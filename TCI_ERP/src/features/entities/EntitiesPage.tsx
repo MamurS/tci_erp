@@ -3,33 +3,43 @@
  * (tci.v_entity_roles) - an entity with neither is an analysis prospect. */
 
 import { useMemo, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Plus, Search, X } from 'lucide-react'
+import { Plus } from 'lucide-react'
 
 import {
   Badge,
   Button,
   Card,
+  actionsCol,
+  BulkBar,
   COL,
-  Combobox,
   CountryFlag,
+  DescriptionList,
+  downloadCsv,
   EmptyState,
-  Input,
+  GradeBadge,
+  Highlight,
+  LinkButton,
   PageHeader,
+  QuickViewButton,
+  RowActions,
   Segmented,
-  Spinner,
+  SelectCheckbox,
+  SidePanel,
+  SkeletonRows,
   Table,
+  TableSettings,
+  toCsv,
   Truncate,
+  useRowSelection,
 } from '../../components/ui'
-import type { ComboOption } from '../../components/ui'
-import { normalize } from '../../components/ui/combobox'
+import { usePageSearch } from '../../components/layout/usePageSearch'
+import { searchRows } from '../../lib/pageSearch'
 import {
   refName,
-  useCountries,
   useEntities,
   useEntityRoles,
-  useIndustries,
   useLatestGrades,
 } from './api'
 import { useAuth } from '../../auth/AuthContext'
@@ -37,7 +47,6 @@ import { RequestEntityModal } from '../data/RequestEntityModal'
 import { canWorkRequests } from '../data/requests'
 import { mayWriteEntities } from './access'
 import { EntityFormModal } from './EntityFormModal'
-import { gradeTone } from '../../lib/grade'
 import { EM_DASH, formatDate } from '../../lib/format'
 import type { EntityRoles } from './types'
 
@@ -51,109 +60,139 @@ export function EntitiesPage() {
   const { data: entities, isLoading } = useEntities()
   const roles = useEntityRoles()
   const grades = useLatestGrades()
-  const { data: countries } = useCountries()
-  const { data: industries } = useIndustries()
 
-  // The search lives in the URL (?q=): the command palette's «search the
-  // registry» lands here with it, and a filtered list can be linked to.
-  const [searchParams, setSearchParams] = useSearchParams()
-  const search = searchParams.get('q') ?? ''
-  const setSearch = (next: string) =>
-    setSearchParams(
-      (prev) => {
-        const params = new URLSearchParams(prev)
-        if (next) params.set('q', next)
-        else params.delete('q')
-        return params
-      },
-      { replace: true },
-    )
+  // The one search (top bar, lib/pageSearch.ts): what was typed lives in the
+  // URL (?q=); terms separated by commas narrow the list in order, a country
+  // or an industry being just another term.
+  const { query: search, setQuery: setSearch } = usePageSearch('entities')
   const [requesting, setRequesting] = useState(false)
   const { roles: myRoles } = useAuth()
   const dataDesk = canWorkRequests(myRoles)
-  const [countryFilter, setCountryFilter] = useState<string | null>(null)
-  const [industryFilter, setIndustryFilter] = useState<string | null>(null)
   const [roleChip, setRoleChip] = useState<RoleChip>('all')
   const [modalOpen, setModalOpen] = useState(false)
+  // The quick view: a row's summary beside the list (Table v2).
+  const [peekId, setPeekId] = useState<string | null>(null)
+  // Rows picked for a bulk action (the bulk bar), by id.
+  const { selected, toggle, toggleAll, allOf, clear } = useRowSelection()
 
-  // The filters offer what the registry actually holds, with how many —
-  // not every country of the world.
-  const countryOptions = useMemo<ComboOption[]>(() => {
-    const counts = new Map<string, number>()
-    for (const e of entities ?? []) counts.set(e.country_code, (counts.get(e.country_code) ?? 0) + 1)
-    return (countries ?? [])
-      .filter((c) => counts.has(c.code))
-      .map((c) => ({
-        id: c.code,
-        label: refName(c, locale),
-        keywords: [c.code, c.name_en, c.name_ru, c.name_uz],
-        meta: (
-          <span className="inline-flex items-center gap-1.5">
-            <CountryFlag code={c.code} />
-            {t('entities.filterCount', { count: counts.get(c.code) ?? 0 })}
-          </span>
-        ),
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label, locale))
-  }, [entities, countries, locale, t])
-  const industryOptions = useMemo<ComboOption[]>(() => {
-    const counts = new Map<string, number>()
-    for (const e of entities ?? []) if (e.industry_id) counts.set(e.industry_id, (counts.get(e.industry_id) ?? 0) + 1)
-    return (industries ?? [])
-      .filter((i) => counts.has(i.code))
-      .map((i) => ({
-        id: i.code,
-        label: refName(i, locale),
-        keywords: [i.code, i.name_en, i.name_ru, i.name_uz],
-        meta: t('entities.filterCount', { count: counts.get(i.code) ?? 0 }),
-      }))
-      .sort((a, b) => a.label.localeCompare(b.label, locale))
-  }, [entities, industries, locale, t])
-
-  // Case, diacritics and Uzbek apostrophes do not matter (as in every picker).
-  const query = normalize(search)
+  // Name, registration number, country (code and name in every language),
+  // industry, roles and grade: whatever a person would type to find it.
   const searchHits = useMemo(
     () =>
-      (entities ?? []).filter(
-        (e) =>
-          !query ||
-          normalize(e.name).includes(query) ||
-          normalize(e.registration_number ?? '').includes(query),
-      ),
-    [entities, query],
+      searchRows(entities ?? [], search, (e) => {
+        const r = roles.data?.get(e.id)
+        return [
+          e.name,
+          e.registration_number,
+          e.country_code,
+          e.countries?.name_en,
+          e.countries?.name_ru,
+          e.countries?.name_uz,
+          e.industries?.name_en,
+          e.industries?.name_ru,
+          e.industries?.name_uz,
+          r?.is_policyholder ? t('entities.roles.policyholder') : null,
+          r?.is_buyer ? t('entities.roles.buyer') : null,
+          grades.data?.get(e.id),
+        ]
+      }),
+    [entities, search, roles.data, grades.data, t],
   )
   const filtered = useMemo(
     () =>
       searchHits.filter((e) => {
-        if (countryFilter && e.country_code !== countryFilter) return false
-        if (industryFilter && e.industry_id !== industryFilter) return false
         const r = roles.data?.get(e.id)
         if (roleChip === 'policyholders' && !r?.is_policyholder) return false
         if (roleChip === 'buyers' && !r?.is_buyer) return false
         return true
       }),
-    [searchHits, countryFilter, industryFilter, roleChip, roles.data],
+    [searchHits, roleChip, roles.data],
   )
 
-  const filtersActive = countryFilter !== null || industryFilter !== null || roleChip !== 'all'
-  const resetFilters = () => {
-    setCountryFilter(null)
-    setIndustryFilter(null)
-    setRoleChip('all')
-  }
-  // "Not in the registry" is a fact about the SEARCH, not about the filters:
-  // a company hidden by a country filter is there, and offering to register
-  // it again would make a duplicate.
-  const notFound = !isLoading && search.trim().length >= 3 && searchHits.length === 0
+  const filtersActive = roleChip !== 'all'
+  const resetFilters = () => setRoleChip('all')
+  // "Not in the registry" is a fact about the SEARCH, not about the role
+  // switch: a company hidden by it is there, and offering to register it
+  // again would make a duplicate. The name offered is the first term.
+  const firstTerm = (search.split(',')[0] ?? '').trim()
+  const notFound = !isLoading && firstTerm.length >= 3 && searchHits.length === 0
 
   const latestPeriod = (periods: { period_end_date: string }[]): string | null =>
     periods.length
       ? periods.reduce((a, b) => (a.period_end_date > b.period_end_date ? a : b)).period_end_date
       : null
 
+  const tableColumns = [
+    COL.fill,
+    '9rem',
+    '10rem',
+    '13.5rem',
+    COL.date,
+    COL.grade,
+    actionsCol([], 1),
+  ]
+  const columnLabels = [
+    t('buyers.fields.name'),
+    t('buyers.fields.country'),
+    t('buyers.fields.industry'),
+    t('entities.rolesHeader'),
+    t('buyers.latestStatement'),
+    t('limits.fields.grade'),
+    '',
+  ]
+  const filteredIds = filtered.map((e) => e.id)
+  const tableHead = (
+    <thead>
+      <tr>
+        {columnLabels.map((label, i) => (
+          <th key={i}>
+            {i === 0 ? (
+              <span className="flex items-center gap-3">
+                <SelectCheckbox
+                  label={t('ui.bulk.selectAll')}
+                  checked={allOf(filteredIds)}
+                  onChange={() => toggleAll(filteredIds)}
+                />
+                {label}
+              </span>
+            ) : label ? (
+              label
+            ) : (
+              <span className="sr-only">{t('common.actions')}</span>
+            )}
+          </th>
+        ))}
+      </tr>
+    </thead>
+  )
+  const peek = peekId ? (entities ?? []).find((e) => e.id === peekId) : undefined
+  const exportSelected = () => {
+    const rows = (entities ?? [])
+      .filter((e) => selected.has(e.id))
+      .map((e) => {
+        const r = roles.data?.get(e.id)
+        return [
+          e.name,
+          e.registration_number,
+          refName(e.countries, locale),
+          refName(e.industries, locale),
+          [
+            r?.is_policyholder ? t('entities.roles.policyholder') : null,
+            r?.is_buyer ? t('entities.roles.buyer') : null,
+          ]
+            .filter(Boolean)
+            .join(', '),
+          latestPeriod(e.financial_statements) ?? '',
+          grades.data?.get(e.id) ?? '',
+        ]
+      })
+    downloadCsv('companies.csv', toCsv(columnLabels.slice(0, 6), rows))
+  }
+
   return (
     <div>
       <PageHeader
+        band
         title={t('nav.entities')}
         subtitle={t('entities.subtitle')}
         // While a search finds nothing, the empty state below carries the one
@@ -173,34 +212,6 @@ export function EntitiesPage() {
       />
 
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <SearchField
-          value={search}
-          onChange={setSearch}
-          placeholder={t('entities.searchPlaceholder')}
-          clearLabel={t('picker.clear')}
-        />
-        <div className="w-52">
-          <Combobox
-            value={countryFilter}
-            onChange={setCountryFilter}
-            options={countryOptions}
-            openOnFocus
-            limit={50}
-            placeholder={t('buyers.allCountries')}
-            aria-label={t('buyers.fields.country')}
-          />
-        </div>
-        <div className="w-60">
-          <Combobox
-            value={industryFilter}
-            onChange={setIndustryFilter}
-            options={industryOptions}
-            openOnFocus
-            limit={50}
-            placeholder={t('buyers.allIndustries')}
-            aria-label={t('buyers.fields.industry')}
-          />
-        </div>
         <Segmented
           options={[
             { key: 'all', label: t('entities.roleChips.all') },
@@ -210,17 +221,26 @@ export function EntitiesPage() {
           value={roleChip}
           onChange={(key) => setRoleChip(key as RoleChip)}
         />
+        <div className="ml-auto">
+          <TableSettings table="entities" columns={columnLabels} />
+        </div>
       </div>
 
       {isLoading ? (
-        <Spinner label={t('common.loading')} />
+        <Table id="entities" columns={tableColumns}>
+          {tableHead}
+          <tbody>
+            <SkeletonRows columns={tableColumns.length} />
+          </tbody>
+        </Table>
       ) : notFound ? (
         // A search that finds nothing is where a missing company is noticed:
         // offer to have it registered by an information manager (0054), or
         // to add it now for those whose work that is.
         <Card className="p-6">
           <EmptyState
-            title={t('data.notFound.title', { query: search.trim() })}
+            pictogram="search"
+            title={t('data.notFound.title', { query: firstTerm })}
             hint={t(dataDesk ? 'data.notFound.hintDesk' : 'data.notFound.hint')}
             action={
               // One action, the one that fits the person: the data desk
@@ -229,7 +249,7 @@ export function EntitiesPage() {
               dataDesk ? (
                 <Button onClick={() => setModalOpen(true)}>
                   <Plus />
-                  {t('data.notFound.add', { query: search.trim() })}
+                  {t('data.notFound.add', { query: firstTerm })}
                 </Button>
               ) : (
                 <Button onClick={() => setRequesting(true)}>{t('data.notFound.request')}</Button>
@@ -237,10 +257,11 @@ export function EntitiesPage() {
             }
           />
         </Card>
-      ) : filtered.length === 0 && (filtersActive || search.trim() !== '') ? (
+      ) : filtered.length === 0 && (filtersActive || firstTerm !== '') ? (
         // Emptied by the filters (or by a search too short to call the
         // company missing): say so and offer the way back, never «create».
         <EmptyState
+          pictogram="search"
           title={t('common.noMatches')}
           hint={t('common.noMatchesHint')}
           action={
@@ -257,19 +278,14 @@ export function EntitiesPage() {
         />
       ) : filtered.length === 0 ? (
         // «Add company» is in the page header; the empty state does not repeat it.
-        <EmptyState title={t('entities.empty')} hint={t('entities.emptyHint')} />
+        <EmptyState
+          pictogram="companies"
+          title={t('entities.empty')}
+          hint={t('entities.emptyHint')}
+        />
       ) : (
-        <Table columns={[COL.fill, '9rem', '10rem', '13.5rem', COL.date, COL.grade]}>
-          <thead>
-            <tr>
-              <th>{t('buyers.fields.name')}</th>
-              <th>{t('buyers.fields.country')}</th>
-              <th>{t('buyers.fields.industry')}</th>
-              <th>{t('entities.rolesHeader')}</th>
-              <th>{t('buyers.latestStatement')}</th>
-              <th>{t('limits.fields.grade')}</th>
-            </tr>
-          </thead>
+        <Table id="entities" columns={tableColumns} stickyHead freezeFirst>
+          {tableHead}
           <tbody>
             {filtered.map((entity) => {
               const latest = latestPeriod(entity.financial_statements)
@@ -282,17 +298,29 @@ export function EntitiesPage() {
                   className="cursor-pointer transition-colors hover:bg-slate-50"
                 >
                   <td className="font-medium text-slate-800">
-                    <Truncate text={entity.name} className="max-w-none" />
-                    {entity.registration_number && (
-                      // A registration number is one token: never broken.
-                      <span className="block truncate text-xs font-normal whitespace-nowrap text-slate-400 tabular-nums">
-                        {entity.registration_number}
+                    <span className="flex min-w-0 items-start gap-3">
+                      <SelectCheckbox
+                        row
+                        label={t('ui.bulk.select', { name: entity.name })}
+                        checked={selected.has(entity.id)}
+                        onChange={() => toggle(entity.id)}
+                      />
+                      <span className="min-w-0 flex-1">
+                        <Truncate text={entity.name} className="max-w-none">
+                          <Highlight text={entity.name} query={search} />
+                        </Truncate>
+                        {entity.registration_number && (
+                          // A registration number is one token: never broken.
+                          <span className="block truncate text-caption font-normal whitespace-nowrap text-slate-500 tabular-nums">
+                            <Highlight text={entity.registration_number} query={search} />
+                          </span>
+                        )}
                       </span>
-                    )}
+                    </span>
                   </td>
                   <td>
                     <Truncate text={refName(entity.countries, locale)} className="max-w-none">
-                      <CountryFlag code={entity.country_code} className="mr-1.5" />
+                      <CountryFlag code={entity.country_code} className="mr-2" />
                       {refName(entity.countries, locale)}
                     </Truncate>
                   </td>
@@ -302,14 +330,19 @@ export function EntitiesPage() {
                   <td>
                     <RoleBadges roles={roles.data?.get(entity.id)} />
                   </td>
-                  <td className="whitespace-nowrap text-slate-500">{latest ? formatDate(latest, locale) : EM_DASH}</td>
+                  <td className="whitespace-nowrap text-slate-500">
+                    {latest ? formatDate(latest, locale) : EM_DASH}
+                  </td>
                   <td>
                     {grade ? (
-                      <Badge tone={gradeTone(grade)}>{grade}</Badge>
+                      <GradeBadge grade={grade} />
                     ) : (
-                      <span className="text-slate-400">{EM_DASH}</span>
+                      <span className="text-slate-500">{EM_DASH}</span>
                     )}
                   </td>
+                  <RowActions reveal>
+                    <QuickViewButton name={entity.name} onClick={() => setPeekId(entity.id)} />
+                  </RowActions>
                 </tr>
               )
             })}
@@ -317,53 +350,71 @@ export function EntitiesPage() {
         </Table>
       )}
 
+      <BulkBar count={selected.size} onClear={clear}>
+        <Button variant="secondary" size="sm" onClick={exportSelected}>
+          {t('ui.bulk.exportCsv')}
+        </Button>
+      </BulkBar>
+
+      <SidePanel
+        open={peek !== undefined}
+        title={peek?.name}
+        meta={peek?.registration_number}
+        onClose={() => setPeekId(null)}
+        footer={
+          peek && <LinkButton to={`/entities/${peek.id}`}>{t('ui.quickView.openCard')}</LinkButton>
+        }
+      >
+        {peek && (
+          <DescriptionList
+            items={[
+              {
+                label: t('buyers.fields.country'),
+                value: (
+                  <span className="inline-flex items-center">
+                    <CountryFlag code={peek.country_code} className="mr-2" />
+                    {refName(peek.countries, locale)}
+                  </span>
+                ),
+              },
+              {
+                label: t('buyers.fields.industry'),
+                value: refName(peek.industries, locale) || EM_DASH,
+              },
+              {
+                label: t('entities.rolesHeader'),
+                value: <RoleBadges roles={roles.data?.get(peek.id)} />,
+              },
+              {
+                label: t('buyers.latestStatement'),
+                value: (() => {
+                  const latest = latestPeriod(peek.financial_statements)
+                  return latest ? formatDate(latest, locale) : EM_DASH
+                })(),
+              },
+              {
+                label: t('limits.fields.grade'),
+                value: grades.data?.get(peek.id) ? (
+                  <GradeBadge grade={grades.data.get(peek.id)} />
+                ) : (
+                  EM_DASH
+                ),
+              },
+            ]}
+          />
+        )}
+      </SidePanel>
+
       <EntityFormModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        prefill={search.trim() ? { name: search.trim() } : undefined}
+        prefill={firstTerm ? { name: firstTerm } : undefined}
       />
-      <RequestEntityModal open={requesting} initialName={search.trim()} onClose={() => setRequesting(false)} />
-    </div>
-  )
-}
-
-/** The registry's search box, with the same magnifier and × as the pickers. */
-function SearchField({
-  value,
-  onChange,
-  placeholder,
-  clearLabel,
-}: {
-  value: string
-  onChange: (next: string) => void
-  placeholder: string
-  clearLabel: string
-}) {
-  return (
-    <div className="relative w-full max-w-xs">
-      <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-slate-400" />
-      <Input
-        type="search"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape' && value) onChange('')
-        }}
-        placeholder={placeholder}
-        aria-label={placeholder}
-        className="pr-8 pl-8 [&::-webkit-search-cancel-button]:appearance-none"
+      <RequestEntityModal
+        open={requesting}
+        initialName={firstTerm}
+        onClose={() => setRequesting(false)}
       />
-      {value && (
-        <button
-          type="button"
-          onClick={() => onChange('')}
-          aria-label={clearLabel}
-          title={clearLabel}
-          className="absolute top-1/2 right-1.5 flex size-6 -translate-y-1/2 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-        >
-          <X className="size-3.5" />
-        </button>
-      )}
     </div>
   )
 }

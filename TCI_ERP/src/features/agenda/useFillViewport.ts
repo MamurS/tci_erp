@@ -7,13 +7,15 @@
  * (a callout appearing above, the legend changing language).
  *
  * The triage layout (TriageView) gives this height to its two panes, so
- * they end on one line and scroll inside themselves, never the page.
+ * they end on one line and scroll inside themselves, never the page. The
+ * minimum (22rem at 100 %) is what is left on a 1280 × 800 laptop under the
+ * Agenda's navy band (Prompt 30); below it the page scrolls instead.
  */
 
 import { useLayoutEffect, useState } from 'react'
 import type { RefObject } from 'react'
 
-export function useFillViewport(ref: RefObject<HTMLElement | null>, minimum = 448): number | null {
+export function useFillViewport(ref: RefObject<HTMLElement | null>, minimum = 352): number | null {
   const [height, setHeight] = useState<number | null>(null)
   useLayoutEffect(() => {
     const el = ref.current

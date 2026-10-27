@@ -99,8 +99,15 @@ jobs:
 
 
   e2e:
-    name: Browser tests (TCI_ERP e2e)
+    # Four shards: the suite (589 tests, the layout guard most of them) took
+    # 39 minutes in one job and outgrew its 40-minute budget. Each shard runs
+    # its own dev server and a quarter of the tests.
+    name: Browser tests (shard ${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
     defaults:
       run:
         working-directory: TCI_ERP
@@ -124,18 +131,29 @@ jobs:
       # Includes the layout guard (e2e/layout): every table/list screen in
       # en/ru/uz at 1440 and 1280 px, replayed from recorded fixtures with the
       # network sealed — nothing reaches Supabase or any other host. About
-      # 12 minutes on two workers.
+      # 10 minutes per shard on two workers.
       - name: Playwright
-        run: npm run test:e2e
-        timeout-minutes: 40
+        run: npm run test:e2e -- --shard=${{ matrix.shard }}/4
+        timeout-minutes: 30
 
       - name: Upload traces of failures
         if: ${{ failure() }}
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-traces
+          name: playwright-traces-${{ matrix.shard }}
           path: TCI_ERP/test-results/
           retention-days: 7
+
+  # The one check the shards answer to, under the name the job always had.
+  e2e-all:
+    name: Browser tests (TCI_ERP e2e)
+    runs-on: ubuntu-latest
+    needs: e2e
+    if: ${{ always() }}
+    steps:
+      - name: Every shard passed
+        run: test "${{ needs.e2e.result }}" = success
+
   analytics:
     name: Analytics service (services/analytics)
     runs-on: ubuntu-latest

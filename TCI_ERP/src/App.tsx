@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { useUiScaleSync } from './features/account/uiScaleApi'
+import { useUiScaleSync, useUiTextScaleSync } from './features/account/uiScaleApi'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import { RequirePasswordChange } from './auth/RequirePasswordChange'
@@ -62,6 +62,7 @@ const PortalOfferPrintPage = lazyPage(offers, 'PortalOfferPrintPage')
 const PortalOffersPage = lazyPage(offers, 'PortalOffersPage')
 const PortalOfferPage = lazyPage(offers, 'PortalOfferPage')
 const AdminPage = lazyPage(() => import('./features/admin'), 'AdminPage')
+const TokensPage = lazyPage(() => import('./features/admin'), 'TokensPage')
 const AgendaPage = lazyPage(() => import('./features/agenda'), 'AgendaPage')
 const account = () => import('./features/account')
 const AccountPage = lazyPage(account, 'AccountPage')
@@ -87,6 +88,7 @@ function LegacyRedirect() {
 export default function App() {
   // The person's interface text size, once signed in (0076).
   useUiScaleSync()
+  useUiTextScaleSync()
   return (
     <Suspense fallback={<LoadingScreen />}>
     <Routes>
@@ -186,6 +188,7 @@ export default function App() {
                     offers are prepared. */}
                 <Route path="brochure" element={<Navigate to="/requests" replace />} />
                 <Route path="admin" element={<AdminPage />} />
+                <Route path="admin/tokens" element={<TokensPage />} />
               </Route>
             </Route>
             </Route>

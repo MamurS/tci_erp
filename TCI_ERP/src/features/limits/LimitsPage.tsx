@@ -6,22 +6,30 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
+import { usePageSearch } from '../../components/layout/usePageSearch'
+import { searchRows } from '../../lib/pageSearch'
 import {
+  actionsCol,
   Badge,
   COL,
+  DescriptionList,
   EmptyState,
-  Input,
+  GradeBadge,
+  Highlight,
   labelCol,
+  LinkButton,
+  QuickViewButton,
+  RowActions,
   Segmented,
-  Select,
-  Spinner,
+  SidePanel,
+  SkeletonRows,
   Table,
+  TableSettings,
   Truncate,
 } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { hasRole } from '../../lib/roles'
 import { EM_DASH, formatAmount, formatMoment } from '../../lib/format'
-import { gradeTone } from '../../lib/grade'
 import { useLatestGrades } from '../entities/api'
 import { useLimitRequests } from './api'
 import { REQUEST_AGE_WARN_DAYS, requestAgeDays, statusTone } from './machine'
@@ -35,6 +43,18 @@ import type { QueueRow } from './workbench/types'
 
 type QueueTab = 'drafts' | 'information' | 'review' | 'escalated' | 'decided' | 'proposals'
 const QUEUE_TABS: readonly QueueTab[] = ['drafts', 'information', 'review', 'escalated', 'decided', 'proposals']
+
+// Regular rows pad cells by 1rem a side (the dense ones did by 0.75), so the
+// narrow columns hold their longest header word in en / ru / uz.
+const QUEUE_COLUMNS = [
+  COL.fill,
+  '10.75rem',
+  '9.5rem',
+  labelCol('limitStatus'),
+  COL.days,
+  '6rem',
+  actionsCol([], 1),
+]
 
 export function LimitsPage() {
   const { t, i18n } = useTranslation()
@@ -50,6 +70,8 @@ export function LimitsPage() {
   const queue = useLimitQueue(canDecide)
   const annotated = useMemo(() => queueIndex(queue.data ?? []), [queue.data])
   const [mineOnly, setMineOnly] = useState(false)
+  // The quick view: a request's summary beside the queue (Table v2).
+  const [peekId, setPeekId] = useState<string | null>(null)
 
   // ?tab= deep-links a queue (the dashboard's escalation signal opens it).
   const [searchParams] = useSearchParams()
@@ -58,8 +80,9 @@ export function LimitsPage() {
     // the escalated queue exists only for those who may decide
     return wanted && QUEUE_TABS.includes(wanted) && (wanted !== 'escalated' || canDecide) ? wanted : 'review'
   })
-  const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState('')
+  // The one search (top bar, lib/pageSearch.ts): buyer, policy, policyholder,
+  // submission, status — terms separated by commas, in order.
+  const { query: search } = usePageSearch('limits')
 
   const filtered = useMemo(() => {
     const all = requests ?? []
@@ -79,20 +102,20 @@ export function LimitsPage() {
           return r.status === 'decided' || r.status === 'withdrawn'
       }
     })
-    const query = search.trim().toLowerCase()
-    return inTab.filter((r) => {
-      if (statusFilter && r.status !== statusFilter) return false
-      if (mineOnly && !(annotated.get(r.id)?.decide_alone && !annotated.get(r.id)?.own_request)) return false
-      if (!query) return true
-      return (
-        (r.legal_entities?.name ?? '').toLowerCase().includes(query) ||
-        (r.policies?.policy_number ?? '').toLowerCase().includes(query) ||
-        (r.policies?.legal_entities?.name ?? '').toLowerCase().includes(query) ||
-        (r.insurance_requests?.request_number ?? '').toLowerCase().includes(query) ||
-        (r.insurance_requests?.legal_entities?.name ?? '').toLowerCase().includes(query)
-      )
-    })
-  }, [requests, tab, search, statusFilter, mineOnly, annotated, session?.user.id])
+    const mine = inTab.filter(
+      (r) => !mineOnly || (annotated.get(r.id)?.decide_alone && !annotated.get(r.id)?.own_request),
+    )
+    return searchRows(mine, search, (r) => [
+      r.legal_entities?.name,
+      r.policies?.policy_number,
+      r.policies?.legal_entities?.name,
+      r.insurance_requests?.request_number,
+      r.insurance_requests?.legal_entities?.name,
+      r.status,
+      t(`limits.statuses.${r.status}`),
+      r.currency_code,
+    ])
+  }, [requests, tab, search, mineOnly, annotated, session?.user.id, t])
 
   const escalatedCount = (requests ?? []).filter((r) => r.status === 'escalated').length
   const informationCount = (requests ?? []).filter((r) => r.status === 'information_gathering').length
@@ -128,6 +151,56 @@ export function LimitsPage() {
 
   const showDecision = canDecide && (tab === 'review' || tab === 'escalated')
 
+  const columnLabels = [
+    t('limits.fields.buyer'),
+    t('limits.fields.policyAndPolicyholder'),
+    t('portfolio.credit.amount'),
+    t('limits.fields.status'),
+    t('limits.fields.ageDaysUnit'),
+    t('limits.fields.grade'),
+    '',
+  ]
+  const tableHead = (
+    <thead>
+      <tr>
+        <th>{columnLabels[0]}</th>
+        <th>{columnLabels[1]}</th>
+        <th className="num">{columnLabels[2]}</th>
+        <th>{columnLabels[3]}</th>
+        <th className="num" title={t('limits.ageHint', { days: REQUEST_AGE_WARN_DAYS })}>
+          {columnLabels[4]}
+        </th>
+        <th>{columnLabels[5]}</th>
+        <th>
+          <span className="sr-only">{t('common.actions')}</span>
+        </th>
+      </tr>
+    </thead>
+  )
+  // The request in the quick view: looked up in everything loaded, so it
+  // stays open while a filter hides its row.
+  const peek = peekId ? (requests ?? []).find((r) => r.id === peekId) : undefined
+  const statusCell = (r: LimitRequestWithRefs) =>
+    onValidation.has(r.id) ? (
+      <span
+        title={t('limits.validation.onValidationWith', {
+          name: levelOf.get(r.id)
+            ? levelName(
+                t,
+                onValidation.get(r.id)?.stream ?? 'credit',
+                levelOf.get(r.id)?.rank ?? null,
+                levelOf.get(r.id)?.is_committee ?? false,
+              )
+            : (onValidation.get(r.id)?.validator_name ?? EM_DASH),
+          date: formatMoment(onValidation.get(r.id)?.since ?? r.created_at, locale),
+        })}
+      >
+        <Badge tone="warn">{t('limits.validation.badge')}</Badge>
+      </span>
+    ) : (
+      <Badge tone={statusTone(r.status)}>{t(`limits.statuses.${r.status}`)}</Badge>
+    )
+
   return (
     <div>
       {/* No view hint: the section subtitle above already says what this is,
@@ -142,27 +215,8 @@ export function LimitsPage() {
       </div>
 
       <div className="mt-4 mb-4 flex flex-wrap items-center gap-2">
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('limits.searchPlaceholder')}
-          aria-label={t('limits.searchPlaceholder')}
-          className="max-w-xs"
-        />
-        {tab === 'decided' && (
-          <Select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="max-w-44"
-            aria-label={t('limits.fields.status')}
-          >
-            <option value="">{t('policies.allStatuses')}</option>
-            <option value="decided">{t('limits.statuses.decided')}</option>
-            <option value="withdrawn">{t('limits.statuses.withdrawn')}</option>
-          </Select>
-        )}
         {showDecision && (
-          <label className="ml-1 inline-flex items-center gap-2 text-[0.8125rem] text-slate-600">
+          <label className="ml-1 inline-flex items-center gap-2 text-small text-slate-600">
             <input
               type="checkbox"
               checked={mineOnly}
@@ -172,34 +226,35 @@ export function LimitsPage() {
             {t('limits.workbench.queue.mineOnly')}
           </label>
         )}
+        {tab !== 'proposals' && (
+          <div className="ml-auto">
+            <TableSettings table="limits-queue" columns={columnLabels} />
+          </div>
+        )}
       </div>
 
       {tab === 'proposals' ? (
         <BuyerProposalsSection />
       ) : isLoading ? (
-        <Spinner label={t('common.loading')} />
+        <Table id="limits-queue" columns={QUEUE_COLUMNS}>
+          {tableHead}
+          <tbody>
+            <SkeletonRows columns={QUEUE_COLUMNS.length} />
+          </tbody>
+        </Table>
       ) : filtered.length === 0 ? (
-        <EmptyState title={t('limits.queueEmpty')} hint={t('limits.queueEmptyHint')} />
+        <EmptyState
+          pictogram={search.trim() ? 'search' : 'limits'}
+          title={t('limits.queueEmpty')}
+          hint={t('limits.queueEmptyHint')}
+        />
       ) : (
         // Two text columns share what the figures leave (cell-fill) and cut
         // with an ellipsis, so the queue fits a 1280px screen with the
-        // sidebar docked instead of scrolling sideways. Dense, like every
-        // other table of the credit hub.
-        <Table dense columns={[COL.fill, '9.75rem', '9.5rem', labelCol('limitStatus'), '5rem', '4.5rem']}>
-          <thead>
-            <tr>
-              <th>{t('limits.fields.buyer')}</th>
-              <th>{t('limits.fields.policyAndPolicyholder')}</th>
-              {/* w-px: the figure columns keep their content width and leave
-                  the rest to the two name columns. */}
-              <th className="num">{t('portfolio.credit.amount')}</th>
-              <th>{t('limits.fields.status')}</th>
-              <th className="num" title={t('limits.ageHint', { days: REQUEST_AGE_WARN_DAYS })}>
-                {t('limits.fields.ageDaysUnit')}
-              </th>
-              <th>{t('limits.fields.grade')}</th>
-            </tr>
-          </thead>
+        // sidebar docked instead of scrolling sideways. A registry (Table v2):
+        // the person's row density, columns, a head that stays in view.
+        <Table id="limits-queue" columns={QUEUE_COLUMNS} stickyHead freezeFirst>
+          {tableHead}
           <tbody>
             {filtered.map((r) => (
               <tr
@@ -209,7 +264,7 @@ export function LimitsPage() {
               >
                 <td className="font-medium text-slate-800">
                   <Truncate text={r.legal_entities?.name} className="max-w-none">
-                    {r.legal_entities?.name ?? EM_DASH}
+                    {r.legal_entities?.name ? <Highlight text={r.legal_entities.name} query={search} /> : EM_DASH}
                   </Truncate>
                 </td>
                 <td>
@@ -221,23 +276,7 @@ export function LimitsPage() {
                 {/* The authority exception sits under the status: a column of
                     its own left the buyer's name a few letters on a laptop. */}
                 <td>
-                  {onValidation.has(r.id) ? (
-                    <span title={t('limits.validation.onValidationWith', {
-                      name: levelOf.get(r.id)
-                        ? levelName(
-                            t,
-                            onValidation.get(r.id)?.stream ?? 'credit',
-                            levelOf.get(r.id)?.rank ?? null,
-                            levelOf.get(r.id)?.is_committee ?? false,
-                          )
-                        : (onValidation.get(r.id)?.validator_name ?? EM_DASH),
-                      date: formatMoment(onValidation.get(r.id)?.since ?? r.created_at, locale),
-                    })}>
-                      <Badge tone="warn">{t('limits.validation.badge')}</Badge>
-                    </span>
-                  ) : (
-                    <Badge tone={statusTone(r.status)}>{t(`limits.statuses.${r.status}`)}</Badge>
-                  )}
+                  {statusCell(r)}
                   {showDecision && (
                     <span className="mt-1 block">
                       <AuthorityCell row={annotated.get(r.id)} />
@@ -250,12 +289,107 @@ export function LimitsPage() {
                 <td>
                   <GradeCell grade={grades.data?.get(r.entity_id)} />
                 </td>
+                <RowActions reveal>
+                  <QuickViewButton
+                    name={r.legal_entities?.name ?? EM_DASH}
+                    onClick={() => setPeekId(r.id)}
+                  />
+                </RowActions>
               </tr>
             ))}
           </tbody>
         </Table>
       )}
+
+      <SidePanel
+        open={peek !== undefined}
+        title={peek?.legal_entities?.name ?? EM_DASH}
+        meta={peek && statusCell(peek)}
+        onClose={() => setPeekId(null)}
+        footer={peek && <LinkButton to={`/limits/${peek.id}`}>{t('limits.quickView.openRequest')}</LinkButton>}
+      >
+        {peek && (
+          <>
+            <DescriptionList
+              items={[
+                {
+                  label: t('limits.fields.grade'),
+                  value: <GradeCell grade={grades.data?.get(peek.entity_id)} />,
+                },
+                {
+                  label: t('limits.fields.requestedAmount'),
+                  value: (
+                    <span className="num">
+                      {formatAmount(Number(peek.requested_amount), locale)} {peek.currency_code}
+                    </span>
+                  ),
+                },
+                {
+                  label: t('limits.fields.paymentTerms'),
+                  value:
+                    peek.requested_payment_terms_days === null ? (
+                      EM_DASH
+                    ) : (
+                      <span className="num">
+                        {t('policies.terms.days', { count: peek.requested_payment_terms_days })}
+                      </span>
+                    ),
+                },
+                {
+                  label: t('limits.fields.policyAndPolicyholder'),
+                  value: <ScopeLine request={peek} />,
+                },
+                {
+                  label: t('limits.fields.ageDaysUnit'),
+                  value: <AgeCell days={requestAgeDays(peek.submitted_at, nowIso)} />,
+                },
+                // The authority answer is the database's (v_limit_request_queue),
+                // known only for open requests on the credit desk.
+                ...(canDecide && annotated.get(peek.id)
+                  ? [
+                      {
+                        label: t('limits.workbench.queue.authority'),
+                        value: decidesAlone(annotated.get(peek.id)) ? (
+                          t('limits.workbench.queue.alone')
+                        ) : (
+                          <AuthorityCell row={annotated.get(peek.id)} />
+                        ),
+                      },
+                    ]
+                  : []),
+              ]}
+            />
+            {peek.justification && (
+              <div className="mt-4">
+                <p className="text-caption font-semibold text-slate-600">{t('limits.fields.justification')}</p>
+                <p className="mt-1 text-small whitespace-pre-line text-slate-700">{peek.justification}</p>
+              </div>
+            )}
+          </>
+        )}
+      </SidePanel>
     </div>
+  )
+}
+
+/** The caller may decide it alone: no exception for AuthorityCell to show. */
+function decidesAlone(row: QueueRow | undefined): boolean {
+  return Boolean(row && row.decide_alone && !row.own_request && !row.rate_missing)
+}
+
+/** The policy (or, before bind, the submission) over its holder, for the
+ * quick view. */
+function ScopeLine({ request }: { request: LimitRequestWithRefs }) {
+  const number = request.policies?.policy_number ?? request.insurance_requests?.request_number
+  const holder = request.policies
+    ? request.policies.legal_entities?.name
+    : request.insurance_requests?.legal_entities?.name
+  if (!number) return <>{EM_DASH}</>
+  return (
+    <>
+      <span className="block whitespace-nowrap">{number}</span>
+      {holder && <span className="block font-normal text-slate-500">{holder}</span>}
+    </>
   )
 }
 
@@ -270,7 +404,7 @@ function ScopeCell({ request }: { request: LimitRequestWithRefs }) {
     return (
       <>
         <span className="block whitespace-nowrap text-slate-700">{policy.policy_number}</span>
-        <Truncate text={policy.legal_entities?.name} className="max-w-none text-[0.75rem] text-slate-500">
+        <Truncate text={policy.legal_entities?.name} className="max-w-none text-caption text-slate-500">
           {policy.legal_entities?.name ?? EM_DASH}
         </Truncate>
       </>
@@ -287,18 +421,18 @@ function ScopeCell({ request }: { request: LimitRequestWithRefs }) {
         >
           {submission.request_number}
         </Link>
-        <Truncate text={submission.legal_entities?.name} className="max-w-none text-[0.75rem] text-slate-500">
+        <Truncate text={submission.legal_entities?.name} className="max-w-none text-caption text-slate-500">
           {submission.legal_entities?.name ?? EM_DASH}
         </Truncate>
       </>
     )
   }
-  return <span className="text-slate-400">{EM_DASH}</span>
+  return <span className="text-slate-500">{EM_DASH}</span>
 }
 
 function AgeCell({ days }: { days: number | null }) {
   const { t } = useTranslation()
-  if (days === null) return <span className="text-slate-400">{EM_DASH}</span>
+  if (days === null) return <span className="text-slate-500">{EM_DASH}</span>
   const late = days > REQUEST_AGE_WARN_DAYS
   return (
     <span
@@ -342,6 +476,6 @@ function AuthorityCell({ row }: { row: QueueRow | undefined }) {
 }
 
 function GradeCell({ grade }: { grade: string | undefined }) {
-  if (!grade) return <span className="text-slate-400">{EM_DASH}</span>
-  return <Badge tone={gradeTone(grade)}>{grade}</Badge>
+  if (!grade) return <span className="text-slate-500">{EM_DASH}</span>
+  return <GradeBadge grade={grade} />
 }

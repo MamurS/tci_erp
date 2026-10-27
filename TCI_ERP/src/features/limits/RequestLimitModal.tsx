@@ -107,9 +107,9 @@ export function RequestLimitModal({
             rows={3}
           />
         </Field>
-        {missing.length > 0 && <p className="text-[0.8125rem] text-slate-500">{missing.join(' · ')}</p>}
+        {missing.length > 0 && <p className="text-small text-slate-500">{missing.join(' · ')}</p>}
         {error && (
-          <p className="text-[0.8125rem] text-neg-500" role="alert">
+          <p className="text-small text-neg-500" role="alert">
             {error}
           </p>
         )}

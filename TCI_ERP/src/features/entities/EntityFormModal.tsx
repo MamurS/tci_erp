@@ -7,13 +7,20 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Button, DateInput, Field, Input, Modal } from '../../components/ui'
 import {
-  useCreateEntity,
-  useRegNumberMatch,
-  useSimilarEntities,
-  useUpdateEntity,
-} from './api'
+  Button,
+  checkEmail,
+  checkRequired,
+  checkUrl,
+  DateInput,
+  Field,
+  FormSection,
+  Input,
+  Modal,
+  useTouched,
+} from '../../components/ui'
+import type { ValidationKey } from '../../components/ui'
+import { useCreateEntity, useRegNumberMatch, useSimilarEntities, useUpdateEntity } from './api'
 import { CountryPicker } from './CountryPicker'
 import { IndustryPicker } from './IndustryPicker'
 import { countryFromLegalForm } from './legalForm'
@@ -40,7 +47,10 @@ interface EntityFormModalProps {
   /** Pre-fills a NEW company from a data request or an official registry
    * record. Ignored when editing. The duplicate checks run on it as usual. */
   prefill?: Partial<
-    Pick<LegalEntity, 'name' | 'country_code' | 'registration_number' | 'address' | 'founded_date' | 'legal_form'>
+    Pick<
+      LegalEntity,
+      'name' | 'country_code' | 'registration_number' | 'address' | 'founded_date' | 'legal_form'
+    >
   >
 }
 
@@ -74,6 +84,9 @@ export function EntityFormModal({
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // Checked when a field is left (and all at once on save), never while typing.
+  const checks = useTouched<'name' | 'website' | 'email'>()
+  const resetChecks = checks.reset
 
   // Compared by value: a caller may build the prefill object on every render,
   // and a refetch in the page behind must not wipe what is being typed.
@@ -98,8 +111,9 @@ export function EntityFormModal({
       setContactPhone(initial?.contact_phone ?? '')
       setNotes(initial?.notes ?? '')
       setError(null)
+      resetChecks()
     }
-  }, [open, initial, initialName, prefillKey])
+  }, [open, initial, initialName, prefillKey, resetChecks])
 
   const onNameChange = (next: string) => {
     setName(next)
@@ -112,10 +126,20 @@ export function EntityFormModal({
   const dedup = dedupVerdict(regMatch.data, similar.data)
   const blocked = dedup.blocked
 
-  const valid = Boolean(name.trim()) && !blocked
+  const problems: Record<'name' | 'website' | 'email', ValidationKey | null> = {
+    name: checkRequired(name),
+    website: checkUrl(website),
+    email: checkEmail(contactEmail),
+  }
+  const problem = (key: keyof typeof problems) =>
+    checks.touched(key) && problems[key] ? t(`ui.validation.${problems[key]}`) : null
+  const valid = !Object.values(problems).some(Boolean) && !blocked
 
   const handleSubmit = async () => {
-    if (!valid) return
+    if (!valid) {
+      checks.all()
+      return
+    }
     setSaving(true)
     setError(null)
     const input: EntityInput = {
@@ -159,115 +183,138 @@ export function EntityFormModal({
           <Button variant="secondary" onClick={onClose}>
             {t('common.cancel')}
           </Button>
-          <Button onClick={() => void handleSubmit()} disabled={!valid} loading={saving}>
-            {t('common.save')}
+          {/* The button names the outcome. Only a registration number we
+              already hold disables it — the notice above says why. */}
+          <Button onClick={() => void handleSubmit()} disabled={blocked} loading={saving}>
+            {initial ? t('entities.saveChanges') : t('entities.createAction')}
           </Button>
         </>
       }
     >
-      <div className="flex flex-col gap-3">
-        <div className="grid gap-3 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-          <Field label={t('buyers.fields.name')}>
-            <Input value={name} onChange={(e) => onNameChange(e.target.value)} required />
-          </Field>
-          <Field label={t('buyers.fields.legalForm')}>
-            <Input value={legalForm} onChange={(e) => setLegalForm(e.target.value)} />
-          </Field>
-        </div>
-
-        {/* Non-blocking fuzzy duplicates while typing the name */}
-        {!initial && dedup.suggestions.length > 0 && (
-          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-3 py-2 text-[0.8125rem]">
-            <p className="mb-1 font-medium text-warn-500">{t('entities.possibleDuplicates')}</p>
-            <ul className="flex flex-col gap-0.5">
-              {dedup.suggestions.map((s) => (
-                <li key={s.id}>
-                  <Link
-                    to={`/entities/${s.id}`}
-                    className="text-accent-700 hover:underline"
-                    onClick={onClose}
-                  >
-                    {s.name}
-                  </Link>{' '}
-                  <span className="text-slate-500">{s.registration_number ?? ''}</span>
-                </li>
-              ))}
-            </ul>
+      <div className="flex flex-col gap-4">
+        <FormSection title={t('entities.formSections.identity')}>
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+            <Field label={t('buyers.fields.name')} error={problem('name')}>
+              <Input
+                value={name}
+                onChange={(e) => onNameChange(e.target.value)}
+                onBlur={checks.blur('name')}
+                required
+              />
+            </Field>
+            <Field label={t('buyers.fields.legalForm')}>
+              <Input value={legalForm} onChange={(e) => setLegalForm(e.target.value)} />
+            </Field>
           </div>
-        )}
 
-        <div className="grid grid-cols-2 gap-3">
-          <Field label={t('buyers.fields.country')}>
-            <CountryPicker
-              value={countryCode || null}
-              onChange={(code) => {
-                setCountryCode(code ?? '')
-                setCountryChosen(true)
-              }}
-            />
-          </Field>
-          <Field label={t('buyers.fields.industry')}>
-            <IndustryPicker value={industryId || null} onChange={(code) => setIndustryId(code ?? '')} />
-          </Field>
-        </div>
+          {/* Non-blocking fuzzy duplicates while typing the name */}
+          {!initial && dedup.suggestions.length > 0 && (
+            <div className="rounded-md border border-warn-500/30 bg-warn-50 px-3 py-2 text-small">
+              <p className="mb-1 font-medium text-warn-500">{t('entities.possibleDuplicates')}</p>
+              <ul className="flex flex-col gap-0.5">
+                {dedup.suggestions.map((s) => (
+                  <li key={s.id}>
+                    <Link
+                      to={`/entities/${s.id}`}
+                      className="text-accent-700 hover:underline"
+                      onClick={onClose}
+                    >
+                      {s.name}
+                    </Link>{' '}
+                    <span className="text-slate-500">{s.registration_number ?? ''}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-        <Field label={t('buyers.fields.registrationNumber')}>
-          <Input
-            value={registrationNumber}
-            onChange={(e) => setRegistrationNumber(e.target.value)}
-          />
-        </Field>
-
-        {/* Blocking exact duplicate on (country, registration number) */}
-        {blocked && dedup.blockingEntity && (
-          <div
-            className="rounded-md border border-neg-500/30 bg-neg-50 px-3 py-2 text-[0.8125rem] text-neg-500"
-            role="alert"
-          >
-            {t('entities.regExists', { name: dedup.blockingEntity.name })}{' '}
-            <Link
-              to={`/entities/${dedup.blockingEntity.id}`}
-              className="font-medium underline"
-              onClick={onClose}
-            >
-              {t('entities.openEntity')}
-            </Link>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label={t('buyers.fields.country')}>
+              <CountryPicker
+                value={countryCode || null}
+                onChange={(code) => {
+                  setCountryCode(code ?? '')
+                  setCountryChosen(true)
+                }}
+              />
+            </Field>
+            <Field label={t('buyers.fields.industry')}>
+              <IndustryPicker
+                value={industryId || null}
+                onChange={(code) => setIndustryId(code ?? '')}
+              />
+            </Field>
           </div>
-        )}
 
-        <div className="grid grid-cols-2 gap-3">
-          <Field label={t('buyers.fields.foundedDate')}>
-            <DateInput value={foundedDate} onChange={setFoundedDate} max={todayIso()} />
-          </Field>
-          <Field label={t('buyers.fields.website')}>
-            <Input value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://" />
-          </Field>
-        </div>
-        <Field label={t('policyholders.fields.address')}>
-          <Input value={address} onChange={(e) => setAddress(e.target.value)} />
-        </Field>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label={t('policyholders.fields.contactPerson')}>
-            <Input value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} />
-          </Field>
-          <Field label={t('policyholders.fields.contactPhone')}>
-            <Input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} />
-          </Field>
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label={t('policyholders.fields.contactEmail')}>
+          <Field label={t('buyers.fields.registrationNumber')}>
             <Input
-              type="email"
-              value={contactEmail}
-              onChange={(e) => setContactEmail(e.target.value)}
+              value={registrationNumber}
+              onChange={(e) => setRegistrationNumber(e.target.value)}
             />
           </Field>
-          <Field label={t('buyers.fields.notes')}>
-            <Input value={notes} onChange={(e) => setNotes(e.target.value)} />
+
+          {/* Blocking exact duplicate on (country, registration number) */}
+          {blocked && dedup.blockingEntity && (
+            <div
+              className="rounded-md border border-neg-500/30 bg-neg-50 px-3 py-2 text-small text-neg-500"
+              role="alert"
+            >
+              {t('entities.regExists', { name: dedup.blockingEntity.name })}{' '}
+              <Link
+                to={`/entities/${dedup.blockingEntity.id}`}
+                className="font-medium underline"
+                onClick={onClose}
+              >
+                {t('entities.openEntity')}
+              </Link>
+            </div>
+          )}
+        </FormSection>
+
+        <FormSection title={t('entities.formSections.profile')}>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label={t('buyers.fields.foundedDate')}>
+              <DateInput value={foundedDate} onChange={setFoundedDate} max={todayIso()} />
+            </Field>
+            <Field label={t('buyers.fields.website')} error={problem('website')}>
+              <Input
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+                onBlur={checks.blur('website')}
+                placeholder="https://"
+              />
+            </Field>
+          </div>
+          <Field label={t('policyholders.fields.address')}>
+            <Input value={address} onChange={(e) => setAddress(e.target.value)} />
           </Field>
-        </div>
+        </FormSection>
+
+        <FormSection title={t('entities.formSections.contact')}>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label={t('policyholders.fields.contactPerson')}>
+              <Input value={contactPerson} onChange={(e) => setContactPerson(e.target.value)} />
+            </Field>
+            <Field label={t('policyholders.fields.contactPhone')}>
+              <Input value={contactPhone} onChange={(e) => setContactPhone(e.target.value)} />
+            </Field>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label={t('policyholders.fields.contactEmail')} error={problem('email')}>
+              <Input
+                type="email"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                onBlur={checks.blur('email')}
+              />
+            </Field>
+            <Field label={t('buyers.fields.notes')}>
+              <Input value={notes} onChange={(e) => setNotes(e.target.value)} />
+            </Field>
+          </div>
+        </FormSection>
         {error && (
-          <p className="text-[0.8125rem] text-neg-500" role="alert">
+          <p className="text-small text-neg-500" role="alert">
             {error}
           </p>
         )}

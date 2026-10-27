@@ -92,7 +92,7 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
                 <li
                   key={r}
                   data-layout-row
-                  className="flex items-center gap-3 border-b border-slate-100 py-2.5 text-[0.8125rem] first:pt-0 last:border-b-0"
+                  className="flex items-center gap-3 border-b border-slate-100 py-3 text-small first:pt-0 last:border-b-0"
                 >
                   {ok ? (
                     <CheckCircle2 className="size-4 shrink-0 text-pos-500" aria-hidden />
@@ -185,7 +185,7 @@ export function ClaimDocumentsTab({ claim }: { claim: Claim }) {
                           type="button"
                           aria-label={t('claims.documents.remove', { name: d.original_filename })}
                           title={t('claims.documents.remove', { name: d.original_filename })}
-                          className="rounded-md p-1.5 text-slate-400 hover:bg-neg-50 hover:text-neg-500"
+                          className="rounded-md p-2 text-slate-500 hover:bg-neg-50 hover:text-neg-500"
                           onClick={() => setRemoving(d)}
                         >
                           <Trash2 className="size-4" aria-hidden />

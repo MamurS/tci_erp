@@ -4,7 +4,7 @@
  * enrol must be able to reach it while every other screen is closed. */
 
 import { useTranslation } from 'react-i18next'
-import { UiScalePicker } from './UiScalePicker'
+import { DisplaySettings } from './UiScalePicker'
 
 import { useAuth } from '../../auth/AuthContext'
 import { Card, LinkButton, PageHeader, SectionTitle } from '../../components/ui'
@@ -35,8 +35,8 @@ export function AccountPage() {
         </Card>
 
         <Card className="p-5">
-          <SectionTitle className="mb-3">{t('account.uiScale.title')}</SectionTitle>
-          <UiScalePicker />
+          <SectionTitle className="mb-3">{t('account.display.title')}</SectionTitle>
+          <DisplaySettings />
         </Card>
 
         <MfaSection />

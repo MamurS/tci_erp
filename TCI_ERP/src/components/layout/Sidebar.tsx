@@ -75,17 +75,17 @@ export function Sidebar({
         end={item.path === '/'}
         onClick={onNavigate}
         className={({ isActive }) =>
-          `group relative flex items-center gap-3 rounded-md px-3 py-2 text-[0.8438rem] transition-colors ${
+          `group relative flex items-center gap-3 rounded-md px-3 py-2 text-body transition-colors ${
             isActive
-              ? 'bg-white/12 font-semibold text-white before:absolute before:top-1.5 before:bottom-1.5 before:left-0 before:w-[3px] before:rounded-r before:bg-accent-400'
+              ? 'bg-white/12 font-semibold text-white before:absolute before:top-2 before:bottom-2 before:left-0 before:w-[3px] before:rounded-r before:bg-accent-400'
               : 'text-white/70 hover:bg-white/6 hover:text-white'
           }`
         }
       >
-        <Icon className="size-[1.125rem] shrink-0" strokeWidth={1.8} />
+        <Icon className="size-4 shrink-0" strokeWidth={1.75} />
         <span className="flex-1 truncate">{t(`nav.${item.key}`)}</span>
         {showEscalated && (
-          <Count value={escalatedCount} digits={1} className="bg-brand-amber text-accent-900" title={t('limits.tabs.escalated')} />
+          <Count value={escalatedCount} digits={1} className="bg-warning-300 text-slate-900" title={t('limits.tabs.escalated')} />
         )}
         {/* Overdue gets its own tone: an overdue count is a different
             statement from a busy one. */}
@@ -104,7 +104,7 @@ export function Sidebar({
   return (
     <aside
       id={id}
-      className="flex h-full w-64 flex-col bg-gradient-to-b from-accent-700 via-accent-800 to-accent-900 text-white"
+      className="flex h-full w-[calc(16rem*var(--ui-text,1))] flex-col bg-gradient-to-b from-accent-800 to-accent-900 text-white"
       aria-label={t('nav.title')}
     >
       <div className="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 pr-3 pl-5">
@@ -120,7 +120,7 @@ export function Sidebar({
       </div>
 
       {current && (
-        <div className="shrink-0 border-b border-white/10 px-3 py-2.5">
+        <div className="shrink-0 border-b border-white/10 px-3 py-3">
           <WorkspaceSwitcher workspaces={workspaces} current={current.key} onSwitch={onSwitchWorkspace} />
         </div>
       )}
@@ -135,7 +135,7 @@ export function Sidebar({
           .filter((section) => section.items.length > 0)
           .map((section) => (
             <div key={section.key} className="mb-5 last:mb-0">
-              <div className="mb-1.5 px-3 text-[0.6562rem] font-semibold tracking-[0.16em] text-white/40 uppercase">
+              <div className="mb-2 px-3 text-caption font-semibold tracking-wider text-white/70 uppercase">
                 {section.title}
               </div>
               <div className="flex flex-col gap-0.5">{section.items.map(renderItem)}</div>
@@ -143,8 +143,8 @@ export function Sidebar({
           ))}
       </nav>
 
-      <div className="shrink-0 border-t border-white/10 px-5 py-3 text-[0.6875rem] text-white/35">
-        <div className="mb-1 text-[0.625rem] font-medium tracking-[0.08em] text-white/45 uppercase">
+      <div className="shrink-0 border-t border-white/10 px-5 py-3 text-caption text-white/65">
+        <div className="mb-1 text-caption font-medium tracking-[0.08em] text-white/70 uppercase">
           {t('app.company')}
         </div>
         {t('nav.shortcutHint')}

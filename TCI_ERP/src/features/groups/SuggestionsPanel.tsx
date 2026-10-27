@@ -41,7 +41,7 @@ export function SuggestionsPanel({
     <Card className="flex flex-col gap-3 p-5">
       <SectionTitle hint={t('groups.suggestions.hint')}>{t('groups.suggestions.title')}</SectionTitle>
       {error && (
-        <p className="text-[0.8125rem] text-neg-500" role="alert">
+        <p className="text-small text-neg-500" role="alert">
           {error}
         </p>
       )}
@@ -49,7 +49,7 @@ export function SuggestionsPanel({
       {isLoading ? (
         <Skeleton className="h-16 w-full" />
       ) : suggestions.length === 0 ? (
-        <p className="text-[0.8125rem] text-slate-500">{t('groups.suggestions.empty')}</p>
+        <p className="text-small text-slate-500">{t('groups.suggestions.empty')}</p>
       ) : (
         <ul className="flex flex-col gap-3">
           {suggestions.map((s) => (
@@ -119,7 +119,7 @@ function SuggestionRow({
   return (
     <li className="rounded-md border border-slate-200 p-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Link to={`/entities/${otherId}`} className="text-sm font-medium text-accent-700 hover:underline">
+        <Link to={`/entities/${otherId}`} className="text-body font-medium text-accent-700 hover:underline">
           {otherName}
         </Link>
         <Badge tone="neutral">
@@ -127,7 +127,7 @@ function SuggestionRow({
         </Badge>
       </div>
 
-      <ul className="mt-1.5 flex flex-wrap gap-1.5">
+      <ul className="mt-2 flex flex-wrap gap-2">
         {signals.map((sig) => (
           <li key={sig.signal}>
             <Badge title={sig.value}>{t(`groups.signals.${sig.signal}`)}</Badge>
@@ -153,7 +153,7 @@ function SuggestionRow({
             </>
           ) : (
             <div className="flex w-full flex-col gap-2 rounded-md bg-slate-50 p-3">
-              <p className="text-[0.75rem] text-slate-500">{t('groups.suggestions.confirmHint')}</p>
+              <p className="text-caption text-slate-500">{t('groups.suggestions.confirmHint')}</p>
               <div className="grid gap-2 sm:grid-cols-3">
                 <Field label={t('groups.fields.direction')}>
                   <Select

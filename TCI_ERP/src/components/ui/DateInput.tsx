@@ -155,7 +155,7 @@ export function DateInput({
             setOpen(false)
           }
         }}
-        className={`num h-9 w-full rounded-md border bg-white py-1.5 pr-9 pl-3 text-sm text-slate-900 tabular-nums shadow-[inset_0_1px_1px_rgb(0_0_0/0.03)] transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-accent-500 focus:ring-3 focus:ring-accent-500/20 focus:outline-none disabled:bg-slate-50 disabled:text-slate-400 ${
+        className={`num h-9 w-full rounded-md border bg-white py-2 pr-9 pl-3 text-body text-slate-900 tabular-nums shadow-[inset_0_1px_1px_rgb(0_0_0/0.03)] transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-accent-500 focus:ring-3 focus:ring-accent-500/20 focus:outline-none disabled:bg-slate-50 disabled:text-slate-400 ${
           bad ? 'border-neg-500' : 'border-slate-300'
         }`}
       />
@@ -166,7 +166,7 @@ export function DateInput({
         aria-label={t('date.openCalendar')}
         aria-expanded={open}
         aria-controls={gridId}
-        className="absolute top-1/2 right-1.5 flex size-7 -translate-y-1/2 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-accent-600 disabled:pointer-events-none"
+        className="absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-accent-600 disabled:pointer-events-none"
       >
         <CalendarDays className="size-4" />
       </button>
@@ -198,7 +198,7 @@ export function DateInput({
               >
                 <ChevronLeft className="size-4" />
               </button>
-              <span className="text-[0.8125rem] font-semibold text-slate-800">{monthTitle(view.year, view.month0, locale)}</span>
+              <span className="text-small font-semibold text-slate-800">{monthTitle(view.year, view.month0, locale)}</span>
               <button
                 type="button"
                 onClick={() => shift(1)}
@@ -210,7 +210,7 @@ export function DateInput({
             </div>
             <div className="grid grid-cols-7 gap-0.5 text-center">
               {weekdayNames(locale).map((d) => (
-                <span key={d} className="py-1 text-[0.6875rem] font-medium text-slate-400">
+                <span key={d} className="py-1 text-caption font-medium text-slate-500">
                   {d}
                 </span>
               ))}
@@ -221,7 +221,7 @@ export function DateInput({
                     type="button"
                     disabled={outOfRange(iso)}
                     onClick={() => pick(iso)}
-                    className={`h-8 rounded text-[0.8125rem] tabular-nums transition-colors disabled:cursor-not-allowed disabled:text-slate-300 ${
+                    className={`h-8 rounded text-small tabular-nums transition-colors disabled:cursor-not-allowed disabled:text-slate-300 ${
                       iso === value
                         ? 'bg-accent-600 font-semibold text-white'
                         : iso === today
@@ -241,7 +241,7 @@ export function DateInput({
                 type="button"
                 onClick={() => pick(today)}
                 disabled={outOfRange(today)}
-                className="text-[0.7812rem] font-medium text-accent-600 hover:underline disabled:text-slate-300"
+                className="text-small font-medium text-accent-600 hover:underline disabled:text-slate-300"
               >
                 {t('date.today')}
               </button>
@@ -253,7 +253,7 @@ export function DateInput({
                     onChange('')
                     setOpen(false)
                   }}
-                  className="text-[0.7812rem] text-slate-500 hover:underline"
+                  className="text-small text-slate-500 hover:underline"
                 >
                   {t('picker.clear')}
                 </button>

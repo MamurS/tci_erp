@@ -1,5 +1,6 @@
 /** Small pieces shared by the workbench views. */
 
+import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
@@ -25,18 +26,29 @@ export function BandBadge({ band, grade }: { band: string; grade?: string | null
 export function Uzs({ value }: { value: number | string | null }) {
   const { i18n } = useTranslation()
   const n = num(value)
-  if (n === null) return <span className="text-slate-400">—</span>
+  if (n === null) return <span className="text-slate-500">—</span>
   return <span className="whitespace-nowrap">{formatCompact(n, i18n.resolvedLanguage ?? 'en')} UZS</span>
 }
 
-/** A company name linking to its card, optionally on a given tab. */
-export function EntityLink({ id, name, tab }: { id: string; name: string; tab?: string }) {
+/** A company name linking to its card, optionally on a given tab; `children`
+ * render the name differently (a search match marked). */
+export function EntityLink({
+  id,
+  name,
+  tab,
+  children,
+}: {
+  id: string
+  name: string
+  tab?: string
+  children?: ReactNode
+}) {
   return (
     <Link
       to={tab ? `/entities/${id}?tab=${tab}` : `/entities/${id}`}
       className="font-medium text-accent-600 hover:text-accent-500"
     >
-      {name}
+      {children ?? name}
     </Link>
   )
 }

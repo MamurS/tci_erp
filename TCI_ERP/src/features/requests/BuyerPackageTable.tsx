@@ -126,21 +126,21 @@ export function BuyerPackageTable({
                       credit), with both stages under it when they differ. */}
                   <td className="num">
                     {!limit || noCover || limit.approved_amount === null ? (
-                      <span className="text-slate-300">{EM_DASH}</span>
+                      <span className="text-slate-500">{EM_DASH}</span>
                     ) : (
                       <>
                         <span className="font-semibold">{formatAmount(Number(limit.approved_amount), locale)}</span>
                         <span className="ml-1 text-slate-500">{limit.currency_code}</span>
                         {limit.conditions_count > 0 && (
                           <span
-                            className="ml-1.5 text-warn-500"
+                            className="ml-2 text-warn-500"
                             title={t('limits.conditionsTooltip', { count: limit.conditions_count })}
                           >
                             ⚑ {limit.conditions_count}
                           </span>
                         )}
                         {limit.commercially_adjusted && (
-                          <span className="block text-xs font-normal text-slate-400">
+                          <span className="block text-caption font-normal text-slate-500">
                             {t('limits.stagePair', {
                               credit: formatAmount(Number(limit.credit_amount), locale),
                               commercial: formatAmount(Number(limit.approved_amount), locale),
@@ -154,7 +154,7 @@ export function BuyerPackageTable({
                     {limit ? (
                       <ReleaseBadge compact facts={limit} salesWindowHours={windowHours ?? 24} nowIso={nowIso} />
                     ) : (
-                      <span className="text-slate-300">{EM_DASH}</span>
+                      <span className="text-slate-500">{EM_DASH}</span>
                     )}
                   </td>
                 </tr>

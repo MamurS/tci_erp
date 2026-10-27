@@ -78,7 +78,7 @@ export function GroupsView() {
                     </Truncate>
                     <Truncate
                       text={countryName(g.ultimate_parent_country)}
-                      className="max-w-none text-[0.75rem] text-slate-500"
+                      className="max-w-none text-caption text-slate-500"
                     />
                   </td>
                   <td className="num">

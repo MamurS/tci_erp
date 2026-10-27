@@ -156,7 +156,7 @@ export function RequestDetailPage() {
           </span>
         }
         actions={
-          <div className="flex max-w-md flex-col items-end gap-1.5">
+          <div className="flex max-w-md flex-col items-end gap-2">
             <div className="flex flex-wrap items-center justify-end gap-2">
               {canBindAs(roles) && bindBlocker(request) === null && (
                 <Button onClick={() => setBinding(true)}>{t('requests.bind.action')}</Button>
@@ -187,7 +187,7 @@ export function RequestDetailPage() {
               ))}
             </div>
             {guardReasons.map((guard) => (
-              <p key={guard} className="text-right text-[0.75rem] leading-snug text-warn-500">
+              <p key={guard} className="text-right text-caption leading-snug text-warn-500">
                 {t(`requests.guards.${guard}`)}
               </p>
             ))}
@@ -272,7 +272,7 @@ export function RequestDetailPage() {
             </>
           }
         >
-          <p className="text-sm text-slate-600">{t(`requests.confirm.${pending}`)}</p>
+          <p className="text-body text-slate-600">{t(`requests.confirm.${pending}`)}</p>
           <Field
             label={
               pending === 'declined'

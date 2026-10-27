@@ -120,7 +120,7 @@ export function PasswordInput({
           // mouse; Tab still reaches the button and Enter / Space toggle it.
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => setState((s) => toggleReveal(s, revealResetKey, disabled))}
-          className="absolute top-1/2 right-1.5 flex size-7 -translate-y-1/2 items-center justify-center rounded text-slate-500 transition-colors hover:bg-slate-100 hover:text-accent-600 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-slate-500"
+          className="absolute top-1/2 right-2 flex size-7 -translate-y-1/2 items-center justify-center rounded text-slate-500 transition-colors hover:bg-slate-100 hover:text-accent-600 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-slate-500"
         >
           <Icon aria-hidden className="size-4" strokeWidth={2} />
         </button>
@@ -129,14 +129,14 @@ export function PasswordInput({
       <p
         id={capsHintId}
         aria-live="polite"
-        className="mt-1 h-4 truncate text-xs leading-4 text-slate-600"
+        className="mt-1 h-text-4 truncate text-caption leading-text-4 text-slate-600"
       >
         {capsHint && (
           <>
             {/* Amber as a dot, never as text colour (DESIGN.md). */}
             <span
               aria-hidden
-              className="mr-1.5 inline-block size-1.5 rounded-full bg-warn-500 align-middle"
+              className="mr-2 inline-block size-1.5 rounded-full bg-warn-500 align-middle"
             />
             {t(CAPS_LOCK_HINT_KEY)}
           </>

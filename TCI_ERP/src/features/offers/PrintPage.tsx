@@ -49,22 +49,22 @@ function PrintView({
   const stack = doc ? doc.pageCount * OFFER_PAGE_HEIGHT + (doc.pageCount - 1) * OFFER_PAGE_GAP : 0
 
   return (
-    <div className="min-h-screen bg-[#e4eaf0]">
+    <div className="min-h-screen bg-slate-200">
       <div className="sticky top-0 z-10 flex items-center gap-3 bg-accent-600 px-4 py-2 text-white">
         <Link
           to={backTo}
-          className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[0.8125rem] text-white/85 hover:bg-white/10 hover:text-white"
+          className="inline-flex items-center gap-2 rounded-md px-2 py-1 text-small text-white/85 hover:bg-white/10 hover:text-white"
         >
           <ArrowLeft className="size-4" />
           {backLabel}
         </Link>
-        <div className="flex-1 truncate text-center font-display text-[0.9375rem] tracking-wide uppercase">{doc?.title ?? ''}</div>
-        <span className="hidden text-[0.7812rem] text-white/80 md:inline">{t('offers.pdfHint')}</span>
+        <div className="flex-1 truncate text-center text-body font-medium">{doc?.title ?? ''}</div>
+        <span className="hidden text-small text-white/80 md:inline">{t('offers.pdfHint')}</span>
         <button
           type="button"
           onClick={() => void printOfferFrame(frame.current)}
           disabled={!doc}
-          className="inline-flex items-center gap-1.5 rounded-md bg-brand-orange px-3 py-1.5 text-[0.8125rem] font-semibold text-accent-900 shadow-sm hover:brightness-105 disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-md bg-sky-600 px-3 py-2 text-small font-semibold text-white shadow-sm hover:bg-sky-700 disabled:opacity-60"
         >
           <Printer className="size-4" />
           {t('offers.print.print')}

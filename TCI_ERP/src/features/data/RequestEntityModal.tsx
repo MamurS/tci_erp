@@ -80,7 +80,7 @@ export function RequestEntityModal({
         <ResultMessage result={result} assignee={staffName(staff.data, result.assigned_to ?? null)} onClose={onClose} />
       ) : (
         <div className="space-y-4">
-          <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t('data.requestModal.hint')}</p>
+          <p className="text-small leading-relaxed text-slate-600">{t('data.requestModal.hint')}</p>
           {error && <Callout tone="neg" title={error} />}
           <Field label={t('data.fields.company')}>
             <Input value={name} onChange={(e) => setName(e.target.value)} autoFocus />

@@ -15,7 +15,30 @@ import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { Plus, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
-import { AmountInput, Badge, Button, Card, DateInput, EmptyState, Field, GradeScale, Input, LinkButton, Modal, PageHeader, Select, Spinner, SectionTitle, Textarea } from '../../components/ui'
+import {
+  AmountInput,
+  Badge,
+  Button,
+  Card,
+  DateInput,
+  EmptyState,
+  Field,
+  GradeScale,
+  gradeSolid,
+  HeroBand,
+  HumanAmount,
+  Input,
+  KpiCard,
+  LinkButton,
+  Meter,
+  meterState,
+  Modal,
+  Select,
+  Spinner,
+  SectionTitle,
+  Textarea,
+} from '../../components/ui'
+import { useLatestGrades } from '../entities/api'
 import { amountToPlain, parseAmount } from '../../components/ui/amount'
 import { useAuth } from '../../auth/AuthContext'
 import { bandForGrade, hasRole } from '../../lib/roles'
@@ -37,7 +60,10 @@ import {
   useWithdrawLimitRequest,
 } from './api'
 import { convertAtLatest, preflight } from './authority'
-import { GroupChip, GroupPreflightNotice, useGroupPreflight } from '../groups'
+import type { AuthorityPreflight } from './authority'
+import { DecisionBar } from './DecisionBar'
+import { GroupChip, GroupPreflightNotice, preflightState, useGroupPreflight } from '../groups'
+import type { GroupPreflight } from '../groups'
 import { useSystemDecisionMarks } from './adtApi'
 import { AutoDecisionPanel } from './AutoDecisionPanel'
 import { CommercialStageSection } from './CommercialStageSection'
@@ -46,7 +72,12 @@ import { mayWaiveInformation } from './information'
 import { DecisionMark } from './DecisionMark'
 import { ReleaseBadge } from './ReleaseBadge'
 import { SendForValidationModal } from './ValidationDialogs'
-import { CommitteePanel, ValidationHistory, ValidationPanel, ValidationStatusLine } from './ValidationSection'
+import {
+  CommitteePanel,
+  ValidationHistory,
+  ValidationPanel,
+  ValidationStatusLine,
+} from './ValidationSection'
 import { RequestChangesSection } from './RequestChangesSection'
 import { myPendingStep, validationKind } from './validation'
 import type { NeedsValidation } from './validation'
@@ -65,6 +96,7 @@ import {
   canWithdraw,
   outcomeTone,
   statusTone,
+  requestAgeDays,
 } from './machine'
 import type { ConditionInput, LimitRequestWithRefs } from './types'
 import { fourEyesNoticeKey, fourEyesRefusal } from './fourEyes'
@@ -72,6 +104,55 @@ import { CONDITION_TYPES, requestScopeFilter } from './types'
 
 /** The sections `?focus=` may name; each is the `id` of its card. */
 const LIMIT_FOCUS_TARGETS = ['decision', 'commercial', 'validation'] as const
+
+/** The request's figures on the band: what is asked, on what terms, the
+ * buyer's grade in its own colour, and how long it has waited. */
+function RequestHeroFigures({
+  request,
+  locale,
+}: {
+  request: LimitRequestWithRefs
+  locale: string
+}) {
+  const { t } = useTranslation()
+  const grades = useLatestGrades()
+  const grade = grades.data?.get(request.entity_id)
+  const age = requestAgeDays(request.submitted_at, new Date().toISOString())
+  return (
+    <>
+      <KpiCard
+        tone="inverse"
+        label={t('limits.hero.requested')}
+        title={`${formatAmount(Number(request.requested_amount), locale, 2)} ${request.currency_code}`}
+        value={<HumanAmount value={Number(request.requested_amount)} decimals={1} />}
+        unit={request.currency_code}
+        meta={
+          request.requested_payment_terms_days !== null
+            ? t('limits.hero.terms', { days: request.requested_payment_terms_days })
+            : t('limits.hero.noTerms')
+        }
+      />
+      <KpiCard
+        tone="inverse"
+        ribbon={grade ? gradeSolid(grade) : undefined}
+        label={t('limits.hero.grade')}
+        value={grade ?? EM_DASH}
+        meta={t('limits.hero.band', { band: t(`limits.bands.${bandForGrade(grade)}`) })}
+      />
+      <KpiCard
+        tone="inverse"
+        label={t('limits.hero.waiting')}
+        value={age === null ? EM_DASH : formatAmount(age, locale, 0)}
+        unit={age === null ? undefined : t('limits.hero.days', { count: age })}
+        meta={
+          request.submitted_at
+            ? t('limits.hero.since', { date: formatDate(request.submitted_at, locale) })
+            : t('limits.hero.notSubmitted')
+        }
+      />
+    </>
+  )
+}
 
 export function LimitRequestPage() {
   const { t, i18n } = useTranslation()
@@ -101,11 +182,13 @@ export function LimitRequestPage() {
   // The caller's own view of the pending step: may they answer it, and the
   // committee's tally. Nothing for anyone outside the chain and its levels.
   const stepState = useStepState(pendingValidation?.validation_id ?? null)
-  const pendingStep = (history.data ?? []).find((s) => s.id === pendingValidation?.validation_id) ?? null
+  const pendingStep =
+    (history.data ?? []).find((s) => s.id === pendingValidation?.validation_id) ?? null
   const myStep =
     myPendingStep(history.data ?? [], session?.user.id) ??
     (stepState.data?.can_answer && !stepState.data.is_committee ? pendingStep : null)
-  const committeeStep = stepState.data?.is_committee && stepState.data.status === 'pending' ? pendingStep : null
+  const committeeStep =
+    stepState.data?.is_committee && stepState.data.status === 'pending' ? pendingStep : null
 
   // ?focus=decision|commercial|validation — the Agenda's «decide» / «adjust»
   // / «validate» link lands on the section where that is done. A section this
@@ -146,7 +229,10 @@ export function LimitRequestPage() {
   // Escalated with no named validator: the group control (0040), or an
   // escalation from before 0060.
   const awaitingSenior =
-    validationKnown && !onValidation && request.status === 'escalated' && !hasRole(roles, 'credit_underwriter')
+    validationKnown &&
+    !onValidation &&
+    request.status === 'escalated' &&
+    !hasRole(roles, 'credit_underwriter')
 
   const act = async (action: Promise<unknown>) => {
     setActionError(null)
@@ -160,18 +246,27 @@ export function LimitRequestPage() {
 
   return (
     <div>
-      <PageHeader
-        title={t('limits.requestTitle', { buyer: request.legal_entities?.name ?? EM_DASH })}
+      <HeroBand
+        eyebrow={t('limits.hero.eyebrow')}
+        title={
+          <Link to={`/entities/${request.entity_id}`} className="hover:underline">
+            {request.legal_entities?.name ?? EM_DASH}
+          </Link>
+        }
         status={
           onValidation ? (
-            <Badge tone="warn">{t('limits.validation.badge')}</Badge>
+            <Badge tone="warn" size="md">
+              {t('limits.validation.badge')}
+            </Badge>
           ) : (
-            <Badge tone={statusTone(request.status)}>{t(`limits.statuses.${request.status}`)}</Badge>
+            <Badge tone={statusTone(request.status)} size="md">
+              {t(`limits.statuses.${request.status}`)}
+            </Badge>
           )
         }
         subtitle={
           <span>
-            <Link to="/limits" className="text-accent-700 hover:underline">
+            <Link to="/limits" className="text-sky-200 hover:text-white hover:underline">
               {t('nav.limits')}
             </Link>
             {/* A pre-bind request has no policy yet: the submission is where
@@ -179,7 +274,10 @@ export function LimitRequestPage() {
             {request.policy_id && (
               <>
                 {' / '}
-                <Link to={`/policies/${request.policy_id}`} className="text-accent-700 hover:underline">
+                <Link
+                  to={`/policies/${request.policy_id}`}
+                  className="text-sky-200 hover:text-white hover:underline"
+                >
                   {request.policies?.policy_number ?? EM_DASH}
                 </Link>
               </>
@@ -189,7 +287,7 @@ export function LimitRequestPage() {
                 {' / '}
                 <Link
                   to={`/requests/${request.insurance_request_id}`}
-                  className="text-accent-700 hover:underline"
+                  className="text-sky-200 hover:text-white hover:underline"
                 >
                   {request.insurance_requests?.request_number ?? t('limits.fromSubmission')}
                 </Link>
@@ -225,26 +323,32 @@ export function LimitRequestPage() {
             )}
           </div>
         }
-      />
+      >
+        <RequestHeroFigures request={request} locale={locale} />
+      </HeroBand>
 
       {actionError && (
-        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] text-neg-500" role="alert">
+        <div
+          className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-3 text-small text-neg-500"
+          role="alert"
+        >
           {actionError}
         </div>
       )}
       {notice && (
-        <div className="mb-4 rounded-md border border-pos-500/25 bg-pos-50 px-4 py-2.5 text-[0.8125rem] text-slate-800" role="status">
+        <div
+          className="mb-4 rounded-md border border-pos-500/25 bg-pos-50 px-4 py-3 text-small text-slate-800"
+          role="status"
+        >
           {notice}
         </div>
       )}
 
+      {/* One decision column (Prompt 30): the work — the decision, or the
+          validation step, or what is still missing — comes first and alone;
+          the facts it rests on sit beside it as context. */}
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="flex flex-col gap-5">
-          <RequestCard request={request} locale={locale} />
-          {/* What the policyholder changed (0075). */}
-          <RequestChangesSection requestId={request.id} />
-          {/* The auto-decision rule's answer (0061): the credit desk only. */}
-          <AutoDecisionPanel requestId={request.id} />
           {/* Waiting for the buyer's data, not for a decision (0067). */}
           {request.status === 'information_gathering' && (
             <InformationSection
@@ -254,7 +358,9 @@ export function LimitRequestPage() {
               onNotice={setNotice}
             />
           )}
-          {pendingValidation && <ValidationStatusLine state={pendingValidation} level={pendingLevel} />}
+          {pendingValidation && (
+            <ValidationStatusLine state={pendingValidation} level={pendingLevel} />
+          )}
           {myStep && (
             <div id="validation" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
               <ValidationPanel
@@ -267,41 +373,66 @@ export function LimitRequestPage() {
           )}
           {committeeStep && stepState.data && (
             <div id="validation" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
-              <CommitteePanel request={request} step={committeeStep} state={stepState.data} onResolved={setNotice} />
+              <CommitteePanel
+                request={request}
+                step={committeeStep}
+                state={stepState.data}
+                onResolved={setNotice}
+              />
             </div>
           )}
           {mayDecideByRole && ownRefusal !== null && (
-            <Card className="border-warn-500/30 bg-warn-50 p-5 text-sm text-slate-800" role="note">
+            <Card
+              className="border-warn-500/30 bg-warn-50 p-5 text-body text-slate-800"
+              role="note"
+            >
               {t(fourEyesNoticeKey(ownRefusal, 'credit'))}
             </Card>
           )}
           {awaitingSenior && (
-            <Card className="border-warn-500/30 bg-warn-50 p-5 text-sm text-warn-500">
+            <Card className="border-warn-500/30 bg-warn-50 p-5 text-body text-warn-500">
               {t('limits.awaitingSenior')}
             </Card>
           )}
           {/* The wrappers carry the ?focus= targets. Neither has a look of its
               own; `empty:hidden` keeps the commercial one out of the column's
               gap while the section renders itself away. */}
-          {showDecisionForm && (
+          {showDecisionForm ? (
             <div id="decision" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
               <DecisionForm request={request} onNotice={setNotice} />
             </div>
+          ) : (
+            <OutcomeCard request={request} />
           )}
           {/* Stage 2: commercial adjustment + the release state of the
               effective decision. Renders itself away when there is none. */}
           <div id="commercial" className={`rounded-lg empty:hidden ${DEEP_LINK_SCROLL_MARGIN}`}>
-            <CommercialStageSection request={request} validation={pendingValidation} onNotice={setNotice} />
+            <CommercialStageSection
+              request={request}
+              validation={pendingValidation}
+              onNotice={setNotice}
+            />
           </div>
         </div>
-        <BuyerSnapshot request={request} locale={locale} />
+        <div className="flex flex-col gap-5">
+          <RequestCard request={request} locale={locale} />
+          <BuyerSnapshot request={request} locale={locale} />
+          {/* What the policyholder changed (0075). */}
+          <RequestChangesSection requestId={request.id} />
+          {/* The auto-decision rule's answer (0061): the credit desk only. */}
+          <AutoDecisionPanel requestId={request.id} />
+        </div>
       </div>
 
       {/* Full width: who decided, who validated, what changed. Drawn only
           for admin and the people of a chain (the function's own rule). */}
       {(history.data?.length ?? 0) > 0 && (
         <div className="mt-5">
-          <ValidationHistory steps={history.data ?? []} levels={stepLevels.data ?? []} locale={locale} />
+          <ValidationHistory
+            steps={history.data ?? []}
+            levels={stepLevels.data ?? []}
+            locale={locale}
+          />
         </div>
       )}
 
@@ -331,13 +462,64 @@ export function LimitRequestPage() {
             </>
           }
         >
-          <p className="mb-3 text-sm text-slate-600">{t('limits.withdrawConfirm')}</p>
+          <p className="mb-3 text-body text-slate-600">{t('limits.withdrawConfirm')}</p>
           <Field label={t('policies.transitionComment')}>
             <Input value={withdrawComment} onChange={(e) => setWithdrawComment(e.target.value)} />
           </Field>
         </Modal>
       )}
     </div>
+  )
+}
+
+// ---------------------------------------------------------------------------
+// Requested → decided, outside the form
+// ---------------------------------------------------------------------------
+
+/** The figures every requested → decided bar of this request shares: the
+ * engine's recommendation in the request's currency and the limit in force on
+ * this scope today. */
+function useBarFigures(request: LimitRequestWithRefs) {
+  const assessments = useAssessments(request.entity_id)
+  const effective = useEffectiveLimits(requestScopeFilter(request))
+  const latest = assessments.data?.[0] ?? null
+  const suggested = useSuggestedInCurrency(
+    latest?.suggested_limit ?? null,
+    latest?.limit_currency ?? null,
+    request.currency_code,
+  )
+  const current = effective.data?.[0] ?? null
+  const currentAmount =
+    current && current.currency_code === request.currency_code && current.approved_amount !== null
+      ? Number(current.approved_amount)
+      : null
+  return { recommended: suggested.value, current, currentAmount }
+}
+
+/** Where the request stands against what was asked, when this person is not
+ * deciding it: the effective decision on the scope, if any. */
+function OutcomeCard({ request }: { request: LimitRequestWithRefs }) {
+  const { t } = useTranslation()
+  const { recommended, current, currentAmount } = useBarFigures(request)
+  const outcome = current?.outcome
+  const taken =
+    outcome === 'approved' || outcome === 'partial' || outcome === 'declined' ? outcome : null
+  return (
+    <Card className="flex flex-col gap-4 p-5">
+      <SectionTitle>{t('limits.bar.title')}</SectionTitle>
+      <DecisionBar
+        currency={request.currency_code}
+        requested={Number(request.requested_amount)}
+        recommended={recommended}
+        current={null}
+        decision={
+          current
+            ? { amount: currentAmount, outcome: taken, live: false }
+            : null
+        }
+      />
+      {!current && <p className="text-small text-slate-500">{t('limits.bar.noDecision')}</p>}
+    </Card>
   )
 }
 
@@ -358,7 +540,7 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
   return (
     <Card className="p-5">
       <SectionTitle className="mb-3">{t('limits.requestCard')}</SectionTitle>
-      <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+      <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-body">
         <dt className="text-slate-500">{t('limits.fields.buyer')}</dt>
         <dd>
           <Link to={`/entities/${request.entity_id}`} className="text-accent-700 hover:underline">
@@ -373,7 +555,10 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
           <>
             <dt className="text-slate-500">{t('policies.fields.policyNumber')}</dt>
             <dd>
-              <Link to={`/policies/${request.policy_id}`} className="text-accent-700 hover:underline">
+              <Link
+                to={`/policies/${request.policy_id}`}
+                className="text-accent-700 hover:underline"
+              >
                 {request.policies?.policy_number ?? EM_DASH}
               </Link>
               <span className="ml-2 text-slate-500">
@@ -387,7 +572,10 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
             <dt className="text-slate-500">{t('limits.fromSubmission')}</dt>
             <dd>
               {request.insurance_request_id ? (
-                <Link to={`/requests/${request.insurance_request_id}`} className="text-accent-700 hover:underline">
+                <Link
+                  to={`/requests/${request.insurance_request_id}`}
+                  className="text-accent-700 hover:underline"
+                >
                   {request.insurance_requests?.request_number ?? EM_DASH}
                 </Link>
               ) : (
@@ -396,7 +584,9 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
               <span className="ml-2 text-slate-500">
                 {request.insurance_requests?.legal_entities?.name ?? ''}
               </span>
-              <span className="mt-0.5 block text-xs text-slate-400">{t('limits.preBindScope')}</span>
+              <span className="mt-0.5 block text-caption text-slate-500">
+                {t('limits.preBindScope')}
+              </span>
             </dd>
           </>
         )}
@@ -430,7 +620,10 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
           <>
             <dt className="text-slate-500">{t('limits.changes.replaces')}</dt>
             <dd>
-              <Link to={`/limits/${request.replaces_request_id}`} className="text-accent-700 hover:underline">
+              <Link
+                to={`/limits/${request.replaces_request_id}`}
+                className="text-accent-700 hover:underline"
+              >
                 {t('limits.changes.openReplaced')}
               </Link>
             </dd>
@@ -442,10 +635,8 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
         {timeline
           .filter((step) => step.at)
           .map((step) => (
-            <li key={step.key} className="text-xs text-slate-500">
-              <span className="font-medium text-slate-700">
-                {t(`limits.timeline.${step.key}`)}
-              </span>{' '}
+            <li key={step.key} className="text-caption text-slate-500">
+              <span className="font-medium text-slate-700">{t(`limits.timeline.${step.key}`)}</span>{' '}
               {step.at ? formatMoment(step.at, i18n.language) : EM_DASH}
             </li>
           ))}
@@ -478,7 +669,7 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
         <>
           {latest.rating_score === null ? (
             // A manual grade (0073) has no score to place on the scale.
-            <p className="text-[0.8125rem] text-slate-600">
+            <p className="text-small text-slate-600">
               {t('rating.proposals.manualGrade', { grade: latest.rating_grade })}
               {latest.manual_reason && <> — «{latest.manual_reason}»</>}
             </p>
@@ -490,7 +681,7 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
               size="compact"
             />
           )}
-          <div className="text-[0.8125rem]">
+          <div className="text-small">
             <span className="text-slate-500">{t('report.calculatedLimit')}: </span>
             <SuggestedLimit
               amount={latest.suggested_limit}
@@ -501,18 +692,18 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
           </div>
         </>
       ) : (
-        <p className="text-[0.8125rem] text-slate-500">{t('report.noAssessment')}</p>
+        <p className="text-small text-slate-500">{t('report.noAssessment')}</p>
       )}
 
       <Link
         to={`/entities/${request.entity_id}`}
-        className="text-[0.8125rem] font-medium text-accent-700 hover:underline"
+        className="text-small font-medium text-accent-700 hover:underline"
       >
         {t('limits.openBuyerCard')} →
       </Link>
 
       {current && (
-        <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-[0.8125rem]">
+        <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-small">
           <p className="text-slate-500">{t('limits.currentEffective')}</p>
           <p className="mt-0.5">
             <Badge tone={outcomeTone(current.outcome)}>
@@ -523,7 +714,7 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
                 ? `${formatAmount(Number(current.approved_amount), locale)} ${current.currency_code}`
                 : EM_DASH}
             </span>
-            <span className="ml-2 whitespace-nowrap text-slate-400">
+            <span className="ml-2 whitespace-nowrap text-slate-500">
               {current.valid_until
                 ? t('limits.validUntil', { date: formatDate(current.valid_until, locale) })
                 : t('limits.untilReview')}
@@ -535,21 +726,17 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
             </p>
           )}
           {current.commercially_adjusted && (
-            <p className="num mt-1 text-xs text-slate-500">
+            <p className="num mt-1 text-caption text-slate-500">
               {t('limits.stagePair', {
                 credit: formatAmount(Number(current.credit_amount), locale),
                 commercial: formatAmount(Number(current.approved_amount), locale),
               })}
             </p>
           )}
-          <p className="mt-1.5">
-            <ReleaseBadge
-              facts={current}
-              salesWindowHours={windowHours ?? 24}
-              nowIso={nowIso}
-            />
+          <p className="mt-2">
+            <ReleaseBadge facts={current} salesWindowHours={windowHours ?? 24} nowIso={nowIso} />
           </p>
-          <p className="mt-1 text-xs text-warn-500">{t('limits.willSupersede')}</p>
+          <p className="mt-1 text-caption text-warn-500">{t('limits.willSupersede')}</p>
         </div>
       )}
     </Card>
@@ -560,14 +747,22 @@ function BuyerSnapshot({ request, locale }: { request: LimitRequestWithRefs; loc
 // Decision form
 // ---------------------------------------------------------------------------
 
-function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; onNotice: (message: string) => void }) {
+function DecisionForm({
+  request,
+  onNotice,
+}: {
+  request: LimitRequestWithRefs
+  onNotice: (message: string) => void
+}) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
   const decide = useDecideLimitRequest()
   const sendForValidation = useSubmitLimitForValidation()
   // The send-to-validation dialog: opened by the author, or by the database
   // answering `needs_validation` to a decision beyond their authority.
-  const [validationOpen, setValidationOpen] = useState<{ needs: NeedsValidation | null } | null>(null)
+  const [validationOpen, setValidationOpen] = useState<{ needs: NeedsValidation | null } | null>(
+    null,
+  )
   const assessments = useAssessments(request.entity_id)
 
   const [outcome, setOutcome] = useState<'approved' | 'partial' | 'declined'>('approved')
@@ -582,11 +777,11 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
 
   const currency = request.currency_code
   const latest = assessments.data?.[0] ?? null
+  const bar = useBarFigures(request)
 
   // The band comes from the assessment the decision is based on; with none
   // chosen the SQL function judges the decision as 'unrated'.
-  const chosenAssessment =
-    assessments.data?.find((a) => a.id === assessmentId) ?? null
+  const chosenAssessment = assessments.data?.find((a) => a.id === assessmentId) ?? null
   const band = bandForGrade(chosenAssessment?.rating_grade)
   const { data: myAuthority } = useMyAuthorityUzs(band)
   const { data: rates } = useLatestRatesFor(currency)
@@ -661,7 +856,7 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
             key={o}
             type="button"
             onClick={() => setOutcome(o)}
-            className={`rounded-md border px-3 py-1.5 text-[0.8125rem] font-medium transition-colors ${
+            className={`rounded-md border px-3 py-2 text-small font-medium transition-colors ${
               outcome === o
                 ? 'border-accent-600 bg-accent-50 text-accent-700'
                 : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
@@ -677,9 +872,13 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
           <Field label={t('limits.fields.approvedAmount')}>
             <AmountInput value={amount} onChange={setAmount} suffix={currency} />
             {latest && (
-              <p className="mt-0.5 text-xs text-slate-400">
+              <p className="mt-0.5 text-caption text-slate-500">
                 {t('report.calculatedLimit')}:{' '}
-                <SuggestedLimit amount={latest.suggested_limit} from={latest.limit_currency} to={currency} />
+                <SuggestedLimit
+                  amount={latest.suggested_limit}
+                  from={latest.limit_currency}
+                  to={currency}
+                />
               </p>
             )}
           </Field>
@@ -705,46 +904,38 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
         </div>
       )}
 
-      {needsAmount && (
-        <ConditionsRepeater conditions={conditions} onChange={setConditions} />
-      )}
+      {/* Where this decision leaves things (Prompt 30): requested →
+          deciding on one scale, then the authority and the group limit as
+          meters — the same numbers the database refuses on. */}
+      <div className="flex flex-col gap-5 rounded-md bg-slate-50 p-4">
+        <DecisionBar
+          currency={currency}
+          requested={Number(request.requested_amount)}
+          recommended={bar.recommended}
+          current={bar.currentAmount}
+          decision={{ amount: needsAmount && amountValid ? parsedAmount : null, outcome, live: true }}
+        />
+        {check && <AuthorityMeter check={check} currency={currency} />}
+        <GroupMeter preflight={groupCheck} />
+      </div>
+
+      {needsAmount && <ConditionsRepeater conditions={conditions} onChange={setConditions} />}
 
       <Field label={t('policies.transitionComment')}>
         <Textarea value={comment} onChange={(e) => setComment(e.target.value)} rows={2} />
       </Field>
 
-      {/* Authority preflight — same conversion rule as the SQL function. */}
-      {check && (
-        check.withinAuthority === null ? (
-          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
-            {t('limits.preflight.missingRate', { currency })}
-          </div>
-        ) : check.withinAuthority ? (
-          <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-2.5 text-[0.8125rem] text-slate-600">
-            {t('limits.preflight.within', {
-              band: t(`limits.bands.${check.band}`),
-              authority: formatAmount(check.authorityUzs ?? 0, locale),
-            })}
-          </div>
-        ) : (
-          <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500">
-            {t('limits.preflight.exceeds', {
-              band: t(`limits.bands.${check.band}`),
-              authority: formatAmount(check.authorityUzs ?? 0, locale),
-            })}
-          </div>
-        )
-      )}
-
-      <GroupPreflightNotice preflight={groupCheck} />
 
       {escalatedInfo && (
-        <div className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-2.5 text-[0.8125rem] text-warn-500" role="status">
+        <div
+          className="rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500"
+          role="status"
+        >
           {escalatedInfo}
         </div>
       )}
       {error && (
-        <p className="text-[0.8125rem] text-neg-500" role="alert">
+        <p className="text-small text-neg-500" role="alert">
           {error}
         </p>
       )}
@@ -753,7 +944,10 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
         {/* Beyond authority the decision cannot be taken here at all: the
             one thing to do is send it for validation. */}
         {overAuthority ? (
-          <Button onClick={() => setValidationOpen({ needs: null })} disabled={needsAmount && !amountValid}>
+          <Button
+            onClick={() => setValidationOpen({ needs: null })}
+            disabled={needsAmount && !amountValid}
+          >
             {t('limits.validation.send')}
           </Button>
         ) : (
@@ -776,7 +970,7 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
           </>
         )}
         {needsAmount && !amountValid && (
-          <span className="text-[0.8125rem] text-slate-500">{t('limits.amountRequired')}</span>
+          <span className="text-small text-slate-500">{t('limits.amountRequired')}</span>
         )}
       </div>
 
@@ -812,7 +1006,9 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
                 </span>
               )}
               <span className="text-slate-500">
-                {t('limits.validation.bandOf', { band: t(`limits.bands.${validationOpen.needs?.grade_band ?? band}`) })}
+                {t('limits.validation.bandOf', {
+                  band: t(`limits.bands.${validationOpen.needs?.grade_band ?? band}`),
+                })}
               </span>
             </span>
           }
@@ -842,6 +1038,88 @@ function DecisionForm({ request, onNotice }: { request: LimitRequestWithRefs; on
 }
 
 // ---------------------------------------------------------------------------
+// Authority and group meters
+// ---------------------------------------------------------------------------
+
+/** The decider's authority for the band, against this decision in UZS — the
+ * conversion rule of decide_limit_request (authority.ts mirrors it). */
+function AuthorityMeter({ check, currency }: { check: AuthorityPreflight; currency: string }) {
+  const { t, i18n } = useTranslation()
+  const locale = i18n.resolvedLanguage ?? 'en'
+  const band = t(`limits.bands.${check.band}`)
+  return (
+    <Meter
+      label={t('limits.meters.authority', { band })}
+      value={check.amountUzs}
+      cap={check.authorityUzs}
+      tone={
+        check.withinAuthority === null
+          ? 'unknown'
+          : check.withinAuthority
+            ? meterState(check.amountUzs, check.authorityUzs).tone
+            : 'over'
+      }
+      figure={
+        check.amountUzs === null || check.authorityUzs === null
+          ? undefined
+          : t('limits.meters.ofUzs', {
+              value: formatAmount(check.amountUzs, locale, 0),
+              cap: formatAmount(check.authorityUzs, locale, 0),
+            })
+      }
+      note={
+        check.withinAuthority === null
+          ? t('limits.preflight.missingRate', { currency })
+          : check.withinAuthority
+            ? t('limits.meters.withinNote')
+            : t('limits.meters.exceedsNote')
+      }
+    />
+  )
+}
+
+/** The group's exposure after this decision against its limit (the SAME
+ * tci.group_exposure_preflight the decision runs). Without a group limit the
+ * words alone say where the group stands. */
+function GroupMeter({ preflight }: { preflight: GroupPreflight | null | undefined }) {
+  const { t, i18n } = useTranslation()
+  const locale = i18n.resolvedLanguage ?? 'en'
+  if (!preflight || !preflight.has_group_limit || preflight.group_limit_uzs === null) {
+    return <GroupPreflightNotice preflight={preflight} />
+  }
+  const after = Number(preflight.exposure_after_uzs)
+  const cap = Number(preflight.group_limit_uzs)
+  const state = preflightState(preflight)
+  return (
+    <Meter
+      label={t('limits.meters.group', { members: preflight.group_size })}
+      value={after}
+      cap={cap}
+      base={Number(preflight.exposure_uzs)}
+      tone={state.kind === 'over' ? 'over' : state.kind === 'warn' ? 'near' : 'ok'}
+      figure={t('limits.meters.ofUzs', {
+        value: formatAmount(after, locale, 0),
+        cap: formatAmount(cap, locale, 0),
+      })}
+      note={
+        <>
+          {state.kind === 'over'
+            ? t('limits.meters.groupOverNote')
+            : state.kind === 'warn'
+              ? t('limits.meters.groupNearNote', {
+                  pct: Number(preflight.utilisation_pct ?? 0).toFixed(1),
+                })
+              : t('limits.meters.groupWithinNote')}
+          {preflight.missing_rates > 0 && (
+            <> {t('groups.preflight.missingRates', { count: preflight.missing_rates })}</>
+          )}
+        </>
+      }
+    />
+  )
+}
+
+// ---------------------------------------------------------------------------
 // Conditions repeater
 // ---------------------------------------------------------------------------
 
@@ -859,23 +1137,21 @@ function ConditionsRepeater({
 
   return (
     <div>
-      <div className="mb-1.5 flex items-center justify-between">
-        <span className="text-[0.8125rem] font-medium text-slate-600">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-small font-medium text-slate-600">
           {t('limits.fields.conditions')}
         </span>
         <Button
           variant="secondary"
           size="sm"
-          onClick={() =>
-            onChange([...conditions, { condition_type: 'other', description: '' }])
-          }
+          onClick={() => onChange([...conditions, { condition_type: 'other', description: '' }])}
         >
           <Plus />
           {t('limits.addCondition')}
         </Button>
       </div>
       {conditions.length === 0 ? (
-        <p className="text-xs text-slate-400">{t('limits.noConditions')}</p>
+        <p className="text-caption text-slate-500">{t('limits.noConditions')}</p>
       ) : (
         <div className="flex flex-col gap-2">
           {conditions.map((c, index) => (
@@ -883,7 +1159,9 @@ function ConditionsRepeater({
               <Select
                 value={c.condition_type}
                 onChange={(e) =>
-                  update(index, { condition_type: e.target.value as ConditionInput['condition_type'] })
+                  update(index, {
+                    condition_type: e.target.value as ConditionInput['condition_type'],
+                  })
                 }
               >
                 {CONDITION_TYPES.map((type) => (
@@ -924,6 +1202,28 @@ function ConditionsRepeater({
  * is shown in the request currency first with the original in brackets — or,
  * when there is no rate, in the original with that said out loud. Converted
  * at the latest rates through UZS (convertAtLatest), for reading only. */
+/** The engine's suggested limit in the request's currency, converted at the
+ * latest rates through UZS (convertAtLatest), for reading only. `value` is
+ * what to show in `to`; null when there is none, or no rate to convert. */
+function useSuggestedInCurrency(amount: number | string | null, from: string | null, to: string) {
+  const fromRates = useLatestRatesFor(!from || from === to ? '' : from)
+  const toRates = useLatestRatesFor(!from || from === to ? '' : to)
+  if (amount === null || amount === '' || !from) return { value: null, original: null, state: 'none' as const }
+  const original = Number(amount)
+  if (from === to) return { value: original, original, state: 'same' as const }
+  if (fromRates.isLoading || toRates.isLoading) return { value: null, original, state: 'loading' as const }
+  const converted = convertAtLatest(
+    original,
+    from,
+    to,
+    [...(fromRates.data ?? []), ...(toRates.data ?? [])],
+    new Date().toISOString().slice(0, 10),
+  )
+  return converted === null
+    ? { value: null, original, state: 'noRate' as const }
+    : { value: converted, original, state: 'converted' as const }
+}
+
 function SuggestedLimit({
   amount,
   from,
@@ -938,34 +1238,26 @@ function SuggestedLimit({
 }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.resolvedLanguage ?? 'en'
-  const fromRates = useLatestRatesFor(!from || from === to ? '' : from)
-  const toRates = useLatestRatesFor(!from || from === to ? '' : to)
+  const suggested = useSuggestedInCurrency(amount, from, to)
 
-  if (amount === null || amount === '' || !from) return <span className={`num ${className}`}>{EM_DASH}</span>
-  const value = Number(amount)
-  const original = `${formatAmount(value, locale)} ${from}`
-  if (from === to) return <span className={`num ${className}`}>{original}</span>
-  if (fromRates.isLoading || toRates.isLoading) return <span className={`num ${className}`}>{original}</span>
-
-  const converted = convertAtLatest(
-    value,
-    from,
-    to,
-    [...(fromRates.data ?? []), ...(toRates.data ?? [])],
-    new Date().toISOString().slice(0, 10),
-  )
-  if (converted === null) {
+  if (suggested.original === null) return <span className={`num ${className}`}>{EM_DASH}</span>
+  const original = `${formatAmount(suggested.original, locale)} ${from}`
+  if (suggested.state === 'same' || suggested.state === 'loading')
+    return <span className={`num ${className}`}>{original}</span>
+  if (suggested.state === 'noRate') {
     return (
       <span className={className}>
         <span className="num">{original}</span>{' '}
-        <span className="font-normal text-warn-500">{t('limits.suggestedNoRate', { currency: to })}</span>
+        <span className="font-normal text-warn-500">
+          {t('limits.suggestedNoRate', { currency: to })}
+        </span>
       </span>
     )
   }
   return (
     <span className={`num ${className}`}>
       {t('limits.suggestedConverted', {
-        converted: `${formatAmount(converted, locale)} ${to}`,
+        converted: `${formatAmount(suggested.value ?? 0, locale)} ${to}`,
         original,
       })}
     </span>

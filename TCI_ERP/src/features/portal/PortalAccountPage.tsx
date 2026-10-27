@@ -3,7 +3,7 @@
  * portal user can only ever edit their own row. */
 
 import { useEffect, useState } from 'react'
-import { UiScalePicker } from '../account/UiScalePicker'
+import { DisplaySettings } from '../account/UiScalePicker'
 import { useTranslation } from 'react-i18next'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -81,7 +81,7 @@ export function PortalAccountPage() {
           footer={
             <>
               {error && (
-                <p className="mb-3 text-[0.8125rem] text-neg-500" role="alert">
+                <p className="mb-3 text-small text-neg-500" role="alert">
                   {error}
                 </p>
               )}
@@ -89,7 +89,7 @@ export function PortalAccountPage() {
                 <Button loading={save.isPending} onClick={() => save.mutate()}>
                   {t('common.save')}
                 </Button>
-                {saved && <span className="text-[0.8125rem] text-pos-500">{t('portal.account.saved')}</span>}
+                {saved && <span className="text-small text-pos-500">{t('portal.account.saved')}</span>}
               </div>
             </>
           }
@@ -131,8 +131,8 @@ export function PortalAccountPage() {
           </LinkButton>
         </Panel>
 
-        <Panel title={t('account.uiScale.title')}>
-          <UiScalePicker />
+        <Panel title={t('account.display.title')}>
+          <DisplaySettings />
         </Panel>
 
         <MfaSection />

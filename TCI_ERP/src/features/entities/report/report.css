@@ -70,36 +70,58 @@
 
 /* ---------- Running header ---------- */
 
+/* The masthead (Prompt 30, «bold fintech»): a navy band with the brochure's
+   trade mosaic fading in from the right, white type on it. It is the running
+   header too, so it stays compact — the page count does not change. */
 .rpt-head {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 1rem;
-  padding-bottom: 0.375rem;
+  padding: 0.625rem 0.875rem;
   margin-bottom: 0.625rem;
-  border-bottom: 1px solid var(--rpt-line);
+  border-radius: 0.1875rem;
+  background: linear-gradient(120deg, var(--color-accent-900), var(--color-accent-800) 55%, var(--color-accent-700));
+  color: #fff;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.rpt-head > * {
+  position: relative;
+}
+.rpt-head > .rpt-head-mosaic {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: auto;
+  opacity: 0.22;
+  mask-image: linear-gradient(to left, black 5%, transparent 45%);
+  pointer-events: none;
 }
 .rpt-head-title {
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 1.1875rem;
   line-height: 1;
-  color: var(--rpt-navy);
+  color: #fff;
   text-transform: uppercase;
 }
 .rpt-head-meta {
   margin-top: 0.1875rem;
   font-family: var(--font-display);
   font-size: 0.6562rem;
-  color: var(--rpt-muted);
+  color: var(--color-accent-100);
   text-align: right;
 }
 .rpt-head-meta strong {
-  color: var(--rpt-ink);
+  color: #fff;
 }
 .rpt-head-meta .sep {
   margin: 0 0.375rem;
-  color: var(--rpt-line);
+  color: var(--color-accent-300);
 }
 
 /* ---------- Sections ---------- */

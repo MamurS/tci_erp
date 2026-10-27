@@ -10,6 +10,9 @@ export interface RecentEntity {
   name: string
   /** Registration number and country, as the palette's second line. */
   sub?: string
+  /** A record that is not a company (a policy, a claim, a submission): the
+   * page it opens. Without it the entry is a company. */
+  to?: string
 }
 
 const KEY = 'tci-erp-recent-entities'
@@ -23,7 +26,12 @@ export function withRecent(list: readonly RecentEntity[], entry: RecentEntity): 
 function isRecent(value: unknown): value is RecentEntity {
   if (typeof value !== 'object' || value === null) return false
   const v = value as Record<string, unknown>
-  return typeof v.id === 'string' && typeof v.name === 'string' && (v.sub === undefined || typeof v.sub === 'string')
+  return (
+    typeof v.id === 'string' &&
+    typeof v.name === 'string' &&
+    (v.sub === undefined || typeof v.sub === 'string') &&
+    (v.to === undefined || (typeof v.to === 'string' && v.to.startsWith('/')))
+  )
 }
 
 /** Parses what storage held; anything malformed is dropped, never thrown. */

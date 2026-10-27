@@ -39,10 +39,10 @@ export function LocalSourceModal({ open, onClose, statement }: LocalSourceModalP
         <div className="max-h-[65vh] overflow-y-auto pr-1">
           {templates.map((template) => (
             <div key={template.id} className="mb-5">
-              <h3 className="mb-2 text-sm font-semibold text-slate-900">
+              <h3 className="mb-2 text-body font-semibold text-slate-900">
                 {templateName(template, locale)}
               </h3>
-              <table className="w-full border-collapse text-[0.8125rem]">
+              <table className="w-full border-collapse text-small">
                 <tbody>
                   {template.statement_template_lines.map((line, idx) => {
                     const prev = template.statement_template_lines[idx - 1]
@@ -54,14 +54,14 @@ export function LocalSourceModal({ open, onClose, statement }: LocalSourceModalP
                           <tr>
                             <td
                               colSpan={3}
-                              className="px-2 pt-3 pb-1 text-xs font-semibold tracking-wide text-slate-400 uppercase"
+                              className="px-2 pt-3 pb-1 text-caption font-semibold tracking-wide text-slate-500 uppercase"
                             >
                               {t(`fin.localSections.${line.section}`)}
                             </td>
                           </tr>
                         )}
                         <tr className={line.is_subtotal ? 'bg-slate-50 font-medium' : ''}>
-                          <td className="num w-11 border-t border-slate-100 px-2 py-1 text-xs text-slate-400">
+                          <td className="num w-11 border-t border-slate-100 px-2 py-1 text-caption text-slate-500">
                             {line.line_code}
                           </td>
                           <td
@@ -72,7 +72,7 @@ export function LocalSourceModal({ open, onClose, statement }: LocalSourceModalP
                           </td>
                           <td className="num border-t border-slate-100 px-2 py-1">
                             {amount === null || amount === undefined ? (
-                              <span className="text-slate-400">{EM_DASH}</span>
+                              <span className="text-slate-500">{EM_DASH}</span>
                             ) : (
                               <span className={amount < 0 ? 'text-neg-500' : ''}>
                                 {formatAmount(amount, locale)}

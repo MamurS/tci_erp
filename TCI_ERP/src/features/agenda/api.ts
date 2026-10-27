@@ -337,6 +337,8 @@ export interface TaskSubjects {
   requestApplicants: Record<string, string>
   /** limit request id -> the buyer's name */
   limitRequests: Record<string, string>
+  /** limit request id -> the buyer's company id (its grade colours the row) */
+  limitRequestBuyers: Record<string, string>
   /** policy id -> number and policyholder */
   policies: Record<string, PolicySubject>
   /** claim id -> the policy it is filed under */
@@ -348,6 +350,7 @@ const EMPTY_SUBJECTS: TaskSubjects = {
   requests: {},
   requestApplicants: {},
   limitRequests: {},
+  limitRequestBuyers: {},
   policies: {},
   claims: {},
 }
@@ -403,7 +406,7 @@ export function useTaskSubjects(tasks: readonly Task[] | undefined) {
           ? tci().from('insurance_requests').select('id, request_number, legal_entities(name)').in('id', requestKey)
           : none,
         limitKey.length
-          ? tci().from('credit_limit_requests').select('id, legal_entities(name)').in('id', limitKey)
+          ? tci().from('credit_limit_requests').select('id, entity_id, legal_entities(name)').in('id', limitKey)
           : none,
         policyKey.length
           ? tci().from('policies').select('id, policy_number, legal_entities(name)').in('id', policyKey)
@@ -422,6 +425,7 @@ export function useTaskSubjects(tasks: readonly Task[] | undefined) {
         requests: {},
         requestApplicants: {},
         limitRequests: {},
+        limitRequestBuyers: {},
         policies: {},
         claims: {},
       }
@@ -434,8 +438,9 @@ export function useTaskSubjects(tasks: readonly Task[] | undefined) {
         result.requests[row.id] = row.request_number
         if (row.legal_entities?.name) result.requestApplicants[row.id] = row.legal_entities.name
       }
-      for (const row of rows<{ id: string; legal_entities: { name: string } | null }>(limits)) {
+      for (const row of rows<{ id: string; entity_id: string; legal_entities: { name: string } | null }>(limits)) {
         if (row.legal_entities?.name) result.limitRequests[row.id] = row.legal_entities.name
+        result.limitRequestBuyers[row.id] = row.entity_id
       }
       for (const row of rows<{ id: string; policy_number: string; legal_entities: { name: string } | null }>(
         policies,

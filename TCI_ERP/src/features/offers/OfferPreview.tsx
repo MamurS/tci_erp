@@ -65,9 +65,9 @@ export const OfferPreview = forwardRef<OfferPreviewHandle, OfferPreviewProps>(fu
   return (
     <section
       aria-label={t('offers.preview.label')}
-      className={`flex min-w-0 flex-col overflow-hidden rounded-lg border border-slate-200/90 bg-[#e4eaf0] shadow-card ${className}`}
+      className={`flex min-w-0 flex-col overflow-hidden rounded-lg border border-slate-200/90 bg-slate-200 shadow-card ${className}`}
     >
-      <div className="flex h-10 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 text-[0.7812rem] text-slate-600">
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-4 text-small text-slate-600">
         <span>{t('offers.preview.pages', { count: pages })}</span>
         <span className="tabular-nums" aria-live="polite" data-testid="offer-page-counter">
           {pages ? t('offers.preview.pageOf', { n: shown, total: pages }) : ''}

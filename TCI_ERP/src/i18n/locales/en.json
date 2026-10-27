@@ -39,7 +39,7 @@
       },
       "credit": {
         "name": "Credit underwriting",
-        "hint": "Decision queue, limits in force, monitoring, ratings and groups"
+        "hint": "Decision queue, active limits, monitoring, ratings and groups"
       },
       "sales": {
         "name": "Sales",
@@ -201,7 +201,17 @@
     "tasksMore": "+{{count}} more",
     "premiumUzsUnit": "UZS equiv.",
     "premiumConverted": "All currencies converted to UZS at the latest rate on record. Booked:",
-    "premiumNoRate": "No UZS rate, not included: {{currencies}}"
+    "premiumNoRate": "No UZS rate, not included: {{currencies}}",
+    "vsMonthStart": "vs start of month",
+    "gradeMix": "The book by grade",
+    "gradeMixRated_one": "{{count}} rated company",
+    "gradeMixRated_other": "{{count}} rated companies",
+    "gradeMixEmpty": "No company has a rating yet.",
+    "gradeMixMeasure": "Measure",
+    "gradeMixBuyers": "Buyers",
+    "gradeMixExposure": "Exposure",
+    "gradeMixUzs": "Active limits, UZS equivalent.",
+    "gradeMixUnrated": "Active limits, UZS equivalent. A further {{amount}} UZS is on buyers with no grade."
   },
   "buyers": {
     "subtitle": "Register of buyers (debtors) under credit assessment",
@@ -1312,7 +1322,7 @@
       "recommendedLimit": "Recommended credit limit",
       "limitBasis": "Limit basis",
       "creditRating": "Credit rating",
-      "approvedExposure": "Approved limits in force"
+      "approvedExposure": "Active approved limits"
     },
     "limitBasis": {
       "full": "Rating {{score}} ({{band}}); the limit equals about {{revenuePct}} of FY {{year}} revenue and about {{equityPct}} of equity",
@@ -1546,6 +1556,9 @@
       "revokedOn": "revoked {{date}}",
       "declinedOn": "declined {{date}}",
       "decidedOn": "Decided on {{date}}"
+    },
+    "quickView": {
+      "openPolicy": "Open policy"
     }
   },
   "limits": {
@@ -1702,7 +1715,7 @@
       "adjusted": "Adjustment recorded — the sales window is running.",
       "adjustedImmediate": "Adjustment recorded and released to the client immediately (reduction).",
       "adjustFailed": "The adjustment was refused",
-      "currentAmount": "In force now: {{amount}}",
+      "currentAmount": "Active now: {{amount}}",
       "currentTerms": "Now {{terms}}; leave empty to keep",
       "termsUnchanged": "Leave empty to keep the terms as decided",
       "enterAmount": "Enter the adjusted amount",
@@ -1737,7 +1750,7 @@
     "views": {
       "overview": "Overview",
       "queue": "Decision queue",
-      "inforce": "Limits in force",
+      "inforce": "Active limits",
       "monitoring": "Monitoring",
       "ratings": "Ratings",
       "groups": "Groups",
@@ -1758,7 +1771,7 @@
         "ownRequest": "Your request"
       },
       "inforce": {
-        "title": "Limits in force",
+        "title": "Active limits",
         "subtitle": "Every approved or partially approved limit on a bound policy, with the buyer's current rating and the review date. Amounts in UZS at the latest rate.",
         "allBands": "All rating bands",
         "allCountries": "All countries",
@@ -1789,13 +1802,13 @@
         "suspended": "Suspended",
         "notSuspended": "Not suspended",
         "groups": "Groups over or near their cap",
-        "groupsHint": "Total in-force exposure of the group against its group limit; flagged from 90%.",
+        "groupsHint": "Total active exposure of the group against its group limit; flagged from 90%.",
         "noGroups": "No group is over or near its cap.",
         "overdueHint": "A negative number is the days since the review date passed"
       },
       "ratings": {
         "title": "Rating worklist",
-        "subtitle": "Buyers with an open request, a limit in force or a place in a live submission whose rating needs work.",
+        "subtitle": "Buyers with an open request, an active limit or a place in a live submission whose rating needs work.",
         "filter": "Reason",
         "all": "All",
         "reasons": {
@@ -1810,11 +1823,11 @@
         "reason": "Reason",
         "latestStatement": "Latest year",
         "openRequests": "Open requests",
-        "limitsInForce": "Limits in force"
+        "limitsInForce": "Active limits"
       },
       "groups": {
         "title": "Groups and concentration",
-        "subtitle": "Corporate groups with their in-force exposure in UZS against the group limit, breaches first. Set or end a group limit on the parent company's group tab.",
+        "subtitle": "Corporate groups with their active exposure in UZS against the group limit, breaches first. Set or end a group limit on the parent company's group tab.",
         "empty": "No corporate groups yet",
         "emptyHint": "A group appears once two companies are linked on a company's group tab, or a group limit is set.",
         "members": "With limits / members",
@@ -1882,7 +1895,7 @@
         "notGathering": "The request is no longer gathering information."
       }
     },
-    "sectionSubtitle": "The credit underwriter's workbench: portfolio, decisions, limits in force, monitoring, ratings, groups and your own authority.",
+    "sectionSubtitle": "The credit underwriter's workbench: portfolio, decisions, active limits, monitoring, ratings, groups and your own authority.",
     "preBindScope": "Before a policy (submission)",
     "noReviewDate": "No review date set",
     "ageHint": "Days since the request was submitted. Over {{days}} days it is highlighted: it has waited longer than a decision usually takes.",
@@ -1896,7 +1909,7 @@
       "badge": "On validation",
       "onValidationWith": "On validation with {{name}} since {{date}}",
       "stateNote": {
-        "credit": "The decision does not exist until it is validated: it is not in force and the client does not see it.",
+        "credit": "The decision does not exist until it is validated: it is not active and the client does not see it.",
         "commercial": "The commercial adjustment is on validation; the credit decision is held meanwhile, so nothing reaches the client."
       },
       "kinds": {
@@ -2265,6 +2278,42 @@
       "openReplaced": "Open the earlier request",
       "replaces": "Replaces",
       "withdrawnByPolicyholder": "by the policyholder, in the portal"
+    },
+    "hero": {
+      "eyebrow": "Credit limit request",
+      "requested": "Requested",
+      "terms": "payment terms {{days}} days",
+      "noTerms": "payment terms not stated",
+      "grade": "Buyer grade",
+      "band": "rating band {{band}}",
+      "waiting": "Waiting",
+      "days_one": "day",
+      "days_other": "days",
+      "since": "submitted {{date}}",
+      "notSubmitted": "not submitted yet"
+    },
+    "bar": {
+      "title": "Requested and decided",
+      "requested": "Requested",
+      "recommended": "Recommended limit",
+      "current": "Active limit",
+      "thisDecision": "This decision",
+      "decided": "Active decision",
+      "ofRequested": "{{pct}}% of requested",
+      "noDecision": "No decision yet."
+    },
+    "meters": {
+      "authority": "Your authority · rating band {{band}}",
+      "ofUzs": "{{value}} of {{cap}} UZS eq.",
+      "withinNote": "Within your authority — you can decide this yourself.",
+      "exceedsNote": "Beyond your authority — send the decision for validation.",
+      "group": "Group limit · {{members}} companies",
+      "groupWithinNote": "The group stays within its limit.",
+      "groupNearNote": "The group would use {{pct}}% of its limit.",
+      "groupOverNote": "Over the group limit — the decision will be escalated."
+    },
+    "quickView": {
+      "openRequest": "Open request"
     }
   },
   "entities": {
@@ -2307,7 +2356,53 @@
     "portfolioSummary": "Policyholder portfolio:",
     "portfolioLimits": "effective limits",
     "portfolioLimitsEmpty": "No credit limits under this policyholder’s policies yet",
-    "filterCount": "Companies: {{count}}"
+    "filterCount": "Companies: {{count}}",
+    "saveChanges": "Save changes",
+    "createAction": "Create company",
+    "formSections": {
+      "identity": "Identification",
+      "profile": "Profile",
+      "contact": "Contact"
+    },
+    "hero": {
+      "grade": "Grade",
+      "score": "score {{score}}",
+      "toRating": "Open the rating",
+      "notRated": "Not rated yet",
+      "exposure": "Active limits",
+      "exposurePolicies_one": "on {{count}} policy",
+      "exposurePolicies_other": "on {{count}} policies",
+      "noExposure": "No active limit",
+      "statements": "Latest statements",
+      "periods_one": "{{count}} period on file",
+      "periods_other": "{{count}} periods on file",
+      "noStatements": "No statements yet",
+      "openWork": "Open work",
+      "nothingOpen": "Nothing open",
+      "openLimits_one": "{{count}} limit request",
+      "openLimits_few": "{{count}} limit requests",
+      "openLimits_many": "{{count}} limit requests",
+      "openLimits_other": "{{count}} limit requests",
+      "openSubmissions_one": "{{count}} submission",
+      "openSubmissions_few": "{{count}} submissions",
+      "openSubmissions_many": "{{count}} submissions",
+      "openSubmissions_other": "{{count}} submissions",
+      "openClaims_one": "{{count}} claim",
+      "openClaims_few": "{{count}} claims",
+      "openClaims_many": "{{count}} claims",
+      "openClaims_other": "{{count}} claims"
+    },
+    "sections": {
+      "overview": "Overview",
+      "analysis": "Analysis",
+      "cover": "Cover",
+      "claims": "Claims",
+      "group": "Group",
+      "access": "Client access"
+    },
+    "facts": {
+      "open": "Quick facts"
+    }
   },
   "access": {
     "denied": "No access",
@@ -2539,7 +2634,8 @@
     },
     "ratingWeights": {
       "title": "Sub-grade weights",
-      "hint": "The default weights of the rating scorecard's four pillars, whole per cents adding up to 100. The rater starts from them and may change them for a rating."
+      "hint": "The default weights of the rating scorecard's four pillars, whole per cents adding up to 100. The rater starts from them and may change them for a rating.",
+      "save": "Save weights"
     }
   },
   "requests": {
@@ -2752,9 +2848,16 @@
       "changeFailed": "The password could not be changed. Try again."
     },
     "uiScale": {
-      "title": "Text size",
-      "hint": "The whole interface at the chosen size, saved for you on every device.",
+      "title": "Zoom",
+      "hint": "Everything — text, spacing and boxes — at the chosen size, as the browser’s own zoom would.",
       "notSaved": "Applied on this device; it could not be saved to your account."
+    },
+    "uiText": {
+      "title": "Text size",
+      "hint": "Only the text grows; spacing and the layout stay as the zoom sets them."
+    },
+    "display": {
+      "title": "Display"
     }
   },
   "provisioning": {
@@ -2978,7 +3081,12 @@
       "allSnoozedHint_one": "{{count}} task is snoozed and comes back by itself. The dashed «Snoozed» chip shows it.",
       "allSnoozedHint_other": "{{count}} tasks are snoozed and come back by themselves. The dashed «Snoozed» chip shows them.",
       "allSnoozedHint_few": "{{count}} tasks are snoozed and come back by themselves. The dashed «Snoozed» chip shows them.",
-      "allSnoozedHint_many": "{{count}} tasks are snoozed and come back by themselves. The dashed «Snoozed» chip shows them."
+      "allSnoozedHint_many": "{{count}} tasks are snoozed and come back by themselves. The dashed «Snoozed» chip shows them.",
+      "caughtUp": "All caught up",
+      "caughtUpHint_one": "You finished {{count}} task today. New work appears here by itself.",
+      "caughtUpHint_other": "You finished {{count}} tasks today. New work appears here by itself.",
+      "caughtUpHint_few": "You finished {{count}} tasks today. New work appears here by itself.",
+      "caughtUpHint_many": "You finished {{count}} tasks today. New work appears here by itself."
     },
     "selected": "{{count}} selected",
     "clearSelection": "Clear selection",
@@ -3344,11 +3452,11 @@
       "buyer": {
         "title": "Buyer",
         "assessed": "assessed {{date}}",
-        "other_one": "Other limits in force: {{count}} · {{amount}} UZS",
-        "other_few": "Other limits in force: {{count}} · {{amount}} UZS",
-        "other_many": "Other limits in force: {{count}} · {{amount}} UZS",
-        "other_other": "Other limits in force: {{count}} · {{amount}} UZS",
-        "otherNone": "No other limits in force",
+        "other_one": "Other active limits: {{count}} · {{amount}} UZS",
+        "other_few": "Other active limits: {{count}} · {{amount}} UZS",
+        "other_many": "Other active limits: {{count}} · {{amount}} UZS",
+        "other_other": "Other active limits: {{count}} · {{amount}} UZS",
+        "otherNone": "No other active limits",
         "group": "Group: {{body}}",
         "noGroup": "Group: no relationships recorded",
         "factors": "Strengths and weaknesses",
@@ -3385,8 +3493,8 @@
         "requestAbove": "request above the calculation",
         "limitWithin": "limit within the calculation",
         "limitAbove": "limit above the calculation",
-        "inForce": "Limit in force",
-        "exposure": "Buyer’s limits in force"
+        "inForce": "Active limit",
+        "exposure": "Buyer’s active limits"
       },
       "rating": {
         "current": "Current assessment",
@@ -3402,7 +3510,7 @@
         "dependsSub_few": "on {{count}} policies",
         "dependsSub_many": "on {{count}} policies",
         "dependsSub_other": "on {{count}} policies",
-        "noLimits": "no limits in force",
+        "noLimits": "no active limits",
         "moved": "What moved, {{from}} → {{to}}",
         "notComparable": {
           "kind": "The new statement covers a different kind of period (a quarter against a year), so the figures are not compared.",
@@ -3463,7 +3571,7 @@
         "title": "About the group",
         "parent": "Ultimate parent",
         "members": "Companies in the group",
-        "membersWithLimits": "With limits in force",
+        "membersWithLimits": "With active limits",
         "policyholders": "Policyholders exposed",
         "missingTitle_one": "{{count}} limit without a UZS rate is not included",
         "missingTitle_few": "{{count}} limits without a UZS rate are not included",
@@ -3561,7 +3669,14 @@
       "commentEmpty": "Write something before sending.",
       "commentTooLong": "A comment can be at most 2,000 characters.",
       "notYours": "This task is no longer yours, or it has closed."
-    }
+    },
+    "hero": {
+      "overdue": "Overdue",
+      "today": "For today",
+      "mine": "Assigned to me",
+      "cleared": "Done today"
+    },
+    "buyerGrade": "Buyer's grade: {{grade}}"
   },
   "portal": {
     "title": "Client portal",
@@ -3783,7 +3898,10 @@
       },
       "listTitle": "Reported overdue accounts",
       "fillToFile": "Choose the buyer and enter the due date and the amount",
-      "suspensionTitle": "This buyer’s credit limit will be suspended"
+      "suspensionTitle": "This buyer’s credit limit will be suspended",
+      "noBuyers": "No buyer has an active credit limit under policy {{policy}}, so there is no account to report yet.",
+      "noBuyersOption": "No buyer with an active limit",
+      "toLimits": "Credit limits"
     },
     "premium": {
       "title": "Premium",
@@ -3852,6 +3970,46 @@
         "body": "First report the buyer's unpaid invoice under Overdue accounts. When the policy's waiting period has run, the overdue account appears on this page and you can file the claim.",
         "action": "Go to Overdue accounts"
       }
+    },
+    "hero": {
+      "inForce": "Active policies",
+      "inForceMeta_one": "of {{count}} policy",
+      "inForceMeta_other": "of {{count}} policies",
+      "limits": "Buyer limits",
+      "limitsMeta": "approved for your buyers",
+      "nextExpiry": "Next renewal",
+      "nextExpiryMeta": "an active policy ends",
+      "noActive": "no active policy"
+    },
+    "timeline": {
+      "title": "In progress",
+      "open": "Open",
+      "yourTurn": "Waiting for you",
+      "kinds": {
+        "submission": "Submission",
+        "limit": "Credit limit request · policy {{policy}}",
+        "claim": "Claim {{number}}",
+        "submissionLabel": "Submission status",
+        "limitLabel": "Limit request status",
+        "claimLabel": "Claim status"
+      },
+      "limit": {
+        "sent": "Sent",
+        "review": "Under review",
+        "decided": "Decided"
+      },
+      "submission": {
+        "sent": "Sent",
+        "underwriting": "Underwriting",
+        "yourAnswer": "Your answer",
+        "accepted": "Accepted"
+      },
+      "claim": {
+        "filed": "Filed",
+        "assessment": "Assessment",
+        "decision": "Decision",
+        "paid": "Paid"
+      }
     }
   },
   "declarations": {
@@ -3916,7 +4074,10 @@
     "eyebrow": "Turnover declaration",
     "disputeHint": "The declaration goes back to the policyholder with this note; they correct it and submit it again. It earns no premium until it is accepted.",
     "disputeNoteRequired": "Say what needs correcting.",
-    "periodNotDeclared": "The declaration for {{period}} has not been submitted yet"
+    "periodNotDeclared": "The declaration for {{period}} has not been submitted yet",
+    "quickView": {
+      "openDeclaration": "Open declaration"
+    }
   },
   "premium": {
     "none": "No premium information for this policy",
@@ -4407,9 +4568,9 @@
     "reasons": {
       "covered_by_limit": "Covered by the approved limit",
       "covered_by_dl": "Covered by the discretionary limit",
-      "limit_exceeded": "Beyond the limit in force",
+      "limit_exceeded": "Beyond the active limit",
       "dl_exceeded": "Beyond the discretionary limit",
-      "no_limit_in_force": "No limit was in force",
+      "no_limit_in_force": "No limit was active",
       "limit_declined": "The buyer had been declined",
       "limit_revoked": "The limit was revoked before shipment",
       "limit_not_yet_valid": "The limit was not yet valid",
@@ -4495,7 +4656,7 @@
       "headroom": "Headroom left",
       "paymentTerms": "Credit period / maximum",
       "decisionValidity": "Limit validity",
-      "noDecision": "No decision was in force",
+      "noDecision": "No decision was active",
       "systemSaid": "The system decided",
       "overrideJustification": "Justification for the change"
     },
@@ -4636,7 +4797,7 @@
       "overrideContradicts": "A «not covered» verdict covers nothing.",
       "settled": "This claim is settled and can no longer be reassessed.",
       "locked": "This claim can no longer be edited.",
-      "policyNotInForce": "A claim needs a policy that was in force.",
+      "policyNotInForce": "A claim needs a policy that was active.",
       "alreadyOpen": "This buyer already has an open claim on this policy.",
       "noaAlreadyClaimed": "A claim has already been raised from this notification.",
       "duplicateInvoice": "That invoice number is already on this claim.",
@@ -4657,7 +4818,10 @@
       "belowNql": "The covered loss is below the non-qualifying loss threshold — this claim is not indemnifiable. Decline it with that reason."
     },
     "eyebrow": "Claim",
-    "indemnityPending": "Not decided yet"
+    "indemnityPending": "Not decided yet",
+    "quickView": {
+      "openClaim": "Open claim"
+    }
   },
   "groups": {
     "ultimateParent": "Ultimate parent",
@@ -4710,14 +4874,14 @@
     },
     "exposure": {
       "title": "Group exposure",
-      "hint": "Every limit in force on a member, converted to UZS at the standard rate.",
+      "hint": "Every active limit on a member, converted to UZS at the standard rate.",
       "total": "Exposure, UZS",
       "groupLimit": "Group limit",
       "utilisation": "Utilisation",
       "none": "not set",
       "noGroupLimit": "No group limit is set for this group, so nothing caps what its members may hold together.",
       "missingRates": "{{count}} limit(s) are in a currency with no rate today and are not in the total above.",
-      "empty": "No member of this group holds a limit in force.",
+      "empty": "No member of this group holds an active limit.",
       "byMember": "By company",
       "byPolicyholder": "By policyholder",
       "member": "Company",
@@ -4784,7 +4948,7 @@
     },
     "chip": {
       "label": "Group",
-      "body": "{{parent}} — {{count}} companies, {{exposure}} UZS in force",
+      "body": "{{parent}} — {{count}} companies, {{exposure}} UZS active",
       "short": "Group: {{parent}}"
     },
     "errors": {
@@ -4794,11 +4958,11 @@
       "pctRange": "The ownership percentage must be between 0 and 100.",
       "relationshipNotFound": "This relationship no longer exists.",
       "entityNotFound": "Company not found.",
-      "duplicateEdge": "This relationship is already recorded and still in force.",
+      "duplicateEdge": "This relationship is already recorded and still active.",
       "limitNotPermitted": "Only credit underwriting may set or remove a group limit.",
       "limitAmount": "A group limit needs a positive amount.",
       "limitAuthority": "This group limit exceeds your authority for the ultimate parent's rating band.",
-      "noLimitInForce": "This group has no limit in force.",
+      "noLimitInForce": "This group has no active limit.",
       "suggestionNotFound": "This suggestion no longer exists.",
       "suggestionReviewed": "This suggestion has already been reviewed.",
       "suggestionParent": "The parent must be one of the two suggested companies.",
@@ -4834,7 +4998,7 @@
         "ended": "Ended"
       },
       "setTitle": "Set the group rating",
-      "setHint": "Every member whose grade in force is better than this is capped at it at once, with this reason.",
+      "setHint": "Every member whose grade is better than this is capped at it at once, with this reason.",
       "endTitle": "End the group rating",
       "endHint": "Members already capped keep their grades; the cap no longer applies to new ratings.",
       "grade": "Group grade",
@@ -4870,7 +5034,18 @@
     "groups": {
       "recent": "Recent",
       "companies": "Companies",
-      "sections": "Sections"
+      "sections": "Sections",
+      "records": "Policies, claims, submissions",
+      "actions": "Actions"
+    },
+    "sources": {
+      "policies": "Policy",
+      "claims": "Claim",
+      "requests": "Submission"
+    },
+    "actions": {
+      "requestCompany": "Request a company (Data management)",
+      "account": "My account and text size"
     }
   },
   "security": {
@@ -5122,14 +5297,14 @@
     "missingRatesHint": "Limits in a currency with no UZS rate: counted, not added as zero",
     "scope": {
       "label": "Policies shown",
-      "inForce": "In force",
+      "inForce": "Active",
       "all": "All policies"
     },
     "policies": {
       "title": "Policy portfolio",
       "subtitle": "The book per currency — premium, liability, claims and loss ratio — with its make-up, the renewals coming up and the worst loss ratios.",
       "empty": "No policies in this view",
-      "emptyHint": "In-force means active or suspended. Switch to «All policies» to include drafts and ended policies.",
+      "emptyHint": "«Active» includes suspended policies. Switch to «All policies» to include drafts and ended policies.",
       "inCurrency_one": "{{count}} policy",
       "inCurrency_other": "{{count}} policies",
       "premiumBase": "Premium due",
@@ -5150,12 +5325,12 @@
       "byCountry": "By policyholder country",
       "count": "Policies",
       "renewals": "Ending within {{days}} days",
-      "renewalsHint": "In-force policies to renew or let run off, soonest first.",
-      "noRenewals": "No in-force policy ends in this window.",
+      "renewalsHint": "Active policies to renew or let run off, soonest first.",
+      "noRenewals": "No active policy ends in this window.",
       "daysLeft": "Days left",
       "worst": "Highest loss ratios",
       "noLosses": "No policy has incurred a loss.",
-      "policiesInForce": "Policies in force",
+      "policiesInForce": "Active policies",
       "policiesAll": "Policies",
       "currencies_one": "in {{count}} currency",
       "currencies_other": "in {{count}} currencies",
@@ -5173,8 +5348,8 @@
     },
     "credit": {
       "title": "Limit portfolio",
-      "subtitle": "In-force credit limits on bound policies, in UZS: what needs attention, then by the buyer's current rating band, by country and currency, and the largest buyers and groups.",
-      "empty": "No credit limit in force",
+      "subtitle": "Active credit limits on bound policies, in UZS: what needs attention, then by the buyer's current rating band, by country and currency, and the largest buyers and groups.",
+      "empty": "No active credit limit",
       "emptyHint": "A limit appears here once it is approved (fully or partly) on a bound policy.",
       "exposure": "Exposure",
       "limits": "Limits",
@@ -5193,7 +5368,7 @@
       "amount": "Amount",
       "daysLeft": "Days left",
       "stale": "Stale or missing ratings",
-      "staleHint": "Buyers with an in-force limit whose latest rating is more than a year old, or who were never rated.",
+      "staleHint": "Buyers with an active limit whose latest rating is more than a year old, or who were never rated.",
       "noStale": "Every buyer with a limit has a current rating.",
       "ratedAt": "Rated",
       "notRated": "not rated",
@@ -5252,7 +5427,8 @@
       "registrationNumber": "Registration number",
       "assignedAt": "Assigned on",
       "note": "Note",
-      "reason": "Reason"
+      "reason": "Reason",
+      "number": "No."
     },
     "kinds": {
       "new_company": "New company",
@@ -5910,5 +6086,102 @@
       "navy": "Navy",
       "blue": "Blue"
     }
+  },
+  "tokens": {
+    "title": "Design tokens",
+    "subtitle": "Every colour, size, space and motion of the interface, generated from one source (src/design/palette.ts). Admin only.",
+    "colour": {
+      "title": "Colour ramps (OKLCH)",
+      "hint": "Ten steps per hue; at every step all hues have the same luminance, so a pair that passes for one passes for all. Under each swatch: hex, OKLCH, contrast on white.",
+      "ruleText": "Text: steps at least 5 apart — the weakest such pair is {{ratio}} : 1 (≥ {{min}} required).",
+      "ruleGraphic": "Icons, large text, graphics: steps at least 4 apart — the weakest is {{ratio}} : 1 (≥ {{min}} required).",
+      "hue": "hue {{hue}}° · chroma {{chroma}}",
+      "canvas": "Page canvas {{hex}} — secondary text (neutral 500) on it: {{ratio}} : 1"
+    },
+    "ramps": {
+      "slate": "Neutral — backgrounds, text, borders (warm grey)",
+      "accent": "Brand navy — primary actions, selection, titles",
+      "sky": "Secondary brand — links, focus, highlights",
+      "success": "Success, growth, approved",
+      "warning": "Warning, attention, due soon",
+      "danger": "Error, loss, overdue, declined",
+      "info": "Information",
+      "violet": "Data — categorical",
+      "teal": "Data — categorical",
+      "magenta": "Data — categorical"
+    },
+    "grades": {
+      "title": "Grade scale A1 → D",
+      "hint": "The signature colour: badges use the tint with the ink, bars and charts the solid.",
+      "pairs": "ink on tint {{tint}} : 1 · solid on white {{solid}} : 1"
+    },
+    "data": {
+      "title": "Data palettes",
+      "hint": "Categorical series in a fixed order (neighbours differ in hue); one-hue sequential scale for magnitude.",
+      "categorical": "Categorical",
+      "sequential": "Sequential"
+    },
+    "type": {
+      "title": "Type scale",
+      "hint": "Seven sizes, three weights. The display face only for page titles and key figures. Tabular figures for money and counts.",
+      "regular": "Regular 400",
+      "medium": "Medium 500",
+      "semibold": "Semibold 600"
+    },
+    "space": {
+      "title": "Spacing, radii, elevation",
+      "hint": "A 4 px grid (2 px only for hairline offsets); soft radii; a hairline lift at rest, one soft shadow for overlays."
+    },
+    "motion": {
+      "title": "Motion",
+      "hint": "Productive (70–150 ms) for task work, expressive (240–400 ms) for rare moments.",
+      "play": "Play",
+      "productive": "productive",
+      "expressive": "expressive",
+      "reduced": "With «reduce motion» set in the operating system, nothing moves: the same state is shown at once."
+    }
+  },
+  "ui": {
+    "bulk": {
+      "label": "Selected rows",
+      "selected_one": "{{count}} selected",
+      "selected_other": "{{count}} selected",
+      "clear": "Clear selection",
+      "selectAll": "Select all rows",
+      "select": "Select {{name}}",
+      "exportCsv": "Export to CSV"
+    },
+    "table": {
+      "settings": "Table view",
+      "density": "Row density",
+      "densities": {
+        "compact": "Compact",
+        "regular": "Regular",
+        "relaxed": "Relaxed"
+      },
+      "columns": "Columns",
+      "showAll": "Show all columns"
+    },
+    "quickView": {
+      "label": "Quick view",
+      "open": "Quick view: {{name}}",
+      "openCard": "Open company card",
+      "openRecord": "Open"
+    },
+    "saved": "Saved",
+    "validation": {
+      "required": "Fill this in — it is required",
+      "email": "Enter an address like name@company.uz",
+      "url": "Enter a web address like company.uz"
+    }
+  },
+  "search": {
+    "placeholder": "Search companies, policies, claims, submissions…",
+    "placeholderPage": "Search and filter ({{page}}): name, number, country — separate with commas",
+    "clear": "Clear the search",
+    "elsewhere_one": "{{count}} result elsewhere in the system",
+    "elsewhere_few": "{{count}} results elsewhere in the system",
+    "elsewhere_many": "{{count}} results elsewhere in the system",
+    "elsewhere_other": "{{count}} results elsewhere in the system"
   }
 }

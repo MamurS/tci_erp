@@ -38,19 +38,19 @@ export function NoAccessPage() {
 
   return (
     <Card className="mx-auto mt-10 max-w-lg p-8 text-center">
-      <p className="text-3xl" aria-hidden>
+      <p className="text-headline" aria-hidden>
         🔒
       </p>
-      <h1 className="mt-3 text-lg font-semibold text-slate-900">{t('access.denied')}</h1>
-      <p className="mt-2 text-[0.8125rem] text-slate-500">
+      <h1 className="mt-3 text-title font-semibold text-slate-900">{t('access.denied')}</h1>
+      <p className="mt-2 text-small text-slate-500">
         {others.length > 0 ? t('access.otherRoleOpens') : t('access.deniedHint')}
       </p>
-      <p className="mt-3 text-[0.8125rem] text-slate-500">
+      <p className="mt-3 text-small text-slate-500">
         {t('access.yourRoles')}:{' '}
         {heldRoles.length ? (
           heldRoles.map((r) => t(`roles.${r}`)).join(', ')
         ) : (
-          <span className="text-slate-400">{t('roles.unassigned')}</span>
+          <span className="text-slate-500">{t('roles.unassigned')}</span>
         )}
       </p>
       {others.length > 0 && (
@@ -63,13 +63,13 @@ export function NoAccessPage() {
         </div>
       )}
       {error && (
-        <p className="mt-3 text-[0.8125rem] text-neg-500" role="alert">
+        <p className="mt-3 text-small text-neg-500" role="alert">
           {error}
         </p>
       )}
       <Link
         to="/"
-        className="mt-5 inline-block text-sm font-medium text-accent-700 hover:underline"
+        className="mt-5 inline-block text-body font-medium text-accent-700 hover:underline"
       >
         {t('access.backToDashboard')}
       </Link>

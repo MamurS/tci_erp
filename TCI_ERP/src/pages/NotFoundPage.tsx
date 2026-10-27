@@ -8,7 +8,7 @@ export function NotFoundPage() {
     <EmptyState
       title={t('common.notFound')}
       action={
-        <Link to="/" className="text-sm font-medium text-accent-700 hover:underline">
+        <Link to="/" className="text-body font-medium text-accent-700 hover:underline">
           {t('common.backHome')}
         </Link>
       }

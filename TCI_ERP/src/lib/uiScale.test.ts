@@ -1,12 +1,25 @@
-/** Contract test: the text sizes offered are the ones 0076 accepts, and the
- * breakpoints that follow them are container queries in rem (index.css). */
+/** Contract test: the zooms offered are the ones 0076 accepts and the text
+ * sizes the ones 0081 accepts; the breakpoints that follow the zoom are
+ * container queries in rem (index.css); the text size multiplies the type
+ * tokens and nothing else. */
 
 import { readFileSync } from 'node:fs'
 
 import { describe, expect, it } from 'vitest'
 
 import M76 from '../../supabase/migrations/0076_ui_scale.sql?raw'
-import { DEFAULT_UI_SCALE, isUiScale, UI_SCALES, uiScaleOrDefault } from './uiScale'
+import M81 from '../../supabase/migrations/0081_ui_text_scale.sql?raw'
+import { renderTokensCss, TYPE_SCALE } from '../design/palette'
+import {
+  DEFAULT_UI_SCALE,
+  DEFAULT_UI_TEXT_SCALE,
+  isUiScale,
+  isUiTextScale,
+  UI_SCALES,
+  UI_TEXT_SCALES,
+  uiScaleOrDefault,
+  uiTextScaleOrDefault,
+} from './uiScale'
 
 // Vitest serves CSS imports empty; read the files themselves.
 const CSS = readFileSync(new URL('../index.css', import.meta.url), 'utf8')
@@ -25,6 +38,26 @@ describe('interface text size', () => {
     expect(uiScaleOrDefault(200)).toBe(200)
     expect(isUiScale(125)).toBe(true)
     expect(isUiScale('125')).toBe(false)
+  })
+
+  it('offers exactly the text sizes the database accepts; NULL reads as 100 %', () => {
+    expect(M81).toContain('check (ui_text_scale in (100, 110, 125, 140, 150))')
+    expect([...UI_TEXT_SCALES]).toEqual([100, 110, 125, 140, 150])
+    expect(DEFAULT_UI_TEXT_SCALE).toBe(100)
+    expect(uiTextScaleOrDefault(null)).toBe(100)
+    expect(uiTextScaleOrDefault(175)).toBe(100)
+    expect(isUiTextScale(125)).toBe(true)
+  })
+
+  it('the text size multiplies every type token, and the boxes that are one line of text', () => {
+    const tokens = renderTokensCss()
+    for (const [name, [size, lineHeight]] of Object.entries(TYPE_SCALE)) {
+      expect(tokens).toContain(`--text-${name}: calc(${size} * var(--ui-text, 1));`)
+      expect(tokens).toContain(`--text-${name}--line-height: calc(${lineHeight} * var(--ui-text, 1));`)
+    }
+    expect(CSS).toContain('@apply text-body leading-normal')
+    expect(CSS).toMatch(/@utility h-text-\* \{\s*height: calc\(--value\(integer\) \* var\(--spacing\) \* var\(--ui-text, 1\)\);/)
+    expect(CSS).toMatch(/@utility leading-text-\* \{\s*line-height: calc\(--value\(integer\) \* var\(--spacing\) \* var\(--ui-text, 1\)\);/)
   })
 
   it('every breakpoint is a container query in rem on <body>, so it scales', () => {

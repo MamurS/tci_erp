@@ -88,7 +88,7 @@ export function WordingPage() {
       />
 
       {error && (
-        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-2.5 text-[0.8125rem] text-neg-500" role="alert">
+        <div className="mb-4 rounded-md border border-neg-500/30 bg-neg-50 px-4 py-3 text-small text-neg-500" role="alert">
           {error}
         </div>
       )}
@@ -125,19 +125,19 @@ export function WordingPage() {
                         className="max-w-none"
                       >
                         <span className="font-medium text-slate-800">{name}</span>{' '}
-                        <span className="text-xs text-slate-400">
+                        <span className="text-caption text-slate-500">
                           <span className="tabular-nums">v{tpl.version}</span> · {languageName(tpl.language, locale)}
                         </span>
                       </Truncate>
                       {description && (
-                        <Truncate text={description} className="max-w-none text-xs text-slate-500">
+                        <Truncate text={description} className="max-w-none text-caption text-slate-500">
                           {description}
                         </Truncate>
                       )}
                     </td>
                     <td className="whitespace-nowrap">
                       {tpl.country_code ? (
-                        <span className="inline-flex items-center gap-1.5">
+                        <span className="inline-flex items-center gap-2">
                           <CountryFlag code={tpl.country_code} />
                           {countryName(tpl.country_code)}
                         </span>

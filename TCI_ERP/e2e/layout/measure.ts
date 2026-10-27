@@ -6,6 +6,9 @@
  * and its parts; every tab and every toolbar chip. Boxes are in document
  * coordinates (a table's own horizontal scroll is added back), so scrolling
  * is not movement; dialogs and menus are left out — they float above.
+ * Sticky elements (the company card's section tabs, a sheet's head) are read
+ * where the flow puts them: their offset depends on how far the page has
+ * scrolled, and a hover that scrolls a row into view moves nothing.
  */
 
 import type { Page } from '@playwright/test'
@@ -77,6 +80,15 @@ export async function snapshot(page: Page): Promise<Snapshot> {
       return [round(b.left + window.scrollX + dx), round(b.top + window.scrollY), round(b.width), round(b.height)]
     }
     const text = (el: Element) => ((el as HTMLElement).innerText ?? '').replace(/\s+/g, ' ').trim().slice(0, 28)
+    // Unstick for the read: a sticky element keeps its place in the flow, so
+    // static measures the layout without the scroll-dependent offset.
+    const unstuck: [HTMLElement, string][] = []
+    for (const el of main.querySelectorAll<HTMLElement>('*')) {
+      if (getComputedStyle(el).position === 'sticky') {
+        unstuck.push([el, el.style.position])
+        el.style.position = 'static'
+      }
+    }
     let ti = 0
     for (const table of main.querySelectorAll('table')) {
       if (!outside(table) || !table.getClientRects().length) continue
@@ -117,6 +129,7 @@ export async function snapshot(page: Page): Promise<Snapshot> {
     main.querySelectorAll('[role="toolbar"] > button').forEach((chip, i) => {
       if (outside(chip)) out[`chip ${i + 1}`] = box(chip)
     })
+    for (const [el, position] of unstuck) el.style.position = position
     return out
   })
 }

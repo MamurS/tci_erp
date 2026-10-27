@@ -46,7 +46,7 @@ export function SalesWindowPanel({ request }: { request: InsuranceRequestWithRef
       </SectionTitle>
 
       {!limits?.length ? (
-        <p className="text-[0.8125rem] text-slate-400">{t('requests.noDecisionsYet')}</p>
+        <p className="text-small text-slate-500">{t('requests.noDecisionsYet')}</p>
       ) : (
         <div className="flex flex-col gap-2">
           {limits.map((limit) => (
@@ -62,7 +62,7 @@ export function SalesWindowPanel({ request }: { request: InsuranceRequestWithRef
       )}
 
       {pending.length === 0 && limits?.length ? (
-        <p className="mt-2 text-xs text-pos-500">{t('requests.allReleased')}</p>
+        <p className="mt-2 text-caption text-pos-500">{t('requests.allReleased')}</p>
       ) : null}
     </Card>
   )
@@ -103,18 +103,18 @@ function DecisionRow({
   return (
     // The id is what `?focus=sales-window&decision=<id>` rings.
     <div id={`decision-${limit.decision_id}`} className="rounded-md border border-slate-200 p-3">
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         {/* Whose limit it is — an amount alone says nothing to sales. */}
-        <Truncate text={buyerName} className="max-w-[16rem] text-[0.8125rem] font-medium text-slate-800">
+        <Truncate text={buyerName} className="max-w-[16rem] text-small font-medium text-slate-800">
           {buyerName}
         </Truncate>
-        <span className="num text-[0.8125rem] font-semibold text-slate-800">
+        <span className="num text-small font-semibold text-slate-800">
           {limit.approved_amount !== null
             ? `${formatAmount(Number(limit.approved_amount), locale)} ${limit.currency_code}`
             : EM_DASH}
         </span>
         {limit.commercially_adjusted && (
-          <span className="num text-xs text-slate-400">
+          <span className="num text-caption text-slate-500">
             {t('limits.stagePair', {
               credit: formatAmount(Number(limit.credit_amount), locale),
               commercial: formatAmount(Number(limit.approved_amount), locale),
@@ -172,7 +172,7 @@ function DecisionRow({
       )}
 
       {error && (
-        <p className="mt-1.5 text-[0.8125rem] text-neg-500" role="alert">
+        <p className="mt-2 text-small text-neg-500" role="alert">
           {error}
         </p>
       )}

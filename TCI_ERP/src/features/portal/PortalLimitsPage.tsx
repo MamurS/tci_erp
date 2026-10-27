@@ -176,12 +176,12 @@ export function PortalLimitsPage() {
                       <span className="flex flex-col items-start gap-0.5">
                         <Badge tone="warn">{t(`portal.limits.requestStatuses.${r.status}`)}</Badge>
                         {r.amended_at && (
-                          <span className="text-xs text-slate-500">
+                          <span className="text-caption text-slate-500">
                             {t('portal.limits.change.changedOn', { date: formatDate(r.amended_at, locale) })}
                           </span>
                         )}
                         {r.replaces_request_id && (
-                          <span className="text-xs text-slate-500">{t('portal.limits.change.replacesNote')}</span>
+                          <span className="text-caption text-slate-500">{t('portal.limits.change.replacesNote')}</span>
                         )}
                       </span>
                     </td>
@@ -249,7 +249,7 @@ export function PortalLimitsPage() {
                         ? EM_DASH
                         : `${formatAmount(limit.approved_amount, locale)} ${limit.currency_code}`}
                       {!withdrawn && limit.outcome === 'partial' && (
-                        <span className="block text-xs font-normal text-slate-400">
+                        <span className="block text-caption font-normal text-slate-500">
                           {t('portal.limits.partialOf', {
                             requested: formatAmount(limit.requested_amount, locale),
                           })}
@@ -275,7 +275,7 @@ export function PortalLimitsPage() {
                           })}
                     </td>
                     {anyConditions && (
-                      <td className="text-[0.8125rem] text-slate-600">
+                      <td className="text-small text-slate-600">
                         {rowConditions.length ? (
                           <ul className="list-inside list-disc whitespace-normal">
                             {rowConditions.map((c, i) => (
@@ -334,7 +334,7 @@ export function PortalLimitsPage() {
           }
         >
           <div className="flex flex-col gap-4">
-            <p className="text-sm text-slate-700">{t('portal.limits.change.withdrawMessage')}</p>
+            <p className="text-body text-slate-700">{t('portal.limits.change.withdrawMessage')}</p>
             <Field label={t('portal.limits.change.withdrawReason')}>
               <Input value={withdrawReason} onChange={(e) => setWithdrawReason(e.target.value)} maxLength={500} />
             </Field>
@@ -354,7 +354,7 @@ function LimitStatus({ row }: { row: Pick<ClientLimit, 'outcome' | 'released_at'
   return (
     <span className="flex flex-col items-start gap-0.5" title={t('portal.limits.revokedHint')}>
       <Badge tone="neg">{t(`limits.outcomes.${row.outcome}`)}</Badge>
-      <span className="text-xs text-slate-500">{withdrawnOn(row, i18n.language)}</span>
+      <span className="text-caption text-slate-500">{withdrawnOn(row, i18n.language)}</span>
     </span>
   )
 }
@@ -381,7 +381,7 @@ function HistoryModal({ limit, onClose }: { limit: ClientLimit; onClose: () => v
       {isLoading ? (
         <Spinner label={t('common.loading')} />
       ) : !history?.length ? (
-        <p className="text-sm text-slate-500">{t('portal.limits.noHistory')}</p>
+        <p className="text-body text-slate-500">{t('portal.limits.noHistory')}</p>
       ) : (
         <Table dense columns={[COL.moment, COL.money, COL.period, COL.fill]}>
           <thead>
@@ -419,7 +419,7 @@ function HistoryModal({ limit, onClose }: { limit: ClientLimit; onClose: () => v
           </tbody>
         </Table>
       )}
-      <p className="text-xs text-slate-400">{t('portal.limits.historyNote')}</p>
+      <p className="text-caption text-slate-500">{t('portal.limits.historyNote')}</p>
     </Modal>
   )
 }

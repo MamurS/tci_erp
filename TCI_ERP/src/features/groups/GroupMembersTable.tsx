@@ -4,9 +4,8 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, COL, Table } from '../../components/ui'
+import { Badge, COL, GradeBadge, Table } from '../../components/ui'
 import { formatAmount } from '../../lib/format'
-import { gradeTone } from '../../lib/grade'
 import type { Claim } from '../claims/types'
 import { exposureByMember } from './group'
 import type { GroupExposureLine, GroupMembership } from './types'
@@ -70,13 +69,13 @@ export function GroupMembersTable({
               <td>
                 {/* Name, badge and «эта организация» wrap as whole pieces,
                     never a label broken over two lines. */}
-                <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                   <Link to={`/entities/${m.member_id}`} className="text-accent-700 hover:underline">
                     {names.get(m.member_id) ?? m.member_id}
                   </Link>
                   {m.member_is_ultimate_parent && <Badge tone="accent">{t('groups.ultimateParent')}</Badge>}
                   {m.member_id === focusId && (
-                    <span className="whitespace-nowrap text-[0.75rem] text-slate-400">
+                    <span className="whitespace-nowrap text-caption text-slate-500">
                       {t('groups.members.thisCompany')}
                     </span>
                   )}
@@ -84,7 +83,7 @@ export function GroupMembersTable({
               </td>
               <td className="num">{m.depth}</td>
               <td>
-                {grade ? <Badge tone={gradeTone(grade)}>{grade}</Badge> : <span>—</span>}
+                {grade ? <GradeBadge grade={grade} /> : <span>—</span>}
               </td>
               <td className="num">{exp?.limits ?? 0}</td>
               <td className="num">

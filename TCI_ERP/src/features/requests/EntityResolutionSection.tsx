@@ -98,7 +98,7 @@ function ResolveRow({
 
   return (
     <div className="rounded-md border border-slate-200 p-3">
-      <p className="mb-2 text-[0.8125rem]">
+      <p className="mb-2 text-small">
         <span className="font-medium text-slate-800">
           {buyer.proposed_name ?? t('requests.unnamedBuyer')}
         </span>
@@ -134,9 +134,9 @@ function ResolveRow({
           </Button>
         </div>
       </div>
-      {blockedReason && <p className="mt-1.5 text-[0.75rem] text-slate-500">{blockedReason}</p>}
+      {blockedReason && <p className="mt-2 text-caption text-slate-500">{blockedReason}</p>}
       {error && (
-        <p className="mt-1.5 text-[0.8125rem] text-neg-500" role="alert">
+        <p className="mt-2 text-small text-neg-500" role="alert">
           {error}
         </p>
       )}

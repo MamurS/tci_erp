@@ -81,7 +81,7 @@ export function BuyerBlock({ entityId, excludeScope }: { entityId: string; exclu
     <section className="mt-6 grid gap-x-8 gap-y-5 border-t border-slate-100 pt-5 md:grid-cols-2">
       <div className="min-w-0">
         <SubTitle>{t('agenda.triage.buyer.title')}</SubTitle>
-        <p className="flex flex-wrap items-center gap-2 text-[0.875rem]">
+        <p className="flex flex-wrap items-center gap-2 text-body">
           {latest && <BandBadge band={bandForGrade(latest.rating_grade)} grade={latest.rating_grade} />}
           {latest && (
             <span className="font-semibold text-slate-900 tabular-nums">{formatAmount(num(latest.rating_score), locale, 1)}</span>
@@ -90,7 +90,7 @@ export function BuyerBlock({ entityId, excludeScope }: { entityId: string; exclu
             {entity?.name ?? EM_DASH}
           </Link>
         </p>
-        <ul className="mt-1.5 flex flex-col gap-1 text-[0.8125rem] text-slate-700">
+        <ul className="mt-2 flex flex-col gap-1 text-small text-slate-700">
           <li>{place}</li>
           <li className="tabular-nums">
             {others.count === 0

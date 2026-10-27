@@ -20,11 +20,26 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../../auth/AuthContext'
-import { ActionsMenu, Callout, EmptyState, PageHeader, Segmented, Skeleton } from '../../components/ui'
+import {
+  ActionsMenu,
+  Callout,
+  EmptyState,
+  HeroBand,
+  Pictogram,
+  Segmented,
+  Skeleton,
+} from '../../components/ui'
 import { todayIso } from '../../components/ui/dateEntry'
-import { formatCompact, formatMoment } from '../../lib/format'
+import {
+  EM_DASH,
+  formatAmount,
+  formatCompact,
+  formatLongDate,
+  formatMoment,
+} from '../../lib/format'
 import { refusalKey } from '../../lib/refusals'
 import { useStaffDirectory } from '../data/api'
+import { useLatestGrades } from '../entities/api'
 import { useUzsRates } from '../declarations/api'
 import { latestUzsRate } from '../limits/authority'
 import { AgendaList } from './AgendaList'
@@ -40,7 +55,16 @@ import {
   useValidationComments,
   validationOrigin,
 } from './api'
-import { amountOf, assignedToMe, bucketOf, buildBoard, readFilter, sumUzs, writeFilter, GROUPINGS } from './board'
+import {
+  amountOf,
+  assignedToMe,
+  bucketOf,
+  buildBoard,
+  readFilter,
+  sumUzs,
+  writeFilter,
+  GROUPINGS,
+} from './board'
 import type { AgendaRow, BoardFilter, Grouping } from './board'
 import { activeTasks, canCompleteByHand, isOverdue, isSnoozed, taskLink } from './catalogue'
 import { destinationFor } from './destinations'
@@ -56,10 +80,15 @@ function useRemembered(userId: string | null) {
   const key = `tci-erp-agenda:${userId ?? 'anon'}`
   const read = (): { view: View; grouping: Grouping } => {
     try {
-      const raw = JSON.parse(localStorage.getItem(key) ?? '{}') as { view?: string; grouping?: string }
+      const raw = JSON.parse(localStorage.getItem(key) ?? '{}') as {
+        view?: string
+        grouping?: string
+      }
       return {
         view: raw.view === 'triage' ? 'triage' : 'list',
-        grouping: (GROUPINGS as readonly string[]).includes(raw.grouping ?? '') ? (raw.grouping as Grouping) : 'due',
+        grouping: (GROUPINGS as readonly string[]).includes(raw.grouping ?? '')
+          ? (raw.grouping as Grouping)
+          : 'due',
       }
     } catch {
       return { view: 'list', grouping: 'due' }
@@ -100,16 +129,25 @@ export function AgendaPage() {
   const all = useMemo(() => tasksQuery.data ?? [], [tasksQuery.data])
   // One clock for the board, taken when the rows were fetched, so a task
   // cannot be overdue in its label and on time in its group.
-  const now = useMemo(() => new Date(tasksQuery.dataUpdatedAt || Date.now()), [tasksQuery.dataUpdatedAt])
+  const now = useMemo(
+    () => new Date(tasksQuery.dataUpdatedAt || Date.now()),
+    [tasksQuery.dataUpdatedAt],
+  )
 
   const { data: subjects } = useTaskSubjects(all)
+  // A buyer's row carries the buyer's grade in its colour (Prompt 30).
+  const { data: grades } = useLatestGrades()
   const { data: staff } = useStaffDirectory()
   const { data: cleared } = useClearedToday()
   const complete = useCompleteTask()
   const unsnooze = useUnsnoozeTask()
 
   const currencies = useMemo(
-    () => [...new Set(all.map((task) => amountOf(task)?.currency).filter((c): c is string => Boolean(c)))],
+    () => [
+      ...new Set(
+        all.map((task) => amountOf(task)?.currency).filter((c): c is string => Boolean(c)),
+      ),
+    ],
     [all],
   )
   const { data: rates } = useUzsRates(currencies)
@@ -122,11 +160,17 @@ export function AgendaPage() {
   const mineScope = useMemo(() => scope.filter((task) => assignedToMe(task, me)), [scope, me])
   const familyScope = filter.mine ? mineScope : scope
   const visible = useMemo(
-    () => (filter.family ? familyScope.filter((task) => TASK_FAMILY[task.task_type] === filter.family) : familyScope),
+    () =>
+      filter.family
+        ? familyScope.filter((task) => TASK_FAMILY[task.task_type] === filter.family)
+        : familyScope,
     [familyScope, filter.family],
   )
   const company = useCallback((row: AgendaRow) => companyOf(row.lead, subjects), [subjects])
-  const groups = useMemo(() => buildBoard(visible, grouping, now, company), [visible, grouping, now, company])
+  const groups = useMemo(
+    () => buildBoard(visible, grouping, now, company),
+    [visible, grouping, now, company],
+  )
 
   // The summary line reads the whole active board, whatever the filter.
   const summary = useMemo(() => {
@@ -143,12 +187,18 @@ export function AgendaPage() {
   // Comments and origin text for the snippets.
   const { data: comments } = useTaskComments(visible.map((task) => task.id))
   const requestIds = useMemo(
-    () => visible.filter((task) => task.object_type === 'credit_limit_request').map((task) => task.object_id),
+    () =>
+      visible
+        .filter((task) => task.object_type === 'credit_limit_request')
+        .map((task) => task.object_id),
     [visible],
   )
   const { data: justifications } = useLimitJustifications(requestIds)
   const validationIds = useMemo(
-    () => visible.filter((task) => task.object_type === 'limit_validation').map((task) => task.object_id),
+    () =>
+      visible
+        .filter((task) => task.object_type === 'limit_validation')
+        .map((task) => task.object_id),
     [visible],
   )
   const { data: validationComments } = useValidationComments(validationIds)
@@ -159,7 +209,8 @@ export function AgendaPage() {
       const own = (comments ?? []).filter((c) => ids.has(c.task_id))
       const origin = [
         ...row.tasks.flatMap(paramComments).map((c) => c.body),
-        ...(row.lead.object_type === 'credit_limit_request' && justifications?.get(row.lead.object_id)?.justification
+        ...(row.lead.object_type === 'credit_limit_request' &&
+        justifications?.get(row.lead.object_id)?.justification
           ? [justifications.get(row.lead.object_id)?.justification as string]
           : []),
         ...row.tasks.flatMap((task) => validationOrigin(task, validationComments)?.body ?? []),
@@ -168,7 +219,10 @@ export function AgendaPage() {
       const latest = own[own.length - 1]?.body ?? origin[origin.length - 1]
       if (latest) return { kind: 'comment', text: latest, count }
       // A collapsed row's note would describe only its first item.
-      if (row.kind !== 'collapsed' && (isAutomatic(row.lead) || row.lead.task_type === 'limit_escalated')) {
+      if (
+        row.kind !== 'collapsed' &&
+        (isAutomatic(row.lead) || row.lead.task_type === 'limit_escalated')
+      ) {
         const note = systemNote(row.lead)
         if (note) return { kind: 'note', text: renderNote(note, t, locale, staff), count: 0 }
       }
@@ -190,7 +244,9 @@ export function AgendaPage() {
     setActionError(null)
     try {
       // One call for the row: it leaves the board in the next frame.
-      await complete.mutateAsync(row.tasks.filter((task) => canCompleteByHand(task.task_type)).map((task) => task.id))
+      await complete.mutateAsync(
+        row.tasks.filter((task) => canCompleteByHand(task.task_type)).map((task) => task.id),
+      )
       markHandled(row)
     } catch (error) {
       setActionError(t(refusalKey(error)))
@@ -199,7 +255,9 @@ export function AgendaPage() {
   const runUnsnooze = async (row: AgendaRow) => {
     setActionError(null)
     try {
-      await unsnooze.mutateAsync(row.tasks.filter((task) => task.snoozed_until).map((task) => task.id))
+      await unsnooze.mutateAsync(
+        row.tasks.filter((task) => task.snoozed_until).map((task) => task.id),
+      )
     } catch (error) {
       setActionError(t(refusalKey(error)))
     }
@@ -234,7 +292,8 @@ export function AgendaPage() {
       const at = links.findIndex((el) => el.dataset.rowLink === focusedKey)
       if (key === 'j' || key === 'k') {
         e.preventDefault()
-        const next = links[Math.max(0, Math.min(links.length - 1, at + (key === 'j' ? 1 : -1)))] ?? links[0]
+        const next =
+          links[Math.max(0, Math.min(links.length - 1, at + (key === 'j' ? 1 : -1)))] ?? links[0]
         next?.focus()
         return
       }
@@ -243,7 +302,12 @@ export function AgendaPage() {
       if (e.key === 'Enter') {
         e.preventDefault()
         markHandled(row)
-        navigate(destinationFor(row, { subject: companyOf(row.lead, subjects), reference: referenceOf(row.lead, subjects) }).path)
+        navigate(
+          destinationFor(row, {
+            subject: companyOf(row.lead, subjects),
+            reference: referenceOf(row.lead, subjects),
+          }).path,
+        )
       } else if (key === 'o') {
         const href = taskLink({ ...row.lead, task_type: row.lead.task_type })
         if (href) navigate(href)
@@ -255,7 +319,9 @@ export function AgendaPage() {
       } else if (key === 's') {
         e.preventDefault()
         document
-          .querySelector<HTMLElement>(`[data-row-key="${CSS.escape(row.key)}"] [aria-haspopup="menu"]`)
+          .querySelector<HTMLElement>(
+            `[data-row-key="${CSS.escape(row.key)}"] [aria-haspopup="menu"]`,
+          )
           ?.click()
       }
     }
@@ -270,26 +336,43 @@ export function AgendaPage() {
   const filtered = Boolean(filter.family || filter.mine || filter.snoozed)
 
   const header = (
-    <PageHeader
+    <HeroBand
+      compact
+      eyebrow={formatLongDate(now, locale)}
       title={t('agenda.title')}
+      // Figures in one line: the Triage view below fills the viewport and
+      // needs the height a row of tiles would take.
+      stats={[
+        {
+          key: 'overdue',
+          label: t('agenda.hero.overdue'),
+          value: tasksQuery.isLoading ? EM_DASH : formatAmount(summary.overdue, locale),
+          dot: summary.overdue > 0 ? 'danger' : undefined,
+        },
+        {
+          key: 'today',
+          label: t('agenda.hero.today'),
+          value: tasksQuery.isLoading ? EM_DASH : formatAmount(summary.dueToday, locale),
+          dot: summary.dueToday > 0 ? 'warning' : undefined,
+        },
+        {
+          key: 'mine',
+          label: t('agenda.hero.mine'),
+          value: tasksQuery.isLoading ? EM_DASH : formatAmount(mineCount, locale),
+        },
+        ...(cleared !== undefined
+          ? [{ key: 'cleared', label: t('agenda.hero.cleared'), value: formatAmount(cleared, locale), dot: 'success' as const }]
+          : []),
+      ]}
       subtitle={
-        tasksQuery.isLoading ? (
-          <span aria-hidden className="inline-block h-4 w-80 animate-pulse rounded bg-slate-200" />
-        ) : (
-          <span className="text-slate-600 tabular-nums">
-            {summary.overdue > 0 ? (
-              <span className="font-semibold text-neg-600">{t('agenda.summary.overdue', { count: summary.overdue })}</span>
-            ) : (
-              t('agenda.summary.noneOverdue')
-            )}
+        summary.atStake.uzs !== null || summary.atStake.missingRates > 0 ? (
+          <span className="tabular-nums">
             {summary.atStake.uzs !== null &&
-              ` · ${t('agenda.summary.atStake', { amount: formatCompact(summary.atStake.uzs, locale) })}`}
+              t('agenda.summary.atStake', { amount: formatCompact(summary.atStake.uzs, locale) })}
             {summary.atStake.missingRates > 0 &&
               ` (${t('agenda.groupMeta.noRate', { count: summary.atStake.missingRates })})`}
-            {` · ${t('agenda.summary.dueToday', { count: summary.dueToday })}`}
-            {cleared !== undefined && ` · ${t('agenda.summary.cleared', { count: cleared })}`}
           </span>
-        )
+        ) : undefined
       }
       actions={
         <>
@@ -316,7 +399,7 @@ export function AgendaPage() {
               <span
                 key={g}
                 aria-hidden
-                className="invisible col-start-1 row-start-1 inline-flex h-0 gap-1.5 overflow-hidden border px-3.5 text-sm font-medium whitespace-nowrap"
+                className="invisible col-start-1 row-start-1 inline-flex h-0 gap-2 overflow-hidden border px-4 text-body font-medium whitespace-nowrap"
               >
                 {t('agenda.groupBy.button', { value: t(`agenda.groupBy.${g}`) })}
                 <span className="w-4" />
@@ -339,7 +422,11 @@ export function AgendaPage() {
   )
 
   const chips = (
-    <div className="mb-5 flex flex-wrap items-center gap-2" role="toolbar" aria-label={t('agenda.chips.label')}>
+    <div
+      className="mb-5 flex flex-wrap items-center gap-2"
+      role="toolbar"
+      aria-label={t('agenda.chips.label')}
+    >
       <Chip
         active={!filter.family && !filter.mine}
         onClick={() => setFilter({ ...filter, family: null, mine: false })}
@@ -380,9 +467,12 @@ export function AgendaPage() {
     body = (
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white" aria-busy="true">
         {Array.from({ length: 6 }, (_, i) => (
-          <div key={i} className="flex h-14 items-center gap-3 border-b border-slate-100 px-4 last:border-b-0">
+          <div
+            key={i}
+            className="flex h-14 items-center gap-3 border-b border-slate-100 px-4 last:border-b-0"
+          >
             <Skeleton className="h-5 w-16" />
-            <div className="flex-1 space-y-1.5">
+            <div className="flex-1 space-y-2">
               <Skeleton className="h-3.5 w-2/5" />
               <Skeleton className="h-3 w-3/5" />
             </div>
@@ -397,9 +487,26 @@ export function AgendaPage() {
   } else if (groups.length === 0) {
     body =
       !filtered && active.length === 0 && snoozed.length > 0 ? (
-        <EmptyState title={t('agenda.empty.allSnoozed')} hint={t('agenda.empty.allSnoozedHint', { count: snoozed.length })} />
+        <EmptyState
+          title={t('agenda.empty.allSnoozed')}
+          hint={t('agenda.empty.allSnoozedHint', { count: snoozed.length })}
+        />
       ) : filtered ? (
         <EmptyState title={t('agenda.empty.filtered')} hint={t('agenda.empty.filteredHint')} />
+      ) : cleared ? (
+        // A restrained completion moment (Prompt 30): the queue was worked
+        // down today — said once, warmly, with what was done.
+        <div
+          className="flex flex-col items-center justify-center gap-2 rounded-lg border border-success-200 bg-success-50 px-6 py-14 text-center"
+          role="status"
+          data-agenda-caught-up
+        >
+          <Pictogram name="allDone" className="animate-completion-in mb-1 size-16" />
+          <p className="font-display text-title font-bold text-slate-900">{t('agenda.empty.caughtUp')}</p>
+          <p className="max-w-md text-small leading-relaxed text-slate-600">
+            {t('agenda.empty.caughtUpHint', { count: cleared })}
+          </p>
+        </div>
       ) : (
         <EmptyState
           title={t('agenda.empty.title')}
@@ -435,6 +542,7 @@ export function AgendaPage() {
           now,
           locale,
           subjects,
+          grades,
           staff,
           rateFor,
           snippetOf,
@@ -486,7 +594,7 @@ function Chip({
       onClick={onClick}
       // The border is there in both states (navy when active), so pressing a
       // chip never changes its width and the chips beside it never move.
-      className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-3.5 text-[0.8125rem] font-medium transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-1 focus-visible:outline-none ${
+      className={`inline-flex h-8 items-center gap-2 rounded-full border px-4 text-small font-medium transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-1 focus-visible:outline-none ${
         active
           ? 'border-accent-600 bg-accent-600 text-white'
           : `bg-white text-slate-700 hover:border-slate-400 hover:text-slate-900 ${
@@ -495,7 +603,9 @@ function Chip({
       }`}
     >
       {label}
-      <span className={`inline-block min-w-[2ch] text-center tabular-nums ${active ? 'text-white' : 'text-slate-600'}`}>
+      <span
+        className={`inline-block min-w-[2ch] text-center tabular-nums ${active ? 'text-white' : 'text-slate-600'}`}
+      >
         {count}
       </span>
     </button>
@@ -524,11 +634,14 @@ function KeyLegend({ view }: { view: View }) {
           [['T'], t('agenda.keys.list')],
         ]
   return (
-    <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-200 pt-4 text-[0.7812rem] text-slate-600">
+    <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-slate-200 pt-4 text-small text-slate-600">
       {keys.map(([kbd, label]) => (
-        <span key={label} className="inline-flex items-center gap-1.5">
+        <span key={label} className="inline-flex items-center gap-2">
           {kbd.map((k) => (
-            <kbd key={k} className="rounded border border-slate-300 bg-white px-1.5 py-px font-mono text-[0.6875rem] text-slate-700">
+            <kbd
+              key={k}
+              className="rounded border border-slate-300 bg-white px-2 py-px font-mono text-caption text-slate-700"
+            >
               {k}
             </kbd>
           ))}

@@ -1,4 +1,6 @@
 @import 'tailwindcss';
+/* Colours, type scale, radii, shadows, motion — generated (src/design/palette.ts). */
+@import './design/tokens.css';
 
 /*
  * Focus rings show for KEYBOARD focus only (src/lib/focusSource.ts).
@@ -24,63 +26,18 @@
 @custom-variant 2xl (@container app (width >= 96rem));
 
 /*
- * TCI ERP design tokens — see DESIGN.md.
- * Delcreda corporate palette: navy + process blue, orange accent,
- * semantic green/red for dynamics, a five-colour rating scale.
+ * TCI ERP design tokens — see DESIGN.md. Colours, the type scale, radii,
+ * shadows and motion are GENERATED into tokens.css from
+ * src/design/palette.ts (OKLCH ramps, Prompt 30); only the faces live here.
  */
 @theme {
-  /* Brand (Delcreda corporate palette, measured from the reference risk
-   * reports: Pantone 2955 / Process Blue / orange / amber). */
-  --color-brand-navy: #005288;
-  --color-brand-blue: #0093d0;
-  --color-brand-orange: #f7941e;
-  --color-brand-amber: #fcaf17;
-  --color-ink: #191919; /* black 90% */
-  --color-ink-muted: #666666; /* black 60% */
-
-  /* accent = the brand blue ramp. Every existing accent-* class (primary
-   * buttons, active nav, focus, links) re-colours from here. */
-  --color-accent-50: #f2f8fc;
-  --color-accent-100: #dceff8;
-  --color-accent-200: #c9dde9;
-  --color-accent-300: #8cc8e6;
-  --color-accent-400: #3aaedc;
-  --color-accent-500: #0093d0;
-  --color-accent-600: #005288;
-  --color-accent-700: #00446f;
-  --color-accent-800: #003557;
-  --color-accent-900: #00243c;
-
-  --color-pos-500: #2e8b3e;
-  --color-pos-50: #eaf5ec;
-  --color-neg-500: #d62828;
-  --color-neg-600: #b21f1f;
-  --color-neg-50: #fdecec;
-  --color-warn-500: #c27c00;
-  --color-warn-50: #fff5e0;
-
-  /* Credit rating scale, 10 (exceptional) .. 100 (insolvent), in pairs. */
-  --color-scale-1: #17b81a;
-  --color-scale-2: #a6c419;
-  --color-scale-3: #f2a900;
-  --color-scale-4: #f2661a;
-  --color-scale-5: #ee1c1c;
-
   --font-sans:
     'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, sans-serif;
-  /* Condensed display face of the brand: titles, labels, table headers,
-   * key figures. */
+  /* Condensed display face of the brand: page titles and KPI numbers only. */
   --font-display: 'PT Sans Narrow', 'Arial Narrow', 'Roboto Condensed', sans-serif;
   /* Body face of the printed report (Arial metrics, like the reference). */
   --font-report: 'Arimo', 'Liberation Sans', Arial, Helvetica, sans-serif;
-
-  --radius-md: 0.375rem;
-  --radius-lg: 0.625rem;
-  --radius-xl: 0.875rem;
-
-  --shadow-card: 0 1px 2px 0 rgb(0 53 87 / 0.05), 0 1px 3px 0 rgb(0 53 87 / 0.04);
-  --shadow-pop: 0 12px 32px -8px rgb(0 36 60 / 0.22), 0 4px 10px -4px rgb(0 36 60 / 0.12);
 }
 
 @layer base {
@@ -99,9 +56,9 @@
     scrollbar-gutter: stable;
   }
   body {
-    @apply text-[0.875rem] leading-normal text-slate-900;
+    @apply text-body leading-normal text-slate-900;
     container: app / inline-size;
-    background-color: #f3f6f9;
+    background-color: var(--color-canvas);
   }
   /* The portal's navy header continues into the reserved scrollbar gutter
      (PortalShell sets the class and the header's height). */
@@ -110,10 +67,10 @@
         to bottom,
         var(--color-accent-800) 0,
         var(--color-accent-800) var(--portal-header-h, 0px),
-        #f3f6f9 var(--portal-header-h, 0px)
+        var(--color-canvas) var(--portal-header-h, 0px)
       )
       no-repeat;
-    background-color: #f3f6f9;
+    background-color: var(--color-canvas);
   }
   ::selection {
     background-color: var(--color-accent-100);
@@ -157,8 +114,91 @@
     transform: none;
   }
 }
+/* Productive entrance (DESIGN.md «Motion»): 150 ms, ease-out. */
 @utility animate-fade-in {
-  animation: fade-in 160ms ease-out both;
+  animation: fade-in var(--duration-moderate-01) var(--ease-productive-entrance) both;
+}
+
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+/* A side panel slides in from its edge: productive entrance, 150 ms. */
+@utility animate-panel-in {
+  animation: panel-in var(--duration-moderate-01) var(--ease-productive-entrance) both;
+}
+
+/* A completion moment (the Agenda cleared): the one EXPRESSIVE entrance in
+   the app — 400 ms, expressive ease-out, once; nothing under reduced motion. */
+@keyframes completion-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@utility animate-completion-in {
+  animation: completion-in var(--duration-slow-01) var(--ease-expressive-entrance) both;
+}
+
+/* Skeleton placeholders keep the place of what is loading; the shimmer is a
+   slow, low-contrast sweep (and none under reduced motion). */
+@keyframes skeleton-sweep {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+.skeleton {
+  background: linear-gradient(
+      90deg,
+      var(--color-slate-100) 0%,
+      var(--color-slate-200) 40%,
+      var(--color-slate-100) 80%
+    )
+    0 0 / 300% 100%;
+  animation: skeleton-sweep 1.4s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+/* Reduced motion: nothing moves, the same information is shown at once. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/*
+ * A box that is one line of text — a badge, a counter, a one-line hint —
+ * grows with the person's TEXT size (uiScale.ts, 0081), which the spacing
+ * scale does not: `h-text-5` is `h-5` × --ui-text, `leading-text-4` is
+ * `leading-4` × --ui-text. Everything else keeps the zoom's geometry.
+ */
+@utility h-text-* {
+  height: calc(--value(integer) * var(--spacing) * var(--ui-text, 1));
+}
+@utility leading-text-* {
+  line-height: calc(--value(integer) * var(--spacing) * var(--ui-text, 1));
 }
 
 /* Paper is paper: whatever size the screen uses, print at 100 %. */

@@ -235,7 +235,7 @@ function Toolbar({ editor, context }: { editor: Editor; context: Record<string, 
     <div
       role="toolbar"
       aria-label={t('contractDrafts.editor.toolbar')}
-      className="sticky top-0 z-10 flex flex-wrap items-center gap-0.5 rounded-lg border border-slate-200 bg-white/95 px-2 py-1.5 shadow-card backdrop-blur"
+      className="sticky top-0 z-10 flex flex-wrap items-center gap-0.5 rounded-lg border border-slate-200 bg-white/95 px-2 py-2 shadow-card backdrop-blur"
     >
       <ToolButton label={t('contractDrafts.editor.undo')} disabled={!state.canUndo} onClick={() => editor.chain().focus().undo().run()}>
         <Undo2 />
@@ -250,7 +250,7 @@ function Toolbar({ editor, context }: { editor: Editor; context: Record<string, 
           aria-label={t('contractDrafts.editor.blockStyle')}
           value={state.style}
           onChange={(e) => applyStyle(editor, e.target.value as BlockStyle)}
-          className="h-8 w-44! text-[0.8125rem]"
+          className="h-8 w-44! text-small"
         >
           {(['paragraph', 'clause', 'section', 'heading', 'title'] as const).map((s) => (
             <option key={s} value={s}>
@@ -332,7 +332,7 @@ function Toolbar({ editor, context }: { editor: Editor; context: Record<string, 
             else if (v === 'deleteTable') c.deleteTable().run()
             else if (v === 'borders') c.updateAttributes('table', { bordered: !state.bordered }).run()
           }}
-          className="h-8 w-40! text-[0.8125rem]"
+          className="h-8 w-40! text-small"
         >
           <option value="">{t('contractDrafts.editor.tableMore')}</option>
           <option value="borders">{t(state.bordered ? 'contractDrafts.editor.bordersOff' : 'contractDrafts.editor.bordersOn')}</option>
@@ -348,7 +348,7 @@ function Toolbar({ editor, context }: { editor: Editor; context: Record<string, 
         aria-label={t('contractDrafts.editor.insertField')}
         value={field}
         onChange={(e) => insertField(e.target.value)}
-        className="h-8 w-52! text-[0.8125rem]"
+        className="h-8 w-52! text-small"
       >
         <option value="">{t('contractDrafts.editor.insertField')}</option>
         {INSERTABLE.map((p) => (

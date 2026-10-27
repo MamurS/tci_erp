@@ -53,3 +53,39 @@ export function dayPart(now: Date): DayPart {
   if (hour >= 12 && hour < 18) return 'day'
   return 'evening'
 }
+
+/** The grade scale, best first (credit_engine's A1 … D). */
+export const MIX_GRADES = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', 'D'] as const
+
+/** How many rated companies sit in each grade of the scale — every grade
+ * listed, zero included, so the bars always read against the same axis.
+ * A code outside the scale is not counted. */
+export function gradeMix(grades: Iterable<string>): { grade: (typeof MIX_GRADES)[number]; count: number }[] {
+  const counts = new Map<string, number>(MIX_GRADES.map((g) => [g, 0]))
+  for (const raw of grades) {
+    const g = raw.trim().toUpperCase()
+    const key = counts.has(g) ? g : g.startsWith('D') ? 'D' : null
+    if (key) counts.set(key, (counts.get(key) ?? 0) + 1)
+  }
+  return MIX_GRADES.map((grade) => ({ grade, count: counts.get(grade) ?? 0 }))
+}
+
+/** Exposure in UZS per grade of the scale (the same axis as gradeMix): each
+ * buyer's in-force exposure (tci.v_buyer_exposure) under its latest grade.
+ * Exposure of buyers with no grade is returned apart, never dropped. */
+export function gradeExposure(
+  grades: ReadonlyMap<string, string>,
+  exposures: Iterable<{ entity_id: string; exposure_uzs: number | string | null }>,
+): { rows: { grade: (typeof MIX_GRADES)[number]; amount: number }[]; unrated: number } {
+  const sums = new Map<string, number>(MIX_GRADES.map((g) => [g, 0]))
+  let unrated = 0
+  for (const row of exposures) {
+    const amount = Number(row.exposure_uzs ?? 0)
+    if (!Number.isFinite(amount) || amount <= 0) continue
+    const raw = grades.get(row.entity_id)?.trim().toUpperCase()
+    const key = raw ? (sums.has(raw) ? raw : raw.startsWith('D') ? 'D' : null) : null
+    if (key) sums.set(key, (sums.get(key) ?? 0) + amount)
+    else unrated += amount
+  }
+  return { rows: MIX_GRADES.map((grade) => ({ grade, amount: sums.get(grade) ?? 0 })), unrated }
+}

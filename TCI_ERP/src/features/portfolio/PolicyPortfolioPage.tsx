@@ -15,7 +15,6 @@ import {
   Card,
   COL,
   EmptyState,
-  KeyFigures,
   labelCol,
   Panel,
   Segmented,
@@ -50,7 +49,7 @@ const LOSS_BAR = { default: 'bg-accent-500', warn: 'bg-warn-500', neg: 'bg-neg-5
 /** A quiet second line under a figure. */
 function Sub({ children, tone }: { children: ReactNode; tone?: 'warn' }) {
   return (
-    <span className={`mt-0.5 block text-[0.7188rem] font-normal whitespace-normal ${tone === 'warn' ? 'text-warn-500' : 'text-slate-500'}`}>
+    <span className={`mt-0.5 block text-caption font-normal whitespace-normal ${tone === 'warn' ? 'text-warn-500' : 'text-slate-500'}`}>
       {children}
     </span>
   )
@@ -71,7 +70,7 @@ function Meter({ share, tone }: { share: number | null; tone: 'pos' | 'accent' }
 
 /** The loss ratio with a bar on a 0–150 % scale and a tick at 100 %. */
 function LossRatio({ pct, locale }: { pct: number | null; locale: string }) {
-  if (pct === null) return <span className="text-slate-400">—</span>
+  if (pct === null) return <span className="text-slate-500">—</span>
   const tone = lossTone(pct)
   return (
     <div>
@@ -98,8 +97,8 @@ function Breakdown({
 }) {
   return (
     <div>
-      <h3 className="mb-2 text-[0.6875rem] font-semibold tracking-wider text-slate-400 uppercase">{title}</h3>
-      <ul className="space-y-2.5 text-[0.8125rem]">
+      <h3 className="mb-2 text-caption font-semibold tracking-wider text-slate-500 uppercase">{title}</h3>
+      <ul className="space-y-3 text-small">
         {items.map((item) => (
           <li key={item.key}>
             <div className="flex items-baseline justify-between gap-3">
@@ -123,13 +122,7 @@ export function PolicyPortfolioPage() {
 
   const rows = useMemo(() => (data ?? []).filter((r) => scope === 'all' || inForce(r)), [data, scope])
   const totals = useMemo(() => policyTotalsByCurrency(rows), [rows])
-  const limitsUzs = rows.reduce((a, r) => a + (num(r.limits_uzs) ?? 0), 0)
-  const limitsCount = rows.reduce((a, r) => a + r.limits_count, 0)
-  const limitsMissing = rows.reduce((a, r) => a + r.limits_missing_rates, 0)
   const renewals = expiringWithin(data ?? [], RENEWAL_WINDOW_DAYS)
-  const openClaims = totals.reduce((a, c) => a + c.openClaims, 0)
-  const claimsTotal = totals.reduce((a, c) => a + c.claims, 0)
-  const overduePolicies = rows.filter((r) => (num(r.premium_overdue) ?? 0) > 0).length
   const worst = worstLossRatios(rows, 10)
 
   const pct = (value: number | null) => (value === null ? '—' : `${formatAmount(value, locale, 1)}%`)
@@ -167,39 +160,7 @@ export function PolicyPortfolioPage() {
         </Card>
       ) : (
         <div className="grid gap-5">
-          <KeyFigures
-            className=""
-            items={[
-              {
-                label: t(scope === 'inForce' ? 'portfolio.policies.policiesInForce' : 'portfolio.policies.policiesAll'),
-                value: formatAmount(rows.length, locale),
-                meta: t('portfolio.policies.currencies', { count: totals.length }),
-              },
-              {
-                label: t('portfolio.policies.openClaimsTotal'),
-                value: formatAmount(openClaims, locale),
-                meta: t('portfolio.policies.claimsTotal', { count: claimsTotal }),
-                tone: openClaims > 0 ? 'warn' : 'muted',
-              },
-              {
-                label: t('portfolio.policies.limitsInForce'),
-                value: formatAmount(limitsCount, locale),
-                meta:
-                  limitsMissing > 0
-                    ? t('portfolio.policies.limitsUzsMissing', {
-                        amount: formatCompact(limitsUzs, locale),
-                        count: limitsMissing,
-                      })
-                    : t('portfolio.policies.limitsUzs', { amount: formatCompact(limitsUzs, locale) }),
-              },
-              {
-                label: t('portfolio.policies.overduePolicies'),
-                value: formatAmount(overduePolicies, locale),
-                meta: t('portfolio.policies.overduePoliciesHint'),
-                tone: overduePolicies > 0 ? 'warn' : 'muted',
-              },
-            ]}
-          />
+          {/* The book's key figures are on the section's band (BookFigures). */}
 
           {/* The book per currency: one row each, the metrics as columns, so two
               currencies are compared by eye. Amounts are never added ACROSS
@@ -221,9 +182,9 @@ export function PolicyPortfolioPage() {
                 {totals.map((c) => {
                   const paidShare = c.premiumBase > 0 ? Math.min(c.premiumPaid / c.premiumBase, 1) : null
                   return (
-                    <tr key={c.currency} className="[&>td]:py-2.5 [&>td]:align-top">
+                    <tr key={c.currency} className="[&>td]:py-3 [&>td]:align-top">
                       <td className="whitespace-nowrap">
-                        <span className="font-display text-[0.9375rem] font-bold tracking-wide text-accent-600">{c.currency}</span>
+                        <span className="text-lead font-semibold text-slate-900">{c.currency}</span>
                         <Sub>{t('portfolio.policies.inCurrency', { count: c.policies })}</Sub>
                       </td>
                       <td className="num">
@@ -233,7 +194,7 @@ export function PolicyPortfolioPage() {
                       <td>
                         <div className="flex items-baseline justify-between gap-3 tabular-nums">
                           <span>{formatCompact(c.premiumPaid, locale)}</span>
-                          <span className="text-[0.75rem] text-slate-500">{formatPercent(paidShare, locale, 0)}</span>
+                          <span className="text-caption text-slate-500">{formatPercent(paidShare, locale, 0)}</span>
                         </div>
                         <Meter share={paidShare} tone="pos" />
                         {c.premiumOverdue > 0 && (

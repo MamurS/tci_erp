@@ -48,7 +48,7 @@ function TreeBranch({
       <div className="flex flex-wrap items-center gap-2 py-1">
         <Link
           to={`/entities/${node.entityId}`}
-          className={`text-sm hover:underline ${
+          className={`text-body hover:underline ${
             isFocus ? 'font-semibold text-slate-900' : 'text-accent-700'
           }`}
         >
@@ -56,12 +56,12 @@ function TreeBranch({
         </Link>
         {isRoot && <Badge tone="accent">{t('groups.ultimateParent')}</Badge>}
         {node.relationshipType && (
-          <span className="text-[0.75rem] text-slate-500">
+          <span className="text-caption text-slate-500">
             {t(`groups.relationshipTypes.${node.relationshipType}`)}
           </span>
         )}
         {node.ownershipPct !== null && (
-          <span className="text-[0.75rem] font-medium text-slate-700">
+          <span className="text-caption font-medium text-slate-700">
             {formatOwnershipPct(node.ownershipPct, locale)}
           </span>
         )}

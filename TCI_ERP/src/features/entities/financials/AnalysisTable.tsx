@@ -6,7 +6,7 @@
  * where all displayed periods are null are hidden by default.
  */
 
-import { Fragment, useState } from 'react'
+import { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { statementPeriodLabel } from '../types'
@@ -15,6 +15,7 @@ import type { PeriodColumn } from './analysis'
 import { relativeChange, verticalShare } from './analysis'
 import { AmountCell, DeltaCell, ShareCell } from './cells'
 import type { LineDef, SectionDef } from './lines'
+import { StickyTableFrame } from './StickyTableFrame'
 
 type Values = Partial<Record<string, number | null>> | null
 
@@ -26,6 +27,9 @@ interface AnalysisTableProps<K extends string> {
   verticalBaseFor: (key: K) => string
   /** stock: label "Δ%"; like_for_like: label "Δ% vs <base period>". */
   deltaMode: 'stock' | 'like_for_like'
+  /** Lines with no value in any shown period — the switch sits in the
+   * sheet-tab row (FinancialsTab), so every sheet starts at one height. */
+  showEmpty: boolean
 }
 
 export function AnalysisTable<K extends string>({
@@ -34,9 +38,9 @@ export function AnalysisTable<K extends string>({
   getValues,
   verticalBaseFor,
   deltaMode,
+  showEmpty,
 }: AnalysisTableProps<K>) {
   const { t } = useTranslation()
-  const [showEmpty, setShowEmpty] = useState(false)
 
   const valueOf = (statement: StatementBundle | null, key: K): number | null => {
     if (!statement) return null
@@ -54,20 +58,8 @@ export function AnalysisTable<K extends string>({
 
   return (
     <div>
-      <div className="mb-2 flex justify-end">
-        <label className="flex cursor-pointer items-center gap-1.5 text-[0.8125rem] text-slate-500">
-          <input
-            type="checkbox"
-            checked={showEmpty}
-            onChange={(e) => setShowEmpty(e.target.checked)}
-            className="accent-accent-600"
-          />
-          {t('fin.showEmptyLines')}
-        </label>
-      </div>
-
-      <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-        <table className="w-full border-collapse text-[0.8125rem]">
+      <StickyTableFrame>
+        <table className="w-full border-separate border-spacing-0 text-small">
           <thead>
             <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
               <th className="sticky left-0 z-10 min-w-64 bg-slate-50 text-left">{t('fin.lineHeader')}</th>
@@ -82,13 +74,13 @@ export function AnalysisTable<K extends string>({
                   })}
                 >
                   {statementPeriodLabel(col.statement)}
-                  <span className="ml-1.5 font-normal text-slate-400">
+                  <span className="ml-2 font-normal text-slate-500">
                     {col.statement.currency_code} · {t(`fin.unitsShort.${col.statement.unit}`)}
                   </span>
                 </th>
               ))}
             </tr>
-            <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-1.5 [&>th]:text-right [&>th]:text-xs [&>th]:font-normal [&>th]:text-slate-400">
+            <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:text-right [&>th]:text-caption [&>th]:font-normal [&>th]:text-slate-500">
               <th />
               {columns.map((col) => (
                 <Fragment key={col.statement.id}>
@@ -114,7 +106,7 @@ export function AnalysisTable<K extends string>({
                   <tr>
                     <td
                       colSpan={1 + columns.reduce((n, c) => n + (c.deltaBaseLabel ? 3 : 2), 0)}
-                      className="border-b border-slate-100 bg-white px-3 pt-3 pb-1 text-xs font-semibold tracking-wide text-slate-400 uppercase"
+                      className="border-b border-slate-100 bg-white px-3 pt-3 pb-1 text-caption font-semibold tracking-wide text-slate-500 uppercase"
                     >
                       {t(`fin.sections.${section.sectionKey}`)}
                     </td>
@@ -122,7 +114,7 @@ export function AnalysisTable<K extends string>({
                   {visible.map((line) => (
                     <tr key={line.key} className={rowClasses(line)}>
                       <td
-                        className={`sticky left-0 z-10 border-b border-slate-100 px-3 py-1.5 text-slate-700 ${
+                        className={`sticky left-0 z-10 border-b border-slate-100 px-3 py-2 text-slate-700 ${
                           line.level === 'line' ? 'bg-white' : 'bg-slate-50'
                         }`}
                       >
@@ -142,14 +134,14 @@ export function AnalysisTable<K extends string>({
                           : null
                         return (
                           <Fragment key={col.statement.id}>
-                            <td className="border-b border-l border-slate-100 px-3 py-1.5">
+                            <td className="border-b border-l border-slate-100 px-3 py-2">
                               <AmountCell value={value} />
                             </td>
-                            <td className="border-b border-slate-100 px-3 py-1.5">
+                            <td className="border-b border-slate-100 px-3 py-2">
                               <ShareCell value={verticalShare(value, base)} />
                             </td>
                             {col.deltaBaseLabel && (
-                              <td className="border-b border-slate-100 px-3 py-1.5">
+                              <td className="border-b border-slate-100 px-3 py-2">
                                 <DeltaCell
                                   value={relativeChange(deltaValue, deltaBaseValue)}
                                   direction={line.direction}
@@ -166,7 +158,7 @@ export function AnalysisTable<K extends string>({
             })}
           </tbody>
         </table>
-      </div>
+      </StickyTableFrame>
     </div>
   )
 }

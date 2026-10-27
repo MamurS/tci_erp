@@ -85,7 +85,7 @@ export function SignInNotice({ accountPath }: { accountPath: string }) {
   return (
     <div
       role="alert"
-      className="animate-fade-in mb-5 flex items-start gap-3 rounded-lg border border-warn-500/30 bg-warn-50 px-4 py-3 text-[0.8438rem] text-slate-700"
+      className="animate-fade-in mb-5 flex items-start gap-3 rounded-lg border border-warn-500/30 bg-warn-50 px-4 py-3 text-body text-slate-700"
     >
       <ShieldAlert className="mt-0.5 size-5 shrink-0 text-warn-500" aria-hidden />
       <div className="min-w-0 flex-1">
@@ -113,7 +113,7 @@ export function SignInNotice({ accountPath }: { accountPath: string }) {
           </Link>
         </p>
         {showList && data.count > 0 && (
-          <table className="mt-2 w-full table-fixed text-[0.7812rem]">
+          <table className="mt-2 w-full table-fixed text-small">
             <colgroup>
               <col className="w-[34%]" />
               <col className="w-[26%]" />
@@ -140,7 +140,7 @@ export function SignInNotice({ accountPath }: { accountPath: string }) {
           </table>
         )}
         {showList && data.interrupted > 0 && (
-          <table className="mt-2 w-full table-fixed text-[0.7812rem]">
+          <table className="mt-2 w-full table-fixed text-small">
             <caption className="py-1 text-left font-medium text-slate-600">
               {t('security.notice.interruptedTitle')}
             </caption>
@@ -190,7 +190,7 @@ export function SignInNotice({ accountPath }: { accountPath: string }) {
       <button
         type="button"
         onClick={acknowledge}
-        className="rounded-md p-1 text-slate-400 hover:bg-white/60 hover:text-slate-600 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none"
+        className="rounded-md p-1 text-slate-500 hover:bg-white/60 hover:text-slate-600 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none"
         aria-label={t('security.notice.dismiss')}
       >
         <X className="size-4" aria-hidden />

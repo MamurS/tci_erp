@@ -5,8 +5,10 @@
  * of equal cards. Every number links to the screen where it is worked.
  */
 
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import {
   AlarmClock,
@@ -24,14 +26,32 @@ import {
 import type { LucideIcon } from 'lucide-react'
 
 import { useAuth } from '../auth/AuthContext'
-import { Card, PanelGrid, Skeleton } from '../components/ui'
+import {
+  Card,
+  gradeSolid,
+  HeroBand,
+  KpiCard,
+  PanelGrid,
+  runningCountByMonth,
+  Segmented,
+  Skeleton,
+} from '../components/ui'
+import { tci } from '../lib/supabase'
 import { contextFor, useAgendaTasks, useTaskSubjects, subjectFor } from '../features/agenda/api'
-import { activeTasks, compareTasks, displayTaskType, formatTaskParams, isOverdue, taskLink, taskTitleKey } from '../features/agenda/catalogue'
+import {
+  activeTasks,
+  compareTasks,
+  displayTaskType,
+  formatTaskParams,
+  isOverdue,
+  taskLink,
+  taskTitleKey,
+} from '../features/agenda/catalogue'
 import type { Task } from '../features/agenda/types'
 import { useDeclarations, useUzsRates } from '../features/declarations/api'
 import { declarationCompliance, premiumAccrualUzs } from '../features/declarations/summary'
 import type { PremiumAccrualUzs } from '../features/declarations/summary'
-import { useEntities, useEntityRoles } from '../features/entities/api'
+import { useEntities, useEntityRoles, useLatestGrades } from '../features/entities/api'
 import { useClaims } from '../features/claims'
 import { isOpen as claimIsOpen } from '../features/claims/machine'
 import { useEscalatedCount } from '../features/limits/api'
@@ -40,9 +60,16 @@ import { useOverdueNotifications } from '../features/overdue/api'
 import { usePolicies } from '../features/policies/api'
 import { useAllPolicyPremium } from '../features/policies/premiumApi'
 import { hasRole, isStaff } from '../lib/roles'
-import { EM_DASH, formatAmount, formatCompact, formatLongDate, formatPercent, formatDue } from '../lib/format'
+import {
+  EM_DASH,
+  formatAmount,
+  formatCompact,
+  formatLongDate,
+  formatPercent,
+  formatDue,
+} from '../lib/format'
 import { todayIso } from '../components/ui/dateEntry'
-import { buildSignals, dayPart } from './dashboard'
+import { buildSignals, dayPart, gradeExposure, gradeMix } from './dashboard'
 import type { Signal } from './dashboard'
 
 const TASKS_SHOWN = 7
@@ -67,7 +94,13 @@ export function DashboardPage() {
   // underwriters read it, because an approved claim moves a limit).
   const seesDeclarations = hasRole(roles, 'admin', 'sales', 'commercial_underwriter')
   const seesOverdues = hasRole(roles, 'admin', 'credit_underwriter', 'commercial_underwriter')
-  const seesClaims = hasRole(roles, 'admin', 'claims', 'credit_underwriter', 'commercial_underwriter')
+  const seesClaims = hasRole(
+    roles,
+    'admin',
+    'claims',
+    'credit_underwriter',
+    'commercial_underwriter',
+  )
   const canDecide = hasRole(roles, 'credit_underwriter')
 
   const { data: policies } = usePolicies()
@@ -94,7 +127,9 @@ export function DashboardPage() {
   const lateOverdues = openOverdues?.filter((n) => n.reported_late).length
   // Premium is booked in the policy's currency; the tile adds currencies only
   // through the fx rule, never raw.
-  const { data: fxRates, isLoading: fxLoading } = useUzsRates(policyPremium?.map((p) => p.currency_code) ?? [])
+  const { data: fxRates, isLoading: fxLoading } = useUzsRates(
+    policyPremium?.map((p) => p.currency_code) ?? [],
+  )
   const today = todayIso(now)
   const accrual =
     policyPremium && !fxLoading
@@ -116,63 +151,70 @@ export function DashboardPage() {
     declarationsAwaiting: seesDeclarations ? (compliance?.awaitingAcceptance ?? 0) : null,
   })
 
+  // The register only grows, so its size at each month start is exact.
+  const entityTrend = entities
+    ? runningCountByMonth(
+        entities.map((e) => e.created_at),
+        now,
+      )
+    : undefined
+
   const count = (v: number | undefined) => (v === undefined ? EM_DASH : formatAmount(v, locale))
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Greeting */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="text-[0.75rem] font-semibold tracking-[0.14em] text-accent-500 uppercase">
-            {formatLongDate(now, locale)}
-          </div>
-          <h1 className="mt-1 font-display text-[1.75rem] leading-tight font-bold tracking-wide text-accent-600 uppercase">
-            {t(`dashboard.greeting.${dayPart(now)}`)}
-          </h1>
-          <p className="mt-0.5 text-[0.8125rem] text-slate-500">
-            {roles.length ? roles.map((r) => t(`roles.${r}`)).join(' · ') : t('roles.unassigned')}
-          </p>
-        </div>
-      </div>
-
-      {/* One strip of key figures */}
-      <Card className="overflow-hidden">
-        <div className="grid divide-y divide-slate-100 sm:grid-cols-2 sm:divide-y-0 lg:auto-cols-fr lg:grid-flow-col lg:divide-x">
+    <div className="flex flex-col gap-6 [&>[data-hero]]:mb-0">
+      {/* The navy band: who and when, and the book's key figures in white
+          (HeroBand, Prompt 30 «bold fintech»). A change is shown only
+          against a baseline the data really has. */}
+      <HeroBand
+        eyebrow={formatLongDate(now, locale)}
+        title={t(`dashboard.greeting.${dayPart(now)}`)}
+        subtitle={
+          roles.length ? roles.map((r) => t(`roles.${r}`)).join(' · ') : t('roles.unassigned')
+        }
+      >
+        <Kpi
+          to="/policies?view=registry"
+          icon={FileText}
+          label={t('dashboard.activePolicies')}
+          value={count(activePolicies)}
+        />
+        <Kpi
+          to="/entities"
+          icon={Building2}
+          label={t('dashboard.entities')}
+          value={count(entities?.length)}
+          current={entityTrend ? entityTrend[entityTrend.length - 1] : null}
+          baseline={entityTrend ? entityTrend[entityTrend.length - 2] : null}
+          baselineLabel={t('dashboard.vsMonthStart')}
+          trend={entityTrend}
+          sub={
+            policyholders !== undefined
+              ? t('dashboard.policyholdersSub', { count: policyholders })
+              : null
+          }
+        />
+        {seesClaims && (
           <Kpi
-            to="/policies?view=registry"
-            icon={FileText}
-            label={t('dashboard.activePolicies')}
-            value={count(activePolicies)}
+            to="/claims"
+            icon={FileWarning}
+            label={t('dashboard.claimsOpen')}
+            value={count(openClaims)}
+            sub={paidThisMonth ? t('dashboard.paidSub', { count: paidThisMonth }) : null}
           />
+        )}
+        {seesOverdues && (
           <Kpi
-            to="/entities"
-            icon={Building2}
-            label={t('dashboard.entities')}
-            value={count(entities?.length)}
-            sub={policyholders !== undefined ? t('dashboard.policyholdersSub', { count: policyholders }) : null}
+            to="/overdues"
+            icon={AlarmClock}
+            label={t('dashboard.overduesOpen')}
+            value={count(openOverdues?.length)}
+            sub={lateOverdues ? t('dashboard.lateSub', { count: lateOverdues }) : null}
+            subTone="neg"
           />
-          {seesClaims && (
-            <Kpi
-              to="/claims"
-              icon={FileWarning}
-              label={t('dashboard.claimsOpen')}
-              value={count(openClaims)}
-              sub={paidThisMonth ? t('dashboard.paidSub', { count: paidThisMonth }) : null}
-            />
-          )}
-          {seesOverdues && (
-            <Kpi
-              to="/overdues"
-              icon={AlarmClock}
-              label={t('dashboard.overduesOpen')}
-              value={count(openOverdues?.length)}
-              sub={lateOverdues ? t('dashboard.lateSub', { count: lateOverdues }) : null}
-              subTone="neg"
-            />
-          )}
-          {seesDeclarations && accrual && <PremiumKpi accrual={accrual} locale={locale} />}
-        </div>
-      </Card>
+        )}
+        {seesDeclarations && accrual && <PremiumKpi accrual={accrual} locale={locale} />}
+      </HeroBand>
 
       {/* Side by side, one height (PanelGrid): the shorter card keeps its
           spare space at the bottom. */}
@@ -184,7 +226,7 @@ export function DashboardPage() {
             action={
               <Link
                 to="/agenda"
-                className="inline-flex items-center gap-1 text-[0.8125rem] font-medium text-accent-600 hover:text-accent-500"
+                className="inline-flex items-center gap-1 text-small font-medium text-accent-600 hover:text-accent-500"
               >
                 {t('dashboard.allTasks', { count: tasks.length })}
                 <ArrowRight className="size-3.5" />
@@ -212,7 +254,7 @@ export function DashboardPage() {
                   />
                 ))}
                 {tasks.length > TASKS_SHOWN && (
-                  <li className="px-5 py-2.5 text-[0.7812rem] text-slate-500">
+                  <li className="px-5 py-3 text-small text-slate-500">
                     <Link to="/agenda" className="hover:text-accent-600">
                       {t('dashboard.tasksMore', { count: tasks.length - TASKS_SHOWN })}
                     </Link>
@@ -223,46 +265,51 @@ export function DashboardPage() {
           </Panel>
         )}
 
-        {/* Everything else that is not zero */}
-        <Panel title={t('dashboard.signals')}>
-          {signals.length === 0 ? (
-            <AllClear text={t('dashboard.noSignals')} />
-          ) : (
-            <ul className="divide-y divide-slate-100">
-              {signals.map((signal) => {
-                const Icon = SIGNAL_ICONS[signal.key]
-                return (
-                  <li key={signal.key}>
-                    <Link
-                      data-layout-row
-                      to={signal.to}
-                      className="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-accent-50/60"
-                    >
-                      <span
-                        className={`flex size-8 shrink-0 items-center justify-center rounded-md ${
-                          signal.tone === 'neg'
-                            ? 'bg-neg-50 text-neg-500'
-                            : signal.tone === 'warn'
-                              ? 'bg-warn-50 text-warn-500'
-                              : 'bg-accent-50 text-accent-600'
-                        }`}
+        <div className="flex min-w-0 flex-col gap-6">
+          {/* The book by grade: where the rated buyers sit on the scale. */}
+          <GradeMixPanel />
+
+          {/* Everything else that is not zero */}
+          <Panel title={t('dashboard.signals')}>
+            {signals.length === 0 ? (
+              <AllClear text={t('dashboard.noSignals')} />
+            ) : (
+              <ul className="divide-y divide-slate-100">
+                {signals.map((signal) => {
+                  const Icon = SIGNAL_ICONS[signal.key]
+                  return (
+                    <li key={signal.key}>
+                      <Link
+                        data-layout-row
+                        to={signal.to}
+                        className="group flex items-center gap-3 px-5 py-3 transition-colors hover:bg-accent-50/60"
                       >
-                        <Icon className="size-4" />
-                      </span>
-                      <span className="flex-1 text-[0.8438rem] text-slate-700">
-                        {t(`dashboard.signalLabels.${signal.key}`)}
-                      </span>
-                      <span className="num font-display text-[1.25rem] font-bold text-accent-600">
-                        {formatAmount(signal.count, locale)}
-                      </span>
-                      <ChevronRight className="size-4 text-slate-300 group-hover:text-accent-500" />
-                    </Link>
-                  </li>
-                )
-              })}
-            </ul>
-          )}
-        </Panel>
+                        <span
+                          className={`flex size-8 shrink-0 items-center justify-center rounded-md ${
+                            signal.tone === 'neg'
+                              ? 'bg-neg-50 text-neg-500'
+                              : signal.tone === 'warn'
+                                ? 'bg-warn-50 text-warn-500'
+                                : 'bg-accent-50 text-accent-600'
+                          }`}
+                        >
+                          <Icon className="size-4" />
+                        </span>
+                        <span className="flex-1 text-body text-slate-700">
+                          {t(`dashboard.signalLabels.${signal.key}`)}
+                        </span>
+                        <span className="num font-display text-title font-bold text-accent-600">
+                          {formatAmount(signal.count, locale)}
+                        </span>
+                        <ChevronRight className="size-4 text-slate-400 group-hover:text-accent-500" />
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            )}
+          </Panel>
+        </div>
       </PanelGrid>
     </div>
   )
@@ -277,6 +324,10 @@ function Kpi({
   sub,
   subTone,
   title,
+  current,
+  baseline,
+  baselineLabel,
+  trend,
   children,
 }: {
   to: string
@@ -289,29 +340,36 @@ function Kpi({
   subTone?: 'neg'
   /** The full figures behind a rounded value, on hover. */
   title?: string
+  current?: number | null
+  baseline?: number | null
+  baselineLabel?: string
+  trend?: readonly number[]
   children?: ReactNode
 }) {
   return (
-    <Link to={to} title={title} className="group block px-5 py-4 transition-colors hover:bg-accent-50/50">
-      <div className="flex items-start gap-2 text-[0.7812rem] leading-snug font-medium text-slate-500">
-        <Icon className="mt-px size-4 shrink-0 text-accent-500" />
-        <span>{label}</span>
-      </div>
-      {/* The unit drops under the figure when the column is narrow, instead
-          of being cut off at the card's edge. */}
-      <div className="mt-1.5 flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
-        <span className="num text-left font-display text-[1.875rem] leading-none font-bold text-accent-600 group-hover:text-accent-500">
-          {value}
-        </span>
-        {unit && <span className="text-[0.75rem] font-medium text-slate-500">{unit}</span>}
-      </div>
-      {sub && (
-        <div className={`mt-1 text-[0.75rem] ${subTone === 'neg' ? 'font-medium text-neg-500' : 'text-slate-500'}`}>
-          {sub}
-        </div>
-      )}
+    <KpiCard
+      to={to}
+      icon={<Icon />}
+      label={label}
+      value={value}
+      unit={unit}
+      title={title}
+      current={current ?? null}
+      baseline={baseline ?? null}
+      baselineLabel={baselineLabel}
+      good="up"
+      trend={trend}
+      tone="inverse"
+      meta={
+        sub ? (
+          <span className={subTone === 'neg' ? 'font-semibold text-danger-200' : undefined}>
+            {sub}
+          </span>
+        ) : null
+      }
+    >
       {children}
-    </Link>
+    </KpiCard>
   )
 }
 
@@ -349,16 +407,25 @@ function PremiumKpi({ accrual, locale }: { accrual: PremiumAccrualUzs; locale: s
       value={nothingConverted ? EM_DASH : `≈ ${formatCompact(earnedUzs, locale, 1)}`}
       unit={nothingConverted ? undefined : t('dashboard.premiumUzsUnit')}
       title={title}
-      sub={ratio !== null ? t('dashboard.premiumOfMinimum', { pct: formatPercent(ratio, locale, 0) }) : null}
+      sub={
+        ratio !== null
+          ? t('dashboard.premiumOfMinimum', { pct: formatPercent(ratio, locale, 0) })
+          : null
+      }
     >
       {ratio !== null && (
-        <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-          <div className="h-full rounded-full bg-accent-500" style={{ width: `${Math.min(100, ratio * 100)}%` }} />
+        <div className="h-1.5 overflow-hidden rounded-full bg-white/20">
+          <div
+            className="h-full rounded-full bg-sky-300"
+            style={{ width: `${Math.min(100, ratio * 100)}%` }}
+          />
         </div>
       )}
-      {showBreakdown && <div className="mt-2 text-[0.7188rem] leading-snug text-slate-500">{breakdown}</div>}
+      {showBreakdown && (
+        <div className="text-caption leading-snug text-accent-100">{breakdown}</div>
+      )}
       {missingRates.length > 0 && (
-        <div className="mt-1 text-[0.7188rem] leading-snug font-medium text-warn-500">
+        <div className="text-caption leading-snug font-medium text-warning-200">
           {t('dashboard.premiumNoRate', { currencies: missingRates.join(', ') })}
         </div>
       )}
@@ -366,14 +433,19 @@ function PremiumKpi({ accrual, locale }: { accrual: PremiumAccrualUzs; locale: s
   )
 }
 
-function Panel({ title, action, children }: { title: string; action?: ReactNode; children: ReactNode }) {
+function Panel({
+  title,
+  action,
+  children,
+}: {
+  title: string
+  action?: ReactNode
+  children: ReactNode
+}) {
   return (
     <Card className="overflow-hidden">
-      <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-3.5">
-        <h2 className="flex items-center gap-2 font-display text-[1rem] font-bold tracking-wide text-accent-600 uppercase">
-          <span aria-hidden="true" className="inline-block size-2 bg-accent-500" />
-          {title}
-        </h2>
+      <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4">
+        <h2 className="flex items-center gap-2 text-lead font-semibold text-slate-900">{title}</h2>
         {action}
       </div>
       {children}
@@ -381,9 +453,106 @@ function Panel({ title, action, children }: { title: string; action?: ReactNode;
   )
 }
 
+/** Rated buyers per grade, as bars in the grade scale's own colours. */
+/** The book by grade, two ways on one axis: how many rated buyers sit in each
+ * grade, and how much exposure (UZS, limits in force) does — in the grade
+ * colours (Prompt 30: «grade-mix and exposure charts»). */
+function GradeMixPanel() {
+  const { t, i18n } = useTranslation()
+  const locale = i18n.language
+  const grades = useLatestGrades()
+  const [measure, setMeasure] = useState<'count' | 'exposure'>('count')
+  const exposures = useQuery({
+    queryKey: ['dashboard', 'exposure-by-buyer'],
+    queryFn: async () => {
+      const { data, error } = await tci().from('v_buyer_exposure').select('entity_id, exposure_uzs')
+      if (error) throw error
+      return (data ?? []) as { entity_id: string; exposure_uzs: number | string | null }[]
+    },
+  })
+  const mix = gradeMix(grades.data?.values() ?? [])
+  const total = mix.reduce((sum, row) => sum + row.count, 0)
+  const exposure = gradeExposure(grades.data ?? new Map<string, string>(), exposures.data ?? [])
+  const rows =
+    measure === 'count'
+      ? mix.map((row) => ({ grade: row.grade, value: row.count }))
+      : exposure.rows.map((row) => ({ grade: row.grade, value: row.amount }))
+  const max = Math.max(1, ...rows.map((row) => row.value))
+  // Exposure is offered only to whoever may read it (RLS): an error hides it.
+  const exposureAvailable = !exposures.isError
+  return (
+    <Panel
+      title={t('dashboard.gradeMix')}
+      action={
+        <Link
+          to="/entities"
+          className="text-small font-medium text-accent-600 hover:text-accent-500"
+        >
+          {t('dashboard.gradeMixRated', { count: total })}
+        </Link>
+      }
+    >
+      {grades.isLoading ? (
+        <div className="flex flex-col gap-2 p-5">
+          <Skeleton className="h-4" />
+          <Skeleton className="h-4" />
+          <Skeleton className="h-4" />
+        </div>
+      ) : total === 0 ? (
+        <div className="px-5 py-6 text-body text-slate-500">{t('dashboard.gradeMixEmpty')}</div>
+      ) : (
+        <div className="flex flex-col gap-3 px-5 py-4">
+          {exposureAvailable && (
+            <div className="self-start">
+            <Segmented
+              ariaLabel={t('dashboard.gradeMixMeasure')}
+              value={measure}
+              options={[
+                { key: 'count', label: t('dashboard.gradeMixBuyers') },
+                { key: 'exposure', label: t('dashboard.gradeMixExposure') },
+              ]}
+              onChange={(key) => setMeasure(key as 'count' | 'exposure')}
+            />
+            </div>
+          )}
+          <ul className="flex flex-col gap-2" aria-label={t('dashboard.gradeMix')}>
+            {rows.map((row) => (
+              <li
+                key={row.grade}
+                className="grid grid-cols-[2.5rem_minmax(0,1fr)_4.5rem] items-center gap-3"
+              >
+                <span className="text-small font-semibold text-slate-700">{row.grade}</span>
+                <span className="h-3 overflow-hidden rounded-full bg-slate-100">
+                  <span
+                    className={`block h-full rounded-full ${gradeSolid(row.grade)}`}
+                    style={{ width: `${(row.value / max) * 100}%` }}
+                  />
+                </span>
+                <span
+                  className="text-right text-small text-slate-600 tabular-nums"
+                  title={measure === 'exposure' ? `${formatAmount(row.value, locale)} UZS` : undefined}
+                >
+                  {measure === 'count' ? formatAmount(row.value, locale) : formatCompact(row.value, locale, 1)}
+                </span>
+              </li>
+            ))}
+          </ul>
+          {measure === 'exposure' && (
+            <p className="text-caption text-slate-500">
+              {exposure.unrated > 0
+                ? t('dashboard.gradeMixUnrated', { amount: formatCompact(exposure.unrated, locale, 1) })
+                : t('dashboard.gradeMixUzs')}
+            </p>
+          )}
+        </div>
+      )}
+    </Panel>
+  )
+}
+
 function AllClear({ text }: { text: string }) {
   return (
-    <div className="flex items-center gap-3 px-5 py-6 text-[0.8438rem] text-slate-500">
+    <div className="flex items-center gap-3 px-5 py-6 text-body text-slate-500">
       <CheckCircle2 className="size-5 shrink-0 text-pos-500" />
       {text}
     </div>
@@ -392,7 +561,7 @@ function AllClear({ text }: { text: string }) {
 
 const PRIORITY_DOT: Record<Task['priority'], string> = {
   urgent: 'bg-neg-500',
-  high: 'bg-brand-orange',
+  high: 'bg-warning-400',
   normal: 'bg-accent-300',
 }
 
@@ -414,28 +583,44 @@ function TaskLine({
   const overdue = isOverdue(task, now)
   const body = (
     <>
-      <span className={`mt-1.5 size-2 shrink-0 rounded-full ${overdue ? 'bg-neg-500' : PRIORITY_DOT[task.priority]}`} />
+      <span
+        className={`mt-2 size-2 shrink-0 rounded-full ${overdue ? 'bg-neg-500' : PRIORITY_DOT[task.priority]}`}
+      />
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[0.8438rem] font-medium text-slate-800">
-          {t(taskTitleKey(task, now), { ...formatTaskParams(task.params, locale), subject: subject ?? EM_DASH })}
+        <span className="block truncate text-body font-medium text-slate-800">
+          {t(taskTitleKey(task, now), {
+            ...formatTaskParams(task.params, locale),
+            subject: subject ?? EM_DASH,
+          })}
         </span>
-        <span className="mt-0.5 flex min-w-0 gap-x-2 text-[0.75rem] text-slate-500">
+        <span className="mt-0.5 flex min-w-0 gap-x-2 text-caption text-slate-500">
           {/* What the task is about; the kind of task only when nothing names it. */}
-          <span className="min-w-0 truncate">{context ?? t(`agenda.taskTypes.${displayTaskType(task, now)}`)}</span>
+          <span className="min-w-0 truncate">
+            {context ?? t(`agenda.taskTypes.${displayTaskType(task, now)}`)}
+          </span>
           {task.due_at && (
             <span className={`shrink-0 ${overdue ? 'font-medium text-neg-500' : ''}`}>
-              · {t(overdue ? 'agenda.overdueSince' : 'agenda.dueBy', { moment: formatDue(task.due_at, locale) })}
+              ·{' '}
+              {t(overdue ? 'agenda.overdueSince' : 'agenda.dueBy', {
+                moment: formatDue(task.due_at, locale),
+              })}
             </span>
           )}
         </span>
       </span>
-      {href && <ChevronRight className="mt-1 size-4 shrink-0 text-slate-300 group-hover:text-accent-500" />}
+      {href && (
+        <ChevronRight className="mt-1 size-4 shrink-0 text-slate-400 group-hover:text-accent-500" />
+      )}
     </>
   )
   return (
     <li>
       {href ? (
-        <Link data-layout-row to={href} className="group flex items-start gap-3 px-5 py-3 transition-colors hover:bg-accent-50/60">
+        <Link
+          data-layout-row
+          to={href}
+          className="group flex items-start gap-3 px-5 py-3 transition-colors hover:bg-accent-50/60"
+        >
           {body}
         </Link>
       ) : (

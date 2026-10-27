@@ -68,6 +68,29 @@ export function companyOf(task: Task, subjects: TaskSubjects | undefined): strin
   }
 }
 
+/** The BUYER a task is about, when it is about one — a limit, a rating, an
+ * overdue account, a group — so its row can carry the buyer's grade. A
+ * policy's or a claim's task names the policyholder, which has no grade. */
+export function buyerOf(task: Task, subjects: TaskSubjects | undefined): string | null {
+  const p = task.params ?? {}
+  switch (task.object_type) {
+    case 'legal_entity':
+      return task.object_id
+    case 'credit_limit_request':
+      return subjects?.limitRequestBuyers[task.object_id] ?? str(p.entity_id)
+    case 'credit_limit_decision':
+      return str(p.request_id)
+        ? (subjects?.limitRequestBuyers[p.request_id as string] ?? str(p.entity_id))
+        : str(p.entity_id)
+    case 'overdue_notification':
+    case 'limit_validation':
+    case 'rating_proposal_step':
+      return str(p.entity_id)
+    default:
+      return null
+  }
+}
+
 /** A number the breadcrumb and the context line can name. */
 export function referenceOf(task: Task, subjects: TaskSubjects | undefined): string | null {
   const p = task.params ?? {}

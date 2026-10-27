@@ -142,7 +142,7 @@ export function OverdueDetailPage() {
 
       {noa.resolution_note && (
         <Panel title={t('overdues.fields.resolutionNote')}>
-          <p className="border-l-2 border-slate-200 pl-3 text-[0.8125rem] leading-relaxed text-slate-700">
+          <p className="border-l-2 border-slate-200 pl-3 text-small leading-relaxed text-slate-700">
             {noa.resolution_note}
           </p>
         </Panel>
@@ -184,7 +184,7 @@ export function OverdueDetailPage() {
         }
       >
         {error && <Callout tone="neg" title={error} />}
-        <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t('overdues.resolveHint')}</p>
+        <p className="text-small leading-relaxed text-slate-600">{t('overdues.resolveHint')}</p>
         <Field label={t('overdues.fields.resolution')}>
           <Select value={status} onChange={(e) => setStatus(e.target.value as NoaStatus)}>
             {RESOLUTION_STATUSES.map((s) => (

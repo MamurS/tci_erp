@@ -82,7 +82,7 @@ export function RequestStatementsButton({ entityId }: { entityId: string }) {
           </Callout>
         ) : (
           <div className="space-y-4">
-            <p className="text-[0.8125rem] leading-relaxed text-slate-600">{t('data.statementsRequest.hint')}</p>
+            <p className="text-small leading-relaxed text-slate-600">{t('data.statementsRequest.hint')}</p>
             {error && <Callout tone="neg" title={error} />}
             <Field label={t('data.fields.note')} hint={t('data.statementsRequest.noteHint')}>
               <Textarea rows={3} value={note} onChange={(e) => setNote(e.target.value)} />

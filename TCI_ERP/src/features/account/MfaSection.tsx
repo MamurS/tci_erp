@@ -140,24 +140,24 @@ export function MfaSection() {
       </SectionTitle>
 
       {authStatus?.mfaRequired && !verified.length && (
-        <div className="mb-3 rounded-md border border-neg-500/30 bg-red-50 px-3 py-2 text-[0.8125rem] text-neg-500">
+        <div className="mb-3 rounded-md border border-neg-500/30 bg-neg-50 px-3 py-2 text-small text-neg-500">
           {t('account.mfa.requiredNotice')}
         </div>
       )}
       {!authStatus?.mfaRequired && authStatus?.mfaStaffEnforcedFrom && !verified.length && (
-        <div className="mb-3 rounded-md border border-warn-500/30 bg-warn-50 px-3 py-2 text-[0.8125rem] text-warn-500">
+        <div className="mb-3 rounded-md border border-warn-500/30 bg-warn-50 px-3 py-2 text-small text-warn-500">
           {t('account.mfa.graceNotice', { date: formatMoment(authStatus.mfaStaffEnforcedFrom, i18n.language) })}
         </div>
       )}
 
-      {done && <p className="mb-3 text-[0.8125rem] text-pos-500">{t('account.mfa.enrolledNow')}</p>}
+      {done && <p className="mb-3 text-small text-pos-500">{t('account.mfa.enrolledNow')}</p>}
 
       {!enrolment && (
         <div className="flex flex-col gap-2">
           {verified.map((f) => (
             <div
               key={f.id}
-              className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2 text-[0.8125rem]"
+              className="flex items-center justify-between rounded-md border border-slate-200 px-3 py-2 text-small"
             >
               <span className="text-slate-700">{f.friendly_name || t('account.mfa.factorName')}</span>
               <Button variant="dangerOutline" size="sm" disabled={busy} onClick={() => setRemoving(f)}>
@@ -177,15 +177,15 @@ export function MfaSection() {
 
       {enrolment && (
         <div className="flex flex-col gap-3">
-          <p className="text-[0.8125rem] text-slate-600">{t('account.mfa.scan')}</p>
+          <p className="text-small text-slate-600">{t('account.mfa.scan')}</p>
           <img
             src={enrolment.qrCode}
             alt={t('account.mfa.qrAlt')}
             className="h-44 w-44 rounded-md border border-slate-200 bg-white p-1"
           />
-          <p className="text-xs text-slate-500">
+          <p className="text-caption text-slate-500">
             {t('account.mfa.secret')}{' '}
-            <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-[0.75rem] text-slate-700">
+            <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-caption text-slate-700">
               {enrolment.secret}
             </code>
           </p>
@@ -212,7 +212,7 @@ export function MfaSection() {
       )}
 
       {error && (
-        <p className="mt-3 text-[0.8125rem] text-neg-500" role="alert">
+        <p className="mt-3 text-small text-neg-500" role="alert">
           {error}
         </p>
       )}

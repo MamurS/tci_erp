@@ -24,6 +24,7 @@ import {
   EmptyState,
   Field,
   labelCol,
+  LinkButton,
   PageHeader,
   parseAmount,
   SectionTitle,
@@ -55,6 +56,9 @@ export function PortalOverduesPage() {
     [policies],
   )
   const { data: buyers } = useClientDeclarableBuyers(activePolicy?.id)
+  // An account can be reported only on a buyer with a credit limit in force
+  // under the policy; with none the form says so and stays inactive.
+  const noBuyers = buyers !== undefined && buyers.length === 0
 
   const [buyerId, setBuyerId] = useState('')
   const [firstDue, setFirstDue] = useState('')
@@ -96,12 +100,27 @@ export function PortalOverduesPage() {
             {t('portal.overdues.fileTitle')}
           </SectionTitle>
 
+          {noBuyers && (
+            <div className="mb-4">
+              <Callout
+                tone="info"
+                title={t('portal.overdues.noBuyers', { policy: activePolicy.policy_number })}
+                action={
+                  <LinkButton to="/portal/limits" variant="secondary" size="sm">
+                    {t('portal.overdues.toLimits')}
+                  </LinkButton>
+                }
+              />
+            </div>
+          )}
           <div className="grid items-end gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
             {/* A client's own buyers with a limit are a short list, so the
                 plain Select primitive is the right picker here. */}
             <Field label={t('limits.fields.buyer')}>
-              <Select value={buyerId} onChange={(e) => setBuyerId(e.target.value)}>
-                <option value="">{t('portal.declarations.pickBuyer')}</option>
+              <Select value={buyerId} disabled={noBuyers} onChange={(e) => setBuyerId(e.target.value)}>
+                <option value="">
+                  {noBuyers ? t('portal.overdues.noBuyersOption') : t('portal.declarations.pickBuyer')}
+                </option>
                 {(buyers ?? []).map((b) => (
                   <option key={b.entity_id} value={b.entity_id}>
                     {b.entity_name}
@@ -110,10 +129,10 @@ export function PortalOverduesPage() {
               </Select>
             </Field>
             <Field label={t('overdues.fields.firstDueDate')}>
-              <DateInput value={firstDue} max={today} onChange={setFirstDue} />
+              <DateInput value={firstDue} max={today} onChange={setFirstDue} disabled={noBuyers} />
             </Field>
             <Field label={t('overdues.fields.overdueAmount')}>
-              <AmountInput value={amount} onChange={setAmount} suffix={activePolicy.currency_code} />
+              <AmountInput value={amount} onChange={setAmount} suffix={activePolicy.currency_code} disabled={noBuyers} />
             </Field>
             <Button
               disabled={!ready}
@@ -195,7 +214,7 @@ export function PortalOverduesPage() {
                     {formatAmount(Number(n.overdue_amount), locale)} {n.currency_code}
                   </td>
                   <td className="num">{n.days_past_due}</td>
-                  <td className="whitespace-nowrap text-[0.8125rem]">
+                  <td className="whitespace-nowrap text-small">
                     {n.reported_late ? (
                       <Badge tone="negStrong">{t('overdues.lateBy', { days: n.days_late })}</Badge>
                     ) : (
@@ -208,7 +227,7 @@ export function PortalOverduesPage() {
                     {n.limit_suspended ? (
                       <Badge tone="warn">{t('portal.overdues.suspended')}</Badge>
                     ) : (
-                      <span className="text-[0.8125rem] text-slate-500">
+                      <span className="text-small text-slate-500">
                         {t('portal.overdues.noLimitAffected')}
                       </span>
                     )}

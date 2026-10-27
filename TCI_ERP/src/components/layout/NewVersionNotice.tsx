@@ -24,9 +24,9 @@ export function NewVersionNotice({ stale }: { stale: boolean }) {
     <div
       role="status"
       data-testid="new-version-notice"
-      className="animate-fade-in fixed right-4 bottom-4 z-50 flex w-[22rem] max-w-[calc(100vw-2rem)] items-start gap-3 rounded-lg border border-slate-200 bg-white p-4 text-[0.8438rem] text-slate-700 shadow-pop"
+      className="animate-fade-in fixed right-4 bottom-4 z-50 flex w-[22rem] max-w-[calc(100vw-2rem)] items-start gap-3 rounded-lg border border-slate-200 bg-white p-4 text-body text-slate-700 shadow-pop"
     >
-      <RefreshCw className="mt-0.5 size-5 shrink-0 text-accent-600" aria-hidden />
+      <RefreshCw className="mt-0.5 size-5 shrink-0 text-sky-600" aria-hidden />
       <div className="min-w-0 flex-1">
         <p className="font-semibold text-slate-800">{t('app.newVersion.title')}</p>
         <p className="mt-0.5 text-slate-600">{t('app.newVersion.body')}</p>
@@ -37,7 +37,7 @@ export function NewVersionNotice({ stale }: { stale: boolean }) {
       <button
         type="button"
         onClick={() => setDismissed(true)}
-        className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none"
+        className="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-600 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none"
         aria-label={t('app.newVersion.later')}
       >
         <X className="size-4" aria-hidden />

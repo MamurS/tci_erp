@@ -33,7 +33,7 @@ export function CountryPicker({ value, onChange, placeholder, disabled, invalid,
           label: refName(c, locale),
           keywords: [c.code, c.name_en, c.name_ru, c.name_uz],
           meta: (
-            <span className="inline-flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-2">
               <CountryFlag code={c.code} />
               {c.code}
             </span>

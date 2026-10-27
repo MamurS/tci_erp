@@ -1,10 +1,11 @@
 # TCI ERP Design System
 
-Light theme, corporate credit-insurance look modelled on the Delcreda style:
-navy and process blue with an orange accent, a condensed display face for
-titles and figures, and the risk report as the reference document. Implemented
-with Tailwind CSS v4; tokens live in `src/index.css` under `@theme` and are
-the single source of truth.
+Light theme, calm by default and vivid where meaning lives (Prompt 30,
+`docs/design-research-2026-10.md`): warm neutrals, a navy brand with a sky
+secondary, semantic colour only for status, the grade scale as the signature
+colour, a condensed display face for page titles and key figures. Implemented
+with Tailwind CSS v4; tokens are generated from `src/design/palette.ts` into
+`src/design/tokens.css`.
 
 **The look is Delcreda's, the name is neutral.** The wordmark, the copyright
 line and the (optional, currently empty) legal block come from
@@ -14,50 +15,121 @@ one file.
 
 ## Tokens
 
-### Color
+Since Prompt 30 (`docs/design-research-2026-10.md`) every token is
+GENERATED: `src/design/palette.ts` is the source, `npm run design:tokens`
+writes `src/design/tokens.css` (the Tailwind `@theme`, imported first by
+`src/index.css`), and `tokens.test.ts` fails while the two disagree. Tailwind's
+own colour palettes are switched off (`--color-*: initial`): a class can only
+name a colour of this system. The admin page **Admin › Design tokens**
+(`/admin/tokens`) shows every token with its contrast.
 
-Measured from the reference risk reports.
+### Colour
 
-| Role | Token / Tailwind class | Value |
-|---|---|---|
-| Page background | `body` | `#f3f6f9` |
-| Surface (cards, tables) | `bg-white` | `#ffffff` |
-| Brand navy (Pantone 2955) — titles, primary buttons, table heads | `accent-600` / `brand-navy` | `#005288` |
-| Process blue — section markers, rules, focus | `accent-500` / `brand-blue` | `#0093d0` |
-| Orange — the one call-to-action per screen (`Button variant="accent"`) | `brand-orange` | `#f7941e` |
-| Amber — warnings on navy, overdue counts in the hero | `brand-amber` | `#fcaf17` |
-| Highlight / subtotal rows | `accent-100` | `#dceff8` |
-| Zebra / tinted panels | `accent-50` | `#f2f8fc` |
-| Card / table border on tinted panels | `accent-200` | `#c9dde9` |
-| Ink (black 90%) | `ink` | `#191919` |
-| Muted (black 60%) | `ink-muted` | `#666666` |
-| Positive dynamics | `pos-500` | `#2e8b3e` |
-| Negative dynamics / errors / negative numbers | `neg-500` | `#d62828` |
-| Validation warnings (non-blocking) | `warn-500` / `warn-50` | amber |
-| Rating scale (pairs 10/20 … 90/100) | `scale-1` … `scale-5` | `#17b81a` `#a6c419` `#f2a900` `#f2661a` `#ee1c1c` |
+Four layers — neutrals (≈ 90 % of pixels), brand, semantic, data — built as
+**OKLCH ramps of ten steps (50 … 900)**. At every step all hues have the SAME
+WCAG relative luminance (`STEP_LUMINANCE`), so the **pairing rule** holds by
+construction and a pair needs no case-by-case check:
 
-Green / red are reserved for *meaning* (dynamics, validation), never
-decoration. Orange is reserved for the single most important action on a
-screen.
+* **text**: steps at least **5 apart** (≥ 4.5 : 1);
+* **icons, large text, graphics**: steps at least **4 apart** (≥ 3 : 1);
+* white and the canvas count as step 50 (so text on a card is step ≥ 500, an
+  icon step ≥ 400; on a 100 tint text is step ≥ 600).
+
+| Ramp (class name) | Role |
+|---|---|
+| `slate` | **neutral**, a warm crisp grey (the Tailwind name is kept so the classes re-colour) |
+| `accent` | **brand navy** — primary actions, selection, page titles, key figures, links in running text |
+| `sky` | **secondary brand** from the «TCI» logo — focus rings, the one call-to-action (`Button variant="accent"`), highlights |
+| `success` / `warning` / `danger` / `info` | **semantic** only — never decorative. `pos` / `warn` / `neg` are aliases of their 500 (and 50) steps |
+| `violet`, `teal`, `magenta` | data series only |
+
+Page canvas `canvas` (between neutral 50 and 100, neutral 500 reads at
+≥ 4.5 : 1 on it); cards white. Navy is the sidebar's: table heads are light.
+
+**The grade scale A1 → D** is the signature colour: a diverging teal → green →
+yellow → amber → red, each grade with a **tint** (badge background), a
+**solid** (bars, dots, chart marks; ≥ 3 : 1 on white) and an **ink** (text,
+≥ 4.5 : 1 on the tint and on white) — `grade-a1-tint`, `grade-a1`,
+`grade-a1-ink` … `grade-d-ink`. The five-colour rating gauge reads the grade
+solids (`scale-1` … `scale-5`).
+
+**Data**: `data-1` … `data-8` categorical in a fixed order (neighbours differ
+in hue); `seq-1` … `seq-9` sequential (one hue) for magnitude.
+
+**Accent budget**: at most one saturated accent area per viewport besides
+status signals — the primary button, the selected row or a highlighted figure,
+not all three. Every saturated use is listed with its meaning in
+`docs/colour-audit-2026-10.md`.
+
+**Guard**: `src/design/contrast.test.ts` checks the palette rule AND every
+text / icon colour class in the code against the surface it sits on (its own
+background, else white and the canvas, or the dark surface for light text),
+alpha blended — 4.5 : 1 for text, 3 : 1 for icons and large text.
+
+| Ramp | 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `slate` | #fafaf9<br>oklch(98.5% 0.001 106.4) | #f3f1ef<br>oklch(95.9% 0.003 67.8) | #e5e2de<br>oklch(91.4% 0.006 75.4) | #cdc8c2<br>oklch(83.5% 0.010 72.6) | #908b84<br>oklch(63.9% 0.012 76.6) | #746f68<br>oklch(54.4% 0.012 76.5) | #635d58<br>oklch(48.2% 0.011 62.4) | #504c47<br>oklch(41.9% 0.010 73.6) | #3e3a37<br>oklch(35.1% 0.008 59.4) | #23211e<br>oklch(24.9% 0.006 78.2) |
+| `accent` | #f6fbff<br>oklch(98.5% 0.008 241.7) | #e9f3ff<br>oklch(96.0% 0.019 252.9) | #cce4ff<br>oklch(91.0% 0.045 251.4) | #9dcdff<br>oklch(83.2% 0.087 249.9) | #4690d7<br>oklch(63.8% 0.130 249.7) | #2772b7<br>oklch(54.1% 0.130 250.2) | #1b609e<br>oklch(48.0% 0.120 250.2) | #124f84<br>oklch(41.9% 0.106 249.9) | #0a3c68<br>oklch(35.0% 0.092 250.5) | #002240<br>oklch(24.7% 0.069 249.3) |
+| `sky` | #f5fbff<br>oklch(98.5% 0.008 236.6) | #e2f5ff<br>oklch(95.9% 0.024 230.4) | #bfe8ff<br>oklch(90.9% 0.053 232.7) | #7bd3ff<br>oklch(82.8% 0.105 231.7) | #0095c9<br>oklch(62.9% 0.129 232.2) | #0078a2<br>oklch(53.8% 0.109 231.7) | #00658a<br>oklch(47.6% 0.098 232.4) | #005371<br>oklch(41.5% 0.084 231.4) | #004059<br>oklch(34.9% 0.072 232.3) | #002433<br>oklch(24.4% 0.049 230.6) |
+| `success` | #effef3<br>oklch(98.3% 0.021 154.1) | #d6fbe1<br>oklch(95.5% 0.052 154.7) | #acf1c4<br>oklch(90.0% 0.093 155.5) | #73dd9c<br>oklch(81.7% 0.136 155.0) | #00a05b<br>oklch(62.0% 0.153 154.9) | #008048<br>oklch(52.7% 0.130 155.1) | #006c3c<br>oklch(46.7% 0.115 155.1) | #005830<br>oklch(40.4% 0.100 155.2) | #004624<br>oklch(34.6% 0.086 154.5) | #002712<br>oklch(24.0% 0.059 155.0) |
+| `warning` | #fff9f4<br>oklch(98.5% 0.009 62.6) | #fff0df<br>oklch(96.2% 0.028 71.0) | #ffdcb6<br>oklch(91.4% 0.063 69.2) | #ffbb69<br>oklch(83.9% 0.126 69.8) | #c37c00<br>oklch(64.6% 0.140 70.0) | #9c6300<br>oklch(54.9% 0.118 70.6) | #855300<br>oklch(48.7% 0.106 69.9) | #6d4300<br>oklch(42.2% 0.092 69.7) | #553400<br>oklch(35.7% 0.077 70.8) | #311c00<br>oklch(24.8% 0.054 70.9) |
+| `danger` | #fff9f8<br>oklch(98.6% 0.007 28.8) | #ffeeec<br>oklch(96.2% 0.019 25.6) | #ffdad4<br>oklch(91.8% 0.042 28.8) | #ffb6ad<br>oklch(84.2% 0.087 26.9) | #fe4741<br>oklch(66.4% 0.220 27.0) | #db1c22<br>oklch(57.0% 0.220 27.0) | #bd0916<br>oklch(50.5% 0.202 27.0) | #9d000e<br>oklch(43.8% 0.178 26.9) | #7e0008<br>oklch(37.3% 0.152 27.2) | #4b0003<br>oklch(26.0% 0.106 26.9) |
+| `info` | #f8faff<br>oklch(98.5% 0.007 268.5) | #ebf3ff<br>oklch(96.2% 0.018 258.4) | #d2e3ff<br>oklch(91.2% 0.043 260.4) | #acc9ff<br>oklch(83.4% 0.083 262.7) | #5589ed<br>oklch(64.2% 0.160 262.2) | #396ccd<br>oklch(54.8% 0.160 261.8) | #2e5ab1<br>oklch(48.5% 0.147 262.2) | #234994<br>oklch(42.2% 0.131 262.2) | #193876<br>oklch(35.6% 0.113 262.3) | #061e4d<br>oklch(25.1% 0.092 261.7) |
+| `violet` | #fbf9ff<br>oklch(98.5% 0.008 301.4) | #f4efff<br>oklch(96.1% 0.022 300.2) | #e8dcff<br>oklch(91.5% 0.049 301.1) | #d4bdff<br>oklch(84.0% 0.094 300.4) | #a274e8<br>oklch(65.5% 0.171 300.0) | #8657c8<br>oklch(56.2% 0.170 300.2) | #7248ad<br>oklch(49.9% 0.156 300.0) | #5e3990<br>oklch(43.3% 0.139 300.3) | #4a2b73<br>oklch(36.7% 0.120 300.4) | #2c124b<br>oklch(25.7% 0.100 300.3) |
+| `teal` | #eefdfc<br>oklch(98.3% 0.016 192.1) | #d1f9f6<br>oklch(95.3% 0.041 190.9) | #a2f1eb<br>oklch(90.5% 0.078 189.8) | #5ddcd4<br>oklch(82.2% 0.113 189.5) | #009c97<br>oklch(62.5% 0.108 190.8) | #007d78<br>oklch(53.2% 0.092 189.9) | #006965<br>oklch(47.0% 0.081 190.2) | #005653<br>oklch(40.9% 0.070 190.7) | #004441<br>oklch(34.9% 0.060 189.8) | #002524<br>oklch(23.9% 0.041 192.1) |
+| `magenta` | #fff9fc<br>oklch(98.8% 0.007 345.3) | #ffedf7<br>oklch(96.3% 0.023 342.9) | #ffd7ec<br>oklch(91.9% 0.052 345.2) | #ffb2dd<br>oklch(84.9% 0.104 345.0) | #dc5dab<br>oklch(66.2% 0.180 345.3) | #bb3e8e<br>oklch(56.6% 0.181 345.1) | #a1317a<br>oklch(50.4% 0.166 344.7) | #862564<br>oklch(43.8% 0.148 345.0) | #6a1b4e<br>oklch(37.0% 0.125 345.3) | #43042f<br>oklch(26.0% 0.103 345.0) |
+
+| Grade | Tint | Solid | Ink |
+|---|---|---|---|
+| A1 | #cffbf4 | #009d90 | #006b62 |
+| A2 | #d9fbde | #03a14a | #006e30 |
+| B1 | #e9f7d4 | #739700 | #4d6700 |
+| B2 | #fcf2ce | #a58900 | #705d00 |
+| C1 | #fff0df | #c37c00 | #855300 |
+| C2 | #ffefe6 | #e46600 | #9c4400 |
+| D | #ffeeec | #fe4741 | #bd0916 |
+
+Canvas: #f8f6f5 (oklch(97.4% 0.003 48.7)). Categorical: #4690d7, #c37c00, #009c97, #dc5dab, #0095c9, #00a05b, #a274e8, #fe4741.
 
 ### Typography
 
-* `font-sans` — Inter Variable: UI body, forms, tables on screen.
-* `font-display` — PT Sans Narrow: page and section titles (uppercase navy),
-  table heads, labels, key figures and the wordmark.
-* `font-report` — Arimo (metric-compatible with Arial): the body of the
-  printed risk report.
+* `font-sans` — Inter Variable: everything on screen except what follows.
+* `font-display` — PT Sans Narrow, bold: **page titles and key figures only**
+  (KPI numbers, the grade), never section titles, table heads or labels.
+* `font-report` — Arimo: the printed risk report.
 
-Scale: page title `font-display text-[28px] uppercase`, section title
-`SectionTitle` (17px uppercase with a blue square), body `text-[14px]`,
-dense table `text-[13px]`, caption `text-xs text-slate-500`.
+**The scale** (rem; the interface text size multiplies it): `text-caption`
+12 · `text-small` 13 · `text-body` 14 · `text-lead` 16 · `text-title` 20 ·
+`text-headline` 28 · `text-display` 36 px. **Three weights**: regular,
+`font-medium`, `font-semibold` (bold only with the display face, which has no
+semibold). Section titles are `text-lead font-semibold`, sentence case,
+neutral 900. Money and counts: `tabular-nums` (the `num` utility). Inter and PT
+Sans Narrow carry Cyrillic and the Uzbek Latin modifier letters (ʻ U+02BB and
+‘ U+2018), checked on the token page. `src/design/scale.test.ts` refuses an
+arbitrary text size, a Tailwind size name, an off-scale weight, spacing off
+the 4 px grid and a hex colour in a class.
 
-### Spacing & radii
+### Spacing, radius, elevation
 
-Tailwind default 4px spacing scale. Main area `max-w-[1480px] px-6 py-7`;
-card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
-(10px), modals and the dashboard hero `rounded-xl` (14px). Shadows:
-`shadow-card` at rest, `shadow-pop` on hover and for overlays.
+A **4 px grid** (Tailwind's 0.25 rem unit); `*-0.5` (2 px) only for hairline
+offsets — no 6 / 10 / 14 px steps. Larger gaps between groups, smaller inside
+them, instead of borders. Radii `rounded-sm` 4 · `rounded-md` 6 ·
+`rounded-lg` 8 · `rounded-xl` 12 px. Two shadows: `shadow-card` (a hairline
+lift at rest) and `shadow-pop` (overlays); borders are neutral 200, rows
+divided by neutral 100.
+
+### Motion
+
+IBM Carbon's two modes. **Productive** (≈ 95 %: hover, press, menus, row
+expand, tab switch): `--duration-fast-01` 70 ms, `fast-02` 110 ms (the default
+of every `transition-*`), `moderate-01` 150 ms; **expressive** (rare: page
+entry, a completed major step): `moderate-02` 240 ms, `slow-01` 400 ms. Easings
+`--ease-productive-standard | -entrance | -exit` and
+`--ease-expressive-standard | -entrance | -exit`; ease-out entering, ease-in
+leaving, never linear. `prefers-reduced-motion: reduce` turns every animation
+and transition off (`index.css`) — nothing essential is conveyed by motion.
+Interaction feedback stays under 100 ms (optimistic writes); no animation
+delays content.
 
 ## App shell
 
@@ -124,7 +196,7 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
 * **Actions have a hierarchy.** One primary button (the next step), then
   secondary ones, the edit, and destructive actions LAST as `dangerOutline`
   (red outline; the filled `danger` is for the confirm button of their
-  modal). The orange `accent` is one call to action per screen at most —
+  modal). The sky `accent` button is one call to action per screen at most —
   never one per table row. An action inside a table row is a text button or
   an icon, so rows with an action are as tall as rows without.
 * **Cards and tables.** A `Card` has no padding of its own: every Card states
@@ -150,9 +222,8 @@ card padding `p-5`. Radii: controls `rounded-md` (6px), cards `rounded-lg`
   `--hide-scrollbars` by default, which is exactly what hides this shift
   (`ignoreDefaultArgs: ['--hide-scrollbars']`).
 * **Top bar:** sidebar button (when hidden), the current section (icon +
-  name), the command palette (Ctrl/⌘ K — companies by name or registration
-  number, plus every destination the caller's roles allow; icon-only below
-  640px), language switcher, account menu.
+  name), the ONE search field (Ctrl/⌘ K puts the cursor in it — see «One
+  search» below), language switcher, account menu.
 * **Pages load lazily**, one chunk per feature module (`lib/lazyPage.ts`),
   with a skeleton inside the shell while a chunk arrives. Only the Russian
   strings are bundled; en / uz are fetched on first use (`i18n/index.ts`,
@@ -168,9 +239,10 @@ and a signals column listing only what is not zero (`pages/dashboard.ts`).
 
 ## Core components (`src/components/ui`)
 
-Button (primary navy / accent orange / secondary / ghost / danger, sizes
-md·sm), Input, Textarea, Select, Field (uppercase label + hint), Segmented,
-Card, Table (dense financial variant: navy head, zebra rows), Tabs (with
+Button (primary navy / accent sky / secondary / ghost / danger, sizes
+md·sm), Input, Textarea, Select, Field (sentence-case label above + hint or
+error), FormSection, Segmented,
+Card, Table (light head; dense financial variant: tighter rows), Tabs (with
 counts), Badge, Modal, EmptyState (with icon), PageHeader (eyebrow + display
 title), SectionTitle, StatCard (key figure with a coloured top rule and
 tone), Skeleton, Spinner, BrandMark, GradeScale (engine grade bands),
@@ -186,6 +258,129 @@ positioned at a fixed size and the input reserves `pr-10`, so toggling moves
 nothing; a form that stays on screen after a successful submit changes
 `revealResetKey` to hide the password again. `passwordReveal.test.ts` refuses
 a bare `type="password"` anywhere else.
+
+### Components v2 (Prompt 30, phase 2)
+
+* **Table v2.** Row density is the person's (`tablePrefs.ts`, per browser):
+  compact 40 / regular 48 / relaxed 56 px rows at 100 % — staff screens
+  regular, the portal relaxed; the financial `dense` table keeps its own.
+  `stickyHead` keeps the head in view (the table scrolls inside a box as tall
+  as the viewport allows), `freezeFirst` keeps the name column in view while
+  a wide table scrolls sideways. A registry gives its Table an `id` and puts
+  a `TableSettings` («Вид таблицы») beside its filters: density and which
+  columns show (the first never hides; remembered per person). Row actions
+  are revealed on hover by OPACITY (`RowActions reveal`). A search marks what
+  matched (`Highlight`). Loading is `SkeletonRows` at the density's height —
+  never a spinner in an empty table. A row's quick view opens in a
+  `SidePanel` beside the list (non-modal: the list stays usable, another row
+  swaps it, Escape closes) with the way to the full page in its footer.
+  `BulkBar` appears at the foot once rows are selected. The pieces are
+  primitives — `QuickViewButton` (the hover «eye», in `RowActions reveal`
+  sized `actionsCol([], 1)`), `SelectCheckbox` (head and row) and
+  `useRowSelection` — never hand-made again. A row click still opens the
+  full page; a link inside the row stops the click so it does not open
+  twice. In use on: companies, the credit limits queue and «Действующие
+  лимиты», policies, submissions, claims, declarations, overdue
+  notifications and the data requests queue; quick view on companies, the
+  limits queue, policies, claims and declarations; the bulk bar (CSV) on
+  companies, policies and claims. Regular rows pad a cell by 1 rem a side,
+  so a narrow column taken over from a `dense` table needs its longest
+  header word re-measured (the layout guard says which).
+* **KpiCard.** The figure is the hero (display face), its unit small beside
+  it, the label above; under it a change against a STATED baseline — arrow
+  and words, coloured by meaning (`good="up"|"down"|"none"`, `kpi.ts`), never
+  by direction alone — and a sparkline. No baseline, no change: a register's
+  running count (`runningCountByMonth`) is a real baseline, a guessed one is
+  not.
+* **Badges.** One rule for every tone: the ramp's 100 tint, 700 ink, 200
+  hairline. A grade is a `GradeBadge` in the grade scale's own tint and ink
+  (A1 teal … D red), the same everywhere; `lib/grade.ts gradeTone` is retired.
+* **Human-scale amounts.** `HumanAmount` («3.18 млрд UZS») in summaries, key
+  figures and sentences, with the full value on hover and for screen
+  readers. Tables keep full values: never both styles in one column.
+* **Empty states.** `EmptyState pictogram=…` draws one of our own line
+  pictograms (`pictograms.tsx`: companies, documents, limits, claims,
+  allDone, search, chart, inbox, error — 2 px strokes, one sky accent); a
+  search that found nothing uses `search`.
+* **Inline success.** `useFlash()` + `Button done`: the button becomes a check
+  for about a second in the same box — no toast over the content.
+* **One search (owner, 2026-10-26; replaced the ⌘K palette).** One field in
+  the top bar, no popup on click. On a list page it FILTERS the page
+  (`usePageSearch('<nav key>')` reads `?q=`, `lib/pageSearch.ts` filters):
+  terms separated by commas narrow the list in order; a term equal to a value
+  of a row (a whole name, a policy number, a country code) matches exactly,
+  any other as «contains»; case, accents and the Uzbek apostrophes never
+  matter; `Highlight` marks every term. A page offers NO search box and NO
+  filter picker of its own — a country, a status, a currency, a band is one
+  more term; view switches (tabs, «All / Buyers», «Open / All») stay. While
+  typing, a list under the field shows what the last term finds elsewhere
+  (companies, policies, claims, submissions, sections — only those the
+  ACTING role may open, `paletteSources`), folded to one line on a page that
+  is being filtered; Enter opens the one exact match. No country is ever
+  required to find a company.
+* **Forms.** Labels above in sentence case; long forms in `FormSection`s;
+  checked when a field is LEFT (`useTouched`, `checkRequired` / `checkEmail`
+  / `checkUrl` → `ui.validation.*`), all at once on submit, never while
+  typing; the primary button names the outcome («Создать организацию», not
+  «Сохранить»); a dialog keeps its head and buttons while its body scrolls.
+
+### Signature screens — «bold fintech» (Prompt 30, phase 3, owner-chosen)
+
+The owner chose the bold direction (2026-10-26). The dashboard, the Agenda,
+the company card, the credit decision page and the portal home open with a
+`HeroBand`: a deep-navy band (accent 900 → 700) edge to edge of the content
+area, the title in white display type, an eyebrow in sky 200, and the
+screen's key figures as `KpiCard tone="inverse"` tiles (glass: white 10 %,
+a white 15 % ring), with a colour `ribbon` where a figure has one (a grade's
+own colour; red for overdue, amber for today, green for done). The brochure's
+trade mosaic (`heroMosaic.ts`, our own drawings re-coloured in the navy ramp)
+fades in from the right; the sign-in panel shows it full size (`LOGIN_PHOTO`
+takes a licensed photograph instead, when there is one). The printed risk
+report's running header is the same band, compact, so its page count holds.
+Light text on the band uses only white, accent 100 and sky 200 — the contrast
+guard checks them against the band. The rest of each screen stays calm:
+the band is the one loud element.
+
+### Structure (Prompt 30, phase 4)
+
+* **A decision page is one decision column.** The work comes first — the
+  decision form, the validation step, or what is missing — and what it rests
+  on (the request, the buyer, what changed, the rule's answer) sits beside
+  it as context. Where a decision meets a limit, the limit is a `Meter`
+  (label, the figure «X of Y», a note in words; the colour repeats the note:
+  ok / near ≥ 90 % / over) and the amounts compare as bars on one scale
+  (`DecisionBar`: requested, recommended, in force, this decision).
+* **Many tabs are grouped.** A card with more than six tabs shows SECTIONS on
+  top and the active section's tabs as a switch under it; the URL keeps
+  naming the tab, so deep links never break (`entities/cardTabs.ts`).
+* **A long sheet keeps its headings.** The sheet-tab row and the table's
+  column headings stick under the top bar (`StickyTableFrame`); a sheet
+  switch sits IN the tab row, never between the row and the table, so every
+  sheet starts at one height. The sheets are `border-separate` with no
+  spacing: a collapsed table's borders do not travel with a sticky head.
+  Switching sheets while the row is stuck shows the new sheet from its top,
+  in the same place, and the sheet area is never shorter than the screen,
+  so a short sheet does not pull the page back.
+* **An object card keeps its name.** On the company card the section tabs
+  stick, and once the hero has scrolled away a slim navy bar above them
+  names the company — flag, name, grade (`CardStickyBar`); it lies over the
+  hero's foot, so nothing moves when it appears. Its height is
+  `--card-sticky-h`, under which the financial rows stick.
+* **A section's book is on its band.** «Кредитные лимиты» (credit desk) and
+  «Полисы» (commercial desk) carry their book's key figures as tiles on the
+  navy band — exposure, active limits, buyers, policies; active policies,
+  open claims, credit limits, overdue premium — on EVERY view of the section
+  (`SectionPage figures`, `portfolio/BookFigures.tsx`), so the tabs under
+  the band never move. Roles without the overview keep the compact band.
+* **The client follows, never guesses.** The portal home lists what is open
+  with a simple `StatusTimeline` (steps in the policyholder's words, passed
+  steps checked, the current one named; amber when it waits on THEM).
+* **Targets are big enough** (WCAG 2.2, 2.5.8): everything clickable is at
+  least 24 × 24 px or has no other target within 12 px of its centre —
+  `e2e/layout/targets.spec.ts` checks every guarded screen.
+* **An empty choice says why.** A picker with nothing to choose is disabled
+  and the form says why and where to go (the overdue form with no buyer
+  holding a limit).
 
 ### Interaction rules (owner review, October 2026)
 
@@ -626,6 +821,36 @@ template's, the facts the database's (`tci.offer_merge_data`).
   `e2e/offers/print.spec.ts` prints the frame's document to PDF in ru/en/uz
   and expects one sheet per rendered page (`OFFER_PDF_DIR` keeps the PDFs).
 
+## Tone of voice (Prompt 30)
+
+The interface speaks like a careful colleague on the credit desk: plain,
+exact, calm. Five rules, then ten strings in each language that show them.
+
+1. **Say what happened, then what to do next.** An empty screen says what
+   it is for and offers the next step; a refusal names the rule.
+2. **Name the object.** «Отозвать запрос», never a bare «Отозвать»; uz never a
+   bare «Bekor qilish» (CLAUDE.md glossary). Buttons name the outcome.
+3. **No blame, no drama.** No exclamation marks, no «Ошибка!», no «You
+   failed to…». The system's own limits are stated as facts.
+4. **Numbers carry their unit and their baseline.** «▲ 4.2 % к началу
+   месяца», «200 000 USD», «9 дней» — never a bare percentage or amount.
+5. **The glossary is law.** Байер / Bayer, Страхователь / Sug‘urtalanuvchi,
+   Претензия / da’vo, Диапазон рейтинга / reyting diapazoni; irreversibility
+   in uz is «qaytarilmas».
+
+| # | Situation | en | ru | uz |
+|---|---|---|---|---|
+| 1 | empty registry | No companies yet. Add the first one, or ask the data desk to register it. | Организаций пока нет. Добавьте первую или попросите отдел данных её зарегистрировать. | Hali tashkilotlar yo‘q. Birinchisini qo‘shing yoki ma’lumotlar bo‘limidan ro‘yxatga olishni so‘rang. |
+| 2 | search found nothing | Nothing matches «{{query}}». Check the spelling, or request the company. | По запросу «{{query}}» ничего не найдено. Проверьте написание или запросите организацию. | «{{query}}» bo‘yicha hech narsa topilmadi. Yozilishini tekshiring yoki tashkilotni so‘rang. |
+| 3 | primary button (create) | Create company | Создать организацию | Tashkilot yaratish |
+| 4 | required field, on blur | Fill this in — it is required | Заполните — это обязательное поле | To‘ldiring — bu majburiy maydon |
+| 5 | e-mail format | Enter an address like name@company.uz | Укажите адрес вида name@company.uz | name@company.uz ko‘rinishidagi manzilni kiriting |
+| 6 | four-eyes refusal | You raised this request, so a colleague decides it. | Вы подали этот запрос, поэтому решение принимает коллега. | Bu so‘rovni siz yuborgansiz, shuning uchun qarorni hamkasbingiz qabul qiladi. |
+| 7 | inline success | Saved | Сохранено | Saqlandi |
+| 8 | irreversible confirm | Withdraw the request? This cannot be undone. | Отозвать запрос? Это действие необратимо. | So‘rovni qaytarib olasizmi? Bu amal qaytarilmas. |
+| 9 | change against baseline | ▲ 4.2 % vs start of month | ▲ 4,2 % к началу месяца | ▲ 4,2 % oy boshiga nisbatan |
+| 10 | unknown failure | Something went wrong on our side. Try again; if it repeats, tell the administrator. | Что-то пошло не так на нашей стороне. Повторите попытку; если повторится — сообщите администратору. | Biz tomonda nimadir noto‘g‘ri ketdi. Qayta urinib ko‘ring; takrorlansa, administratorga xabar bering. |
+
 ## Financial data display rules (apply everywhere)
 
 * Numbers **right-aligned** with `tabular-nums` — use the `num` utility class.
@@ -661,13 +886,26 @@ Non-blocking accounting-equation warnings are amber (`warn-*`), never red;
 red is reserved for hard errors. Warnings do not prevent saving — the
 analyst's entered figure is the source of truth.
 
-## Interface text size
+## Zoom and text size
 
-Every size is rem and follows the person's chosen text size (100–200 %,
-default 150 %, `src/lib/uiScale.ts`, migration 0076); the breakpoints are
-container queries in rem on `<body>`, so the layout responds to the scale
-as it would to browser zoom. Never size text or a box in px — the contract
-test refuses it; hairlines and radii stay px. Print routes hold 100 %.
+Two personal settings, both kept on the server (`src/lib/uiScale.ts`):
+
+* **Zoom** (0076, 100–200 %, default 150 %) — the root font size. Every size
+  is rem and follows it; the breakpoints are container queries in rem on
+  `<body>`, so the layout responds as it would to browser zoom.
+* **Text size** (0081, 100 / 110 / 125 / 140 / 150 %, default 100 %) — only
+  the type. The seven text tokens are `calc(size × var(--ui-text))`; a box
+  that IS a line of text grows with them (`h-text-*`, `leading-text-*` —
+  badges, counters); so do the widths reserved for text: table columns
+  (the Table primitive), the Agenda's tag and due tracks, the sidebar, the
+  hero tiles' least width (they wrap rather than cut a figure). Spacing,
+  breakpoints and every other box stay at the zoom. Never size text by
+  anything but a token: an inline SVG label reads `useUiTextScaleValue()`.
+
+Never size text or a box in px — the contract test refuses it; hairlines and
+radii stay px. Print routes hold 100 % of both. `e2e/layout/scale.spec.ts`
+guards the zoom, `textSize.spec.ts` the text size (150 % at 1440 px, en / ru
+/ uz: nothing cut, the page never scrolls sideways).
 
 ## Key figures and side-by-side cards
 

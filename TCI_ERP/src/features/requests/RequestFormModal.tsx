@@ -92,8 +92,8 @@ export function RequestFormModal({ open, onClose }: { open: boolean; onClose: ()
         </Field>
 
         <div>
-          <div className="mb-1.5 flex items-center justify-between">
-            <span className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
+          <div className="mb-2 flex items-center justify-between">
+            <span className="text-caption font-semibold tracking-wide text-slate-600 uppercase">
               {t('requests.buyerPackage')}
             </span>
             <Button
@@ -117,7 +117,7 @@ export function RequestFormModal({ open, onClose }: { open: boolean; onClose: ()
             </Button>
           </div>
           {buyers.length === 0 ? (
-            <p className="text-xs text-slate-400">{t('requests.noBuyersYet')}</p>
+            <p className="text-caption text-slate-500">{t('requests.noBuyersYet')}</p>
           ) : (
             <div className="flex flex-col gap-2">
               {buyers.map((b, index) => (
@@ -171,7 +171,7 @@ export function RequestFormModal({ open, onClose }: { open: boolean; onClose: ()
         </Field>
 
         {error && (
-          <p className="text-[0.8125rem] text-neg-500" role="alert">
+          <p className="text-small text-neg-500" role="alert">
             {error}
           </p>
         )}

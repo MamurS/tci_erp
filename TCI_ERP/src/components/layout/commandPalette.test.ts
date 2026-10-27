@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { isPaletteShortcut, matchesQuery, sanitizeSearchTerm } from './commandPalette'
+import { isPaletteShortcut, matchesQuery, paletteSources, sanitizeSearchTerm } from './commandPalette'
 
 describe('commandPalette', () => {
   it('matches every word, ignoring case and accents', () => {
@@ -23,5 +23,13 @@ describe('commandPalette', () => {
     expect(isPaletteShortcut({ key: 'K', ctrlKey: false, metaKey: true })).toBe(true)
     expect(isPaletteShortcut({ key: 'k', ctrlKey: false, metaKey: false })).toBe(false)
     expect(isPaletteShortcut({ key: 'j', ctrlKey: true, metaKey: false })).toBe(false)
+  })
+})
+
+describe('paletteSources', () => {
+  it('offers only what the acting role may open', () => {
+    expect(paletteSources(() => true)).toEqual(['entities', 'policies', 'claims', 'requests'])
+    expect(paletteSources((p) => p !== '/claims')).toEqual(['entities', 'policies', 'requests'])
+    expect(paletteSources(() => false)).toEqual([])
   })
 })

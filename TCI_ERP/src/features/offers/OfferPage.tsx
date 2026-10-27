@@ -193,7 +193,7 @@ export function OfferPage() {
 
   return (
     <div>
-      <Link to={back} className="mb-3 inline-flex items-center gap-1.5 text-[0.8125rem] text-slate-600 hover:text-slate-900">
+      <Link to={back} className="mb-3 inline-flex items-center gap-2 text-small text-slate-600 hover:text-slate-900">
         <ArrowLeft className="size-4" />
         {t('offers.edit.back', { number: offer.request_number })}
       </Link>
@@ -208,7 +208,7 @@ export function OfferPage() {
         }
         actions={
           <>
-            <span className="text-[0.7812rem] text-slate-500">{t('offers.pdfHint')}</span>
+            <span className="text-small text-slate-500">{t('offers.pdfHint')}</span>
             <Button variant="secondary" onClick={onPdf} disabled={!doc}>
               <Download className="size-4" />
               {t('offers.actions.downloadPdf')}
@@ -268,8 +268,8 @@ export function OfferPage() {
           ) : null}
 
           {/* Not a Field: a <label> would lend its text to the first button. */}
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">{t('offers.fields.language')}</span>
+          <div className="flex flex-col gap-2">
+            <span className="text-caption font-semibold tracking-wide text-slate-600 uppercase">{t('offers.fields.language')}</span>
             <span>
               <Segmented
                 value={offer.language}
@@ -278,11 +278,11 @@ export function OfferPage() {
                 onChange={() => undefined}
               />
             </span>
-            <span className="text-xs text-slate-500">{t('offers.edit.languageFixed')}</span>
+            <span className="text-caption text-slate-500">{t('offers.edit.languageFixed')}</span>
           </div>
 
-          <fieldset className="flex flex-col gap-1.5" disabled={!editing}>
-            <legend className="mb-1.5 text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">{t('offers.fields.cover')}</legend>
+          <fieldset className="flex flex-col gap-2" disabled={!editing}>
+            <legend className="mb-2 text-caption font-semibold tracking-wide text-slate-600 uppercase">{t('offers.fields.cover')}</legend>
             <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t('offers.fields.cover')}>
               {OFFER_COVERS.map((c) => (
                 <button
@@ -291,14 +291,14 @@ export function OfferPage() {
                   role="radio"
                   aria-checked={draft.cover === c}
                   onClick={() => set({ cover: c })}
-                  className={`flex flex-col items-stretch gap-1.5 rounded-md border p-1.5 text-[0.75rem] font-medium focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 ${
+                  className={`flex flex-col items-stretch gap-2 rounded-md border p-2 text-caption font-medium focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 ${
                     draft.cover === c ? 'border-accent-600 ring-1 ring-accent-600 text-accent-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'
                   }`}
                   data-cover={c}
                 >
                   <span
                     aria-hidden
-                    className="flex h-12 items-end rounded-sm border border-slate-200 p-1.5"
+                    className="flex h-12 items-end rounded-sm border border-slate-200 p-2"
                     style={{ background: COVER_SWATCH[c].bg }}
                   >
                     <span className="h-1.5 w-8" style={{ background: COVER_SWATCH[c].fg }} />
@@ -313,7 +313,7 @@ export function OfferPage() {
             <DateInput value={draft.validUntil} onChange={(v) => set({ validUntil: v })} min={offerToday()} disabled={!editing} />
           </Field>
 
-          <label className="flex items-start gap-2 text-sm text-slate-700">
+          <label className="flex items-start gap-2 text-body text-slate-700">
             <input
               type="checkbox"
               className="mt-0.5 size-4 accent-accent-600"
@@ -323,7 +323,7 @@ export function OfferPage() {
             />
             <span>
               {t('offers.fields.includeBrochure')}
-              <span className="block text-[0.7812rem] text-slate-500">{t('offers.edit.brochureHint')}</span>
+              <span className="block text-small text-slate-500">{t('offers.edit.brochureHint')}</span>
             </span>
           </label>
 
@@ -346,7 +346,7 @@ export function OfferPage() {
             </Field>
           )}
 
-          <dl className="mt-auto grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1.5 rounded-md bg-accent-50 p-3.5 text-[0.8125rem]">
+          <dl className="mt-auto grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-2 rounded-md bg-accent-50 p-4 text-small">
             <dt className="text-slate-500">{t('offers.edit.summary.number')}</dt>
             <dd className="text-right font-mono font-medium">{offer.offer_number}</dd>
             <dt className="text-slate-500">{t('offers.edit.summary.status')}</dt>

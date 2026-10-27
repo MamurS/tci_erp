@@ -99,7 +99,7 @@ export function RelationshipModal({ open, onClose, entityId, entityName }: Relat
                   role="radio"
                   aria-checked={selected}
                   onClick={() => setThisIsParent(parent)}
-                  className={`flex items-start gap-2 rounded-md border px-3 py-2 text-left text-[0.8125rem] transition-colors ${
+                  className={`flex items-start gap-2 rounded-md border px-3 py-2 text-left text-small transition-colors ${
                     selected
                       ? 'border-accent-600 bg-accent-50 text-accent-700'
                       : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
@@ -156,12 +156,12 @@ export function RelationshipModal({ open, onClose, entityId, entityName }: Relat
         </div>
 
         {!pctValid && (
-          <p className="text-[0.8125rem] text-neg-500" role="alert">
+          <p className="text-small text-neg-500" role="alert">
             {t('groups.errors.pctRange')}
           </p>
         )}
         {error && (
-          <p className="text-[0.8125rem] text-neg-500" role="alert">
+          <p className="text-small text-neg-500" role="alert">
             {error}
           </p>
         )}

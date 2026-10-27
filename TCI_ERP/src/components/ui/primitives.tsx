@@ -8,6 +8,7 @@
  * for running UI text. Crisp 6–10px radii, hairline borders, soft shadows.
  */
 import { Suspense, createContext, useContext, useEffect, useId, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { BADGE_TONES, BadgeSizeContext, badgeClassName } from './badgeStyles'
 import type { BadgeSize, BadgeTone } from './badgeStyles'
@@ -15,6 +16,11 @@ import { buttonClassName } from './buttonStyles'
 import { FieldLabelIdContext } from './fieldContext'
 import type { ButtonVariant } from './buttonStyles'
 import { COL, tableMinWidth } from './columns'
+import { OnBandContext } from './bandContext'
+import { HeroBand } from './HeroBand'
+import { Pictogram } from './pictograms'
+import type { PictogramName } from './pictogramNames'
+import { DENSITY_CELL, hiddenColumnsCss, useDensity, useHiddenColumns } from './tablePrefs'
 import type { ColumnWidth } from './columns'
 import type {
   ButtonHTMLAttributes,
@@ -37,13 +43,27 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
    * (invisible), so the button is exactly as wide and tall as before and
    * nothing beside it moves; it is disabled while it works. */
   loading?: boolean
+  /** Just done (useFlash): a check in the same box for about a second —
+   * the confirmation where the eye already is, instead of a toast. */
+  done?: boolean
 }
 
-export function Button({ variant = 'primary', size = 'md', className = '', loading = false, children, disabled, ...rest }: ButtonProps) {
+export function Button({
+  variant = 'primary',
+  size = 'md',
+  className = '',
+  loading = false,
+  done = false,
+  children,
+  disabled,
+  ...rest
+}: ButtonProps) {
+  const { t } = useTranslation()
+  const onBand = useContext(OnBandContext)
   return (
     <button
       type="button"
-      className={buttonClassName(variant, size, `relative ${className}`)}
+      className={buttonClassName(onBand && variant === 'primary' ? 'onBand' : variant, size, `relative ${className}`)}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       {...rest}
@@ -53,6 +73,16 @@ export function Button({ variant = 'primary', size = 'md', className = '', loadi
           <span className="invisible contents">{children}</span>
           <span aria-hidden className="absolute inset-0 flex items-center justify-center">
             <span className="size-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          </span>
+        </>
+      ) : done ? (
+        <>
+          <span className="invisible contents">{children}</span>
+          <span className="animate-fade-in absolute inset-0 flex items-center justify-center" role="status">
+            <svg viewBox="0 0 16 16" className="size-4" aria-hidden="true">
+              <path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            <span className="sr-only">{t('ui.saved')}</span>
           </span>
         </>
       ) : (
@@ -67,28 +97,50 @@ export function Button({ variant = 'primary', size = 'md', className = '', loadi
 // ---------------------------------------------------------------------------
 
 const CONTROL_CLASSES =
-  'w-full rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm text-slate-900 shadow-[inset_0_1px_1px_rgb(0_0_0/0.03)] transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-accent-500 focus:outline-none focus:ring-3 focus:ring-accent-500/20 disabled:bg-slate-50 disabled:text-slate-400'
+  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-body text-slate-900 shadow-[inset_0_1px_1px_rgb(0_0_0/0.03)] transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-accent-500 focus:outline-none focus:ring-3 focus:ring-accent-500/20 disabled:bg-slate-50 disabled:text-slate-400 in-data-invalid:border-danger-500 in-data-invalid:focus:ring-danger-500/20'
 
 interface FieldProps {
   label?: string
   /** Helper text under the control (text, or text with a link). */
   hint?: ReactNode
+  /** What is wrong with the value, shown under the control in red once the
+   * person has left the field (validate on blur, never while typing). */
+  error?: string | null
   children: ReactNode
   className?: string
 }
 
-export function Field({ label, hint, children, className = '' }: FieldProps) {
+/** A label ABOVE its control, in sentence case (Prompt 30: easier to scan
+ * than capitals); the hint or the error under it. */
+export function Field({ label, hint, error, children, className = '' }: FieldProps) {
   const labelId = useId()
   return (
-    <label className={`flex flex-col gap-1.5 ${className}`}>
+    <label className={`flex flex-col gap-2 ${className}`} data-invalid={error ? '' : undefined}>
       {label && (
-        <span id={labelId} className="text-[0.75rem] font-semibold tracking-wide text-slate-600 uppercase">
+        <span id={labelId} className="text-small font-medium text-slate-700">
           {label}
         </span>
       )}
       <FieldLabelIdContext.Provider value={label ? labelId : undefined}>{children}</FieldLabelIdContext.Provider>
-      {hint && <span className="text-xs text-slate-500">{hint}</span>}
+      {error ? (
+        <span className="text-caption font-medium text-danger-700" role="alert">
+          {error}
+        </span>
+      ) : (
+        hint && <span className="text-caption text-slate-500">{hint}</span>
+      )}
     </label>
+  )
+}
+
+/** A titled group of fields in a long form: what belongs together, together. */
+export function FormSection({ title, hint, children }: { title: string; hint?: ReactNode; children: ReactNode }) {
+  return (
+    <fieldset className="flex min-w-0 flex-col gap-3 border-t border-slate-100 pt-4 first:border-t-0 first:pt-0">
+      <legend className="float-left mb-1 w-full text-body font-semibold text-slate-900">{title}</legend>
+      {hint && <p className="-mt-2 text-caption text-slate-500">{hint}</p>}
+      {children}
+    </fieldset>
   )
 }
 
@@ -134,7 +186,8 @@ export function Card({ children, className = '', ...rest }: CardProps) {
 }
 
 // ---------------------------------------------------------------------------
-// Section title — the brand marker: a process-blue square + condensed caps
+// Section title — the body face, semibold, sentence case (Prompt 30: the
+// display face is for page titles and key figures only; no decorative marker)
 // ---------------------------------------------------------------------------
 
 interface SectionTitleProps {
@@ -155,7 +208,7 @@ export function SectionTitle({ children, actions, hint, rule = false, className 
         <SectionTitle actions={actions} rule={rule}>
           {children}
         </SectionTitle>
-        <p className="mt-1 text-[0.75rem] leading-relaxed text-slate-500">{hint}</p>
+        <p className="mt-1 text-caption leading-relaxed text-slate-500">{hint}</p>
       </div>
     )
   return (
@@ -164,13 +217,10 @@ export function SectionTitle({ children, actions, hint, rule = false, className 
     // button never hangs over the content below.
     <div
       className={`flex min-h-8 flex-wrap items-center justify-between gap-x-3 gap-y-2 ${
-        rule ? 'border-b border-accent-500 pb-1.5' : ''
+        rule ? 'border-b border-slate-200 pb-2' : ''
       } ${className}`}
     >
-      <h2 className="flex items-center gap-2 font-display text-[1.0625rem] leading-tight font-bold tracking-wide text-accent-600 uppercase">
-        <span aria-hidden="true" className="inline-block size-2.5 shrink-0 bg-accent-500" />
-        {children}
-      </h2>
+      <h2 className="flex items-center gap-2 text-lead leading-tight font-semibold text-slate-900">{children}</h2>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
     </div>
   )
@@ -262,7 +312,7 @@ interface StatCardProps {
 const STAT_TONES: Record<NonNullable<StatCardProps['tone']>, string> = {
   default: 'border-t-accent-500',
   pos: 'border-t-pos-500',
-  warn: 'border-t-brand-orange',
+  warn: 'border-t-warning-400',
   neg: 'border-t-neg-500',
 }
 
@@ -280,18 +330,18 @@ export function StatCard({
     <Tag
       type={onClick ? 'button' : undefined}
       onClick={onClick}
-      className={`group flex flex-col gap-1 rounded-lg border border-slate-200/90 border-t-[3px] bg-white px-4 pt-3 pb-3.5 text-left shadow-card transition-shadow ${
+      className={`group flex flex-col gap-1 rounded-lg border border-slate-200/90 border-t-[3px] bg-white px-4 pt-3 pb-4 text-left shadow-card transition-shadow ${
         STAT_TONES[tone]
       } ${onClick ? 'cursor-pointer hover:shadow-pop focus-visible:outline-2 focus-visible:outline-accent-500' : ''} ${className}`}
     >
-      <span className="flex items-start justify-between gap-2 text-[0.75rem] font-medium text-slate-500">
+      <span className="flex items-start justify-between gap-2 text-caption font-medium text-slate-500">
         {label}
-        {icon && <span className="text-accent-500 [&_svg]:size-4">{icon}</span>}
+        {icon && <span className="text-slate-500 [&_svg]:size-4">{icon}</span>}
       </span>
-      <span className="num text-left font-display text-[1.625rem] leading-none font-bold text-accent-600">
+      <span className="num text-left font-display text-headline leading-none font-bold text-accent-600">
         {value}
       </span>
-      {meta && <span className="mt-0.5 text-[0.75rem] text-slate-500">{meta}</span>}
+      {meta && <span className="mt-0.5 text-caption text-slate-500">{meta}</span>}
     </Tag>
   )
 }
@@ -356,7 +406,7 @@ export function Segmented({ value, options, onChange, ariaLabel, tone = 'default
             disabled={option.disabled}
             aria-pressed={option.key === value}
             onClick={() => onChange(option.key)}
-            className={`rounded-[5px] px-3.5 text-[0.8125rem] font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none ${
+            className={`rounded-[5px] px-3 text-small font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none ${
               option.key === value ? 'bg-accent-600 text-white' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
             } ${option.disabled ? 'cursor-not-allowed opacity-50' : ''}`}
           >
@@ -379,7 +429,7 @@ export function Segmented({ value, options, onChange, ariaLabel, tone = 'default
           disabled={option.disabled}
           aria-pressed={option.key === value}
           onClick={() => onChange(option.key)}
-          className={`rounded-[5px] px-2.5 py-1 text-xs font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none ${
+          className={`rounded-[5px] px-3 py-1 text-caption font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none ${
             option.key === value
               ? 'bg-white text-accent-600 shadow-sm ring-1 ring-slate-200'
               : 'text-slate-600 hover:text-slate-900'
@@ -405,19 +455,34 @@ interface PageHeaderProps {
   actions?: ReactNode
   /** Small line above the title (section / breadcrumb). */
   eyebrow?: ReactNode
+  /** A registry's or a queue's header: the compact navy band (HeroBand).
+   * Its subtitle and actions sit on navy — plain text, buttons, a Segmented. */
+  band?: boolean
 }
 
-export function PageHeader({ title, status, subtitle, actions, eyebrow }: PageHeaderProps) {
+export function PageHeader({ title, status, subtitle, actions, eyebrow, band = false }: PageHeaderProps) {
+  if (band) {
+    return (
+      <HeroBand
+        compact
+        eyebrow={eyebrow}
+        title={title}
+        status={status && <BadgeSizeContext.Provider value="md">{status}</BadgeSizeContext.Provider>}
+        subtitle={subtitle}
+        actions={actions}
+      />
+    )
+  }
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
         {eyebrow && (
-          <div className="mb-1 text-[0.75rem] font-semibold tracking-wider text-accent-500 uppercase">
+          <div className="mb-1 text-caption font-semibold tracking-wider text-accent-500 uppercase">
             {eyebrow}
           </div>
         )}
-        <div data-badge-row className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-          <h1 className="font-display text-[1.75rem] leading-tight font-bold tracking-wide text-accent-600 uppercase">
+        <div data-badge-row className="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <h1 className="font-display text-headline leading-tight font-bold tracking-wide text-accent-700 uppercase">
             {title}
           </h1>
           {status && (
@@ -426,7 +491,7 @@ export function PageHeader({ title, status, subtitle, actions, eyebrow }: PageHe
             </BadgeSizeContext.Provider>
           )}
         </div>
-        {subtitle && <p className="mt-1 max-w-3xl text-sm text-slate-500">{subtitle}</p>}
+        {subtitle && <p className="mt-1 max-w-3xl text-body text-slate-500">{subtitle}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
@@ -444,6 +509,9 @@ interface SectionPageProps {
   active: string
   onChange: (key: string) => void
   children: ReactNode
+  /** The section's key figures as inverse KpiCards: the band grows to the
+   * dashboard's and carries them on EVERY view, so the tabs never move. */
+  figures?: ReactNode
 }
 
 /**
@@ -453,10 +521,16 @@ interface SectionPageProps {
  * shell's full content width like every other page, so the title does not
  * jump sideways when the person moves between sections.
  */
-export function SectionPage({ title, subtitle, tabs, active, onChange, children }: SectionPageProps) {
+export function SectionPage({ title, subtitle, tabs, active, onChange, children, figures }: SectionPageProps) {
   return (
     <div>
-      <PageHeader title={title} subtitle={subtitle} />
+      {figures ? (
+        <HeroBand title={title} subtitle={subtitle}>
+          {figures}
+        </HeroBand>
+      ) : (
+        <PageHeader band title={title} subtitle={subtitle} />
+      )}
       <div className="mb-5">
         <Tabs tabs={tabs} active={active} onChange={onChange} />
       </div>
@@ -488,7 +562,7 @@ export function ViewBar({ hint, actions }: ViewBarProps) {
   if (!hint && !actions) return null
   return (
     <div className="mb-5 flex min-h-9 flex-wrap items-center justify-between gap-x-6 gap-y-3">
-      {hint ? <p className="max-w-3xl min-w-0 flex-1 text-[0.8125rem] leading-relaxed text-slate-500">{hint}</p> : <span />}
+      {hint ? <p className="max-w-3xl min-w-0 flex-1 text-small leading-relaxed text-slate-500">{hint}</p> : <span />}
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
     </div>
   )
@@ -502,10 +576,13 @@ interface EmptyStateProps {
   title: string
   hint?: string
   action?: ReactNode
+  /** A small icon in a disc, instead of the pictogram. */
   icon?: ReactNode
+  /** The drawing that says what is missing (pictograms.tsx); `inbox` by default. */
+  pictogram?: PictogramName
 }
 
-export function EmptyState({ title, hint, action, icon }: EmptyStateProps) {
+export function EmptyState({ title, hint, action, icon, pictogram = 'inbox' }: EmptyStateProps) {
   // On the page it is its own dashed box; inside a card or a panel the card
   // already frames it, so it is only the message.
   const framed = useContext(FramedContext)
@@ -515,16 +592,15 @@ export function EmptyState({ title, hint, action, icon }: EmptyStateProps) {
         framed ? 'px-4 py-8' : 'rounded-lg border border-dashed border-slate-300 bg-white/70 px-6 py-14'
       }`}
     >
-      <span className="mb-1 flex size-11 items-center justify-center rounded-full bg-accent-50 text-accent-500 [&_svg]:size-5">
-        {icon ?? (
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" strokeWidth="1.6" />
-            <path d="M8 9h8M8 13h5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          </svg>
-        )}
-      </span>
-      <p className="text-sm font-semibold text-slate-800">{title}</p>
-      {hint && <p className="max-w-md text-[0.8125rem] leading-relaxed text-slate-500">{hint}</p>}
+      {icon ? (
+        <span className="mb-1 flex size-11 items-center justify-center rounded-full bg-slate-100 text-slate-500 [&_svg]:size-5">
+          {icon}
+        </span>
+      ) : (
+        <Pictogram name={pictogram} className={`mb-1 ${framed ? 'size-12' : 'size-16'}`} />
+      )}
+      <p className="text-body font-semibold text-slate-800">{title}</p>
+      {hint && <p className="max-w-md text-small leading-relaxed text-slate-500">{hint}</p>}
       {action && <div className="mt-2">{action}</div>}
     </div>
   )
@@ -560,7 +636,7 @@ export function Count({
       data-badge="sm"
       title={title}
       style={{ minWidth: `calc(${digits}ch + 0.75rem)` }}
-      className={`inline-flex h-5 shrink-0 items-center justify-center rounded-full px-1.5 font-sans text-xs leading-4 font-medium tabular-nums normal-case ${className}`}
+      className={`inline-flex h-text-5 shrink-0 items-center justify-center rounded-full px-2 font-sans text-caption leading-text-4 font-medium tabular-nums normal-case ${className}`}
     >
       {value}
     </span>
@@ -591,12 +667,12 @@ export function Tabs({ tabs, active, onChange, size = 'md' }: TabsProps) {
   const crowded = tabs.length > 7
   const pad =
     size === 'sm'
-      ? 'px-3 py-2 text-[0.8125rem]'
+      ? 'px-3 py-2 text-small'
       : crowded
-        ? 'px-1.5 py-2.5 text-[0.8125rem] leading-5'
+        ? 'px-1 py-3 text-small leading-text-5'
         : dense
-          ? 'px-2 py-2.5 text-sm'
-          : 'px-3.5 py-2.5 text-sm'
+          ? 'px-2 py-3 text-body'
+          : 'px-3 py-3 text-body'
   // The rule under the tabs is an inset shadow, not a border: the selected
   // tab's underline then sits ON it without a negative margin, so the strip
   // never overflows vertically (which showed a stray scrollbar on Windows).
@@ -614,7 +690,7 @@ export function Tabs({ tabs, active, onChange, size = 'md' }: TabsProps) {
             role="tab"
             aria-selected={selected}
             onClick={() => onChange(tab.key)}
-            className={`flex shrink-0 items-center gap-1.5 border-b-2 font-medium whitespace-nowrap transition-colors ${pad} ${
+            className={`flex shrink-0 items-center ${crowded ? 'gap-1' : 'gap-2'} border-b-2 font-medium whitespace-nowrap transition-colors ${pad} ${
               selected
                 ? 'border-accent-500 text-accent-600'
                 : 'border-transparent text-slate-500 hover:border-slate-300 hover:text-slate-800'
@@ -653,6 +729,7 @@ interface ModalProps {
 const openModals: string[] = []
 
 export function Modal({ open, title, onClose, children, footer, wide = false }: ModalProps) {
+  const { t } = useTranslation()
   const titleId = useId()
   const closeRef = useRef(onClose)
   useEffect(() => {
@@ -685,20 +762,21 @@ export function Modal({ open, title, onClose, children, footer, wide = false }: 
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`animate-fade-in w-full ${wide ? 'max-w-2xl' : 'max-w-md'} overflow-hidden rounded-xl bg-white shadow-pop ring-1 ring-slate-900/5`}
+        // The head and the buttons stay put; a long form scrolls between them.
+        className={`animate-fade-in flex max-h-[calc(100dvh-12vh)] w-full flex-col ${wide ? 'max-w-2xl' : 'max-w-md'} overflow-hidden rounded-xl bg-white shadow-pop ring-1 ring-slate-900/5`}
       >
-        <div className="flex items-center justify-between border-b border-slate-200 px-5 py-3.5">
+        <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-5 py-4">
           <h2
             id={titleId}
-            className="font-display text-[1.0625rem] font-bold tracking-wide text-accent-600 uppercase"
+            className="text-lead font-semibold text-slate-900"
           >
             {title}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
-            className="rounded-md p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+            aria-label={t('common.close')}
+            className="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-600"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -706,9 +784,9 @@ export function Modal({ open, title, onClose, children, footer, wide = false }: 
           </button>
         </div>
         {/* Fields placed directly in a dialog are spaced evenly, never touching. */}
-        <div className="flex flex-col gap-4 px-5 py-4">{children}</div>
+        <div className="scrollbar-thin flex min-h-0 flex-col gap-4 overflow-y-auto px-5 py-4">{children}</div>
         {footer && (
-          <div className="flex justify-end gap-2 border-t border-slate-200 bg-slate-50/70 px-5 py-3">
+          <div className="flex shrink-0 justify-end gap-2 border-t border-slate-200 bg-slate-50/70 px-5 py-3">
             {footer}
           </div>
         )}
@@ -735,6 +813,15 @@ interface TableProps {
   columns?: readonly ColumnWidth[]
   /** The narrowest a fill column may get before the table scrolls sideways (6rem). */
   fillMin?: string
+  /** A registry's name for its remembered column choice (TableSettings with
+   * the same id hides and shows the columns). */
+  id?: string
+  /** A long list: the head stays in view while the rows scroll (the table
+   * scrolls inside a box as tall as the viewport allows). */
+  stickyHead?: boolean
+  /** The first column (the name) stays in view while a wide table scrolls
+   * sideways. */
+  freezeFirst?: boolean
 }
 
 /** A cut cell (or a `truncate` element in it) names its full text on hover. */
@@ -752,9 +839,20 @@ function titleIfCut(event: MouseEvent<HTMLTableElement>) {
   }
 }
 
-/** Scrollable table container. `dense` is the financial variant: the navy
- * header band of the risk report, condensed caps, zebra rows. */
-export function Table({ children, dense = false, className = '', columns, fillMin }: TableProps) {
+/** A column reserves room for its text (columns.ts), so it widens with the
+ * person's text size (uiScale.ts, 0081) — at 100 % text, exactly as written. */
+function textSizedWidth(width: string): string {
+  return `calc(${width} * var(--ui-text, 1))`
+}
+
+/** Scrollable table container. `dense` is the financial variant: tighter
+ * rows and a sentence-case head. */
+export function Table({ children, dense = false, className = '', columns, fillMin, id, stickyHead = false, freezeFirst = false }: TableProps) {
+  // Row density is the person's choice (TableSettings); the financial
+  // (dense) variant keeps its own tight rows.
+  const [density] = useDensity()
+  const [hidden] = useHiddenColumns(id)
+  const visibleColumns = columns?.filter((_, i) => !hidden.includes(i))
   // On the page a table is its own card; inside a card it sits flush, its
   // rows on the card's own surface — never a box in a box.
   const framed = useContext(FramedContext)
@@ -768,28 +866,34 @@ export function Table({ children, dense = false, className = '', columns, fillMi
   const fixedCells = fixed
     ? 'table-fixed [:where(&_td,&_th)]:overflow-hidden [:where(&_td,&_th)]:text-ellipsis [:where(&_td)]:whitespace-nowrap [&_th]:whitespace-normal [&_th]:align-bottom [&_th]:[text-wrap:balance]'
     : '[&_th]:whitespace-nowrap'
+  // Navy is the sidebar's: every table head is light (Prompt 30) — the
+  // financial (dense) one in the condensed face, as narrow as its figures, without zebra rows.
   const head = dense
-    ? '[&_thead_th]:bg-accent-600 [&_thead_th]:text-white [&_thead_th]:font-display [&_thead_th]:text-[0.8125rem] [&_thead_th]:font-bold [&_thead_th]:tracking-wide [&_thead_th]:border-accent-600 [:where(&_tbody_tr:nth-child(even))]:bg-accent-50/60'
-    : '[&_thead_th]:bg-slate-50 [&_thead_th]:text-slate-500 [&_thead_th]:text-[0.75rem] [&_thead_th]:font-semibold [&_thead_th]:tracking-wide [&_thead_th]:uppercase [&_thead_th]:border-slate-200'
+    ? '[&_thead_th]:bg-slate-50 [&_thead_th]:text-slate-600 [&_thead_th]:font-display [&_thead_th]:text-small [&_thead_th]:font-bold [&_thead_th]:border-slate-200'
+    : '[&_thead_th]:bg-slate-50 [&_thead_th]:text-slate-500 [&_thead_th]:text-caption [&_thead_th]:font-semibold [&_thead_th]:tracking-wide [&_thead_th]:uppercase [&_thead_th]:border-slate-200'
   return (
     <div
-      className={`scrollbar-thin overflow-x-auto ${
+      data-table={id}
+      className={`scrollbar-thin overflow-x-auto ${stickyHead ? 'max-h-[calc(100dvh-10rem)] overflow-y-auto [scrollbar-gutter:stable]' : ''} ${
         framed ? 'rounded-md' : 'rounded-lg border border-slate-200/90 bg-white shadow-card'
       } ${className}`}
     >
+      {id && hidden.length > 0 && <style>{hiddenColumnsCss(id, hidden)}</style>}
       <table
-        style={fixed ? { minWidth: tableMinWidth(columns, fillMin) } : undefined}
+        style={fixed ? { minWidth: textSizedWidth(tableMinWidth(visibleColumns ?? columns, fillMin)) } : undefined}
         onMouseOver={fixed ? titleIfCut : undefined}
-        className={`w-full border-collapse ${fixedCells} ${dense ? 'text-[0.8125rem]' : 'text-sm'} [&_th]:border-b [&_td.num]:whitespace-nowrap [:where(&_th)]:text-left [&_td]:border-b [&_td]:border-slate-100 [:where(&_tbody_tr)]:transition-colors [:where(&_tbody_tr:hover)]:bg-accent-50 [&_tbody_tr:last-child_td]:border-b-0 ${head} ${
-          dense
-            ? '[&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-1.5'
-            : '[&_th]:px-4 [&_th]:py-2.5 [&_td]:px-4 [&_td]:py-2.5'
+        className={`w-full border-collapse ${fixedCells} ${dense ? 'text-small' : 'text-body'} [&_th]:border-b [&_td.num]:whitespace-nowrap [:where(&_th)]:text-left [&_td]:border-b [&_td]:border-slate-100 [:where(&_tbody_tr)]:transition-colors [:where(&_tbody_tr:hover)]:bg-accent-50 [&_tbody_tr:last-child_td]:border-b-0 ${head} ${
+          dense ? '[&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-2' : `[&_th]:px-4 [&_td]:px-4 ${DENSITY_CELL[density]}`
+        } ${stickyHead ? '[&_thead_th]:sticky [&_thead_th]:top-0 [&_thead_th]:z-[2]' : ''} ${
+          freezeFirst
+            ? '[&_tr>:first-child]:sticky [&_tr>:first-child]:left-0 [&_tr>:first-child]:z-[1] [&_tbody_tr>td:first-child]:bg-white [&_tbody_tr:hover>td:first-child]:bg-accent-50 [&_thead_tr>th:first-child]:z-[3]'
+            : ''
         }`}
       >
         {fixed && (
           <colgroup>
             {columns.map((width, i) => (
-              <col key={i} style={width === COL.fill ? undefined : { width }} />
+              <col key={i} style={width === COL.fill ? undefined : { width: textSizedWidth(width) }} />
             ))}
           </colgroup>
         )}
@@ -830,7 +934,7 @@ export function RowActions({ children, reveal = false }: { children: ReactNode; 
 
 export function Spinner({ label }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2.5 py-12 text-sm text-slate-500" role="status">
+    <div className="flex items-center justify-center gap-3 py-12 text-body text-slate-500" role="status">
       <span className="size-4 animate-spin rounded-full border-2 border-accent-100 border-t-accent-500" />
       {label}
     </div>

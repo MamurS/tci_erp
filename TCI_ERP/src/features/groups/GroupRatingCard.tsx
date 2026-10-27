@@ -9,10 +9,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Badge, Button, Card, Field, Modal, SectionTitle, Textarea } from '../../components/ui'
+import { Button, Card, Field, GradeBadge, Modal, SectionTitle, Textarea } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
 import { EM_DASH, formatMoment } from '../../lib/format'
-import { gradeTone } from '../../lib/grade'
 import { useGradeScale } from '../../lib/gradeScale'
 import { GradePicker } from '../entities/rating/GradePicker'
 import { refusalOr } from '../../lib/optimistic'
@@ -55,22 +54,22 @@ export function GroupRatingCard({ entityId }: { entityId: string }) {
       </SectionTitle>
 
       {active ? (
-        <div className="flex flex-col gap-2 text-sm">
+        <div className="flex flex-col gap-2 text-body">
           <span className="flex flex-wrap items-center gap-2">
-            <Badge tone={gradeTone(active.grade)}>{active.grade}</Badge>
+            <GradeBadge grade={active.grade} />
             <span className="text-slate-600">
               {t('groups.rating.setBy', { name: active.set_by_name ?? EM_DASH, at: formatMoment(active.set_at, locale) })}
             </span>
           </span>
-          <span className="whitespace-pre-line text-[0.8125rem] text-slate-700">«{active.reason}»</span>
-          <span className="text-[0.8125rem] text-slate-600">
+          <span className="whitespace-pre-line text-small text-slate-700">«{active.reason}»</span>
+          <span className="text-small text-slate-600">
             {capped.length > 0
               ? t('groups.rating.cappedMembers', { names: capped.map((c) => c.name).join(', ') })
               : t('groups.rating.noneCapped')}
           </span>
         </div>
       ) : (
-        <p className="text-[0.8125rem] text-slate-500">
+        <p className="text-small text-slate-500">
           {t('groups.rating.none')}
           {!may_set && (seniors.length > 0
             ? ` ${t('groups.rating.whoSets', { names: seniors.join(', ') })}`
@@ -78,17 +77,17 @@ export function GroupRatingCard({ entityId }: { entityId: string }) {
         </p>
       )}
 
-      {notice && <p className="text-[0.8125rem] text-slate-600" role="status">{notice}</p>}
+      {notice && <p className="text-small text-slate-600" role="status">{notice}</p>}
 
       {history.length > 0 && (
-        <details className="text-[0.8125rem] text-slate-700">
+        <details className="text-small text-slate-700">
           <summary className="cursor-pointer font-medium text-accent-700">
             {t('groups.rating.history', { count: history.length })}
           </summary>
-          <ul className="mt-2 flex flex-col gap-1.5">
+          <ul className="mt-2 flex flex-col gap-2">
             {history.map((h) => (
               <li key={h.id} className="flex flex-wrap items-center gap-2">
-                <Badge tone={gradeTone(h.grade)}>{h.grade}</Badge>
+                <GradeBadge grade={h.grade} />
                 <span className="text-slate-500">
                   {formatMoment(h.set_at, locale)} — {h.ended_at ? formatMoment(h.ended_at, locale) : EM_DASH}
                 </span>
@@ -170,7 +169,7 @@ function GroupRatingDialog({
       }
     >
       <div className="flex flex-col gap-4">
-        <p className="text-sm text-slate-600">{kind === 'set' ? t('groups.rating.setHint') : t('groups.rating.endHint')}</p>
+        <p className="text-body text-slate-600">{kind === 'set' ? t('groups.rating.setHint') : t('groups.rating.endHint')}</p>
         {kind === 'set' && (
           <GradePicker value={grade} onChange={setGrade} label={t('groups.rating.grade')} bands={bands} />
         )}
@@ -178,7 +177,7 @@ function GroupRatingDialog({
           <Textarea value={reason} rows={3} onChange={(e) => setReason(e.target.value)} />
         </Field>
         {error && (
-          <div className="text-sm text-neg-500" role="alert">
+          <div className="text-body text-neg-500" role="alert">
             {error}
           </div>
         )}

@@ -100,7 +100,7 @@ export function LocalStatementForm({ frameworkCode, existing, onStateChange }: L
 
   if (!templates?.length) {
     return (
-      <Card className="p-5 text-sm text-slate-500">{t('fin.local.noTemplates')}</Card>
+      <Card className="p-5 text-body text-slate-500">{t('fin.local.noTemplates')}</Card>
     )
   }
 
@@ -108,14 +108,14 @@ export function LocalStatementForm({ frameworkCode, existing, onStateChange }: L
     <PanelGrid cols="xl:grid-cols-2">
       {perTemplate.map(({ template, subtotalWarnings, crossChecks }) => (
         <Card key={template.id} className="overflow-hidden">
-          <div className="border-b border-slate-200 bg-slate-50 px-4 py-2.5">
-            <h2 className="text-sm font-semibold text-slate-900">
+          <div className="border-b border-slate-200 bg-slate-50 px-4 py-3">
+            <h2 className="text-body font-semibold text-slate-900">
               {templateName(template, locale)}
             </h2>
             {template.name_local && template.name_local !== templateName(template, locale) && (
-              <p className="text-xs text-slate-500">{template.name_local}</p>
+              <p className="text-caption text-slate-500">{template.name_local}</p>
             )}
-            <p className="text-xs text-slate-500">
+            <p className="text-caption text-slate-500">
               {t('fin.local.enterAsReported')} {t(`fin.local.fidelity.${template.fidelity}`)}
             </p>
           </div>
@@ -130,28 +130,28 @@ export function LocalStatementForm({ frameworkCode, existing, onStateChange }: L
               return (
                 <Fragment key={line.id}>
                   {showSection && (
-                    <div className="bg-white px-4 pt-3 pb-1 text-xs font-semibold tracking-wide text-slate-400 uppercase">
+                    <div className="bg-white px-4 pt-3 pb-1 text-caption font-semibold tracking-wide text-slate-500 uppercase">
                       {t(`fin.localSections.${line.section}`)}
                     </div>
                   )}
                   <div
                     className={`grid grid-cols-[64px_1fr_150px] items-center gap-2 border-t border-slate-100 px-4 py-1 ${emphasis}`}
                   >
-                    <span className="num truncate text-xs text-slate-400" title={line.line_code}>
+                    <span className="num truncate text-caption text-slate-500" title={line.line_code}>
                       {line.line_code}
                     </span>
                     <div style={{ paddingLeft: `${line.indent_level * 0.875}rem` }}>
-                      <span className="text-[0.8125rem] text-slate-700">{localName(line, locale)}</span>
+                      <span className="text-small text-slate-700">{localName(line, locale)}</span>
                       {line.is_deduction && (
-                        <span className="ml-1 text-xs text-slate-400" title={t('fin.local.deductionHint')}>
+                        <span className="ml-1 text-caption text-slate-500" title={t('fin.local.deductionHint')}>
                           (−)
                         </span>
                       )}
                       {originalCaption(line, locale) && (
-                        <span className="block text-xs text-slate-400">{originalCaption(line, locale)}</span>
+                        <span className="block text-caption text-slate-500">{originalCaption(line, locale)}</span>
                       )}
                       {warning && (
-                        <span className="ml-2 text-xs text-warn-500">
+                        <span className="ml-2 text-caption text-warn-500">
                           {t('fin.warnings.subtotalMismatch', {
                             expected: formatAmount(warning.expected, locale),
                           })}
@@ -172,7 +172,7 @@ export function LocalStatementForm({ frameworkCode, existing, onStateChange }: L
           </div>
 
           {crossChecks.length > 0 && (
-            <div className="border-t border-warn-500/30 bg-warn-50 px-4 py-2 text-[0.8125rem] text-warn-500">
+            <div className="border-t border-warn-500/30 bg-warn-50 px-4 py-2 text-small text-warn-500">
               <p className="font-medium">{t('fin.local.crossCheckTitle')}</p>
               <ul className="mt-0.5 list-inside list-disc">
                 {crossChecks.map((w) => (
@@ -218,7 +218,7 @@ function LocalLineInput({
         setRaw(plain)
         onChange(parseAmount(plain))
       }}
-      className={`h-7! rounded! px-2! py-1! text-[0.8125rem]! ${
+      className={`h-7! rounded! px-2! py-1! text-small! ${
         hasWarning ? 'border-warn-500/50! bg-warn-50!' : 'border-slate-200!'
       }`}
     />
