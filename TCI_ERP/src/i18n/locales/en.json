@@ -3151,10 +3151,10 @@
       }
     },
     "uiBadgeInk": {
-      "title": "Text on coloured badges",
-      "hint": "White text on the darker shade, or dark text on the pale tint. Dark mode and printed documents keep their own look.",
-      "white": "White",
-      "dark": "Dark"
+      "title": "Coloured badges",
+      "hint": "Pastel: a pale tint with dark text (the default). Bold: the darker shade with white text. Dark mode and printed documents keep their own look.",
+      "white": "Bold, white text",
+      "dark": "Pastel"
     }
   },
   "provisioning": {

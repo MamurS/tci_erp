@@ -8,7 +8,7 @@ describe('grade colours', () => {
     for (const code of GRADE_CODES) {
       const g = code.toLowerCase()
       expect(gradeBadgeTone(code)).toBe(
-        `bg-grade-${g}-tint text-grade-${g}-ink in-data-[badge-ink=white]:bg-grade-${g}-ink in-data-[badge-ink=white]:text-white`,
+        `bg-grade-${g}-tint text-grade-${g}-deep ring-grade-${g}-line in-data-[badge-ink=white]:bg-grade-${g}-ink in-data-[badge-ink=white]:text-white in-data-[badge-ink=white]:ring-grade-${g}-ink`,
       )
       expect(gradeSolid(code)).toBe(`bg-grade-${code.toLowerCase()}`)
     }

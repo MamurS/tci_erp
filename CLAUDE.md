@@ -2536,8 +2536,10 @@ document view must carry one of them, and a new hex colour in a screen
 component is a bug (use a token, or `var(--color-…)` for Recharts / SVG).
 
 **The badge text is a third attribute (0089).** `data-badge-ink` on <html>
-(`white` | `dark`, `ui_badge_ink`, NULL = white) switches the coloured
-badges between the 700 fill with white text and the tint with the 700 ink;
+(`white` | `dark`, `ui_badge_ink`, NULL = `dark` — the PASTEL badge since
+0093, white before) switches the coloured badges between the 700 fill with
+white text and the tint with the 700 ink (grades: their `deep` ink and
+`line` hairline);
 it is set only in light mode and never on paper (`effectiveBadgeInk`), so the
 dark-mode audit skips the `in-data-[badge-ink=white]:` classes and the light
 one pairs them with the fill of the same variant. A new coloured badge tone

@@ -21,9 +21,10 @@
  * `data-badge-ink`: «white» fills a status, grade or tone badge with its
  * dark shade behind white text (badgeStyles.ts, gradeTone.ts — the
  * `in-data-[badge-ink=white]:` classes), «dark» keeps the pale tint with
- * dark text. It applies in light mode only — dark mode already draws light
- * text on dark tints — and never on paper. NULL means white (the owner's
- * choice, 2026-10-27).
+ * dark text — the PASTEL badge. It applies in light mode only — dark mode
+ * already draws light text on dark tints — and never on paper. NULL means
+ * pastel since 0093 (the owner asked for lighter badges, 2026-10-27; white
+ * before).
  */
 
 import { useSyncExternalStore } from 'react'
@@ -38,9 +39,10 @@ export const UI_MODES = ['light', 'dark', 'auto'] as const
 export type UiMode = (typeof UI_MODES)[number]
 export const DEFAULT_UI_MODE: UiMode = 'light'
 
-export const UI_BADGE_INKS = ['white', 'dark'] as const
+/** «dark» is the pastel badge (the default since 0093), «white» the bold one. */
+export const UI_BADGE_INKS = ['dark', 'white'] as const
 export type UiBadgeInk = (typeof UI_BADGE_INKS)[number]
-export const DEFAULT_UI_BADGE_INK: UiBadgeInk = 'white'
+export const DEFAULT_UI_BADGE_INK: UiBadgeInk = 'dark'
 
 const THEME_KEY = 'tci-erp-ui-theme'
 const MODE_KEY = 'tci-erp-ui-mode'

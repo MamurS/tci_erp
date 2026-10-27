@@ -87,9 +87,11 @@ export const CANVAS = solveStep(0.93, RAMP_SPECS.slate.chroma * 0.2, RAMP_SPECS.
 
 // ---------------------------------------------------------------------------
 // The grade scale A1 → D: diverging teal → green → yellow → amber → red. Each
-// grade has a TINT (badge background, step 100), a SOLID (bars, dots, chart
-// marks, step 400 — ≥ 3 : 1 on white) and an INK (text on the tint or on
-// white, step 600 — ≥ 4.5 : 1 on both).
+// grade has a TINT (badge background, step 100), a LINE (the badge's
+// hairline, step 200), a SOLID (bars, dots, chart marks, step 400 — ≥ 3 : 1
+// on white), an INK (text on the tint or on white, step 600 — ≥ 4.5 : 1 on
+// both) and a DEEP ink (the pastel badge's text, step 700 — ≥ 7 : 1 on the
+// tint).
 // ---------------------------------------------------------------------------
 
 export const GRADE_SPECS = {
@@ -106,14 +108,16 @@ export type GradeKey = keyof typeof GRADE_SPECS
 
 export interface GradeColors {
   tint: string
+  line: string
   solid: string
   ink: string
+  deep: string
 }
 
 export const GRADE_COLORS: Record<GradeKey, GradeColors> = Object.fromEntries(
   Object.entries(GRADE_SPECS).map(([grade, spec]) => {
     const ramp = buildRamp(spec)
-    return [grade, { tint: ramp[100], solid: ramp[400], ink: ramp[600] }]
+    return [grade, { tint: ramp[100], line: ramp[200], solid: ramp[400], ink: ramp[600], deep: ramp[700] }]
   }),
 ) as Record<GradeKey, GradeColors>
 
@@ -282,8 +286,10 @@ export function colorTokens(theme: ThemeName): Record<string, string> {
   for (const [grade, colors] of Object.entries(GRADE_COLORS)) {
     const key = grade.toLowerCase()
     out[`grade-${key}-tint`] = colors.tint
+    out[`grade-${key}-line`] = colors.line
     out[`grade-${key}`] = colors.solid
     out[`grade-${key}-ink`] = colors.ink
+    out[`grade-${key}-deep`] = colors.deep
   }
   ;(['A1', 'B1', 'B2', 'C2', 'D'] as const).forEach((g, i) => (out[`scale-${i + 1}`] = GRADE_COLORS[g].solid))
   const categorical = [ramps.accent[400], ...CATEGORICAL.slice(1, 4), ramps.sky[400], ...CATEGORICAL.slice(5)]
@@ -444,12 +450,14 @@ export function renderTokensCss(): string {
   }
   lines.push('  /* Aliases of the earlier names (positive / negative / warning). */')
   for (const [alias, hex] of Object.entries(ALIASES)) lines.push(`  --color-${alias}: ${hex};`)
-  lines.push('  /* The grade scale A1 → D: tint, solid, ink. */')
+  lines.push('  /* The grade scale A1 → D: tint, line, solid, ink, deep. */')
   for (const [grade, colors] of Object.entries(GRADE_COLORS)) {
     const key = grade.toLowerCase()
     lines.push(`  --color-grade-${key}-tint: ${colors.tint};`)
+    lines.push(`  --color-grade-${key}-line: ${colors.line};`)
     lines.push(`  --color-grade-${key}: ${colors.solid};`)
     lines.push(`  --color-grade-${key}-ink: ${colors.ink};`)
+    lines.push(`  --color-grade-${key}-deep: ${colors.deep};`)
   }
   lines.push('  /* The five-colour presentation gauge (ratingScale.ts) reads the grade solids. */')
   ;(['A1', 'B1', 'B2', 'C2', 'D'] as const).forEach((g, i) => lines.push(`  --color-scale-${i + 1}: ${GRADE_COLORS[g].solid};`))

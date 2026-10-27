@@ -3151,10 +3151,10 @@
       }
     },
     "uiBadgeInk": {
-      "title": "Rangli belgilardagi matn",
-      "hint": "To‘q rang ustida oq matn yoki och rang ustida to‘q matn. Qorong‘i rejim va chop etilgan sahifalar avvalgidek ko‘rinadi.",
-      "white": "Oq",
-      "dark": "To‘q"
+      "title": "Rangli belgilar",
+      "hint": "Pastel: och rang va to‘q matn (odatiy). To‘yingan: to‘q rang va oq matn. Qorong‘i rejim va chop etilgan sahifalar avvalgidek ko‘rinadi.",
+      "white": "To‘yingan, oq matn",
+      "dark": "Pastel"
     }
   },
   "provisioning": {
