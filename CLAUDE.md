@@ -985,6 +985,18 @@ is fine for internal test accounts and not fine for customers.
   impersonation (forced rollback, nothing left behind, counts unchanged);
   the real portal accounts checked read-only — no draft listed; no new
   advisor finding
+- [x] Text size apart from zoom + owner review (migration 0081, 2026-10-27):
+  «Размер текста» (100 / 110 / 125 / 140 / 150 %, NULL = 100 %,
+  `tci.user_profiles.ui_text_scale`) multiplies only the type tokens and the
+  boxes and columns that hold text; «Масштаб» (0076) still scales everything.
+  Same batch, no migration: «Кредитные лимиты» and «Полисы» carry their
+  book's figures on the navy band on every view; English «in force» →
+  «Active»; the company card's sections stick with a slim name bar; the
+  financial sheets' sticky head no longer lets the body show between its
+  rows, and switching sheets keeps the table in place. See **Interface
+  text size rules** below and DESIGN.md «Zoom and text size».
+  **Canonical: 0081 NOT yet applied** (awaiting the owner; additive — the
+  screens read the column in their own query and keep 100 % without it)
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2387,6 +2399,17 @@ session exists (NULL ⇒ 150 %) and applies it; the picker applies at once
 and saves through the column grant (`update (ui_scale)` on
 `user_profiles`, own row by the existing policy). The browser cache only
 seeds the sign-in page and the first paint.
+
+**The text size is a second number (0081).** `--ui-text` on `<html>`
+(`ui_text_scale` / 100, NULL ⇒ 1) multiplies the seven type tokens
+(`textSized` in `src/design/palette.ts`), the `h-text-*` / `leading-text-*`
+utilities (badges, counters, one-line hints), every table column and min
+width (the Table primitive), the Agenda's tag and due tracks, the sidebar
+width and the hero tiles' least width — nothing else: spacing, breakpoints
+and other boxes keep the zoom's geometry. Inline SVG labels read
+`useUiTextScaleValue()`. It is read in its OWN query (`useUiTextScaleSync`),
+so a database without the column leaves the text at 100 % and the zoom
+working. Print routes pin it to 100 % with the zoom.
 
 ### Auto decision (ADT) rules (migration 0061)
 

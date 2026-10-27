@@ -356,7 +356,22 @@ the band is the one loud element.
 * **A long sheet keeps its headings.** The sheet-tab row and the table's
   column headings stick under the top bar (`StickyTableFrame`); a sheet
   switch sits IN the tab row, never between the row and the table, so every
-  sheet starts at one height.
+  sheet starts at one height. The sheets are `border-separate` with no
+  spacing: a collapsed table's borders do not travel with a sticky head.
+  Switching sheets while the row is stuck shows the new sheet from its top,
+  in the same place, and the sheet area is never shorter than the screen,
+  so a short sheet does not pull the page back.
+* **An object card keeps its name.** On the company card the section tabs
+  stick, and once the hero has scrolled away a slim navy bar above them
+  names the company — flag, name, grade (`CardStickyBar`); it lies over the
+  hero's foot, so nothing moves when it appears. Its height is
+  `--card-sticky-h`, under which the financial rows stick.
+* **A section's book is on its band.** «Кредитные лимиты» (credit desk) and
+  «Полисы» (commercial desk) carry their book's key figures as tiles on the
+  navy band — exposure, active limits, buyers, policies; active policies,
+  open claims, credit limits, overdue premium — on EVERY view of the section
+  (`SectionPage figures`, `portfolio/BookFigures.tsx`), so the tabs under
+  the band never move. Roles without the overview keep the compact band.
 * **The client follows, never guesses.** The portal home lists what is open
   with a simple `StatusTimeline` (steps in the policyholder's words, passed
   steps checked, the current one named; amber when it waits on THEM).
@@ -871,13 +886,26 @@ Non-blocking accounting-equation warnings are amber (`warn-*`), never red;
 red is reserved for hard errors. Warnings do not prevent saving — the
 analyst's entered figure is the source of truth.
 
-## Interface text size
+## Zoom and text size
 
-Every size is rem and follows the person's chosen text size (100–200 %,
-default 150 %, `src/lib/uiScale.ts`, migration 0076); the breakpoints are
-container queries in rem on `<body>`, so the layout responds to the scale
-as it would to browser zoom. Never size text or a box in px — the contract
-test refuses it; hairlines and radii stay px. Print routes hold 100 %.
+Two personal settings, both kept on the server (`src/lib/uiScale.ts`):
+
+* **Zoom** (0076, 100–200 %, default 150 %) — the root font size. Every size
+  is rem and follows it; the breakpoints are container queries in rem on
+  `<body>`, so the layout responds as it would to browser zoom.
+* **Text size** (0081, 100 / 110 / 125 / 140 / 150 %, default 100 %) — only
+  the type. The seven text tokens are `calc(size × var(--ui-text))`; a box
+  that IS a line of text grows with them (`h-text-*`, `leading-text-*` —
+  badges, counters); so do the widths reserved for text: table columns
+  (the Table primitive), the Agenda's tag and due tracks, the sidebar, the
+  hero tiles' least width (they wrap rather than cut a figure). Spacing,
+  breakpoints and every other box stay at the zoom. Never size text by
+  anything but a token: an inline SVG label reads `useUiTextScaleValue()`.
+
+Never size text or a box in px — the contract test refuses it; hairlines and
+radii stay px. Print routes hold 100 % of both. `e2e/layout/scale.spec.ts`
+guards the zoom, `textSize.spec.ts` the text size (150 % at 1440 px, en / ru
+/ uz: nothing cut, the page never scrolls sideways).
 
 ## Key figures and side-by-side cards
 

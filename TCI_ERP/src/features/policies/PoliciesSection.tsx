@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next'
 
 import { SectionPage } from '../../components/ui'
 import { useAuth } from '../../auth/AuthContext'
+import { PolicyBookFigures } from '../portfolio/BookFigures'
 import { PoliciesPage } from './PoliciesPage'
 import { parsePolicyView, policyViewsFor } from './views'
 import type { PolicyView } from './views'
@@ -48,6 +49,8 @@ export function PoliciesSection() {
       tabs={tabs}
       active={view}
       onChange={(key) => select(key as PolicyView)}
+      // The commercial desk's book on the band, on every view.
+      figures={policyViewsFor(roles).includes('overview') ? <PolicyBookFigures /> : undefined}
     >
       {view === 'overview' ? (
         <PolicyPortfolioPage />

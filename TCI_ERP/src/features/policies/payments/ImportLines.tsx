@@ -288,11 +288,11 @@ function LineRow({ line, policy, children }: { line: BankLine; policy: PaymentPo
         {formatAmount(Number(line.amount), locale)} <span className="text-slate-500">{line.currency_code}</span>
       </td>
       <td title={payerPurpose || undefined}>
-        <span className={`block truncate leading-5 font-medium ${resolved ? '' : 'text-slate-800'}`}>{line.payer ?? EM_DASH}</span>
-        <span className="block truncate text-caption leading-4 text-slate-500">{line.purpose ?? EM_DASH}</span>
+        <span className={`block truncate leading-text-5 font-medium ${resolved ? '' : 'text-slate-800'}`}>{line.payer ?? EM_DASH}</span>
+        <span className="block truncate text-caption leading-text-4 text-slate-500">{line.purpose ?? EM_DASH}</span>
       </td>
       <td>
-        <span className="block truncate font-mono text-caption leading-5">
+        <span className="block truncate font-mono text-caption leading-text-5">
           {policy ? (
             <Link to={`/policies/${policy.id}?tab=premium`} className="text-accent-600 hover:underline" title={policy.policyholder ?? undefined}>
               {policy.policy_number}
@@ -301,7 +301,7 @@ function LineRow({ line, policy, children }: { line: BankLine; policy: PaymentPo
             EM_DASH
           )}
         </span>
-        <span className="block truncate text-caption leading-4 text-slate-500" title={basis}>
+        <span className="block truncate text-caption leading-text-4 text-slate-500" title={basis}>
           {basis}
         </span>
       </td>

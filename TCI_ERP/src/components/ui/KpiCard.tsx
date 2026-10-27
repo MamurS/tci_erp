@@ -89,7 +89,9 @@ export function KpiCard({
       </span>
       <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1" title={title}>
         <span
-          className={`font-display leading-none whitespace-nowrap font-bold tabular-nums ${inv ? 'text-display text-white' : 'text-headline text-accent-700'}`}
+          // A long figure breaks at its space («≈ 203.2» / «млн») rather
+          // than be cut when the text size grows.
+          className={`font-display leading-none font-bold tabular-nums ${inv ? 'text-display text-white' : 'text-headline text-accent-700'}`}
         >
           {value}
         </span>

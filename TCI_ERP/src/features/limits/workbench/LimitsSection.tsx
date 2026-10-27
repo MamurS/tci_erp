@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next'
 import { SectionPage } from '../../../components/ui'
 import { useAuth } from '../../../auth/AuthContext'
 import { useCreditPortfolio } from '../../portfolio/api'
+import { CreditBookFigures } from '../../portfolio/BookFigures'
 import { useOverdueNotifications } from '../../overdue/api'
 import { LimitsPage } from '../LimitsPage'
 import { useGroupLimitStatus, useLimitQueue, useRatingWorklist } from './api'
@@ -108,6 +109,8 @@ export function LimitsSection() {
       tabs={tabs}
       active={view}
       onChange={(key) => select(key as LimitView)}
+      // The desk's book on the band, on every view (the overview's figures).
+      figures={limitViewsFor(roles).includes('overview') ? <CreditBookFigures rows={rows} /> : undefined}
     >
       {body}
     </SectionPage>

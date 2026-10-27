@@ -19,7 +19,6 @@ import {
   Card,
   COL,
   EmptyState,
-  KeyFigures,
   labelCol,
   Panel,
   PanelGrid,
@@ -83,22 +82,7 @@ export function CreditPortfolioPage() {
         </Card>
       ) : (
         <div className="grid gap-5">
-          <KeyFigures
-            className=""
-            items={[
-              {
-                label: t('portfolio.credit.exposure'),
-                value: uzs(totals.exposureUzs),
-                meta:
-                  totals.missingRates > 0
-                    ? t('portfolio.credit.exposureMissing', { count: totals.missingRates })
-                    : undefined,
-              },
-              { label: t('portfolio.credit.limits'), value: formatAmount(totals.limits, locale) },
-              { label: t('portfolio.credit.buyers'), value: formatAmount(totals.buyers, locale) },
-              { label: t('portfolio.credit.policies'), value: formatAmount(totals.policies, locale) },
-            ]}
-          />
+          {/* The book's key figures are on the section's band (BookFigures). */}
 
           <AttentionPanel rows={rows} />
 

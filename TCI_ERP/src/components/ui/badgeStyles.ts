@@ -34,8 +34,8 @@ const BADGE_BASE =
 
 /** Height, padding, text size and weight per size. */
 export const BADGE_SIZES: Record<BadgeSize, string> = {
-  sm: 'h-5 px-2 text-caption leading-4 font-medium', // 20 px tall, 12 px text
-  md: 'h-6 px-3 text-small leading-5 font-semibold', // 24 px tall, 13 px text
+  sm: 'h-text-5 px-2 text-caption leading-text-4 font-medium', // 20 px tall, 12 px text (× the text size)
+  md: 'h-text-6 px-3 text-small leading-text-5 font-semibold', // 24 px tall, 13 px text (× the text size)
 }
 
 /** The look of a badge, for an element that is not a <Badge> (a button chip,

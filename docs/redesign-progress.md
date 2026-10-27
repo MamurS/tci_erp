@@ -186,6 +186,27 @@ Re-read the brief against the screens; what it asks beyond colour:
     (EntityDetailPage) and delete `cardTabs.ts`.
 15. Decision page: the decision column first, the request and buyer as the
     side column. Reverse: swap the two columns back in `LimitRequestPage`.
+16. Text size apart from zoom (owner, 2026-10-27): five steps 100–150 %,
+    default 100 % (no change for anyone who does not pick one); the
+    columns, the sidebar, the Agenda's tag / due tracks and the hero tiles'
+    least width grow with the text, other boxes keep the zoom's geometry.
+    The paper documents (risk report on the Overview tab, contract, offer)
+    keep their own sizes. Reverse: `textSized` in `palette.ts` → plain
+    sizes, regenerate tokens; the picker in `UiScalePicker.tsx`.
+17. «In force» → «Active» in English (owner request): «Active limits»,
+    «Active policies», «No active limit» … The approved brochure keeps its
+    wording (pinned), and ru «действующие» / uz «amaldagi» are unchanged
+    pending the owner. Reverse: `git log -p` on `en.json`.
+18. «Кредитные лимиты» and «Полисы» carry their book's figures on the band
+    on every view (the overview's white strip removed), for the desks that
+    have the overview; the policy overview's «Active / All» switch now
+    governs its tables only — the band always shows the active book.
+    Reverse: drop `figures` on `SectionPage` in `LimitsSection` /
+    `PoliciesSection` and restore the `KeyFigures` strips from `git log -p`.
+19. Company card: the sections stick with a slim navy name bar
+    (`CardStickyBar`); the period / currency controls do NOT stick (they
+    would take a third row of the screen). Reverse: render `<Tabs>` in
+    place of `<CardStickyBar>` in `EntityDetailPage`.
 
 ## Latency (phase 3, production bundle, median of 5)
 

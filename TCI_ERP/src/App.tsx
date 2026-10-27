@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { useUiScaleSync } from './features/account/uiScaleApi'
+import { useUiScaleSync, useUiTextScaleSync } from './features/account/uiScaleApi'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import { RequirePasswordChange } from './auth/RequirePasswordChange'
@@ -88,6 +88,7 @@ function LegacyRedirect() {
 export default function App() {
   // The person's interface text size, once signed in (0076).
   useUiScaleSync()
+  useUiTextScaleSync()
   return (
     <Suspense fallback={<LoadingScreen />}>
     <Routes>

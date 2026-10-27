@@ -56,7 +56,7 @@
     scrollbar-gutter: stable;
   }
   body {
-    @apply text-[0.875rem] leading-normal text-slate-900;
+    @apply text-body leading-normal text-slate-900;
     container: app / inline-size;
     background-color: var(--color-canvas);
   }
@@ -186,6 +186,19 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/*
+ * A box that is one line of text — a badge, a counter, a one-line hint —
+ * grows with the person's TEXT size (uiScale.ts, 0081), which the spacing
+ * scale does not: `h-text-5` is `h-5` × --ui-text, `leading-text-4` is
+ * `leading-4` × --ui-text. Everything else keeps the zoom's geometry.
+ */
+@utility h-text-* {
+  height: calc(--value(integer) * var(--spacing) * var(--ui-text, 1));
+}
+@utility leading-text-* {
+  line-height: calc(--value(integer) * var(--spacing) * var(--ui-text, 1));
 }
 
 /* Paper is paper: whatever size the screen uses, print at 100 %. */

@@ -2848,9 +2848,16 @@
       "changeFailed": "Parolni o‘zgartirib bo‘lmadi. Qaytadan urinib ko‘ring."
     },
     "uiScale": {
-      "title": "Matn o‘lchami",
-      "hint": "Butun interfeys tanlangan o‘lchamda; sozlama har qanday qurilmada siz uchun saqlanadi.",
+      "title": "Masshtab",
+      "hint": "Butun interfeys — matn, oraliqlar va bloklar — tanlangan o‘lchamda, brauzerdagi masshtab kabi.",
       "notSaved": "Ushbu qurilmada qo‘llanildi, lekin hisobingizga saqlanmadi."
+    },
+    "uiText": {
+      "title": "Matn o‘lchami",
+      "hint": "Faqat matn kattalashadi; oraliqlar va joylashuv masshtab belgilaganidek qoladi."
+    },
+    "display": {
+      "title": "Ko‘rinish"
     }
   },
   "provisioning": {

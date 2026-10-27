@@ -3,6 +3,7 @@
  * when the entity is a buyer, Policies & portfolio when a policyholder. */
 
 import { useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { Info } from 'lucide-react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -51,6 +52,7 @@ import { useBuyerExposure } from '../limits/api'
 import { OPEN_STATUSES } from '../limits/machine'
 import { isOpen as isClaimOpen } from '../claims/machine'
 import { isTerminal } from '../requests/machine'
+import { CardStickyBar } from './CardStickyBar'
 import { firstTabOf, SECTION_OF, sectionsFor } from './cardTabs'
 import type { CardTab } from './cardTabs'
 import { rememberEntity } from '../../components/layout/recentEntities'
@@ -107,6 +109,8 @@ export function EntityDetailPage() {
   const requested = searchParams.get('tab') as TabKey | null
   const activeTab: TabKey = requested && availableTabs.includes(requested) ? requested : 'overview'
   const sections = sectionsFor(availableTabs)
+  // The sticky bar's height, for the rows that stick under it (financials).
+  const [stickyHeight, setStickyHeight] = useState(0)
   const activeSection = sections.find((s) => s.section === SECTION_OF[activeTab])
 
   if (isLoading) return <Spinner label={t('common.loading')} />
@@ -124,7 +128,7 @@ export function EntityDetailPage() {
   }
 
   return (
-    <div>
+    <div style={{ '--card-sticky-h': `${stickyHeight}px` } as CSSProperties}>
       <HeroBand
         eyebrow={
           <Link to="/entities" className="hover:text-white">
@@ -176,15 +180,31 @@ export function EntityDetailPage() {
         />
       </HeroBand>
 
-      {/* Sections on top, the tabs of the active one under it (cardTabs.ts). */}
-      <Tabs
-        tabs={sections.map(({ section }) => ({ key: section, label: t(`entities.sections.${section}`) }))}
-        active={SECTION_OF[activeTab]}
-        onChange={(section) => {
-          const tab = firstTabOf(section as (typeof sections)[number]['section'], availableTabs)
-          if (tab) setSearchParams({ tab }, { replace: true })
-        }}
-      />
+      {/* Sections on top, the tabs of the active one under it (cardTabs.ts).
+          The sections stick, with the company's name above them once the
+          hero has scrolled away (CardStickyBar). */}
+      <CardStickyBar
+        onHeight={setStickyHeight}
+        name={
+          <>
+            <CountryFlag code={entity.country_code} />
+            <span className="min-w-0 truncate font-display text-title leading-tight font-bold">{entity.name}</span>
+            <GradeHeaderBadge
+              entityId={id}
+              onClick={() => setSearchParams({ tab: 'rating' }, { replace: true })}
+            />
+          </>
+        }
+      >
+        <Tabs
+          tabs={sections.map(({ section }) => ({ key: section, label: t(`entities.sections.${section}`) }))}
+          active={SECTION_OF[activeTab]}
+          onChange={(section) => {
+            const tab = firstTabOf(section as (typeof sections)[number]['section'], availableTabs)
+            if (tab) setSearchParams({ tab }, { replace: true })
+          }}
+        />
+      </CardStickyBar>
       {activeSection && activeSection.tabs.length > 1 && (
         // The tabs of the active section: tabs (not a view switch) — each is
         // its own content and its own URL.

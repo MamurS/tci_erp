@@ -15,7 +15,6 @@ import {
   Card,
   COL,
   EmptyState,
-  KeyFigures,
   labelCol,
   Panel,
   Segmented,
@@ -123,13 +122,7 @@ export function PolicyPortfolioPage() {
 
   const rows = useMemo(() => (data ?? []).filter((r) => scope === 'all' || inForce(r)), [data, scope])
   const totals = useMemo(() => policyTotalsByCurrency(rows), [rows])
-  const limitsUzs = rows.reduce((a, r) => a + (num(r.limits_uzs) ?? 0), 0)
-  const limitsCount = rows.reduce((a, r) => a + r.limits_count, 0)
-  const limitsMissing = rows.reduce((a, r) => a + r.limits_missing_rates, 0)
   const renewals = expiringWithin(data ?? [], RENEWAL_WINDOW_DAYS)
-  const openClaims = totals.reduce((a, c) => a + c.openClaims, 0)
-  const claimsTotal = totals.reduce((a, c) => a + c.claims, 0)
-  const overduePolicies = rows.filter((r) => (num(r.premium_overdue) ?? 0) > 0).length
   const worst = worstLossRatios(rows, 10)
 
   const pct = (value: number | null) => (value === null ? '—' : `${formatAmount(value, locale, 1)}%`)
@@ -167,39 +160,7 @@ export function PolicyPortfolioPage() {
         </Card>
       ) : (
         <div className="grid gap-5">
-          <KeyFigures
-            className=""
-            items={[
-              {
-                label: t(scope === 'inForce' ? 'portfolio.policies.policiesInForce' : 'portfolio.policies.policiesAll'),
-                value: formatAmount(rows.length, locale),
-                meta: t('portfolio.policies.currencies', { count: totals.length }),
-              },
-              {
-                label: t('portfolio.policies.openClaimsTotal'),
-                value: formatAmount(openClaims, locale),
-                meta: t('portfolio.policies.claimsTotal', { count: claimsTotal }),
-                tone: openClaims > 0 ? 'warn' : 'muted',
-              },
-              {
-                label: t('portfolio.policies.limitsInForce'),
-                value: formatAmount(limitsCount, locale),
-                meta:
-                  limitsMissing > 0
-                    ? t('portfolio.policies.limitsUzsMissing', {
-                        amount: formatCompact(limitsUzs, locale),
-                        count: limitsMissing,
-                      })
-                    : t('portfolio.policies.limitsUzs', { amount: formatCompact(limitsUzs, locale) }),
-              },
-              {
-                label: t('portfolio.policies.overduePolicies'),
-                value: formatAmount(overduePolicies, locale),
-                meta: t('portfolio.policies.overduePoliciesHint'),
-                tone: overduePolicies > 0 ? 'warn' : 'muted',
-              },
-            ]}
-          />
+          {/* The book's key figures are on the section's band (BookFigures). */}
 
           {/* The book per currency: one row each, the metrics as columns, so two
               currencies are compared by eye. Amounts are never added ACROSS

@@ -104,7 +104,7 @@ export function Sidebar({
   return (
     <aside
       id={id}
-      className="flex h-full w-64 flex-col bg-gradient-to-b from-accent-800 to-accent-900 text-white"
+      className="flex h-full w-[calc(16rem*var(--ui-text,1))] flex-col bg-gradient-to-b from-accent-800 to-accent-900 text-white"
       aria-label={t('nav.title')}
     >
       <div className="flex h-16 shrink-0 items-center gap-2 border-b border-white/10 pr-3 pl-5">

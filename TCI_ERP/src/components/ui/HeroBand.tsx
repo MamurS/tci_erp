@@ -128,7 +128,9 @@ export function HeroBand({
           )}
         </div>
         {children && (
-          <div className="grid gap-4 sm:grid-cols-2 lg:auto-cols-fr lg:grid-flow-col">
+          // As many tiles to a row as fit at their least width, which grows
+          // with the person's text size (uiScale.ts): a figure never cut.
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,calc(10rem*var(--ui-text,1))),1fr))] gap-4">
             {children}
           </div>
         )}

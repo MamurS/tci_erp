@@ -39,7 +39,7 @@
       },
       "credit": {
         "name": "Credit underwriting",
-        "hint": "Decision queue, limits in force, monitoring, ratings and groups"
+        "hint": "Decision queue, active limits, monitoring, ratings and groups"
       },
       "sales": {
         "name": "Sales",
@@ -210,8 +210,8 @@
     "gradeMixMeasure": "Measure",
     "gradeMixBuyers": "Buyers",
     "gradeMixExposure": "Exposure",
-    "gradeMixUzs": "Limits in force, UZS equivalent.",
-    "gradeMixUnrated": "Limits in force, UZS equivalent. A further {{amount}} UZS is on buyers with no grade."
+    "gradeMixUzs": "Active limits, UZS equivalent.",
+    "gradeMixUnrated": "Active limits, UZS equivalent. A further {{amount}} UZS is on buyers with no grade."
   },
   "buyers": {
     "subtitle": "Register of buyers (debtors) under credit assessment",
@@ -1322,7 +1322,7 @@
       "recommendedLimit": "Recommended credit limit",
       "limitBasis": "Limit basis",
       "creditRating": "Credit rating",
-      "approvedExposure": "Approved limits in force"
+      "approvedExposure": "Active approved limits"
     },
     "limitBasis": {
       "full": "Rating {{score}} ({{band}}); the limit equals about {{revenuePct}} of FY {{year}} revenue and about {{equityPct}} of equity",
@@ -1715,7 +1715,7 @@
       "adjusted": "Adjustment recorded — the sales window is running.",
       "adjustedImmediate": "Adjustment recorded and released to the client immediately (reduction).",
       "adjustFailed": "The adjustment was refused",
-      "currentAmount": "In force now: {{amount}}",
+      "currentAmount": "Active now: {{amount}}",
       "currentTerms": "Now {{terms}}; leave empty to keep",
       "termsUnchanged": "Leave empty to keep the terms as decided",
       "enterAmount": "Enter the adjusted amount",
@@ -1750,7 +1750,7 @@
     "views": {
       "overview": "Overview",
       "queue": "Decision queue",
-      "inforce": "Limits in force",
+      "inforce": "Active limits",
       "monitoring": "Monitoring",
       "ratings": "Ratings",
       "groups": "Groups",
@@ -1771,7 +1771,7 @@
         "ownRequest": "Your request"
       },
       "inforce": {
-        "title": "Limits in force",
+        "title": "Active limits",
         "subtitle": "Every approved or partially approved limit on a bound policy, with the buyer's current rating and the review date. Amounts in UZS at the latest rate.",
         "allBands": "All rating bands",
         "allCountries": "All countries",
@@ -1802,13 +1802,13 @@
         "suspended": "Suspended",
         "notSuspended": "Not suspended",
         "groups": "Groups over or near their cap",
-        "groupsHint": "Total in-force exposure of the group against its group limit; flagged from 90%.",
+        "groupsHint": "Total active exposure of the group against its group limit; flagged from 90%.",
         "noGroups": "No group is over or near its cap.",
         "overdueHint": "A negative number is the days since the review date passed"
       },
       "ratings": {
         "title": "Rating worklist",
-        "subtitle": "Buyers with an open request, a limit in force or a place in a live submission whose rating needs work.",
+        "subtitle": "Buyers with an open request, an active limit or a place in a live submission whose rating needs work.",
         "filter": "Reason",
         "all": "All",
         "reasons": {
@@ -1823,11 +1823,11 @@
         "reason": "Reason",
         "latestStatement": "Latest year",
         "openRequests": "Open requests",
-        "limitsInForce": "Limits in force"
+        "limitsInForce": "Active limits"
       },
       "groups": {
         "title": "Groups and concentration",
-        "subtitle": "Corporate groups with their in-force exposure in UZS against the group limit, breaches first. Set or end a group limit on the parent company's group tab.",
+        "subtitle": "Corporate groups with their active exposure in UZS against the group limit, breaches first. Set or end a group limit on the parent company's group tab.",
         "empty": "No corporate groups yet",
         "emptyHint": "A group appears once two companies are linked on a company's group tab, or a group limit is set.",
         "members": "With limits / members",
@@ -1895,7 +1895,7 @@
         "notGathering": "The request is no longer gathering information."
       }
     },
-    "sectionSubtitle": "The credit underwriter's workbench: portfolio, decisions, limits in force, monitoring, ratings, groups and your own authority.",
+    "sectionSubtitle": "The credit underwriter's workbench: portfolio, decisions, active limits, monitoring, ratings, groups and your own authority.",
     "preBindScope": "Before a policy (submission)",
     "noReviewDate": "No review date set",
     "ageHint": "Days since the request was submitted. Over {{days}} days it is highlighted: it has waited longer than a decision usually takes.",
@@ -1909,7 +1909,7 @@
       "badge": "On validation",
       "onValidationWith": "On validation with {{name}} since {{date}}",
       "stateNote": {
-        "credit": "The decision does not exist until it is validated: it is not in force and the client does not see it.",
+        "credit": "The decision does not exist until it is validated: it is not active and the client does not see it.",
         "commercial": "The commercial adjustment is on validation; the credit decision is held meanwhile, so nothing reaches the client."
       },
       "kinds": {
@@ -2296,9 +2296,9 @@
       "title": "Requested and decided",
       "requested": "Requested",
       "recommended": "Recommended limit",
-      "current": "Limit in force",
+      "current": "Active limit",
       "thisDecision": "This decision",
-      "decided": "Decision in force",
+      "decided": "Active decision",
       "ofRequested": "{{pct}}% of requested",
       "noDecision": "No decision yet."
     },
@@ -2369,10 +2369,10 @@
       "score": "score {{score}}",
       "toRating": "Open the rating",
       "notRated": "Not rated yet",
-      "exposure": "Limits in force",
+      "exposure": "Active limits",
       "exposurePolicies_one": "on {{count}} policy",
       "exposurePolicies_other": "on {{count}} policies",
-      "noExposure": "No limit in force",
+      "noExposure": "No active limit",
       "statements": "Latest statements",
       "periods_one": "{{count}} period on file",
       "periods_other": "{{count}} periods on file",
@@ -2848,9 +2848,16 @@
       "changeFailed": "The password could not be changed. Try again."
     },
     "uiScale": {
-      "title": "Text size",
-      "hint": "The whole interface at the chosen size, saved for you on every device.",
+      "title": "Zoom",
+      "hint": "Everything — text, spacing and boxes — at the chosen size, as the browser’s own zoom would.",
       "notSaved": "Applied on this device; it could not be saved to your account."
+    },
+    "uiText": {
+      "title": "Text size",
+      "hint": "Only the text grows; spacing and the layout stay as the zoom sets them."
+    },
+    "display": {
+      "title": "Display"
     }
   },
   "provisioning": {
@@ -3445,11 +3452,11 @@
       "buyer": {
         "title": "Buyer",
         "assessed": "assessed {{date}}",
-        "other_one": "Other limits in force: {{count}} · {{amount}} UZS",
-        "other_few": "Other limits in force: {{count}} · {{amount}} UZS",
-        "other_many": "Other limits in force: {{count}} · {{amount}} UZS",
-        "other_other": "Other limits in force: {{count}} · {{amount}} UZS",
-        "otherNone": "No other limits in force",
+        "other_one": "Other active limits: {{count}} · {{amount}} UZS",
+        "other_few": "Other active limits: {{count}} · {{amount}} UZS",
+        "other_many": "Other active limits: {{count}} · {{amount}} UZS",
+        "other_other": "Other active limits: {{count}} · {{amount}} UZS",
+        "otherNone": "No other active limits",
         "group": "Group: {{body}}",
         "noGroup": "Group: no relationships recorded",
         "factors": "Strengths and weaknesses",
@@ -3486,8 +3493,8 @@
         "requestAbove": "request above the calculation",
         "limitWithin": "limit within the calculation",
         "limitAbove": "limit above the calculation",
-        "inForce": "Limit in force",
-        "exposure": "Buyer’s limits in force"
+        "inForce": "Active limit",
+        "exposure": "Buyer’s active limits"
       },
       "rating": {
         "current": "Current assessment",
@@ -3503,7 +3510,7 @@
         "dependsSub_few": "on {{count}} policies",
         "dependsSub_many": "on {{count}} policies",
         "dependsSub_other": "on {{count}} policies",
-        "noLimits": "no limits in force",
+        "noLimits": "no active limits",
         "moved": "What moved, {{from}} → {{to}}",
         "notComparable": {
           "kind": "The new statement covers a different kind of period (a quarter against a year), so the figures are not compared.",
@@ -3564,7 +3571,7 @@
         "title": "About the group",
         "parent": "Ultimate parent",
         "members": "Companies in the group",
-        "membersWithLimits": "With limits in force",
+        "membersWithLimits": "With active limits",
         "policyholders": "Policyholders exposed",
         "missingTitle_one": "{{count}} limit without a UZS rate is not included",
         "missingTitle_few": "{{count}} limits without a UZS rate are not included",
@@ -3892,8 +3899,8 @@
       "listTitle": "Reported overdue accounts",
       "fillToFile": "Choose the buyer and enter the due date and the amount",
       "suspensionTitle": "This buyer’s credit limit will be suspended",
-      "noBuyers": "No buyer has a credit limit in force under policy {{policy}}, so there is no account to report yet.",
-      "noBuyersOption": "No buyer with a limit in force",
+      "noBuyers": "No buyer has an active credit limit under policy {{policy}}, so there is no account to report yet.",
+      "noBuyersOption": "No buyer with an active limit",
       "toLimits": "Credit limits"
     },
     "premium": {
@@ -3965,14 +3972,14 @@
       }
     },
     "hero": {
-      "inForce": "Policies in force",
+      "inForce": "Active policies",
       "inForceMeta_one": "of {{count}} policy",
       "inForceMeta_other": "of {{count}} policies",
       "limits": "Buyer limits",
       "limitsMeta": "approved for your buyers",
       "nextExpiry": "Next renewal",
-      "nextExpiryMeta": "a policy in force ends",
-      "noActive": "no policy in force"
+      "nextExpiryMeta": "an active policy ends",
+      "noActive": "no active policy"
     },
     "timeline": {
       "title": "In progress",
@@ -4561,9 +4568,9 @@
     "reasons": {
       "covered_by_limit": "Covered by the approved limit",
       "covered_by_dl": "Covered by the discretionary limit",
-      "limit_exceeded": "Beyond the limit in force",
+      "limit_exceeded": "Beyond the active limit",
       "dl_exceeded": "Beyond the discretionary limit",
-      "no_limit_in_force": "No limit was in force",
+      "no_limit_in_force": "No limit was active",
       "limit_declined": "The buyer had been declined",
       "limit_revoked": "The limit was revoked before shipment",
       "limit_not_yet_valid": "The limit was not yet valid",
@@ -4649,7 +4656,7 @@
       "headroom": "Headroom left",
       "paymentTerms": "Credit period / maximum",
       "decisionValidity": "Limit validity",
-      "noDecision": "No decision was in force",
+      "noDecision": "No decision was active",
       "systemSaid": "The system decided",
       "overrideJustification": "Justification for the change"
     },
@@ -4790,7 +4797,7 @@
       "overrideContradicts": "A «not covered» verdict covers nothing.",
       "settled": "This claim is settled and can no longer be reassessed.",
       "locked": "This claim can no longer be edited.",
-      "policyNotInForce": "A claim needs a policy that was in force.",
+      "policyNotInForce": "A claim needs a policy that was active.",
       "alreadyOpen": "This buyer already has an open claim on this policy.",
       "noaAlreadyClaimed": "A claim has already been raised from this notification.",
       "duplicateInvoice": "That invoice number is already on this claim.",
@@ -4867,14 +4874,14 @@
     },
     "exposure": {
       "title": "Group exposure",
-      "hint": "Every limit in force on a member, converted to UZS at the standard rate.",
+      "hint": "Every active limit on a member, converted to UZS at the standard rate.",
       "total": "Exposure, UZS",
       "groupLimit": "Group limit",
       "utilisation": "Utilisation",
       "none": "not set",
       "noGroupLimit": "No group limit is set for this group, so nothing caps what its members may hold together.",
       "missingRates": "{{count}} limit(s) are in a currency with no rate today and are not in the total above.",
-      "empty": "No member of this group holds a limit in force.",
+      "empty": "No member of this group holds an active limit.",
       "byMember": "By company",
       "byPolicyholder": "By policyholder",
       "member": "Company",
@@ -4941,7 +4948,7 @@
     },
     "chip": {
       "label": "Group",
-      "body": "{{parent}} — {{count}} companies, {{exposure}} UZS in force",
+      "body": "{{parent}} — {{count}} companies, {{exposure}} UZS active",
       "short": "Group: {{parent}}"
     },
     "errors": {
@@ -4951,11 +4958,11 @@
       "pctRange": "The ownership percentage must be between 0 and 100.",
       "relationshipNotFound": "This relationship no longer exists.",
       "entityNotFound": "Company not found.",
-      "duplicateEdge": "This relationship is already recorded and still in force.",
+      "duplicateEdge": "This relationship is already recorded and still active.",
       "limitNotPermitted": "Only credit underwriting may set or remove a group limit.",
       "limitAmount": "A group limit needs a positive amount.",
       "limitAuthority": "This group limit exceeds your authority for the ultimate parent's rating band.",
-      "noLimitInForce": "This group has no limit in force.",
+      "noLimitInForce": "This group has no active limit.",
       "suggestionNotFound": "This suggestion no longer exists.",
       "suggestionReviewed": "This suggestion has already been reviewed.",
       "suggestionParent": "The parent must be one of the two suggested companies.",
@@ -4991,7 +4998,7 @@
         "ended": "Ended"
       },
       "setTitle": "Set the group rating",
-      "setHint": "Every member whose grade in force is better than this is capped at it at once, with this reason.",
+      "setHint": "Every member whose grade is better than this is capped at it at once, with this reason.",
       "endTitle": "End the group rating",
       "endHint": "Members already capped keep their grades; the cap no longer applies to new ratings.",
       "grade": "Group grade",
@@ -5290,14 +5297,14 @@
     "missingRatesHint": "Limits in a currency with no UZS rate: counted, not added as zero",
     "scope": {
       "label": "Policies shown",
-      "inForce": "In force",
+      "inForce": "Active",
       "all": "All policies"
     },
     "policies": {
       "title": "Policy portfolio",
       "subtitle": "The book per currency — premium, liability, claims and loss ratio — with its make-up, the renewals coming up and the worst loss ratios.",
       "empty": "No policies in this view",
-      "emptyHint": "In-force means active or suspended. Switch to «All policies» to include drafts and ended policies.",
+      "emptyHint": "«Active» includes suspended policies. Switch to «All policies» to include drafts and ended policies.",
       "inCurrency_one": "{{count}} policy",
       "inCurrency_other": "{{count}} policies",
       "premiumBase": "Premium due",
@@ -5318,12 +5325,12 @@
       "byCountry": "By policyholder country",
       "count": "Policies",
       "renewals": "Ending within {{days}} days",
-      "renewalsHint": "In-force policies to renew or let run off, soonest first.",
-      "noRenewals": "No in-force policy ends in this window.",
+      "renewalsHint": "Active policies to renew or let run off, soonest first.",
+      "noRenewals": "No active policy ends in this window.",
       "daysLeft": "Days left",
       "worst": "Highest loss ratios",
       "noLosses": "No policy has incurred a loss.",
-      "policiesInForce": "Policies in force",
+      "policiesInForce": "Active policies",
       "policiesAll": "Policies",
       "currencies_one": "in {{count}} currency",
       "currencies_other": "in {{count}} currencies",
@@ -5341,8 +5348,8 @@
     },
     "credit": {
       "title": "Limit portfolio",
-      "subtitle": "In-force credit limits on bound policies, in UZS: what needs attention, then by the buyer's current rating band, by country and currency, and the largest buyers and groups.",
-      "empty": "No credit limit in force",
+      "subtitle": "Active credit limits on bound policies, in UZS: what needs attention, then by the buyer's current rating band, by country and currency, and the largest buyers and groups.",
+      "empty": "No active credit limit",
       "emptyHint": "A limit appears here once it is approved (fully or partly) on a bound policy.",
       "exposure": "Exposure",
       "limits": "Limits",
@@ -5361,7 +5368,7 @@
       "amount": "Amount",
       "daysLeft": "Days left",
       "stale": "Stale or missing ratings",
-      "staleHint": "Buyers with an in-force limit whose latest rating is more than a year old, or who were never rated.",
+      "staleHint": "Buyers with an active limit whose latest rating is more than a year old, or who were never rated.",
       "noStale": "Every buyer with a limit has a current rating.",
       "ratedAt": "Rated",
       "notRated": "not rated",

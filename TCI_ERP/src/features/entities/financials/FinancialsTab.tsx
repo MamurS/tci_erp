@@ -69,10 +69,23 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
   const [searchParams, setSearchParams] = useSearchParams()
   const subParam = searchParams.get('sub')
   const subTab: SubTab = SUB_TABS.includes(subParam as SubTab) ? (subParam as SubTab) : 'balance'
+  // Where the sheet-tab row sits in the page when nothing sticks: a sheet
+  // switched to while the row is stuck starts right under it, so the table
+  // keeps its place on the screen whatever its length (owner, 2026-10-27).
+  const sheetAnchor = useRef<HTMLDivElement>(null)
   const setSubTab = (key: SubTab) => {
+    const anchor = sheetAnchor.current
+    const stuckAt = tabsRow ? parseFloat(getComputedStyle(tabsRow).top) : NaN
+    const stuck = anchor !== null && Number.isFinite(stuckAt) && anchor.getBoundingClientRect().top < stuckAt
     const next = new URLSearchParams(searchParams)
     next.set('sub', key)
     setSearchParams(next, { replace: true })
+    if (stuck && anchor) {
+      requestAnimationFrame(() => {
+        anchor.style.scrollMarginTop = `${stuckAt}px`
+        anchor.scrollIntoView({ block: 'start' })
+      })
+    }
   }
   const [manageOpen, setManageOpen] = useState(false)
   const [sourceStatement, setSourceStatement] = useState<StatementBundle | null>(null)
@@ -255,12 +268,14 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
         </div>
       )}
 
-      {/* The sheet tabs stick under the top bar while the sheet scrolls, and
+      {/* The sheet tabs stick under the top bar and the company card's bar
+          (--card-sticky-h) while the sheet scrolls, and
           the sheet's column headings stick under them (StickyTableFrame) —
           whose offset is this row's height, published as --fin-tabs-h. */}
+      <div ref={sheetAnchor} aria-hidden />
       <div
         ref={setTabsRow}
-        className="sticky top-16 z-20 flex flex-wrap items-end gap-x-4 gap-y-2 bg-canvas shadow-[inset_0_-1px_0_var(--color-slate-200)]"
+        className="sticky top-[calc(4rem+var(--card-sticky-h,0px))] z-20 flex flex-wrap items-end gap-x-4 gap-y-2 bg-canvas shadow-[inset_0_-1px_0_var(--color-slate-200)]"
       >
         <div className="flex-[1_0_auto]">
           <Tabs
@@ -305,7 +320,12 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
         </div>
       </div>
 
-      <div className="mt-4" ref={tableRef}>
+      {/* Never shorter than the screen under the sticky rows, so a short
+          sheet can still be shown from where a long one was. */}
+      <div
+        className="mt-4 min-h-[calc(100dvh-4rem-var(--card-sticky-h,0px)-var(--fin-tabs-h,0px)-1rem)]"
+        ref={tableRef}
+      >
         {subTab === 'balance' && (
           <AnalysisTable
             columns={applyDisplayCurrency(balanceSheetColumns(displayedRaw), displayed)}

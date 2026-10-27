@@ -54,6 +54,7 @@ import { EM_DASH, formatAmount, formatDate, formatMoment, formatPercent } from '
 import { gradeChange, useGradeScale } from '../../../lib/gradeScale'
 import type { GradeBand } from '../../../lib/gradeScale'
 import { tci } from '../../../lib/supabase'
+import { useUiTextScaleValue } from '../../../lib/uiScale'
 import { DEEP_LINK_SCROLL_MARGIN, useDeepLinkFocus } from '../../../lib/useDeepLinkFocus'
 import { AdtSection } from '../../limits/AdtSection'
 import { ADT_FOCUS } from '../../limits/adt'
@@ -580,6 +581,8 @@ function ScoreHistoryChart({
   locale: string
 }) {
   const { t } = useTranslation()
+  // SVG labels do not read the type tokens: sized at the person's text size here.
+  const tickSize = `${(0.6875 * useUiTextScaleValue()) / 100}rem`
   // Nothing to draw before the first assessment (the result card says so).
   // A manual rating (0073) has no score to plot.
   const scored = assessments.filter((a) => a.rating_score !== null)
@@ -621,13 +624,13 @@ function ScoreHistoryChart({
               tickFormatter={(value: number) => formatDate(new Date(value), locale)}
               padding={{ left: 28, right: 28 }}
               minTickGap={16}
-              tick={{ fontSize: '0.6875rem', fill: '#64748b' }}
+              tick={{ fontSize: tickSize, fill: '#64748b' }}
             />
             <YAxis
               reversed
               domain={[0, 100]}
               ticks={[0, 25, 50, 75, 100]}
-              tick={{ fontSize: '0.6875rem', fill: '#64748b' }}
+              tick={{ fontSize: tickSize, fill: '#64748b' }}
               width={32}
             />
             <Tooltip
@@ -650,7 +653,7 @@ function ScoreHistoryChart({
               dot={{ r: 4, fill: '#fff', stroke: CHART_COLORS[0], strokeWidth: 2 }}
               activeDot={{ r: 5 }}
             >
-              <LabelList dataKey="grade" position="top" offset={10} fontSize="0.6875rem" fill="#475569" />
+              <LabelList dataKey="grade" position="top" offset={10} fontSize={tickSize} fill="#475569" />
             </Line>
           </LineChart>
         </ResponsiveContainer>

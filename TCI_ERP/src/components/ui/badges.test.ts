@@ -42,7 +42,8 @@ describe('badges', () => {
     expect(Object.keys(BADGE_SIZES)).toEqual(['sm', 'md'])
     for (const size of ['sm', 'md'] as const) {
       const cls = BADGE_SIZES[size]
-      expect(cls).toMatch(/\bh-\d/)
+      // The height grows with the text size (`h-text-*`, index.css).
+      expect(cls).toMatch(/\bh-text-\d/)
       expect(cls).toMatch(/\bpx-/)
       expect(cls).toMatch(/\btext-/)
       expect(cls).toMatch(/\bfont-(medium|semibold)\b/)

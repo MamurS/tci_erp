@@ -509,6 +509,9 @@ interface SectionPageProps {
   active: string
   onChange: (key: string) => void
   children: ReactNode
+  /** The section's key figures as inverse KpiCards: the band grows to the
+   * dashboard's and carries them on EVERY view, so the tabs never move. */
+  figures?: ReactNode
 }
 
 /**
@@ -518,10 +521,16 @@ interface SectionPageProps {
  * shell's full content width like every other page, so the title does not
  * jump sideways when the person moves between sections.
  */
-export function SectionPage({ title, subtitle, tabs, active, onChange, children }: SectionPageProps) {
+export function SectionPage({ title, subtitle, tabs, active, onChange, children, figures }: SectionPageProps) {
   return (
     <div>
-      <PageHeader band title={title} subtitle={subtitle} />
+      {figures ? (
+        <HeroBand title={title} subtitle={subtitle}>
+          {figures}
+        </HeroBand>
+      ) : (
+        <PageHeader band title={title} subtitle={subtitle} />
+      )}
       <div className="mb-5">
         <Tabs tabs={tabs} active={active} onChange={onChange} />
       </div>
@@ -627,7 +636,7 @@ export function Count({
       data-badge="sm"
       title={title}
       style={{ minWidth: `calc(${digits}ch + 0.75rem)` }}
-      className={`inline-flex h-5 shrink-0 items-center justify-center rounded-full px-2 font-sans text-caption leading-4 font-medium tabular-nums normal-case ${className}`}
+      className={`inline-flex h-text-5 shrink-0 items-center justify-center rounded-full px-2 font-sans text-caption leading-text-4 font-medium tabular-nums normal-case ${className}`}
     >
       {value}
     </span>
@@ -660,7 +669,7 @@ export function Tabs({ tabs, active, onChange, size = 'md' }: TabsProps) {
     size === 'sm'
       ? 'px-3 py-2 text-small'
       : crowded
-        ? 'px-1 py-3 text-small leading-5'
+        ? 'px-1 py-3 text-small leading-text-5'
         : dense
           ? 'px-2 py-3 text-body'
           : 'px-3 py-3 text-body'
@@ -830,6 +839,12 @@ function titleIfCut(event: MouseEvent<HTMLTableElement>) {
   }
 }
 
+/** A column reserves room for its text (columns.ts), so it widens with the
+ * person's text size (uiScale.ts, 0081) — at 100 % text, exactly as written. */
+function textSizedWidth(width: string): string {
+  return `calc(${width} * var(--ui-text, 1))`
+}
+
 /** Scrollable table container. `dense` is the financial variant: tighter
  * rows and a sentence-case head. */
 export function Table({ children, dense = false, className = '', columns, fillMin, id, stickyHead = false, freezeFirst = false }: TableProps) {
@@ -865,7 +880,7 @@ export function Table({ children, dense = false, className = '', columns, fillMi
     >
       {id && hidden.length > 0 && <style>{hiddenColumnsCss(id, hidden)}</style>}
       <table
-        style={fixed ? { minWidth: tableMinWidth(visibleColumns ?? columns, fillMin) } : undefined}
+        style={fixed ? { minWidth: textSizedWidth(tableMinWidth(visibleColumns ?? columns, fillMin)) } : undefined}
         onMouseOver={fixed ? titleIfCut : undefined}
         className={`w-full border-collapse ${fixedCells} ${dense ? 'text-small' : 'text-body'} [&_th]:border-b [&_td.num]:whitespace-nowrap [:where(&_th)]:text-left [&_td]:border-b [&_td]:border-slate-100 [:where(&_tbody_tr)]:transition-colors [:where(&_tbody_tr:hover)]:bg-accent-50 [&_tbody_tr:last-child_td]:border-b-0 ${head} ${
           dense ? '[&_th]:px-3 [&_th]:py-2 [&_td]:px-3 [&_td]:py-2' : `[&_th]:px-4 [&_td]:px-4 ${DENSITY_CELL[density]}`
@@ -878,7 +893,7 @@ export function Table({ children, dense = false, className = '', columns, fillMi
         {fixed && (
           <colgroup>
             {columns.map((width, i) => (
-              <col key={i} style={width === COL.fill ? undefined : { width }} />
+              <col key={i} style={width === COL.fill ? undefined : { width: textSizedWidth(width) }} />
             ))}
           </colgroup>
         )}

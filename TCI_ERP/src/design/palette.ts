@@ -169,8 +169,9 @@ export function worstContrastAt(distance: number): { ratio: number; where: strin
 // Type, space, radius, elevation, motion
 // ---------------------------------------------------------------------------
 
-/** The type scale: 12 / 13 / 14 / 16 / 20 / 28 / 36 px, in rem (the
- * interface text size multiplies them — 0076). Name → [size, line height]. */
+/** The type scale: 12 / 13 / 14 / 16 / 20 / 28 / 36 px, in rem (the zoom
+ * multiplies them with everything else — 0076; the text size multiplies
+ * them alone — 0081, `textSized`). Name → [size, line height]. */
 export const TYPE_SCALE = {
   caption: ['0.75rem', '1rem'],
   small: ['0.8125rem', '1.125rem'],
@@ -180,6 +181,12 @@ export const TYPE_SCALE = {
   headline: ['1.75rem', '2.125rem'],
   display: ['2.25rem', '2.5rem'],
 } as const
+
+/** A type token at the person's text size: `--ui-text` is set on <html>
+ * (1 = as designed; uiScale.ts). */
+export function textSized(size: string): string {
+  return `calc(${size} * var(--ui-text, 1))`
+}
 
 /** The spacing steps a layout may use (4 px grid; 2 px only for hairline
  * offsets). Tailwind's own spacing unit stays 0.25rem. */
@@ -272,9 +279,10 @@ export function renderTokensCss(): string {
   CATEGORICAL.forEach((hex, i) => lines.push(`  --color-data-${i + 1}: ${hex};`))
   SEQUENTIAL.forEach((hex, i) => lines.push(`  --color-seq-${i + 1}: ${hex};`))
   lines.push('')
+  lines.push('  /* The person\'s text size (uiScale.ts, 0081) multiplies the type only. */')
   for (const [name, [size, lineHeight]] of Object.entries(TYPE_SCALE)) {
-    lines.push(`  --text-${name}: ${size};`)
-    lines.push(`  --text-${name}--line-height: ${lineHeight};`)
+    lines.push(`  --text-${name}: ${textSized(size)};`)
+    lines.push(`  --text-${name}--line-height: ${textSized(lineHeight)};`)
   }
   lines.push('')
   for (const [name, value] of Object.entries(RADII)) lines.push(`  --radius-${name}: ${value};`)

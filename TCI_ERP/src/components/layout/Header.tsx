@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react'
-import { UiScalePicker } from '../../features/account/UiScalePicker'
+import { DisplaySettings } from '../../features/account/UiScalePicker'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown, LogOut, UserRound } from 'lucide-react'
@@ -132,12 +132,9 @@ export function Header({ searchRef, toggleSlot, onShowSidebar, sidebarId }: Head
                 </div>
               )}
             </div>
-            {/* The interface text size (0076), one click away. */}
+            {/* Text size (0081) and zoom (0076), one click away. */}
             <div className="border-b border-slate-100 px-4 py-3">
-              <div className="mb-2 text-caption font-medium tracking-wide text-slate-500 uppercase">
-                {t('account.uiScale.title')}
-              </div>
-              <UiScalePicker compact />
+              <DisplaySettings compact />
             </div>
             {/* Password, second factor and sessions live on the account page. */}
             <Link

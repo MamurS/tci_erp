@@ -59,7 +59,7 @@ export function AnalysisTable<K extends string>({
   return (
     <div>
       <StickyTableFrame>
-        <table className="w-full border-collapse text-small">
+        <table className="w-full border-separate border-spacing-0 text-small">
           <thead>
             <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
               <th className="sticky left-0 z-10 min-w-64 bg-slate-50 text-left">{t('fin.lineHeader')}</th>

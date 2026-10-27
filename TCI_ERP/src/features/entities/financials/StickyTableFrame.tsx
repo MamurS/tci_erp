@@ -1,8 +1,13 @@
 /**
  * The frame of a financial sheet (balance sheet, P&L, ratios, cash flow,
  * risk). Its column headings stay on screen while the page scrolls (owner,
- * 2026-10-26): they stick under the top bar and the sheet-tab row, whose
- * height FinancialsTab publishes as `--fin-tabs-h`.
+ * 2026-10-26): they stick under the top bar, the company card's sticky bar
+ * (`--card-sticky-h`, EntityDetailPage) and the sheet-tab row
+ * (`--fin-tabs-h`, FinancialsTab).
+ *
+ * The sheets are `border-separate` with no spacing: in a collapsed table
+ * the borders do not travel with a sticky head, and the hairline between
+ * its two rows let the body show through (owner, 2026-10-27).
  *
  * A heading can stick to the PAGE only while the frame does not scroll
  * sideways (a horizontal scroll box is a scroll container, and sticky would
@@ -37,7 +42,7 @@ export function StickyTableFrame({ children }: { children: ReactNode }) {
       className={`rounded-lg border border-slate-200 bg-white ${
         overflows
           ? 'overflow-x-auto'
-          : '[&_thead]:sticky [&_thead]:top-[calc(4rem+var(--fin-tabs-h,0px))] [&_thead]:z-20 [&_thead]:shadow-[0_1px_0_var(--color-slate-200)]'
+          : '[&_thead]:sticky [&_thead]:top-[calc(4rem+var(--card-sticky-h,0px)+var(--fin-tabs-h,0px))] [&_thead]:z-20 [&_thead]:shadow-[0_1px_0_var(--color-slate-200)]'
       }`}
     >
       {children}

@@ -35,7 +35,9 @@ describe('agenda row grid', () => {
   })
 
   it('the grid restates the measured tracks', () => {
-    expect(ROW_GRID).toContain(`grid-cols-[3px_1.5rem_${TAG_TRACK}_minmax(0,1fr)_${DUE_TRACK}_1.75rem]`)
+    expect(ROW_GRID).toContain(
+      `grid-cols-[3px_1.5rem_calc(${TAG_TRACK}*var(--ui-text,1))_minmax(0,1fr)_calc(${DUE_TRACK}*var(--ui-text,1))_1.75rem]`,
+    )
   })
 
   it('every row kind of the list is laid out on ROW_GRID, and nothing else sets its own columns', () => {

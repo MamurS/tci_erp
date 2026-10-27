@@ -129,7 +129,7 @@ export function PasswordInput({
       <p
         id={capsHintId}
         aria-live="polite"
-        className="mt-1 h-4 truncate text-caption leading-4 text-slate-600"
+        className="mt-1 h-text-4 truncate text-caption leading-text-4 text-slate-600"
       >
         {capsHint && (
           <>

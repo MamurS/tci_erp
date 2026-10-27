@@ -40,9 +40,11 @@ export const DUE_TRACK = '7.25rem'
 /**
  * The grid itself. A literal class string (Tailwind generates what it finds
  * in the source), restating the two tracks above — `rowGrid.test.ts` checks
- * that it does. Gaps are gap-x-3; the right edge is pr-4, as before.
+ * that it does. Both hold text, so both widen with the person's text size
+ * (`--ui-text`, uiScale.ts). Gaps are gap-x-3; the right edge is pr-4, as before.
  */
-export const ROW_GRID = 'grid grid-cols-[3px_1.5rem_8.75rem_minmax(0,1fr)_7.25rem_1.75rem] gap-x-3 pr-4'
+export const ROW_GRID =
+  'grid grid-cols-[3px_1.5rem_calc(8.75rem*var(--ui-text,1))_minmax(0,1fr)_calc(7.25rem*var(--ui-text,1))_1.75rem] gap-x-3 pr-4'
 
 /** The tracks by name, for placing a cell that spans more than one. */
 export const TRACK = {
