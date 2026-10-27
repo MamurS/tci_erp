@@ -22,6 +22,7 @@ import { formatAmount, formatCompact } from '../../../lib/format'
 import type { StatementBundle } from '../types'
 import type { ChartRow } from './chartData'
 import { buildDynamicChartData } from './chartData'
+import { useUiTextScaleValue } from '../../../lib/uiScale'
 
 /** Navy, process blue, orange — the brand's chart order. */
 /** The series colours: the brand, the secondary brand, the orange accent —
@@ -81,8 +82,10 @@ function DynamicsLineChart({
   locale: string
   days: boolean
 }) {
+  // The person's text size on screen (0081); paper keeps the A4 size.
+  const textScale = useUiTextScaleValue() / 100
   const axis = {
-    fontSize: '0.625rem',
+    fontSize: `${0.625 * (variant === 'screen' ? textScale : 1)}rem`,
     fill: 'var(--color-slate-500)',
     fontFamily: 'PT Sans Narrow, Arial Narrow, sans-serif',
   }
@@ -106,7 +109,7 @@ function DynamicsLineChart({
       {variant === 'screen' && (
         <Tooltip
           formatter={(v) => (typeof v === 'number' ? formatAmount(v, locale, 0) : v)}
-          contentStyle={{ fontSize: '0.75rem', borderRadius: 8, borderColor: 'var(--color-slate-300)', background: 'var(--color-white)' }}
+          contentStyle={{ fontSize: `${0.75 * textScale}rem`, borderRadius: 8, borderColor: 'var(--color-slate-300)', background: 'var(--color-white)' }}
         />
       )}
       {series.map((s, idx) => (
