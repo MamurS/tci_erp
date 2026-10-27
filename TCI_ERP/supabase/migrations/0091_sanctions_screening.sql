@@ -292,7 +292,7 @@ create function tci.add_sanctions_list_entries(p_import uuid, p_rows jsonb) retu
 language plpgsql security definer set search_path = '' as $$
 declare
   v_import tci.sanctions_list_imports%rowtype;
-  v_count  integer;
+  v_batch  jsonb;
 begin
   perform tci.require_staff();
   if not tci.may_import_sanctions_lists() then
@@ -309,29 +309,34 @@ begin
     raise exception 'sanctions_batch_shape: a batch is an array of at most 1000 parties' using errcode = 'P0001';
   end if;
 
-  create temporary table if not exists pg_temp.sanctions_batch (
-    ref text, kind text, names jsonb, programmes text[], countries text[], birth_dates text[],
-    listed_on date, remarks text, entry_id uuid) on commit drop;
-  truncate pg_temp.sanctions_batch;
-  insert into pg_temp.sanctions_batch (ref, kind, names, programmes, countries, birth_dates, listed_on, remarks)
-  select distinct on (btrim(x ->> 'ref'))
-         btrim(x ->> 'ref'), x ->> 'kind', coalesce(x -> 'names', '[]'::jsonb),
-         coalesce((select array_agg(left(btrim(v), 200)) from jsonb_array_elements_text(coalesce(x -> 'programmes', '[]')) v where btrim(v) <> ''), '{}'),
-         coalesce((select array_agg(left(btrim(v), 200)) from jsonb_array_elements_text(coalesce(x -> 'countries', '[]')) v where btrim(v) <> ''), '{}'),
-         coalesce((select array_agg(left(btrim(v), 100)) from jsonb_array_elements_text(coalesce(x -> 'birth_dates', '[]')) v where btrim(v) <> ''), '{}'),
-         nullif(x ->> 'listed_on', '')::date,
-         left(nullif(btrim(x ->> 'remarks'), ''), 2000)
-    from jsonb_array_elements(p_rows) with ordinality as r(x, o)
-   where coalesce(btrim(x ->> 'ref'), '') <> ''
-   order by btrim(x ->> 'ref'), o;
+  -- One row per reference, the first kept, as one jsonb array: the upsert
+  -- and the names below read it back with jsonb_to_recordset.
+  select coalesce(jsonb_agg(to_jsonb(b) order by b.ref), '[]'::jsonb)
+    into v_batch
+    from (
+      select distinct on (btrim(x ->> 'ref'))
+             btrim(x ->> 'ref') as ref, x ->> 'kind' as kind, coalesce(x -> 'names', '[]'::jsonb) as names,
+             coalesce((select array_agg(left(btrim(v), 200)) from jsonb_array_elements_text(coalesce(x -> 'programmes', '[]')) v where btrim(v) <> ''), '{}') as programmes,
+             coalesce((select array_agg(left(btrim(v), 200)) from jsonb_array_elements_text(coalesce(x -> 'countries', '[]')) v where btrim(v) <> ''), '{}') as countries,
+             coalesce((select array_agg(left(btrim(v), 100)) from jsonb_array_elements_text(coalesce(x -> 'birth_dates', '[]')) v where btrim(v) <> ''), '{}') as birth_dates,
+             nullif(x ->> 'listed_on', '')::date as listed_on,
+             left(nullif(btrim(x ->> 'remarks'), ''), 2000) as remarks
+        from jsonb_array_elements(p_rows) with ordinality as r(x, o)
+       where coalesce(btrim(x ->> 'ref'), '') <> ''
+       order by btrim(x ->> 'ref'), o
+    ) b;
 
-  if exists (select 1 from pg_temp.sanctions_batch b
+  if exists (select 1 from jsonb_to_recordset(v_batch) as b(names jsonb)
               where jsonb_typeof(b.names) <> 'array' or jsonb_array_length(b.names) = 0
                  or jsonb_array_length(b.names) > 300) then
     raise exception 'sanctions_batch_shape: every party needs 1 to 300 names' using errcode = 'P0001';
   end if;
 
-  with up as (
+  with b as (
+    select * from jsonb_to_recordset(v_batch) as b(ref text, kind text, names jsonb, programmes text[],
+                                                    countries text[], birth_dates text[], listed_on date, remarks text)
+  ),
+  up as (
     insert into tci.sanctions_list_entries
       (list_key, list_ref, kind, primary_name, programmes, countries, birth_dates, listed_on, remarks,
        first_import_id, last_import_id)
@@ -339,7 +344,7 @@ begin
            left(btrim(coalesce((select n ->> 'n' from jsonb_array_elements(b.names) n where (n ->> 'p')::boolean limit 1),
                                b.names -> 0 ->> 'n')), 500),
            b.programmes, b.countries, b.birth_dates, b.listed_on, b.remarks, p_import, p_import
-      from pg_temp.sanctions_batch b
+      from b
     on conflict (list_key, list_ref) do update
        set kind = excluded.kind, primary_name = excluded.primary_name, programmes = excluded.programmes,
            countries = excluded.countries, birth_dates = excluded.birth_dates, listed_on = excluded.listed_on,
@@ -347,20 +352,18 @@ begin
            delisted_at = null, delisted_import_id = null
     returning id, list_ref
   )
-  update pg_temp.sanctions_batch b set entry_id = up.id from up where up.list_ref = b.ref;
-
   insert into tci.sanctions_list_names (entry_id, name, is_primary, last_import_id)
-  select distinct on (b.entry_id, tci.sanctions_normalise(left(btrim(n ->> 'n'), 500)))
-         b.entry_id, left(btrim(n ->> 'n'), 500), coalesce((n ->> 'p')::boolean, false), p_import
-    from pg_temp.sanctions_batch b
+  select distinct on (up.id, tci.sanctions_normalise(left(btrim(n ->> 'n'), 500)))
+         up.id, left(btrim(n ->> 'n'), 500), coalesce((n ->> 'p')::boolean, false), p_import
+    from up
+    join b on b.ref = up.list_ref
     cross join jsonb_array_elements(b.names) n
    where tci.sanctions_normalise(left(btrim(n ->> 'n'), 500)) is not null
-   order by b.entry_id, tci.sanctions_normalise(left(btrim(n ->> 'n'), 500)), coalesce((n ->> 'p')::boolean, false) desc
+   order by up.id, tci.sanctions_normalise(left(btrim(n ->> 'n'), 500)), coalesce((n ->> 'p')::boolean, false) desc
   on conflict (entry_id, norm) do update
      set name = excluded.name, is_primary = excluded.is_primary, last_import_id = excluded.last_import_id;
 
-  get diagnostics v_count = row_count;
-  return (select count(*) from pg_temp.sanctions_batch)::integer;
+  return jsonb_array_length(v_batch);
 end $$;
 revoke all on function tci.add_sanctions_list_entries(uuid, jsonb) from public, anon;
 grant execute on function tci.add_sanctions_list_entries(uuid, jsonb) to authenticated;

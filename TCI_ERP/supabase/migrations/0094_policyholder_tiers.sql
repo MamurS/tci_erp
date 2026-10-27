@@ -172,9 +172,6 @@ comment on table tci.policyholder_tier_overrides is
 create function tci.guard_policyholder_tier_override() returns trigger
 language plpgsql set search_path = '' as $$
 begin
-  if tg_op = 'DELETE' then
-    raise exception 'tier_override_immutable: a manual tier is ended, never removed' using errcode = 'P0001';
-  end if;
   if old.ended_at is not null
      or new.id <> old.id or new.entity_id <> old.entity_id or new.tier <> old.tier
      or new.reason <> old.reason or new.valid_until is distinct from old.valid_until
@@ -184,7 +181,8 @@ begin
   return new;
 end $$;
 revoke all on function tci.guard_policyholder_tier_override() from public, anon, authenticated;
-create trigger policyholder_tier_overrides_immutable before update or delete on tci.policyholder_tier_overrides
+-- No API role may remove a row (no grant); the trigger keeps the rest.
+create trigger policyholder_tier_overrides_immutable before update on tci.policyholder_tier_overrides
   for each row execute function tci.guard_policyholder_tier_override();
 
 alter table tci.policyholder_tier_overrides enable row level security;
