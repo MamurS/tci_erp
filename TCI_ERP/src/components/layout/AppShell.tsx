@@ -198,6 +198,8 @@ export function AppShell() {
         // goes from it straight into the menu while the panel is shown.
         <div
           ref={toggleRef}
+          // Over the menu it is part of the brand surface (dark mode keeps it light on navy).
+          data-brand-surface={pinned || showPeek ? '' : undefined}
           className="fixed top-4 left-5 z-[60]"
           onMouseEnter={schedulePeek}
           onMouseLeave={collapsed ? scheduleUnpeek : undefined}
@@ -243,7 +245,7 @@ export function AppShell() {
       {!isDesktop && drawerOpen && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-accent-900/40 backdrop-blur-[2px]"
+            className="fixed inset-0 z-40 bg-scrim/40 backdrop-blur-[2px]"
             onClick={() => setDrawerOpen(false)}
             aria-hidden="true"
           />

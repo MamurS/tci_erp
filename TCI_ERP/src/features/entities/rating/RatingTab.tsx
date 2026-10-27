@@ -614,7 +614,7 @@ function ScoreHistoryChart({
       <div className="h-56">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 20, right: 28, bottom: 0, left: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e3ecf2" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-slate-200)" vertical={false} />
             <XAxis
               dataKey="at"
               type="number"
@@ -624,13 +624,13 @@ function ScoreHistoryChart({
               tickFormatter={(value: number) => formatDate(new Date(value), locale)}
               padding={{ left: 28, right: 28 }}
               minTickGap={16}
-              tick={{ fontSize: tickSize, fill: '#64748b' }}
+              tick={{ fontSize: tickSize, fill: 'var(--color-slate-500)' }}
             />
             <YAxis
               reversed
               domain={[0, 100]}
               ticks={[0, 25, 50, 75, 100]}
-              tick={{ fontSize: tickSize, fill: '#64748b' }}
+              tick={{ fontSize: tickSize, fill: 'var(--color-slate-500)' }}
               width={32}
             />
             <Tooltip
@@ -650,10 +650,10 @@ function ScoreHistoryChart({
               // Drawn at once: an animation caught half-way reads as a broken
               // line (and is what a screenshot or the PDF would capture).
               isAnimationActive={false}
-              dot={{ r: 4, fill: '#fff', stroke: CHART_COLORS[0], strokeWidth: 2 }}
+              dot={{ r: 4, fill: 'var(--color-white)', stroke: CHART_COLORS[0], strokeWidth: 2 }}
               activeDot={{ r: 5 }}
             >
-              <LabelList dataKey="grade" position="top" offset={10} fontSize={tickSize} fill="#475569" />
+              <LabelList dataKey="grade" position="top" offset={10} fontSize={tickSize} fill="var(--color-slate-600)" />
             </Line>
           </LineChart>
         </ResponsiveContainer>

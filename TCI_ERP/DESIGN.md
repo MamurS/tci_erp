@@ -425,6 +425,17 @@ mechanical ones.
   never `-mt-*` hacks; hints go in `Field`'s `hint`.
 * **Every literal translation key exists** (`i18n/keysExist.test.ts`) — a
   missing one is printed raw on screen.
+* **A row opens its object; a link opens its own** (owner, 2026-10-27). In a
+  list whose rows are objects with a page (a limit, a policy, a claim), the
+  row is a `LinkRow`: a click anywhere on it opens the row's object, Enter
+  on the focused row too, Ctrl / ⌘ / middle click a new tab, and a click
+  that ends a text selection selects. Every link in the row names ITS
+  object — the buyer opens the company, the policy number the policy, the
+  policyholder their company — never the row's. Links, buttons, checkboxes
+  and menus keep their own click (`linkRow.ts`, `[data-row-ignore]` for
+  anything else); no `stopPropagation` is needed. A row with no page of its
+  own (an instalment, an invoice line, a grant) stays plain, and a row that
+  opens a detail in place keeps doing so. `e2e/shell/linkRow.spec.ts`.
 
 ### Badges (owner rule, October 2026)
 
@@ -885,6 +896,34 @@ exact, calm. Five rules, then ten strings in each language that show them.
 Non-blocking accounting-equation warnings are amber (`warn-*`), never red;
 red is reserved for hard errors. Warnings do not prevent saving — the
 analyst's entered figure is the source of truth.
+
+## Colour themes and dark mode
+
+Two more personal settings (0082, `src/lib/uiTheme.ts`), as `data-theme`
+and `data-mode` on `<html>`:
+
+* **Colour theme** — blue (the default), salad green, teal, plum, graphite.
+  A theme re-hues the brand ramp (`accent`) and the secondary one (`sky`)
+  only; every step keeps its luminance, so the pairing rule and every pair
+  in use hold in every theme.
+* **Light / dark / auto** — dark mode replaces every colour by the one whose
+  contrast with the dark card surface equals the light colour's contrast
+  with white (a reflection in contrast space, `darkCounterpart`), slightly
+  stretched (ratio^1.02) against 8-bit rounding. Every pair that passes in
+  light passes in dark; the page is a little darker than the cards; black
+  stays black and the veil under a dialog (`scrim`) stays the theme's navy.
+  «Auto» follows the device and changes with it.
+* **What stays light**: brand surfaces (`data-brand-surface` — the sidebar,
+  hero bands, the card's name bar, the sign-in panel, the portal header, the
+  menu toggle over the menu) keep their navy and their white; documents
+  shown on screen (`data-paper` — the risk report on the Overview tab, a
+  contract) look like paper. Print routes show the house colours (blue,
+  light) whoever prints, and `@media print` is always light.
+
+Never write a colour as hex in a screen component: use a token class, or
+`var(--color-…)` where a library takes a colour (Recharts, SVG). The
+contrast guard (`contrast.test.ts`) audits every class in every theme and
+mode; `themes.test.ts` keeps the lists in step with 0082.
 
 ## Zoom and text size
 

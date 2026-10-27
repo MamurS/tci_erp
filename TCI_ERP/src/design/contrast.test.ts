@@ -23,24 +23,24 @@ import { join, relative } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { contrast, luminance } from './oklch'
-import { ALIASES, CANVAS, GRADE_COLORS, GRAPHIC_MIN, RAMPS, STEPS, TEXT_MIN, worstContrastAt } from './palette'
+import {
+  CANVAS,
+  DEFAULT_THEME,
+  GRADE_COLORS,
+  GRAPHIC_MIN,
+  RAMPS,
+  TEXT_MIN,
+  THEME_NAMES,
+  colorTokens,
+  darkColorTokens,
+  worstContrastAt,
+} from './palette'
 
 const SRC = join(__dirname, '..')
 
-/** Every colour token a class may name, as hex. */
-const TOKENS: Record<string, string> = {
-  white: '#ffffff',
-  black: '#000000',
-  canvas: CANVAS,
-  ...ALIASES,
-}
-for (const [name, ramp] of Object.entries(RAMPS)) for (const step of STEPS) TOKENS[`${name}-${step}`] = ramp[step]
-for (const [grade, c] of Object.entries(GRADE_COLORS)) {
-  const key = grade.toLowerCase()
-  TOKENS[`grade-${key}`] = c.solid
-  TOKENS[`grade-${key}-tint`] = c.tint
-  TOKENS[`grade-${key}-ink`] = c.ink
-}
+/** Every colour token a class may name, as hex, in blue light mode (the
+ * themes and dark mode are audited below with their own). */
+let TOKENS: Record<string, string> = colorTokens(DEFAULT_THEME)
 
 function hexToRgb(hex: string): [number, number, number] {
   const n = Number.parseInt(hex.slice(1), 16)
@@ -55,9 +55,9 @@ function blend(fg: string, alpha: number, bg: string): string {
 }
 
 /** A colour class value (`slate-500`, `white/70`) → [hex, alpha]. */
-function resolve(value: string): [string, number] | null {
+function resolve(value: string, tokens: Record<string, string> = TOKENS): [string, number] | null {
   const [name, opacity] = value.split('/')
-  const hex = TOKENS[name]
+  const hex = tokens[name]
   if (!hex) return null
   return [hex, opacity ? Number(opacity) / 100 : 1]
 }
@@ -86,10 +86,15 @@ function classStrings(source: string): string[] {
 /** The dark surface a light colour with no background of its own sits on:
  * the sidebar, the navy header bars, else a primary button. */
 function darkSurface(file: string): string {
-  if (/layout[\\/](Sidebar|SidebarToggle|WorkspaceSwitcher)\.tsx$/.test(file)) return RAMPS.accent[800]
-  if (/(PortalShell|PrintPage|ReportPage|LoginPage)\.tsx$/.test(file)) return RAMPS.accent[800]
-  return RAMPS.accent[600]
+  if (/layout[\\/](Sidebar|SidebarToggle|WorkspaceSwitcher)\.tsx$/.test(file)) return TOKENS['accent-800']
+  if (/(PortalShell|PrintPage|ReportPage|LoginPage)\.tsx$/.test(file)) return TOKENS['accent-800']
+  return TOKENS['accent-600']
 }
+
+/** Drawn in the light colours of their theme in every mode: the brand
+ * surfaces (data-brand-surface) and paper (data-paper, the print routes). */
+const LIGHT_ALWAYS =
+  /((layout[\\/](Sidebar|SidebarToggle|WorkspaceSwitcher)|PortalShell|PrintPage|ReportPage|LoginPage|HeroBand|CardStickyBar|DocRenderer|CompareView)\.tsx|entities[\\/]report[\\/][^\\/]+\.tsx)$/
 
 interface Finding {
   file: string
@@ -104,10 +109,17 @@ const VARIANT = /^(?:\[[^\]]*\]:|[a-z0-9@*_-]+(?:\[[^\]]*\])?:)*/
  * disabled controls; placeholders are hints, checked by their own rule). */
 const EXEMPT_VARIANTS = /(^|:)(disabled|placeholder|group-disabled|aria-disabled):/
 
-function audit(): Finding[] {
+/**
+ * `light`: the colours of a theme in light mode. `dark`: its dark-mode
+ * colours — then every file but the brand surfaces and paper (LIGHT_ALWAYS)
+ * is drawn in them, and the surfaces mirror light mode's: a colour that is
+ * light in light mode sits on the dark counterpart of its dark surface.
+ */
+function audit(light: Record<string, string> = TOKENS, dark?: Record<string, string>): Finding[] {
   const findings: Finding[] = []
   for (const file of files(SRC)) {
     const source = readFileSync(file, 'utf8')
+    TOKENS = dark && !LIGHT_ALWAYS.test(file) ? dark : light
     for (const raw of classStrings(source)) {
       const tokens = raw.split(/\s+/).filter(Boolean)
       // The background a colour sits on: the one with the same structural
@@ -134,14 +146,15 @@ function audit(): Finding[] {
         const m = /^(text|fill|stroke)-([a-z0-9-]+(?:\/\d+)?)$/.exec(base)
         if (!m) continue
         const color = resolve(m[2])
-        if (!color) continue
+        const inLight = resolve(m[2], light)
+        if (!color || !inLight) continue
         const need = graphic || m[1] !== 'text' ? GRAPHIC_MIN : TEXT_MIN
         // No background of its own: a light colour sits on a dark surface,
         // anything else on white and on the canvas. A translucent background shows what is under it: under light text
         // the dark surface (a chip in the sidebar), under dark text white.
-        const light = luminance(color[0]) > 0.4
-        const own = last ? (last[1] < 1 ? blend(last[0], last[1], light ? darkSurface(file) : '#ffffff') : last[0]) : null
-        const surfaces = own ? [own] : light ? [darkSurface(file)] : ['#ffffff', CANVAS]
+        const onDark = luminance(inLight[0]) > 0.4
+        const own = last ? (last[1] < 1 ? blend(last[0], last[1], onDark ? darkSurface(file) : TOKENS.white) : last[0]) : null
+        const surfaces = own ? [own] : onDark ? [darkSurface(file)] : [TOKENS.white, TOKENS.canvas]
         for (const surface of surfaces) {
           const fg = color[1] < 1 ? blend(color[0], color[1], surface) : color[0]
           const ratio = contrast(fg, surface)
@@ -152,6 +165,7 @@ function audit(): Finding[] {
       }
     }
   }
+  TOKENS = light
   return findings
 }
 
@@ -181,4 +195,19 @@ describe('every text and icon colour in use passes', () => {
       findings.map((f) => `${f.file}: ${f.pair} = ${f.ratio.toFixed(2)} < ${f.need} — "${f.classes}"`),
     ).toEqual([])
   })
+})
+
+describe('every colour theme, light and dark, passes too (0082)', () => {
+  for (const theme of THEME_NAMES) {
+    const light = colorTokens(theme)
+    for (const mode of ['light', 'dark'] as const) {
+      if (theme === DEFAULT_THEME && mode === 'light') continue
+      it(`${theme} · ${mode}`, () => {
+        const findings = mode === 'light' ? audit(light) : audit(light, darkColorTokens(theme))
+        expect(
+          findings.map((f) => `${f.file}: ${f.pair} = ${f.ratio.toFixed(2)} < ${f.need} — "${f.classes}"`),
+        ).toEqual([])
+      })
+    }
+  }
 })

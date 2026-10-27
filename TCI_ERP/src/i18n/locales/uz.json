@@ -2858,6 +2858,24 @@
     },
     "display": {
       "title": "Ko‘rinish"
+    },
+    "uiTheme": {
+      "title": "Rang mavzusi",
+      "hint": "Menyu, polosalar, tugmalar va havolalar rangi.",
+      "names": {
+        "blue": "Ko‘k",
+        "salad": "Salat rang",
+        "teal": "Firuza",
+        "plum": "Olxo‘ri rang",
+        "graphite": "Grafit"
+      },
+      "mode": {
+        "title": "Yorug‘ yoki qorong‘i",
+        "hint": "«Avto» — qurilmangizdagidek. Chop etilgan sahifalar doim yorug‘.",
+        "light": "Yorug‘",
+        "dark": "Qorong‘i",
+        "auto": "Avto"
+      }
     }
   },
   "provisioning": {

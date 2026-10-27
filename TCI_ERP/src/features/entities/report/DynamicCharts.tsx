@@ -24,7 +24,9 @@ import type { ChartRow } from './chartData'
 import { buildDynamicChartData } from './chartData'
 
 /** Navy, process blue, orange — the brand's chart order. */
-export const CHART_COLORS = ['#005288', '#0093d0', '#f7941e'] as const
+/** The series colours: the brand, the secondary brand, the orange accent —
+ * tokens, so they follow the colour theme and dark mode (0082). */
+export const CHART_COLORS = ['var(--color-accent-600)', 'var(--color-sky-400)', 'var(--color-brand-orange)'] as const
 
 interface SeriesDef {
   dataKey: keyof ChartRow
@@ -46,7 +48,7 @@ function SquareDot({ cx, cy, stroke, value }: SquareDotProps) {
       y={cy - 3.5}
       width={7}
       height={7}
-      fill="#fff"
+      fill="var(--color-white)"
       stroke={stroke}
       strokeWidth={1.6}
     />
@@ -81,7 +83,7 @@ function DynamicsLineChart({
 }) {
   const axis = {
     fontSize: '0.625rem',
-    fill: '#666666',
+    fill: 'var(--color-slate-500)',
     fontFamily: 'PT Sans Narrow, Arial Narrow, sans-serif',
   }
   const tick = (v: number) => (days ? formatAmount(v, locale, 0) : formatCompact(v, locale, 0))
@@ -92,8 +94,8 @@ function DynamicsLineChart({
       data={data}
       margin={{ top: 6, right: 12, left: 0, bottom: 0 }}
     >
-      <CartesianGrid vertical={false} stroke="#e3ecf2" />
-      <XAxis dataKey="period" tick={axis} tickLine={false} axisLine={{ stroke: '#c9dde9' }} />
+      <CartesianGrid vertical={false} stroke="var(--color-slate-200)" />
+      <XAxis dataKey="period" tick={axis} tickLine={false} axisLine={{ stroke: 'var(--color-slate-300)' }} />
       <YAxis
         tick={axis}
         width={days ? 34 : locale === 'en' ? 46 : 64}
@@ -104,7 +106,7 @@ function DynamicsLineChart({
       {variant === 'screen' && (
         <Tooltip
           formatter={(v) => (typeof v === 'number' ? formatAmount(v, locale, 0) : v)}
-          contentStyle={{ fontSize: '0.75rem', borderRadius: 8, borderColor: '#c9dde9' }}
+          contentStyle={{ fontSize: '0.75rem', borderRadius: 8, borderColor: 'var(--color-slate-300)', background: 'var(--color-white)' }}
         />
       )}
       {series.map((s, idx) => (

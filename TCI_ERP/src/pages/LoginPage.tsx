@@ -134,7 +134,7 @@ export function LoginPage() {
       {/* Brand panel: deep navy with the brochure's trade mosaic rising from
           the bottom (our own drawings; LOGIN_PHOTO takes a licensed photograph
           instead once there is one — DESIGN.md «Sign-in»). */}
-      <div className="relative hidden w-[55%] max-w-[52rem] flex-col justify-between overflow-hidden bg-accent-900 bg-linear-to-b from-accent-900 via-accent-800 to-accent-900 p-12 text-white lg:flex">
+      <div data-brand-surface className="relative hidden w-[55%] max-w-[52rem] flex-col justify-between overflow-hidden bg-accent-900 bg-linear-to-b from-accent-900 via-accent-800 to-accent-900 p-12 text-white lg:flex">
         <img
           src={LOGIN_PHOTO ?? LOGIN_MOSAIC_URI}
           alt=""

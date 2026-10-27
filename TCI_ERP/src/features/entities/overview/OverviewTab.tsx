@@ -72,7 +72,7 @@ export function OverviewTab({
         </Button>
       </div>
 
-      <div className="rpt rpt-embedded" lang={locale}>
+      <div data-paper className="rpt rpt-embedded" lang={locale}>
         <article className="rpt-paper">
           <ReportHeader
             t={t}

@@ -242,6 +242,145 @@ export const ALIASES: Record<string, string> = {
 }
 
 // ---------------------------------------------------------------------------
+// Colour themes and dark mode (owner, 2026-10-27; migration 0082)
+// ---------------------------------------------------------------------------
+
+/**
+ * The colour themes a person may choose. A theme re-hues the BRAND ramp
+ * (`accent`) and the secondary ramp (`sky`: links, focus, highlights, the
+ * sequential data palette); every other ramp — the neutral, the semantic
+ * colours, the grade scale — stays. Every step keeps its luminance, so every
+ * pair that passes in blue passes in every theme (contrast.test.ts).
+ */
+export const THEMES = {
+  blue: { accent: RAMP_SPECS.accent, sky: RAMP_SPECS.sky },
+  salad: { accent: { hue: 132, chroma: 0.15 }, sky: { hue: 145, chroma: 0.17 } },
+  teal: { accent: { hue: 200, chroma: 0.11 }, sky: { hue: 215, chroma: 0.14 } },
+  plum: { accent: { hue: 330, chroma: 0.12 }, sky: { hue: 305, chroma: 0.16 } },
+  graphite: { accent: { hue: 255, chroma: 0.02 }, sky: { hue: 232, chroma: 0.17 } },
+} as const satisfies Record<string, Record<'accent' | 'sky', Pick<RampSpec, 'hue' | 'chroma'>>>
+
+export type ThemeName = keyof typeof THEMES
+export const THEME_NAMES = Object.keys(THEMES) as ThemeName[]
+export const DEFAULT_THEME: ThemeName = 'blue'
+
+/** Every colour token (the `--color-*` name without the prefix) of a theme
+ * in light mode, as hex. `blue` is what the @theme block declares. */
+export function colorTokens(theme: ThemeName): Record<string, string> {
+  const ramps: Record<RampName, Ramp> = {
+    ...RAMPS,
+    accent: buildRamp(THEMES[theme].accent),
+    sky: buildRamp(THEMES[theme].sky),
+  }
+  const out: Record<string, string> = { white: '#ffffff', black: '#000000', canvas: CANVAS }
+  for (const [name, ramp] of Object.entries(ramps)) for (const step of STEPS) out[`${name}-${step}`] = ramp[step]
+  for (const [alias, hex] of Object.entries(ALIASES)) out[alias] = hex
+  // The veil under a dialog or a drawer: the theme's navy, in either mode.
+  out.scrim = ramps.accent[900]
+  out['brand-navy'] = ramps.accent[800]
+  out['brand-blue'] = ramps.sky[400]
+  for (const [grade, colors] of Object.entries(GRADE_COLORS)) {
+    const key = grade.toLowerCase()
+    out[`grade-${key}-tint`] = colors.tint
+    out[`grade-${key}`] = colors.solid
+    out[`grade-${key}-ink`] = colors.ink
+  }
+  ;(['A1', 'B1', 'B2', 'C2', 'D'] as const).forEach((g, i) => (out[`scale-${i + 1}`] = GRADE_COLORS[g].solid))
+  const categorical = [ramps.accent[400], ...CATEGORICAL.slice(1, 4), ramps.sky[400], ...CATEGORICAL.slice(5)]
+  categorical.forEach((hex, i) => (out[`data-${i + 1}`] = hex))
+  STEPS.slice(1).forEach((s, i) => (out[`seq-${i + 1}`] = ramps.sky[s]))
+  return out
+}
+
+/** The dark card surface (what white becomes) and the dark page canvas —
+ * darker still, so a card lifts off the page. */
+export const DARK_SURFACE_Y = 0.011
+export const DARK_CANVAS_Y = 0.005
+/** Dark mode stretches every contrast a little (ratio^1.02: 3.00 → 3.07,
+ * 4.50 → 4.64), so the rounding of a colour to 8 bits near black never takes
+ * a pair below its threshold. */
+export const DARK_STRETCH = 1.02
+
+/** A colour's dark-mode counterpart: the same hue and chroma at the
+ * luminance that mirrors its contrast with white as contrast with the dark
+ * surface — (Y′ + 0.05) = (S + 0.05) · (1.05 / (Y + 0.05))^k. The map is a
+ * reflection in contrast space, so ANY two colours keep (and, with k > 1,
+ * slightly gain) their contrast with each other: every pair the light mode
+ * passes, dark mode passes. S is low enough that the darkest step (Y 0.015)
+ * lands on white without clamping. */
+export function darkCounterpart(hex: string): string {
+  const y = luminance(hex)
+  const target = Math.min(1, (DARK_SURFACE_Y + 0.05) * Math.pow(1.05 / (y + 0.05), DARK_STRETCH) - 0.05)
+  const { c, h } = hexToOklch(hex)
+  return solveStep(target, c, Number.isFinite(h) ? h : 0)
+}
+
+/** Every colour token of a theme in dark mode. Black stays black (the
+ * overlay under a dialog); the canvas sits under the cards. */
+export function darkColorTokens(theme: ThemeName): Record<string, string> {
+  const light = colorTokens(theme)
+  const out: Record<string, string> = {}
+  for (const [name, hex] of Object.entries(light)) out[name] = darkCounterpart(hex)
+  out.black = '#000000'
+  out.scrim = light.scrim
+  out.canvas = solveStep(DARK_CANVAS_Y, RAMP_SPECS.slate.chroma * 0.4, RAMP_SPECS.slate.hue)
+  return out
+}
+
+/** The tokens of `next` that differ from `base` (what a theme block declares). */
+function changed(base: Record<string, string>, next: Record<string, string>): [string, string][] {
+  return Object.entries(next).filter(([name, hex]) => base[name] !== hex)
+}
+
+function block(selector: string, entries: [string, string][], extra: string[] = []): string[] {
+  return [`${selector} {`, ...extra.map((l) => `  ${l}`), ...entries.map(([n, hex]) => `  --color-${n}: ${hex};`), '}']
+}
+
+/**
+ * The theme and mode rules, after the @theme block: `data-theme` and
+ * `data-mode` on <html> (uiTheme.ts) choose them. Dark mode is for the
+ * SCREEN only — paper is always light. A brand surface
+ * (`data-brand-surface`: the sidebar, the hero bands, the card's name bar,
+ * the sign-in panel, the portal header) keeps the light tokens of its theme
+ * in dark mode, so the navy stays navy and its white stays white; so does a
+ * document shown on screen (`data-paper`: the risk report on the Overview
+ * tab, a contract), which looks like the paper it prints as.
+ */
+export function renderThemeCss(): string[] {
+  const base = colorTokens(DEFAULT_THEME)
+  const baseDark = darkColorTokens(DEFAULT_THEME)
+  const lines: string[] = ['', '/* Colour themes (uiTheme.ts, 0082): the brand and secondary ramps re-hued. */']
+  for (const theme of THEME_NAMES) {
+    if (theme === DEFAULT_THEME) continue
+    lines.push(...block(`:root[data-theme='${theme}']`, changed(base, colorTokens(theme))))
+  }
+  lines.push('', '/* Dark mode: every colour at the same contrast against the dark surface. */', '@media screen {')
+  const inner: string[] = []
+  inner.push(...block(":root[data-mode='dark']", Object.entries(baseDark), ['color-scheme: dark;']))
+  for (const theme of THEME_NAMES) {
+    if (theme === DEFAULT_THEME) continue
+    inner.push(...block(`:root[data-mode='dark'][data-theme='${theme}']`, changed(baseDark, darkColorTokens(theme))))
+  }
+  inner.push('/* A brand surface and paper keep their light colours in dark mode; paper')
+  inner.push('   also takes its own text colour, since <body> passes a computed one down. */')
+  inner.push(
+    ...block(":root[data-mode='dark'] :is([data-brand-surface], [data-paper])", Object.entries(base), ['color-scheme: light;']),
+  )
+  inner.push(...block(":root[data-mode='dark'] [data-paper]", [], ['color: var(--color-slate-900);']))
+  for (const theme of THEME_NAMES) {
+    if (theme === DEFAULT_THEME) continue
+    inner.push(
+      ...block(
+        `:root[data-mode='dark'][data-theme='${theme}'] :is([data-brand-surface], [data-paper])`,
+        changed(base, colorTokens(theme)),
+      ),
+    )
+  }
+  lines.push(...inner.map((l) => (l ? `  ${l}` : l)), '}')
+  return lines
+}
+
+// ---------------------------------------------------------------------------
 // The generated @theme
 // ---------------------------------------------------------------------------
 
@@ -257,6 +396,7 @@ export function renderTokensCss(): string {
     '  --color-transparent: transparent;',
     '  --color-current: currentColor;',
     `  --color-canvas: ${CANVAS};`,
+    `  --color-scrim: ${RAMPS.accent[900]};`,
   ]
   for (const [name, ramp] of Object.entries(RAMPS)) {
     lines.push(`  /* ${name}: ${RAMP_SPECS[name as RampName].role} */`)
@@ -275,6 +415,8 @@ export function renderTokensCss(): string {
   }
   lines.push('  /* The five-colour presentation gauge (ratingScale.ts) reads the grade solids. */')
   ;(['A1', 'B1', 'B2', 'C2', 'D'] as const).forEach((g, i) => lines.push(`  --color-scale-${i + 1}: ${GRADE_COLORS[g].solid};`))
+  lines.push('  /* The theme picker\'s swatches: each theme\'s brand colour (fixed in every theme and mode). */')
+  for (const theme of THEME_NAMES) lines.push(`  --color-swatch-${theme}: ${buildRamp(THEMES[theme].accent)[600]};`)
   lines.push('  /* Data palettes. */')
   CATEGORICAL.forEach((hex, i) => lines.push(`  --color-data-${i + 1}: ${hex};`))
   SEQUENTIAL.forEach((hex, i) => lines.push(`  --color-seq-${i + 1}: ${hex};`))
@@ -294,6 +436,7 @@ export function renderTokensCss(): string {
   lines.push(`  --default-transition-duration: ${MOTION.durations['fast-02']};`)
   lines.push(`  --default-transition-timing-function: ${MOTION.easings['productive-standard']};`)
   lines.push('}')
+  lines.push(...renderThemeCss())
   return `${lines.join('\n')}\n`
 }
 

@@ -1003,6 +1003,16 @@ is fine for internal test accounts and not fine for customers.
   `tests/db/ui_text_scale.sql` run on canonical with role impersonation
   (forced rollback, nothing left behind, counts unchanged); no new advisor
   finding
+- [x] Rows, sticky sheet controls, colour themes and dark mode (migration
+  0082, owner 2026-10-27): a list row opens its own object and every link in
+  it opens its own (`LinkRow`, `linkRow.ts`, every list whose rows have a
+  page; `e2e/shell/linkRow.spec.ts`); the financial sheets' period /
+  currency row sticks with the sheet tabs; each person picks a colour theme
+  (blue — default, salad green, teal, plum, graphite) and light / dark /
+  auto (`tci.user_profiles.ui_theme`, `ui_mode`, NULL = blue, light). See
+  **Colour theme rules** below and DESIGN.md «Colour themes and dark mode».
+  **Canonical: 0082 NOT applied yet** — additive, awaiting the owner's yes;
+  until then the app keeps the default (its own query fails quietly)
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2416,6 +2426,33 @@ and other boxes keep the zoom's geometry. Inline SVG labels read
 `useUiTextScaleValue()`. It is read in its OWN query (`useUiTextScaleSync`),
 so a database without the column leaves the text at 100 % and the zoom
 working. Print routes pin it to 100 % with the zoom.
+
+### Colour theme rules (migration 0082)
+
+**A theme is a hue, never a luminance.** `THEMES` in `src/design/palette.ts`
+re-hues `accent` and `sky` only; every step keeps its luminance, so the
+contrast rules hold in every theme. Add a theme there, to `UI_THEMES`
+(`uiTheme.ts`) and to a migration's check together — `themes.test.ts` fails
+while the three disagree.
+
+**Dark mode is computed, not designed per screen.** `darkCounterpart`
+mirrors each colour's contrast with white as contrast with the dark card
+surface (stretched ^1.02 against 8-bit rounding), so any two colours keep
+their contrast; `contrast.test.ts` audits every class in use in every theme
+and mode. Black stays black and the `scrim` (the veil under dialogs) stays
+the theme's navy. A brand surface (`data-brand-surface`) and a document on
+screen (`data-paper`) keep their light colours; a new navy surface or a
+document view must carry one of them, and a new hex colour in a screen
+component is a bug (use a token, or `var(--color-…)` for Recharts / SVG).
+
+**Paper is the house colours.** Print routes pin blue / light while open
+(`pinPaperColours`, through `usePrintScale`) and the dark rules are
+`@media screen`, so a report or an offer looks the same whoever prints it.
+
+**The server is the truth, as for the sizes.** `useUiThemeSync` reads
+`ui_theme, ui_mode` in their own query (a database without 0082 leaves the
+default), the picker applies at once and saves through the column grants;
+the browser cache only seeds the first paint.
 
 ### Auto decision (ADT) rules (migration 0061)
 

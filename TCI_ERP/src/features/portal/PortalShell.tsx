@@ -51,7 +51,7 @@ export function PortalShell() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header ref={headerRef} className="bg-gradient-to-r from-accent-700 to-accent-800 text-white">
+      <header ref={headerRef} data-brand-surface className="bg-gradient-to-r from-accent-700 to-accent-800 text-white">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-4 px-6 py-3">
           <div className="flex flex-col">
             <BrandMark size="sm" inverse />

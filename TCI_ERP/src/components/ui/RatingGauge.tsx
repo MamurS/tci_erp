@@ -72,17 +72,17 @@ export function RatingGauge({ score, previousScore, t: tProp, className = '' }: 
           const to = 180 - (i + 1) * 18 + (i === 9 ? 0 : GAP_DEG / 2)
           return <path key={point} d={wedge(from, to)} fill={colorForPoint(point)} />
         })}
-        <text x={CX - R_OUTER + 6} y={113} fontSize="7" fill="#666" textAnchor="middle">
+        <text x={CX - R_OUTER + 6} y={113} fontSize="7" fill="var(--color-slate-500)" textAnchor="middle">
           0
         </text>
-        <text x={CX + R_OUTER - 6} y={113} fontSize="7" fill="#666" textAnchor="middle">
+        <text x={CX + R_OUTER - 6} y={113} fontSize="7" fill="var(--color-slate-500)" textAnchor="middle">
           100
         </text>
         {needle && base && (
           <>
-            <polygon points={`${base} ${needle[0]},${needle[1]}`} fill="#003557" />
-            <circle cx={CX} cy={CY} r={6.5} fill="#003557" />
-            <circle cx={CX} cy={CY} r={2.2} fill="#fff" />
+            <polygon points={`${base} ${needle[0]},${needle[1]}`} fill="var(--color-accent-800)" />
+            <circle cx={CX} cy={CY} r={6.5} fill="var(--color-accent-800)" />
+            <circle cx={CX} cy={CY} r={2.2} fill="var(--color-white)" />
           </>
         )}
       </svg>

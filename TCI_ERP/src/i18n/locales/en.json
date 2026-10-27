@@ -2858,6 +2858,24 @@
     },
     "display": {
       "title": "Display"
+    },
+    "uiTheme": {
+      "title": "Colour theme",
+      "hint": "The colour of the menu, the bands, the buttons and the links.",
+      "names": {
+        "blue": "Blue",
+        "salad": "Salad green",
+        "teal": "Teal",
+        "plum": "Plum",
+        "graphite": "Graphite"
+      },
+      "mode": {
+        "title": "Light or dark",
+        "hint": "Auto follows your device. Printed pages are always light.",
+        "light": "Light",
+        "dark": "Dark",
+        "auto": "Auto"
+      }
     }
   },
   "provisioning": {

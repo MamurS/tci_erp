@@ -42,6 +42,9 @@ export interface StubOptions {
   uiScale?: number
   /** The person's text size (tci.user_profiles.ui_text_scale, 0081). */
   uiTextScale?: number
+  /** The person's colour theme and light / dark mode (0082). */
+  uiTheme?: string
+  uiMode?: string
 }
 
 /** A REST call as the stub sees it. */
@@ -101,11 +104,13 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
     sessionId,
     uiScale = 100,
     uiTextScale = 100,
+    uiTheme = 'blue',
+    uiMode = 'light',
   } = options
   const session = fakeSession(user?.id, user?.email, sessionId)
 
   await context.addInitScript(
-    ([key, value, language, side, scale, text]) => {
+    ([key, value, language, side, scale, text, theme, mode]) => {
       // Only on the first load of the test: a test that toggles the sidebar
       // and reloads must see what it chose.
       if (sessionStorage.getItem('e2e-seeded')) return
@@ -116,8 +121,19 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
       localStorage.setItem('tci-erp-sidebar', side)
       localStorage.setItem('tci-erp-ui-scale', scale)
       localStorage.setItem('tci-erp-ui-text', text)
+      localStorage.setItem('tci-erp-ui-theme', theme)
+      localStorage.setItem('tci-erp-ui-mode', mode)
     },
-    [STORAGE_KEY, signedIn ? JSON.stringify(session) : '', lang, sidebar, String(uiScale), String(uiTextScale)] as const,
+    [
+      STORAGE_KEY,
+      signedIn ? JSON.stringify(session) : '',
+      lang,
+      sidebar,
+      String(uiScale),
+      String(uiTextScale),
+      uiTheme,
+      uiMode,
+    ] as const,
   )
 
   await context.route(`${STUB_URL}/auth/v1/**`, async (route) => {
@@ -143,6 +159,10 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
     }
     if (resource === 'user_profiles' && request.method() === 'GET' && url.searchParams.get('select') === 'ui_text_scale') {
       const row = { ui_text_scale: uiTextScale }
+      return route.fulfill({ json: single ? row : [row] })
+    }
+    if (resource === 'user_profiles' && request.method() === 'GET' && url.searchParams.get('select') === 'ui_theme,ui_mode') {
+      const row = { ui_theme: uiTheme, ui_mode: uiMode }
       return route.fulfill({ json: single ? row : [row] })
     }
 

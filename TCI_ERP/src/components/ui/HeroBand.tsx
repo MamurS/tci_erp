@@ -74,6 +74,7 @@ export function HeroBand({
   return (
     <section
       data-hero
+      data-brand-surface
       className={`relative mb-6 overflow-hidden bg-accent-900 bg-linear-to-br from-accent-900 via-accent-800 to-accent-700 text-white ${compact ? 'pt-6 pb-5' : 'pt-7 pb-6'} ${BLEED[bleed]}`}
     >
       {!plain && (

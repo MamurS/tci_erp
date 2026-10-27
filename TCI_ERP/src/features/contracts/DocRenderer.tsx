@@ -133,7 +133,7 @@ export function DocBody({
   const labels = docNumbering(doc)
   const opts: RenderOptions = { stale: stale ?? new Set(), pageBreakLabel: t('contractDrafts.editor.pageBreak') }
   return (
-    <div className={`cdoc${plain ? ' cd-plain' : ''}`}>
+    <div data-paper className={`cdoc${plain ? ' cd-plain' : ''}`}>
       {doc.content.map((block, i) => (
         <Block key={i} block={block} label={labels[i]} anchor={blockAnchor(i)} opts={opts} />
       ))}
