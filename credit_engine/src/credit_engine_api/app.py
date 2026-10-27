@@ -33,6 +33,7 @@ from credit_engine import (
     CreditAssessment,
     NarrativeConfig,
     NarrativeUnavailableError,
+    RiskContext,
     assess,
     narrate,
 )
@@ -55,6 +56,13 @@ class AssessRequest(BaseModel):
     narrative: bool = Field(
         default=True,
         description="Set false to skip the AI narrative call entirely.",
+    )
+    risk_context: RiskContext | None = Field(
+        default=None,
+        description=(
+            "Optional sector grade and country risk category with the adjustment "
+            "table; moves the grade after the score and the limit follows it."
+        ),
     )
 
 
@@ -139,7 +147,7 @@ def create_app(
         dependencies=[Depends(require_key)],
     )
     async def assess_company(request: AssessRequest) -> AssessResponse:
-        assessment = assess(request.company)
+        assessment = assess(request.company, risk_context=request.risk_context)
 
         if not request.narrative:
             narrative = NarrativeResult(status="skipped")

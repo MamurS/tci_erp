@@ -107,6 +107,36 @@ Grade bands (aligned with the limit model's risk coefficients):
 | ≤40 | B1 | 1.0 | | ≤75 | C2 | 0.15 |
 | | | | | >75 | D | 0 — no credit |
 
+#### Sector grade and country risk category (`risk_context.py`, since 0.2.0)
+
+After Allianz Trade practice, `assess(company, risk_context=...)` (and the
+`risk_context` field of `/v1/assess` and of the analytics service's `/rating`
+and `/credit-limit`) moves the grade the score maps to by the buyer's
+**sector grade** (A–D) and its **country risk category** (OECD 0–7, or the
+insurer's internal override). The caller passes the facts AND the
+adjustment table (TCI ERP: `tci.risk_adjustment_settings`); the engine only
+applies it:
+
+1. total notch = sector row's notch + country row's notch (positive = a
+   better grade; a missing row = 0). The country row is `"0"`…`"7"` when
+   classified and `"unclassified"` when not — **unclassified is never
+   category 0**; a category with `country_classified = false` is refused.
+2. The grade moves that many steps along `GRADE_BANDS` (A1 … D), clamped
+   at both ends — once, on the total.
+3. Caps: the grade can be no better than the WORST `cap_grade` of the rows
+   that apply.
+
+The score never moves; `base_grade` keeps the grade before the adjustment,
+`grade` is the grade in force, and `effective_score` places the score in the
+adjusted band (same relative position as in the base band, 1 decimal). The
+limit is computed on `effective_score`, so the risk coefficient, the
+equity-share bands and the no-credit threshold all follow the adjusted grade;
+an unchanged grade keeps its score exactly. `risk_adjustments` traces it:
+`sector_adjustment` (when a sector grade is given), `country_adjustment`
+(always) and `grade_cap` (only when a cap bit). Without a risk context none of
+these fields is serialized and the output is byte-for-byte what 0.1.0
+returned (`tests/golden/`).
+
 ### 3. Credit limit (`limits.py`)
 
 Primary **benchmark** model (Basel-style):

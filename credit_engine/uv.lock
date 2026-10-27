@@ -151,7 +151,7 @@ wheels = [
 
 [[package]]
 name = "credit-engine"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "pydantic" },
@@ -184,7 +184,7 @@ requires-dist = [
     { name = "anthropic", marker = "extra == 'ai'", specifier = ">=0.40" },
     { name = "anthropic", marker = "extra == 'service'", specifier = ">=0.40" },
     { name = "fastapi", marker = "extra == 'service'", specifier = ">=0.115" },
-    { name = "pydantic", specifier = ">=2.8" },
+    { name = "pydantic", specifier = ">=2.12" },
     { name = "uvicorn", extras = ["standard"], marker = "extra == 'service'", specifier = ">=0.30" },
 ]
 provides-extras = ["ai", "service"]

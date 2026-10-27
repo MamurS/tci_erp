@@ -1,10 +1,10 @@
 [project]
 name = "credit-engine"
-version = "0.1.0"
+version = "0.2.0"
 description = "Credit rating, credit limit and financial analysis engine for TCI ERP (Mosaic Insurance Group). Pure domain library: no I/O, no DB, no HTTP."
 requires-python = ">=3.12"
 dependencies = [
-    "pydantic>=2.8",
+    "pydantic>=2.12",
 ]
 
 [project.optional-dependencies]

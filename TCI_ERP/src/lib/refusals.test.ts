@@ -22,9 +22,10 @@ import M74 from '../../supabase/migrations/0074_group_ratings.sql?raw'
 import M75 from '../../supabase/migrations/0075_client_limit_request_changes.sql?raw'
 import M78 from '../../supabase/migrations/0078_rating_self_approval.sql?raw'
 import M79 from '../../supabase/migrations/0079_rating_scorecard.sql?raw'
+import M85 from '../../supabase/migrations/0085_sector_country_risk.sql?raw'
 import { OPERATIONS_REFUSALS, refusalKey } from './refusals'
 
-const ALL = [M13, M26, M27, M28, M29, M54, M55, M56, M58, M60, M61, M62, M63, M65, M67, M69, M71, M73, M74, M75, M78, M79].join('\n')
+const ALL = [M13, M26, M27, M28, M29, M54, M55, M56, M58, M60, M61, M62, M63, M65, M67, M69, M71, M73, M74, M75, M78, M79, M85].join('\n')
 
 describe('operations refusal mapping — contract with 0026-0029', () => {
   it('maps only refusals the database actually raises', () => {
@@ -32,6 +33,9 @@ describe('operations refusal mapping — contract with 0026-0029', () => {
       // 0063: the four-eyes texts are RETURNED by tci.limit_four_eyes_refusal
       // and raised as '%' — or as 'validator_%' for a named validator.
       const fourEyes = /^(validator_)?(four_eyes_\w+)$/.exec(fragment)
+      // 0085 raises its own four-eyes refusals directly (a sector review, an
+      // internal country category).
+      if (fourEyes && ALL.includes(`raise exception '${fragment}: `)) continue
       if (fourEyes) {
         // 0069 adds four_eyes_own_rating to the same function
         expect(M63 + M69, fragment).toContain(`'${fourEyes[2]}: `)

@@ -62,7 +62,8 @@
         "hint": "Ishlanadigan reytinglar, monitoring, limitlar reyestri va guruhlar"
       }
     },
-    "data": "Ma’lumotlarni boshqarish"
+    "data": "Ma’lumotlarni boshqarish",
+    "sectors": "Sektorlar"
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -2146,7 +2147,8 @@
         "stale_financials": "Bayerning moliyaviy hisoboti eskirgan",
         "group_limit": "Guruh o‘z guruh limitidan oshib ketadi",
         "downgrade": "Bayer reytingi ADT belgilangan reyting diapazonidan pastga tushdi",
-        "no_recommended_limit": "Reytingda tavsiya etilgan limit yo‘q (qo‘lda belgilangan reyting)"
+        "no_recommended_limit": "Reytingda tavsiya etilgan limit yo‘q (qo‘lda belgilangan reyting)",
+        "cover_restricted": "Bayerning mamlakati yoki sektori yuqoriroq vakolat darajasini talab qiladi (qoplash matritsasi)"
       },
       "attempt": {
         "decided": "Qaror avtomatik qabul qilindi (ADT)",
@@ -2977,7 +2979,9 @@
       "bank_statement_import": "Bank ko‘chirmasi",
       "commercial_offer": "Tijorat taklifi",
       "limit_validation": "Limitni tasdiqlash",
-      "rating_proposal_step": "Reyting taklifi"
+      "rating_proposal_step": "Reyting taklifi",
+      "sector": "Sektor",
+      "country_risk_override": "Mamlakatning ichki toifasi"
     },
     "taskTypes": {
       "buyer_needs_entity": "Bayerni aniqlash",
@@ -3022,7 +3026,12 @@
       "limit_information_needed": "Bayer bo‘yicha ma’lumot yig‘ish",
       "limit_validation_fyi": "Limitni tasdiqlash: ma’lumot uchun",
       "rating_proposal": "Reytingni tasdiqlash",
-      "rating_proposal_result": "Reyting tasdiqlash natijasi"
+      "rating_proposal_result": "Reyting tasdiqlash natijasi",
+      "sector_review_due": "Sektor sharhi",
+      "sector_review_approval": "Sektor sharhini tasdiqlash",
+      "sector_downgrade_review": "Sektor reytingi pasaytirildi: bayerlarni qayta ko‘rib chiqish",
+      "sanctions_limit_review": "Sanksiyalar: limitni qayta ko‘rib chiqish",
+      "country_override_approval": "Mamlakatning ichki toifasini tasdiqlash"
     },
     "tasks": {
       "buyer_needs_entity": "{{subject}} arizasidagi «{{name}}» ortidagi tashkilotni aniqlang",
@@ -3086,7 +3095,12 @@
       "rating_proposal_result_approved": "{{entity_name}} uchun {{grade}} reytingingiz tasdiqlandi — {{resolver_name}}",
       "rating_proposal_result_modified": "{{entity_name}} uchun reytingingiz {{grade}} sifatida tasdiqlandi — {{resolver_name}}",
       "rating_proposal_result_returned": "{{entity_name}} uchun reyting taklifingiz qayta ishlashga qaytarildi — {{resolver_name}}",
-      "rating_proposal_result_rejected": "{{entity_name}} uchun reyting taklifingiz rad etildi — {{resolver_name}}"
+      "rating_proposal_result_rejected": "{{entity_name}} uchun reyting taklifingiz rad etildi — {{resolver_name}}",
+      "sector_review_due": "Sektor sharhi, {{year}}-yil {{quarter}}-chorak · {{industry}}",
+      "sector_review_approval": "Sektor sharhini tasdiqlash: {{industry}} (reyting {{grade}})",
+      "sector_downgrade_review": "{{industry}} sektori reytingi {{to}} gacha pasaytirildi: limitli bayerlarni qayta ko‘rib chiqish ({{buyers}})",
+      "sanctions_limit_review": "Sanksiyalar ({{regime}}): {{subject}} bo‘yicha limitni qayta ko‘rib chiqish",
+      "country_override_approval": "Mamlakatning ichki toifasini tasdiqlash: {{country}} → {{category}}-toifa"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
@@ -3191,7 +3205,10 @@
       "data": "Ma’lumot",
       "contract": "Shartnoma",
       "validation": "Tasdiqlash",
-      "adt": "ADT"
+      "adt": "ADT",
+      "sector": "Sektor",
+      "country": "Mamlakat",
+      "sanctions": "Sanksiyalar"
     },
     "due": {
       "days_one": "{{count}} kun",
@@ -3309,7 +3326,12 @@
       "rating_proposal_result_approved": "Reyting taklifingiz tasdiqlandi",
       "rating_proposal_result_modified": "Reytingingiz boshqa qiymat bilan tasdiqlandi",
       "rating_proposal_result_returned": "Reyting taklifingiz qayta ishlashga qaytarildi",
-      "rating_proposal_result_rejected": "Reyting taklifingiz rad etildi"
+      "rating_proposal_result_rejected": "Reyting taklifingiz rad etildi",
+      "sector_review_due": "Sektor sharhi, {{year}}-yil {{quarter}}-chorak · {{industry}}",
+      "sector_review_approval": "Tasdiqlanadigan sektor sharhi · {{industry}}",
+      "sector_downgrade_review": "Sektor reytingi {{to}} gacha pasaytirildi · {{industry}}",
+      "sanctions_limit_review": "Sanksiyalar: limitni qayta ko‘rib chiqish",
+      "country_override_approval": "Mamlakatning ichki toifasi · {{country}}"
     },
     "facts": {
       "policies_one": "{{count}} ta polis",
@@ -3329,7 +3351,10 @@
       "membersWithLimits_many": "limitli {{count}} ta ishtirokchi",
       "from": "muallif: {{name}}",
       "validatedBy": "tasdiqlovchi: {{name}}",
-      "proposedGrade": "{{grade}} reytingi"
+      "proposedGrade": "{{grade}} reytingi",
+      "sectorGrade": "Reyting {{grade}}",
+      "countryCategory": "{{category}}-toifa",
+      "moreBuyers": "yana {{count}} ta"
     },
     "sub": {
       "instalment": "{{sequence}}-to‘lov"
@@ -3429,7 +3454,8 @@
         "validation": "Tasdiqlash",
         "adt": "ADT",
         "financials": "Moliyaviy hisobot",
-        "card": "Tashkilot kartochkasi"
+        "card": "Tashkilot kartochkasi",
+        "countries": "Mamlakatlar"
       },
       "with": {
         "task": "shu vazifa konteksti bilan",
@@ -3441,7 +3467,8 @@
         "instalments_many": "{{count}} ta to‘lov ko‘rsatiladi"
       },
       "contract": "Shartnoma loyihasi",
-      "statement": "Ko‘chirma"
+      "statement": "Ko‘chirma",
+      "sector": "sektor"
     },
     "triage": {
       "position": "{{total}} tadan {{index}}-band",
@@ -6200,5 +6227,56 @@
     "elsewhere_few": "Boshqa bo‘limlarda {{count}} ta natija",
     "elsewhere_many": "Boshqa bo‘limlarda {{count}} ta natija",
     "elsewhere_other": "Boshqa bo‘limlarda {{count}} ta natija"
+  },
+  "risk": {
+    "outlook": {
+      "positive": "Prognoz ijobiy",
+      "stable": "Prognoz barqaror",
+      "negative": "Prognoz salbiy"
+    },
+    "sector": {
+      "badgeTitle": "Sektor reytingi {{grade}} — {{industry}}",
+      "reviewedOn": "{{date}} dagi sharh",
+      "stale": "o‘tgan chorak sharhi"
+    },
+    "country": {
+      "oecdShort": "IHTT {{category}}",
+      "internalShort": "{{category}}-toifa (ichki)",
+      "unclassifiedShort": "Tasniflanmagan",
+      "oecdTitle": "IHTT mamlakat riski toifasi {{category}} (0 — eng past … 7 — eng yuqori)",
+      "internalTitle": "Ichki {{category}}-toifa qo‘llanmoqda (IHTT: {{oecd}})",
+      "unclassifiedTitle": "Mamlakat IHTT ro‘yxatida yo‘q — tasniflanmagan, bu 0-toifa emas"
+    },
+    "sanctions": {
+      "badge": "Sanksiyalar",
+      "badgeTitle": "Sanksiya ostida — qoplash mumkin emas"
+    },
+    "errors": {
+      "coverCompany": "Qoplash mumkin emas: tashkilot sanksiya ostida. Hech qanday vakolat buni o‘zgartira olmaydi.",
+      "coverCountry": "Bu mamlakat uchun qoplash mumkin emas: u sanksiya ostida. Hech qanday vakolat buni o‘zgartira olmaydi.",
+      "sectorAnalystNotAnalyst": "Mas’ul shaxs kredit tahlilchi rolida bo‘lishi kerak.",
+      "sectorReviewKind": "Sharh choraklik yoki rejadan tashqari bo‘ladi.",
+      "sectorReviewFactors": "Har bir omilni baholang: qulay, neytral yoki noqulay.",
+      "sectorReviewNarrative": "Reyting nimaga asoslanganini yozing.",
+      "sectorReviewPending": "Bu sektor sharhi tasdiqlashni kutmoqda.",
+      "sectorReviewDecided": "Bu sharh bo‘yicha qaror allaqachon qabul qilingan.",
+      "sectorReviewOwn": "Sektor sharhini muallif emas, ikkinchi tahlilchi tasdiqlaydi.",
+      "sectorReviewRejectReason": "Sharh nima uchun rad etilganini yozing.",
+      "importIncomplete": "Kuchga kirish sanasi va fayl nomi talab qilinadi.",
+      "importEmpty": "Faylda birorta ham tasnif yo‘q.",
+      "importUnknown": "Faylda bizga noma’lum mamlakatlar bor.",
+      "importCategory": "Toifa 0 dan 7 gacha butun son bo‘lishi kerak.",
+      "importDuplicate": "Faylda mamlakat ikki marta uchraydi.",
+      "overrideJustification": "Ichki toifa IHTT toifasidan nima uchun farq qilishini yozing.",
+      "overridePending": "Bu mamlakatning ichki toifasi allaqachon tasdiqlashni kutmoqda.",
+      "overrideHeadOnly": "Mamlakatning ichki toifasini faqat kredit tahlili rahbari (katta kredit tahlilchi) tasdiqlaydi va tugatadi.",
+      "overrideDecided": "Bu ichki toifa bo‘yicha qaror allaqachon qabul qilingan.",
+      "overrideOwn": "Mamlakatning ichki toifasini muallif emas, boshqa shaxs tasdiqlaydi.",
+      "overrideRejectReason": "Rad etish sababini yozing.",
+      "overrideEndReason": "Ichki toifa nima uchun tugatilayotganini yozing.",
+      "sanctionsManageOnly": "Sanksiyalarni administrator yuritadi.",
+      "sanctionsLiftReason": "Belgi nima uchun olib tashlanayotganini yozing.",
+      "concentrationScope": "Polis yoki sug‘urta arizasini ko‘rsating."
+    }
   }
 }

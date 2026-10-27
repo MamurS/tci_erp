@@ -39,6 +39,9 @@ export const AUTO_DECISION_REASONS = [
   'no_financials',
   'stale_financials',
   'group_limit',
+  // 0085: the buyer's country or sector needs a higher authority rank, or
+  // cover is blocked — never decided automatically
+  'cover_restricted',
 ] as const
 export type AutoDecisionReason = (typeof AUTO_DECISION_REASONS)[number]
 

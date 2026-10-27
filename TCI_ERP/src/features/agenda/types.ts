@@ -62,6 +62,17 @@ export const TASK_TYPES = [
   // colleague or a level; the proposer hears how it ended
   'rating_proposal',
   'rating_proposal_result',
+  // Sector grades, country risk and sanctions (migrations 0084–0085): the
+  // responsible analyst's quarterly review, a second analyst's approval
+  // (four eyes, when on), credit underwriting's look at the buyers of a
+  // sector downgraded to C/D, an in-force limit on a newly sanctioned party
+  // (urgent), and the head of credit analysis approving an internal country
+  // grade
+  'sector_review_due',
+  'sector_review_approval',
+  'sector_downgrade_review',
+  'sanctions_limit_review',
+  'country_override_approval',
 ] as const
 
 export type TaskType = (typeof TASK_TYPES)[number]
@@ -96,6 +107,10 @@ export type TaskObjectType =
   | 'limit_validation'
   // a rating proposal waiting for (or answered by) a colleague or a level (0073)
   | 'rating_proposal_step'
+  // a sector (one per industry) and its reviews (0085)
+  | 'sector'
+  // an internal country grade waiting for the head of credit analysis (0085)
+  | 'country_risk_override'
 
 export interface Task {
   id: string

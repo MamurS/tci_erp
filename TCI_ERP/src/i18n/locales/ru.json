@@ -62,7 +62,8 @@
         "hint": "Рейтинги к работе, мониторинг, реестр лимитов и группы"
       }
     },
-    "data": "Управление данными"
+    "data": "Управление данными",
+    "sectors": "Сектора"
   },
   "auth": {
     "signInTitle": "Вход в систему",
@@ -2154,7 +2155,8 @@
         "stale_financials": "Финансовая отчётность байера устарела",
         "group_limit": "Группа превысила бы групповой лимит",
         "downgrade": "Рейтинг байера понижен ниже диапазона рейтинга, в котором установлен ADT",
-        "no_recommended_limit": "У рейтинга нет рекомендуемого лимита (ручной рейтинг)"
+        "no_recommended_limit": "У рейтинга нет рекомендуемого лимита (ручной рейтинг)",
+        "cover_restricted": "Страна или сектор байера требуют более высокого уровня полномочий (матрица покрытия)"
       },
       "attempt": {
         "decided": "Решение принято автоматически (ADT)",
@@ -2991,7 +2993,9 @@
       "bank_statement_import": "Банковская выписка",
       "commercial_offer": "Коммерческое предложение",
       "limit_validation": "Валидация лимита",
-      "rating_proposal_step": "Предложение рейтинга"
+      "rating_proposal_step": "Предложение рейтинга",
+      "sector": "Сектор",
+      "country_risk_override": "Внутренняя категория страны"
     },
     "taskTypes": {
       "buyer_needs_entity": "Определить байера",
@@ -3036,7 +3040,12 @@
       "limit_information_needed": "Собрать информацию по байеру",
       "limit_validation_fyi": "Валидация лимита: для сведения",
       "rating_proposal": "Валидация рейтинга",
-      "rating_proposal_result": "Результат валидации рейтинга"
+      "rating_proposal_result": "Результат валидации рейтинга",
+      "sector_review_due": "Обзор сектора",
+      "sector_review_approval": "Утверждение обзора сектора",
+      "sector_downgrade_review": "Понижение рейтинга сектора: байеры к пересмотру",
+      "sanctions_limit_review": "Санкции: лимит к пересмотру",
+      "country_override_approval": "Утверждение внутренней категории страны"
     },
     "tasks": {
       "buyer_needs_entity": "Определить организацию за «{{name}}» в заявке {{subject}}",
@@ -3100,7 +3109,12 @@
       "rating_proposal_result_approved": "Ваш рейтинг {{grade}} для {{entity_name}} утверждён — {{resolver_name}}",
       "rating_proposal_result_modified": "Ваш рейтинг для {{entity_name}} утверждён как {{grade}} — {{resolver_name}}",
       "rating_proposal_result_returned": "Ваше предложение рейтинга для {{entity_name}} возвращено на доработку — {{resolver_name}}",
-      "rating_proposal_result_rejected": "Ваше предложение рейтинга для {{entity_name}} отклонено — {{resolver_name}}"
+      "rating_proposal_result_rejected": "Ваше предложение рейтинга для {{entity_name}} отклонено — {{resolver_name}}",
+      "sector_review_due": "Обзор сектора, {{quarter}} кв. {{year}} · {{industry}}",
+      "sector_review_approval": "Утвердить обзор сектора: {{industry}} (рейтинг {{grade}})",
+      "sector_downgrade_review": "Рейтинг сектора {{industry}} понижен до {{to}}: пересмотреть байеров с лимитами ({{buyers}})",
+      "sanctions_limit_review": "Санкции ({{regime}}): пересмотреть лимит на {{subject}}",
+      "country_override_approval": "Утвердить внутреннюю категорию страны: {{country}} → категория {{category}}"
     },
     "empty": {
       "title": "Вас ничего не ждёт",
@@ -3205,7 +3219,10 @@
       "data": "Данные",
       "contract": "Договор",
       "validation": "Валидация",
-      "adt": "ADT"
+      "adt": "ADT",
+      "sector": "Сектор",
+      "country": "Страна",
+      "sanctions": "Санкции"
     },
     "due": {
       "days_one": "{{count}} день",
@@ -3323,7 +3340,12 @@
       "rating_proposal_result_approved": "Ваше предложение рейтинга утверждено",
       "rating_proposal_result_modified": "Ваш рейтинг утверждён с другим значением",
       "rating_proposal_result_returned": "Ваше предложение рейтинга возвращено на доработку",
-      "rating_proposal_result_rejected": "Ваше предложение рейтинга отклонено"
+      "rating_proposal_result_rejected": "Ваше предложение рейтинга отклонено",
+      "sector_review_due": "Обзор сектора, {{quarter}} кв. {{year}} · {{industry}}",
+      "sector_review_approval": "Обзор сектора на утверждение · {{industry}}",
+      "sector_downgrade_review": "Рейтинг сектора понижен до {{to}} · {{industry}}",
+      "sanctions_limit_review": "Санкции: пересмотреть лимит",
+      "country_override_approval": "Внутренняя категория страны · {{country}}"
     },
     "facts": {
       "policies_one": "{{count}} полис",
@@ -3343,7 +3365,10 @@
       "membersWithLimits_other": "{{count}} участника с лимитами",
       "from": "от {{name}}",
       "validatedBy": "валидатор: {{name}}",
-      "proposedGrade": "рейтинг {{grade}}"
+      "proposedGrade": "рейтинг {{grade}}",
+      "sectorGrade": "Рейтинг {{grade}}",
+      "countryCategory": "Категория {{category}}",
+      "moreBuyers": "ещё {{count}}"
     },
     "sub": {
       "instalment": "Платёж {{sequence}}"
@@ -3443,7 +3468,8 @@
         "validation": "Валидация",
         "adt": "ADT",
         "financials": "Финансовая отчётность",
-        "card": "Карточка организации"
+        "card": "Карточка организации",
+        "countries": "Страны"
       },
       "with": {
         "task": "с контекстом этой задачи",
@@ -3455,7 +3481,8 @@
         "notice": "с формой претензии, заполненной по уведомлению"
       },
       "contract": "Проект договора",
-      "statement": "Выписка"
+      "statement": "Выписка",
+      "sector": "сектор"
     },
     "triage": {
       "position": "Позиция {{index}} из {{total}}",
@@ -6236,5 +6263,56 @@
     "elsewhere_few": "{{count}} результата в других разделах",
     "elsewhere_many": "{{count}} результатов в других разделах",
     "elsewhere_other": "{{count}} результата в других разделах"
+  },
+  "risk": {
+    "outlook": {
+      "positive": "Прогноз позитивный",
+      "stable": "Прогноз стабильный",
+      "negative": "Прогноз негативный"
+    },
+    "sector": {
+      "badgeTitle": "Рейтинг сектора {{grade}} — {{industry}}",
+      "reviewedOn": "обзор от {{date}}",
+      "stale": "обзор за прошлый квартал"
+    },
+    "country": {
+      "oecdShort": "ОЭСР {{category}}",
+      "internalShort": "Кат. {{category}} (вн.)",
+      "unclassifiedShort": "Не классифицирована",
+      "oecdTitle": "Категория странового риска ОЭСР {{category}} (0 — наименьший … 7 — наибольший)",
+      "internalTitle": "Применяется внутренняя категория {{category}} (ОЭСР: {{oecd}})",
+      "unclassifiedTitle": "Страны нет в списке ОЭСР — она не классифицирована, это не категория 0"
+    },
+    "sanctions": {
+      "badge": "Санкции",
+      "badgeTitle": "Под санкциями — покрытие невозможно"
+    },
+    "errors": {
+      "coverCompany": "Покрытие недоступно: организация под санкциями. Никакие полномочия этого не меняют.",
+      "coverCountry": "Покрытие для этой страны недоступно: она под санкциями. Никакие полномочия этого не меняют.",
+      "sectorAnalystNotAnalyst": "Ответственный должен иметь роль кредитного аналитика.",
+      "sectorReviewKind": "Обзор бывает квартальным или внеплановым.",
+      "sectorReviewFactors": "Оцените каждый фактор: благоприятный, нейтральный или неблагоприятный.",
+      "sectorReviewNarrative": "Укажите, на чём основан рейтинг.",
+      "sectorReviewPending": "Обзор этого сектора ожидает утверждения.",
+      "sectorReviewDecided": "По этому обзору уже принято решение.",
+      "sectorReviewOwn": "Обзор сектора утверждает второй аналитик, а не его автор.",
+      "sectorReviewRejectReason": "Укажите, почему обзор отклонён.",
+      "importIncomplete": "Нужны дата вступления в силу и имя файла.",
+      "importEmpty": "В файле нет ни одной классификации.",
+      "importUnknown": "В файле есть неизвестные нам страны.",
+      "importCategory": "Категория — целое число от 0 до 7.",
+      "importDuplicate": "Страна встречается в файле дважды.",
+      "overrideJustification": "Укажите, почему внутренняя категория отличается от категории ОЭСР.",
+      "overridePending": "Внутренняя категория этой страны уже ожидает утверждения.",
+      "overrideHeadOnly": "Внутреннюю категорию страны утверждает и отменяет только руководитель кредитного анализа (старший кредитный аналитик).",
+      "overrideDecided": "По этой внутренней категории уже принято решение.",
+      "overrideOwn": "Внутреннюю категорию страны утверждает другой человек, а не её автор.",
+      "overrideRejectReason": "Укажите причину отклонения.",
+      "overrideEndReason": "Укажите, почему внутренняя категория прекращается.",
+      "sanctionsManageOnly": "Санкции ведёт администратор.",
+      "sanctionsLiftReason": "Укажите, почему отметка снимается.",
+      "concentrationScope": "Укажите полис или заявку."
+    }
   }
 }

@@ -62,7 +62,8 @@
         "hint": "Ratings to work, monitoring, the limit register and groups"
       }
     },
-    "data": "Data management"
+    "data": "Data management",
+    "sectors": "Sectors"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -2146,7 +2147,8 @@
         "stale_financials": "The buyer's financial statements are too old",
         "group_limit": "The group would go over its group limit",
         "downgrade": "The buyer was downgraded below the rating band the ADT was set at",
-        "no_recommended_limit": "The rating carries no recommended limit (a manual rating)"
+        "no_recommended_limit": "The rating carries no recommended limit (a manual rating)",
+        "cover_restricted": "The buyer's country or sector needs a higher authority rank (cover matrix)"
       },
       "attempt": {
         "decided": "Decided automatically (ADT)",
@@ -2977,7 +2979,9 @@
       "bank_statement_import": "Bank statement",
       "commercial_offer": "Commercial offer",
       "limit_validation": "Limit validation",
-      "rating_proposal_step": "Rating proposal"
+      "rating_proposal_step": "Rating proposal",
+      "sector": "Sector",
+      "country_risk_override": "Internal country category"
     },
     "taskTypes": {
       "buyer_needs_entity": "Identify buyer",
@@ -3022,7 +3026,12 @@
       "limit_information_needed": "Gather buyer information",
       "limit_validation_fyi": "Limit validation: for information",
       "rating_proposal": "Rating validation",
-      "rating_proposal_result": "Rating validation result"
+      "rating_proposal_result": "Rating validation result",
+      "sector_review_due": "Sector review",
+      "sector_review_approval": "Sector review approval",
+      "sector_downgrade_review": "Sector downgrade: buyers to review",
+      "sanctions_limit_review": "Sanctions: limit to review",
+      "country_override_approval": "Internal country category approval"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -3086,7 +3095,12 @@
       "rating_proposal_result_approved": "Your rating {{grade}} for {{entity_name}} was approved — {{resolver_name}}",
       "rating_proposal_result_modified": "Your rating for {{entity_name}} was approved as {{grade}} — {{resolver_name}}",
       "rating_proposal_result_returned": "Your rating proposal for {{entity_name}} was returned to you — {{resolver_name}}",
-      "rating_proposal_result_rejected": "Your rating proposal for {{entity_name}} was rejected — {{resolver_name}}"
+      "rating_proposal_result_rejected": "Your rating proposal for {{entity_name}} was rejected — {{resolver_name}}",
+      "sector_review_due": "Sector review Q{{quarter}} {{year}} · {{industry}}",
+      "sector_review_approval": "Approve the sector review: {{industry}} (grade {{grade}})",
+      "sector_downgrade_review": "Sector {{industry}} downgraded to {{to}}: review {{buyers}} buyers with limits",
+      "sanctions_limit_review": "Sanctions ({{regime}}): review the limit on {{subject}}",
+      "country_override_approval": "Approve the internal country category: {{country}} → category {{category}}"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -3191,7 +3205,10 @@
       "data": "Data",
       "contract": "Contract",
       "validation": "Validation",
-      "adt": "ADT"
+      "adt": "ADT",
+      "sector": "Sector",
+      "country": "Country",
+      "sanctions": "Sanctions"
     },
     "due": {
       "days_one": "{{count}} day",
@@ -3309,7 +3326,12 @@
       "rating_proposal_result_approved": "Your rating proposal approved",
       "rating_proposal_result_modified": "Your rating approved with another grade",
       "rating_proposal_result_returned": "Your rating proposal returned to you",
-      "rating_proposal_result_rejected": "Your rating proposal rejected"
+      "rating_proposal_result_rejected": "Your rating proposal rejected",
+      "sector_review_due": "Sector review Q{{quarter}} {{year}} · {{industry}}",
+      "sector_review_approval": "Sector review to approve · {{industry}}",
+      "sector_downgrade_review": "Sector downgraded to {{to}} · {{industry}}",
+      "sanctions_limit_review": "Sanctions: review the limit",
+      "country_override_approval": "Internal country category · {{country}}"
     },
     "facts": {
       "policies_one": "{{count}} policy",
@@ -3329,7 +3351,10 @@
       "membersWithLimits_many": "{{count}} members with limits",
       "from": "from {{name}}",
       "validatedBy": "validator: {{name}}",
-      "proposedGrade": "grade {{grade}}"
+      "proposedGrade": "grade {{grade}}",
+      "sectorGrade": "Grade {{grade}}",
+      "countryCategory": "Category {{category}}",
+      "moreBuyers": "+{{count}} more"
     },
     "sub": {
       "instalment": "Instalment {{sequence}}"
@@ -3429,7 +3454,8 @@
         "validation": "Validation",
         "adt": "ADT",
         "financials": "Financial statements",
-        "card": "Company card"
+        "card": "Company card",
+        "countries": "Countries"
       },
       "with": {
         "task": "with this task’s context",
@@ -3441,7 +3467,8 @@
         "instalments_many": "showing {{count}} instalments"
       },
       "contract": "Draft contract",
-      "statement": "Statement"
+      "statement": "Statement",
+      "sector": "the sector"
     },
     "triage": {
       "position": "Item {{index}} of {{total}}",
@@ -6200,5 +6227,56 @@
     "elsewhere_few": "{{count}} results elsewhere in the system",
     "elsewhere_many": "{{count}} results elsewhere in the system",
     "elsewhere_other": "{{count}} results elsewhere in the system"
+  },
+  "risk": {
+    "outlook": {
+      "positive": "Outlook positive",
+      "stable": "Outlook stable",
+      "negative": "Outlook negative"
+    },
+    "sector": {
+      "badgeTitle": "Sector grade {{grade}} — {{industry}}",
+      "reviewedOn": "reviewed {{date}}",
+      "stale": "review from an earlier quarter"
+    },
+    "country": {
+      "oecdShort": "OECD {{category}}",
+      "internalShort": "Cat. {{category}} (int.)",
+      "unclassifiedShort": "Not classified",
+      "oecdTitle": "OECD country risk category {{category}} (0 lowest … 7 highest)",
+      "internalTitle": "Internal category {{category}} in use (OECD: {{oecd}})",
+      "unclassifiedTitle": "Not in the OECD list — not classified, which is not category 0"
+    },
+    "sanctions": {
+      "badge": "Sanctions",
+      "badgeTitle": "Sanctioned — no cover is possible"
+    },
+    "errors": {
+      "coverCompany": "Cover is not available: the company is under sanctions. No authority can override this.",
+      "coverCountry": "Cover is not available for this country: it is under sanctions. No authority can override this.",
+      "sectorAnalystNotAnalyst": "The responsible person must hold the credit analyst role.",
+      "sectorReviewKind": "A review is quarterly or ad hoc.",
+      "sectorReviewFactors": "Score every factor: favourable, neutral or adverse.",
+      "sectorReviewNarrative": "Say what the grade rests on.",
+      "sectorReviewPending": "A review of this sector is waiting for approval.",
+      "sectorReviewDecided": "This review has already been decided.",
+      "sectorReviewOwn": "A second analyst approves a sector review — not its author.",
+      "sectorReviewRejectReason": "Say why the review is rejected.",
+      "importIncomplete": "The effective date and the file name are required.",
+      "importEmpty": "The file holds no classification.",
+      "importUnknown": "The file names countries we do not know.",
+      "importCategory": "A category must be a whole number from 0 to 7.",
+      "importDuplicate": "A country appears twice in the file.",
+      "overrideJustification": "Say why the internal category differs from the OECD one.",
+      "overridePending": "An internal category for this country is already waiting for approval.",
+      "overrideHeadOnly": "Only the head of credit analysis (a senior credit analyst) approves or ends an internal country category.",
+      "overrideDecided": "This internal category has already been decided.",
+      "overrideOwn": "Another person approves an internal country category — not its author.",
+      "overrideRejectReason": "Say why it is rejected.",
+      "overrideEndReason": "Say why the internal category ends.",
+      "sanctionsManageOnly": "Sanctions are maintained by the administrator.",
+      "sanctionsLiftReason": "Say why the flag is lifted.",
+      "concentrationScope": "Name a policy or a submission."
+    }
   }
 }

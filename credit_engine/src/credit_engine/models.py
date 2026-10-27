@@ -15,8 +15,9 @@ Conventions
 from __future__ import annotations
 
 from enum import StrEnum
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
 class PeriodType(StrEnum):
@@ -107,6 +108,170 @@ class CompanyFinancials(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Risk context: sector grade and country risk category (optional input)
+# ---------------------------------------------------------------------------
+#
+# After Allianz Trade practice the grade the financials earn is moved by the
+# buyer's SECTOR GRADE and the COUNTRY RISK CATEGORY it trades from. The
+# caller (TCI ERP) owns both facts and the admin-configured adjustment table
+# (tci.risk_adjustment_settings) and passes them in; the engine only applies
+# them - see credit_engine.risk_context.
+
+SectorGrade = Literal["A", "B", "C", "D"]
+SECTOR_GRADES: tuple[str, ...] = ("A", "B", "C", "D")
+#: OECD country risk classification, 0 (lowest risk) .. 7 (highest).
+COUNTRY_CATEGORIES: tuple[int, ...] = tuple(range(8))
+#: Key of the adjustment row for a country nobody has classified. It is NOT
+#: category 0 and must never be treated as such.
+UNCLASSIFIED_COUNTRY_KEY = "unclassified"
+COUNTRY_KEYS: tuple[str, ...] = (*(str(c) for c in COUNTRY_CATEGORIES), UNCLASSIFIED_COUNTRY_KEY)
+
+
+def _grade_codes() -> tuple[str, ...]:
+    # Imported lazily: credit_engine.scoring imports this module.
+    from credit_engine.scoring.tables import GRADE_BANDS
+
+    return tuple(band.code for band in GRADE_BANDS)
+
+
+class RiskAdjustmentRule(BaseModel):
+    """One row of the adjustment table: a notch (positive = a BETTER grade,
+    in steps of the engine's grade scale) and an optional cap - the best
+    grade a buyer under this rule can hold."""
+
+    model_config = ConfigDict(frozen=True)
+
+    notch: int = 0
+    cap_grade: str | None = None
+
+    @field_validator("cap_grade")
+    @classmethod
+    def _known_grade(cls, value: str | None) -> str | None:
+        if value is not None and value not in _grade_codes():
+            raise ValueError(f"unknown grade {value!r}; expected one of {_grade_codes()}")
+        return value
+
+
+class RiskAdjustmentTable(BaseModel):
+    """The adjustment table in force, keyed by sector grade and by country
+    category (as a string, "0".."7") or "unclassified". A missing key means
+    no notch and no cap."""
+
+    model_config = ConfigDict(frozen=True)
+
+    sector: dict[str, RiskAdjustmentRule] = Field(default_factory=dict)
+    country: dict[str, RiskAdjustmentRule] = Field(default_factory=dict)
+
+    @field_validator("sector")
+    @classmethod
+    def _sector_keys(cls, value: dict[str, RiskAdjustmentRule]) -> dict[str, RiskAdjustmentRule]:
+        unknown = sorted(set(value) - set(SECTOR_GRADES))
+        if unknown:
+            raise ValueError(f"unknown sector grade key(s) {unknown}; expected {SECTOR_GRADES}")
+        return value
+
+    @field_validator("country")
+    @classmethod
+    def _country_keys(cls, value: dict[str, RiskAdjustmentRule]) -> dict[str, RiskAdjustmentRule]:
+        unknown = sorted(set(value) - set(COUNTRY_KEYS))
+        if unknown:
+            raise ValueError(f"unknown country key(s) {unknown}; expected {COUNTRY_KEYS}")
+        return value
+
+
+class RiskContext(BaseModel):
+    """What the grade rests on besides the financials.
+
+    ``country_classified = False`` means "not classified", which is distinct
+    from category 0: the category must then be null, and the
+    ``"unclassified"`` row of the table applies. When ``country_classified``
+    is omitted it follows from whether a category is given.
+    """
+
+    model_config = ConfigDict(frozen=True)
+
+    sector_grade: SectorGrade | None = None
+    country_category: Annotated[int, Field(ge=0, le=7)] | None = None
+    country_classified: bool = False
+    country_source: Literal["oecd", "internal"] | None = None
+    adjustments: RiskAdjustmentTable = Field(default_factory=RiskAdjustmentTable)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _infer_classified(cls, data: Any) -> Any:
+        if isinstance(data, dict) and data.get("country_classified") is None:
+            return {**data, "country_classified": data.get("country_category") is not None}
+        return data
+
+    @model_validator(mode="after")
+    def _classified_matches_category(self) -> RiskContext:
+        if self.country_classified and self.country_category is None:
+            raise ValueError("country_classified is true but country_category is null")
+        if not self.country_classified and self.country_category is not None:
+            raise ValueError(
+                "country_category is given but country_classified is false - "
+                "an unclassified country has no category (it is not category 0)"
+            )
+        return self
+
+    @property
+    def country_key(self) -> str:
+        """The table key of the country row: "0".."7" or "unclassified"."""
+        if self.country_classified and self.country_category is not None:
+            return str(self.country_category)
+        return UNCLASSIFIED_COUNTRY_KEY
+
+
+class SectorAdjustmentLine(BaseModel):
+    """Trace line: the sector grade's notch (present whenever a sector grade
+    is given - a zero notch reads "sector B, no change")."""
+
+    code: Literal["sector_adjustment"] = "sector_adjustment"
+    sector_grade: SectorGrade
+    notch: int
+    cap_grade: str | None
+    from_grade: str
+    to_grade: str
+
+
+class CountryAdjustmentLine(BaseModel):
+    """Trace line: the country category's notch (always present with a risk
+    context; an unclassified country has ``country_category = null`` and
+    ``country_key = "unclassified"``)."""
+
+    code: Literal["country_adjustment"] = "country_adjustment"
+    country_category: int | None
+    country_key: str
+    country_classified: bool
+    country_source: Literal["oecd", "internal"] | None
+    notch: int
+    cap_grade: str | None
+    from_grade: str
+    to_grade: str
+
+
+class GradeCapLine(BaseModel):
+    """Trace line: a cap that BIT - the notched grade was better than the
+    worst applicable cap and was lowered to it."""
+
+    code: Literal["grade_cap"] = "grade_cap"
+    cap_grade: str
+    cap_sources: list[Literal["sector", "country"]]
+    from_grade: str
+    to_grade: str
+
+
+RiskAdjustmentLine = Annotated[
+    SectorAdjustmentLine | CountryAdjustmentLine | GradeCapLine,
+    Field(discriminator="code"),
+]
+
+
+def _is_none(value: object) -> bool:
+    return value is None
+
+
+# ---------------------------------------------------------------------------
 # Outputs
 # ---------------------------------------------------------------------------
 
@@ -151,6 +316,12 @@ class GradeBand(BaseModel):
 
 
 class RatingResult(BaseModel):
+    """``score`` is always the score the financials earned. ``grade`` is the
+    grade IN FORCE: with a risk context it is the grade after the sector and
+    country adjustments, and the four risk fields below say how it got there.
+    Without a risk context those fields are absent from the serialized output
+    (not null), so it is exactly what it was before risk contexts existed."""
+
     score: float | None
     grade: str | None
     grade_label_key: str | None
@@ -158,6 +329,14 @@ class RatingResult(BaseModel):
     adjustments: list[Adjustment]
     data_coverage: float
     warnings: list[str]
+    #: The grade the score maps to, before the risk context.
+    base_grade: str | None = Field(default=None, exclude_if=_is_none)
+    #: The score placed inside ``grade``'s band (same relative position the
+    #: score held in the base band); the credit limit is computed on it.
+    effective_score: float | None = Field(default=None, exclude_if=_is_none)
+    #: The risk context the grade rests on, echoed as used.
+    risk_context: RiskContext | None = Field(default=None, exclude_if=_is_none)
+    risk_adjustments: list[RiskAdjustmentLine] | None = Field(default=None, exclude_if=_is_none)
 
 
 class LimitModelResult(BaseModel):

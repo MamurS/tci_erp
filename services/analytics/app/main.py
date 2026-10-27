@@ -24,8 +24,14 @@ from credit_engine import CompanyFinancials
 from credit_engine import __version__ as engine_version
 from credit_engine.limits import calculate_limit
 from credit_engine.ratios import build_ratio_reports
+from credit_engine.risk_context import (
+    GradeAdjustment,
+    adjust_grade,
+    apply_risk_context,
+    effective_score,
+)
 from credit_engine.scoring.calculator import FactorInputs, calculate_rating
-from credit_engine.scoring.tables import GRADE_BANDS
+from credit_engine.scoring.tables import GRADE_BANDS, grade_for
 
 from app.adapter import build_company
 from app.fx import router as fx_router
@@ -132,6 +138,8 @@ def health() -> HealthResponse:
 def rating(payload: StatementPayload) -> RatingResponse:
     inputs, adapter_warnings, company = _factor_inputs(payload)
     result = calculate_rating(company, inputs)
+    if payload.risk_context is not None:
+        result = apply_risk_context(result, payload.risk_context)
 
     return RatingResponse(
         score=result.score,
@@ -160,6 +168,10 @@ def rating(payload: StatementPayload) -> RatingResponse:
         ],
         warnings=[*adapter_warnings, *result.warnings],
         engine_version=engine_version,
+        base_grade=result.base_grade,
+        effective_score=result.effective_score,
+        risk_context=result.risk_context,
+        risk_adjustments=result.risk_adjustments,
     )
 
 
@@ -167,8 +179,18 @@ def rating(payload: StatementPayload) -> RatingResponse:
 def credit_limit(payload: CreditLimitRequest) -> CreditLimitResponse:
     inputs, _, company = _factor_inputs(payload)
 
+    # The limit follows the grade IN FORCE: with a risk context the score is
+    # placed in the adjusted grade's band first (credit_engine.risk_context).
+    limit_score = payload.rating_score
+    base_grade: str | None = None
+    adjustment: GradeAdjustment | None = None
+    if payload.risk_context is not None:
+        base_grade = grade_for(payload.rating_score).code
+        adjustment = adjust_grade(base_grade, payload.risk_context)
+        limit_score = effective_score(payload.rating_score, base_grade, adjustment.grade)
+
     result = calculate_limit(
-        payload.rating_score,
+        limit_score,
         inputs.ratios,
         payload.currency,
         company.exchange_rate_usd,
@@ -188,6 +210,11 @@ def credit_limit(payload: CreditLimitRequest) -> CreditLimitResponse:
         ],
         reasons=result.reasons,
         engine_version=engine_version,
+        base_grade=base_grade,
+        grade=adjustment.grade if adjustment else None,
+        effective_score=limit_score if adjustment else None,
+        risk_context=payload.risk_context,
+        risk_adjustments=adjustment.lines if adjustment else None,
     )
 
 
