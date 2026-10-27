@@ -20,6 +20,7 @@ describe('role → screen map', () => {
       'entities',
       'requests',
       'limits',
+      'sectors',
       'declarations',
       'overdues',
       'claims',
@@ -48,6 +49,7 @@ describe('role → screen map', () => {
       'overdues',
     ])
     expect(keys(['information_manager'])).toEqual(['dashboard', 'agenda', 'entities', 'data'])
+    expect(keys(['credit_analyst'])).toEqual(['dashboard', 'agenda', 'entities', 'limits', 'sectors'])
     expect(keys(['claims'])).toEqual([
       'dashboard',
       'agenda',
@@ -125,6 +127,12 @@ describe('route guard', () => {
     expect(canAccessPath(['information_manager'], '/policies')).toBe(false)
     expect(canAccessPath(['information_manager'], '/data/requests/abc')).toBe(true)
     expect(canAccessPath(['sales', 'credit_underwriter'], '/data')).toBe(false)
+    // «Сектора» (0085): credit analysis works it, credit underwriting and admin read it
+    expect(canAccessPath(['credit_analyst'], '/sectors/abc')).toBe(true)
+    expect(canAccessPath(['credit_underwriter'], '/sectors')).toBe(true)
+    expect(canAccessPath(['sales'], '/sectors')).toBe(false)
+    expect(canAccessPath(['commercial_underwriter'], '/sectors/abc')).toBe(false)
+    expect(canAccessPath(['client'], '/sectors')).toBe(false)
     expect(canAccessPath(['sales'], '/admin')).toBe(false)
     // The brochure is the fixed offer template now: no section of its own,
     // and /brochure is only a redirect to the submissions.

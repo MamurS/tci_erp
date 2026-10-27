@@ -21,6 +21,7 @@ const STAFF_ROLES: UserRole[] = [
   'credit_underwriter',
   'claims',
   'information_manager',
+  'credit_analyst',
 ]
 
 describe('workspaces', () => {
@@ -65,6 +66,9 @@ describe('workspaces', () => {
     expect(workspaceHome(['sales'], byKey.sales)).toBe('/requests')
     expect(workspaceHome(['admin'], byKey.admin)).toBe('/admin')
     expect(workspaceHome(['information_manager'], byKey.data)).toBe('/data')
+    expect(workspaceHome(['credit_analyst'], byKey.analysis)).toBe('/limits')
+    expect(workspaceNav(['credit_analyst'], byKey.analysis).own.map((i) => i.key)).toEqual(['limits', 'sectors'])
+    expect(workspaceNav(['credit_underwriter'], byKey.credit).own.map((i) => i.key)).toContain('sectors')
   })
 
   it('each workspace is exactly one role to act in', () => {

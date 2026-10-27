@@ -74,6 +74,12 @@ export const ROUTES: Record<string, RouteEntry> = {
   '/wording': { skip: REDIRECT },
   '/portfolio/policies': { skip: REDIRECT },
   '/portfolio/credit': { skip: REDIRECT },
+  '/sectors': {
+    skip: 'PENDING (Prompt 31): «Сектора» — no credit analyst demo user records fixtures and the demo book holds no sector review yet; record it with the credit demo user (tools/layout-fixtures/record.mjs) and give it role credit once 0085 is on canonical. Its tables use declared columns',
+  },
+  '/sectors/:sectorId': {
+    skip: 'PENDING (Prompt 31): one sector — record with the credit demo user once a sector review exists (see /sectors)',
+  },
   '/data': { role: 'info' },
   '/data/requests/:id': {
     skip: 'the demo book holds no data request to record (re-record once one exists and give it role info); the page is a request form with its own facts, no register',
