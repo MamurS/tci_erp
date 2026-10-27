@@ -34,6 +34,7 @@ import { companyOf, personName, referenceOf, renderNote, rowTitle } from './rowT
 import { FamilyBody } from './triage/FamilyBody'
 import type { TaskComment } from './types'
 import { useFillViewport } from './useFillViewport'
+import { transferable } from './transfer'
 
 interface TriageProps {
   groups: RowGroup[]
@@ -50,6 +51,8 @@ interface TriageProps {
   onError: (message: string) => void
   onComplete: (row: AgendaRow) => void
   onUnsnooze: (row: AgendaRow) => void
+  /** 0092: hand the row's tasks to a colleague. */
+  onTransfer: (row: AgendaRow) => void
   /** The page's J/K hand the move to the queue. */
   registerMove: (fn: (delta: number) => void) => void
 }
@@ -297,6 +300,7 @@ function DetailPanel({
   onError,
   onComplete,
   onUnsnooze,
+  onTransfer,
 }: TriageProps & { row: AgendaRow }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.language
@@ -476,6 +480,11 @@ function DetailPanel({
             <span data-triage-snooze>
               <SnoozeMenu taskIds={row.tasks.map((task) => task.id)} onDone={() => onHandled(row)} onError={onError} />
             </span>
+          )}
+          {row.tasks.some(transferable) && (
+            <Button variant="secondary" onClick={() => onTransfer(row)}>
+              {t('agenda.transfer.action')}
+            </Button>
           )}
           {row.tasks.some((task) => canCompleteByHand(task.task_type)) && (
             <Button variant="secondary" onClick={() => onComplete(row)}>

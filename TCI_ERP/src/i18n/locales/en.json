@@ -4020,7 +4020,36 @@
       "mine": "Assigned to me",
       "cleared": "Done today"
     },
-    "buyerGrade": "Buyer's grade: {{grade}}"
+    "buyerGrade": "Buyer's grade: {{grade}}",
+    "transfer": {
+      "action": "Hand to a colleague",
+      "bulk": "Hand tasks to a colleague",
+      "title": "Hand tasks to a colleague",
+      "intro": "The tasks become the colleague's by name, in the same department; your note reaches them as a comment. Validation steps and rating proposals go to whoever the rules make eligible and are not handed on.",
+      "tasks": "Tasks ticked: {{count}}",
+      "all": "All",
+      "none": "None",
+      "items": "items: {{count}}",
+      "nothing": "Nothing to hand on",
+      "nothingHint": "Every task here goes to whoever the rules make eligible.",
+      "to": "Colleague",
+      "toHint": "Only colleagues who work in the department of every task ticked",
+      "noColleague": "No colleague can take every task ticked — tick fewer.",
+      "choose": "Choose a colleague",
+      "note": "Note",
+      "noteHint": "Optional: why, or what is left to do",
+      "submit": "Hand over ({{count}})",
+      "done": "Handed over: {{count}}.",
+      "errors": {
+        "self": "Choose a colleague, not yourself.",
+        "wrongColleague": "This colleague does not work in the department of the task.",
+        "notAllowed": "This task goes to whoever the rules make eligible and cannot be handed on.",
+        "closed": "The task is no longer open.",
+        "notYours": "This task is not yours to hand on.",
+        "tooMany": "At most 200 tasks at a time.",
+        "none": "Tick the tasks to hand over."
+      }
+    }
   },
   "portal": {
     "title": "Client portal",

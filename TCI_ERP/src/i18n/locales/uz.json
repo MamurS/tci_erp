@@ -4020,7 +4020,36 @@
       "mine": "Menga tayinlangan",
       "cleared": "Bugun bajarildi"
     },
-    "buyerGrade": "Bayer reytingi: {{grade}}"
+    "buyerGrade": "Bayer reytingi: {{grade}}",
+    "transfer": {
+      "action": "Hamkasbga topshirish",
+      "bulk": "Vazifalarni hamkasbga topshirish",
+      "title": "Vazifalarni hamkasbga topshirish",
+      "intro": "Vazifalar shaxsan hamkasbga, o‘sha bo‘linmada o‘tadi; izohingizni u izoh sifatida ko‘radi. Validatsiya bosqichlari va reyting takliflarini qoidalar belgilagan shaxslar oladi — ularni topshirib bo‘lmaydi.",
+      "tasks": "Belgilangan vazifalar: {{count}}",
+      "all": "Hammasi",
+      "none": "Hech biri",
+      "items": "pozitsiyalar: {{count}}",
+      "nothing": "Topshiradigan narsa yo‘q",
+      "nothingHint": "Bu yerdagi barcha vazifalarni qoidalar belgilagan shaxslar oladi.",
+      "to": "Hamkasb",
+      "toHint": "Faqat har bir belgilangan vazifa bo‘linmasida ishlaydigan hamkasblar",
+      "noColleague": "Hech bir hamkasb barcha belgilangan vazifalarni qabul qila olmaydi — kamroq belgilang.",
+      "choose": "Hamkasbni tanlang",
+      "note": "Izoh",
+      "noteHint": "Ixtiyoriy: nega yoki nima qolgan",
+      "submit": "Topshirish ({{count}})",
+      "done": "Topshirilgan vazifalar: {{count}}.",
+      "errors": {
+        "self": "O‘zingizni emas, hamkasbni tanlang.",
+        "wrongColleague": "Bu hamkasb vazifa bo‘linmasida ishlamaydi.",
+        "notAllowed": "Bu vazifani qoidalar belgilagan shaxslar oladi — uni topshirib bo‘lmaydi.",
+        "closed": "Vazifa allaqachon yopilgan.",
+        "notYours": "Bu vazifani faqat uning ijrochisi topshira oladi.",
+        "tooMany": "Bir vaqtda 200 tadan ortiq emas.",
+        "none": "Topshiriladigan vazifalarni belgilang."
+      }
+    }
   },
   "portal": {
     "title": "Mijoz portali",

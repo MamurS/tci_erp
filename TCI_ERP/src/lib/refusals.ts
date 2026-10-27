@@ -163,6 +163,14 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'agency_rating_withdrawn_note', key: 'agencyRatings.errors.withdrawnNote' },
   { fragment: 'agency_rating_outlook', key: 'agencyRatings.errors.outlook' },
   { fragment: 'agency_rating_unchanged', key: 'agencyRatings.errors.unchanged' },
+  // handing Agenda tasks to a colleague (0092)
+  { fragment: 'task_transfer_self', key: 'agenda.transfer.errors.self' },
+  { fragment: 'task_transfer_wrong_colleague', key: 'agenda.transfer.errors.wrongColleague' },
+  { fragment: 'task_transfer_not_allowed', key: 'agenda.transfer.errors.notAllowed' },
+  { fragment: 'task_transfer_closed', key: 'agenda.transfer.errors.closed' },
+  { fragment: 'task_transfer_not_yours', key: 'agenda.transfer.errors.notYours' },
+  { fragment: 'task_transfer_too_many', key: 'agenda.transfer.errors.tooMany' },
+  { fragment: 'task_transfer_none', key: 'agenda.transfer.errors.none' },
   // sanctions screening (0091)
   { fragment: 'sanctions_import_only', key: 'sanctions.errors.importOnly' },
   { fragment: 'sanctions_list_unknown', key: 'sanctions.errors.listUnknown' },
