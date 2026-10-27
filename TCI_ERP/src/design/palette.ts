@@ -301,18 +301,23 @@ export const DARK_CANVAS_Y = 0.005
  * a pair below its threshold. */
 export const DARK_STRETCH = 1.02
 
-/** A colour's dark-mode counterpart: the same hue and chroma at the
- * luminance that mirrors its contrast with white as contrast with the dark
- * surface — (Y′ + 0.05) = (S + 0.05) · (1.05 / (Y + 0.05))^k. The map is a
- * reflection in contrast space, so ANY two colours keep (and, with k > 1,
- * slightly gain) their contrast with each other: every pair the light mode
- * passes, dark mode passes. S is low enough that the darkest step (Y 0.015)
- * lands on white without clamping. */
-export function darkCounterpart(hex: string): string {
+/** A colour reflected in contrast space: the same hue and chroma at the
+ * luminance that mirrors its contrast with white as contrast with a surface
+ * of luminance `surfaceY` — (Y′ + 0.05) = (S + 0.05) · (1.05 / (Y + 0.05))^k.
+ * Any two colours keep (with k > 1, slightly gain) their contrast with each
+ * other, so every pair the light design passes, the reflection passes. */
+export function reflectColor(hex: string, surfaceY: number, stretch: number): string {
   const y = luminance(hex)
-  const target = Math.min(1, (DARK_SURFACE_Y + 0.05) * Math.pow(1.05 / (y + 0.05), DARK_STRETCH) - 0.05)
+  const target = Math.min(1, (surfaceY + 0.05) * Math.pow(1.05 / (y + 0.05), stretch) - 0.05)
   const { c, h } = hexToOklch(hex)
   return solveStep(target, c, Number.isFinite(h) ? h : 0)
+}
+
+/** A colour's dark-mode counterpart: white becomes the dark card surface. S
+ * is low enough that the darkest step (Y 0.015) lands on white without
+ * clamping. */
+export function darkCounterpart(hex: string): string {
+  return reflectColor(hex, DARK_SURFACE_Y, DARK_STRETCH)
 }
 
 /** Every colour token of a theme in dark mode. Black stays black (the
@@ -324,6 +329,27 @@ export function darkColorTokens(theme: ThemeName): Record<string, string> {
   out.black = '#000000'
   out.scrim = light.scrim
   out.canvas = solveStep(DARK_CANVAS_Y, RAMP_SPECS.slate.chroma * 0.4, RAMP_SPECS.slate.hue)
+  return out
+}
+
+/** How light a colour theme's chrome (the menu, the bands, the name bar) is
+ * in light mode (owner, 2026-10-27: «much lighter»): its darkest step, the
+ * navy of blue, becomes this luminance — a pale tint of the theme — and the
+ * rest of the chrome follows by the same reflection, white text becoming
+ * near-black. Blue keeps its navy chrome. */
+export const LIGHT_CHROME_TOP_Y = 0.85
+
+/** The chrome colours of a theme in light mode: the reflection that takes
+ * step 900 to LIGHT_CHROME_TOP_Y (k = 1, so every pair keeps its contrast
+ * exactly — the darkest step reaches no clamp). */
+export function lightChromeTokens(theme: ThemeName): Record<string, string> {
+  const light = colorTokens(theme)
+  const top = luminance(light['accent-900'])
+  const surfaceY = ((LIGHT_CHROME_TOP_Y + 0.05) * (top + 0.05)) / 1.05 - 0.05
+  const out: Record<string, string> = {}
+  for (const [name, hex] of Object.entries(light)) out[name] = reflectColor(hex, surfaceY, 1)
+  out.black = '#000000'
+  out.scrim = light.scrim
   return out
 }
 
@@ -353,6 +379,18 @@ export function renderThemeCss(): string[] {
   for (const theme of THEME_NAMES) {
     if (theme === DEFAULT_THEME) continue
     lines.push(...block(`:root[data-theme='${theme}']`, changed(base, colorTokens(theme))))
+  }
+  lines.push('', '/* Light chrome: in light mode a colour theme\'s menu, bands and name bar are pale tints of it. */')
+  for (const theme of THEME_NAMES) {
+    if (theme === DEFAULT_THEME) continue
+    lines.push(...block(`:root:not([data-mode='dark'])[data-theme='${theme}'] [data-brand-surface]`, Object.entries(lightChromeTokens(theme))))
+    // A band's action buttons keep the theme's ordinary colours.
+    lines.push(
+      ...block(
+        `:root:not([data-mode='dark'])[data-theme='${theme}'] [data-brand-surface] [data-chrome-actions]`,
+        Object.entries(colorTokens(theme)),
+      ),
+    )
   }
   lines.push('', '/* Dark mode: every colour at the same contrast against the dark surface. */', '@media screen {')
   const inner: string[] = []

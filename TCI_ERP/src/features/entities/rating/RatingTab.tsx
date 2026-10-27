@@ -32,7 +32,6 @@ import {
   GradeScale,
   labelCol,
   LinkButton,
-  RatingGauge,
   RatingLegend,
   SectionTitle,
   Select,
@@ -415,24 +414,21 @@ function ResultView({
   return (
     <>
       <Card className="flex flex-col gap-4 p-5">
-        <div className="grid items-center gap-5 lg:grid-cols-[240px_1fr]">
-          <div className="flex flex-col items-center rounded-lg bg-accent-50/60 px-3 pt-3 pb-2">
-            {/* The change is said in words below, not as an arrow on a
-                lower-is-better scale. */}
-            <RatingGauge score={rating.score} />
-            <ScoreChangeNote score={rating.score} previousScore={previousScore} />
-          </div>
-          <div className="flex min-w-0 flex-col gap-4">
-            {rating.score !== null && rating.grade && (
-              <GradeScale
-                score={rating.score}
-                grade={rating.grade}
-                bands={bands}
-                change={change}
-              />
-            )}
-            <RatingLegend score={rating.score} />
-          </div>
+        {/* The score on the straight scale and the legend, full width (owner,
+            2026-10-27: the round gauge repeated them; it stays on the risk
+            report). The change is said in words, not as an arrow on a
+            lower-is-better scale. */}
+        <div className="flex min-w-0 flex-col gap-4">
+          {rating.score !== null && rating.grade && (
+            <GradeScale
+              score={rating.score}
+              grade={rating.grade}
+              bands={bands}
+              change={change}
+            />
+          )}
+          <ScoreChangeNote score={rating.score} previousScore={previousScore} align="start" />
+          <RatingLegend score={rating.score} />
         </div>
         <div className="grid gap-4 lg:grid-cols-2">
           <FactorGroup title={t('rating.strengths')} chips={chips.strengths} none={t('rating.noStrengths')} />

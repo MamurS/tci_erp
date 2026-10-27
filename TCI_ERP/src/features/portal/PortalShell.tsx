@@ -55,7 +55,7 @@ export function PortalShell() {
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-4 px-6 py-3">
           <div className="flex flex-col">
             <BrandMark size="sm" inverse />
-            <span className="mt-1 text-caption font-medium tracking-[0.18em] text-white/55 uppercase">
+            <span className="mt-1 text-caption font-medium tracking-[0.18em] text-white/70 uppercase">
               {t('portal.title')}
             </span>
           </div>
@@ -67,7 +67,7 @@ export function PortalShell() {
             {/* The company, not the role: a portal user has exactly one role
                 and being told so every page is noise. */}
             <span className="text-small font-semibold">{entity?.name ?? session?.user.email}</span>
-            {entity && <span className="text-caption text-white/60">{session?.user.email}</span>}
+            {entity && <span className="text-caption text-white/70">{session?.user.email}</span>}
           </div>
           <button
             type="button"

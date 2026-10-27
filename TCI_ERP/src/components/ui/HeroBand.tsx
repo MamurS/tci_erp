@@ -124,7 +124,11 @@ export function HeroBand({
           </div>
           {actions && (
             <OnBandContext.Provider value={true}>
-              <div className="flex flex-wrap items-center gap-2">{actions}</div>
+              {/* The actions keep the theme's own colours on a light band
+                  (palette.ts light chrome): white buttons, never inverted. */}
+              <div data-chrome-actions className="flex flex-wrap items-center gap-2">
+                {actions}
+              </div>
             </OnBandContext.Provider>
           )}
         </div>
