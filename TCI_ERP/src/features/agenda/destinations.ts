@@ -105,6 +105,19 @@ const validation: Builder = (_row, lead, names) => {
   return { path: `/limits/${requestId}`, action: 'open', crumbs: crumbs(null) }
 }
 
+/** A sector (0085): its page, where the review is written, approved, or the
+ * buyers of a downgrade are listed. */
+const sector =
+  (action: ActionKey): Builder =>
+  (_row, lead) => ({
+    path: `/sectors/${lead.object_id}`,
+    action,
+    crumbs: [
+      { key: 'nav.sectors' },
+      str(lead.params?.industry) ? { key: `industries.${String(lead.params?.industry)}` } : { key: 'agenda.dest.sector' },
+    ],
+  })
+
 const rating: Builder = (_row, lead, names) => {
   const statement = str(lead.params?.statement_id)
   const year = lead.params?.fiscal_year
@@ -331,6 +344,23 @@ export const DESTINATIONS: Readonly<Record<TaskType, Builder>> = {
   rating_proposal_result: ratingProposal,
   adt_review: adtReview,
   limit_information_needed: informationNeeded,
+  sector_review_due: sector('review'),
+  sector_review_approval: sector('review'),
+  sector_downgrade_review: sector('review'),
+  sanctions_limit_review: (_row, lead, names) => ({
+    path: `/limits/${lead.object_id}`,
+    action: 'review',
+    crumbs: [{ key: 'nav.limits' }, named({ subject: names.subject }, 'agenda.dest.request')],
+  }),
+  country_override_approval: (_row, lead) => ({
+    path: `/sectors?view=countries&override=${lead.object_id}`,
+    action: 'review',
+    crumbs: [
+      { key: 'nav.sectors' },
+      { key: 'agenda.dest.place.countries' },
+      ...(str(lead.params?.country) ? [{ text: String(lead.params?.country) }] : []),
+    ],
+  }),
   entity_request_resolved: (row, lead, names) => {
     const entityId = str(lead.params?.entity_id)
     return entityId

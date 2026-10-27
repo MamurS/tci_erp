@@ -49,6 +49,8 @@ import { mayWriteEntities } from './access'
 import { EntityFormModal } from './EntityFormModal'
 import { EM_DASH, formatDate } from '../../lib/format'
 import type { EntityRoles } from './types'
+import { IndustrySectorBadge } from '../risk/badges'
+import { CountryRiskCompact, CountryWithRisk, IndustryWithSector, RiskSubline } from '../risk/integrationBadges'
 
 type RoleChip = 'all' | 'policyholders' | 'buyers'
 
@@ -318,9 +320,18 @@ export function EntitiesPage() {
                       <CountryFlag code={entity.country_code} className="mr-2" />
                       {refName(entity.countries, locale)}
                     </Truncate>
+                    {/* Prompt 31: the country's category, or the sanctions
+                        badge (the company's or its country's), on a line of
+                        its own that is reserved whether or not one arrives. */}
+                    <RiskSubline>
+                      <CountryRiskCompact countryCode={entity.country_code} entityId={entity.id} />
+                    </RiskSubline>
                   </td>
                   <td className="text-slate-500">
                     {industry ? <Truncate text={industry} className="max-w-none" /> : EM_DASH}
+                    <RiskSubline>
+                      <IndustrySectorBadge industryCode={entity.industry_id} />
+                    </RiskSubline>
                   </td>
                   <td>
                     <RoleBadges roles={roles.data?.get(entity.id)} />
@@ -366,15 +377,26 @@ export function EntitiesPage() {
               {
                 label: t('buyers.fields.country'),
                 value: (
-                  <span className="inline-flex items-center">
-                    <CountryFlag code={peek.country_code} className="mr-2" />
-                    {refName(peek.countries, locale)}
-                  </span>
+                  <CountryWithRisk
+                    countryCode={peek.country_code}
+                    entityId={peek.id}
+                    name={
+                      <span className="inline-flex items-center">
+                        <CountryFlag code={peek.country_code} className="mr-2" />
+                        {refName(peek.countries, locale)}
+                      </span>
+                    }
+                  />
                 ),
               },
               {
                 label: t('buyers.fields.industry'),
-                value: refName(peek.industries, locale) || EM_DASH,
+                value: (
+                  <IndustryWithSector
+                    industryCode={peek.industry_id}
+                    name={refName(peek.industries, locale) || EM_DASH}
+                  />
+                ),
               },
               {
                 label: t('entities.rolesHeader'),

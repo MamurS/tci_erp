@@ -12,6 +12,7 @@ import type { TFunction } from 'i18next'
 import { formatAmount, formatDate, formatPeriod } from '../../lib/format'
 import type { StaffMember } from '../data/types'
 import { policyIdOf } from './api'
+import { formatTaskParams } from './catalogue'
 import type { TaskSubjects } from './api'
 import { amountOf } from './board'
 import type { AgendaRow } from './board'
@@ -140,6 +141,9 @@ export function rowTitle(
               `agenda.row.adt_review_${p.reason}`
             : `agenda.row.${row.displayType}`
   const what = t(key, {
+    // the sector, country and sanctions titles (0085) read their params as
+    // the dashboard does
+    ...formatTaskParams(p, locale),
     sequence: p.sequence ?? '',
     period,
     pct: num(p.utilisation_pct) === null ? '' : formatAmount(num(p.utilisation_pct), locale, 1),
@@ -240,6 +244,23 @@ export function rowFacts(
         str(p.grade) ? t('agenda.facts.proposedGrade', { grade: p.grade }) : null,
         str(p.resolver_name) ? t('agenda.facts.validatedBy', { name: p.resolver_name }) : null,
       )
+      break
+    case 'sector_review_approval':
+      facts.push(str(p.grade) ? t('agenda.facts.sectorGrade', { grade: p.grade }) : null)
+      break
+    case 'sector_downgrade_review': {
+      // the buyers with limits in the sector (0085 lists the first 25)
+      const list = Array.isArray(p.buyer_list) ? (p.buyer_list as { name?: unknown }[]) : []
+      const names = list.map((b) => str(b.name)).filter((n): n is string => Boolean(n))
+      const total = num(p.buyers) ?? names.length
+      facts.push(...names.slice(0, 3), total > 3 ? t('agenda.facts.moreBuyers', { count: total - 3 }) : null)
+      break
+    }
+    case 'sanctions_limit_review':
+      facts.push(str(p.regime))
+      break
+    case 'country_override_approval':
+      facts.push(num(p.category) !== null ? t('agenda.facts.countryCategory', { category: p.category }) : null)
       break
     case 'group_exposure_near_limit':
     case 'group_limit_missing':

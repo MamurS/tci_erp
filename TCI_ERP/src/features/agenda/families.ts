@@ -57,6 +57,11 @@ export const TASK_FAMILY: Readonly<Record<TaskType, Family>> = {
   limit_validation_fyi: 'limits',
   rating_proposal: 'limits',
   rating_proposal_result: 'limits',
+  sector_review_due: 'limits',
+  sector_review_approval: 'limits',
+  sector_downgrade_review: 'limits',
+  sanctions_limit_review: 'limits',
+  country_override_approval: 'limits',
 
   contract_review: 'contracts',
 
@@ -78,6 +83,9 @@ export const TAGS = [
   'submission',
   'contract',
   'data',
+  'sector',
+  'country',
+  'sanctions',
 ] as const
 export type Tag = (typeof TAGS)[number]
 
@@ -121,6 +129,11 @@ export const TASK_TAG: Readonly<Record<TaskType, Tag>> = {
   limit_validation_fyi: 'validation',
   rating_proposal: 'rating',
   rating_proposal_result: 'rating',
+  sector_review_due: 'sector',
+  sector_review_approval: 'sector',
+  sector_downgrade_review: 'sector',
+  sanctions_limit_review: 'sanctions',
+  country_override_approval: 'country',
   contract_review: 'contract',
   offer_viewed: 'submission',
   offer_expiring: 'submission',
@@ -144,6 +157,10 @@ export const TAG_TONE: Readonly<Record<Tag, 'neutral' | 'warn' | 'neg'>> = {
   submission: 'neutral',
   contract: 'neutral',
   data: 'neutral',
+  sector: 'neutral',
+  country: 'neutral',
+  // no cover may exist for a sanctioned party (0085)
+  sanctions: 'neg',
 }
 
 /** Families present on the board, in display order, with their counts. */

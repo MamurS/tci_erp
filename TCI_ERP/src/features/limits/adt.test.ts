@@ -12,6 +12,7 @@ import M61 from '../../../supabase/migrations/0061_auto_decisions.sql?raw'
 import M63 from '../../../supabase/migrations/0063_acting_role.sql?raw'
 import M73 from '../../../supabase/migrations/0073_rating_proposals.sql?raw'
 import M83 from '../../../supabase/migrations/0083_adt_count_max.sql?raw'
+import M85 from '../../../supabase/migrations/0085_sector_country_risk.sql?raw'
 import en from '../../i18n/locales/en.json'
 import ru from '../../i18n/locales/ru.json'
 import uz from '../../i18n/locales/uz.json'
@@ -48,15 +49,16 @@ import type { AdtState } from './adt'
 import { limitViewsFor } from './workbench/views'
 
 /** The body of one function in 0061, from its create statement to its end. */
-/** The LATEST definition of a function: 0063 restated the ADT writers. */
+/** The LATEST definition of a function: 0063 restated the ADT writers,
+ * 0085 the rule itself. */
 function fn(name: string): string {
-  for (const migration of [M63, M61]) {
+  for (const migration of [M85, M63, M61]) {
     const start = migration.search(new RegExp(`create (or replace )?function tci\\.${name}\\(`, 'i'))
     if (start < 0) continue
     const rest = migration.slice(start)
     return rest.slice(0, rest.search(/\n\$(function)?\$\n?;/))
   }
-  throw new Error(`${name} is defined in neither 0061 nor 0063`)
+  throw new Error(`${name} is defined in none of 0061, 0063, 0085`)
 }
 
 /** The i18n keys a body appends to its reasons, in order of first use. */
@@ -92,7 +94,8 @@ describe('vocabularies (0061)', () => {
     if v_assessment.suggested_limit is null then
       v_reasons := v_reasons || ''no_recommended_limit''::text;
     elsif v_rec_uzs is null or v_req_uzs is null then`)
-    order.splice(order.indexOf('no_rating') + 1, 0, 'no_recommended_limit')
+    // 0085 restates the whole body with it in place
+    if (!order.includes('no_recommended_limit')) order.splice(order.indexOf('no_rating') + 1, 0, 'no_recommended_limit')
     expect(order).toEqual([...AUTO_DECISION_REASONS])
   })
 

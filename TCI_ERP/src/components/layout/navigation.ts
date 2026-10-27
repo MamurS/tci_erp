@@ -27,13 +27,13 @@ const STAFF: readonly UserRole[] = [
  *
  *   admin                   everything
  *   credit_underwriter      dashboard, agenda, companies, submissions, limits, limit portfolio,
- *                           declarations, overdues, claims
+ *                           sectors (read), declarations, overdues, claims
  *   commercial_underwriter  dashboard, agenda, companies, submissions, limits, policies,
  *                           policy portfolio, declarations, overdues, claims
  *   sales                   dashboard, agenda, companies, submissions, limits, policies,
  *                           declarations, overdues
  *   credit_analyst          dashboard, agenda, companies, limits (the analysis views: ratings,
- *                           monitoring, register, groups — never the decision queue)
+ *                           monitoring, register, groups — never the decision queue), sectors
  *   information_manager     dashboard, agenda, companies, data management
  *   claims                  dashboard, agenda, companies, overdues, claims
  *   client                  the portal only
@@ -60,6 +60,9 @@ export const NAV_ITEMS: readonly NavItem[] = [
     path: '/limits',
     roles: ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'credit_analyst', 'client'],
   },
+  // «Сектора» (0085): sector grades and country risk — credit analysts work
+  // them, credit underwriting and admin read them.
+  { key: 'sectors', path: '/sectors', roles: ['admin', 'credit_analyst', 'credit_underwriter'] },
   {
     key: 'policies',
     path: '/policies',

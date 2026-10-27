@@ -11,6 +11,7 @@ import { EntityPicker } from '../entities/EntityPicker'
 import { DlNote } from './DlNote'
 import type { PolicyWithRefs } from '../policies/types'
 import { useCreateLimitRequest } from './api'
+import { refusalOr } from '../../lib/optimistic'
 
 export function RequestLimitModal({
   open,
@@ -56,8 +57,10 @@ export function RequestLimitModal({
       })
       onClose()
       void navigate(`/limits/${created.id}`)
-    } catch {
-      setError(t('limits.createFailed'))
+    } catch (failure) {
+      // Named when deliberate: no cover for a sanctioned buyer, policyholder
+      // or country (0085) — only the unknown is generic.
+      setError(t(refusalOr(failure, 'limits.createFailed')))
     }
   }
 

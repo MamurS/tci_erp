@@ -39,6 +39,7 @@ import { SendForValidationModal } from './ValidationDialogs'
 import { adjustmentCanBeValidated, validationKind } from './validation'
 import type { NeedsValidation, ValidationState } from './validation'
 import { useSubmitAdjustmentForValidation } from './validationApi'
+import { useDecisionRisk } from '../risk/integrationHooks'
 
 export function CommercialStageSection({
   request,
@@ -81,6 +82,11 @@ export function CommercialStageSection({
     creditDeciders: (chain ?? []).filter((d) => d.stage === 'credit').map((d) => d.decided_by),
   })
   const mayAdjust = mayAdjustByRole && ownRefusal === null
+  // Prompt 31: every adjustment writes an approving decision row, which the
+  // database refuses for a sanctioned company or country (0085). Only a
+  // revocation, from the credit desk, stays possible.
+  const { ctx: risk } = useDecisionRisk(request.entity_id)
+  const coverBlocked = Boolean(risk?.cover_block)
   // The band is that of the CREDIT decision's assessment — the commercial
   // authority is looked up in the same band (migration 0020).
   const band = bandForGrade(
@@ -211,6 +217,10 @@ export function CommercialStageSection({
         </p>
       ) : !mayAdjust ? (
         <p className="text-small text-slate-500">{t('limits.commercial.readOnly')}</p>
+      ) : coverBlocked ? (
+        <p className="rounded-md border border-neg-500/30 bg-neg-50 px-4 py-3 text-small text-slate-800" role="note">
+          {t('risk.decision.adjustBlocked')}
+        </p>
       ) : validation ? (
         // adjust_limit_commercial refuses while anything on this request is on
         // validation; the line at the top of the page says with whom.

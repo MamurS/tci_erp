@@ -5,7 +5,13 @@ from __future__ import annotations
 
 from typing import Literal
 
+from credit_engine import RiskContext
+from credit_engine.models import RiskAdjustmentLine
 from pydantic import BaseModel, Field
+
+
+def _is_none(value: object) -> bool:
+    return value is None
 
 
 class TciBalanceSheet(BaseModel):
@@ -89,6 +95,10 @@ class StatementPayload(BaseModel):
         description="Units of statement currency per 1 USD; default per currency.",
     )
     periods: list[TciPeriod] = Field(min_length=1)
+    #: The buyer's sector grade and country risk category with the adjustment
+    #: table (tci.risk_adjustment_settings). Optional: without it the grade
+    #: and the limit are the financials' alone, exactly as before.
+    risk_context: RiskContext | None = None
 
 
 class RatingComponent(BaseModel):
@@ -108,6 +118,10 @@ class RatingAdjustment(BaseModel):
 
 
 class RatingResponse(BaseModel):
+    """``score`` is the financials' score; ``grade`` the grade in force (after
+    the risk context, when one was sent). The four risk fields are ABSENT
+    from the JSON without a risk context, so that response is unchanged."""
+
     score: float | None
     grade: str | None
     grade_label_key: str | None
@@ -116,9 +130,16 @@ class RatingResponse(BaseModel):
     adjustments: list[RatingAdjustment]
     warnings: list[str]
     engine_version: str
+    base_grade: str | None = Field(default=None, exclude_if=_is_none)
+    effective_score: float | None = Field(default=None, exclude_if=_is_none)
+    risk_context: RiskContext | None = Field(default=None, exclude_if=_is_none)
+    risk_adjustments: list[RiskAdjustmentLine] | None = Field(default=None, exclude_if=_is_none)
 
 
 class CreditLimitRequest(StatementPayload):
+    #: The FINANCIALS' score, i.e. /rating's ``score`` - not its
+    #: ``effective_score``. With a ``risk_context`` the grade is adjusted here
+    #: exactly as /rating adjusts it, and the limit follows the adjusted grade.
     rating_score: float
 
 
@@ -130,12 +151,21 @@ class LimitModelTrace(BaseModel):
 
 
 class CreditLimitResponse(BaseModel):
+    """With a risk context: ``base_grade`` (from ``rating_score``), ``grade``
+    (adjusted), ``effective_score`` (the score the limit was computed on) and
+    the context and trace lines. All five are absent without one."""
+
     suggested_limit: float
     currency: str
     model_used: str
     trace: list[LimitModelTrace]
     reasons: list[str]
     engine_version: str
+    base_grade: str | None = Field(default=None, exclude_if=_is_none)
+    grade: str | None = Field(default=None, exclude_if=_is_none)
+    effective_score: float | None = Field(default=None, exclude_if=_is_none)
+    risk_context: RiskContext | None = Field(default=None, exclude_if=_is_none)
+    risk_adjustments: list[RiskAdjustmentLine] | None = Field(default=None, exclude_if=_is_none)
 
 
 class HealthResponse(BaseModel):

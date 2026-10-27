@@ -62,7 +62,8 @@
         "hint": "Ratings to work, monitoring, the limit register and groups"
       }
     },
-    "data": "Data management"
+    "data": "Data management",
+    "sectors": "Sectors"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -2146,7 +2147,8 @@
         "stale_financials": "The buyer's financial statements are too old",
         "group_limit": "The group would go over its group limit",
         "downgrade": "The buyer was downgraded below the rating band the ADT was set at",
-        "no_recommended_limit": "The rating carries no recommended limit (a manual rating)"
+        "no_recommended_limit": "The rating carries no recommended limit (a manual rating)",
+        "cover_restricted": "The buyer's country or sector needs a higher authority rank (cover matrix)"
       },
       "attempt": {
         "decided": "Decided automatically (ADT)",
@@ -2416,7 +2418,8 @@
     "tabs": {
       "users": "Users & roles",
       "authorities": "Authorities",
-      "security": "Security"
+      "security": "Security",
+      "risk": "Risk"
     },
     "noUsers": "No users yet",
     "editRoles": "Roles",
@@ -2635,6 +2638,235 @@
       "title": "Sub-grade weights",
       "hint": "The default weights of the rating scorecard's four pillars, whole per cents adding up to 100. The rater starts from them and may change them for a rating.",
       "save": "Save weights"
+    },
+    "risk": {
+      "oecd": {
+        "title": "OECD country risk classification",
+        "hint": "Import the published OECD list as a whole; decisions use the latest import. A country missing from it is not classified — never category 0.",
+        "loadFailed": "Could not load the import history.",
+        "latest": "Current list: effective {{date}}",
+        "latestBody": "{{file}} · countries: {{rows}} · imported {{at}} by {{by}}",
+        "stale": "Older than {{months}} months — import the latest OECD list.",
+        "none": "No OECD list imported yet",
+        "noneBody": "Until a list is imported, the country category plays no part in decisions and every country reads as not classified.",
+        "format": {
+          "title": "Accepted file",
+          "file": "CSV (comma, semicolon or tab; UTF-8 or Windows-1251) or Excel (.xlsx, .xls — the first sheet with data).",
+          "columns": "A header row with a column of two-letter ISO country codes (headed «code», «ISO», «country_code» or «Код») and a column of categories («category», «classification» or «Категория»); other columns, and title lines above the header, are ignored.",
+          "unclassified": "An empty cell, «-» or «n/a» in the category column means the country is not classified: it is left out of the import.",
+          "whole": "Categories are whole numbers 0–7. Three-letter codes (UZB) are not accepted. A date above the header or in the file name is offered as the effective date."
+        },
+        "file": "File",
+        "fileHint": "CSV, XLSX or XLS",
+        "choose": "Choose a file",
+        "noFile": "No file chosen",
+        "reading": "Reading the file…",
+        "readFailed": "The file could not be read. Save it as CSV or XLSX and try again.",
+        "effective": "Effective date",
+        "effectiveHint": "Choose a file first.",
+        "effectiveFromFile": "Taken from the file — check it.",
+        "effectiveToday": "The file names no date — today is suggested.",
+        "errorsTitle": "Problems in the file: {{count}} — nothing is imported until they are fixed",
+        "moreErrors": "…and {{count}} more.",
+        "errors": {
+          "empty": "The file holds no classification.",
+          "no_code_column": "No column of country codes was found. Head it «code», «ISO» or «country_code».",
+          "no_category_column": "No column of categories was found. Head it «category» or «classification».",
+          "code_missing": "Row {{row}}: a category ({{value}}) with no country code.",
+          "code_invalid": "Row {{row}}: «{{value}}» is not a two-letter ISO country code.",
+          "alpha3": "Row {{row}}: «{{value}}» is a three-letter code — use the two-letter ISO code (UZ, not UZB).",
+          "category_invalid": "Row {{row}}: {{code}} — «{{value}}» is not a category from 0 to 7.",
+          "duplicate": "Row {{row}}: {{code}} already appears in row {{firstRow}}."
+        },
+        "unknownTitle": "Countries we do not know",
+        "unknownBody": "These codes are not in the country reference list: {{codes}}. Correct the file, or ask for the reference list to be completed.",
+        "previewCount": "Countries to import: {{count}}",
+        "skipped": "left out as not classified: {{count}}",
+        "skippedCodes": "Not classified: {{codes}}",
+        "columns": {
+          "row": "Row",
+          "country": "Country",
+          "category": "OECD category",
+          "warnings": "Notes"
+        },
+        "warnings": {
+          "lowercase": "code written in lower case — read in capitals",
+          "unknown": "not in the country reference list"
+        },
+        "note": "Note",
+        "noteHint": "Optional — e.g. the OECD publication the list comes from.",
+        "import": "Import the list ({{count}})",
+        "needDate": "Set the effective date to import.",
+        "importFailed": "The list could not be imported. Try again.",
+        "imported": "List imported: {{count}} countries, effective {{date}}.",
+        "historyTitle": "Import history",
+        "history": {
+          "effective": "Effective",
+          "file": "File",
+          "rows": "Countries",
+          "note": "Note",
+          "importedAt": "Imported",
+          "importedBy": "By"
+        },
+        "historyEmpty": "Nothing imported yet",
+        "historyEmptyHint": "Every import is kept here with its date and file."
+      },
+      "sanctions": {
+        "title": "Sanctions",
+        "hint": "A live flag makes cover impossible for a country or a company, whatever the authority. Flags are never deleted — they are lifted, with a reason.",
+        "add": "Add a flag",
+        "readOnly": "Sanctions flags are maintained by the administrator.",
+        "filter": "Show",
+        "filters": {
+          "live": "Live ({{count}})",
+          "lifted": "Lifted ({{count}})"
+        },
+        "loadFailed": "Could not load the sanctions flags.",
+        "emptyLive": "No live sanctions flags",
+        "emptyLiveHint": "Sanctions restrict cover for no country and no company.",
+        "emptyLifted": "No lifted flags",
+        "emptyLiftedHint": "Flags lifted with a reason are kept here.",
+        "columns": {
+          "party": "Country or company",
+          "scope": "Applies to",
+          "regime": "Regime",
+          "source": "Source",
+          "effective": "Effective from",
+          "setBy": "Set by",
+          "setAt": "Set on",
+          "liftedBy": "Lifted by",
+          "liftedAt": "Lifted",
+          "liftReason": "Reason for lifting"
+        },
+        "scopes": {
+          "country": "Country",
+          "entity": "Company"
+        },
+        "regimes": {
+          "UN": "UN",
+          "OFAC": "OFAC (US)",
+          "EU": "EU",
+          "UK": "UK",
+          "national": "National",
+          "other": "Other"
+        },
+        "from": "from {{date}}",
+        "scheduledTitle": "Applies from a later date: cover remains possible until then.",
+        "lift": "Lift",
+        "saved": "Sanctions flag set",
+        "reviewCount": "In-force limits sent to credit underwriting for an urgent review: {{count}}.",
+        "reviewNone": "No in-force limit is affected — no review task was opened.",
+        "liftedDone": "Sanctions flag lifted",
+        "addTitle": "New sanctions flag",
+        "addSubmit": "Set the flag",
+        "country": "Country",
+        "company": "Company",
+        "targetRequired": {
+          "country": "Choose the country.",
+          "entity": "Choose the company."
+        },
+        "source": "Source",
+        "sourceHint": "Where the listing is published, e.g. «UN Security Council Consolidated List».",
+        "sourceRequired": "Name the source.",
+        "reference": "Reference",
+        "referenceHint": "Optional — the list entry, resolution or regulation number.",
+        "effectiveRequired": "Set the date the flag applies from.",
+        "note": "Note",
+        "effectTitle": "What this flag does",
+        "effectBody": "While it is live, no cover is possible for this party: a limit request, an approving decision, a submission and a policy are refused, and no authority overrides it. Limits already in force are NOT revoked automatically — each one gets an urgent review task for credit underwriting.",
+        "confirmTitle": "Set the sanctions flag?",
+        "confirmBody": "No cover will be possible for this party, and no authority can override it. Limits already in force are not revoked automatically — each one gets an urgent review task for credit underwriting.",
+        "confirm": "Set the flag",
+        "saveFailed": "The flag could not be set. Try again.",
+        "duplicate": "This party already has a live flag under this regime.",
+        "liftTitle": "Lift the flag: {{party}}",
+        "liftBody": "Once the {{regime}} flag is lifted, cover is possible again unless another live flag applies. Limits revoked or reduced in the meantime are not restored.",
+        "liftReason": "Reason",
+        "liftSubmit": "Lift the flag",
+        "liftFailed": "The flag could not be lifted. Try again."
+      },
+      "adjustments": {
+        "title": "Cover matrix and adjustments",
+        "hint": "One line per sector grade and per OECD country category. Each line is saved on its own and applies to ratings and decisions from then on.",
+        "explain": {
+          "notch": "moves the recommended grade by whole steps, −6 to +6 (+ is better).",
+          "cap": "the best grade a rating may reach on this line; «No cap» leaves it free.",
+          "cover": "a label: restricted cover is granted only at the higher authority rank set beside it. Only sanctions make cover impossible.",
+          "rank": "for a country, the authority rank a decision granting cover needs (0 none, 5 = committee); for a sector, the ranks added on top.",
+          "loading": "an indicative premium loading shown with the concentration check; it changes no premium by itself."
+        },
+        "matrixTitle": "Cover matrix by default",
+        "matrix": "Categories 0–3 normal authority · 4–5 rank 3 and above · 6 rank 4 or the committee · 7 and not classified the committee only · sanctioned: no cover · sector D one rank more.",
+        "columns": {
+          "line": "Line",
+          "notch": "Notch",
+          "cap": "Grade cap",
+          "cover": "Cover",
+          "rank": "Authority rank",
+          "loading": "Premium loading"
+        },
+        "rankFloor": "Authority rank needed (0–5, 5 = committee)",
+        "rankAdd": "Ranks added (0–4)",
+        "groups": {
+          "sector": "Sector grade",
+          "country": "OECD category"
+        },
+        "sectorLine": "Sector {{grade}}",
+        "countryLine": "Category {{category}}",
+        "noCap": "No cap",
+        "cover": {
+          "available": "Available",
+          "restricted": "Restricted"
+        },
+        "bounds": "From {{min}} to {{max}}",
+        "invalid": {
+          "notch": "Notch: a whole number from {{min}} to {{max}}.",
+          "cap_grade": "Grade cap: choose from the list.",
+          "cover": "Cover: choose from the list.",
+          "rank_floor": "Authority rank: a whole number from {{min}} to {{max}}.",
+          "rank_add": "Ranks added: a whole number from {{min}} to {{max}}.",
+          "premium_loading_pct": "Premium loading: from {{min}} to {{max}} %, at most two decimals."
+        },
+        "undo": "Undo",
+        "loadFailed": "Could not load the adjustment table.",
+        "saveFailed": "The line could not be saved. Try again."
+      },
+      "settings": {
+        "title": "Risk settings",
+        "hint": "Sector reviews, the age of the OECD list, the concentration warning and what a client may see. Every value is saved together.",
+        "dueDay": "Quarterly sector review due on day",
+        "dueDayHint": "Day of the quarter, {{min}}–{{max}}.",
+        "days": "day",
+        "staleMonths": "OECD list is out of date after",
+        "staleMonthsHint": "Months, {{min}}–{{max}}. An older list is flagged in amber.",
+        "warnPct": "Concentration warning above",
+        "warnPctHint": "The share of a policy’s or a submission’s cover in sectors C/D or in country categories 5–7, {{min}}–{{max}} %.",
+        "fourEyes": "A sector review needs a second analyst’s approval",
+        "fourEyesHint": "Off: an analyst’s review is in force at once. On: another credit analyst approves it first.",
+        "clientShowOecd": "Show the OECD category to clients",
+        "clientShowOecdHint": "Reserved for the portal: no client screen shows it yet, whichever way this is set.",
+        "outOfRange": "From {{min}} to {{max}}.",
+        "loadFailed": "Could not load the risk settings.",
+        "saveFailed": "The settings could not be saved. Try again."
+      },
+      "analysts": {
+        "title": "Sector analysts",
+        "hint": "The credit analyst responsible for each sector’s quarterly review. A change saves at once; the open review task follows the person.",
+        "columns": {
+          "sector": "Sector",
+          "grade": "Sector grade",
+          "analyst": "Responsible analyst"
+        },
+        "none": "— Not assigned —",
+        "assignFor": "Responsible analyst: {{sector}}",
+        "unassigned": "Sectors without an analyst: {{count}}",
+        "noAnalysts": "Nobody holds the credit analyst role",
+        "noAnalystsHint": "Give the role on the «Users & roles» tab, then assign the sectors here.",
+        "empty": "No sectors",
+        "emptyHint": "A sector is created for every industry of the reference list.",
+        "loadFailed": "Could not load the sectors.",
+        "saveFailed": "The analyst could not be assigned. Try again."
+      }
     }
   },
   "requests": {
@@ -2977,7 +3209,9 @@
       "bank_statement_import": "Bank statement",
       "commercial_offer": "Commercial offer",
       "limit_validation": "Limit validation",
-      "rating_proposal_step": "Rating proposal"
+      "rating_proposal_step": "Rating proposal",
+      "sector": "Sector",
+      "country_risk_override": "Internal country category"
     },
     "taskTypes": {
       "buyer_needs_entity": "Identify buyer",
@@ -3022,7 +3256,12 @@
       "limit_information_needed": "Gather buyer information",
       "limit_validation_fyi": "Limit validation: for information",
       "rating_proposal": "Rating validation",
-      "rating_proposal_result": "Rating validation result"
+      "rating_proposal_result": "Rating validation result",
+      "sector_review_due": "Sector review",
+      "sector_review_approval": "Sector review approval",
+      "sector_downgrade_review": "Sector downgrade: buyers to review",
+      "sanctions_limit_review": "Sanctions: limit to review",
+      "country_override_approval": "Internal country category approval"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -3086,7 +3325,12 @@
       "rating_proposal_result_approved": "Your rating {{grade}} for {{entity_name}} was approved — {{resolver_name}}",
       "rating_proposal_result_modified": "Your rating for {{entity_name}} was approved as {{grade}} — {{resolver_name}}",
       "rating_proposal_result_returned": "Your rating proposal for {{entity_name}} was returned to you — {{resolver_name}}",
-      "rating_proposal_result_rejected": "Your rating proposal for {{entity_name}} was rejected — {{resolver_name}}"
+      "rating_proposal_result_rejected": "Your rating proposal for {{entity_name}} was rejected — {{resolver_name}}",
+      "sector_review_due": "Sector review Q{{quarter}} {{year}} · {{industry}}",
+      "sector_review_approval": "Approve the sector review: {{industry}} (grade {{grade}})",
+      "sector_downgrade_review": "Sector {{industry}} downgraded to {{to}}: review {{buyers}} buyers with limits",
+      "sanctions_limit_review": "Sanctions ({{regime}}): review the limit on {{subject}}",
+      "country_override_approval": "Approve the internal country category: {{country}} → category {{category}}"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -3191,7 +3435,10 @@
       "data": "Data",
       "contract": "Contract",
       "validation": "Validation",
-      "adt": "ADT"
+      "adt": "ADT",
+      "sector": "Sector",
+      "country": "Country",
+      "sanctions": "Sanctions"
     },
     "due": {
       "days_one": "{{count}} day",
@@ -3309,7 +3556,12 @@
       "rating_proposal_result_approved": "Your rating proposal approved",
       "rating_proposal_result_modified": "Your rating approved with another grade",
       "rating_proposal_result_returned": "Your rating proposal returned to you",
-      "rating_proposal_result_rejected": "Your rating proposal rejected"
+      "rating_proposal_result_rejected": "Your rating proposal rejected",
+      "sector_review_due": "Sector review Q{{quarter}} {{year}} · {{industry}}",
+      "sector_review_approval": "Sector review to approve · {{industry}}",
+      "sector_downgrade_review": "Sector downgraded to {{to}} · {{industry}}",
+      "sanctions_limit_review": "Sanctions: review the limit",
+      "country_override_approval": "Internal country category · {{country}}"
     },
     "facts": {
       "policies_one": "{{count}} policy",
@@ -3329,7 +3581,10 @@
       "membersWithLimits_many": "{{count}} members with limits",
       "from": "from {{name}}",
       "validatedBy": "validator: {{name}}",
-      "proposedGrade": "grade {{grade}}"
+      "proposedGrade": "grade {{grade}}",
+      "sectorGrade": "Grade {{grade}}",
+      "countryCategory": "Category {{category}}",
+      "moreBuyers": "+{{count}} more"
     },
     "sub": {
       "instalment": "Instalment {{sequence}}"
@@ -3429,7 +3684,8 @@
         "validation": "Validation",
         "adt": "ADT",
         "financials": "Financial statements",
-        "card": "Company card"
+        "card": "Company card",
+        "countries": "Countries"
       },
       "with": {
         "task": "with this task’s context",
@@ -3441,7 +3697,8 @@
         "instalments_many": "showing {{count}} instalments"
       },
       "contract": "Draft contract",
-      "statement": "Statement"
+      "statement": "Statement",
+      "sector": "the sector"
     },
     "triage": {
       "position": "Item {{index}} of {{total}}",
@@ -4027,6 +4284,10 @@
         "decision": "Decision",
         "paid": "Paid"
       }
+    },
+    "errors": {
+      "coverCountry": "Cover is not available for this country.",
+      "coverCompany": "Cover is not available for this buyer."
     }
   },
   "declarations": {
@@ -4884,7 +5145,7 @@
     },
     "actions": {
       "addRelationship": "Record a relationship",
-      "endRelationship": "End",
+      "endRelationship": "End relationship",
       "setGroupLimit": "Set a group limit",
       "changeGroupLimit": "Change the group limit",
       "endGroupLimit": "Remove the group limit"
@@ -6200,5 +6461,441 @@
     "elsewhere_few": "{{count}} results elsewhere in the system",
     "elsewhere_many": "{{count}} results elsewhere in the system",
     "elsewhere_other": "{{count}} results elsewhere in the system"
+  },
+  "risk": {
+    "outlook": {
+      "positive": "Outlook positive",
+      "stable": "Outlook stable",
+      "negative": "Outlook negative"
+    },
+    "sector": {
+      "badgeTitle": "Sector grade {{grade}} — {{industry}}",
+      "reviewedOn": "reviewed {{date}}",
+      "stale": "review from an earlier quarter"
+    },
+    "country": {
+      "oecdShort": "OECD {{category}}",
+      "internalShort": "Cat. {{category}} (int.)",
+      "unclassifiedShort": "Not classified",
+      "oecdTitle": "OECD country risk category {{category}} (0 lowest … 7 highest)",
+      "internalTitle": "Internal category {{category}} in use (OECD: {{oecd}})",
+      "unclassifiedTitle": "Not in the OECD list — not classified, which is not category 0"
+    },
+    "sanctions": {
+      "badge": "Sanctions",
+      "badgeTitle": "Sanctioned — no cover is possible"
+    },
+    "errors": {
+      "coverCompany": "Cover is not available: the company is under sanctions. No authority can override this.",
+      "coverCountry": "Cover is not available for this country: it is under sanctions. No authority can override this.",
+      "sectorAnalystNotAnalyst": "The responsible person must hold the credit analyst role.",
+      "sectorReviewKind": "A review is quarterly or ad hoc.",
+      "sectorReviewFactors": "Score every factor: favourable, neutral or adverse.",
+      "sectorReviewNarrative": "Say what the grade rests on.",
+      "sectorReviewPending": "A review of this sector is waiting for approval.",
+      "sectorReviewDecided": "This review has already been decided.",
+      "sectorReviewOwn": "A second analyst approves a sector review — not its author.",
+      "sectorReviewRejectReason": "Say why the review is rejected.",
+      "importIncomplete": "The effective date and the file name are required.",
+      "importEmpty": "The file holds no classification.",
+      "importUnknown": "The file names countries we do not know.",
+      "importCategory": "A category must be a whole number from 0 to 7.",
+      "importDuplicate": "A country appears twice in the file.",
+      "overrideJustification": "Say why the internal category differs from the OECD one.",
+      "overridePending": "An internal category for this country is already waiting for approval.",
+      "overrideHeadOnly": "Only the head of credit analysis (a senior credit analyst) approves or ends an internal country category.",
+      "overrideDecided": "This internal category has already been decided.",
+      "overrideOwn": "Another person approves an internal country category — not its author.",
+      "overrideRejectReason": "Say why it is rejected.",
+      "overrideEndReason": "Say why the internal category ends.",
+      "sanctionsManageOnly": "Sanctions are maintained by the administrator.",
+      "sanctionsLiftReason": "Say why the flag is lifted.",
+      "concentrationScope": "Name a policy or a submission."
+    },
+    "badges": {
+      "compact": {
+        "oecd": "OECD {{category}}",
+        "internal": "Int. {{category}}",
+        "unclassified": "OECD —"
+      }
+    },
+    "decision": {
+      "sector": "Sector",
+      "sectorNotGraded": "no sector grade",
+      "country": "Country",
+      "countryInactive": "country risk not applied: no OECD list imported yet",
+      "company": "Company",
+      "sanctionLine": "{{party}}: {{regime}} — {{source}}, since {{date}}",
+      "scope": {
+        "entity": "Company",
+        "country": "Country"
+      },
+      "regimes": {
+        "UN": "UN",
+        "OFAC": "OFAC",
+        "EU": "EU",
+        "UK": "UK",
+        "national": "National",
+        "other": "Other"
+      },
+      "blockTitle": "Cover is not available",
+      "blockDeclineStill": "A decline remains possible.",
+      "warningsTitle": "Sector and country risk",
+      "noLevel": "no authority level",
+      "approveBlocked": "Approval is not possible: cover is not available for this buyer. Only a decline can be recorded.",
+      "adjustBlocked": "Cover is not available for this buyer (sanctions): the limit cannot be adjusted. Revoking the limit stays with credit underwriting.",
+      "warnings": {
+        "sectorGrade": "Sector grade {{grade}}: the buyer trades in a weak sector.",
+        "sectorOutlook": "The sector's outlook is negative.",
+        "sectorStale": "The sector review is from an earlier quarter — the sector grade may be out of date.",
+        "countryCategory": "High country risk: category {{category}} (0 lowest … 7 highest).",
+        "countryUnclassified": "The country is not classified by the OECD — which is not category 0.",
+        "rank": "Under the cover matrix this decision needs: {{required}}; you have: {{mine}}. An approval will go to validation."
+      }
+    },
+    "concentration": {
+      "title": "Concentration",
+      "hintPolicy": "The in-force limits of this policy by sector grade and country category, in UZS equivalent.",
+      "hintSubmission": "The package's buyers at the amounts requested, by sector grade and country category, in UZS equivalent.",
+      "unavailable": "The concentration could not be loaded.",
+      "emptyPolicy": "No in-force limits on this policy yet.",
+      "emptySubmission": "No buyer of the package is matched to a company yet.",
+      "blockedTitle": "Cover is not available",
+      "blockedCompany": "the company is under sanctions",
+      "blockedCountry": "its country is under sanctions",
+      "warnTitle": "Concentration above the threshold of {{pct}}",
+      "reasons": {
+        "shareCd": "{{share}} of the amount is in sectors graded C or D (threshold {{pct}}).",
+        "shareCat57": "{{share}} of the amount is in countries of category 5–7 (threshold {{pct}}).",
+        "singleCdSector": "All buyers are in one sector, graded C or D."
+      },
+      "total": "Total",
+      "shareCd": "Share in C/D sectors",
+      "shareCat57": "Share in categories 5–7",
+      "threshold": "Threshold",
+      "ratesMissing_one": "{{count}} buyer has no UZS rate for its currency — its amount is not counted (which is not zero).",
+      "ratesMissing_other": "{{count}} buyers have no UZS rate for their currency — their amounts are not counted (which is not zero).",
+      "bySector": "Sector grade",
+      "byCountry": "Country category",
+      "buyers": "Buyers",
+      "amountUzs": "Amount, UZS eq.",
+      "share": "Share",
+      "sectorNone": "No sector grade",
+      "sectorKey": "Sector {{grade}}",
+      "countryUnclassified": "Not classified",
+      "countryKey": "Category {{category}}",
+      "countryInactive": "Country risk is not applied yet: no OECD list has been imported.",
+      "loading": "Premium loading (hint)",
+      "loadingNote": "for information; the premium is not changed"
+    },
+    "trace": {
+      "title": "Sector and country",
+      "base": "base",
+      "final": "final",
+      "unchanged": "sector and country leave the grade unchanged",
+      "sectorNoChange": "Sector {{grade}}: no change",
+      "sectorNotch_one": "Sector {{grade}}: {{signed}} notch, {{from}} → {{to}}",
+      "sectorNotch_other": "Sector {{grade}}: {{signed}} notches, {{from}} → {{to}}",
+      "sectorCap": "Sector {{grade}}: cap {{cap}} — {{from}} → {{to}}",
+      "countryInactive": "Country: not applied — no OECD list imported yet",
+      "countryNoChange": "Country ({{country}}): no change",
+      "countryCap": "Country ({{country}}): cap {{cap}} — {{from}} → {{to}}",
+      "countryNotch_one": "Country ({{country}}): {{signed}} notch, {{from}} → {{to}}",
+      "countryNotch_other": "Country ({{country}}): {{signed}} notches, {{from}} → {{to}}",
+      "capSector": "Cap {{cap}} (sector): {{from}} → {{to}}",
+      "capCountry": "Cap {{cap}} (country): {{from}} → {{to}}",
+      "capBoth": "Cap {{cap}} (sector and country): {{from}} → {{to}}",
+      "country": {
+        "oecd": "OECD category {{category}}",
+        "internal": "internal category {{category}}",
+        "unclassified": "not classified"
+      },
+      "context": {
+        "sector": "sector grade {{grade}}",
+        "noSector": "no sector grade",
+        "countryInactive": "country risk not applied"
+      },
+      "contextLine": "Taken into account: {{sector}}; country — {{country}}."
+    },
+    "sectors": {
+      "subtitle": "Sector grades with their outlook and the book in each sector, and the country risk the decisions use.",
+      "views": {
+        "sectors": "Sectors",
+        "countries": "Country risk"
+      },
+      "list": {
+        "hint": "One sector per industry. A credit analyst reviews each one every quarter; a row opens the sector.",
+        "noAnalyst": "No analyst assigned",
+        "noSectors": "No sectors yet",
+        "noSectorsHint": "A sector is created for every industry in the reference data. Add the industries first.",
+        "noneGraded": "No sector has a grade yet",
+        "noneGradedHint": "A sector is graded by its first review. Open a sector to write one.",
+        "noneGradedAdmin": "Assign a responsible credit analyst to each sector: their quarterly review task appears in their Agenda."
+      },
+      "fields": {
+        "sector": "Sector",
+        "grade": "Sector grade",
+        "reviewed": "Reviewed",
+        "analyst": "Responsible analyst",
+        "companies": "Companies",
+        "buyersWithLimits": "Buyers with limits",
+        "exposure": "Exposure, UZS",
+        "state": "Attention",
+        "kind": "Review",
+        "outlook": "Outlook"
+      },
+      "missingRates_one": "+ {{count}} limit without a UZS rate, not added",
+      "missingRates_other": "+ {{count}} limits without a UZS rate, not added",
+      "filters": {
+        "label": "Show sectors",
+        "all": "All",
+        "ungraded": "Not graded",
+        "stale": "Earlier quarter",
+        "overdue": "Overdue",
+        "pending": "Awaiting approval",
+        "cd": "C–D"
+      },
+      "state": {
+        "stale": "Earlier quarter",
+        "overdue": "Review overdue",
+        "pending": "Awaiting approval"
+      },
+      "assign": {
+        "action": "Assign analyst",
+        "title": "Responsible analyst — {{sector}}",
+        "hint": "The responsible credit analyst gets the sector’s quarterly review task. An open task moves to the new analyst.",
+        "nobody": "Nobody — no quarterly task",
+        "submit": "Assign analyst",
+        "clear": "Remove the analyst",
+        "noCandidates": "Nobody holds the credit analyst role",
+        "noCandidatesHint": "Give the role to a colleague in Admin › Users & roles first."
+      },
+      "outlooks": {
+        "positive": "Positive",
+        "stable": "Stable",
+        "negative": "Negative"
+      },
+      "kinds": {
+        "quarterly": "Quarterly",
+        "ad_hoc": "Ad hoc"
+      },
+      "scores": {
+        "favourable": "Favourable",
+        "neutral": "Neutral",
+        "adverse": "Adverse"
+      },
+      "factors": {
+        "demand": "Demand",
+        "prices_margins": "Prices and margins",
+        "payment_insolvency": "Payment behaviour and insolvencies",
+        "financing": "Financing",
+        "regulation": "Regulation",
+        "technology": "Technology",
+        "import_fx": "Imports and the exchange rate"
+      },
+      "reviewStatus": {
+        "pending": "Awaiting approval",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "gradeMeaning": {
+        "A": "A — low risk: the sector’s outlook and payment behaviour are sound.",
+        "B": "B — moderate risk: some pressure, but buyers generally pay.",
+        "C": "C — elevated risk: margins, financing or payments are under strain.",
+        "D": "D — high risk: insolvencies rise; limits in the sector need review."
+      },
+      "review": {
+        "factor": "Factor",
+        "score": "Score",
+        "note": "Note",
+        "narrative": "What the grade rests on",
+        "sources": "Sources",
+        "noSources": "No sources given."
+      },
+      "form": {
+        "title": "Sector review — {{sector}}",
+        "hint": "The review comes into force as soon as it is sent.",
+        "hintFourEyes": "A second credit analyst approves the review before it comes into force.",
+        "gradeSection": "Grade and outlook",
+        "gradeHint": "A is the lowest risk, D the highest.",
+        "gradeRequired": "Choose the sector grade",
+        "outlookRequired": "Choose the outlook",
+        "factorsSection": "Factors",
+        "factorsHint": "Score every factor; a note says why. The scores of the review in force are filled in to start from.",
+        "notePlaceholder": "Why this score",
+        "noteFor": "Note: {{factor}}",
+        "textSection": "Narrative and sources",
+        "narrativeHint": "Say what the grade and the outlook rest on.",
+        "sourcesHint": "One per line. A web address becomes a link.",
+        "submit": "Put the grade in force",
+        "submitForApproval": "Send for approval"
+      },
+      "page": {
+        "eyebrow": "Sector",
+        "notGraded": "Not graded",
+        "reviewedOn": "reviewed {{date}}",
+        "analyst": "analyst: {{name}}",
+        "write": "Write a review",
+        "writeBlocked": "A review of this sector is awaiting approval: a new one can be written once it is decided.",
+        "overdue": "This quarter’s review is overdue",
+        "overdueHint": "The due day of the quarter has passed without a review. The responsible analyst has the task in their Agenda.",
+        "stale": "The grade rests on a review from an earlier quarter",
+        "staleHint": "It stays in force until this quarter’s review replaces it.",
+        "current": "The review in force",
+        "writtenBy": "written by {{name}}",
+        "approvedBy": "approved by {{name}} on {{date}}",
+        "inForceFrom": "in force since {{date}}",
+        "noReview": "No review yet",
+        "noReviewHint": "The sector is graded by a credit analyst’s first review.",
+        "noReviewWriter": "Write the first review to grade the sector.",
+        "notFound": "Sector not found",
+        "backToList": "Back to the sectors"
+      },
+      "pending": {
+        "title": "Review awaiting approval",
+        "hint": "Written by {{name}}, {{date}}. It comes into force once a second credit analyst approves it.",
+        "approve": "Approve the review",
+        "reject": "Reject the review",
+        "own": "You wrote this review: another credit analyst approves it.",
+        "readonly": "A credit analyst other than the author approves or rejects it.",
+        "rejectTitle": "Reject the sector review",
+        "rejectReason": "Why it is rejected",
+        "rejectHint": "The author reads it. The grade in force stays as it is."
+      },
+      "history": {
+        "title": "Review history",
+        "hint": "Every version, newest first. A version is never changed.",
+        "empty": "No reviews yet",
+        "emptyHint": "Each review written for the sector is kept here.",
+        "written": "Written",
+        "author": "Author",
+        "decided": "Decided",
+        "decidedBy": "{{name}}, {{date}}",
+        "status": "Status",
+        "show": "Show",
+        "hide": "Hide",
+        "comment": "Comment on the decision"
+      },
+      "charts": {
+        "gradeTitle": "Sector grade over time",
+        "gradeHint": "Each approved review from the day it came into force; A at the top.",
+        "gradeEmpty": "No sector grade yet",
+        "gradeAria_one": "Sector grade over time, {{count}} review",
+        "gradeAria_other": "Sector grade over time, {{count}} reviews",
+        "today": "Today",
+        "exposureTitle": "Active limits by the month they took effect",
+        "exposureHint": "Today’s active limits in the sector, added up from the month each took effect, in UZS. Not the past exposure: limits since revoked or expired are not in it.",
+        "exposureEmpty": "No active limits in the sector",
+        "exposureAria": "Active limits in the sector by the month they took effect, cumulative, UZS",
+        "cumulative": "Total so far",
+        "addedThisMonth": "Total so far (+{{amount}} this month)",
+        "exposureTotal": "Total: {{amount}} UZS",
+        "missingRates_one": "{{count}} limit without a UZS rate is not in the chart.",
+        "missingRates_other": "{{count}} limits without a UZS rate are not in the chart.",
+        "undated_one": "{{count}} limit without a start date is not in the chart.",
+        "undated_other": "{{count}} limits without a start date are not in the chart."
+      },
+      "buyers": {
+        "title": "Companies in the sector by rating grade",
+        "hint": "Their own rating grade, their active limits and the exposure in UZS.",
+        "titleWeak": "Buyers with active limits in a C–D sector",
+        "hintWeak": "Credit underwriting reviews these limits after a downgrade to C or D: keep, reduce or revoke.",
+        "scope": "Which companies",
+        "withLimits": "With limits",
+        "all": "All",
+        "company": "Company",
+        "country": "Country",
+        "rating": "Grade",
+        "limits": "Active limits",
+        "unrated": "Not rated",
+        "noRate": "No UZS rate",
+        "empty": "No companies in this sector",
+        "emptyHint": "A company joins the sector through its industry on the company card.",
+        "noLimits": "No active limits in this sector",
+        "noLimitsHint": "Show all companies to see the sector’s other companies."
+      }
+    },
+    "countries": {
+      "hint": "The OECD category of the latest imported list, the internal category where one is approved, and sanctions. Decisions use the internal category first.",
+      "fields": {
+        "country": "Country",
+        "oecd": "OECD category",
+        "internal": "Internal category",
+        "inUse": "In use",
+        "sanctions": "Sanctions",
+        "pending": "Proposal"
+      },
+      "source": {
+        "oecd": "OECD",
+        "internal": "internal"
+      },
+      "filters": {
+        "label": "Show countries",
+        "all": "All",
+        "high": "Category 5–7",
+        "internal": "Internal",
+        "sanctioned": "Sanctions",
+        "unclassified": "Not classified"
+      },
+      "list": {
+        "current": "OECD list effective {{effective}}, imported {{imported}}.",
+        "stale": "The OECD list is out of date",
+        "staleHint": "Ask the administrator to import the current one.",
+        "none": "No OECD list has been imported",
+        "noneHint": "Every country is not classified, and the cover matrix is not active yet — except where an internal category is approved. The administrator imports the list."
+      },
+      "pending": {
+        "title": "Internal categories awaiting approval",
+        "hint": "The head of credit analysis approves or rejects each one — never their own.",
+        "marker": "Awaiting approval",
+        "proposed": "Proposed by {{name}}, {{date}} · OECD: {{oecd}}",
+        "approve": "Approve the category",
+        "reject": "Reject the category",
+        "own": "You proposed it: another head of credit analysis approves it.",
+        "notHead": "Only the head of credit analysis approves an internal category.",
+        "readonly": "Waiting for the head of credit analysis.",
+        "rejectTitle": "Reject the internal category — {{country}}",
+        "rejectReason": "Why it is rejected"
+      },
+      "propose": {
+        "action": "Propose an internal category",
+        "title": "Propose an internal country category",
+        "hint": "On the OECD scale, 0 the lowest risk and 7 the highest. Once the head of credit analysis approves it, decisions use it in place of the OECD category.",
+        "now": "In use now:",
+        "category": "Internal category",
+        "categoryHint": "0 — lowest risk, 7 — highest.",
+        "categoryRequired": "Choose a category from 0 to 7",
+        "countryRequired": "Choose the country",
+        "justification": "Justification",
+        "justificationHint": "Why the internal category differs from the OECD one. The head of credit analysis reads it.",
+        "submit": "Send for approval"
+      },
+      "end": {
+        "action": "End the category",
+        "title": "End the internal category — {{country}}",
+        "intro": "Decisions go back to the OECD category (or «not classified»). The category stays in the history.",
+        "reason": "Why it ends"
+      },
+      "history": {
+        "title": "Internal category history",
+        "hint": "Every proposal and what became of it; nothing is deleted.",
+        "empty": "No internal categories yet",
+        "emptyHint": "A credit analyst proposes one where the OECD category does not reflect our view of the country.",
+        "status": "Status",
+        "proposed": "Proposed",
+        "outcome": "Outcome",
+        "proposedBy": "{{name}}, {{date}}",
+        "approvedBy": "Approved by {{name}}, {{date}}",
+        "rejectedBy": "Rejected by {{name}}, {{date}}",
+        "endedBy": "Ended by {{name}}, {{date}}: {{reason}}",
+        "replaced": "replaced by a newer category"
+      },
+      "overrideStatus": {
+        "pending": "Awaiting approval",
+        "approved": "In use",
+        "rejected": "Rejected",
+        "ended": "Ended"
+      }
+    }
   }
 }

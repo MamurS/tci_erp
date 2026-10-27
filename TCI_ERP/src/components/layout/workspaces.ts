@@ -38,11 +38,12 @@ export const WORKSPACES: readonly Workspace[] = [
   {
     key: 'credit',
     role: 'credit_underwriter',
-    items: ['limits', 'requests', 'overdues', 'declarations', 'claims'],
+    items: ['limits', 'sectors', 'requests', 'overdues', 'declarations', 'claims'],
   },
   // «Кредитный анализ» (0069): rating buyers and confirming ratings — the
   // analysis views of «Кредитные лимиты», never the decision queue.
-  { key: 'analysis', role: 'credit_analyst', items: ['limits'] },
+  // «Сектора» (0085): sector grades and country risk, beside the limits.
+  { key: 'analysis', role: 'credit_analyst', items: ['limits', 'sectors'] },
   {
     key: 'sales',
     role: 'sales',
@@ -55,7 +56,7 @@ export const WORKSPACES: readonly Workspace[] = [
   {
     key: 'admin',
     role: 'admin',
-    items: ['admin', 'policies', 'requests', 'limits', 'declarations', 'overdues', 'claims', 'data'],
+    items: ['admin', 'policies', 'requests', 'limits', 'sectors', 'declarations', 'overdues', 'claims', 'data'],
   },
 ]
 

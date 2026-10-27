@@ -12,6 +12,7 @@ import { useEntities } from '../entities/api'
 import { EntityPicker } from '../entities/EntityPicker'
 import { EntityFormModal } from '../entities/EntityFormModal'
 import { useResolveRequestBuyer } from './api'
+import { refusalOr } from '../../lib/optimistic'
 import { canResolveBuyers } from './machine'
 import { resolutionSeed } from './resolutionSeed'
 import type { InsuranceRequestWithRefs, RequestBuyerWithRefs } from './types'
@@ -84,8 +85,9 @@ function ResolveRow({
     setError(null)
     try {
       await resolve.mutateAsync({ buyerRowId: buyer.id, entityId })
-    } catch {
-      setError(t('requests.resolveFailed'))
+    } catch (failure) {
+      // A sanctioned company cannot join a package (0085): said by name.
+      setError(t(refusalOr(failure, 'requests.resolveFailed')))
     }
   }
 
@@ -150,7 +152,7 @@ function ResolveRow({
           setEntityId(entity.id)
           void resolve
             .mutateAsync({ buyerRowId: buyer.id, entityId: entity.id })
-            .catch(() => setError(t('requests.resolveFailed')))
+            .catch((failure: unknown) => setError(t(refusalOr(failure, 'requests.resolveFailed'))))
         }}
       />
     </div>

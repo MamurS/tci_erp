@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 
 import { AmountInput, Button, Callout, Field, Modal, Textarea } from '../../components/ui'
 import { parseAmount } from '../../components/ui/amount'
-import { refusalOr } from '../../lib/optimistic'
+import { clientRefusalOr } from '../risk/integration'
 import { DlNote } from '../limits/DlNote'
 import { useChangeLimitRequest } from './api'
 import { isUnchanged } from './requestChanges'
@@ -50,7 +50,9 @@ export function ChangeLimitRequestModal({
       await change.mutateAsync({ id: request.id, mode, ...next })
       onDone(t(mode === 'amend' ? 'portal.limits.change.doneAmended' : 'portal.limits.change.doneReplaced'))
     } catch (failure) {
-      setError(t(refusalOr(failure, 'portal.limits.change.failed')))
+      // A replacement is a new request: no cover (0085) is said in the
+      // client's own words, never as sanctions.
+      setError(t(clientRefusalOr(failure, 'portal.limits.change.failed')))
     }
   }
 

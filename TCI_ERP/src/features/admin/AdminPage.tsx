@@ -13,11 +13,12 @@ import { AutoDecisionSettingsCard } from './AutoDecisionSettingsCard'
 import { CreditAnalysisModeCard } from './CreditAnalysisModeCard'
 import { RatingWeightsCard } from './RatingWeightsCard'
 import { AuthorityLevelsCard } from './AuthorityLevelsCard'
+import { RiskTab } from './risk/RiskTab'
 import { SecurityTab } from './SecurityTab'
 import { UsersRolesTab } from './UsersRolesTab'
 import { useAdminUsers } from './api'
 
-type TabKey = 'users' | 'authorities' | 'security'
+type TabKey = 'users' | 'authorities' | 'risk' | 'security'
 
 export function AdminPage() {
   const { t } = useTranslation()
@@ -27,7 +28,7 @@ export function AdminPage() {
 
   const requested = searchParams.get('tab')
   const activeTab: TabKey =
-    requested === 'authorities' ? 'authorities' : requested === 'security' ? 'security' : 'users'
+    requested === 'authorities' || requested === 'risk' || requested === 'security' ? requested : 'users'
   const selectedUser = users?.find((u) => u.user_id === selectedUserId) ?? null
 
   return (
@@ -46,6 +47,7 @@ export function AdminPage() {
         tabs={[
           { key: 'users', label: t('admin.tabs.users') },
           { key: 'authorities', label: t('admin.tabs.authorities') },
+          { key: 'risk', label: t('admin.tabs.risk') },
           { key: 'security', label: t('admin.tabs.security') },
         ]}
         active={activeTab}
@@ -76,6 +78,8 @@ export function AdminPage() {
             <AuthoritiesTab user={selectedUser} />
           </div>
         )}
+        {/* OECD list, sanctions, cover matrix, risk settings (0085). */}
+        {activeTab === 'risk' && <RiskTab />}
         {activeTab === 'security' && <SecurityTab />}
       </div>
     </div>

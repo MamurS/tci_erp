@@ -30,6 +30,7 @@ import { liabilityBasis, liabilityColumns } from './maxLiability'
 import type { LiabilityBasis } from './maxLiability'
 import { ChoiceField, MaxLiabilityField } from './termInputs'
 import { validatePolicy } from './validation'
+import { refusalOr } from '../../lib/optimistic'
 import type { PolicyFormValues } from './validation'
 import { DECLARATION_FREQUENCIES, PRODUCT_STRUCTURES } from './types'
 import type { DeclarationFrequency, ProductStructure } from './types'
@@ -100,7 +101,9 @@ export function PolicyFormPage() {
     entity_id: searchParams.get('entity') ?? searchParams.get('policyholder') ?? '',
   })
   const [submitted, setSubmitted] = useState(false)
-  const [saveError, setSaveError] = useState(false)
+  // The i18n key of why the save failed: a deliberate refusal by name (no
+  // cover for a sanctioned policyholder, 0085), else the generic one.
+  const [saveError, setSaveError] = useState<string | null>(null)
 
   useEffect(() => {
     if (isEdit && existing) {
@@ -179,7 +182,7 @@ export function PolicyFormPage() {
 
   const handleSave = async () => {
     setSubmitted(true)
-    setSaveError(false)
+    setSaveError(null)
     if (blocked) return
     const input: PolicyInput = {
       entity_id: values.entity_id,
@@ -212,8 +215,8 @@ export function PolicyFormPage() {
         const created = await createPolicy.mutateAsync(input)
         void navigate(`/policies/${created.id}`)
       }
-    } catch {
-      setSaveError(true)
+    } catch (failure) {
+      setSaveError(refusalOr(failure, 'common.saveFailed'))
     }
   }
 
@@ -440,7 +443,7 @@ export function PolicyFormPage() {
       <div className="sticky bottom-0 z-20 -mx-4 mt-6 -mb-6 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-4px_12px_-6px_rgb(0_36_60/0.12)] backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:-mb-7 lg:px-8">
         {saveError ? (
           <p className="mr-auto text-small text-neg-500" role="alert">
-            {t('common.saveFailed')}
+            {t(saveError)}
           </p>
         ) : (
           submitted &&

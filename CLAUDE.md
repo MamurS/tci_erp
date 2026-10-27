@@ -1027,6 +1027,32 @@ is fine for internal test accounts and not fine for customers.
   committed file), identical to a replay of 0083 afterwards; smoke with a
   forced rollback (six refused, five accepted, sales still refused), counts
   unchanged, no new advisor finding
+- [x] Sector, country and sanctions risk (Prompt 31, migrations
+  0084–0085): one sector per industry with versioned A–D reviews (outlook,
+  seven factors, optional four eyes, stale / overdue, the quarterly task),
+  OECD country risk imports with an internal override (head of credit
+  analysis approves), sanctions flags that refuse cover in SQL on every
+  path, the cover matrix (a rank floor by country category, +1 for a D
+  sector) in `decide_limit_request` / `submit_limit_for_validation` and the
+  auto decision, credit_engine 0.2.0 notches and caps, «Сектора» and the
+  badges, warnings and concentration panel on the working screens. See
+  **Sector, country and sanctions rules** above. **Canonical: 0084 and
+  0085 sections 1–13 applied 2026-10-27** (section 10 rebuilt from the
+  functions' own bodies), all 45 0085 functions, policies and views
+  identical to a local replay, `tests/db/sector_country_risk.sql` run on
+  canonical with role impersonation (forced rollback, nothing left behind,
+  counts unchanged), no new advisor finding; section 14 (the five removal
+  guards) and the ledger row by the owner with
+  `docs/deploy/canonical-apply-0085.sql` (2026-10-27, since removed — in
+  git history), verified afterwards: the five BEFORE DELETE row triggers
+  present, enabled and identical to a local replay, one ledger row for
+  0085, the data counts unchanged. **Data loaded 2026-10-27 at the
+  owner's request:** the OECD list valid as of 16 October 2026 (176
+  countries; high-income footnotes 6/7/8 as category 0, note 5 left
+  unclassified, Kosovo left out — not in `tci.countries`), and an initial
+  grade for all 21 sectors (1 A, 11 B, 9 C), each marked in its narrative
+  as AI-proposed from general knowledge, to be confirmed at the next
+  quarterly review
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2513,6 +2539,83 @@ suspends it with the first reason and opens `adt_review`, which closes on
 mark «Авторешение (ADT)»; the parameters, attempts and report
 (`v_auto_decisions`, security invoker) are RLS-limited to admin and credit
 underwriting, and every ADT function refuses other roles with `42501`.
+
+### Sector, country and sanctions rules (migrations 0084–0085)
+
+**A sector grade is a version, never an edit.** `tci.sectors` has one row per
+industry (a trigger adds one for a new industry) with the credit analyst admin
+made responsible. `tci.sector_reviews` holds every review: grade A–D, outlook,
+the seven factors (`tci.sector_factor_keys()`, each favourable / neutral /
+adverse with a note), the narrative and the sources. The grade in force is the
+latest APPROVED review (`decided_at`, stamped with `clock_timestamp()` so two
+reviews in one transaction still order). With `sector_review_four_eyes` (off by
+default) a review is `pending` until another analyst approves it; one pending
+per sector; nothing is changed once decided and nothing is deleted. An ad hoc
+review supersedes at once. A review of an earlier quarter is STALE
+(`v_sector_grades.stale`); no review of this quarter past the due day
+(`sector_review_due_day`, 15) is OVERDUE.
+
+**The quarterly task is lazy.** `tci.refresh_sector_tasks()` (called by
+`refresh_agenda`, no cron) opens `sector_review_due` for each sector with a
+responsible analyst and no review of this quarter, addressed to that person as
+a credit analyst (0077's `target_role`), due on the due day at 23:59 Tashkent,
+and cancels an earlier quarter's. The industry's names ride on the task in the
+three languages (`industry_names`); the Agenda renders the reader's.
+
+**A downgrade to C or D tells credit underwriting.** `sector_review_in_force`
+opens `sector_downgrade_review` (manual close) when the grade worsens into C or
+D and buyers in the sector hold in-force limits, listing up to 25 of them.
+
+**Country risk: the OECD list as published, an override with four eyes.**
+`import_country_risk` (admin) stores one immutable import per file; the latest
+(effective date, then import time) is in use; a country absent from it is NOT
+CLASSIFIED — never category 0. `propose_country_override` (a credit analyst,
+justification required) waits for the head of credit analysis — a SENIOR credit
+analyst (0074's flag), never the proposer — who approves, rejects or later
+ends it. Decisions use the internal category while it is approved; both values
+are shown. `v_country_risk.import_stale` is true past `oecd_stale_months` (6)
+or when no list exists.
+
+**Sanctions mean no cover, in SQL, on every path.** A live flag (effective,
+not lifted) on a country or a company makes `tci.cover_block_internal` answer
+`company` or `country`. Triggers refuse a new limit request, an approving or
+partial decision, a submission, a buyer in a package and a policy for a
+flagged buyer or policyholder (`cover_not_available: company|country`, P0001)
+— whoever writes, the owner's scripts and the committee included; a decline, a
+reduction to nothing and a revocation stay possible. The refusal names no
+regime: the portal shows the client only «cover is not available for this
+country / buyer». `set_sanction_flag` (admin today; `tci.may_manage_sanctions`
+is the one place a compliance role will be added) opens an urgent
+`sanctions_limit_review` per in-force limit and returns the count; nothing is
+revoked automatically. Flags are lifted with a reason, never deleted.
+
+**The cover matrix is a rank floor.** `tci.cover_required_rank_internal`
+= the country key's `rank_floor` (internal category first, then OECD, else
+`unclassified`) + the sector grade's `rank_add`, at most 5 (the committee).
+Defaults: 0–3 → 0, 4–5 → 3, 6 → 4, 7 and not classified → 5, sector D +1.
+`decide_limit_request` answers `needs_validation` (with `required_rank`) when
+the decider's `user_rank` is below it, and `submit_limit_for_validation`
+routes from `greatest(rank, required − 1)`, so the step lands at that rank or
+above. **The country part is silent until the first OECD import** (or an
+approved override for that country): an empty list would make every country
+«not classified» and send every decision to the committee. It applies to
+credit decisions, not to commercial adjustments. An auto decision is refused
+(`cover_restricted`) whenever a block or a rank above 0 applies.
+
+**The engine takes the context, the screens build it.** The rating sends
+`risk_context` (`engineRiskContext` in `src/features/risk/rules.ts`): the
+sector grade, the country category (silent as above) and the admin's notches
+and caps from `risk_adjustment_settings`. credit_engine 0.2.0 notches along
+A1…D (clamped), applies the worst cap (categories 6–7 cap at C1), moves the
+score into the adjusted band so the limit follows the grade, and writes each
+step as a trace line; without a context the output is byte-identical.
+
+**Concentration is a hint, never a price.** `tci.cover_concentration(policy |
+submission)` splits the book by sector grade and country category, warns
+above `concentration_warn_pct` (40) for the C/D or the 5–7 share or when every
+buyer sits in one C/D sector, lists blocked parties, and computes an
+exposure-weighted premium loading hint from the table. Staff only, like every
+0085 table and view (RLS `is_staff()`, no API write).
 
 ### Credit workbench rules (migration 0053)
 

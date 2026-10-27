@@ -24,6 +24,7 @@ import { useEffectiveLimits, useLimitRequests, useSalesWindowHours } from './api
 import { isOpen, outcomeTone, statusTone } from './machine'
 import { ReleaseBadge } from './ReleaseBadge'
 import { RequestLimitModal } from './RequestLimitModal'
+import { EntityRiskBadges } from '../risk/integrationBadges'
 
 export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
   const { t, i18n } = useTranslation()
@@ -111,6 +112,7 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
                           {buyerName(limit.entity_id)}
                         </Link>
                       </Truncate>
+                      <EntityRiskBadges entityId={limit.entity_id} />
                       {open && (
                         <Link to={`/limits/${open.id}`} className="shrink-0">
                           <Badge tone={statusTone(open.status)}>
@@ -199,11 +201,14 @@ export function PolicyLimitsSection({ policy }: { policy: PolicyWithRefs }) {
             {openOnly.map((r) => (
               <LinkRow key={r.id} to={`/limits/${r.id}`} className="transition-colors hover:bg-slate-50">
                 <td>
-                  <Truncate text={buyerName(r.entity_id)} className="max-w-none min-w-0">
-                    <Link to={`/entities/${r.entity_id}`} className="font-medium text-accent-700 hover:underline">
-                      {buyerName(r.entity_id)}
-                    </Link>
-                  </Truncate>
+                  <div className="flex min-w-0 items-center gap-2">
+                    <Truncate text={buyerName(r.entity_id)} className="max-w-none min-w-0">
+                      <Link to={`/entities/${r.entity_id}`} className="font-medium text-accent-700 hover:underline">
+                        {buyerName(r.entity_id)}
+                      </Link>
+                    </Truncate>
+                    <EntityRiskBadges entityId={r.entity_id} />
+                  </div>
                 </td>
                 <td>
                   <span className="num block">

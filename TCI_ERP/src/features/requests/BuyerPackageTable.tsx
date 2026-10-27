@@ -22,6 +22,7 @@ import {
 } from '../../components/ui'
 import { EM_DASH, formatAmount } from '../../lib/format'
 import { ReleaseBadge } from '../limits/ReleaseBadge'
+import { EntityRiskBadges } from '../risk/integrationBadges'
 import { useEffectiveLimits, useLimitRequests, useSalesWindowHours } from '../limits/api'
 import { outcomeTone, statusTone as limitStatusTone } from '../limits/machine'
 import { resolutionTone } from './machine'
@@ -88,17 +89,21 @@ export function BuyerPackageTable({
               const noCover = limit && (limit.outcome === 'revoked' || limit.outcome === 'declined')
               return (
                 <tr key={buyer.id}>
-                  {/* One line per buyer: the name cut with a tooltip when long. */}
+                  {/* One line per buyer: the name cut with a tooltip when long,
+                      its sector and country badges after it (Prompt 31). */}
                   <td>
-                    <Truncate text={name} className="max-w-none">
-                      {buyer.entity_id ? (
-                        <Link to={`/entities/${buyer.entity_id}`} className="font-medium text-accent-700 hover:underline">
-                          {name ?? EM_DASH}
-                        </Link>
-                      ) : (
-                        <span className="text-slate-800">{name ?? EM_DASH}</span>
-                      )}
-                    </Truncate>
+                    <div className="flex min-w-0 items-center gap-2">
+                      <Truncate text={name} className="max-w-none min-w-0">
+                        {buyer.entity_id ? (
+                          <Link to={`/entities/${buyer.entity_id}`} className="font-medium text-accent-700 hover:underline">
+                            {name ?? EM_DASH}
+                          </Link>
+                        ) : (
+                          <span className="text-slate-800">{name ?? EM_DASH}</span>
+                        )}
+                      </Truncate>
+                      <EntityRiskBadges entityId={buyer.entity_id} />
+                    </div>
                   </td>
                   <td className="num">
                     {formatAmount(Number(buyer.requested_amount), locale)}

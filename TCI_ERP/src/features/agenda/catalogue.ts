@@ -95,6 +95,18 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   // proposer's notice of the result is the seventh manual type.
   rating_proposal: 'auto',
   rating_proposal_result: 'manual',
+  // Sector grades and country risk (migration 0085): the quarterly review
+  // closes with the review (refresh_sector_tasks retires an earlier
+  // quarter's), the approval with the second analyst's answer, the override
+  // with the head's. A downgrade's buyer review and a sanctions review are
+  // read and acted on by credit underwriting — revoke, reduce or keep — so
+  // they are closed by hand (sanctions also closes itself once nothing on
+  // that request is in force).
+  sector_review_due: 'auto',
+  sector_review_approval: 'auto',
+  sector_downgrade_review: 'manual',
+  sanctions_limit_review: 'manual',
+  country_override_approval: 'auto',
 }
 
 /** Mirrors tci.complete_task's guard (as 0060 restates it): it refuses
@@ -192,6 +204,10 @@ export function taskLink(
       const entityId = task.params?.entity_id
       return typeof entityId === 'string' ? `/entities/${entityId}?tab=rating&focus=rating-proposal` : null
     }
+    case 'sector':
+      return `/sectors/${task.object_id}`
+    case 'country_risk_override':
+      return `/sectors?view=countries&override=${task.object_id}`
     default:
       return null
   }
@@ -267,6 +283,7 @@ export const SUBJECT_IN_TITLE: ReadonlySet<TaskType> = new Set<TaskType>([
   'limit_review_due',
   'rating_stale',
   'rating_new_statements',
+  'sanctions_limit_review',
 ])
 
 export function groupOf(task: Pick<Task, 'due_at' | 'priority'>, now: Date): AgendaGroup {
@@ -324,6 +341,8 @@ export const OBJECT_FILTERS = [
   'commercial_offer',
   'limit_validation',
   'rating_proposal_step',
+  'sector',
+  'country_risk_override',
 ] as const satisfies readonly TaskObjectType[]
 
 export interface AgendaFilters {
@@ -398,6 +417,15 @@ export function formatTaskParams(
     else if (key === 'amount' && value !== null && value !== '' && Number.isFinite(Number(value)))
       out[key] = formatAmount(Number(value), locale)
     else out[key] = value
+  }
+  // A sector task (0085) carries its industry's name in the three languages;
+  // the title takes the reader's.
+  const names = params?.industry_names
+  if (names && typeof names === 'object') {
+    const byLang = names as Record<string, unknown>
+    const lang = locale.slice(0, 2)
+    const name = byLang[lang] ?? byLang.en
+    if (typeof name === 'string' && name !== '') out.industry = name
   }
   return out
 }

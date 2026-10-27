@@ -1,0 +1,449 @@
+{
+  "company_name": "Distressed JSC",
+  "assessed_year": 2025,
+  "currency": "USD",
+  "rating": {
+    "score": 88.0,
+    "grade": "D",
+    "grade_label_key": "grade.unacceptable",
+    "factors": [
+      {
+        "factor": "net_profitability",
+        "value": -0.16666666666666666,
+        "score": 99.0,
+        "weight": 7.0,
+        "status": "scored",
+        "band_label": "deep_loss",
+        "note": null
+      },
+      {
+        "factor": "equity_ratio",
+        "value": -0.05714285714285714,
+        "score": 97.0,
+        "weight": 15.0,
+        "status": "scored",
+        "band_label": "negative",
+        "note": null
+      },
+      {
+        "factor": "debt_to_assets",
+        "value": 0.42857142857142855,
+        "score": 58.0,
+        "weight": 1.0,
+        "status": "scored",
+        "band_label": "elevated",
+        "note": null
+      },
+      {
+        "factor": "total_assets_dynamic",
+        "value": -0.3,
+        "score": 80.0,
+        "weight": 3.0,
+        "status": "scored",
+        "band_label": "strong_decline",
+        "note": null
+      },
+      {
+        "factor": "current_ratio",
+        "value": 2.0,
+        "score": 54.0,
+        "weight": 3.0,
+        "status": "scored",
+        "band_label": "adequate",
+        "note": null
+      },
+      {
+        "factor": "interest_coverage",
+        "value": -2.7333333333333334,
+        "score": 99.0,
+        "weight": 6.0,
+        "status": "scored",
+        "band_label": "negative",
+        "note": null
+      },
+      {
+        "factor": "interest_coverage_dynamic",
+        "value": -1.3153846153846154,
+        "score": 60.0,
+        "weight": 2.0,
+        "status": "scored",
+        "band_label": "deteriorating",
+        "note": null
+      },
+      {
+        "factor": "debt_to_equity",
+        "value": -7.5,
+        "score": 24.0,
+        "weight": 2.0,
+        "status": "scored",
+        "band_label": "negative_or_zero",
+        "note": null
+      },
+      {
+        "factor": "cash_conversion_cycle",
+        "value": 133.83333333333334,
+        "score": 79.0,
+        "weight": 2.0,
+        "status": "scored",
+        "band_label": "very_long",
+        "note": null
+      },
+      {
+        "factor": "revenue_usd",
+        "value": 30000000.0,
+        "score": 64.0,
+        "weight": 3.0,
+        "status": "scored",
+        "band_label": "lower_mid",
+        "note": null
+      },
+      {
+        "factor": "age_years",
+        "value": 9.0,
+        "score": 29.0,
+        "weight": 1.0,
+        "status": "scored",
+        "band_label": "mature",
+        "note": null
+      },
+      {
+        "factor": "debt_to_ebit",
+        "value": -3.658536585365854,
+        "score": 24.0,
+        "weight": 4.0,
+        "status": "scored",
+        "band_label": "negative_or_zero",
+        "note": null
+      },
+      {
+        "factor": "revenue_dynamic",
+        "value": -0.625,
+        "score": 96.0,
+        "weight": 58.0,
+        "status": "scored",
+        "band_label": "collapse",
+        "note": null
+      }
+    ],
+    "adjustments": [],
+    "data_coverage": 1.0,
+    "warnings": []
+  },
+  "limit": {
+    "recommended_limit": 0.0,
+    "currency": "USD",
+    "model_used": "none",
+    "models": [
+      {
+        "model": "benchmark",
+        "limit": 0.0,
+        "currency": "USD",
+        "components": {
+          "risk_coefficient": 0.0,
+          "material_capital": 0.0,
+          "working_capital_component": 0.0,
+          "trade_component": 0.0,
+          "dso_days": 121.66666666666667
+        },
+        "reasons": []
+      },
+      {
+        "model": "equity_based",
+        "limit": 0.0,
+        "currency": "USD",
+        "components": {
+          "equity_usd": -2000000.0,
+          "limit_usd": 0.0
+        },
+        "reasons": [
+          "equity is zero, negative or unknown",
+          "net result is a loss or unknown"
+        ]
+      }
+    ],
+    "reasons": [
+      "rating 88 is worse than 75"
+    ]
+  },
+  "ratio_reports": [
+    {
+      "year": 2024,
+      "ratios": {
+        "gross_debt": 15000000.0,
+        "gross_profit": 20000000.0,
+        "ebit": 13000000.0,
+        "equity_ratio": 0.5,
+        "net_working_capital": 15000000.0,
+        "current_ratio": 2.0,
+        "quick_ratio": 1.4666666666666666,
+        "cash_ratio": 0.3333333333333333,
+        "debt_to_equity": 0.6,
+        "debt_to_assets": 0.3,
+        "debt_to_ebit": 1.1538461538461537,
+        "gross_margin": 0.25,
+        "operating_margin": 0.1625,
+        "ebit_margin": 0.1625,
+        "net_profitability": 0.1125,
+        "return_on_assets": 0.18,
+        "return_on_equity": 0.36,
+        "days_inventory_outstanding": 48.666666666666664,
+        "days_sales_outstanding": 45.625,
+        "days_payable_outstanding": 36.5,
+        "cash_conversion_cycle": 57.79166666666666,
+        "interest_coverage": 8.666666666666666,
+        "free_cash_flow": null,
+        "total_operating_costs": 7000000.0,
+        "operating_costs_to_revenue": 0.0875,
+        "revenue": 80000000.0,
+        "net_profit": 9000000.0,
+        "total_assets": 50000000.0,
+        "equity": 25000000.0,
+        "interest_expenses": -1500000.0,
+        "accounts_payable": 6000000.0,
+        "non_current_assets": 20000000.0,
+        "intangible_assets": 1000000.0,
+        "current_assets": 30000000.0,
+        "inventories": 8000000.0,
+        "accounts_receivable": 10000000.0,
+        "cash": 5000000.0,
+        "operating_cash_flow": null,
+        "capital_expenditures": null
+      },
+      "dynamics": {}
+    },
+    {
+      "year": 2025,
+      "ratios": {
+        "gross_debt": 15000000.0,
+        "gross_profit": -30000000.0,
+        "ebit": -4100000.0,
+        "equity_ratio": -0.05714285714285714,
+        "net_working_capital": 15000000.0,
+        "current_ratio": 2.0,
+        "quick_ratio": 1.4666666666666666,
+        "cash_ratio": 0.3333333333333333,
+        "debt_to_equity": -7.5,
+        "debt_to_assets": 0.42857142857142855,
+        "debt_to_ebit": -3.658536585365854,
+        "gross_margin": -1.0,
+        "operating_margin": -0.13333333333333333,
+        "ebit_margin": -0.13666666666666666,
+        "net_profitability": -0.16666666666666666,
+        "return_on_assets": -0.14285714285714285,
+        "return_on_equity": 2.5,
+        "days_inventory_outstanding": 48.666666666666664,
+        "days_sales_outstanding": 121.66666666666667,
+        "days_payable_outstanding": 36.5,
+        "cash_conversion_cycle": 133.83333333333334,
+        "interest_coverage": -2.7333333333333334,
+        "free_cash_flow": null,
+        "total_operating_costs": 7000000.0,
+        "operating_costs_to_revenue": 0.23333333333333334,
+        "revenue": 30000000.0,
+        "net_profit": -5000000.0,
+        "total_assets": 35000000.0,
+        "equity": -2000000.0,
+        "interest_expenses": -1500000.0,
+        "accounts_payable": 6000000.0,
+        "non_current_assets": 20000000.0,
+        "intangible_assets": 1000000.0,
+        "current_assets": 30000000.0,
+        "inventories": 8000000.0,
+        "accounts_receivable": 10000000.0,
+        "cash": 5000000.0,
+        "operating_cash_flow": null,
+        "capital_expenditures": null
+      },
+      "dynamics": {
+        "revenue": -0.625,
+        "net_profit": -1.5555555555555556,
+        "total_assets": -0.3,
+        "equity": -1.08,
+        "gross_debt": 0.0,
+        "gross_profit": -2.5,
+        "ebit": -1.3153846153846154,
+        "net_working_capital": 0.0,
+        "current_ratio": 0.0,
+        "equity_ratio": -1.1142857142857143,
+        "debt_to_equity": -13.5,
+        "net_profitability": -2.4814814814814814,
+        "interest_coverage": -1.3153846153846154,
+        "cash_conversion_cycle": 1.315789473684211,
+        "free_cash_flow": null
+      }
+    }
+  ],
+  "findings": [
+    {
+      "code": "factor.revenue_dynamic",
+      "section": "factors",
+      "severity": "critical",
+      "params": {
+        "factor": "revenue_dynamic",
+        "value": -0.625,
+        "score": 96.0,
+        "weight": 58.0,
+        "band": "collapse"
+      }
+    },
+    {
+      "code": "factor.equity_ratio",
+      "section": "factors",
+      "severity": "critical",
+      "params": {
+        "factor": "equity_ratio",
+        "value": -0.05714285714285714,
+        "score": 97.0,
+        "weight": 15.0,
+        "band": "negative"
+      }
+    },
+    {
+      "code": "factor.net_profitability",
+      "section": "factors",
+      "severity": "critical",
+      "params": {
+        "factor": "net_profitability",
+        "value": -0.16666666666666666,
+        "score": 99.0,
+        "weight": 7.0,
+        "band": "deep_loss"
+      }
+    },
+    {
+      "code": "factor.interest_coverage",
+      "section": "factors",
+      "severity": "critical",
+      "params": {
+        "factor": "interest_coverage",
+        "value": -2.7333333333333334,
+        "score": 99.0,
+        "weight": 6.0,
+        "band": "negative"
+      }
+    },
+    {
+      "code": "factor.debt_to_ebit",
+      "section": "factors",
+      "severity": "strength",
+      "params": {
+        "factor": "debt_to_ebit",
+        "value": -3.658536585365854,
+        "score": 24.0,
+        "weight": 4.0,
+        "band": "negative_or_zero"
+      }
+    },
+    {
+      "code": "factor.current_ratio",
+      "section": "factors",
+      "severity": "neutral",
+      "params": {
+        "factor": "current_ratio",
+        "value": 2.0,
+        "score": 54.0,
+        "weight": 3.0,
+        "band": "adequate"
+      }
+    },
+    {
+      "code": "factor.revenue_usd",
+      "section": "factors",
+      "severity": "weakness",
+      "params": {
+        "factor": "revenue_usd",
+        "value": 30000000.0,
+        "score": 64.0,
+        "weight": 3.0,
+        "band": "lower_mid"
+      }
+    },
+    {
+      "code": "factor.total_assets_dynamic",
+      "section": "factors",
+      "severity": "weakness",
+      "params": {
+        "factor": "total_assets_dynamic",
+        "value": -0.3,
+        "score": 80.0,
+        "weight": 3.0,
+        "band": "strong_decline"
+      }
+    },
+    {
+      "code": "factor.debt_to_equity",
+      "section": "factors",
+      "severity": "strength",
+      "params": {
+        "factor": "debt_to_equity",
+        "value": -7.5,
+        "score": 24.0,
+        "weight": 2.0,
+        "band": "negative_or_zero"
+      }
+    },
+    {
+      "code": "factor.interest_coverage_dynamic",
+      "section": "factors",
+      "severity": "weakness",
+      "params": {
+        "factor": "interest_coverage_dynamic",
+        "value": -1.3153846153846154,
+        "score": 60.0,
+        "weight": 2.0,
+        "band": "deteriorating"
+      }
+    },
+    {
+      "code": "factor.cash_conversion_cycle",
+      "section": "factors",
+      "severity": "weakness",
+      "params": {
+        "factor": "cash_conversion_cycle",
+        "value": 133.83333333333334,
+        "score": 79.0,
+        "weight": 2.0,
+        "band": "very_long"
+      }
+    },
+    {
+      "code": "factor.age_years",
+      "section": "factors",
+      "severity": "strength",
+      "params": {
+        "factor": "age_years",
+        "value": 9.0,
+        "score": 29.0,
+        "weight": 1.0,
+        "band": "mature"
+      }
+    },
+    {
+      "code": "factor.debt_to_assets",
+      "section": "factors",
+      "severity": "neutral",
+      "params": {
+        "factor": "debt_to_assets",
+        "value": 0.42857142857142855,
+        "score": 58.0,
+        "weight": 1.0,
+        "band": "elevated"
+      }
+    },
+    {
+      "code": "limit.zero",
+      "section": "limit",
+      "severity": "critical",
+      "params": {
+        "reasons": "rating 88 is worse than 75"
+      }
+    }
+  ],
+  "commentary": {
+    "income_statement": "Revenue for 2025 amounted to 30.0M USD and fell sharply by 62.5% year-over-year. Gross profit amounted to -30.0M USD and fell sharply by 250.0%. Selling and administrative expenses totaled 7.0M USD (23.3% of revenue). Gross margin was -100.0%, operating margin -13.3%. Interest expenses amounted to 1.5M USD. The company closed the period with a net loss of 5.0M USD.",
+    "balance_sheet": "Total assets stood at 35.0M USD and decreased significantly by 30.0% over the year. Non-current assets make up 57.1% of total assets, current assets 85.7%. Current assets include inventories of 8.0M USD, receivables of 10.0M USD and cash of 5.0M USD. Equity is negative (-2.0M USD): liabilities exceed assets. Total interest-bearing debt was 15.0M USD (42.9% of assets). Accounts payable stood at 6.0M USD. Net working capital is positive at 15.0M USD.",
+    "financial_ratios": "Current ratio is 2.00 (adequate), interest coverage is -2.73x (negative), debt to EBIT is -3.66x (minimal), the cash conversion cycle is 134 days (very long). Return on equity is 250.0%, return on assets -14.3%.",
+    "conclusion": "The credit rating is 88 on a 1-100 scale (lower is better), grade D - Unacceptable. Key strengths: debt to EBIT, financial leverage, company age. Key weaknesses: net profitability, interest coverage, equity ratio. No credit limit is recommended: rating 88 is worse than 75."
+  },
+  "language": "en"
+}

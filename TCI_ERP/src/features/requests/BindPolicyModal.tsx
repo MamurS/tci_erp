@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next'
 
 import { Button, DateInput, Field, Input, Modal } from '../../components/ui'
 import { useBindInsuranceRequest } from './api'
+import { staffCoverRefusal } from '../risk/integration'
 import { defaultBindDates, missingTerms, validateBind } from './bind'
 import type { BindFormValues } from './bind'
 import type { InsuranceRequest } from './types'
@@ -61,8 +62,11 @@ export function BindPolicyModal({ request, open, onClose }: Props) {
       // The function's refusals are deterministic and named; anything else is
       // genuinely unknown and says so rather than pretending to know.
       const code = (error as { code?: string } | null)?.code
+      const cover = staffCoverRefusal(error)
       setServerError(
-        code === '42501'
+        cover
+          ? t(cover)
+          : code === '42501'
           ? t('requests.bind.errors.notAllowed')
           : code === 'P0001'
             ? t('requests.bind.errors.refused')

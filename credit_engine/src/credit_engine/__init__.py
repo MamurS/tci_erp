@@ -13,6 +13,9 @@ from credit_engine.models import (
     CreditAssessment,
     FinancialPeriod,
     PeriodType,
+    RiskAdjustmentRule,
+    RiskAdjustmentTable,
+    RiskContext,
 )
 from credit_engine.narrative import (
     AnthropicCompleter,
@@ -21,6 +24,7 @@ from credit_engine.narrative import (
     narrate,
 )
 from credit_engine.ratios import build_ratio_reports, compute_period_ratios
+from credit_engine.risk_context import adjust_grade, apply_risk_context, effective_score
 from credit_engine.scoring.tables import GRADE_BANDS, RatingConfig, grade_for
 
 __all__ = [
@@ -35,12 +39,18 @@ __all__ = [
     "NarrativeUnavailableError",
     "PeriodType",
     "RatingConfig",
+    "RiskAdjustmentRule",
+    "RiskAdjustmentTable",
+    "RiskContext",
+    "adjust_grade",
+    "apply_risk_context",
     "assess",
     "build_ratio_reports",
     "compute_period_ratios",
+    "effective_score",
     "grade_for",
     "narrate",
     "round_limit",
 ]
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
