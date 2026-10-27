@@ -209,10 +209,10 @@ export const GlobalSearch = forwardRef<GlobalSearchHandle>(function GlobalSearch
     : t('search.placeholder')
 
   return (
-    <div className="relative flex h-9 min-w-0 shrink-0 sm:w-full sm:max-w-lg sm:shrink">
+    <div className="relative flex h-11 min-w-0 shrink-0 sm:w-full sm:max-w-3xl sm:shrink">
       <Search
         aria-hidden
-        className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-slate-500"
+        className="pointer-events-none absolute top-1/2 left-4 size-[1.125rem] -translate-y-1/2 text-slate-500"
       />
       <input
         ref={inputRef}
@@ -252,7 +252,7 @@ export const GlobalSearch = forwardRef<GlobalSearchHandle>(function GlobalSearch
             enter()
           }
         }}
-        className="h-9 w-full rounded-md border border-slate-200 bg-slate-50 pr-9 pl-9 text-body text-slate-900 transition-colors outline-none placeholder:text-slate-500 hover:border-slate-300 focus:border-accent-500 focus:bg-white focus:ring-2 focus:ring-accent-200 [&::-webkit-search-cancel-button]:appearance-none"
+        className="h-11 w-full rounded-full border border-slate-200 bg-white pr-11 pl-11 text-body text-slate-900 shadow-sm transition-shadow outline-none placeholder:text-slate-500 hover:shadow-md focus:border-accent-500 focus:shadow-md [&::-webkit-search-cancel-button]:appearance-none"
       />
       {query && (
         <button
@@ -264,7 +264,7 @@ export const GlobalSearch = forwardRef<GlobalSearchHandle>(function GlobalSearch
           }}
           aria-label={t('search.clear')}
           title={t('search.clear')}
-          className="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded text-slate-500 hover:bg-slate-200 hover:text-slate-800"
+          className="absolute top-1/2 right-3 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 hover:text-slate-800"
         >
           <X className="size-4" />
         </button>
@@ -285,7 +285,7 @@ export const GlobalSearch = forwardRef<GlobalSearchHandle>(function GlobalSearch
         <ul
           id="global-search-list"
           role="listbox"
-          className="animate-fade-in scrollbar-thin absolute top-full left-0 z-50 mt-2 max-h-[60vh] w-full min-w-[22rem] overflow-y-auto rounded-lg border border-slate-200 bg-white p-2 shadow-pop"
+          className="animate-fade-in scrollbar-thin absolute top-full left-0 z-50 mt-2 max-h-[60vh] w-full min-w-[22rem] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-pop"
         >
           {hits.length === 0 && (
             <li className="px-3 py-4 text-small text-slate-500">{t('common.loading')}</li>
