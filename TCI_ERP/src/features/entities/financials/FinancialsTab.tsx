@@ -10,6 +10,7 @@ import {
   AmountInput,
   Badge,
   Button,
+  Callout,
   COL,
   ConfirmDialog,
   EmptyState,
@@ -285,19 +286,22 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
       )}
 
       {displayCurrency !== 'original' && converted.missing.length > 0 && !ratesLoading && (
-        <div className="mt-4 flex flex-wrap items-center gap-2 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
-          <span>{t('fin.fx.missingRates')}:</span>
-          {converted.missing.map((need) => (
-            <button
-              key={rateKey(need.currency_code, need.rate_date)}
-              type="button"
-              onClick={() => setManualNeed(need)}
-              className="font-medium underline underline-offset-2"
-            >
-              {need.currency_code} · {formatDate(need.rate_date, locale)}
-            </button>
-          ))}
-        </div>
+        <Callout
+          tone="warn"
+          className="mt-4"
+          title={t('fin.fx.missingTitle', { ccy: [...new Set(converted.missing.map((n) => n.currency_code))].join(', ') })}
+          action={
+            <div className="flex flex-wrap gap-2">
+              {converted.missing.map((need) => (
+                <Button key={rateKey(need.currency_code, need.rate_date)} size="sm" variant="secondary" onClick={() => setManualNeed(need)}>
+                  {need.currency_code} · {formatDate(need.rate_date, locale)}
+                </Button>
+              ))}
+            </div>
+          }
+        >
+          {t('fin.fx.missingBody')}
+        </Callout>
       )}
 
       {displayed.some((s) => s.accounting_basis === 'local') && (

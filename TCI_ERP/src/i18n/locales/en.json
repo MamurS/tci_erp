@@ -466,7 +466,9 @@
       "manualHint": "CBU has no rate for this date. Enter UZS per 1 unit of the currency; it will be saved as a manual rate.",
       "footnote": "Rates applied",
       "growthFootnote": "Growth rates are calculated in the statement currency",
-      "manualPlaceholder": "1 {{ccy}} = ? UZS"
+      "manualPlaceholder": "1 {{ccy}} = ? UZS",
+      "missingTitle": "Those periods show «—»: there is no {{ccy}} rate for their dates",
+      "missingBody": "Each period is converted at the Central Bank of Uzbekistan's rate on its own closing date. Rates are fetched automatically by the analytics service, which is not running yet, so only the rates someone has entered are available. Click a date to enter its rate — it is kept for everyone. Growth rates are always computed in the statement's own currency, which is why they still show."
     },
     "cashflow": {
       "header": "Cash flow (indirect method)",

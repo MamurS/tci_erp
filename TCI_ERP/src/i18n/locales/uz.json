@@ -466,7 +466,9 @@
       "manualHint": "MB bu sana uchun kurs bermaydi. 1 birlik valyuta uchun so‘m miqdorini kiriting — kurs qo‘lda kiritilgan sifatida saqlanadi.",
       "footnote": "Qo‘llangan kurslar",
       "growthFootnote": "O‘sish sur’atlari hisobot valyutasida hisoblangan",
-      "manualPlaceholder": "1 {{ccy}} = ? UZS"
+      "manualPlaceholder": "1 {{ccy}} = ? UZS",
+      "missingTitle": "Bu davrlarda «—»: ularning sanalariga {{ccy}} kursi yo‘q",
+      "missingBody": "Har bir davr o‘zining yakuniy sanasidagi O‘zbekiston Markaziy banki kursi bo‘yicha qayta hisoblanadi. Kurslarni tahliliy xizmat yuklaydi, u hali ishga tushirilmagan, shuning uchun faqat qo‘lda kiritilgan kurslar mavjud. Kursni kiritish uchun sanani bosing — u hamma uchun saqlanadi. O‘sish sur’atlari har doim hisobot valyutasida hisoblanadi, shuning uchun ular ko‘rinadi."
     },
     "cashflow": {
       "header": "Pul oqimi (bilvosita usul)",
