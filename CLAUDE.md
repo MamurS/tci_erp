@@ -1011,8 +1011,13 @@ is fine for internal test accounts and not fine for customers.
   (blue — default, salad green, teal, plum, graphite) and light / dark /
   auto (`tci.user_profiles.ui_theme`, `ui_mode`, NULL = blue, light). See
   **Colour theme rules** below and DESIGN.md «Colour themes and dark mode».
-  **Canonical: 0082 NOT applied yet** — additive, awaiting the owner's yes;
-  until then the app keeps the default (its own query fails quietly)
+  **Canonical: 0082 applied 2026-10-27** before merge (owner's yes;
+  additive): `user_profiles` verified identical to a local replay of 0081
+  first (columns, column and table grants, constraints), the whole file in
+  one call with its ledger row (its text md5-identical to the committed
+  file), identical to a replay of 0082 afterwards; `tests/db/ui_theme.sql`
+  run on canonical with role impersonation (forced rollback, nothing left
+  behind, counts unchanged); no new advisor finding
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
