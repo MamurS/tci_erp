@@ -1083,14 +1083,26 @@ is fine for internal test accounts and not fine for customers.
   entered by the information desk and credit analysts. Both are immutable
   histories, staff-read, and never read by a decision, the cover matrix or the
   engine (asserted in the migration). See **External ratings rules** below.
-  **Not yet applied to canonical.**
+  **Canonical: 0088 applied 2026-10-27** before merge (owner's yes; additive
+  — no existing object touched): none of its objects present first, the file
+  executed from its ledger row after an md5 check against the committed file;
+  every function, column, constraint, view, policy, grant, index and trigger
+  identical to a local replay afterwards; `tests/db/external_ratings.sql` run
+  on canonical with role impersonation (forced rollback, nothing left behind,
+  counts unchanged); no new advisor finding
 - [x] Text on coloured badges (migration 0089, owner 2026-10-27): each
   person chooses WHITE (the default) or DARK text on the coloured status,
   tone and grade badges, beside the colour theme on the account page and in
   the user menu (`tci.user_profiles.ui_badge_ink`, NULL = white). White fills
   the badge with the ramp's 700 shade (a grade's ink) — the same 4.5 : 1 pair
   reversed; dark mode and paper keep their look. See **Colour theme rules**
-  and DESIGN.md «Badges». **Not yet applied to canonical.**
+  and DESIGN.md «Badges». **Canonical: 0089 applied 2026-10-27** before
+  merge (owner's yes; additive): `user_profiles` verified identical to a
+  local replay of 0087 first (columns, column grants), the file executed from
+  its ledger row after an md5 check, identical to a replay of 0089
+  afterwards; `tests/db/ui_badge_ink.sql` run on canonical with role
+  impersonation (forced rollback, nothing left behind); no new advisor
+  finding
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
