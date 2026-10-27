@@ -240,7 +240,7 @@ export function PolicyFormPage() {
         }
       />
 
-      <div className="flex max-w-4xl flex-col gap-5">
+      <div className="flex flex-col gap-5">
         {/* Contract */}
         <Card className="p-5">
           <SectionTitle className="mb-3">

@@ -52,7 +52,7 @@ export function PortalShell() {
   return (
     <div className="flex min-h-screen flex-col">
       <header ref={headerRef} data-brand-surface className="bg-gradient-to-r from-accent-700 to-accent-800 text-white">
-        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-4 px-6 py-3">
+        <div className="mx-auto flex w-full max-w-[160rem] flex-wrap items-center gap-4 px-6 py-3">
           <div className="flex flex-col">
             <BrandMark size="sm" inverse />
             <span className="mt-1 text-caption font-medium tracking-[0.18em] text-white/70 uppercase">
@@ -78,7 +78,7 @@ export function PortalShell() {
             {t('auth.signOut')}
           </button>
         </div>
-        <nav className="mx-auto flex w-full max-w-6xl flex-wrap gap-1 px-4">
+        <nav className="mx-auto flex w-full max-w-[160rem] flex-wrap gap-1 px-4">
           {PORTAL_NAV_ITEMS.map((item) => (
             <NavLink
               key={item.key}
@@ -98,7 +98,7 @@ export function PortalShell() {
         </nav>
       </header>
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-7">
+      <main className="mx-auto w-full max-w-[160rem] flex-1 px-6 py-7">
         <SignInNotice accountPath="/portal/account" />
         <TablePrefsContext.Provider value={tablePrefs}>
           <Suspense fallback={<PageLoading />}>

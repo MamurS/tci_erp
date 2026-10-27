@@ -183,7 +183,7 @@ export function StatementFormPage() {
   if (isEdit && isLoading) return <Spinner label={t('common.loading')} />
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div>
       <PageHeader
         title={isEdit && existing ? `${t('fin.editStatement')} — ${statementPeriodLabel(existing)}` : t('fin.addStatement')}
         subtitle={

@@ -26,8 +26,10 @@ interface HeroBandProps {
   children?: ReactNode
   /** Drawn without the mosaic (a print-like or very small band). */
   plain?: boolean
-  /** Which page frame it bleeds to the edges of: the staff app's padding
-   * (px-4 / sm:px-6 / lg:px-8, py-6 / lg:py-7) or the portal's (px-6, py-7). */
+  /** Which page frame it sits in: the staff app's (py-6 / lg:py-7) or the
+   * portal's (py-7). It runs up to the top bar, and sideways exactly as wide
+   * as the content under it (owner, 2026-10-27: header and tables one
+   * width), its own padding keeping the title in from the edge. */
   bleed?: 'app' | 'portal'
   /** A registry's or a queue's header: the same band, shorter, a smaller
    * title, no figure tiles. */
@@ -52,11 +54,8 @@ const DOT = {
 } as const
 
 const BLEED = {
-  app: '-mx-4 -mt-6 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:-mt-7 lg:px-8',
-  // The portal's column is narrower than the window: the band runs to the
-  // window's edges (cqw: the body container, scrollbar excluded) and its
-  // content keeps to the column.
-  portal: '-mt-7 mx-[calc(50%-50cqw)] px-[calc(50cqw-50%)]',
+  app: '-mt-6 rounded-b-xl px-5 sm:px-6 lg:-mt-7',
+  portal: '-mt-7 rounded-b-xl px-5 sm:px-6',
 } as const
 
 export function HeroBand({

@@ -268,7 +268,7 @@ export function AppShell() {
           onShowSidebar={() => setDrawerOpen(true)}
           sidebarId={SIDEBAR_ID}
         />
-        <main className="mx-auto w-full max-w-[92.5rem] flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-7">
+        <main className="mx-auto w-full max-w-[160rem] flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-7">
           <SignInNotice accountPath="/account" />
           <TablePrefsContext.Provider value={tablePrefs}>
             <Suspense fallback={<PageLoading />}>
