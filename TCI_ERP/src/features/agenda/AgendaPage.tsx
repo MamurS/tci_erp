@@ -423,6 +423,14 @@ export function AgendaPage() {
               />
             </span>
           </span>
+          {/* 0092: hand several tasks to a colleague at once — beside the
+              view and the grouping, so the chip row stays one line. */}
+          {visible.some(transferable) && (
+            <Button variant="secondary" onClick={() => setTransferring([])}>
+              <UserRoundPlus aria-hidden />
+              {t('agenda.transfer.bulk')}
+            </Button>
+          )}
         </>
       }
     />
@@ -457,13 +465,6 @@ export function AgendaPage() {
         />
       ))}
       <span className="flex-1" />
-      {/* 0092: hand several tasks to a colleague at once. */}
-      {visible.some(transferable) && (
-        <Button size="sm" variant="secondary" onClick={() => setTransferring([])}>
-          <UserRoundPlus aria-hidden />
-          {t('agenda.transfer.bulk')}
-        </Button>
-      )}
       {(snoozed.length > 0 || filter.snoozed) && (
         <Chip
           dashed

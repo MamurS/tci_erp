@@ -42,7 +42,7 @@ import type { LimitRequestWithRefs } from './types'
 import { useValidationLevels, useValidationState } from './validationApi'
 import { levelName } from './levelName'
 import type { QueueRow } from './workbench/types'
-import { SanctionsCell } from '../sanctions/components'
+import { SANCTIONS_CELL, SANCTIONS_COLUMN, SanctionsCell, SanctionsColumnHeader } from '../sanctions/components'
 
 type QueueTab = 'drafts' | 'information' | 'review' | 'escalated' | 'decided' | 'proposals'
 const QUEUE_TABS: readonly QueueTab[] = ['drafts', 'information', 'review', 'escalated', 'decided', 'proposals']
@@ -56,8 +56,8 @@ const QUEUE_COLUMNS = [
   labelCol('limitStatus'),
   COL.days,
   '6rem',
-  // 0091: the buyer's sanctions screening state
-  '9rem',
+  // 0091: the buyer's sanctions screening state, one shield
+  SANCTIONS_COLUMN,
   actionsCol([], 1),
 ]
 
@@ -176,7 +176,9 @@ export function LimitsPage() {
           {columnLabels[4]}
         </th>
         <th>{columnLabels[5]}</th>
-        <th>{columnLabels[6]}</th>
+        <th className={SANCTIONS_CELL}>
+          <SanctionsColumnHeader />
+        </th>
         <th>
           <span className="sr-only">{t('common.actions')}</span>
         </th>
@@ -299,7 +301,7 @@ export function LimitsPage() {
                 <td>
                   <GradeCell grade={grades.data?.get(r.entity_id)} />
                 </td>
-                <td>
+                <td className={SANCTIONS_CELL}>
                   <SanctionsCell entityId={r.entity_id} />
                 </td>
                 <RowActions reveal>

@@ -8,7 +8,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { Check, Copy, ExternalLink } from 'lucide-react'
+import { Check, Copy, ExternalLink, Shield, ShieldAlert, ShieldCheck, ShieldEllipsis, ShieldQuestionMark, ShieldX } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
 import { Badge, Button, Callout, COL, Field, Modal, Table, Textarea } from '../../components/ui'
@@ -31,19 +32,56 @@ export function SanctionsStatusBadge({ status }: { status: SanctionsStatus }) {
   )
 }
 
-/** A table cell: a badge when something needs a look (a sanction, a possible
- * match), quiet text otherwise — the column must not shout «clear» on every
- * row. */
+/** The width of the sanctions flag column: one icon, never a word — the
+ * registries and the limit tables must still fit 1280 px (layout guard). */
+export const SANCTIONS_COLUMN = '2.25rem'
+/** …with half the usual cell padding, on its <th> and every <td>. */
+export const SANCTIONS_CELL = 'px-2!'
+
+const STATUS_ICON: Record<SanctionsStatus, LucideIcon> = {
+  sanctioned: ShieldX,
+  country: ShieldX,
+  possible_match: ShieldAlert,
+  not_screened: ShieldQuestionMark,
+  outdated: ShieldEllipsis,
+  clear: ShieldCheck,
+}
+
+const STATUS_INK: Record<SanctionsStatus, string> = {
+  sanctioned: 'text-danger-700',
+  country: 'text-danger-700',
+  possible_match: 'text-warning-700',
+  not_screened: 'text-slate-500',
+  outdated: 'text-slate-500',
+  clear: 'text-slate-500',
+}
+
+/** The flag column's header: the shield, its name for screen readers and
+ * as a tooltip. */
+export function SanctionsColumnHeader() {
+  const { t } = useTranslation()
+  return (
+    <span className="flex justify-center" title={t('sanctions.column')}>
+      <Shield aria-hidden className="size-4" />
+      <span className="sr-only">{t('sanctions.column')}</span>
+    </span>
+  )
+}
+
+/** A table cell: one shield — red when a sanction applies, amber for a
+ * possible match, quiet otherwise — named in its tooltip and for screen
+ * readers. The badge with words is on the company card and beside the
+ * country. */
 export function SanctionsCell({ entityId }: { entityId: string | null | undefined }) {
   const { t } = useTranslation()
   const row = useEntitySanctionsStatus(entityId)
-  if (!row) return <span className="text-slate-500">—</span>
-  if (row.status === 'sanctioned' || row.status === 'country' || row.status === 'possible_match') {
-    return <SanctionsStatusBadge status={row.status} />
-  }
+  if (!row) return <span className="flex justify-center text-slate-500">—</span>
+  const Icon = STATUS_ICON[row.status]
+  const name = `${t(`sanctions.status.label.${row.status}`)} — ${t(`sanctions.status.hint.${row.status}`)}`
   return (
-    <span className="text-small text-slate-500" title={t(`sanctions.status.hint.${row.status}`)}>
-      {t(`sanctions.status.label.${row.status}`)}
+    <span className="flex justify-center" data-sanctions={row.status} title={name}>
+      <Icon aria-hidden className={`size-5 ${STATUS_INK[row.status]}`} />
+      <span className="sr-only">{t(`sanctions.status.label.${row.status}`)}</span>
     </span>
   )
 }

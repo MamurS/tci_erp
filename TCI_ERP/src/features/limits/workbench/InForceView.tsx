@@ -32,7 +32,7 @@ import { uzsTotal } from './model'
 import { usePageSearch } from '../../../components/layout/usePageSearch'
 import { searchRows } from '../../../lib/pageSearch'
 import { BandBadge, EntityLink, Uzs } from './parts'
-import { SanctionsCell } from '../../sanctions/components'
+import { SANCTIONS_CELL, SANCTIONS_COLUMN, SanctionsCell, SanctionsColumnHeader } from '../../sanctions/components'
 
 export function InForceView() {
   const { t, i18n } = useTranslation()
@@ -68,7 +68,7 @@ export function InForceView() {
   // onto three lines a row. Payment terms were «—» on almost every row, so
   // they sit under the amount when set.
   // The review column holds its header's longest word («CHIQISHGACHA»).
-  const columns = [COL.fill, COL.fill, COL.money, COL.amount, labelCol('limitBand'), '10rem', '8.5rem']
+  const columns = [COL.fill, COL.fill, COL.money, COL.amount, labelCol('limitBand'), SANCTIONS_COLUMN, '8.5rem']
   const columnLabels = [
     t('limits.fields.buyer'),
     t('limits.fields.policyAndPolicyholder'),
@@ -87,7 +87,9 @@ export function InForceView() {
         <th className="num">{columnLabels[2]}</th>
         <th className="num">{columnLabels[3]}</th>
         <th>{columnLabels[4]}</th>
-        <th>{columnLabels[5]}</th>
+        <th className={SANCTIONS_CELL}>
+          <SanctionsColumnHeader />
+        </th>
         <th className="num">{columnLabels[6]}</th>
       </tr>
     </thead>
@@ -181,7 +183,7 @@ export function InForceView() {
                     <td>
                       <BandBadge band={r.current_band} grade={r.current_grade} />
                     </td>
-                    <td>
+                    <td className={SANCTIONS_CELL}>
                       <SanctionsCell entityId={r.buyer_entity_id} />
                     </td>
                     <td
