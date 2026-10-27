@@ -69,7 +69,7 @@ export function parseCsv(text: string, delimiter: string): string[][] {
   let field = ''
   let quoted = false
   let i = 0
-  const src = text.replace(/^﻿/, '')
+  const src = text.replace(/^\uFEFF/, '')
   while (i < src.length) {
     const c = src[i]!
     if (quoted) {
@@ -364,7 +364,7 @@ export function parseEu(csvText: string): ParsedList {
 
 /** «Report Date: 27-Oct-2026», then a header, then a row per name. */
 export function parseUk(csvText: string): ParsedList {
-  const firstLine = /^﻿?([^\r\n]*)/.exec(csvText)?.[1] ?? ''
+  const firstLine = /^\uFEFF?([^\r\n]*)/.exec(csvText)?.[1] ?? ''
   const reported = /Report Date:\s*(\d{1,2})-([A-Za-z]{3})-(\d{4})/.exec(firstLine)
   const publishedAt = reported
     ? `${reported[3]}-${MONTHS[reported[2]!.toLowerCase()] ?? '01'}-${reported[1]!.padStart(2, '0')}`
@@ -469,7 +469,7 @@ export function parseSimpleCsv(csvText: string): ParsedList {
 /** The list a file most likely is, from its first bytes — a suggestion the
  * person confirms, never a decision. */
 export function guessList(fileName: string, head: string): SanctionsList | null {
-  const h = head.replace(/^﻿/, '')
+  const h = head.replace(/^\uFEFF/, '')
   if (h.includes('<CONSOLIDATED_LIST')) return 'un'
   if (h.startsWith('fileGenerationDate;') || h.includes('Entity_LogicalId')) return 'eu'
   if (/^Report Date:/.test(h) || h.includes('OFSI Group ID')) return 'uk'

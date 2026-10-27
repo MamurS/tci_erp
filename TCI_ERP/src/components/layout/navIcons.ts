@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   ListChecks,
   Settings,
+  ShieldAlert,
   ShieldCheck,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
@@ -25,6 +26,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   requests: Inbox,
   limits: ShieldCheck,
   sectors: ChartColumnBig,
+  sanctions: ShieldAlert,
   policies: FileText,
   declarations: ClipboardList,
   overdues: AlarmClock,

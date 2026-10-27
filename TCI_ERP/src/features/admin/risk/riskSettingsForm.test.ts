@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import M85 from '../../../../supabase/migrations/0085_sector_country_risk.sql?raw'
+import M91 from '../../../../supabase/migrations/0091_sanctions_screening.sql?raw'
 import { DEFAULT_ADJUSTMENTS } from '../../risk/rules'
 import type { RiskAdjustment } from '../../risk/rules'
 import {
@@ -102,11 +103,11 @@ describe('settingsProblems', () => {
 })
 
 describe('sanctions', () => {
-  it('mayManageSanctions mirrors tci.may_manage_sanctions: admin today', () => {
-    const body = /create function tci\.may_manage_sanctions\(\) returns boolean\n[^\n]*\$\$\n([\s\S]*?)\n\$\$;/.exec(M85)
-    expect(body?.[1]?.trim()).toBe("select tci.has_role('admin')")
-    expect(mayManageSanctions(['admin'])).toBe(true)
-    for (const role of ['sales', 'credit_underwriter', 'credit_analyst', 'commercial_underwriter', 'claims', 'information_manager', 'client'])
+  it('mayManageSanctions mirrors tci.may_manage_sanctions: credit analysts since 0091', () => {
+    const body = /create or replace function tci\.may_manage_sanctions\(\) returns boolean\n[^\n]*\$\$\n([\s\S]*?)\n\$\$;/.exec(M91)
+    expect(body?.[1]?.trim()).toBe("select tci.has_role('credit_analyst')")
+    expect(mayManageSanctions(['credit_analyst'])).toBe(true)
+    for (const role of ['admin', 'sales', 'credit_underwriter', 'commercial_underwriter', 'claims', 'information_manager', 'client'])
       expect(mayManageSanctions([role])).toBe(false)
     expect(mayManageSanctions([])).toBe(false)
   })

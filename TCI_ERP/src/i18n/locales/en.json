@@ -63,7 +63,8 @@
       }
     },
     "data": "Data management",
-    "sectors": "Sectors & Country Risk Categories"
+    "sectors": "Sectors & Country Risk Categories",
+    "sanctions": "Sanctions"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -2148,7 +2149,8 @@
         "group_limit": "The group would go over its group limit",
         "downgrade": "The buyer was downgraded below the rating band the ADT was set at",
         "no_recommended_limit": "The rating carries no recommended limit (a manual rating)",
-        "cover_restricted": "The buyer's country or sector needs a higher authority rank (cover matrix)"
+        "cover_restricted": "The buyer's country or sector needs a higher authority rank (cover matrix)",
+        "sanctions_match": "A possible sanctions match on the buyer is not reviewed yet"
       },
       "attempt": {
         "decided": "Decided automatically (ADT)",
@@ -2351,7 +2353,8 @@
       "requests": "Submissions",
       "access": "Client access",
       "claims": "Claims",
-      "group": "Group"
+      "group": "Group",
+      "sanctions": "Sanctions"
     },
     "portfolioLimitsTitle": "Credit limits under this policyholder’s policies",
     "portfolioSummary": "Policyholder portfolio:",
@@ -3308,7 +3311,9 @@
       "sanctions_limit_review": "Sanctions: limit to review",
       "country_override_approval": "Internal country category approval",
       "oecd_review_due": "OECD list to check",
-      "country_downgrade_review": "Country downgrade: buyers to review"
+      "country_downgrade_review": "Country downgrade: buyers to review",
+      "sanctions_match_review": "Possible sanctions match",
+      "sanctions_list_due": "Sanctions lists to import"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -3379,7 +3384,10 @@
       "sanctions_limit_review": "Sanctions ({{regime}}): review the limit on {{subject}}",
       "country_override_approval": "Approve the internal country category: {{country}} → category {{category}}",
       "oecd_review_due": "Check the OECD for a newer country risk list",
-      "country_downgrade_review": "OECD list of {{effective_date}}: {{countries_count}} countries worse — review {{buyers}} buyers with limits"
+      "country_downgrade_review": "OECD list of {{effective_date}}: {{countries_count}} countries worse — review {{buyers}} buyers with limits",
+      "sanctions_match_review": "Possible sanctions match: review {{subject}}",
+      "sanctions_list_due": "Import the current sanctions lists",
+      "adt_review_sanctions_match": "{{entity_name}}'s ADT is suspended: a possible sanctions match waits for review"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -3638,7 +3646,8 @@
       "countryWorse": "{{code}}: {{from}} → {{to}}",
       "moreCountries": "+{{count}} more",
       "buyersAffected_one": "{{count}} buyer with limits",
-      "buyersAffected_other": "{{count}} buyers with limits"
+      "buyersAffected_other": "{{count}} buyers with limits",
+      "sanctionsMatches": "Possible matches: {{count}}"
     },
     "sub": {
       "instalment": "Instalment {{sequence}}"
@@ -3712,7 +3721,9 @@
       "offer_expiring": "Offer {{number}} is valid until {{validUntil}}. Contact the client or publish a version with a new date.",
       "offer_expired": "Offer {{number}} was valid until {{validUntil}} and can no longer be accepted. Publish a version with a new date or withdraw it.",
       "oecd_review_due": "The OECD revises its country risk list about three times a year (after each Participants' meeting), and the list in use is more than {{months}} months old. Download the current PDF from oecd.org and import it in Admin › Risk.",
-      "oecd_review_due_none": "No OECD country risk list has been imported, so country risk does not apply to decisions yet. Download the current PDF from oecd.org and import it in Admin › Risk."
+      "oecd_review_due_none": "No OECD country risk list has been imported, so country risk does not apply to decisions yet. Download the current PDF from oecd.org and import it in Admin › Risk.",
+      "sanctions_match_review": "Screening found {{count}} possible match(es) with a party on an official sanctions list — the company itself, a company above it or a person behind it. Compare the details (registration, address, date of birth) and confirm or clear each one with a note. Until then no limit on this buyer is approved and no auto decision is made.",
+      "sanctions_list_due": "A required sanctions list is missing or was published more than {{days}} days ago. Download the current file from the publisher and import it in Sanctions › Lists; every company kept screened is then screened against it."
     },
     "dest": {
       "opens": "Opens",
@@ -3742,7 +3753,9 @@
         "financials": "Financial statements",
         "card": "Company card",
         "countries": "Countries",
-        "oecd": "OECD import"
+        "oecd": "OECD import",
+        "sanctions": "Sanctions",
+        "sanctionsLists": "Sanctions lists"
       },
       "with": {
         "task": "with this task’s context",
@@ -6565,7 +6578,7 @@
       "overrideOwn": "Another person approves an internal country category — not its author.",
       "overrideRejectReason": "Say why it is rejected.",
       "overrideEndReason": "Say why the internal category ends.",
-      "sanctionsManageOnly": "Sanctions are maintained by the administrator.",
+      "sanctionsManageOnly": "Sanctions flags are maintained by credit analysts.",
       "sanctionsLiftReason": "Say why the flag is lifted.",
       "concentrationScope": "Name a policy or a submission.",
       "referenceSource": "Unknown rating source.",
@@ -7085,6 +7098,317 @@
       "withdrawnNote": "Say why the rating was withdrawn.",
       "outlook": "This outlook cannot be recorded with this rating.",
       "unchanged": "This rating action is already recorded."
+    }
+  },
+  "sanctions": {
+    "column": "Sanctions",
+    "section": {
+      "subtitle": "Screening of buyers, their owners and beneficial owners against the official sanctions lists, and the tools to check a name by hand",
+      "views": {
+        "check": "Check a name",
+        "matches": "Matches to review",
+        "lists": "Lists",
+        "flags": "Flags"
+      }
+    },
+    "status": {
+      "label": {
+        "sanctioned": "Sanctioned",
+        "country": "Sanctioned country",
+        "possible_match": "Possible match",
+        "not_screened": "Not screened",
+        "outdated": "Screen again",
+        "clear": "No match found"
+      },
+      "hint": {
+        "sanctioned": "A sanctions flag is set on the company: no cover is possible",
+        "country": "A sanctions flag is set on the company's country: no cover is possible",
+        "possible_match": "A possible match with a sanctions list waits for a credit analyst",
+        "not_screened": "The company has not been screened against the lists in use",
+        "outdated": "Screened before the latest list took effect — it will be screened again",
+        "clear": "Screened against the lists in use; no name came close. Screening finds possible matches — it certifies nobody"
+      }
+    },
+    "matchStatus": {
+      "pending": "To review",
+      "confirmed": "Confirmed",
+      "cleared": "False positive",
+      "retired": "Withdrawn"
+    },
+    "subjectKind": {
+      "entity": "The company itself",
+      "owner": "Owner company",
+      "beneficial_owner": "Person behind it"
+    },
+    "kind": {
+      "person": "Person",
+      "entity": "Company or organisation",
+      "vessel": "Vessel",
+      "aircraft": "Aircraft",
+      "other": "Other"
+    },
+    "reason": {
+      "rating": "Rating",
+      "limit_request": "Limit request",
+      "list_import": "New list",
+      "owners_changed": "Owners changed",
+      "manual": "Screened by hand"
+    },
+    "lists": {
+      "title": "Sanctions lists in use",
+      "hint": "Each list as its publisher published it. A newer file replaces the older one; a party missing from it is marked delisted, never deleted.",
+      "import": "Import a list",
+      "empty": "No list is required or imported",
+      "list": "List",
+      "published": "Published",
+      "parties": "Listed parties",
+      "activated": "In use since",
+      "state": "State",
+      "missing": "Not imported",
+      "stale": "Out of date",
+      "fresh": "Current",
+      "optional": "Not required",
+      "delisted": "Delisted by it: {{count}}",
+      "whereTitle": "Where to download the files",
+      "whereHint": "The publishers' own files, free to download. Download, then import here.",
+      "name": {
+        "ofac_sdn": "OFAC SDN list (USA)",
+        "un": "UN Security Council consolidated list",
+        "eu": "EU consolidated financial sanctions list",
+        "uk": "UK Sanctions List",
+        "other": "Another list"
+      },
+      "short": {
+        "ofac_sdn": "OFAC",
+        "un": "UN",
+        "eu": "EU",
+        "uk": "UK",
+        "other": "Other"
+      }
+    },
+    "import": {
+      "title": "Import a sanctions list",
+      "intro": "Choose the list and its file as published. The file is read here, in the browser; you see how many parties it holds before anything is saved.",
+      "list": "List",
+      "otherName": "Name of the list",
+      "otherHint": "The OpenSanctions CSV format (id, schema, name, aliases …)",
+      "file": "File",
+      "fileSdn": "sdn.csv",
+      "fileAlt": "alt.csv (aliases)",
+      "fileAltHint": "Optional but recommended: OFAC publishes the other names separately",
+      "fileHint": {
+        "ofac_sdn": "The SDN list in CSV, as published by OFAC",
+        "un": "consolidated.xml, as published by the UN Security Council",
+        "eu": "The full list in CSV 1.1, as published by the European Commission",
+        "uk": "UK-Sanctions-List.csv, as published by the FCDO",
+        "other": "A CSV in the OpenSanctions «simple» format"
+      },
+      "reading": "Reading the file…",
+      "found": "Found {{entries}} listed parties with {{names}} names.",
+      "looksLike": "This file looks like the {{list}} — check the list chosen above.",
+      "publishedAt": "Published on",
+      "publishedFromFile": "Read from the file",
+      "publishedHint": "The file carries no date: enter the publisher's date",
+      "submit": "Import",
+      "submitShrunk": "Import anyway",
+      "done": "Close",
+      "result": "Imported: {{entries}} parties in use, {{delisted}} delisted, {{screened}} companies screened against it.",
+      "progress": {
+        "loading": "Saving the parties: {{done}} of {{total}}…",
+        "finishing": "Putting the list into use…",
+        "screening": "Screening the companies kept screened: {{done}} of {{total}}…"
+      },
+      "format": {
+        "format": "This file is not in the format of the list chosen.",
+        "empty": "No listed party was found in this file.",
+        "aliases": "The aliases file does not belong to this SDN file."
+      }
+    },
+    "card": {
+      "title": "Sanctions screening",
+      "hint": "The company, the companies above it and the people behind them are screened against the official lists when it is rated, when a limit is requested, when its owners change and when a new list is imported.",
+      "screenNow": "Screen now",
+      "lastScreened": "Screened {{when}} against: {{lists}}",
+      "neverScreened": "Not screened yet",
+      "noLists": "No sanctions list is imported yet — nothing to screen against.",
+      "screenedClear": "Screened: no name came close.",
+      "screenedMatches": "Screened: possible matches to review: {{count}}.",
+      "seeFlags": "See the sanctions flags",
+      "countryFlagged": "The company's country is under a sanctions flag: no cover is possible."
+    },
+    "matches": {
+      "title": "Possible matches",
+      "hint": "A name close to a party on a list. A credit analyst compares the details and confirms (a sanctions flag is set) or clears it; a cleared match is not raised again for the same name.",
+      "none": "No possible match to review",
+      "noneHint": "Screening found nothing that needs a look.",
+      "showAll": "Show all ({{count}})",
+      "onlyPending": "Only those to review",
+      "company": "Company",
+      "subject": "Screened name",
+      "listed": "On the list",
+      "score": "Closeness",
+      "status": "State",
+      "since": "Since {{date}}",
+      "born": "born {{dates}}",
+      "retired": {
+        "subject_gone": "No longer screened with the company",
+        "delisted": "The party left the list"
+      }
+    },
+    "resolve": {
+      "clear": "False positive",
+      "confirm": "Confirm",
+      "clearTitle": "Mark as a false positive",
+      "confirmTitle": "Confirm the sanctions match",
+      "clearSubmit": "Mark as false positive",
+      "confirmSubmit": "Confirm and set the flag",
+      "pair": "{{subject}} — {{listed}} ({{list}}, {{ref}})",
+      "confirmEffect": "A sanctions flag is set on the company: no new cover, and every in-force limit goes to credit underwriting for an urgent review.",
+      "clearEffect": "The match is closed. The same name is not raised again against this listed party.",
+      "note": "Why",
+      "noteHint": {
+        "confirmed": "What makes it the same party: registration, address, date of birth, owners",
+        "cleared": "What tells them apart: registration, address, date of birth, nationality"
+      },
+      "noteRequired": "Say why — the note is kept with the decision"
+    },
+    "subjects": {
+      "title": "Names screened",
+      "hint": "Check any of them by hand in the publishers' own search tools: copy the name, open the tool."
+    },
+    "owners": {
+      "title": "Beneficial owners and directors",
+      "hint": "The people behind the company, screened with it. Entered by the information desk and credit analysts; ended with a reason, never deleted.",
+      "add": "Add a person",
+      "addTitle": "Add a beneficial owner or director",
+      "addIntro": "The company is screened again as soon as the person is saved.",
+      "addSubmit": "Add",
+      "end": "End",
+      "endTitle": "End: {{name}}",
+      "endReason": "Why the person is no longer behind the company",
+      "endSubmit": "End",
+      "showEnded": "Show ended",
+      "hideEnded": "Hide ended",
+      "empty": "No beneficial owner recorded",
+      "emptyHint": "The information desk or a credit analyst records them from the registry or the company's documents.",
+      "emptyHintWriter": "Add them from the registry extract or the company's documents: they are screened with the company.",
+      "person": "Person",
+      "share": "Share",
+      "bornOn": "born {{date}}",
+      "sourceOf": "Source: {{source}}",
+      "endedOn": "Ended {{date}}: {{reason}}",
+      "role": {
+        "beneficial_owner": "Beneficial owner",
+        "shareholder": "Shareholder",
+        "director": "Director"
+      },
+      "fields": {
+        "name": "Full name",
+        "nameHint": "As in the document, in any script",
+        "role": "Role",
+        "share": "Share, %",
+        "birthDate": "Date of birth",
+        "birthDateHint": "Helps tell namesakes apart",
+        "nationality": "Nationality",
+        "source": "Source",
+        "sourceHint": "Where it was read: a registry extract, the charter, a questionnaire"
+      },
+      "errors": {
+        "name": "Enter the person's full name",
+        "pct": "A share between 0 and 100",
+        "birthDate": "A date of birth cannot be in the future",
+        "source": "Say where it was read",
+        "endReason": "Say why"
+      }
+    },
+    "history": {
+      "title": "Screenings",
+      "hint": "Every screening of this company: why it ran, against which lists, what it found.",
+      "none": "Not screened yet",
+      "when": "When",
+      "why": "Why",
+      "lists": "Lists",
+      "outcome": "Result",
+      "subjects": "Names screened: {{count}}",
+      "outcomes": {
+        "clear": "No match",
+        "possible_match": "Possible match",
+        "no_lists": "No list to screen against"
+      }
+    },
+    "check": {
+      "title": "Check a name against the lists",
+      "hint": "Any name — a company, an owner, a person — against the lists imported here. A look only: nothing is recorded.",
+      "name": "Name",
+      "placeholder": "Company or person, in any script",
+      "who": "Look among",
+      "whoOptions": {
+        "all": "Everyone",
+        "company": "Companies",
+        "person": "People"
+      },
+      "typeMore": "Type at least three letters.",
+      "none": "No listed party comes close to «{{name}}»",
+      "noneHint": "Only the lists imported here were searched. Check the publishers' own tools below as well.",
+      "list": "List",
+      "details": "Programme, country, born"
+    },
+    "tools": {
+      "title": "Official search tools",
+      "hint": "The publishers' own search pages, free and public. They open in a new tab.",
+      "copy": "Copy",
+      "copied": "Copied",
+      "copyName": "Copy «{{name}}»",
+      "checkName": "Check «{{name}}» by hand:",
+      "nameFilled": "The name is filled in.",
+      "namePaste": "Paste the name.",
+      "name": {
+        "ofac": "OFAC Sanctions List Search",
+        "un": "UN Security Council Consolidated List",
+        "eu": "EU Sanctions Map",
+        "uk": "UK Sanctions List search",
+        "opensanctions": "OpenSanctions"
+      },
+      "what": {
+        "ofac": "The US Treasury's SDN and other lists.",
+        "un": "Every UN Security Council sanctions regime.",
+        "eu": "EU restrictive measures by country and regime.",
+        "uk": "The UK government's own list.",
+        "opensanctions": "Many lists at once, owners and politically exposed persons; free to search."
+      }
+    },
+    "queue": {
+      "title": "Possible matches to review",
+      "hint": "Every possible match not yet reviewed, oldest first. Each company's review is assigned to the credit analyst with the fewest open sanctions tasks.",
+      "none": "Nothing to review",
+      "noneHint": "Every possible match has been confirmed or cleared.",
+      "count": "To review: {{count}}"
+    },
+    "settings": {
+      "title": "Sanctions screening",
+      "hint": "How close a name must be to count as a possible match, how old a list may get, and which lists are expected. The matches themselves are the credit analysts' to review.",
+      "threshold": "Closeness for a possible match",
+      "thresholdHint": "{{min}}–{{max}} %. Lower finds more namesakes; higher may miss spelling variants.",
+      "staleDays": "A list is out of date after",
+      "staleDaysHint": "Credit analysts are reminded to import a newer one.",
+      "required": "Lists expected",
+      "loadFailed": "The screening settings could not be loaded.",
+      "saveFailed": "The screening settings were not saved."
+    },
+    "errors": {
+      "importOnly": "Sanctions lists are imported by credit analysts and the administrator.",
+      "listUnknown": "This list is not one the system knows.",
+      "listName": "Name the list.",
+      "listDate": "The publication date is required and cannot be in the future.",
+      "listOlder": "A newer version of this list is already in use.",
+      "listSame": "This file is the list already in use.",
+      "listEmpty": "No listed party was loaded from this file.",
+      "listShrunk": "This file holds far fewer parties than the list in use — perhaps the download was cut short. Check it, then import anyway if it is right.",
+      "notLoading": "This import is no longer loading — start it again.",
+      "batchShape": "Part of the file could not be read.",
+      "matchOutcome": "Confirm or clear the match.",
+      "matchResolved": "This match has already been reviewed.",
+      "screeningPending": "A possible sanctions match on this buyer is not reviewed yet: a credit analyst must confirm or clear it before a limit can be approved."
     }
   }
 }

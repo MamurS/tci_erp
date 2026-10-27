@@ -32,6 +32,8 @@ import RISK_ENUMS from '../../../supabase/migrations/0084_sector_country_risk_en
 import RISK from '../../../supabase/migrations/0085_sector_country_risk.sql?raw'
 import UPKEEP_ENUMS from '../../../supabase/migrations/0086_country_risk_tasks_enums.sql?raw'
 import UPKEEP from '../../../supabase/migrations/0087_country_risk_upkeep.sql?raw'
+import SANCTIONS_ENUMS from '../../../supabase/migrations/0090_sanctions_screening_enums.sql?raw'
+import SANCTIONS from '../../../supabase/migrations/0091_sanctions_screening.sql?raw'
 import {
   AGENDA_GROUPS,
   agendaCounts,
@@ -108,6 +110,7 @@ describe('task type enum', () => {
       ...PROPOSALS_ENUMS.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
       ...RISK_ENUMS.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
       ...UPKEEP_ENUMS.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
+      ...SANCTIONS_ENUMS.matchAll(/alter type tci\.task_type add value if not exists '([a-z_]+)'/g),
     ].map((m) => m[1])
     expect([...created, ...appended]).toEqual([...TASK_TYPES])
   })
@@ -166,7 +169,10 @@ describe('task type enum', () => {
     // 0086 adds the OECD reminder and the country downgrade review (0087 uses them).
     const addedUpkeep = UPKEEP_ENUMS.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
     expect(addedUpkeep).toHaveLength(2)
-    expect(TASK_TYPES).toHaveLength(50)
+    // 0090 adds the sanctions match review and the list reminder (0091 uses them).
+    const addedSanctions = SANCTIONS_ENUMS.split('\n').filter((l) => l.startsWith('alter type tci.task_type add value '))
+    expect(addedSanctions).toHaveLength(2)
+    expect(TASK_TYPES).toHaveLength(52)
   })
 
   it('lists exactly the values of tci.task_priority', () => {
@@ -235,7 +241,7 @@ describe('completion rules', () => {
     // Each header row is "<type>  <target>  AUTO ..." or "... MANUAL - ...".
     // A row may continue on the next comment lines (0060 wraps
     // limit_validation's), so the rule is read up to the next type's row.
-    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}\n${PAYMENTS}\n${CONTRACTS}\n${OFFERS}\n${VALIDATION}\n${INFO}\n${LEVELS}\n${PROPOSALS}\n${RISK}\n${UPKEEP}`.split('\n')
+    const headers = `${MIGRATION}\n${PHASE4}\n${PHASE5}\n${PHASE6}\n${DATA}\n${AGENDA}\n${PAYMENTS}\n${CONTRACTS}\n${OFFERS}\n${VALIDATION}\n${INFO}\n${LEVELS}\n${PROPOSALS}\n${RISK}\n${UPKEEP}\n${SANCTIONS}`.split('\n')
     // 0061 has no catalogue table in its header: adt_review's rule is read
     // from its mapping instead (the next test).
     for (const type of TASK_TYPES.filter((t) => t !== 'adt_review')) {

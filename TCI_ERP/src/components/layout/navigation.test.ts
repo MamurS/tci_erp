@@ -21,6 +21,7 @@ describe('role → screen map', () => {
       'requests',
       'limits',
       'sectors',
+      'sanctions',
       'declarations',
       'overdues',
       'claims',
@@ -31,6 +32,7 @@ describe('role → screen map', () => {
       'entities',
       'requests',
       'limits',
+      'sanctions',
       'policies',
       'declarations',
       'overdues',
@@ -44,16 +46,18 @@ describe('role → screen map', () => {
       'entities',
       'requests',
       'limits',
+      'sanctions',
       'policies',
       'declarations',
       'overdues',
     ])
-    expect(keys(['information_manager'])).toEqual(['dashboard', 'agenda', 'entities', 'data'])
-    expect(keys(['credit_analyst'])).toEqual(['dashboard', 'agenda', 'entities', 'limits', 'sectors'])
+    expect(keys(['information_manager'])).toEqual(['dashboard', 'agenda', 'entities', 'sanctions', 'data'])
+    expect(keys(['credit_analyst'])).toEqual(['dashboard', 'agenda', 'entities', 'limits', 'sectors', 'sanctions'])
     expect(keys(['claims'])).toEqual([
       'dashboard',
       'agenda',
       'entities',
+      'sanctions',
       'overdues',
       'claims',
     ])
@@ -79,6 +83,7 @@ describe('role → screen map', () => {
       'entities',
       'requests',
       'limits',
+      'sanctions',
       'policies',
       'declarations',
       'overdues',

@@ -63,6 +63,10 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // «Сектора» (0085): sector grades and country risk — credit analysts work
   // them, credit underwriting and admin read them.
   { key: 'sectors', path: '/sectors', roles: ['admin', 'credit_analyst', 'credit_underwriter'] },
+  // «Санкции» (0091): every staff role checks names and reads the matches;
+  // credit analysts review them and keep the flags, analysts and admin
+  // import the lists.
+  { key: 'sanctions', path: '/sanctions', roles: STAFF },
   {
     key: 'policies',
     path: '/policies',

@@ -53,7 +53,7 @@ describe('workspaces', () => {
   it('lists the shared tools first and only what the roles may open', () => {
     const commercial = WORKSPACES.find((w) => w.key === 'commercial')!
     const nav = workspaceNav(['commercial_underwriter'], commercial)
-    expect(nav.common.map((i) => i.key)).toEqual(['dashboard', 'agenda', 'entities'])
+    expect(nav.common.map((i) => i.key)).toEqual(['dashboard', 'agenda', 'entities', 'sanctions'])
     expect(nav.own.map((i) => i.key)).toContain('policies')
     // a credit underwriter opening the commercial workspace still sees only what they may open
     expect(workspaceNav(['credit_underwriter'], commercial).own.map((i) => i.key)).not.toContain('policies')

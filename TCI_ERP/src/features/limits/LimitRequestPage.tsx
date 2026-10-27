@@ -105,6 +105,7 @@ import {
 import type { ConditionInput, LimitRequestWithRefs } from './types'
 import { fourEyesNoticeKey, fourEyesRefusal } from './fourEyes'
 import { CONDITION_TYPES, requestScopeFilter } from './types'
+import { SanctionsMark } from '../sanctions/components'
 
 /** The sections `?focus=` may name; each is the `id` of its card. */
 const LIMIT_FOCUS_TARGETS = ['decision', 'commercial', 'validation'] as const
@@ -561,8 +562,10 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
             {request.legal_entities?.name ?? EM_DASH}
           </Link>
           {/* Is this buyer part of a group we are already exposed to? */}
-          <div className="mt-1">
+          <div className="mt-1 flex flex-wrap items-center gap-2">
             <GroupChip entityId={request.entity_id} />
+            {/* 0091: a sanction or a possible sanctions match on the buyer */}
+            <SanctionsMark entityId={request.entity_id} />
           </div>
         </dd>
         {request.policy_id ? (

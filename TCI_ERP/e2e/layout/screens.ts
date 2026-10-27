@@ -80,6 +80,9 @@ export const ROUTES: Record<string, RouteEntry> = {
   '/sectors/:sectorId': {
     skip: 'PENDING (Prompt 31): one sector — record with the credit demo user once a sector review exists (see /sectors)',
   },
+  '/sanctions': {
+    skip: 'PENDING (0091): «Санкции» — the recorded fixtures come from canonical, which holds no sanctions list or screening until 0091 is applied there; re-record (tools/layout-fixtures/record.mjs) with the credit demo user after the first list import and give it role credit. Its tables use declared columns',
+  },
   '/data': { role: 'info' },
   '/data/requests/:id': {
     skip: 'the demo book holds no data request to record (re-record once one exists and give it role info); the page is a request form with its own facts, no register',

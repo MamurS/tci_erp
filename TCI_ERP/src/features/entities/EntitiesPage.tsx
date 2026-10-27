@@ -51,6 +51,7 @@ import { EM_DASH, formatDate } from '../../lib/format'
 import type { EntityRoles } from './types'
 import { IndustrySectorBadge } from '../risk/badges'
 import { CountryRiskCompact, CountryWithRisk, IndustryWithSector, RiskSubline } from '../risk/integrationBadges'
+import { SanctionsCell } from '../sanctions/components'
 
 type RoleChip = 'all' | 'policyholders' | 'buyers'
 
@@ -130,6 +131,8 @@ export function EntitiesPage() {
     '13.5rem',
     COL.date,
     COL.grade,
+    // 0091: the sanctions screening state, its own column
+    '10rem',
     actionsCol([], 1),
   ]
   const columnLabels = [
@@ -139,6 +142,7 @@ export function EntitiesPage() {
     t('entities.rolesHeader'),
     t('buyers.latestStatement'),
     t('limits.fields.grade'),
+    t('sanctions.column'),
     '',
   ]
   const filteredIds = filtered.map((e) => e.id)
@@ -345,6 +349,9 @@ export function EntitiesPage() {
                     ) : (
                       <span className="text-slate-500">{EM_DASH}</span>
                     )}
+                  </td>
+                  <td>
+                    <SanctionsCell entityId={entity.id} />
                   </td>
                   <RowActions reveal>
                     <QuickViewButton name={entity.name} onClick={() => setPeekId(entity.id)} />

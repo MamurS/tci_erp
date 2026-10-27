@@ -51,6 +51,14 @@
 --       9. tci.v_entity_sanctions_status (the registry and limit tables'
 --          column) and tci.v_sanctions_lists.
 --
+-- Agenda (0090 types):
+--   sanctions_match_review   credit_analyst (the least-loaded one, by name)
+--                                                 high    AUTO: nothing on the
+--                                                         company is pending
+--   sanctions_list_due       credit_analyst (the least-loaded one, by name)
+--                                                 normal  AUTO: every required
+--                                                         list is fresh
+--
 -- Why:  cover for a sanctioned party is forbidden (0085 refuses it once a
 --       flag exists); this is how the flag comes to exist without relying on
 --       someone remembering to look. Everything is staff-only; a client

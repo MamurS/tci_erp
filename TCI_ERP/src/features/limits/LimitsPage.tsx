@@ -42,6 +42,7 @@ import type { LimitRequestWithRefs } from './types'
 import { useValidationLevels, useValidationState } from './validationApi'
 import { levelName } from './levelName'
 import type { QueueRow } from './workbench/types'
+import { SanctionsCell } from '../sanctions/components'
 
 type QueueTab = 'drafts' | 'information' | 'review' | 'escalated' | 'decided' | 'proposals'
 const QUEUE_TABS: readonly QueueTab[] = ['drafts', 'information', 'review', 'escalated', 'decided', 'proposals']
@@ -55,6 +56,8 @@ const QUEUE_COLUMNS = [
   labelCol('limitStatus'),
   COL.days,
   '6rem',
+  // 0091: the buyer's sanctions screening state
+  '9rem',
   actionsCol([], 1),
 ]
 
@@ -159,6 +162,7 @@ export function LimitsPage() {
     t('limits.fields.status'),
     t('limits.fields.ageDaysUnit'),
     t('limits.fields.grade'),
+    t('sanctions.column'),
     '',
   ]
   const tableHead = (
@@ -172,6 +176,7 @@ export function LimitsPage() {
           {columnLabels[4]}
         </th>
         <th>{columnLabels[5]}</th>
+        <th>{columnLabels[6]}</th>
         <th>
           <span className="sr-only">{t('common.actions')}</span>
         </th>
@@ -293,6 +298,9 @@ export function LimitsPage() {
                 </td>
                 <td>
                   <GradeCell grade={grades.data?.get(r.entity_id)} />
+                </td>
+                <td>
+                  <SanctionsCell entityId={r.entity_id} />
                 </td>
                 <RowActions reveal>
                   <QuickViewButton

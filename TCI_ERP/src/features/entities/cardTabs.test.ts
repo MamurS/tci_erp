@@ -4,12 +4,12 @@ import { firstTabOf, SECTION_OF, sectionsFor } from './cardTabs'
 import type { CardTab } from './cardTabs'
 
 describe('company card sections', () => {
-  const all: CardTab[] = ['overview', 'financials', 'rating', 'limits', 'policies', 'requests', 'claims', 'group', 'access']
+  const all: CardTab[] = ['overview', 'financials', 'rating', 'sanctions', 'limits', 'policies', 'requests', 'claims', 'group', 'access']
 
-  it('groups nine tabs into six sections, in order', () => {
+  it('groups ten tabs into six sections, in order', () => {
     expect(sectionsFor(all).map((s) => [s.section, s.tabs])).toEqual([
       ['overview', ['overview']],
-      ['analysis', ['financials', 'rating']],
+      ['analysis', ['financials', 'rating', 'sanctions']],
       ['cover', ['limits', 'policies', 'requests']],
       ['claims', ['claims']],
       ['group', ['group']],

@@ -35,6 +35,7 @@ const DataRequestPage = lazyPage(dataDesk, 'RequestPage')
 const sectorsDesk = () => import('./features/sectors')
 const SectorsSection = lazyPage(sectorsDesk, 'SectorsSection')
 const SectorPage = lazyPage(sectorsDesk, 'SectorPage')
+const SanctionsSection = lazyPage(() => import('./features/sanctions'), 'SanctionsSection')
 const LimitRequestPage = lazyPage(limits, 'LimitRequestPage')
 const requests = () => import('./features/requests')
 const RequestsPage = lazyPage(requests, 'RequestsPage')
@@ -169,6 +170,7 @@ export default function App() {
                 {/* «Кредитный анализ › Сектора» (0085): sector grades and country risk. */}
                 <Route path="sectors" element={<SectorsSection />} />
                 <Route path="sectors/:sectorId" element={<SectorPage />} />
+                <Route path="sanctions" element={<SanctionsSection />} />
                 <Route path="policies" element={<PoliciesSection />} />
                 <Route path="policies/new" element={<PolicyFormPage />} />
                 <Route path="policies/:id" element={<PolicyDetailPage />} />

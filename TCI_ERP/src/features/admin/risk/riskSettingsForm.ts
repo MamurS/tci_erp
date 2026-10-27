@@ -113,11 +113,11 @@ export function sameSettings(a: GeneralSettings, b: GeneralSettings): boolean {
 
 /**
  * Who maintains sanctions flags — the mirror of tci.may_manage_sanctions:
- * admin today. A compliance role is added HERE and in that one SQL function,
- * nowhere else.
+ * credit analysts since 0091 (admin reads). A compliance role is added HERE
+ * and in that one SQL function, nowhere else.
  */
 export function mayManageSanctions(roles: readonly string[]): boolean {
-  return roles.includes('admin')
+  return roles.includes('credit_analyst')
 }
 
 /** A flag as the list shows it: in force, set for a later date, or lifted. */

@@ -26,8 +26,9 @@ export interface Workspace {
   items: readonly string[]
 }
 
-/** In every workspace, above its own tools. */
-export const COMMON_ITEMS: readonly string[] = ['dashboard', 'agenda', 'entities']
+/** In every workspace, above its own tools. Sanctions (0091): every role
+ * checks a name and reads the matches. */
+export const COMMON_ITEMS: readonly string[] = ['dashboard', 'agenda', 'entities', 'sanctions']
 
 export const WORKSPACES: readonly Workspace[] = [
   {
