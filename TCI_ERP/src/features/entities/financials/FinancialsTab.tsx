@@ -178,62 +178,114 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
 
   return (
     <div style={{ '--fin-tabs-h': `${tabsRowHeight}px` } as CSSProperties}>
-      {/* Two aligned rows: what is shown (periods, report type, currency) with
-          its export; then the views of it, with the statements themselves on
-          the same line. Each wraps as a whole on a narrow screen. */}
-      <div className="mb-4 flex flex-wrap items-center gap-x-5 gap-y-3">
-        <PeriodSelector
-          all={filteredAll}
-          displayedIds={displayedIds}
-          onChange={(ids) => setSelectedIds(ids)}
-        />
-        {/* Report type filter (legacy: налоговые / управленческие / всё) */}
-        <Segmented
-          value={typeFilter}
-          ariaLabel={t('fin.fields.reportType')}
-          options={[
-            { key: 'statutory', label: t('fin.reportTypes.statutory') },
-            { key: 'management', label: t('fin.reportTypes.management') },
-            { key: 'all', label: t('fin.reportTypes.all') },
-          ]}
-          onChange={(key) => {
-            setTypeFilter(key as TypeFilter)
-            setSelectedIds(null)
-          }}
-        />
-        {/* Display currency */}
-        <div className="flex items-center gap-2">
-          <span className="text-small text-slate-500">{t('fin.fx.displayCurrency')}:</span>
-          <Segmented
-            value={displayCurrency}
-            ariaLabel={t('fin.fx.displayCurrency')}
-            options={[
-              { key: 'original', label: t('fin.fx.original') },
-              { key: 'UZS', label: 'UZS' },
-              { key: 'USD', label: 'USD' },
-              { key: 'EUR', label: 'EUR' },
-            ]}
-            onChange={(key) => setDisplayCurrency(key as DisplayCurrency)}
+      {/* What is shown (periods, report type, currency, export) and the
+          sheet tabs stick together under the top bar and the company card's
+          bar (--card-sticky-h) while the sheet scrolls (owner, 2026-10-27);
+          the sheet's column headings stick under them (StickyTableFrame) —
+          whose offset is this block's height, published as --fin-tabs-h.
+          Each row wraps as a whole on a narrow screen. The block's top
+          padding is breathing room under the card's bar when it sticks; the
+          anchor's negative margin takes it back, so nothing moves where
+          nothing sticks, and the anchor is the block's own top. */}
+      <div ref={sheetAnchor} aria-hidden className="-mt-3" />
+      <div ref={setTabsRow} className="sticky top-[calc(4rem+var(--card-sticky-h,0px))] z-20 bg-canvas pt-3">
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pb-4">
+          <PeriodSelector
+            all={filteredAll}
+            displayedIds={displayedIds}
+            onChange={(ids) => setSelectedIds(ids)}
           />
+          {/* Report type filter (legacy: налоговые / управленческие / всё) */}
+          <Segmented
+            value={typeFilter}
+            ariaLabel={t('fin.fields.reportType')}
+            options={[
+              { key: 'statutory', label: t('fin.reportTypes.statutory') },
+              { key: 'management', label: t('fin.reportTypes.management') },
+              { key: 'all', label: t('fin.reportTypes.all') },
+            ]}
+            onChange={(key) => {
+              setTypeFilter(key as TypeFilter)
+              setSelectedIds(null)
+            }}
+          />
+          {/* Display currency */}
+          <div className="flex items-center gap-2">
+            <span className="text-small text-slate-500">{t('fin.fx.displayCurrency')}:</span>
+            <Segmented
+              value={displayCurrency}
+              ariaLabel={t('fin.fx.displayCurrency')}
+              options={[
+                { key: 'original', label: t('fin.fx.original') },
+                { key: 'UZS', label: 'UZS' },
+                { key: 'USD', label: 'USD' },
+                { key: 'EUR', label: 'EUR' },
+              ]}
+              onChange={(key) => setDisplayCurrency(key as DisplayCurrency)}
+            />
+          </div>
+          <Button variant="secondary" size="sm" className="ml-auto" onClick={handleExport}>
+            <Download />
+            {t('fin.exportExcel')}
+          </Button>
         </div>
-        <Button variant="secondary" size="sm" className="ml-auto" onClick={handleExport}>
-          <Download />
-          {t('fin.exportExcel')}
-        </Button>
+        <div className="flex flex-wrap items-end gap-x-4 gap-y-2 shadow-[inset_0_-1px_0_var(--color-slate-200)]">
+          <div className="flex-[1_0_auto]">
+            <Tabs
+              size="sm"
+              tabs={[
+                { key: 'balance', label: t('fin.tabs.balance') },
+                { key: 'pnl', label: t('fin.tabs.pnl') },
+                { key: 'ratios', label: t('fin.tabs.ratios') },
+                { key: 'cashflow', label: t('fin.tabs.cashflow') },
+                { key: 'risk', label: t('fin.tabs.risk') },
+              ]}
+              active={subTab}
+              onChange={(key) => setSubTab(key as SubTab)}
+            />
+          </div>
+          <div className="ml-auto flex items-center gap-4 pb-1">
+            {/* Only the balance sheet and the P&L have lines to hide; on the
+                other sheets the switch keeps its place, unseen, so the buttons
+                beside it never move. */}
+            <label
+              className={`flex cursor-pointer items-center gap-2 text-small text-slate-600 ${
+                subTab === 'balance' || subTab === 'pnl' ? '' : 'invisible'
+              }`}
+            >
+              <input
+                type="checkbox"
+                checked={showEmpty}
+                onChange={(e) => setShowEmpty(e.target.checked)}
+                className="size-4 accent-accent-600"
+              />
+              {t('fin.showEmptyLines')}
+            </label>
+            <Button variant="secondary" size="sm" onClick={() => setManageOpen(true)}>
+              {t('fin.manageStatements')} ({all.length})
+            </Button>
+            {mayEnter && (
+              <LinkButton size="sm" to={`/buyers/${entityId}/statements/new`}>
+                <Plus />
+                {t('fin.addStatement')}
+              </LinkButton>
+            )}
+          </div>
+        </div>
       </div>
 
       {displayCurrency === 'original' && hasMixedCurrencyOrUnit(displayedRaw) && (
-        <div className="mb-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
+        <div className="mt-4 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
           {t('fin.mixedCurrencyWarning')}
         </div>
       )}
 
       {displayCurrency !== 'original' && ratesLoading && (
-        <div className="mb-4 text-small text-slate-500">{t('fin.fx.loadingRates')}</div>
+        <div className="mt-4 text-small text-slate-500">{t('fin.fx.loadingRates')}</div>
       )}
 
       {displayCurrency !== 'original' && converted.missing.length > 0 && !ratesLoading && (
-        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
+        <div className="mt-4 flex flex-wrap items-center gap-2 rounded-md border border-warn-500/30 bg-warn-50 px-4 py-3 text-small text-warn-500">
           <span>{t('fin.fx.missingRates')}:</span>
           {converted.missing.map((need) => (
             <button
@@ -249,7 +301,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
       )}
 
       {displayed.some((s) => s.accounting_basis === 'local') && (
-        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-accent-100 bg-accent-50 px-4 py-2 text-small text-accent-700">
+        <div className="mt-4 flex flex-wrap items-center gap-2 rounded-md border border-accent-100 bg-accent-50 px-4 py-2 text-small text-accent-700">
           <span>{t('fin.local.mappedIndicator')}</span>
           {displayed
             .filter((s) => s.accounting_basis === 'local')
@@ -267,58 +319,6 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
             ))}
         </div>
       )}
-
-      {/* The sheet tabs stick under the top bar and the company card's bar
-          (--card-sticky-h) while the sheet scrolls, and
-          the sheet's column headings stick under them (StickyTableFrame) —
-          whose offset is this row's height, published as --fin-tabs-h. */}
-      <div ref={sheetAnchor} aria-hidden />
-      <div
-        ref={setTabsRow}
-        className="sticky top-[calc(4rem+var(--card-sticky-h,0px))] z-20 flex flex-wrap items-end gap-x-4 gap-y-2 bg-canvas shadow-[inset_0_-1px_0_var(--color-slate-200)]"
-      >
-        <div className="flex-[1_0_auto]">
-          <Tabs
-            size="sm"
-            tabs={[
-              { key: 'balance', label: t('fin.tabs.balance') },
-              { key: 'pnl', label: t('fin.tabs.pnl') },
-              { key: 'ratios', label: t('fin.tabs.ratios') },
-              { key: 'cashflow', label: t('fin.tabs.cashflow') },
-              { key: 'risk', label: t('fin.tabs.risk') },
-            ]}
-            active={subTab}
-            onChange={(key) => setSubTab(key as SubTab)}
-          />
-        </div>
-        <div className="ml-auto flex items-center gap-4 pb-1">
-          {/* Only the balance sheet and the P&L have lines to hide; on the
-              other sheets the switch keeps its place, unseen, so the buttons
-              beside it never move. */}
-          <label
-            className={`flex cursor-pointer items-center gap-2 text-small text-slate-600 ${
-              subTab === 'balance' || subTab === 'pnl' ? '' : 'invisible'
-            }`}
-          >
-            <input
-              type="checkbox"
-              checked={showEmpty}
-              onChange={(e) => setShowEmpty(e.target.checked)}
-              className="size-4 accent-accent-600"
-            />
-            {t('fin.showEmptyLines')}
-          </label>
-          <Button variant="secondary" size="sm" onClick={() => setManageOpen(true)}>
-            {t('fin.manageStatements')} ({all.length})
-          </Button>
-          {mayEnter && (
-            <LinkButton size="sm" to={`/buyers/${entityId}/statements/new`}>
-              <Plus />
-              {t('fin.addStatement')}
-            </LinkButton>
-          )}
-        </div>
-      </div>
 
       {/* Never shorter than the screen under the sticky rows, so a short
           sheet can still be shown from where a long one was. */}
