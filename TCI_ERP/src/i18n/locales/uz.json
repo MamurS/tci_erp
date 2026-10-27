@@ -2418,7 +2418,8 @@
     "tabs": {
       "users": "Foydalanuvchilar va rollar",
       "authorities": "Vakolatlar",
-      "security": "Xavfsizlik"
+      "security": "Xavfsizlik",
+      "risk": "Risklar"
     },
     "noUsers": "Hozircha foydalanuvchilar yo‘q",
     "editRoles": "Rollar",
@@ -2637,6 +2638,235 @@
       "title": "Subreytinglar vaznlari",
       "hint": "Reyting bahosining to‘rt bloki uchun standart vaznlar — butun foizlar, yig‘indisi 100. Tahlilchi ulardan boshlaydi va muayyan reyting uchun o‘zgartirishi mumkin.",
       "save": "Vaznlarni saqlash"
+    },
+    "risk": {
+      "oecd": {
+        "title": "IHTT mamlakat riski tasnifi",
+        "hint": "IHTT ro‘yxati to‘liq import qilinadi; qarorlar oxirgi importdan foydalanadi. Ro‘yxatda yo‘q mamlakat tasniflanmagan hisoblanadi — bu hech qachon 0-toifa emas.",
+        "loadFailed": "Import tarixini yuklab bo‘lmadi.",
+        "latest": "Amaldagi ro‘yxat kuchga kirgan sana: {{date}}",
+        "latestBody": "{{file}} · mamlakatlar: {{rows}} · import qilingan: {{at}}, {{by}}",
+        "stale": "{{months}} oydan eski — IHTTning so‘nggi ro‘yxatini import qiling.",
+        "none": "IHTT ro‘yxati hali import qilinmagan",
+        "noneBody": "Ro‘yxat bo‘lmaguncha mamlakat toifasi qarorlarda ishtirok etmaydi va har bir mamlakat tasniflanmagan hisoblanadi.",
+        "format": {
+          "title": "Qanday fayl qabul qilinadi",
+          "file": "CSV (ajratgich — vergul, nuqtali vergul yoki tabulyatsiya; UTF-8 yoki Windows-1251) yoki Excel (.xlsx, .xls — ma’lumotli birinchi varaq).",
+          "columns": "Sarlavha qatori: ikki harfli ISO mamlakat kodlari ustuni (sarlavha «code», «ISO», «country_code» yoki «Код») va toifalar ustuni («category», «classification» yoki «Категория»); boshqa ustunlar va sarlavha ustidagi nom qatorlari hisobga olinmaydi.",
+          "unclassified": "Toifa ustunidagi bo‘sh katak, «-» yoki «n/a» mamlakat tasniflanmaganini bildiradi: u importga kirmaydi.",
+          "whole": "Toifalar — 0 dan 7 gacha butun sonlar. Uch harfli kodlar (UZB) qabul qilinmaydi. Sarlavha ustidagi yoki fayl nomidagi sana kuchga kirish sanasi sifatida taklif etiladi."
+        },
+        "file": "Fayl",
+        "fileHint": "CSV, XLSX yoki XLS",
+        "choose": "Faylni tanlash",
+        "noFile": "Fayl tanlanmagan",
+        "reading": "Fayl o‘qilmoqda…",
+        "readFailed": "Faylni o‘qib bo‘lmadi. Uni CSV yoki XLSX sifatida saqlab, qayta urinib ko‘ring.",
+        "effective": "Kuchga kirish sanasi",
+        "effectiveHint": "Avval faylni tanlang.",
+        "effectiveFromFile": "Fayldan olindi — tekshiring.",
+        "effectiveToday": "Faylda sana yo‘q — bugungi sana taklif etildi.",
+        "errorsTitle": "Fayldagi xatolar: {{count}} — ular tuzatilmaguncha hech narsa import qilinmaydi",
+        "moreErrors": "…va yana {{count}} ta.",
+        "errors": {
+          "empty": "Faylda tasnif yo‘q.",
+          "no_code_column": "Mamlakat kodlari ustuni topilmadi. Uni «code», «ISO» yoki «country_code» deb nomlang.",
+          "no_category_column": "Toifalar ustuni topilmadi. Uni «category» yoki «classification» deb nomlang.",
+          "code_missing": "{{row}}-qator: mamlakat kodisiz toifa ({{value}}).",
+          "code_invalid": "{{row}}-qator: «{{value}}» ikki harfli ISO mamlakat kodi emas.",
+          "alpha3": "{{row}}-qator: «{{value}}» — uch harfli kod; ikki harfli ISO kodini kiriting (UZB emas, UZ).",
+          "category_invalid": "{{row}}-qator: {{code}} — «{{value}}» 0 dan 7 gacha bo‘lgan toifa emas.",
+          "duplicate": "{{row}}-qator: {{code}} {{firstRow}}-qatorda allaqachon bor."
+        },
+        "unknownTitle": "Noma’lum mamlakatlar",
+        "unknownBody": "Bu kodlar mamlakatlar ma’lumotnomasida yo‘q: {{codes}}. Faylni tuzating yoki ma’lumotnomani to‘ldirishni so‘rang.",
+        "previewCount": "Import qilinadigan mamlakatlar: {{count}}",
+        "skipped": "tasniflanmagan va o‘tkazib yuborilgan: {{count}}",
+        "skippedCodes": "Tasniflanmagan: {{codes}}",
+        "columns": {
+          "row": "Qator",
+          "country": "Mamlakat",
+          "category": "IHTT toifasi",
+          "warnings": "Izohlar"
+        },
+        "warnings": {
+          "lowercase": "kod kichik harflarda — bosh harflar bilan o‘qildi",
+          "unknown": "mamlakatlar ma’lumotnomasida yo‘q"
+        },
+        "note": "Izoh",
+        "noteHint": "Ixtiyoriy — masalan, ro‘yxat olingan IHTT nashri.",
+        "import": "Ro‘yxatni import qilish ({{count}})",
+        "needDate": "Import qilish uchun kuchga kirish sanasini belgilang.",
+        "importFailed": "Ro‘yxatni import qilib bo‘lmadi. Qayta urinib ko‘ring.",
+        "imported": "Ro‘yxat import qilindi: mamlakatlar — {{count}}, kuchga kirish sanasi {{date}}.",
+        "historyTitle": "Import tarixi",
+        "history": {
+          "effective": "Kuchga kirgan",
+          "file": "Fayl",
+          "rows": "Mamlakatlar",
+          "note": "Izoh",
+          "importedAt": "Import qilingan",
+          "importedBy": "Kim tomonidan"
+        },
+        "historyEmpty": "Hali hech narsa import qilinmagan",
+        "historyEmptyHint": "Har bir import sanasi va fayli bilan shu yerda saqlanadi."
+      },
+      "sanctions": {
+        "title": "Sanksiyalar",
+        "hint": "Amaldagi bayroq mamlakat yoki tashkilot uchun qoplashni har qanday vakolatda imkonsiz qiladi. Bayroqlar o‘chirilmaydi — sababi ko‘rsatilib olib tashlanadi.",
+        "add": "Bayroq qo‘shish",
+        "readOnly": "Sanksiya bayroqlarini administrator yuritadi.",
+        "filter": "Ko‘rsatish",
+        "filters": {
+          "live": "Amaldagi ({{count}})",
+          "lifted": "Olib tashlangan ({{count}})"
+        },
+        "loadFailed": "Sanksiya bayroqlarini yuklab bo‘lmadi.",
+        "emptyLive": "Amaldagi sanksiya bayroqlari yo‘q",
+        "emptyLiveHint": "Sanksiyalar hech bir mamlakat yoki tashkilot uchun qoplashni cheklamaydi.",
+        "emptyLifted": "Olib tashlangan bayroqlar yo‘q",
+        "emptyLiftedHint": "Sababi ko‘rsatilib olib tashlangan bayroqlar shu yerda saqlanadi.",
+        "columns": {
+          "party": "Mamlakat yoki tashkilot",
+          "scope": "Kimga tegishli",
+          "regime": "Rejim",
+          "source": "Manba",
+          "effective": "Amal qilish sanasi",
+          "setBy": "Kim o‘rnatgan",
+          "setAt": "O‘rnatilgan sana",
+          "liftedBy": "Kim olib tashlagan",
+          "liftedAt": "Olib tashlangan",
+          "liftReason": "Olib tashlash sababi"
+        },
+        "scopes": {
+          "country": "Mamlakat",
+          "entity": "Tashkilot"
+        },
+        "regimes": {
+          "UN": "BMT",
+          "OFAC": "OFAC (AQSh)",
+          "EU": "YI",
+          "UK": "Buyuk Britaniya",
+          "national": "Milliy",
+          "other": "Boshqa"
+        },
+        "from": "boshlanishi: {{date}}",
+        "scheduledTitle": "Keyingi sanadan amal qiladi: ungacha qoplash mumkin.",
+        "lift": "Olib tashlash",
+        "saved": "Sanksiya bayrog‘i o‘rnatildi",
+        "reviewCount": "Shoshilinch qayta ko‘rib chiqish uchun kredit anderraytingiga yuborilgan amaldagi limitlar: {{count}}.",
+        "reviewNone": "Amaldagi limitlarga ta’sir yo‘q — qayta ko‘rib chiqish vazifalari ochilmadi.",
+        "liftedDone": "Sanksiya bayrog‘i olib tashlandi",
+        "addTitle": "Yangi sanksiya bayrog‘i",
+        "addSubmit": "Bayroqni o‘rnatish",
+        "country": "Mamlakat",
+        "company": "Tashkilot",
+        "targetRequired": {
+          "country": "Mamlakatni tanlang.",
+          "entity": "Tashkilotni tanlang."
+        },
+        "source": "Manba",
+        "sourceHint": "Ro‘yxat qayerda e’lon qilingan, masalan «BMT Xavfsizlik Kengashining jamlangan sanksiya ro‘yxati».",
+        "sourceRequired": "Manbani ko‘rsating.",
+        "reference": "Rekvizitlar",
+        "referenceHint": "Ixtiyoriy — ro‘yxatdagi yozuv, rezolyutsiya yoki reglament raqami.",
+        "effectiveRequired": "Bayroq amal qiladigan sanani belgilang.",
+        "note": "Izoh",
+        "effectTitle": "Bu bayroq nima qiladi",
+        "effectBody": "Bayroq amalda ekan, bu tomon uchun qoplash mumkin emas: limit so‘rovi, ma’qullovchi qaror, sug‘urta arizasi va polis rad etiladi, hech qanday vakolat buni o‘zgartira olmaydi. Amaldagi limitlar avtomatik ravishda bekor qilinmaydi — har biri bo‘yicha kredit anderraytingi shoshilinch qayta ko‘rib chiqish vazifasini oladi.",
+        "confirmTitle": "Sanksiya bayrog‘i o‘rnatilsinmi?",
+        "confirmBody": "Bu tomon uchun qoplash imkonsiz bo‘ladi va hech qanday vakolat buni o‘zgartira olmaydi. Amaldagi limitlar avtomatik ravishda bekor qilinmaydi — har biri bo‘yicha kredit anderraytingi shoshilinch qayta ko‘rib chiqish vazifasini oladi.",
+        "confirm": "Bayroqni o‘rnatish",
+        "saveFailed": "Bayroqni o‘rnatib bo‘lmadi. Qayta urinib ko‘ring.",
+        "duplicate": "Bu tomonda ushbu rejim bo‘yicha amaldagi bayroq allaqachon bor.",
+        "liftTitle": "Bayroqni olib tashlash: {{party}}",
+        "liftBody": "«{{regime}}» rejimi bayrog‘i olib tashlangach, boshqa amaldagi bayroq bo‘lmasa, qoplash yana mumkin bo‘ladi. Shu vaqt ichida bekor qilingan yoki kamaytirilgan limitlar tiklanmaydi.",
+        "liftReason": "Sabab",
+        "liftSubmit": "Bayroqni olib tashlash",
+        "liftFailed": "Bayroqni olib tashlab bo‘lmadi. Qayta urinib ko‘ring."
+      },
+      "adjustments": {
+        "title": "Qoplash matritsasi va tuzatishlar",
+        "hint": "Har bir sektor reytingi va har bir IHTT toifasi uchun bitta qator. Har bir qator alohida saqlanadi va shundan keyingi reytinglar va qarorlarga amal qiladi.",
+        "explain": {
+          "notch": "tavsiya etilgan reytingni butun pog‘onalarga siljitadi, −6 dan +6 gacha (+ — yaxshiroq).",
+          "cap": "shu qator bo‘yicha reyting erisha oladigan eng yaxshi daraja; «Chegarasiz» — cheklovsiz.",
+          "cover": "belgi: cheklangan qoplash faqat yonida ko‘rsatilgan yuqoriroq vakolat darajasida beriladi. Qoplashni faqat sanksiyalar imkonsiz qiladi.",
+          "rank": "mamlakat uchun — qoplash to‘g‘risidagi qaror uchun zarur vakolat darajasi (0 — istalgan, 5 — qo‘mita); sektor uchun — ustiga qo‘shiladigan darajalar soni.",
+          "loading": "konsentratsiya tekshiruvida ko‘rsatiladigan taxminiy mukofotga ustama; o‘zi mukofotni o‘zgartirmaydi."
+        },
+        "matrixTitle": "Standart qoplash matritsasi",
+        "matrix": "0–3-toifalar — oddiy vakolat · 4–5 — 3-daraja va undan yuqori · 6 — 4-daraja yoki qo‘mita · 7 va tasniflanmaganlar — faqat qo‘mita · sanksiya ostida — qoplash mumkin emas · D sektori — bir daraja yuqori.",
+        "columns": {
+          "line": "Qator",
+          "notch": "Tuzatish",
+          "cap": "Reyting chegarasi",
+          "cover": "Qoplash",
+          "rank": "Vakolat darajasi",
+          "loading": "Mukofotga ustama"
+        },
+        "rankFloor": "Zarur vakolat darajasi (0–5, 5 — qo‘mita)",
+        "rankAdd": "Qo‘shiladigan darajalar (0–4)",
+        "groups": {
+          "sector": "Sektor reytingi",
+          "country": "IHTT toifasi"
+        },
+        "sectorLine": "Sektor {{grade}}",
+        "countryLine": "{{category}}-toifa",
+        "noCap": "Chegarasiz",
+        "cover": {
+          "available": "Mavjud",
+          "restricted": "Cheklangan"
+        },
+        "bounds": "{{min}} dan {{max}} gacha",
+        "invalid": {
+          "notch": "Tuzatish: {{min}} dan {{max}} gacha butun son.",
+          "cap_grade": "Reyting chegarasi: ro‘yxatdan tanlang.",
+          "cover": "Qoplash: ro‘yxatdan tanlang.",
+          "rank_floor": "Vakolat darajasi: {{min}} dan {{max}} gacha butun son.",
+          "rank_add": "Qo‘shiladigan darajalar: {{min}} dan {{max}} gacha butun son.",
+          "premium_loading_pct": "Mukofotga ustama: {{min}} dan {{max}} % gacha, verguldan keyin ko‘pi bilan ikki raqam."
+        },
+        "undo": "Qaytarish",
+        "loadFailed": "Tuzatishlar jadvalini yuklab bo‘lmadi.",
+        "saveFailed": "Qatorni saqlab bo‘lmadi. Qayta urinib ko‘ring."
+      },
+      "settings": {
+        "title": "Risk sozlamalari",
+        "hint": "Sektor sharhlari, IHTT ro‘yxatining dolzarblik muddati, konsentratsiya chegarasi va mijoz ko‘ra oladigan narsalar. Barcha qiymatlar birga saqlanadi.",
+        "dueDay": "Choraklik sektor sharhi muddati — kun",
+        "dueDayHint": "Chorakning kuni, {{min}}–{{max}}.",
+        "days": "kun",
+        "staleMonths": "IHTT ro‘yxati eskiradi",
+        "staleMonthsHint": "Oylar, {{min}}–{{max}}. Eskiroq ro‘yxat sariq rang bilan belgilanadi.",
+        "warnPct": "Konsentratsiya ogohlantirishi — dan yuqori",
+        "warnPctHint": "Polis yoki sug‘urta arizasi qoplamasining C/D sektorlari yoki 5–7-toifali mamlakatlardagi ulushi, {{min}}–{{max}} %.",
+        "fourEyes": "Sektor sharhini ikkinchi tahlilchi tasdiqlaydi",
+        "fourEyesHint": "O‘chirilgan: tahlilchi sharhi darhol amal qiladi. Yoqilgan: avval uni boshqa kredit tahlilchi tasdiqlaydi.",
+        "clientShowOecd": "Mijozlarga IHTT toifasini ko‘rsatish",
+        "clientShowOecdHint": "Portal uchun zaxira: hozircha mijozning hech bir ekrani uni ko‘rsatmaydi, sozlama qanday bo‘lishidan qat’i nazar.",
+        "outOfRange": "{{min}} dan {{max}} gacha.",
+        "loadFailed": "Risk sozlamalarini yuklab bo‘lmadi.",
+        "saveFailed": "Sozlamalarni saqlab bo‘lmadi. Qayta urinib ko‘ring."
+      },
+      "analysts": {
+        "title": "Sektor tahlilchilari",
+        "hint": "Har bir sektorning choraklik sharhi uchun mas’ul kredit tahlilchi. O‘zgarish darhol saqlanadi; ochiq sharh vazifasi yangi mas’ulga o‘tadi.",
+        "columns": {
+          "sector": "Sektor",
+          "grade": "Sektor reytingi",
+          "analyst": "Mas’ul tahlilchi"
+        },
+        "none": "— Tayinlanmagan —",
+        "assignFor": "Mas’ul tahlilchi: {{sector}}",
+        "unassigned": "Tahlilchi tayinlanmagan sektorlar: {{count}}",
+        "noAnalysts": "Hech kimda kredit tahlilchi roli yo‘q",
+        "noAnalystsHint": "Rolni «Foydalanuvchilar va rollar» varag‘ida bering, so‘ng sektorlarni shu yerda taqsimlang.",
+        "empty": "Sektorlar yo‘q",
+        "emptyHint": "Ma’lumotnomadagi har bir tarmoq uchun sektor yaratiladi.",
+        "loadFailed": "Sektorlarni yuklab bo‘lmadi.",
+        "saveFailed": "Tahlilchini tayinlab bo‘lmadi. Qayta urinib ko‘ring."
+      }
     }
   },
   "requests": {

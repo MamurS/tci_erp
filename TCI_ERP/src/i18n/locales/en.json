@@ -2418,7 +2418,8 @@
     "tabs": {
       "users": "Users & roles",
       "authorities": "Authorities",
-      "security": "Security"
+      "security": "Security",
+      "risk": "Risk"
     },
     "noUsers": "No users yet",
     "editRoles": "Roles",
@@ -2637,6 +2638,235 @@
       "title": "Sub-grade weights",
       "hint": "The default weights of the rating scorecard's four pillars, whole per cents adding up to 100. The rater starts from them and may change them for a rating.",
       "save": "Save weights"
+    },
+    "risk": {
+      "oecd": {
+        "title": "OECD country risk classification",
+        "hint": "Import the published OECD list as a whole; decisions use the latest import. A country missing from it is not classified — never category 0.",
+        "loadFailed": "Could not load the import history.",
+        "latest": "Current list: effective {{date}}",
+        "latestBody": "{{file}} · countries: {{rows}} · imported {{at}} by {{by}}",
+        "stale": "Older than {{months}} months — import the latest OECD list.",
+        "none": "No OECD list imported yet",
+        "noneBody": "Until a list is imported, the country category plays no part in decisions and every country reads as not classified.",
+        "format": {
+          "title": "Accepted file",
+          "file": "CSV (comma, semicolon or tab; UTF-8 or Windows-1251) or Excel (.xlsx, .xls — the first sheet with data).",
+          "columns": "A header row with a column of two-letter ISO country codes (headed «code», «ISO», «country_code» or «Код») and a column of categories («category», «classification» or «Категория»); other columns, and title lines above the header, are ignored.",
+          "unclassified": "An empty cell, «-» or «n/a» in the category column means the country is not classified: it is left out of the import.",
+          "whole": "Categories are whole numbers 0–7. Three-letter codes (UZB) are not accepted. A date above the header or in the file name is offered as the effective date."
+        },
+        "file": "File",
+        "fileHint": "CSV, XLSX or XLS",
+        "choose": "Choose a file",
+        "noFile": "No file chosen",
+        "reading": "Reading the file…",
+        "readFailed": "The file could not be read. Save it as CSV or XLSX and try again.",
+        "effective": "Effective date",
+        "effectiveHint": "Choose a file first.",
+        "effectiveFromFile": "Taken from the file — check it.",
+        "effectiveToday": "The file names no date — today is suggested.",
+        "errorsTitle": "Problems in the file: {{count}} — nothing is imported until they are fixed",
+        "moreErrors": "…and {{count}} more.",
+        "errors": {
+          "empty": "The file holds no classification.",
+          "no_code_column": "No column of country codes was found. Head it «code», «ISO» or «country_code».",
+          "no_category_column": "No column of categories was found. Head it «category» or «classification».",
+          "code_missing": "Row {{row}}: a category ({{value}}) with no country code.",
+          "code_invalid": "Row {{row}}: «{{value}}» is not a two-letter ISO country code.",
+          "alpha3": "Row {{row}}: «{{value}}» is a three-letter code — use the two-letter ISO code (UZ, not UZB).",
+          "category_invalid": "Row {{row}}: {{code}} — «{{value}}» is not a category from 0 to 7.",
+          "duplicate": "Row {{row}}: {{code}} already appears in row {{firstRow}}."
+        },
+        "unknownTitle": "Countries we do not know",
+        "unknownBody": "These codes are not in the country reference list: {{codes}}. Correct the file, or ask for the reference list to be completed.",
+        "previewCount": "Countries to import: {{count}}",
+        "skipped": "left out as not classified: {{count}}",
+        "skippedCodes": "Not classified: {{codes}}",
+        "columns": {
+          "row": "Row",
+          "country": "Country",
+          "category": "OECD category",
+          "warnings": "Notes"
+        },
+        "warnings": {
+          "lowercase": "code written in lower case — read in capitals",
+          "unknown": "not in the country reference list"
+        },
+        "note": "Note",
+        "noteHint": "Optional — e.g. the OECD publication the list comes from.",
+        "import": "Import the list ({{count}})",
+        "needDate": "Set the effective date to import.",
+        "importFailed": "The list could not be imported. Try again.",
+        "imported": "List imported: {{count}} countries, effective {{date}}.",
+        "historyTitle": "Import history",
+        "history": {
+          "effective": "Effective",
+          "file": "File",
+          "rows": "Countries",
+          "note": "Note",
+          "importedAt": "Imported",
+          "importedBy": "By"
+        },
+        "historyEmpty": "Nothing imported yet",
+        "historyEmptyHint": "Every import is kept here with its date and file."
+      },
+      "sanctions": {
+        "title": "Sanctions",
+        "hint": "A live flag makes cover impossible for a country or a company, whatever the authority. Flags are never deleted — they are lifted, with a reason.",
+        "add": "Add a flag",
+        "readOnly": "Sanctions flags are maintained by the administrator.",
+        "filter": "Show",
+        "filters": {
+          "live": "Live ({{count}})",
+          "lifted": "Lifted ({{count}})"
+        },
+        "loadFailed": "Could not load the sanctions flags.",
+        "emptyLive": "No live sanctions flags",
+        "emptyLiveHint": "Sanctions restrict cover for no country and no company.",
+        "emptyLifted": "No lifted flags",
+        "emptyLiftedHint": "Flags lifted with a reason are kept here.",
+        "columns": {
+          "party": "Country or company",
+          "scope": "Applies to",
+          "regime": "Regime",
+          "source": "Source",
+          "effective": "Effective from",
+          "setBy": "Set by",
+          "setAt": "Set on",
+          "liftedBy": "Lifted by",
+          "liftedAt": "Lifted",
+          "liftReason": "Reason for lifting"
+        },
+        "scopes": {
+          "country": "Country",
+          "entity": "Company"
+        },
+        "regimes": {
+          "UN": "UN",
+          "OFAC": "OFAC (US)",
+          "EU": "EU",
+          "UK": "UK",
+          "national": "National",
+          "other": "Other"
+        },
+        "from": "from {{date}}",
+        "scheduledTitle": "Applies from a later date: cover remains possible until then.",
+        "lift": "Lift",
+        "saved": "Sanctions flag set",
+        "reviewCount": "In-force limits sent to credit underwriting for an urgent review: {{count}}.",
+        "reviewNone": "No in-force limit is affected — no review task was opened.",
+        "liftedDone": "Sanctions flag lifted",
+        "addTitle": "New sanctions flag",
+        "addSubmit": "Set the flag",
+        "country": "Country",
+        "company": "Company",
+        "targetRequired": {
+          "country": "Choose the country.",
+          "entity": "Choose the company."
+        },
+        "source": "Source",
+        "sourceHint": "Where the listing is published, e.g. «UN Security Council Consolidated List».",
+        "sourceRequired": "Name the source.",
+        "reference": "Reference",
+        "referenceHint": "Optional — the list entry, resolution or regulation number.",
+        "effectiveRequired": "Set the date the flag applies from.",
+        "note": "Note",
+        "effectTitle": "What this flag does",
+        "effectBody": "While it is live, no cover is possible for this party: a limit request, an approving decision, a submission and a policy are refused, and no authority overrides it. Limits already in force are NOT revoked automatically — each one gets an urgent review task for credit underwriting.",
+        "confirmTitle": "Set the sanctions flag?",
+        "confirmBody": "No cover will be possible for this party, and no authority can override it. Limits already in force are not revoked automatically — each one gets an urgent review task for credit underwriting.",
+        "confirm": "Set the flag",
+        "saveFailed": "The flag could not be set. Try again.",
+        "duplicate": "This party already has a live flag under this regime.",
+        "liftTitle": "Lift the flag: {{party}}",
+        "liftBody": "Once the {{regime}} flag is lifted, cover is possible again unless another live flag applies. Limits revoked or reduced in the meantime are not restored.",
+        "liftReason": "Reason",
+        "liftSubmit": "Lift the flag",
+        "liftFailed": "The flag could not be lifted. Try again."
+      },
+      "adjustments": {
+        "title": "Cover matrix and adjustments",
+        "hint": "One line per sector grade and per OECD country category. Each line is saved on its own and applies to ratings and decisions from then on.",
+        "explain": {
+          "notch": "moves the recommended grade by whole steps, −6 to +6 (+ is better).",
+          "cap": "the best grade a rating may reach on this line; «No cap» leaves it free.",
+          "cover": "a label: restricted cover is granted only at the higher authority rank set beside it. Only sanctions make cover impossible.",
+          "rank": "for a country, the authority rank a decision granting cover needs (0 none, 5 = committee); for a sector, the ranks added on top.",
+          "loading": "an indicative premium loading shown with the concentration check; it changes no premium by itself."
+        },
+        "matrixTitle": "Cover matrix by default",
+        "matrix": "Categories 0–3 normal authority · 4–5 rank 3 and above · 6 rank 4 or the committee · 7 and not classified the committee only · sanctioned: no cover · sector D one rank more.",
+        "columns": {
+          "line": "Line",
+          "notch": "Notch",
+          "cap": "Grade cap",
+          "cover": "Cover",
+          "rank": "Authority rank",
+          "loading": "Premium loading"
+        },
+        "rankFloor": "Authority rank needed (0–5, 5 = committee)",
+        "rankAdd": "Ranks added (0–4)",
+        "groups": {
+          "sector": "Sector grade",
+          "country": "OECD category"
+        },
+        "sectorLine": "Sector {{grade}}",
+        "countryLine": "Category {{category}}",
+        "noCap": "No cap",
+        "cover": {
+          "available": "Available",
+          "restricted": "Restricted"
+        },
+        "bounds": "From {{min}} to {{max}}",
+        "invalid": {
+          "notch": "Notch: a whole number from {{min}} to {{max}}.",
+          "cap_grade": "Grade cap: choose from the list.",
+          "cover": "Cover: choose from the list.",
+          "rank_floor": "Authority rank: a whole number from {{min}} to {{max}}.",
+          "rank_add": "Ranks added: a whole number from {{min}} to {{max}}.",
+          "premium_loading_pct": "Premium loading: from {{min}} to {{max}} %, at most two decimals."
+        },
+        "undo": "Undo",
+        "loadFailed": "Could not load the adjustment table.",
+        "saveFailed": "The line could not be saved. Try again."
+      },
+      "settings": {
+        "title": "Risk settings",
+        "hint": "Sector reviews, the age of the OECD list, the concentration warning and what a client may see. Every value is saved together.",
+        "dueDay": "Quarterly sector review due on day",
+        "dueDayHint": "Day of the quarter, {{min}}–{{max}}.",
+        "days": "day",
+        "staleMonths": "OECD list is out of date after",
+        "staleMonthsHint": "Months, {{min}}–{{max}}. An older list is flagged in amber.",
+        "warnPct": "Concentration warning above",
+        "warnPctHint": "The share of a policy’s or a submission’s cover in sectors C/D or in country categories 5–7, {{min}}–{{max}} %.",
+        "fourEyes": "A sector review needs a second analyst’s approval",
+        "fourEyesHint": "Off: an analyst’s review is in force at once. On: another credit analyst approves it first.",
+        "clientShowOecd": "Show the OECD category to clients",
+        "clientShowOecdHint": "Reserved for the portal: no client screen shows it yet, whichever way this is set.",
+        "outOfRange": "From {{min}} to {{max}}.",
+        "loadFailed": "Could not load the risk settings.",
+        "saveFailed": "The settings could not be saved. Try again."
+      },
+      "analysts": {
+        "title": "Sector analysts",
+        "hint": "The credit analyst responsible for each sector’s quarterly review. A change saves at once; the open review task follows the person.",
+        "columns": {
+          "sector": "Sector",
+          "grade": "Sector grade",
+          "analyst": "Responsible analyst"
+        },
+        "none": "— Not assigned —",
+        "assignFor": "Responsible analyst: {{sector}}",
+        "unassigned": "Sectors without an analyst: {{count}}",
+        "noAnalysts": "Nobody holds the credit analyst role",
+        "noAnalystsHint": "Give the role on the «Users & roles» tab, then assign the sectors here.",
+        "empty": "No sectors",
+        "emptyHint": "A sector is created for every industry of the reference list.",
+        "loadFailed": "Could not load the sectors.",
+        "saveFailed": "The analyst could not be assigned. Try again."
+      }
     }
   },
   "requests": {
