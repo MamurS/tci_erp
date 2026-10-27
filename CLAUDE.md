@@ -1061,7 +1061,17 @@ is fine for internal test accounts and not fine for customers.
   worse, and a lazy admin reminder (`oecd_review_due`) once the list in use
   is older than `oecd_stale_months` — 4 since 0087 (was 6). Same batch: the
   section is named «Sectors & Country Risk Categories». See **Sector,
-  country and sanctions rules** above. **Not yet applied to canonical.**
+  country and sanctions rules** above. **Canonical: 0086–0087 applied
+  2026-10-27** before merge (owner's yes; backward-compatible — the deployed
+  screens only gain two task types): the three functions 0087 replaces
+  verified identical to a local replay of 0085 first; 0086 in one call with
+  its ledger row; 0087 executed FROM its ledger row in one call, after
+  checking that the row's text is md5-identical to the committed file, so
+  the file text was sent once. All six 0087 functions, the grants and the two
+  column defaults are identical to a local replay afterwards; the live
+  setting moved from 6 to 4. `tests/db/country_risk_upkeep.sql` run on
+  canonical with role impersonation (forced rollback, nothing left behind,
+  counts unchanged); no new advisor finding
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
