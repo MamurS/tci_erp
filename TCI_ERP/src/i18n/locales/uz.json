@@ -63,7 +63,8 @@
       }
     },
     "data": "Ma’lumotlarni boshqarish",
-    "sectors": "Sektorlar va mamlakat riski toifalari"
+    "sectors": "Sektorlar va mamlakat riski toifalari",
+    "sanctions": "Sanksiyalar"
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -155,7 +156,11 @@
     "noMatches": "Hech narsa topilmadi",
     "noMatchesHint": "Qidiruv shartlarini o‘zgartiring yoki filtrlarni tozalang.",
     "resetFilters": "Filtrlarni tozalash",
-    "actions": "Amallar"
+    "actions": "Amallar",
+    "split": {
+      "resize": "Panellar kengligini o‘zgartirish",
+      "hint": "Kenglikni o‘zgartirish uchun torting · ikki marta bosish — qaytarish"
+    }
   },
   "dashboard": {
     "welcome": "Xush kelibsiz, {{email}}",
@@ -465,7 +470,9 @@
       "manualHint": "MB bu sana uchun kurs bermaydi. 1 birlik valyuta uchun so‘m miqdorini kiriting — kurs qo‘lda kiritilgan sifatida saqlanadi.",
       "footnote": "Qo‘llangan kurslar",
       "growthFootnote": "O‘sish sur’atlari hisobot valyutasida hisoblangan",
-      "manualPlaceholder": "1 {{ccy}} = ? UZS"
+      "manualPlaceholder": "1 {{ccy}} = ? UZS",
+      "missingTitle": "Bu davrlarda «—»: ularning sanalariga {{ccy}} kursi yo‘q",
+      "missingBody": "Har bir davr o‘zining yakuniy sanasidagi O‘zbekiston Markaziy banki kursi bo‘yicha qayta hisoblanadi. Kurslarni tahliliy xizmat yuklaydi, u hali ishga tushirilmagan, shuning uchun faqat qo‘lda kiritilgan kurslar mavjud. Kursni kiritish uchun sanani bosing — u hamma uchun saqlanadi. O‘sish sur’atlari har doim hisobot valyutasida hisoblanadi, shuning uchun ular ko‘rinadi."
     },
     "cashflow": {
       "header": "Pul oqimi (bilvosita usul)",
@@ -2148,7 +2155,8 @@
         "group_limit": "Guruh o‘z guruh limitidan oshib ketadi",
         "downgrade": "Bayer reytingi ADT belgilangan reyting diapazonidan pastga tushdi",
         "no_recommended_limit": "Reytingda tavsiya etilgan limit yo‘q (qo‘lda belgilangan reyting)",
-        "cover_restricted": "Bayerning mamlakati yoki sektori yuqoriroq vakolat darajasini talab qiladi (qoplash matritsasi)"
+        "cover_restricted": "Bayerning mamlakati yoki sektori yuqoriroq vakolat darajasini talab qiladi (qoplash matritsasi)",
+        "sanctions_match": "Bayer bo‘yicha ehtimoliy sanksiyaviy moslik hali ko‘rib chiqilmagan"
       },
       "attempt": {
         "decided": "Qaror avtomatik qabul qilindi (ADT)",
@@ -2351,7 +2359,8 @@
       "requests": "Sug‘urta arizalari",
       "access": "Mijoz kirishi",
       "claims": "Da’volar",
-      "group": "Guruh"
+      "group": "Guruh",
+      "sanctions": "Sanksiyalar"
     },
     "portfolioLimitsTitle": "Sug‘urtalanuvchi polislari bo‘yicha kredit limitlari",
     "portfolioSummary": "Sug‘urtalanuvchi portfeli:",
@@ -2419,7 +2428,8 @@
       "users": "Foydalanuvchilar va rollar",
       "authorities": "Vakolatlar",
       "security": "Xavfsizlik",
-      "risk": "Risklar"
+      "risk": "Risklar",
+      "tiers": "Sug‘urtalanuvchilar darajalari"
     },
     "noUsers": "Hozircha foydalanuvchilar yo‘q",
     "editRoles": "Rollar",
@@ -3146,10 +3156,10 @@
       }
     },
     "uiBadgeInk": {
-      "title": "Rangli belgilardagi matn",
-      "hint": "To‘q rang ustida oq matn yoki och rang ustida to‘q matn. Qorong‘i rejim va chop etilgan sahifalar avvalgidek ko‘rinadi.",
-      "white": "Oq",
-      "dark": "To‘q"
+      "title": "Rangli belgilar",
+      "hint": "Pastel: och rang va to‘q matn (odatiy). To‘yingan: to‘q rang va oq matn. Qorong‘i rejim va chop etilgan sahifalar avvalgidek ko‘rinadi.",
+      "white": "To‘yingan, oq matn",
+      "dark": "Pastel"
     }
   },
   "provisioning": {
@@ -3308,7 +3318,9 @@
       "sanctions_limit_review": "Sanksiyalar: limitni qayta ko‘rib chiqish",
       "country_override_approval": "Mamlakatning ichki toifasini tasdiqlash",
       "oecd_review_due": "IHTT ro‘yxatini tekshirish",
-      "country_downgrade_review": "Mamlakat yomonlashdi: bayerlarni qayta ko‘rib chiqish"
+      "country_downgrade_review": "Mamlakat yomonlashdi: bayerlarni qayta ko‘rib chiqish",
+      "sanctions_match_review": "Ehtimoliy sanksiyaviy moslik",
+      "sanctions_list_due": "Import qilinadigan sanksiya ro‘yxatlari"
     },
     "tasks": {
       "buyer_needs_entity": "{{subject}} arizasidagi «{{name}}» ortidagi tashkilotni aniqlang",
@@ -3379,7 +3391,10 @@
       "sanctions_limit_review": "Sanksiyalar ({{regime}}): {{subject}} bo‘yicha limitni qayta ko‘rib chiqish",
       "country_override_approval": "Mamlakatning ichki toifasini tasdiqlash: {{country}} → {{category}}-toifa",
       "oecd_review_due": "IHTT mamlakat riski ro‘yxatining yangisi bor-yo‘qligini tekshirish",
-      "country_downgrade_review": "{{effective_date}} dagi IHTT ro‘yxati: yomonlashgan mamlakatlar — {{countries_count}}; limitli bayerlarni qayta ko‘rib chiqish ({{buyers}})"
+      "country_downgrade_review": "{{effective_date}} dagi IHTT ro‘yxati: yomonlashgan mamlakatlar — {{countries_count}}; limitli bayerlarni qayta ko‘rib chiqish ({{buyers}})",
+      "sanctions_match_review": "Ehtimoliy sanksiyaviy moslik: {{subject}}ni tekshiring",
+      "sanctions_list_due": "Amaldagi sanksiya ro‘yxatlarini import qiling",
+      "adt_review_sanctions_match": "{{entity_name}} bayerining ADT to‘xtatildi: ehtimoliy sanksiyaviy moslik tekshiruvni kutmoqda"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
@@ -3638,7 +3653,8 @@
       "countryWorse": "{{code}}: {{from}} → {{to}}",
       "moreCountries": "yana {{count}} ta",
       "buyersAffected_one": "limitli {{count}} ta bayer",
-      "buyersAffected_other": "limitli {{count}} ta bayer"
+      "buyersAffected_other": "limitli {{count}} ta bayer",
+      "sanctionsMatches": "Ehtimoliy mosliklar: {{count}}"
     },
     "sub": {
       "instalment": "{{sequence}}-to‘lov"
@@ -3712,7 +3728,9 @@
       "offer_expiring": "{{number}} taklifi {{validUntil}} gacha amal qiladi. Mijoz bilan bog‘laning yoki yangi muddatli versiyani e’lon qiling.",
       "offer_expired": "{{number}} taklifi {{validUntil}} gacha amal qilgan va endi qabul qilinmaydi. Yangi muddatli versiyani e’lon qiling yoki uni qaytarib oling.",
       "oecd_review_due": "IHTT mamlakat riski ro‘yxatini yiliga taxminan uch marta (har bir ishtirokchilar yig‘ilishidan keyin) qayta ko‘rib chiqadi, amaldagi ro‘yxat esa {{months}} oydan eski. oecd.org dan joriy PDF faylini yuklab oling va Administratsiya › Risklar bo‘limida import qiling.",
-      "oecd_review_due_none": "IHTT mamlakat riski ro‘yxati hali import qilinmagan, shuning uchun mamlakat riski qarorlarda hozircha hisobga olinmaydi. oecd.org dan joriy PDF faylini yuklab oling va Administratsiya › Risklar bo‘limida import qiling."
+      "oecd_review_due_none": "IHTT mamlakat riski ro‘yxati hali import qilinmagan, shuning uchun mamlakat riski qarorlarda hozircha hisobga olinmaydi. oecd.org dan joriy PDF faylini yuklab oling va Administratsiya › Risklar bo‘limida import qiling.",
+      "sanctions_match_review": "Skrining rasmiy sanksiya ro‘yxatlaridagi shaxslar bilan ehtimoliy mosliklarni topdi: {{count}} — tashkilotning o‘zi, egasi bo‘lgan tashkilot yoki uning ortidagi shaxs. Ma’lumotlarni (ro‘yxatdan o‘tish raqami, manzil, tug‘ilgan sana) solishtiring va har bir moslikni izoh bilan tasdiqlang yoki yolg‘on deb belgilang. Shu paytgacha bu bayerga limit ma’qullanmaydi va avtoqaror qabul qilinmaydi.",
+      "sanctions_list_due": "Majburiy sanksiya ro‘yxati yo‘q yoki u {{days}} kundan oldin e’lon qilingan. Amaldagi faylni nashr etuvchidan yuklab oling va Sanksiyalar › Ro‘yxatlar bo‘limida import qiling — nazoratdagi barcha tashkilotlar u bo‘yicha tekshiriladi."
     },
     "dest": {
       "opens": "Ochiladi",
@@ -3742,7 +3760,9 @@
         "financials": "Moliyaviy hisobot",
         "card": "Tashkilot kartochkasi",
         "countries": "Mamlakatlar",
-        "oecd": "IHTT importi"
+        "oecd": "IHTT importi",
+        "sanctions": "Sanksiyalar",
+        "sanctionsLists": "Sanksiya ro‘yxatlari"
       },
       "with": {
         "task": "shu vazifa konteksti bilan",
@@ -4007,7 +4027,36 @@
       "mine": "Menga tayinlangan",
       "cleared": "Bugun bajarildi"
     },
-    "buyerGrade": "Bayer reytingi: {{grade}}"
+    "buyerGrade": "Bayer reytingi: {{grade}}",
+    "transfer": {
+      "action": "Hamkasbga topshirish",
+      "bulk": "Vazifalarni hamkasbga topshirish",
+      "title": "Vazifalarni hamkasbga topshirish",
+      "intro": "Vazifalar shaxsan hamkasbga, o‘sha bo‘linmada o‘tadi; izohingizni u izoh sifatida ko‘radi. Validatsiya bosqichlari va reyting takliflarini qoidalar belgilagan shaxslar oladi — ularni topshirib bo‘lmaydi.",
+      "tasks": "Belgilangan vazifalar: {{count}}",
+      "all": "Hammasi",
+      "none": "Hech biri",
+      "items": "pozitsiyalar: {{count}}",
+      "nothing": "Topshiradigan narsa yo‘q",
+      "nothingHint": "Bu yerdagi barcha vazifalarni qoidalar belgilagan shaxslar oladi.",
+      "to": "Hamkasb",
+      "toHint": "Faqat har bir belgilangan vazifa bo‘linmasida ishlaydigan hamkasblar",
+      "noColleague": "Hech bir hamkasb barcha belgilangan vazifalarni qabul qila olmaydi — kamroq belgilang.",
+      "choose": "Hamkasbni tanlang",
+      "note": "Izoh",
+      "noteHint": "Ixtiyoriy: nega yoki nima qolgan",
+      "submit": "Topshirish ({{count}})",
+      "done": "Topshirilgan vazifalar: {{count}}.",
+      "errors": {
+        "self": "O‘zingizni emas, hamkasbni tanlang.",
+        "wrongColleague": "Bu hamkasb vazifa bo‘linmasida ishlamaydi.",
+        "notAllowed": "Bu vazifani qoidalar belgilagan shaxslar oladi — uni topshirib bo‘lmaydi.",
+        "closed": "Vazifa allaqachon yopilgan.",
+        "notYours": "Bu vazifani faqat uning ijrochisi topshira oladi.",
+        "tooMany": "Bir vaqtda 200 tadan ortiq emas.",
+        "none": "Topshiriladigan vazifalarni belgilang."
+      }
+    }
   },
   "portal": {
     "title": "Mijoz portali",
@@ -6565,7 +6614,7 @@
       "overrideOwn": "Mamlakatning ichki toifasini muallif emas, boshqa shaxs tasdiqlaydi.",
       "overrideRejectReason": "Rad etish sababini yozing.",
       "overrideEndReason": "Ichki toifa nima uchun tugatilayotganini yozing.",
-      "sanctionsManageOnly": "Sanksiyalarni administrator yuritadi.",
+      "sanctionsManageOnly": "Sanksiya belgilarini kredit tahlilchilar yuritadi.",
       "sanctionsLiftReason": "Belgi nima uchun olib tashlanayotganini yozing.",
       "concentrationScope": "Polis yoki sug‘urta arizasini ko‘rsating.",
       "referenceSource": "Noma’lum reyting manbasi.",
@@ -7085,6 +7134,395 @@
       "withdrawnNote": "Reyting nega qaytarib olinganini ko‘rsating.",
       "outlook": "Bu prognozni bunday reyting bilan yozib bo‘lmaydi.",
       "unchanged": "Bu reyting harakati allaqachon yozilgan."
+    }
+  },
+  "sanctions": {
+    "column": "Sanksiyalar",
+    "section": {
+      "subtitle": "Bayerlar, ularning egalari va benefitsiarlarini rasmiy sanksiya ro‘yxatlari bo‘yicha skrining hamda qo‘lda tekshirish vositalari",
+      "views": {
+        "check": "Nomni tekshirish",
+        "matches": "Tekshiriladigan mosliklar",
+        "lists": "Ro‘yxatlar",
+        "flags": "Belgilar"
+      }
+    },
+    "status": {
+      "label": {
+        "sanctioned": "Sanksiya ostida",
+        "country": "Davlatga sanksiya",
+        "possible_match": "Ehtimoliy moslik",
+        "not_screened": "Tekshirilmagan",
+        "outdated": "Qayta tekshirish kerak",
+        "clear": "Moslik topilmadi"
+      },
+      "hint": {
+        "sanctioned": "Tashkilotga sanksiya belgisi qo‘yilgan: qoplash mumkin emas",
+        "country": "Tashkilot davlatiga sanksiya belgisi qo‘yilgan: qoplash mumkin emas",
+        "possible_match": "Sanksiya ro‘yxati bilan ehtimoliy moslik kredit tahlilchini kutmoqda",
+        "not_screened": "Tashkilot amaldagi ro‘yxatlar bo‘yicha tekshirilmagan",
+        "outdated": "Oxirgi ro‘yxat kuchga kirishidan oldin tekshirilgan — qayta tekshiriladi",
+        "clear": "Amaldagi ro‘yxatlar bo‘yicha tekshirilgan, yaqin nom yo‘q. Skrining ehtimoliy mosliklarni topadi va hech narsani tasdiqlamaydi"
+      }
+    },
+    "matchStatus": {
+      "pending": "Tekshiruvda",
+      "confirmed": "Tasdiqlangan",
+      "cleared": "Yolg‘on moslik",
+      "retired": "Olib tashlangan"
+    },
+    "subjectKind": {
+      "entity": "Tashkilotning o‘zi",
+      "owner": "Egasi bo‘lgan tashkilot",
+      "beneficial_owner": "Tashkilot ortidagi shaxs"
+    },
+    "kind": {
+      "person": "Jismoniy shaxs",
+      "entity": "Tashkilot",
+      "vessel": "Kema",
+      "aircraft": "Havo kemasi",
+      "other": "Boshqa"
+    },
+    "reason": {
+      "rating": "Reyting",
+      "limit_request": "Limit so‘rovi",
+      "list_import": "Yangi ro‘yxat",
+      "owners_changed": "Egalar o‘zgardi",
+      "manual": "Qo‘lda tekshirish"
+    },
+    "lists": {
+      "title": "Amaldagi sanksiya ro‘yxatlari",
+      "hint": "Har bir ro‘yxat nashr etuvchi e’lon qilgan ko‘rinishda. Yangi fayl eskisini almashtiradi; unda yo‘q shaxs ro‘yxatdan chiqarilgan deb belgilanadi, o‘chirilmaydi.",
+      "import": "Ro‘yxatni import qilish",
+      "empty": "Ro‘yxatlar belgilanmagan va import qilinmagan",
+      "list": "Ro‘yxat",
+      "published": "E’lon qilingan",
+      "parties": "Ro‘yxatdagi shaxslar",
+      "activated": "Amalda",
+      "state": "Holat",
+      "missing": "Import qilinmagan",
+      "stale": "Eskirgan",
+      "fresh": "Dolzarb",
+      "optional": "Majburiy emas",
+      "delisted": "U bilan chiqarilgan: {{count}}",
+      "whereTitle": "Fayllarni qayerdan yuklab olish mumkin",
+      "whereHint": "Nashr etuvchilarning o‘z fayllari, bepul. Yuklab oling va shu yerda import qiling.",
+      "name": {
+        "ofac_sdn": "OFAC SDN ro‘yxati (AQSh)",
+        "un": "BMT Xavfsizlik Kengashining yig‘ma ro‘yxati",
+        "eu": "YeIning moliyaviy sanksiyalar yig‘ma ro‘yxati",
+        "uk": "Buyuk Britaniya sanksiya ro‘yxati",
+        "other": "Boshqa ro‘yxat"
+      },
+      "short": {
+        "ofac_sdn": "OFAC",
+        "un": "BMT",
+        "eu": "YeI",
+        "uk": "Buyuk Britaniya",
+        "other": "Boshqa"
+      }
+    },
+    "import": {
+      "title": "Sanksiya ro‘yxatini import qilish",
+      "intro": "Ro‘yxatni va uning e’lon qilingan faylini tanlang. Fayl shu yerda, brauzerda o‘qiladi; saqlashdan oldin unda nechta shaxs topilganini ko‘rasiz.",
+      "list": "Ro‘yxat",
+      "otherName": "Ro‘yxat nomi",
+      "otherHint": "OpenSanctions CSV formati (id, schema, name, aliases …)",
+      "file": "Fayl",
+      "fileSdn": "sdn.csv",
+      "fileAlt": "alt.csv (boshqa nomlar)",
+      "fileAltHint": "Ixtiyoriy, lekin tavsiya etiladi: OFAC boshqa nomlarni alohida e’lon qiladi",
+      "fileHint": {
+        "ofac_sdn": "OFAC e’lon qilgan CSV ko‘rinishidagi SDN ro‘yxati",
+        "un": "BMT Xavfsizlik Kengashi e’lon qilgan consolidated.xml",
+        "eu": "Yevropa komissiyasi e’lon qilgan CSV 1.1 ko‘rinishidagi to‘liq ro‘yxat",
+        "uk": "FCDO e’lon qilgan UK-Sanctions-List.csv",
+        "other": "OpenSanctions «simple» formatidagi CSV"
+      },
+      "reading": "Fayl o‘qilmoqda…",
+      "found": "Topildi: shaxslar — {{entries}}, nomlar — {{names}}.",
+      "looksLike": "Bu «{{list}}» ro‘yxatining fayliga o‘xshaydi — yuqorida tanlangan ro‘yxatni tekshiring.",
+      "publishedAt": "E’lon qilingan sana",
+      "publishedFromFile": "Fayldan o‘qildi",
+      "publishedHint": "Faylda sana yo‘q: e’lon qilingan sanani kiriting",
+      "submit": "Import qilish",
+      "submitShrunk": "Baribir import qilish",
+      "done": "Yopish",
+      "result": "Import qilindi: amaldagi shaxslar — {{entries}}, chiqarilganlar — {{delisted}}, tekshirilgan tashkilotlar — {{screened}}.",
+      "progress": {
+        "loading": "Shaxslar saqlanmoqda: {{done}} / {{total}}…",
+        "finishing": "Ro‘yxat amalga kiritilmoqda…",
+        "screening": "Nazoratdagi tashkilotlar tekshirilmoqda: {{done}} / {{total}}…"
+      },
+      "format": {
+        "format": "Fayl tanlangan ro‘yxat formatida emas.",
+        "empty": "Faylda birorta shaxs topilmadi.",
+        "aliases": "Boshqa nomlar fayli ushbu SDN fayliga tegishli emas."
+      }
+    },
+    "card": {
+      "title": "Sanksiyaviy skrining",
+      "hint": "Tashkilot, undan yuqoridagi tashkilotlar va ularning ortidagi shaxslar reyting berilganda, limit so‘ralganda, egalar o‘zgarganda va yangi ro‘yxat import qilinganda rasmiy ro‘yxatlar bo‘yicha tekshiriladi.",
+      "screenNow": "Hozir tekshirish",
+      "lastScreened": "{{when}} tekshirilgan, ro‘yxatlar: {{lists}}",
+      "neverScreened": "Hali tekshirilmagan",
+      "noLists": "Sanksiya ro‘yxatlari hali import qilinmagan — tekshirish uchun hech narsa yo‘q.",
+      "screenedClear": "Tekshirildi: yaqin nom yo‘q.",
+      "screenedMatches": "Tekshirildi: tekshiriladigan ehtimoliy mosliklar — {{count}}.",
+      "seeFlags": "Sanksiya belgilarini ochish",
+      "countryFlagged": "Tashkilot davlatiga sanksiya belgisi qo‘yilgan: qoplash mumkin emas."
+    },
+    "matches": {
+      "title": "Ehtimoliy mosliklar",
+      "hint": "Ro‘yxatdagi shaxsga yaqin nom. Kredit tahlilchi ma’lumotlarni solishtiradi va moslikni tasdiqlaydi (sanksiya belgisi qo‘yiladi) yoki yolg‘on deb belgilaydi; yolg‘on moslik shu nom uchun qayta ko‘tarilmaydi.",
+      "none": "Tekshiriladigan moslik yo‘q",
+      "noneHint": "Skrining e’tibor talab qiladigan hech narsa topmadi.",
+      "showAll": "Hammasini ko‘rsatish ({{count}})",
+      "onlyPending": "Faqat tekshiruvdagilar",
+      "company": "Tashkilot",
+      "subject": "Tekshirilgan nom",
+      "listed": "Ro‘yxatda",
+      "score": "Yaqinlik",
+      "status": "Holat",
+      "since": "{{date}} dan",
+      "born": "tug‘ilgan: {{dates}}",
+      "retired": {
+        "subject_gone": "Endi tashkilot bilan birga tekshirilmaydi",
+        "delisted": "Shaxs ro‘yxatdan chiqarilgan"
+      }
+    },
+    "resolve": {
+      "clear": "Yolg‘on",
+      "confirm": "Tasdiqlash",
+      "clearTitle": "Moslikni yolg‘on deb belgilash",
+      "confirmTitle": "Sanksiyaviy moslikni tasdiqlash",
+      "clearSubmit": "Yolg‘on deb belgilash",
+      "confirmSubmit": "Tasdiqlash va belgi qo‘yish",
+      "pair": "{{subject}} — {{listed}} ({{list}}, {{ref}})",
+      "confirmEffect": "Tashkilotga sanksiya belgisi qo‘yiladi: yangi qoplash yo‘q, har bir amaldagi limit shoshilinch qayta ko‘rib chiqish uchun kredit anderraytingiga yuboriladi.",
+      "clearEffect": "Moslik yopiladi. Shu nom va ro‘yxatdagi shu shaxs uchun u qayta ko‘tarilmaydi.",
+      "note": "Asos",
+      "noteHint": {
+        "confirmed": "Nega bu o‘sha shaxs: ro‘yxatdan o‘tish raqami, manzil, tug‘ilgan sana, egalar",
+        "cleared": "Ular nimasi bilan farq qiladi: ro‘yxatdan o‘tish raqami, manzil, tug‘ilgan sana, fuqarolik"
+      },
+      "noteRequired": "Asosni kiriting — u qaror bilan birga saqlanadi"
+    },
+    "subjects": {
+      "title": "Tekshiriladigan nomlar",
+      "hint": "Ulardan istalganini nashr etuvchilarning o‘z qidiruv vositalarida qo‘lda tekshirish mumkin: nomni nusxalang va vositani oching."
+    },
+    "owners": {
+      "title": "Benefitsiar egalar va rahbarlar",
+      "hint": "Tashkilot ortidagi shaxslar, u bilan birga tekshiriladi. Axborot bo‘limi va kredit tahlilchilar kiritadi; yozuv sababi ko‘rsatilib tugatiladi, o‘chirilmaydi.",
+      "add": "Shaxs qo‘shish",
+      "addTitle": "Benefitsiar ega yoki rahbar qo‘shish",
+      "addIntro": "Shaxs saqlanishi bilan tashkilot qayta tekshiriladi.",
+      "addSubmit": "Qo‘shish",
+      "end": "Tugatish",
+      "endTitle": "Tugatish: {{name}}",
+      "endReason": "Nega shaxs endi tashkilot ortida emas",
+      "endSubmit": "Tugatish",
+      "showEnded": "Tugatilganlarni ko‘rsatish",
+      "hideEnded": "Tugatilganlarni yashirish",
+      "empty": "Benefitsiar egalar kiritilmagan",
+      "emptyHint": "Ularni axborot bo‘limi yoki kredit tahlilchi reestrdan ko‘chirma yoki tashkilot hujjatlari asosida kiritadi.",
+      "emptyHintWriter": "Ularni reestrdan ko‘chirma yoki tashkilot hujjatlari asosida kiriting — ular tashkilot bilan birga tekshiriladi.",
+      "person": "Shaxs",
+      "share": "Ulush",
+      "bornOn": "tug‘ilgan: {{date}}",
+      "sourceOf": "Manba: {{source}}",
+      "endedOn": "{{date}} tugatilgan: {{reason}}",
+      "role": {
+        "beneficial_owner": "Benefitsiar ega",
+        "shareholder": "Aksiyador (ishtirokchi)",
+        "director": "Rahbar"
+      },
+      "fields": {
+        "name": "To‘liq F.I.Sh.",
+        "nameHint": "Hujjatdagidek, istalgan yozuvda",
+        "role": "Roli",
+        "share": "Ulush, %",
+        "birthDate": "Tug‘ilgan sana",
+        "birthDateHint": "Familiyadoshlarni ajratishga yordam beradi",
+        "nationality": "Fuqaroligi",
+        "source": "Manba",
+        "sourceHint": "Qayerdan olingan: reestrdan ko‘chirma, ustav, anketa"
+      },
+      "errors": {
+        "name": "To‘liq F.I.Sh.ni kiriting",
+        "pct": "Ulush 0 dan 100 gacha",
+        "birthDate": "Tug‘ilgan sana kelajakda bo‘lishi mumkin emas",
+        "source": "Qayerdan olinganini ko‘rsating",
+        "endReason": "Sababini ko‘rsating"
+      }
+    },
+    "history": {
+      "title": "Tekshiruvlar",
+      "hint": "Ushbu tashkilotning barcha tekshiruvlari: nega o‘tkazilgan, qaysi ro‘yxatlar bo‘yicha va nima topilgan.",
+      "none": "Hali tekshirilmagan",
+      "when": "Qachon",
+      "why": "Nega",
+      "lists": "Ro‘yxatlar",
+      "outcome": "Natija",
+      "subjects": "Tekshirilgan nomlar: {{count}}",
+      "outcomes": {
+        "clear": "Moslik yo‘q",
+        "possible_match": "Ehtimoliy moslik",
+        "no_lists": "Tekshirish uchun ro‘yxat yo‘q"
+      }
+    },
+    "check": {
+      "title": "Nomni ro‘yxatlar bo‘yicha tekshirish",
+      "hint": "Istalgan nom — tashkilot, ega, shaxs — shu yerda import qilingan ro‘yxatlar bo‘yicha. Faqat ko‘rish: hech narsa yozilmaydi.",
+      "name": "Nom",
+      "placeholder": "Tashkilot yoki shaxs, istalgan yozuvda",
+      "who": "Kimlar orasidan",
+      "whoOptions": {
+        "all": "Hammasi",
+        "company": "Tashkilotlar",
+        "person": "Shaxslar"
+      },
+      "typeMore": "Kamida uchta harf kiriting.",
+      "none": "Ro‘yxatlarda «{{name}}»ga yaqin shaxs yo‘q",
+      "noneHint": "Qidiruv faqat shu yerda import qilingan ro‘yxatlar bo‘yicha o‘tkazildi. Quyidagi nashr etuvchilar vositalarida ham tekshiring.",
+      "list": "Ro‘yxat",
+      "details": "Dastur, davlat, tug‘ilgan"
+    },
+    "tools": {
+      "title": "Rasmiy qidiruv vositalari",
+      "hint": "Nashr etuvchilarning o‘z qidiruv sahifalari, bepul va ochiq. Yangi oynada ochiladi.",
+      "copy": "Nusxalash",
+      "copied": "Nusxalandi",
+      "copyName": "«{{name}}»ni nusxalash",
+      "checkName": "«{{name}}»ni qo‘lda tekshirish:",
+      "nameFilled": "Nom qo‘yilgan.",
+      "namePaste": "Nomni qo‘ying.",
+      "name": {
+        "ofac": "OFAC Sanctions List Search",
+        "un": "BMT Xavfsizlik Kengashining yig‘ma ro‘yxati",
+        "eu": "EU Sanctions Map",
+        "uk": "Buyuk Britaniya sanksiya ro‘yxati bo‘yicha qidiruv",
+        "opensanctions": "OpenSanctions"
+      },
+      "what": {
+        "ofac": "AQSh Moliya vazirligining SDN va boshqa ro‘yxatlari.",
+        "un": "BMT Xavfsizlik Kengashining barcha sanksiya rejimlari.",
+        "eu": "YeIning davlatlar va rejimlar bo‘yicha cheklov choralari.",
+        "uk": "Buyuk Britaniya hukumatining o‘z ro‘yxati.",
+        "opensanctions": "Bir vaqtda ko‘plab ro‘yxatlar, egalar va siyosiy ta’sirga ega shaxslar; qidiruv bepul."
+      }
+    },
+    "queue": {
+      "title": "Tekshiriladigan ehtimoliy mosliklar",
+      "hint": "Hali ko‘rib chiqilmagan barcha ehtimoliy mosliklar, eskilari birinchi. Har bir tashkilot tekshiruvi ochiq sanksiya vazifalari eng kam bo‘lgan kredit tahlilchiga topshiriladi.",
+      "none": "Tekshiradigan narsa yo‘q",
+      "noneHint": "Barcha ehtimoliy mosliklar tasdiqlangan yoki yolg‘on deb belgilangan.",
+      "count": "Tekshiruvda: {{count}}"
+    },
+    "settings": {
+      "title": "Sanksiyaviy skrining",
+      "hint": "Nom ehtimoliy moslik deb hisoblanishi uchun qanchalik yaqin bo‘lishi kerak, ro‘yxat qachon eskirgan hisoblanadi va qaysi ro‘yxatlar majburiy. Mosliklarning o‘zini kredit tahlilchilar tekshiradi.",
+      "threshold": "Ehtimoliy moslik uchun yaqinlik",
+      "thresholdHint": "{{min}}–{{max}} %. Pastroq — ko‘proq familiyadoshlar; yuqoriroq — yozilish variantlari o‘tkazib yuborilishi mumkin.",
+      "staleDays": "Ro‘yxat eskiradi",
+      "staleDaysHint": "Kredit tahlilchilarga yangisini import qilish eslatiladi.",
+      "required": "Majburiy ro‘yxatlar",
+      "loadFailed": "Skrining sozlamalarini yuklab bo‘lmadi.",
+      "saveFailed": "Skrining sozlamalari saqlanmadi."
+    },
+    "errors": {
+      "importOnly": "Sanksiya ro‘yxatlarini kredit tahlilchilar va administrator import qiladi.",
+      "listUnknown": "Tizim bunday ro‘yxatni bilmaydi.",
+      "listName": "Ro‘yxat nomini kiriting.",
+      "listDate": "E’lon qilingan sana majburiy va kelajakda bo‘lishi mumkin emas.",
+      "listOlder": "Ushbu ro‘yxatning yangiroq versiyasi allaqachon amalda.",
+      "listSame": "Bu fayl amaldagi ro‘yxatning o‘zi.",
+      "listEmpty": "Fayldan birorta shaxs yuklanmadi.",
+      "listShrunk": "Faylda amaldagi ro‘yxatdagidan ancha kam shaxs bor — ehtimol yuklab olish uzilgan. Faylni tekshiring va to‘g‘ri bo‘lsa, baribir import qiling.",
+      "notLoading": "Bu import endi yuklanmayapti — qaytadan boshlang.",
+      "batchShape": "Faylning bir qismini o‘qib bo‘lmadi.",
+      "matchOutcome": "Moslikni tasdiqlang yoki yolg‘on deb belgilang.",
+      "matchResolved": "Bu moslik allaqachon ko‘rib chiqilgan.",
+      "screeningPending": "Ushbu bayer bo‘yicha ehtimoliy sanksiyaviy moslik hali ko‘rib chiqilmagan: limit ma’qullanishidan oldin kredit tahlilchi uni tasdiqlashi yoki yolg‘on deb belgilashi kerak."
+    }
+  },
+  "tiers": {
+    "name": {
+      "bronze": "Bronza",
+      "silver": "Kumush",
+      "gold": "Oltin",
+      "platinum": "Platina"
+    },
+    "badgeHint": "Sug‘urtalanuvchi darajasi: {{tier}} — sug‘urtalangan aylanma va mukofot bo‘yicha",
+    "badgeManualHint": "Sug‘urtalanuvchi darajasi: {{tier}} — tijorat anderraytingi tomonidan qo‘lda belgilangan",
+    "manualShort": "qo‘lda",
+    "panel": {
+      "title": "Sug‘urtalanuvchi darajasi",
+      "hint": "Mijozga xizmat ko‘rsatuvchilar uchun xizmat toifasi — so‘nggi o‘n ikki oydagi sug‘urtalangan aylanma va amaldagi polislar bo‘yicha mukofot asosida, UZSda. U limit, mukofot yoki vakolatni belgilamaydi.",
+      "setByHand": "Qo‘lda belgilash",
+      "backToAutomatic": "Avtomatik darajaga qaytarish",
+      "manualLine": "Qo‘lda belgilagan: {{who}}, {{when}}",
+      "automaticLine": "Avtomatik — quyidagi ikki ko‘rsatkichning kattasi bo‘yicha",
+      "manualReason": "Sabab: «{{reason}}»",
+      "manualUntil": "{{date}} gacha amal qiladi, so‘ng avtomatik daraja qaytadi.",
+      "manualOpen": "Tijorat anderraytingi avtomatik darajaga qaytarmaguncha amal qiladi.",
+      "automaticWouldBe": "Avtomatik daraja — {{tier}}.",
+      "missingRates_one": "Kursi yo‘q valyutadagi {{count}} ta summa hisobga olinmadi — daraja yuqoriroq bo‘lishi mumkin.",
+      "missingRates_other": "Kursi yo‘q valyutalardagi {{count}} ta summa hisobga olinmadi — daraja yuqoriroq bo‘lishi mumkin.",
+      "toNext": "«{{tier}}» darajasigacha",
+      "nextNeeds": "«{{tier}}» darajasiga yana {{missing}} UZS kerak ({{threshold}} UZSdan)",
+      "top": "Eng yuqori darajaga erishilgan."
+    },
+    "measure": {
+      "turnover_uzs": "Sug‘urtalangan aylanma, 12 oy",
+      "premium_uzs": "Mukofot, amaldagi polislar"
+    },
+    "basis": {
+      "declared_one": "{{count}} ta qabul qilingan deklaratsiya bo‘yicha qoplangan aylanma",
+      "declared_other": "{{count}} ta qabul qilingan deklaratsiya bo‘yicha qoplangan aylanma",
+      "estimated": "So‘nggi 12 oyda qabul qilingan deklaratsiya yo‘q — amaldagi polislar bo‘yicha kutilayotgan yillik aylanma",
+      "none": "Deklaratsiya ham, kutilayotgan aylanma ham yo‘q",
+      "premium_one": "{{count}} ta amaldagi polis bo‘yicha hisoblangan va minimal mukofotning kattasi",
+      "premium_other": "{{count}} ta amaldagi polis bo‘yicha hisoblangan va minimal mukofotning kattasi"
+    },
+    "history": {
+      "title": "Qo‘lda belgilangan darajalar",
+      "setBy": "belgilagan: {{who}}, {{when}}",
+      "until": "{{date}} gacha",
+      "ended": "Yakunlagan: {{who}}, {{when}}"
+    },
+    "set": {
+      "title": "{{name}} darajasini qo‘lda belgilash",
+      "submit": "Belgilash: {{tier}}",
+      "intro": "Avtomatik daraja — {{tier}}. Qo‘lda belgilangan daraja tugash sanasigacha yoki avtomatik darajaga qaytarilguncha amal qiladi; sabab saqlanadi.",
+      "tier": "Daraja",
+      "reason": "Sabab",
+      "reasonHint": "Daraja nima uchun avtomatikdan farq qiladi — masalan, strategik mijoz yoki to‘lov intizomi tekshirilmoqda.",
+      "until": "Gacha (ixtiyoriy)",
+      "untilHint": "Avtomatik darajaga qaytarilguncha amal qilishi uchun bo‘sh qoldiring."
+    },
+    "end": {
+      "title": "Avtomatik darajaga qaytarish",
+      "submit": "Avtomatik darajaga qaytarish",
+      "intro": "Daraja yana sug‘urtalangan aylanma va mukofotga bog‘liq bo‘ladi. Qo‘lda belgilangan daraja tarixda qoladi.",
+      "reason": "Sabab"
+    },
+    "thresholds": {
+      "title": "Sug‘urtalanuvchilar darajalari",
+      "hint": "So‘nggi o‘n ikki oydagi sug‘urtalangan aylanma yoki amaldagi polislar bo‘yicha mukofot darajaga erishadigan chegaralar, UZSda. Kumushdan pasti — bronza.",
+      "rising": "Har bir chegara noldan katta bo‘lishi va kumushdan platinagacha o‘sib borishi kerak.",
+      "rule": "Ko‘rsatkich chegarada darajaga erishadi; daraja — ikki ko‘rsatkichning kattasi.",
+      "save": "Chegaralarni saqlash"
+    },
+    "errors": {
+      "unknown": "Bunday daraja yo‘q.",
+      "reasonRequired": "Daraja nima uchun qo‘lda belgilanayotganini ko‘rsating.",
+      "reasonTooLong": "Sabab juda uzun (ko‘pi bilan 2 000 belgi).",
+      "untilPast": "Tugash sanasi o‘tib ketgan.",
+      "notPolicyholder": "Tashkilotda polis yo‘q, shuning uchun uning darajasi yo‘q.",
+      "noOverride": "Daraja allaqachon avtomatik.",
+      "thresholdsInvalid": "Har bir chegara noldan katta bo‘lishi va kumushdan platinagacha o‘sib borishi kerak."
     }
   }
 }

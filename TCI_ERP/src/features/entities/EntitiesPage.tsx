@@ -51,6 +51,8 @@ import { EM_DASH, formatDate } from '../../lib/format'
 import type { EntityRoles } from './types'
 import { IndustrySectorBadge } from '../risk/badges'
 import { CountryRiskCompact, CountryWithRisk, IndustryWithSector, RiskSubline } from '../risk/integrationBadges'
+import { SANCTIONS_CELL, SANCTIONS_COLUMN, SanctionsCell, SanctionsColumnHeader } from '../sanctions/components'
+import { TierMark } from '../tiers'
 
 type RoleChip = 'all' | 'policyholders' | 'buyers'
 
@@ -130,6 +132,8 @@ export function EntitiesPage() {
     '13.5rem',
     COL.date,
     COL.grade,
+    // 0091: the sanctions screening state, one shield
+    SANCTIONS_COLUMN,
     actionsCol([], 1),
   ]
   const columnLabels = [
@@ -139,14 +143,16 @@ export function EntitiesPage() {
     t('entities.rolesHeader'),
     t('buyers.latestStatement'),
     t('limits.fields.grade'),
+    t('sanctions.column'),
     '',
   ]
+  const SANCTIONS_AT = 6
   const filteredIds = filtered.map((e) => e.id)
   const tableHead = (
     <thead>
       <tr>
         {columnLabels.map((label, i) => (
-          <th key={i}>
+          <th key={i} className={i === SANCTIONS_AT ? SANCTIONS_CELL : undefined}>
             {i === 0 ? (
               <span className="flex items-center gap-3">
                 <SelectCheckbox
@@ -156,6 +162,8 @@ export function EntitiesPage() {
                 />
                 {label}
               </span>
+            ) : i === SANCTIONS_AT ? (
+              <SanctionsColumnHeader />
             ) : label ? (
               label
             ) : (
@@ -306,12 +314,16 @@ export function EntitiesPage() {
                         <Truncate text={entity.name} className="max-w-none">
                           <Highlight text={entity.name} query={search} />
                         </Truncate>
-                        {entity.registration_number && (
-                          // A registration number is one token: never broken.
-                          <span className="block truncate text-caption font-normal whitespace-nowrap text-slate-500 tabular-nums">
-                            <Highlight text={entity.registration_number} query={search} />
-                          </span>
-                        )}
+                        <span className="flex min-w-0 items-center gap-2">
+                          {entity.registration_number && (
+                            // A registration number is one token: never broken.
+                            <span className="truncate text-caption font-normal whitespace-nowrap text-slate-500 tabular-nums">
+                              <Highlight text={entity.registration_number} query={search} />
+                            </span>
+                          )}
+                          {/* 0094: a policyholder's tier, under the name */}
+                          <TierMark entityId={entity.id} size="sm" />
+                        </span>
                       </span>
                     </span>
                   </td>
@@ -345,6 +357,9 @@ export function EntitiesPage() {
                     ) : (
                       <span className="text-slate-500">{EM_DASH}</span>
                     )}
+                  </td>
+                  <td className={SANCTIONS_CELL}>
+                    <SanctionsCell entityId={entity.id} />
                   </td>
                   <RowActions reveal>
                     <QuickViewButton name={entity.name} onClick={() => setPeekId(entity.id)} />

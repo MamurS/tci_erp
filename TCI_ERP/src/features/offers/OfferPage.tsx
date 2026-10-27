@@ -19,7 +19,21 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, Download } from 'lucide-react'
 
-import { Badge, Button, Callout, Card, EmptyState, Field, Input, PageHeader, Segmented, Spinner, Textarea } from '../../components/ui'
+import {
+  Badge,
+  Button,
+  Callout,
+  Card,
+  EmptyState,
+  Field,
+  Input,
+  PageHeader,
+  Segmented,
+  Spinner,
+  SplitHandle,
+  Textarea,
+  useSplitWidth,
+} from '../../components/ui'
 import { DateInput } from '../../components/ui/DateInput'
 import { useAuth } from '../../auth/AuthContext'
 import { formatAmount, formatDate } from '../../lib/format'
@@ -62,6 +76,8 @@ export function OfferPage() {
   const save = useSaveOfferVersion()
   const publish = usePublishOffer()
   const preview = useRef<OfferPreviewHandle>(null)
+  const splitFrame = useRef<HTMLDivElement>(null)
+  const split = useSplitWidth('offer-edit')
 
   const [draft, setDraft] = useState<Draft | null>(null)
   const [unlocked, setUnlocked] = useState(false)
@@ -249,7 +265,11 @@ export function OfferPage() {
         </Callout>
       )}
 
-      <div className="grid items-stretch gap-5 lg:grid-cols-[360px_minmax(0,1fr)]">
+      <div
+        ref={splitFrame}
+        style={split.style}
+        className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,var(--split-w,clamp(calc(22.5rem*var(--ui-text,1)),32%,34rem)))_1.25rem_minmax(0,1fr)] lg:gap-x-0"
+      >
         <Card className="flex min-w-0 flex-col gap-4 p-5">
           {!latest ? (
             <Callout tone="info" title={t('offers.edit.olderVersion', { version: version.version_no, latest: offer.current_version_no })} />
@@ -363,6 +383,7 @@ export function OfferPage() {
             <dd className="text-right">{formatDate(version.data?.composed_at, locale)}</dd>
           </dl>
         </Card>
+        <SplitHandle containerRef={splitFrame} rem={split.rem} onChange={split.setRem} minRem={20} />
 
         {/* The preview takes the row's height, set by the form beside it: out
             of the flow, it cannot stretch the row to its thousands of pixels. */}

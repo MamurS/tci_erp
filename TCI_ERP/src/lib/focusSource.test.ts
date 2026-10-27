@@ -36,8 +36,7 @@ const ALLOWED: Record<string, string> = {
   '../components/ui/primitives.tsx': 'CONTROL_CLASSES: the text-field ring',
   '../components/ui/DateInput.tsx': 'a text field',
   '../components/ui/AmountInput.tsx': 'a text field',
-  '../components/ui/Combobox.tsx': 'a text field',
-  '../components/layout/GlobalSearch.tsx': 'the top-bar search: a text field',
+  '../components/ui/searchField.ts': 'SEARCH_FIELD_CLASS: every search field (top bar, pickers, page search boxes) — a text field',
   // `focus:outline-none` only: a menu item's indicator is its highlight,
   // which is `focus-visible:`.
   '../components/ui/ActionsMenu.tsx': 'focus:outline-none on menu items (their highlight is focus-visible)',

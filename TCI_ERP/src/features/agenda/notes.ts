@@ -131,6 +131,10 @@ export function systemNote(task: Pick<Task, 'task_type' | 'params' | 'source_eve
       return p.effective_date
         ? { key: 'agenda.note.oecd_review_due', values: { months: num(p.months) ?? 4 } }
         : { key: 'agenda.note.oecd_review_due_none', values: {} }
+    case 'sanctions_match_review':
+      return { key: 'agenda.note.sanctions_match_review', values: { count: num(p.matches) ?? 1 } }
+    case 'sanctions_list_due':
+      return { key: 'agenda.note.sanctions_list_due', values: { days: num(p.days) ?? 30 } }
     case 'buyer_needs_rating':
       return { key: 'agenda.note.buyer_needs_rating', values: {} }
     case 'limit_review_due':

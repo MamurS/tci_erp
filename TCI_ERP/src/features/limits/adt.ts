@@ -38,6 +38,8 @@ export const AUTO_DECISION_REASONS = [
   'manual_block',
   'no_financials',
   'stale_financials',
+  // 0091: a possible sanctions match not yet reviewed
+  'sanctions_match',
   'group_limit',
   // 0085: the buyer's country or sector needs a higher authority rank, or
   // cover is blocked — never decided automatically
@@ -54,6 +56,8 @@ export const ADT_BUYER_STOPS = [
   'manual_block',
   'no_financials',
   'stale_financials',
+  // 0091: a possible sanctions match not yet reviewed
+  'sanctions_match',
 ] as const
 
 /** Why a live ADT is suspended (buyer_adt.suspended_reason): a downgrade

@@ -16,8 +16,9 @@ export type BadgeTone = 'neutral' | 'accent' | 'pos' | 'neg' | 'negStrong' | 'wa
 
 export const BADGE_TONES: Record<BadgeTone, string> = {
   // One rule for every tone (Prompt 30): the ramp's 100 tint with its 700
-  // ink and a 200 hairline — six steps apart, so text clears 4.5 : 1. With
-  // white text (0089: `data-badge-ink` on <html>, light mode only —
+  // ink and a 200 hairline — the PASTEL badge, everyone's default since
+  // 0093; six steps apart, so text clears 4.5 : 1. With white text (0089, a
+  // person's choice: `data-badge-ink` on <html>, light mode only —
   // src/lib/uiTheme.ts) the 700 becomes the fill, the same pair reversed.
   // The grey neutral tone is not a colour and keeps its tint. Literal class
   // names, so Tailwind generates them.
@@ -25,9 +26,10 @@ export const BADGE_TONES: Record<BadgeTone, string> = {
   accent: 'bg-accent-100 text-accent-700 ring-accent-200 in-data-[badge-ink=white]:bg-accent-700 in-data-[badge-ink=white]:text-white in-data-[badge-ink=white]:ring-accent-700',
   pos: 'bg-success-100 text-success-700 ring-success-200 in-data-[badge-ink=white]:bg-success-700 in-data-[badge-ink=white]:text-white in-data-[badge-ink=white]:ring-success-700',
   neg: 'bg-danger-100 text-danger-700 ring-danger-200 in-data-[badge-ink=white]:bg-danger-700 in-data-[badge-ink=white]:text-white in-data-[badge-ink=white]:ring-danger-700',
-  // Solid danger for statuses that must not be mistaken for ordinary
-  // termination (e.g. policy annulment vs cancellation).
-  negStrong: 'bg-danger-600 text-white ring-danger-600',
+  // A stronger danger for statuses that must not be mistaken for ordinary
+  // termination (e.g. policy annulment vs cancellation): a deeper pastel
+  // (200 fill, 800 ink, 400 hairline) — or the solid 600 with white text.
+  negStrong: 'bg-danger-200 text-danger-800 ring-danger-400 in-data-[badge-ink=white]:bg-danger-600 in-data-[badge-ink=white]:text-white in-data-[badge-ink=white]:ring-danger-600',
   warn: 'bg-warning-100 text-warning-700 ring-warning-200 in-data-[badge-ink=white]:bg-warning-700 in-data-[badge-ink=white]:text-white in-data-[badge-ink=white]:ring-warning-700',
 }
 

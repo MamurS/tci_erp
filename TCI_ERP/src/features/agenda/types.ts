@@ -78,6 +78,11 @@ export const TASK_TYPES = [
   // countries a new list made worse
   'oecd_review_due',
   'country_downgrade_review',
+  // Sanctions screening (migrations 0090–0091): a possible match of a buyer,
+  // its owners or its beneficial owners, for the least-loaded credit
+  // analyst; the lists in use are missing or old
+  'sanctions_match_review',
+  'sanctions_list_due',
 ] as const
 
 export type TaskType = (typeof TASK_TYPES)[number]

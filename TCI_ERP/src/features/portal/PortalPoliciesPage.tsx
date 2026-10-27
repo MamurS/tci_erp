@@ -100,7 +100,7 @@ export function PortalPoliciesPage() {
           <EmptyState title={t('portal.policies.empty')} hint={t('portal.policies.emptyHint')} />
         )
       ) : (
-        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_18rem]">
+        <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,clamp(calc(18rem*var(--ui-text,1)),28%,28rem))]">
           <div className="flex min-w-0 flex-col gap-8">
             {policies.map((policy) => (
               <PolicyOverview key={policy.id} policy={policy} />

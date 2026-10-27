@@ -28,6 +28,7 @@ import { usePolicies } from '../policies/api'
 import { statusTone } from '../policies/statusMachine'
 import type { EffectiveLimit } from '../limits/types'
 import { outcomeTone } from '../limits/machine'
+import { TierPanel } from '../tiers'
 
 export function PoliciesTab({ entityId }: { entityId: string }) {
   const { t, i18n } = useTranslation()
@@ -71,6 +72,8 @@ export function PoliciesTab({ entityId }: { entityId: string }) {
 
   return (
     <div className="flex flex-col gap-5">
+      {/* 0094: the policyholder's tier, its measures and the manual tier */}
+      <TierPanel entityId={entityId} />
       <Card className="p-5">
         <SectionTitle
           className="mb-3"

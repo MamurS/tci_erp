@@ -87,9 +87,11 @@ export const CANVAS = solveStep(0.93, RAMP_SPECS.slate.chroma * 0.2, RAMP_SPECS.
 
 // ---------------------------------------------------------------------------
 // The grade scale A1 → D: diverging teal → green → yellow → amber → red. Each
-// grade has a TINT (badge background, step 100), a SOLID (bars, dots, chart
-// marks, step 400 — ≥ 3 : 1 on white) and an INK (text on the tint or on
-// white, step 600 — ≥ 4.5 : 1 on both).
+// grade has a TINT (badge background, step 100), a LINE (the badge's
+// hairline, step 200), a SOLID (bars, dots, chart marks, step 400 — ≥ 3 : 1
+// on white), an INK (text on the tint or on white, step 600 — ≥ 4.5 : 1 on
+// both) and a DEEP ink (the pastel badge's text, step 700 — ≥ 7 : 1 on the
+// tint).
 // ---------------------------------------------------------------------------
 
 export const GRADE_SPECS = {
@@ -106,16 +108,47 @@ export type GradeKey = keyof typeof GRADE_SPECS
 
 export interface GradeColors {
   tint: string
+  line: string
   solid: string
   ink: string
+  deep: string
 }
 
 export const GRADE_COLORS: Record<GradeKey, GradeColors> = Object.fromEntries(
   Object.entries(GRADE_SPECS).map(([grade, spec]) => {
     const ramp = buildRamp(spec)
-    return [grade, { tint: ramp[100], solid: ramp[400], ink: ramp[600] }]
+    return [grade, { tint: ramp[100], line: ramp[200], solid: ramp[400], ink: ramp[600], deep: ramp[700] }]
   }),
 ) as Record<GradeKey, GradeColors>
+
+// ---------------------------------------------------------------------------
+// Policyholder tiers (0094): bronze, silver, gold, platinum — a TINT (badge
+// background, step 100), a LINE (hairline, step 200), a SOLID (the medal,
+// step 400) and an INK (text, step 700 — ≥ 7 : 1 on the tint).
+// ---------------------------------------------------------------------------
+
+export const TIER_SPECS = {
+  bronze: { hue: 50, chroma: 0.11 },
+  silver: { hue: 250, chroma: 0.02 },
+  gold: { hue: 88, chroma: 0.15 },
+  platinum: { hue: 285, chroma: 0.07 },
+} as const
+
+export type TierKey = keyof typeof TIER_SPECS
+
+export interface TierColors {
+  tint: string
+  line: string
+  solid: string
+  ink: string
+}
+
+export const TIER_COLORS: Record<TierKey, TierColors> = Object.fromEntries(
+  Object.entries(TIER_SPECS).map(([tier, spec]) => {
+    const ramp = buildRamp(spec)
+    return [tier, { tint: ramp[100], line: ramp[200], solid: ramp[400], ink: ramp[700] }]
+  }),
+) as Record<TierKey, TierColors>
 
 // ---------------------------------------------------------------------------
 // Data palettes
@@ -282,10 +315,18 @@ export function colorTokens(theme: ThemeName): Record<string, string> {
   for (const [grade, colors] of Object.entries(GRADE_COLORS)) {
     const key = grade.toLowerCase()
     out[`grade-${key}-tint`] = colors.tint
+    out[`grade-${key}-line`] = colors.line
     out[`grade-${key}`] = colors.solid
     out[`grade-${key}-ink`] = colors.ink
+    out[`grade-${key}-deep`] = colors.deep
   }
   ;(['A1', 'B1', 'B2', 'C2', 'D'] as const).forEach((g, i) => (out[`scale-${i + 1}`] = GRADE_COLORS[g].solid))
+  for (const [tier, colors] of Object.entries(TIER_COLORS)) {
+    out[`tier-${tier}-tint`] = colors.tint
+    out[`tier-${tier}-line`] = colors.line
+    out[`tier-${tier}`] = colors.solid
+    out[`tier-${tier}-ink`] = colors.ink
+  }
   const categorical = [ramps.accent[400], ...CATEGORICAL.slice(1, 4), ramps.sky[400], ...CATEGORICAL.slice(5)]
   categorical.forEach((hex, i) => (out[`data-${i + 1}`] = hex))
   STEPS.slice(1).forEach((s, i) => (out[`seq-${i + 1}`] = ramps.sky[s]))
@@ -444,15 +485,24 @@ export function renderTokensCss(): string {
   }
   lines.push('  /* Aliases of the earlier names (positive / negative / warning). */')
   for (const [alias, hex] of Object.entries(ALIASES)) lines.push(`  --color-${alias}: ${hex};`)
-  lines.push('  /* The grade scale A1 → D: tint, solid, ink. */')
+  lines.push('  /* The grade scale A1 → D: tint, line, solid, ink, deep. */')
   for (const [grade, colors] of Object.entries(GRADE_COLORS)) {
     const key = grade.toLowerCase()
     lines.push(`  --color-grade-${key}-tint: ${colors.tint};`)
+    lines.push(`  --color-grade-${key}-line: ${colors.line};`)
     lines.push(`  --color-grade-${key}: ${colors.solid};`)
     lines.push(`  --color-grade-${key}-ink: ${colors.ink};`)
+    lines.push(`  --color-grade-${key}-deep: ${colors.deep};`)
   }
   lines.push('  /* The five-colour presentation gauge (ratingScale.ts) reads the grade solids. */')
   ;(['A1', 'B1', 'B2', 'C2', 'D'] as const).forEach((g, i) => lines.push(`  --color-scale-${i + 1}: ${GRADE_COLORS[g].solid};`))
+  lines.push('  /* Policyholder tiers (0094): tint, line, solid, ink. */')
+  for (const [tier, colors] of Object.entries(TIER_COLORS)) {
+    lines.push(`  --color-tier-${tier}-tint: ${colors.tint};`)
+    lines.push(`  --color-tier-${tier}-line: ${colors.line};`)
+    lines.push(`  --color-tier-${tier}: ${colors.solid};`)
+    lines.push(`  --color-tier-${tier}-ink: ${colors.ink};`)
+  }
   lines.push('  /* The theme picker\'s swatches: each theme\'s brand colour (fixed in every theme and mode). */')
   for (const theme of THEME_NAMES) lines.push(`  --color-swatch-${theme}: ${buildRamp(THEMES[theme].accent)[600]};`)
   lines.push('  /* Data palettes. */')

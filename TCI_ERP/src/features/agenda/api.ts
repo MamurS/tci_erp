@@ -563,3 +563,46 @@ export function useObjectEvents(objectIds: readonly string[]) {
     },
   })
 }
+
+// ---------------------------------------------------------------------------
+// Handing tasks to a colleague (migration 0092)
+// ---------------------------------------------------------------------------
+
+export interface TransferCandidate {
+  user_id: string
+  full_name: string | null
+  email: string
+}
+
+/** The colleagues who may take every one of these tasks. */
+export function useTransferCandidates(taskIds: readonly string[]) {
+  const key = [...taskIds].sort().join(',')
+  return useQuery({
+    queryKey: ['agenda', 'transfer-candidates', key],
+    enabled: taskIds.length > 0,
+    queryFn: async (): Promise<TransferCandidate[]> => {
+      const { data, error } = await tci().rpc('task_transfer_candidates', { p_tasks: [...taskIds] })
+      if (error) throw error
+      return (data ?? []) as TransferCandidate[]
+    },
+  })
+}
+
+/** tci.transfer_tasks: the tasks leave this person's board for the colleague's. */
+export function useTransferTasks() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationKey: ['agenda', 'transfer'],
+    mutationFn: async (v: { taskIds: readonly string[]; to: string; note: string | null }): Promise<number> => {
+      const { data, error } = await tci().rpc('transfer_tasks', { p_tasks: [...v.taskIds], p_to: v.to, p_note: v.note })
+      if (error) throw error
+      return data as number
+    },
+    ...optimistic<{ taskIds: readonly string[]; to: string; note: string | null }, number>(qc, {
+      patches: () => [
+        patch<Task[], { taskIds: readonly string[] }>(KEYS.tasks, (tasks, v) => withoutTasks(tasks, [...v.taskIds]), { exact: true }),
+      ],
+      invalidate: () => [KEYS.tasks, KEYS.events],
+    }),
+  })
+}

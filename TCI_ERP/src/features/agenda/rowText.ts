@@ -259,6 +259,16 @@ export function rowFacts(
     case 'sanctions_limit_review':
       facts.push(str(p.regime))
       break
+    case 'sanctions_match_review':
+      // how many possible matches wait on the company (0091)
+      facts.push(num(p.matches) !== null ? t('agenda.facts.sanctionsMatches', { count: num(p.matches) ?? 0 }) : null)
+      break
+    case 'sanctions_list_due': {
+      // the required lists missing or older than the setting (0091)
+      const lists = Array.isArray(p.lists) ? (p.lists as unknown[]).map((l) => str(l)).filter((l): l is string => Boolean(l)) : []
+      facts.push(...lists.map((l) => t(`sanctions.lists.name.${l}`)))
+      break
+    }
     case 'country_override_approval':
       facts.push(num(p.category) !== null ? t('agenda.facts.countryCategory', { category: p.category }) : null)
       break

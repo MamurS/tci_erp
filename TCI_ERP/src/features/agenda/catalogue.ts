@@ -112,6 +112,10 @@ export const COMPLETION_RULES: Readonly<Record<TaskType, CompletionRule>> = {
   // credit underwriting's to close, the tenth manual type.
   oecd_review_due: 'auto',
   country_downgrade_review: 'manual',
+  // Sanctions screening (0091): the review closes when no match on the
+  // company is pending; the reminder when every required list is fresh.
+  sanctions_match_review: 'auto',
+  sanctions_list_due: 'auto',
 }
 
 /** Mirrors tci.complete_task's guard (as 0060 restates it): it refuses
@@ -293,6 +297,7 @@ export const SUBJECT_IN_TITLE: ReadonlySet<TaskType> = new Set<TaskType>([
   'rating_stale',
   'rating_new_statements',
   'sanctions_limit_review',
+  'sanctions_match_review',
 ])
 
 export function groupOf(task: Pick<Task, 'due_at' | 'priority'>, now: Date): AgendaGroup {

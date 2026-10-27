@@ -357,6 +357,16 @@ export const DESTINATIONS: Readonly<Record<TaskType, Builder>> = {
     action: 'open',
     crumbs: [{ key: 'nav.admin' }, { key: 'agenda.dest.place.oecd' }],
   }),
+  sanctions_match_review: (_row, lead, names) => ({
+    path: `/entities/${lead.object_id}?tab=sanctions`,
+    action: 'review',
+    crumbs: [{ key: 'nav.entities' }, named({ subject: names.subject }, 'agenda.dest.place.sanctions')],
+  }),
+  sanctions_list_due: () => ({
+    path: '/sanctions?view=lists',
+    action: 'open',
+    crumbs: [{ key: 'nav.sanctions' }, { key: 'agenda.dest.place.sanctionsLists' }],
+  }),
   country_downgrade_review: () => ({
     path: '/sectors?view=countries',
     action: 'review',

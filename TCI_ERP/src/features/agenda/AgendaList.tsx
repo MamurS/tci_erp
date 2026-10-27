@@ -48,6 +48,7 @@ export interface ListContext {
   setCommentingKey: (key: string | null) => void
   onComplete: (row: AgendaRow) => void
   onUnsnooze: (row: AgendaRow) => void
+  onTransfer?: (row: AgendaRow) => void
   onError: (message: string) => void
   onHandled: (row: AgendaRow) => void
 }

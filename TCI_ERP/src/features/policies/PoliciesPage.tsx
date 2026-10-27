@@ -32,6 +32,7 @@ import {
   ViewBar,
 } from '../../components/ui'
 import { EM_DASH, formatAmount, formatDate, formatPercent, formatRate } from '../../lib/format'
+import { TierMark } from '../tiers'
 import { usePolicies } from './api'
 import { useAuth } from '../../auth/AuthContext'
 import { mayWritePolicies, statusTone } from './statusMachine'
@@ -214,7 +215,11 @@ export function PoliciesPage() {
                   </Truncate>
                   {/* The structure under the name: a column of its own pushed
                       the register past a laptop's width. */}
-                  <span className="block text-caption text-slate-500">{t(`policies.structures.${p.product_structure}`)}</span>
+                  <span className="flex min-w-0 items-center gap-2 text-caption text-slate-500">
+                    <span className="min-w-0 truncate">{t(`policies.structures.${p.product_structure}`)}</span>
+                    {/* 0094: the policyholder's tier */}
+                    <TierMark entityId={p.entity_id} />
+                  </span>
                 </td>
                 <td className="whitespace-nowrap text-slate-500">
                   <span className="block">{formatDate(p.inception_date, locale)} —</span>

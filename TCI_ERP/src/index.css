@@ -72,6 +72,18 @@
       no-repeat;
     background-color: var(--color-canvas);
   }
+  /* Chrome shows credentials it filled in on page load as a "suggested"
+     value in its own small system font until the first click or key press
+     (the page cannot read the value before then). The ::first-line rule is
+     the one Chrome honours for that text: keep the field's own face and
+     size, so a saved e-mail and password read like typed ones at every zoom. */
+  input:-webkit-autofill,
+  input:-webkit-autofill::first-line {
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    letter-spacing: inherit;
+  }
   ::selection {
     background-color: var(--color-accent-100);
   }

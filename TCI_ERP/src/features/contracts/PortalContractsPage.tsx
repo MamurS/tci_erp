@@ -107,7 +107,7 @@ function PortalDraftView({ draft }: { draft: PortalDraft }) {
   }
 
   return (
-    <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
+    <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,clamp(calc(20rem*var(--ui-text,1)),28%,30rem))]">
       <div className="min-w-0">
         {/* plain: a policyholder reads the contract, not our field names */}
         <DocSheet doc={draft.content} plain />

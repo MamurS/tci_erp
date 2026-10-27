@@ -105,6 +105,7 @@ import {
 import type { ConditionInput, LimitRequestWithRefs } from './types'
 import { fourEyesNoticeKey, fourEyesRefusal } from './fourEyes'
 import { CONDITION_TYPES, requestScopeFilter } from './types'
+import { SanctionsMark } from '../sanctions/components'
 
 /** The sections `?focus=` may name; each is the `id` of its card. */
 const LIMIT_FOCUS_TARGETS = ['decision', 'commercial', 'validation'] as const
@@ -425,9 +426,11 @@ export function LimitRequestPage() {
               onNotice={setNotice}
             />
           </div>
+          {/* The request itself, full width of the decision column: below the
+              work, never squeezed beside it (owner, 2026-10-27). */}
+          <RequestCard request={request} locale={locale} />
         </div>
         <div className="flex flex-col gap-5">
-          <RequestCard request={request} locale={locale} />
           <BuyerSnapshot request={request} locale={locale} />
           {/* What the policyholder changed (0075). */}
           <RequestChangesSection requestId={request.id} />
@@ -552,15 +555,17 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
   return (
     <Card className="p-5">
       <SectionTitle className="mb-3">{t('limits.requestCard')}</SectionTitle>
-      <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-body">
+      <dl className="grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-body sm:grid-cols-[minmax(10rem,14rem)_1fr] sm:gap-x-8 sm:gap-y-3">
         <dt className="text-slate-500">{t('limits.fields.buyer')}</dt>
         <dd>
           <Link to={`/entities/${request.entity_id}`} className="text-accent-700 hover:underline">
             {request.legal_entities?.name ?? EM_DASH}
           </Link>
           {/* Is this buyer part of a group we are already exposed to? */}
-          <div className="mt-1">
+          <div className="mt-1 flex flex-wrap items-center gap-2">
             <GroupChip entityId={request.entity_id} />
+            {/* 0091: a sanction or a possible sanctions match on the buyer */}
+            <SanctionsMark entityId={request.entity_id} />
           </div>
         </dd>
         {request.policy_id ? (
@@ -573,7 +578,7 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
               >
                 {request.policies?.policy_number ?? EM_DASH}
               </Link>
-              <span className="ml-2 text-slate-500">
+              <span className="block text-slate-500">
                 {request.policies?.legal_entities?.name ?? ''}
               </span>
             </dd>
@@ -593,7 +598,7 @@ function RequestCard({ request, locale }: { request: LimitRequestWithRefs; local
               ) : (
                 EM_DASH
               )}
-              <span className="ml-2 text-slate-500">
+              <span className="block text-slate-500">
                 {request.insurance_requests?.legal_entities?.name ?? ''}
               </span>
               <span className="mt-0.5 block text-caption text-slate-500">

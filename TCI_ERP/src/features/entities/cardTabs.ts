@@ -14,6 +14,7 @@ export type CardTab =
   | 'overview'
   | 'financials'
   | 'rating'
+  | 'sanctions'
   | 'limits'
   | 'policies'
   | 'requests'
@@ -28,6 +29,8 @@ export const SECTION_OF: Readonly<Record<CardTab, CardSection>> = {
   overview: 'overview',
   financials: 'analysis',
   rating: 'analysis',
+  // 0091: what we know about the company — screened with its owners
+  sanctions: 'analysis',
   limits: 'cover',
   policies: 'cover',
   requests: 'cover',

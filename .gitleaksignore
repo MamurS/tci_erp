@@ -7,3 +7,10 @@
 #   history, so the token must be ROTATED on api-fns.ru - rotation is the
 #   only remedy for a committed secret. Not a TCI credential.
 40ddb4e41a97a5b9f7fb6eb14ccd7f7164e2a680:Fineye_dim/src/adapters/api_input/russia/group_data/fns.py:generic-api-key:157
+#
+# 168b033fb4aa4ece2049857ea75cdbe973428e2b:TCI_ERP/src/features/sanctions/model.ts:generic-api-key:117
+#   Not a secret: the EU's PUBLIC download link for the consolidated
+#   financial sanctions list carries «?token=dG9rZW4tMjAxNw», which is the
+#   base64 of the literal text «token-2017», the same for everyone and printed
+#   on the EU's own page. The import screen links it for the analysts.
+168b033fb4aa4ece2049857ea75cdbe973428e2b:TCI_ERP/src/features/sanctions/model.ts:generic-api-key:117

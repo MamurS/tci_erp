@@ -47,6 +47,7 @@ import { EntityClientAccessSection } from '../admin'
 import { useAuth } from '../../auth/AuthContext'
 import { hasRole } from '../../lib/roles'
 import { RatingTab } from './rating/RatingTab'
+import { EntitySanctionsTab } from '../sanctions/EntitySanctionsTab'
 import { EM_DASH, formatAmount, formatDate } from '../../lib/format'
 import { useBuyerExposure } from '../limits/api'
 import { OPEN_STATUSES } from '../limits/machine'
@@ -59,6 +60,8 @@ import { rememberEntity } from '../../components/layout/recentEntities'
 import { CountryRiskBadges, IndustrySectorBadge } from '../risk/badges'
 import { useAgencyRatingsLine } from './rating/agencyRatingsApi'
 import { CountryWithRisk, IndustryWithSector } from '../risk/integrationBadges'
+import { SanctionsMark } from '../sanctions/components'
+import { TierMark } from '../tiers'
 
 type TabKey = CardTab
 
@@ -86,6 +89,8 @@ export function EntityDetailPage() {
     'overview',
     'financials',
     'rating',
+    // Sanctions screening (0091): every company, every staff role.
+    'sanctions',
     ...(roles?.is_buyer ? (['limits'] as const) : []),
     ...(roles?.is_policyholder ? (['policies'] as const) : []),
     // Submissions are relevant to every company: as applicant or as a
@@ -153,6 +158,10 @@ export function EntityDetailPage() {
               onClick={() => setSearchParams({ tab: 'rating' }, { replace: true })}
             />
             <RoleBadges roles={roles} />
+            {/* 0094: a policyholder's tier */}
+            <TierMark entityId={id} />
+            {/* 0091: a sanction or a possible match, beside the name */}
+            <SanctionsMark entityId={id} />
           </BadgeSizeContext.Provider>
         }
         subtitle={
@@ -243,6 +252,7 @@ export function EntityDetailPage() {
         )}
         {activeTab === 'financials' && <FinancialsTab entityId={id} />}
         {activeTab === 'rating' && <RatingTab entityId={id} />}
+        {activeTab === 'sanctions' && <EntitySanctionsTab entityId={id} entityName={entity.name} />}
         {activeTab === 'limits' && <BuyerLimitsTab entityId={id} />}
         {activeTab === 'policies' && <PoliciesTab entityId={id} />}
         {activeTab === 'requests' && (

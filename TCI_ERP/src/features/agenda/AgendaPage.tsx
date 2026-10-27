@@ -18,10 +18,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { UserRoundPlus } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
 import {
   ActionsMenu,
+  Button,
   Callout,
   EmptyState,
   HeroBand,
@@ -72,6 +74,8 @@ import { FAMILIES, TASK_FAMILY, familyCounts } from './families'
 import { isAutomatic, paramComments, systemNote } from './notes'
 import { companyOf, referenceOf, renderNote } from './rowText'
 import { TriageView } from './TriageView'
+import { TransferModal } from './TransferModal'
+import { transferable } from './transfer'
 
 type View = 'list' | 'triage'
 
@@ -236,6 +240,9 @@ export function AgendaPage() {
   const [commentingKey, setCommentingKey] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const [handled, setHandled] = useState<Map<string, number>>(new Map())
+  // 0092: the rows ticked in the hand-over dialog (null: closed).
+  const [transferring, setTransferring] = useState<readonly string[] | null>(null)
+  const [transferredCount, setTransferredCount] = useState<number | null>(null)
   const markHandled = useCallback((row: AgendaRow) => {
     setHandled((current) => new Map(current).set(row.key, Date.now()))
   }, [])
@@ -416,6 +423,14 @@ export function AgendaPage() {
               />
             </span>
           </span>
+          {/* 0092: hand several tasks to a colleague at once — beside the
+              view and the grouping, so the chip row stays one line. */}
+          {visible.some(transferable) && (
+            <Button variant="secondary" onClick={() => setTransferring([])}>
+              <UserRoundPlus aria-hidden />
+              {t('agenda.transfer.bulk')}
+            </Button>
+          )}
         </>
       }
     />
@@ -529,6 +544,7 @@ export function AgendaPage() {
         onError={setActionError}
         onComplete={(row) => void runComplete(row)}
         onUnsnooze={(row) => void runUnsnooze(row)}
+        onTransfer={(row) => setTransferring([row.key])}
         registerMove={(fn) => {
           triageSelect.current = fn
         }}
@@ -552,6 +568,7 @@ export function AgendaPage() {
           setCommentingKey,
           onComplete: (row) => void runComplete(row),
           onUnsnooze: (row) => void runUnsnooze(row),
+          onTransfer: (row) => setTransferring([row.key]),
           onError: setActionError,
           onHandled: markHandled,
         }}
@@ -568,7 +585,21 @@ export function AgendaPage() {
           <Callout tone="neg" title={actionError} />
         </div>
       )}
+      {transferredCount !== null && (
+        <div className="mb-4">
+          <Callout tone="pos" title={t('agenda.transfer.done', { count: transferredCount })} />
+        </div>
+      )}
       {body}
+      {transferring && (
+        <TransferModal
+          rows={groups.flatMap((g) => g.rows)}
+          preselected={transferring}
+          subjects={subjects}
+          onClose={() => setTransferring(null)}
+          onDone={setTransferredCount}
+        />
+      )}
       {!tasksQuery.isLoading && groups.length > 0 && <KeyLegend view={view} />}
     </div>
   )

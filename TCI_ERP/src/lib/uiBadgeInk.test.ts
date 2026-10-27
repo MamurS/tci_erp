@@ -1,18 +1,20 @@
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../supabase/migrations/0089_ui_badge_ink.sql?raw'
+import PASTEL from '../../supabase/migrations/0093_ui_badge_pastel_default.sql?raw'
 import { BADGE_TONES } from '../components/ui/badgeStyles'
 import { gradeBadgeTone } from '../components/ui/gradeTone'
 import { DEFAULT_UI_BADGE_INK, effectiveBadgeInk, UI_BADGE_INKS, uiBadgeInkOrDefault } from './uiTheme'
 
 describe('text on coloured badges (0089)', () => {
-  it('offers exactly what the database accepts, white by default', () => {
-    expect(MIGRATION).toContain(`check (ui_badge_ink in (${UI_BADGE_INKS.map((v) => `'${v}'`).join(', ')}))`)
-    expect(MIGRATION).toContain('NULL = the application default, white')
-    expect(DEFAULT_UI_BADGE_INK).toBe('white')
-    expect(uiBadgeInkOrDefault(null)).toBe('white')
-    expect(uiBadgeInkOrDefault('dark')).toBe('dark')
-    expect(uiBadgeInkOrDefault('grey')).toBe('white')
+  it('offers exactly what the database accepts, pastel by default (0093)', () => {
+    expect(MIGRATION).toContain("check (ui_badge_ink in ('white', 'dark'))")
+    expect([...UI_BADGE_INKS].sort()).toEqual(['dark', 'white'])
+    expect(PASTEL).toContain('NULL = the application default, dark — the pastel badge')
+    expect(DEFAULT_UI_BADGE_INK).toBe('dark')
+    expect(uiBadgeInkOrDefault(null)).toBe('dark')
+    expect(uiBadgeInkOrDefault('white')).toBe('white')
+    expect(uiBadgeInkOrDefault('grey')).toBe('dark')
   })
 
   it('applies white in light mode only, never on paper', () => {

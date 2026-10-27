@@ -1,5 +1,5 @@
 /**
- * Admin › Риски › «Санкции» (migration 0085): the sanctions flags on a
+ * «Санкции › Флаги» (migrations 0085, 0091): the sanctions flags on a
  * country or a single company. While a flag is live NO cover is possible for
  * that party — the database refuses a limit request, an approving decision,
  * a submission, a package buyer and a policy whatever the authority. Setting
@@ -8,7 +8,9 @@
  * reason.
  *
  * Who maintains them is one rule, `mayManageSanctions` (the mirror of
- * tci.may_manage_sanctions): admin today, a compliance role later.
+ * tci.may_manage_sanctions): credit analysts since 0091, a compliance role
+ * later; everyone else on staff reads them. A confirmed screening match sets
+ * one too (tci.resolve_sanctions_match).
  */
 
 import { useState } from 'react'

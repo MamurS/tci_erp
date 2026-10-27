@@ -16,7 +16,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ArrowRight, Check, CornerDownRight, Zap } from 'lucide-react'
 
-import { Button, Card, LinkButton } from '../../components/ui'
+import { Button, Card, LinkButton, SplitHandle, useSplitWidth } from '../../components/ui'
 import { formatDue, formatMoment } from '../../lib/format'
 import type { StaffMember } from '../data/types'
 import { useObjectEvents, useValidationComments, validationOrigin } from './api'
@@ -34,6 +34,7 @@ import { companyOf, personName, referenceOf, renderNote, rowTitle } from './rowT
 import { FamilyBody } from './triage/FamilyBody'
 import type { TaskComment } from './types'
 import { useFillViewport } from './useFillViewport'
+import { transferable } from './transfer'
 
 interface TriageProps {
   groups: RowGroup[]
@@ -50,6 +51,8 @@ interface TriageProps {
   onError: (message: string) => void
   onComplete: (row: AgendaRow) => void
   onUnsnooze: (row: AgendaRow) => void
+  /** 0092: hand the row's tasks to a colleague. */
+  onTransfer: (row: AgendaRow) => void
   /** The page's J/K hand the move to the queue. */
   registerMove: (fn: (delta: number) => void) => void
 }
@@ -137,13 +140,14 @@ export function TriageView(props: TriageProps) {
   // scrolls inside itself under its pinned header, never the page.
   const frame = useRef<HTMLDivElement>(null)
   const height = useFillViewport(frame)
+  const split = useSplitWidth('agenda-triage')
 
   return (
     <div
       ref={frame}
       data-card-row
-      style={height === null ? undefined : ({ '--triage-h': `${height}px` } as CSSProperties)}
-      className="grid gap-5 lg:h-[var(--triage-h,36rem)] lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]"
+      style={{ ...split.style, ...(height === null ? {} : ({ '--triage-h': `${height}px` } as CSSProperties)) }}
+      className="grid gap-5 lg:h-[var(--triage-h,36rem)] lg:grid-cols-[minmax(0,var(--split-w,clamp(calc(22rem*var(--ui-text,1)),38%,46rem)))_1.25rem_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] lg:gap-x-0"
     >
       <Card className="flex min-h-0 flex-col overflow-hidden" data-triage-pane="queue">
         <p data-triage-pane-head className="shrink-0 border-b border-slate-100 px-4 py-3 text-small text-slate-600">
@@ -187,6 +191,8 @@ export function TriageView(props: TriageProps) {
           })}
         </div>
       </Card>
+
+      <SplitHandle containerRef={frame} rem={split.rem} onChange={split.setRem} minRem={18} />
 
       {selected ? (
         <DetailPanel key={selected.row.key} row={selected.row} {...props} staff={staff} />
@@ -297,6 +303,7 @@ function DetailPanel({
   onError,
   onComplete,
   onUnsnooze,
+  onTransfer,
 }: TriageProps & { row: AgendaRow }) {
   const { t, i18n } = useTranslation()
   const locale = i18n.language
@@ -477,6 +484,11 @@ function DetailPanel({
               <SnoozeMenu taskIds={row.tasks.map((task) => task.id)} onDone={() => onHandled(row)} onError={onError} />
             </span>
           )}
+          {row.tasks.some(transferable) && (
+            <Button variant="secondary" onClick={() => onTransfer(row)}>
+              {t('agenda.transfer.action')}
+            </Button>
+          )}
           {row.tasks.some((task) => canCompleteByHand(task.task_type)) && (
             <Button variant="secondary" onClick={() => onComplete(row)}>
               {t('agenda.markDone')}
@@ -554,7 +566,7 @@ function History({
       <h3 className="mb-3 text-caption font-semibold tracking-[0.08em] text-slate-600 uppercase">{t('agenda.history.title')}</h3>
       <ol className="flex flex-col gap-2">
         {shown.map((e) => (
-          <li key={e.id} className="grid grid-cols-[9rem_1fr] gap-4 text-body">
+          <li key={e.id} className="grid grid-cols-[calc(11rem*var(--ui-text,1))_1fr] gap-4 text-body">
             <span className="text-slate-600 tabular-nums">{formatMoment(e.created_at, i18n.language)}</span>
             <span className="text-slate-800">
               {t(`agenda.history.events.${e.event_type.replace(/\./g, '_')}`, {

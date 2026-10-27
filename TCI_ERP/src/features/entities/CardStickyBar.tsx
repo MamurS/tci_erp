@@ -15,8 +15,8 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 
-/** The same edge-to-edge bleed as the hero band (HeroBand `app`). */
-const BLEED = '-mx-4 px-4 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8'
+/** As wide as the hero band (HeroBand `app`): the content's width. */
+const BLEED = 'px-5 sm:px-6'
 
 export function CardStickyBar({
   name,

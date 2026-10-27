@@ -64,6 +64,8 @@ export const TASK_FAMILY: Readonly<Record<TaskType, Family>> = {
   country_override_approval: 'limits',
   oecd_review_due: 'data',
   country_downgrade_review: 'limits',
+  sanctions_match_review: 'limits',
+  sanctions_list_due: 'data',
 
   contract_review: 'contracts',
 
@@ -138,6 +140,8 @@ export const TASK_TAG: Readonly<Record<TaskType, Tag>> = {
   country_override_approval: 'country',
   oecd_review_due: 'country',
   country_downgrade_review: 'country',
+  sanctions_match_review: 'sanctions',
+  sanctions_list_due: 'sanctions',
   contract_review: 'contract',
   offer_viewed: 'submission',
   offer_expiring: 'submission',
