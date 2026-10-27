@@ -995,8 +995,14 @@ is fine for internal test accounts and not fine for customers.
   financial sheets' sticky head no longer lets the body show between its
   rows, and switching sheets keeps the table in place. See **Interface
   text size rules** below and DESIGN.md «Zoom and text size».
-  **Canonical: 0081 NOT yet applied** (awaiting the owner; additive — the
-  screens read the column in their own query and keep 100 % without it)
+  **Canonical: 0081 applied 2026-10-27** before merge (owner's yes;
+  additive): `user_profiles` verified identical to a local replay of 0080
+  first (columns, column and table grants, constraints), the whole file in
+  one call with its ledger row (its text md5-identical to the committed
+  file), identical to a replay of 0081 afterwards;
+  `tests/db/ui_text_scale.sql` run on canonical with role impersonation
+  (forced rollback, nothing left behind, counts unchanged); no new advisor
+  finding
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
