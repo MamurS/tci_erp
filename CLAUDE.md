@@ -976,7 +976,15 @@ is fine for internal test accounts and not fine for customers.
   quick facts, Agenda grade badges and «All caught up», book by grade as
   exposure, portal status timelines, sticky financial sheets, Table v2 on
   every registry, a WCAG 2.5.8 target-size guard (`e2e/layout/targets.spec.ts`);
-  migration 0080 hides a staff DRAFT limit request from the portal
+  migration 0080 hides a staff DRAFT limit request from the portal.
+  **Canonical: 0080 applied 2026-10-27** before merge (owner's yes; the
+  deployed portal only stops listing drafts): the view it replaces verified
+  identical to a local replay of 0079 first, the whole file in one call with
+  its ledger row, identical to a replay of 0080 afterwards;
+  `tests/db/client_no_staff_drafts.sql` run on canonical with role
+  impersonation (forced rollback, nothing left behind, counts unchanged);
+  the real portal accounts checked read-only — no draft listed; no new
+  advisor finding
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
