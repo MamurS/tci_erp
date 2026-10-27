@@ -295,6 +295,14 @@ a bare `type="password"` anywhere else.
 * **Badges.** One rule for every tone: the ramp's 100 tint, 700 ink, 200
   hairline. A grade is a `GradeBadge` in the grade scale's own tint and ink
   (A1 teal … D red), the same everywhere; `lib/grade.ts gradeTone` is retired.
+  Each person picks the text on coloured badges (0089, «Текст на цветных
+  метках»): WHITE (the default) reverses the pair — the 700 shade (a grade's
+  ink) is the fill behind white text — DARK keeps the tint with the 700 ink.
+  The classes carry both (`in-data-[badge-ink=white]:…`, literal so Tailwind
+  generates them); `data-badge-ink` is set on <html> in light mode only and
+  never on paper, and the contrast guard pairs the white text with the fill
+  under the same variant. The grey neutral tone is not a colour and keeps its
+  tint.
 * **Human-scale amounts.** `HumanAmount` («3.18 млрд UZS») in summaries, key
   figures and sentences, with the full value on hover and for screen
   readers. Tables keep full values: never both styles in one column.

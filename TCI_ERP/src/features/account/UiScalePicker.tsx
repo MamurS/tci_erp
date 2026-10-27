@@ -2,6 +2,7 @@
  * saved for them, so they follow them to any device:
  *
  * - «Цветовая тема» (colour theme, 0082): the brand colours;
+ * - «Текст на цветных метках» (0089): white or dark text on coloured badges;
  * - «Светлая или тёмная» (0082): light, dark, or as the device;
  * - «Масштаб» (zoom, 0076): the whole interface at 100–200 %;
  * - «Размер текста» (text size, 0081): only the type, 100–150 %; spacing,
@@ -12,9 +13,9 @@
 import { useTranslation } from 'react-i18next'
 
 import { UI_SCALES, UI_TEXT_SCALES, useUiScaleValue, useUiTextScaleValue } from '../../lib/uiScale'
-import { UI_MODES, UI_THEMES, useUiModeValue, useUiThemeValue } from '../../lib/uiTheme'
+import { UI_BADGE_INKS, UI_MODES, UI_THEMES, useUiBadgeInkValue, useUiModeValue, useUiThemeValue } from '../../lib/uiTheme'
 import type { UiTheme } from '../../lib/uiTheme'
-import { useSaveUiScale, useSaveUiTextScale, useSaveUiTheme } from './uiScaleApi'
+import { useSaveUiBadgeInk, useSaveUiScale, useSaveUiTextScale, useSaveUiTheme } from './uiScaleApi'
 
 /** Each theme's own colour (tokens.css `--color-swatch-*`), as literal
  * classes so Tailwind emits them. */
@@ -101,6 +102,8 @@ export function DisplaySettings({ compact = false }: { compact?: boolean }) {
   const theme = useUiThemeValue()
   const mode = useUiModeValue()
   const saveTheme = useSaveUiTheme()
+  const badgeInk = useUiBadgeInkValue()
+  const saveInk = useSaveUiBadgeInk()
   const heading = compact
     ? 'mb-2 text-caption font-medium tracking-wide text-slate-500 uppercase'
     : 'text-body font-medium text-slate-800'
@@ -124,6 +127,17 @@ export function DisplaySettings({ compact = false }: { compact?: boolean }) {
         />
       </div>
       <div className="flex flex-col gap-2">
+        <span className={heading}>{t('account.uiBadgeInk.title')}</span>
+        {!compact && <span className="text-small text-slate-600">{t('account.uiBadgeInk.hint')}</span>}
+        <ScaleChoice
+          label={t('account.uiBadgeInk.title')}
+          values={UI_BADGE_INKS}
+          value={badgeInk}
+          onPick={(v) => saveInk.mutate(v)}
+          format={(v) => t(`account.uiBadgeInk.${v}`)}
+        />
+      </div>
+      <div className="flex flex-col gap-2">
         <span className={heading}>{t('account.uiText.title')}</span>
         {!compact && <span className="text-small text-slate-600">{t('account.uiText.hint')}</span>}
         <ScaleChoice
@@ -143,7 +157,7 @@ export function DisplaySettings({ compact = false }: { compact?: boolean }) {
           onPick={(v) => saveScale.mutate(v)}
         />
       </div>
-      {(saveScale.isError || saveText.isError || saveTheme.isError) && (
+      {(saveScale.isError || saveText.isError || saveTheme.isError || saveInk.isError) && (
         <span className="text-small text-slate-500" role="status">
           {t('account.uiScale.notSaved')}
         </span>

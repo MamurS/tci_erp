@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { useUiScaleSync, useUiTextScaleSync, useUiThemeSync } from './features/account/uiScaleApi'
+import { useUiBadgeInkSync, useUiScaleSync, useUiTextScaleSync, useUiThemeSync } from './features/account/uiScaleApi'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { ProtectedRoute } from './auth/ProtectedRoute'
 import { RequirePasswordChange } from './auth/RequirePasswordChange'
@@ -93,6 +93,7 @@ export default function App() {
   useUiScaleSync()
   useUiTextScaleSync()
   useUiThemeSync()
+  useUiBadgeInkSync()
   return (
     <Suspense fallback={<LoadingScreen />}>
     <Routes>

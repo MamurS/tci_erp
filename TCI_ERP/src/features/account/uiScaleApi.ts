@@ -9,8 +9,16 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../../auth/AuthContext'
 import { pinUiScale, setUiScale, setUiTextScale, uiScaleOrDefault, uiTextScaleOrDefault } from '../../lib/uiScale'
 import type { UiScale, UiTextScale } from '../../lib/uiScale'
-import { pinPaperColours, setUiMode, setUiTheme, uiModeOrDefault, uiThemeOrDefault } from '../../lib/uiTheme'
-import type { UiMode, UiTheme } from '../../lib/uiTheme'
+import {
+  pinPaperColours,
+  setUiBadgeInk,
+  setUiMode,
+  setUiTheme,
+  uiBadgeInkOrDefault,
+  uiModeOrDefault,
+  uiThemeOrDefault,
+} from '../../lib/uiTheme'
+import type { UiBadgeInk, UiMode, UiTheme } from '../../lib/uiTheme'
 import { tci } from '../../lib/supabase'
 
 const key = (userId: string) => ['ui-scale', userId] as const
@@ -181,6 +189,57 @@ export function useSaveUiTheme() {
         ui_theme: change.theme ?? old?.ui_theme ?? null,
         ui_mode: change.mode ?? old?.ui_mode ?? null,
       }))
+    },
+  })
+}
+
+// ---------------------------------------------------------------------------
+// The text on coloured badges (0089, ui_badge_ink). Its own query, as the
+// theme: a database without the column leaves the default (white).
+// ---------------------------------------------------------------------------
+
+const badgeInkKey = (userId: string) => ['ui-badge-ink', userId] as const
+
+/** Mounted once under the auth provider: applies the server's choice. */
+export function useUiBadgeInkSync() {
+  const { session } = useAuth()
+  const userId = session?.user.id ?? null
+  const query = useQuery({
+    queryKey: badgeInkKey(userId ?? ''),
+    enabled: Boolean(userId),
+    staleTime: Infinity,
+    retry: false,
+    queryFn: async (): Promise<{ ui_badge_ink: string | null } | null> => {
+      const { data, error } = await tci()
+        .from('user_profiles')
+        .select('ui_badge_ink')
+        .eq('user_id', userId!)
+        .maybeSingle()
+      if (error) throw error
+      return (data as { ui_badge_ink: string | null } | null) ?? null
+    },
+  })
+  useEffect(() => {
+    if (!query.isSuccess) return
+    setUiBadgeInk(uiBadgeInkOrDefault(query.data?.ui_badge_ink))
+  }, [query.isSuccess, query.data])
+}
+
+/** Applies at once; saves for the person. */
+export function useSaveUiBadgeInk() {
+  const { session } = useAuth()
+  const userId = session?.user.id ?? null
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationKey: ['ui-badge-ink', 'save'],
+    mutationFn: async (ink: UiBadgeInk) => {
+      setUiBadgeInk(ink)
+      if (!userId) return
+      const { error } = await tci().from('user_profiles').update({ ui_badge_ink: ink }).eq('user_id', userId)
+      if (error) throw error
+    },
+    onSuccess: (_data, ink) => {
+      if (userId) queryClient.setQueryData(badgeInkKey(userId), { ui_badge_ink: ink })
     },
   })
 }

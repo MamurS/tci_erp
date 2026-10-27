@@ -32,6 +32,7 @@ export const RISK_KEYS = {
   countries: ['risk', 'countries'] as const,
   imports: ['risk', 'imports'] as const,
   overrides: ['risk', 'overrides'] as const,
+  referenceRatings: ['risk', 'reference-ratings'] as const,
   sanctions: ['risk', 'sanctions'] as const,
   settings: ['risk', 'settings'] as const,
   context: (entityId: string) => ['risk', 'context', entityId] as const,
@@ -469,6 +470,81 @@ export function useEndCountryOverride() {
       if (error) throw error
     },
     onSuccess: () => invalidateRisk(queryClient),
+  })
+}
+
+// ---------------------------------------------------------------------------
+// Reference country ratings (0088) — Allianz Trade, never a driver
+// ---------------------------------------------------------------------------
+
+/** One row of tci.v_country_reference_ratings: the rating in use. */
+export interface ReferenceRating {
+  id: string
+  country_code: string
+  source: 'allianz_trade'
+  grade: string | null
+  risk_level: number | null
+  /** e.g. «BB2»; null when the source no longer rates the country. */
+  rating: string | null
+  as_of: string
+  reference: string
+  note: string | null
+  entered_by: string
+  entered_at: string
+}
+
+export function useReferenceRatings() {
+  const staff = useIsStaffReader()
+  return useQuery({
+    queryKey: RISK_KEYS.referenceRatings,
+    enabled: staff,
+    staleTime: 5 * 60_000,
+    queryFn: async (): Promise<Map<string, ReferenceRating>> => {
+      const { data, error } = await tci().from('v_country_reference_ratings').select('*').eq('source', 'allianz_trade')
+      if (error) throw error
+      return new Map(((data ?? []) as ReferenceRating[]).map((r) => [r.country_code, r]))
+    },
+  })
+}
+
+export function useSetReferenceRating() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: {
+      countryCode: string
+      rating: string | null
+      asOf: string
+      reference: string
+      note: string | null
+    }) => {
+      const { error } = await tci().rpc('set_country_reference_rating', {
+        p_country: input.countryCode,
+        p_source: 'allianz_trade',
+        p_rating: input.rating,
+        p_as_of: input.asOf,
+        p_reference: input.reference,
+        p_note: input.note,
+      })
+      if (error) throw error
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: RISK_KEYS.referenceRatings }),
+  })
+}
+
+export function useImportReferenceRatings() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: { asOf: string; reference: string; rows: { country_code: string; rating: string }[] }) => {
+      const { data, error } = await tci().rpc('import_country_reference_ratings', {
+        p_source: 'allianz_trade',
+        p_as_of: input.asOf,
+        p_reference: input.reference,
+        p_rows: input.rows,
+      })
+      if (error) throw error
+      return data as { inserted: number; unchanged: number }
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: RISK_KEYS.referenceRatings }),
   })
 }
 

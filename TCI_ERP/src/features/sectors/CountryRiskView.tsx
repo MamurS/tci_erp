@@ -11,6 +11,10 @@
  * never their own — and ends a live one with a reason. Credit underwriting
  * and admin read. The Agenda's approval task lands here with
  * ?override=<id>, which brings that proposal into view.
+ *
+ * Beside them, Allianz Trade's Country Risk Rating (0088), entered by admin
+ * or a credit analyst from the publication — a reference column that no
+ * decision reads.
  */
 
 import { useId, useMemo, useState } from 'react'
@@ -51,8 +55,9 @@ import {
   useDecideCountryOverride,
   useEndCountryOverride,
   useProposeCountryOverride,
+  useReferenceRatings,
 } from '../risk/api'
-import type { CountryOverride, CountryRiskRow } from '../risk/api'
+import type { CountryOverride, CountryRiskRow, ReferenceRating } from '../risk/api'
 import { CountryCategoryBadge, SanctionsBadge } from '../risk/badges'
 import { COUNTRY_CATEGORIES } from '../risk/rules'
 import { useIsHeadAnalyst } from './api'
@@ -69,6 +74,9 @@ import {
 } from './model'
 import type { CountryFilter } from './model'
 import { ReasonModal } from './ReasonModal'
+import { ReferenceRatingBadge } from './ReferenceRatingBadge'
+import { mayEnterReferenceRatings } from './referenceRatings'
+import { ReferenceRatingsModal } from './ReferenceRatingsModal'
 
 const OVERRIDE_TONE: Record<CountryOverride['status'], 'accent' | 'pos' | 'neg' | 'neutral'> = {
   pending: 'accent',
@@ -95,12 +103,16 @@ export function CountryRiskView() {
   const { query } = usePageSearch('sectors')
   const countries = useCountryRisk()
   const overrides = useCountryOverrides()
+  const reference = useReferenceRatings()
   const [proposing, setProposing] = useState(false)
+  const [entering, setEntering] = useState(false)
   const [ending, setEnding] = useState<CountryOverride | null>(null)
   const end = useEndCountryOverride()
 
   const all = useMemo(() => countries.data ?? [], [countries.data])
   const byCode = useMemo(() => new Map(all.map((c) => [c.country_code, c])), [all])
+  const knownCodes = useMemo(() => new Set(all.map((c) => c.country_code)), [all])
+  const referenceByCode = useMemo(() => reference.data ?? new Map<string, ReferenceRating>(), [reference.data])
   const overrideById = useMemo(() => new Map((overrides.data ?? []).map((o) => [o.id, o])), [overrides.data])
   const list = oecdListState(all)
 
@@ -135,7 +147,7 @@ export function CountryRiskView() {
     return o && mayEndOverride({ actingRole, senior: head, override: o }) ? o : null
   }
   const showEnd = actingRole === 'credit_analyst' && head
-  const columns = [COL.fill, '9.5rem', '9.5rem', '13rem', '8rem', '10rem', ...(showEnd ? ['8rem'] : [])]
+  const columns = [COL.fill, '9.5rem', '9.5rem', '13rem', '8.5rem', '8rem', '10rem', ...(showEnd ? ['8rem'] : [])]
   const tableHead = (
     <thead>
       <tr>
@@ -143,6 +155,7 @@ export function CountryRiskView() {
         <th>{t('risk.countries.fields.oecd')}</th>
         <th>{t('risk.countries.fields.internal')}</th>
         <th>{t('risk.countries.fields.inUse')}</th>
+        <th title={t('risk.reference.columnTitle')}>{t('risk.countries.fields.reference')}</th>
         <th>{t('risk.countries.fields.sanctions')}</th>
         <th>{t('risk.countries.fields.pending')}</th>
         {showEnd && (
@@ -167,6 +180,11 @@ export function CountryRiskView() {
                 ariaLabel={t('risk.countries.filters.label')}
                 options={COUNTRY_FILTERS.map((f) => ({ key: f, label: `${t(`risk.countries.filters.${f}`)} · ${counts[f]}` }))}
               />
+            )}
+            {mayEnterReferenceRatings(actingRole) && (
+              <Button variant="secondary" onClick={() => setEntering(true)}>
+                {t('risk.reference.action')}
+              </Button>
             )}
             {mayProposeOverride(actingRole) && (
               <Button onClick={() => setProposing(true)}>{t('risk.countries.propose.action')}</Button>
@@ -216,6 +234,7 @@ export function CountryRiskView() {
             <tbody>
               {rows.map((r) => {
                 const o = endable(r)
+                const ref = referenceByCode.get(r.country_code)
                 return (
                   <tr key={r.country_code}>
                     <td>
@@ -248,6 +267,13 @@ export function CountryRiskView() {
                           <span className="truncate text-caption text-slate-500">{t(`risk.countries.source.${r.source}`)}</span>
                         )}
                       </span>
+                    </td>
+                    <td>
+                      {ref ? (
+                        <ReferenceRatingBadge rating={ref} />
+                      ) : (
+                        <span className="text-slate-500">—</span>
+                      )}
                     </td>
                     <td>{r.sanctioned ? <SanctionsBadge /> : <span className="text-slate-500">—</span>}</td>
                     <td>
@@ -283,6 +309,7 @@ export function CountryRiskView() {
       </div>
 
       {proposing && <ProposeModal byCode={byCode} onClose={() => setProposing(false)} />}
+      {entering && <ReferenceRatingsModal live={referenceByCode} knownCodes={knownCodes} onClose={() => setEntering(false)} />}
       {ending && (
         <ReasonModal
           title={t('risk.countries.end.title', { country: countryLabel(byCode.get(ending.country_code), lang, ending.country_code) })}
