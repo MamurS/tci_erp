@@ -126,6 +126,11 @@ export function systemNote(task: Pick<Task, 'task_type' | 'params' | 'source_eve
       }
     case 'rating_stale':
       return { key: 'agenda.note.rating_stale', values: {} }
+    case 'oecd_review_due':
+      // 0087: no list at all, or one older than the setting.
+      return p.effective_date
+        ? { key: 'agenda.note.oecd_review_due', values: { months: num(p.months) ?? 4 } }
+        : { key: 'agenda.note.oecd_review_due_none', values: {} }
     case 'buyer_needs_rating':
       return { key: 'agenda.note.buyer_needs_rating', values: {} }
     case 'limit_review_due':

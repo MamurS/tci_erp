@@ -63,7 +63,7 @@
       }
     },
     "data": "Data management",
-    "sectors": "Sectors"
+    "sectors": "Sectors & Country Risk Categories"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -2654,10 +2654,11 @@
           "file": "CSV (comma, semicolon or tab; UTF-8 or Windows-1251) or Excel (.xlsx, .xls — the first sheet with data).",
           "columns": "A header row with a column of two-letter ISO country codes (headed «code», «ISO», «country_code» or «Код») and a column of categories («category», «classification» or «Категория»); other columns, and title lines above the header, are ignored.",
           "unclassified": "An empty cell, «-» or «n/a» in the category column means the country is not classified: it is left out of the import.",
-          "whole": "Categories are whole numbers 0–7. Three-letter codes (UZB) are not accepted. A date above the header or in the file name is offered as the effective date."
+          "whole": "Categories are whole numbers 0–7. In a CSV or Excel file three-letter codes (UZB) are not accepted. A date above the header or in the file name is offered as the effective date.",
+          "pdf": "Best: the OECD's own PDF as published (cre-crc-current-english.pdf from oecd.org) — read as it is, three-letter codes converted, the «Valid as of» date offered as the effective date."
         },
         "file": "File",
-        "fileHint": "CSV, XLSX or XLS",
+        "fileHint": "The OECD's own PDF, or CSV, XLSX or XLS",
         "choose": "Choose a file",
         "noFile": "No file chosen",
         "reading": "Reading the file…",
@@ -2676,7 +2677,8 @@
           "code_invalid": "Row {{row}}: «{{value}}» is not a two-letter ISO country code.",
           "alpha3": "Row {{row}}: «{{value}}» is a three-letter code — use the two-letter ISO code (UZ, not UZB).",
           "category_invalid": "Row {{row}}: {{code}} — «{{value}}» is not a category from 0 to 7.",
-          "duplicate": "Row {{row}}: {{code}} already appears in row {{firstRow}}."
+          "duplicate": "Row {{row}}: {{code}} already appears in row {{firstRow}}.",
+          "dash_unexplained": "Row {{row}}: «-» with no footnote explaining it ({{value}}) — check the PDF"
         },
         "unknownTitle": "Countries we do not know",
         "unknownBody": "These codes are not in the country reference list: {{codes}}. Correct the file, or ask for the reference list to be completed.",
@@ -2691,7 +2693,9 @@
         },
         "warnings": {
           "lowercase": "code written in lower case — read in capitals",
-          "unknown": "not in the country reference list"
+          "unknown": "not in the country reference list",
+          "unknownLeftOut": "not in our country list — left out",
+          "highIncomeZero": "high income, note {{notes}} → 0"
         },
         "note": "Note",
         "noteHint": "Optional — e.g. the OECD publication the list comes from.",
@@ -2709,7 +2713,40 @@
           "importedBy": "By"
         },
         "historyEmpty": "Nothing imported yet",
-        "historyEmptyHint": "Every import is kept here with its date and file."
+        "historyEmptyHint": "Every import is kept here with its date and file.",
+        "pdfRules": "Read from the OECD PDF: the current (prevailing) category of each country. Where the OECD gives no category to a high-income OECD country, a euro-area country or a euro micro-state, the import reads 0 — export credit practice — and says so on the row; a country «currently not reviewed or classified» is left out and stays not classified.",
+        "unknownLeftOut": "These countries are not in the country reference list and are left out of the import: {{codes}}.",
+        "importedNotInUse": "The file is older than the list in use: it is kept in the history, and decisions keep using the newer list.",
+        "importedDowngrades_one": "{{count}} country got worse where our buyers hold active limits — credit underwriting has a task to review them.",
+        "importedDowngrades_other": "{{count}} countries got worse where our buyers hold active limits — credit underwriting has a task to review them.",
+        "importedNoDowngrades": "No country with our buyers' active limits got worse.",
+        "changes": {
+          "title": "What this list changes",
+          "hint": "Against the list in use, of {{date}}. Decisions follow the new categories once it is imported.",
+          "failed": "Could not compare with the list in use — the import still works.",
+          "first": "There is no list in use yet: this one will be.",
+          "superseded": "This file is older than the list in use ({{date}}): it would be kept in the history, but decisions keep using the newer list.",
+          "none": "No country changes category against the list of {{date}}.",
+          "summary": "{{worse}} worse, {{better}} better",
+          "affected_one": "{{count}} buyer with active limits is in a country that gets worse",
+          "affected_other": "{{count}} buyers with active limits are in countries that get worse",
+          "columns": {
+            "country": "Country",
+            "before": "Now",
+            "after": "New list",
+            "direction": "Change",
+            "buyers": "Buyers",
+            "exposure": "Active limits, UZS",
+            "note": "Note"
+          },
+          "direction": {
+            "worse": "Worse",
+            "better": "Better"
+          },
+          "ratesMissing_one": "{{count}} without a UZS rate",
+          "ratesMissing_other": "{{count}} without a UZS rate",
+          "masked": "internal category {{category}} stays"
+        }
       },
       "sanctions": {
         "title": "Sanctions",
@@ -3211,7 +3248,9 @@
       "limit_validation": "Limit validation",
       "rating_proposal_step": "Rating proposal",
       "sector": "Sector",
-      "country_risk_override": "Internal country category"
+      "country_risk_override": "Internal country category",
+      "country_risk_list": "OECD country list",
+      "country_risk_import": "OECD list import"
     },
     "taskTypes": {
       "buyer_needs_entity": "Identify buyer",
@@ -3261,7 +3300,9 @@
       "sector_review_approval": "Sector review approval",
       "sector_downgrade_review": "Sector downgrade: buyers to review",
       "sanctions_limit_review": "Sanctions: limit to review",
-      "country_override_approval": "Internal country category approval"
+      "country_override_approval": "Internal country category approval",
+      "oecd_review_due": "OECD list to check",
+      "country_downgrade_review": "Country downgrade: buyers to review"
     },
     "tasks": {
       "buyer_needs_entity": "Identify the company behind “{{name}}” in submission {{subject}}",
@@ -3330,7 +3371,9 @@
       "sector_review_approval": "Approve the sector review: {{industry}} (grade {{grade}})",
       "sector_downgrade_review": "Sector {{industry}} downgraded to {{to}}: review {{buyers}} buyers with limits",
       "sanctions_limit_review": "Sanctions ({{regime}}): review the limit on {{subject}}",
-      "country_override_approval": "Approve the internal country category: {{country}} → category {{category}}"
+      "country_override_approval": "Approve the internal country category: {{country}} → category {{category}}",
+      "oecd_review_due": "Check the OECD for a newer country risk list",
+      "country_downgrade_review": "OECD list of {{effective_date}}: {{countries_count}} countries worse — review {{buyers}} buyers with limits"
     },
     "empty": {
       "title": "Nothing is waiting on you",
@@ -3584,7 +3627,12 @@
       "proposedGrade": "grade {{grade}}",
       "sectorGrade": "Grade {{grade}}",
       "countryCategory": "Category {{category}}",
-      "moreBuyers": "+{{count}} more"
+      "moreBuyers": "+{{count}} more",
+      "oecdListOf": "List in use: {{date}}",
+      "countryWorse": "{{code}}: {{from}} → {{to}}",
+      "moreCountries": "+{{count}} more",
+      "buyersAffected_one": "{{count}} buyer with limits",
+      "buyersAffected_other": "{{count}} buyers with limits"
     },
     "sub": {
       "instalment": "Instalment {{sequence}}"
@@ -3656,7 +3704,9 @@
       "rating_new_statements_zero": "{{period}} statements were added by {{user}} on {{date}}. The current assessment {{grade}} · {{score}} rests on statements to {{ratedPeriod}} and is now a period behind; no effective limit depends on it yet.",
       "premium_payment_unmatched": "Statement {{file}}: lines to resolve — {{count}}. Assign each to a policy, or set it aside with a reason.",
       "offer_expiring": "Offer {{number}} is valid until {{validUntil}}. Contact the client or publish a version with a new date.",
-      "offer_expired": "Offer {{number}} was valid until {{validUntil}} and can no longer be accepted. Publish a version with a new date or withdraw it."
+      "offer_expired": "Offer {{number}} was valid until {{validUntil}} and can no longer be accepted. Publish a version with a new date or withdraw it.",
+      "oecd_review_due": "The OECD revises its country risk list about three times a year (after each Participants' meeting), and the list in use is more than {{months}} months old. Download the current PDF from oecd.org and import it in Admin › Risk.",
+      "oecd_review_due_none": "No OECD country risk list has been imported, so country risk does not apply to decisions yet. Download the current PDF from oecd.org and import it in Admin › Risk."
     },
     "dest": {
       "opens": "Opens",
@@ -3685,7 +3735,8 @@
         "adt": "ADT",
         "financials": "Financial statements",
         "card": "Company card",
-        "countries": "Countries"
+        "countries": "Countries",
+        "oecd": "OECD import"
       },
       "with": {
         "task": "with this task’s context",

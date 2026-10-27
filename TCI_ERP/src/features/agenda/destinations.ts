@@ -352,6 +352,16 @@ export const DESTINATIONS: Readonly<Record<TaskType, Builder>> = {
     action: 'review',
     crumbs: [{ key: 'nav.limits' }, named({ subject: names.subject }, 'agenda.dest.request')],
   }),
+  oecd_review_due: () => ({
+    path: '/admin?tab=risk&focus=oecd',
+    action: 'open',
+    crumbs: [{ key: 'nav.admin' }, { key: 'agenda.dest.place.oecd' }],
+  }),
+  country_downgrade_review: () => ({
+    path: '/sectors?view=countries',
+    action: 'review',
+    crumbs: [{ key: 'nav.sectors' }, { key: 'agenda.dest.place.countries' }],
+  }),
   country_override_approval: (_row, lead) => ({
     path: `/sectors?view=countries&override=${lead.object_id}`,
     action: 'review',

@@ -63,7 +63,7 @@
       }
     },
     "data": "Ma’lumotlarni boshqarish",
-    "sectors": "Sektorlar"
+    "sectors": "Sektorlar va mamlakat riski toifalari"
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -2654,10 +2654,11 @@
           "file": "CSV (ajratgich — vergul, nuqtali vergul yoki tabulyatsiya; UTF-8 yoki Windows-1251) yoki Excel (.xlsx, .xls — ma’lumotli birinchi varaq).",
           "columns": "Sarlavha qatori: ikki harfli ISO mamlakat kodlari ustuni (sarlavha «code», «ISO», «country_code» yoki «Код») va toifalar ustuni («category», «classification» yoki «Категория»); boshqa ustunlar va sarlavha ustidagi nom qatorlari hisobga olinmaydi.",
           "unclassified": "Toifa ustunidagi bo‘sh katak, «-» yoki «n/a» mamlakat tasniflanmaganini bildiradi: u importga kirmaydi.",
-          "whole": "Toifalar — 0 dan 7 gacha butun sonlar. Uch harfli kodlar (UZB) qabul qilinmaydi. Sarlavha ustidagi yoki fayl nomidagi sana kuchga kirish sanasi sifatida taklif etiladi."
+          "whole": "Toifalar 0–7 butun sonlar. CSV va Excel faylida uch harfli kodlar (UZB) qabul qilinmaydi. Sarlavha ustidagi yoki fayl nomidagi sana kuchga kirish sanasi sifatida taklif qilinadi.",
+          "pdf": "Eng yaxshisi — IHTT e’lon qilgan PDF (oecd.org dagi cre-crc-current-english.pdf): o‘zgarishsiz o‘qiladi, uch harfli kodlar o‘giriladi, «Valid as of» sanasi kuchga kirish sanasi sifatida taklif qilinadi."
         },
         "file": "Fayl",
-        "fileHint": "CSV, XLSX yoki XLS",
+        "fileHint": "IHTTning o‘z PDF fayli yoki CSV, XLSX, XLS",
         "choose": "Faylni tanlash",
         "noFile": "Fayl tanlanmagan",
         "reading": "Fayl o‘qilmoqda…",
@@ -2676,7 +2677,8 @@
           "code_invalid": "{{row}}-qator: «{{value}}» ikki harfli ISO mamlakat kodi emas.",
           "alpha3": "{{row}}-qator: «{{value}}» — uch harfli kod; ikki harfli ISO kodini kiriting (UZB emas, UZ).",
           "category_invalid": "{{row}}-qator: {{code}} — «{{value}}» 0 dan 7 gacha bo‘lgan toifa emas.",
-          "duplicate": "{{row}}-qator: {{code}} {{firstRow}}-qatorda allaqachon bor."
+          "duplicate": "{{row}}-qator: {{code}} {{firstRow}}-qatorda allaqachon bor.",
+          "dash_unexplained": "{{row}}-qator: «-» uni tushuntiruvchi izohsiz ({{value}}) — PDF faylini tekshiring"
         },
         "unknownTitle": "Noma’lum mamlakatlar",
         "unknownBody": "Bu kodlar mamlakatlar ma’lumotnomasida yo‘q: {{codes}}. Faylni tuzating yoki ma’lumotnomani to‘ldirishni so‘rang.",
@@ -2691,7 +2693,9 @@
         },
         "warnings": {
           "lowercase": "kod kichik harflarda — bosh harflar bilan o‘qildi",
-          "unknown": "mamlakatlar ma’lumotnomasida yo‘q"
+          "unknown": "mamlakatlar ma’lumotnomasida yo‘q",
+          "unknownLeftOut": "ma’lumotnomada yo‘q — o‘tkazib yuborildi",
+          "highIncomeZero": "yuqori daromad, izoh {{notes}} → 0"
         },
         "note": "Izoh",
         "noteHint": "Ixtiyoriy — masalan, ro‘yxat olingan IHTT nashri.",
@@ -2709,7 +2713,40 @@
           "importedBy": "Kim tomonidan"
         },
         "historyEmpty": "Hali hech narsa import qilinmagan",
-        "historyEmptyHint": "Har bir import sanasi va fayli bilan shu yerda saqlanadi."
+        "historyEmptyHint": "Har bir import sanasi va fayli bilan shu yerda saqlanadi.",
+        "pdfRules": "IHTT PDF faylidan o‘qildi: har bir mamlakatning joriy (amaldagi) toifasi. IHTT yuqori daromadli IHTT mamlakatiga, yevrozona mamlakatiga yoki yevrodan foydalanuvchi mikrodavlatga toifa bermagan bo‘lsa, import 0 qo‘yadi — eksport kreditlashda shunday qabul qilingan — va buni qatorda ko‘rsatadi; «hozircha ko‘rib chiqilmagan va tasniflanmagan» mamlakat importga kirmaydi va tasniflanmagan bo‘lib qoladi.",
+        "unknownLeftOut": "Bu mamlakatlar mamlakatlar ma’lumotnomasida yo‘q va importga kirmaydi: {{codes}}.",
+        "importedNotInUse": "Fayl amaldagi ro‘yxatdan eskiroq: u tarixda saqlandi, qarorlar esa yangiroq ro‘yxatdan foydalanishda davom etadi.",
+        "importedDowngrades_one": "Bayerlarimiz amaldagi limitlarga ega bo‘lgan {{count}} ta mamlakat yomonlashdi — kredit anderraytingida ularni qayta ko‘rib chiqish vazifasi bor.",
+        "importedDowngrades_other": "Bayerlarimiz amaldagi limitlarga ega bo‘lgan {{count}} ta mamlakat yomonlashdi — kredit anderraytingida ularni qayta ko‘rib chiqish vazifasi bor.",
+        "importedNoDowngrades": "Bayerlarimiz amaldagi limitlarga ega bo‘lgan birorta mamlakat yomonlashmadi.",
+        "changes": {
+          "title": "Bu ro‘yxat nimani o‘zgartiradi",
+          "hint": "{{date}} dagi amaldagi ro‘yxatga nisbatan. Import qilingach, qarorlar yangi toifalarga amal qiladi.",
+          "failed": "Amaldagi ro‘yxat bilan solishtirib bo‘lmadi — import baribir ishlaydi.",
+          "first": "Hali amaldagi ro‘yxat yo‘q: shu ro‘yxat amaldagi bo‘ladi.",
+          "superseded": "Fayl amaldagi ro‘yxatdan ({{date}}) eskiroq: u tarixda saqlanadi, ammo qarorlar yangiroq ro‘yxatdan foydalanishda davom etadi.",
+          "none": "{{date}} dagi ro‘yxatga nisbatan birorta mamlakat toifasi o‘zgarmaydi.",
+          "summary": "yomonroq: {{worse}}, yaxshiroq: {{better}}",
+          "affected_one": "amaldagi limitli {{count}} ta bayer yomonlashayotgan mamlakatda",
+          "affected_other": "amaldagi limitli {{count}} ta bayer yomonlashayotgan mamlakatlarda",
+          "columns": {
+            "country": "Mamlakat",
+            "before": "Hozir",
+            "after": "Yangi ro‘yxat",
+            "direction": "O‘zgarish",
+            "buyers": "Bayerlar",
+            "exposure": "Amaldagi limitlar, UZS",
+            "note": "Izoh"
+          },
+          "direction": {
+            "worse": "Yomonroq",
+            "better": "Yaxshiroq"
+          },
+          "ratesMissing_one": "UZS kursisiz {{count}} ta",
+          "ratesMissing_other": "UZS kursisiz {{count}} ta",
+          "masked": "{{category}}-ichki toifa saqlanadi"
+        }
       },
       "sanctions": {
         "title": "Sanksiyalar",
@@ -3211,7 +3248,9 @@
       "limit_validation": "Limitni tasdiqlash",
       "rating_proposal_step": "Reyting taklifi",
       "sector": "Sektor",
-      "country_risk_override": "Mamlakatning ichki toifasi"
+      "country_risk_override": "Mamlakatning ichki toifasi",
+      "country_risk_list": "IHTT mamlakatlar ro‘yxati",
+      "country_risk_import": "IHTT ro‘yxati importi"
     },
     "taskTypes": {
       "buyer_needs_entity": "Bayerni aniqlash",
@@ -3261,7 +3300,9 @@
       "sector_review_approval": "Sektor sharhini tasdiqlash",
       "sector_downgrade_review": "Sektor reytingi pasaytirildi: bayerlarni qayta ko‘rib chiqish",
       "sanctions_limit_review": "Sanksiyalar: limitni qayta ko‘rib chiqish",
-      "country_override_approval": "Mamlakatning ichki toifasini tasdiqlash"
+      "country_override_approval": "Mamlakatning ichki toifasini tasdiqlash",
+      "oecd_review_due": "IHTT ro‘yxatini tekshirish",
+      "country_downgrade_review": "Mamlakat yomonlashdi: bayerlarni qayta ko‘rib chiqish"
     },
     "tasks": {
       "buyer_needs_entity": "{{subject}} arizasidagi «{{name}}» ortidagi tashkilotni aniqlang",
@@ -3330,7 +3371,9 @@
       "sector_review_approval": "Sektor sharhini tasdiqlash: {{industry}} (reyting {{grade}})",
       "sector_downgrade_review": "{{industry}} sektori reytingi {{to}} gacha pasaytirildi: limitli bayerlarni qayta ko‘rib chiqish ({{buyers}})",
       "sanctions_limit_review": "Sanksiyalar ({{regime}}): {{subject}} bo‘yicha limitni qayta ko‘rib chiqish",
-      "country_override_approval": "Mamlakatning ichki toifasini tasdiqlash: {{country}} → {{category}}-toifa"
+      "country_override_approval": "Mamlakatning ichki toifasini tasdiqlash: {{country}} → {{category}}-toifa",
+      "oecd_review_due": "IHTT mamlakat riski ro‘yxatining yangisi bor-yo‘qligini tekshirish",
+      "country_downgrade_review": "{{effective_date}} dagi IHTT ro‘yxati: yomonlashgan mamlakatlar — {{countries_count}}; limitli bayerlarni qayta ko‘rib chiqish ({{buyers}})"
     },
     "empty": {
       "title": "Sizni hech narsa kutmayapti",
@@ -3584,7 +3627,12 @@
       "proposedGrade": "{{grade}} reytingi",
       "sectorGrade": "Reyting {{grade}}",
       "countryCategory": "{{category}}-toifa",
-      "moreBuyers": "yana {{count}} ta"
+      "moreBuyers": "yana {{count}} ta",
+      "oecdListOf": "Amaldagi ro‘yxat: {{date}}",
+      "countryWorse": "{{code}}: {{from}} → {{to}}",
+      "moreCountries": "yana {{count}} ta",
+      "buyersAffected_one": "limitli {{count}} ta bayer",
+      "buyersAffected_other": "limitli {{count}} ta bayer"
     },
     "sub": {
       "instalment": "{{sequence}}-to‘lov"
@@ -3656,7 +3704,9 @@
       "rating_new_statements_zero": "{{period}} uchun hisobot {{date}} da qo‘shildi ({{user}}). Joriy baho {{grade}} · {{score}} {{ratedPeriod}} gacha bo‘lgan hisobotga asoslangan va bir davr orqada qoldi; unga hozircha amaldagi limit tayanmaydi.",
       "premium_payment_unmatched": "{{file}} ko‘chirmasi: ko‘rib chiqiladigan qatorlar — {{count}}. Har birini polisga biriktiring yoki sababini ko‘rsatib chetga qo‘ying.",
       "offer_expiring": "{{number}} taklifi {{validUntil}} gacha amal qiladi. Mijoz bilan bog‘laning yoki yangi muddatli versiyani e’lon qiling.",
-      "offer_expired": "{{number}} taklifi {{validUntil}} gacha amal qilgan va endi qabul qilinmaydi. Yangi muddatli versiyani e’lon qiling yoki uni qaytarib oling."
+      "offer_expired": "{{number}} taklifi {{validUntil}} gacha amal qilgan va endi qabul qilinmaydi. Yangi muddatli versiyani e’lon qiling yoki uni qaytarib oling.",
+      "oecd_review_due": "IHTT mamlakat riski ro‘yxatini yiliga taxminan uch marta (har bir ishtirokchilar yig‘ilishidan keyin) qayta ko‘rib chiqadi, amaldagi ro‘yxat esa {{months}} oydan eski. oecd.org dan joriy PDF faylini yuklab oling va Administratsiya › Risklar bo‘limida import qiling.",
+      "oecd_review_due_none": "IHTT mamlakat riski ro‘yxati hali import qilinmagan, shuning uchun mamlakat riski qarorlarda hozircha hisobga olinmaydi. oecd.org dan joriy PDF faylini yuklab oling va Administratsiya › Risklar bo‘limida import qiling."
     },
     "dest": {
       "opens": "Ochiladi",
@@ -3685,7 +3735,8 @@
         "adt": "ADT",
         "financials": "Moliyaviy hisobot",
         "card": "Tashkilot kartochkasi",
-        "countries": "Mamlakatlar"
+        "countries": "Mamlakatlar",
+        "oecd": "IHTT importi"
       },
       "with": {
         "task": "shu vazifa konteksti bilan",

@@ -332,7 +332,7 @@ export function useImportCountryRisk() {
       fileName: string
       rows: { country_code: string; category: number }[]
       note?: string | null
-    }): Promise<{ import_id: string; rows: number }> => {
+    }): Promise<CountryImportResult> => {
       const { data, error } = await tci().rpc('import_country_risk', {
         p_effective: input.effectiveDate,
         p_file_name: input.fileName,
@@ -340,9 +340,62 @@ export function useImportCountryRisk() {
         p_note: input.note ?? null,
       })
       if (error) throw error
-      return data as { import_id: string; rows: number }
+      return data as CountryImportResult
     },
     onSuccess: () => invalidateRisk(queryClient),
+  })
+}
+
+/** What tci.import_country_risk answers (0087: whether the list is now in
+ * use, and how many countries it made worse for buyers with limits). */
+export interface CountryImportResult {
+  import_id: string
+  rows: number
+  takes_effect?: boolean
+  downgrades?: number
+}
+
+/** One row of tci.country_risk_changes (0087). */
+export interface CountryRiskChange {
+  country_code: string
+  oecd_before: number | null
+  oecd_after: number | null
+  /** The approved internal category: decisions keep using it. */
+  internal_category: number | null
+  direction: 'worse' | 'better'
+  buyers: number
+  exposure_uzs: number | null
+  rates_missing: number
+}
+
+/** tci.country_risk_import_preview (0087): a list against the one in use. */
+export interface CountryRiskPreview {
+  first_import: boolean
+  previous_effective: string | null
+  previous_file: string | null
+  /** The file is older than the list in use: it would be stored, not used. */
+  superseded: boolean
+  changes: CountryRiskChange[]
+}
+
+/** The preview of a list about to be imported (admin only). */
+export function useCountryRiskPreview(
+  effectiveDate: string,
+  rows: readonly { country_code: string; category: number }[],
+  enabled: boolean,
+) {
+  return useQuery({
+    queryKey: [...RISK_KEYS.all, 'import-preview', effectiveDate, rows],
+    enabled,
+    staleTime: Infinity,
+    queryFn: async (): Promise<CountryRiskPreview> => {
+      const { data, error } = await tci().rpc('country_risk_import_preview', {
+        p_effective: effectiveDate,
+        p_rows: rows,
+      })
+      if (error) throw error
+      return data as CountryRiskPreview
+    },
   })
 }
 

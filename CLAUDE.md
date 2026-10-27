@@ -1053,6 +1053,25 @@ is fine for internal test accounts and not fine for customers.
   grade for all 21 sectors (1 A, 11 B, 9 C), each marked in its narrative
   as AI-proposed from general knowledge, to be confirmed at the next
   quarterly review
+- [x] Keeping the OECD list current (migrations 0086–0087, owner request
+  2026-10-27): the OECD's own PDF imported as published (pdf.js in the
+  browser, footnotes read from the PDF), a preview of what a list changes
+  with the buyers and limits affected, a `country_downgrade_review` task for
+  credit underwriting when a list makes countries with in-force limits
+  worse, and a lazy admin reminder (`oecd_review_due`) once the list in use
+  is older than `oecd_stale_months` — 4 since 0087 (was 6). Same batch: the
+  section is named «Sectors & Country Risk Categories». See **Sector,
+  country and sanctions rules** above. **Canonical: 0086–0087 applied
+  2026-10-27** before merge (owner's yes; backward-compatible — the deployed
+  screens only gain two task types): the three functions 0087 replaces
+  verified identical to a local replay of 0085 first; 0086 in one call with
+  its ledger row; 0087 executed FROM its ledger row in one call, after
+  checking that the row's text is md5-identical to the committed file, so
+  the file text was sent once. All six 0087 functions, the grants and the two
+  column defaults are identical to a local replay afterwards; the live
+  setting moved from 6 to 4. `tests/db/country_risk_upkeep.sql` run on
+  canonical with role impersonation (forced rollback, nothing left behind,
+  counts unchanged); no new advisor finding
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2573,8 +2592,33 @@ CLASSIFIED — never category 0. `propose_country_override` (a credit analyst,
 justification required) waits for the head of credit analysis — a SENIOR credit
 analyst (0074's flag), never the proposer — who approves, rejects or later
 ends it. Decisions use the internal category while it is approved; both values
-are shown. `v_country_risk.import_stale` is true past `oecd_stale_months` (6)
-or when no list exists.
+are shown. `v_country_risk.import_stale` is true past `oecd_stale_months` (4
+since 0087) or when no list exists.
+
+**Keeping the OECD list current (0086–0087).** Admin imports the OECD's own
+PDF as published (`admin/risk/oecdPdf.ts` reads the text pdf.js gives,
+`oecdPdfReader.ts` is the lazy pdf.js chunk — the LEGACY build, the modern one
+needs `Math.sumPrecise`): the CURRENT category, alpha-3 → alpha-2 through the
+ISO table (`iso3166.ts`, Kosovo XKV → XK), and a «-» explained by its
+footnotes, whose meanings are READ from the PDF's footnote list (never by
+number): «high income» / «euro» → 0 with a warning on the row, «not reviewed
+or classified» → left out (not classified), anything else → an error by row.
+Countries our reference list does not hold are left out and named, never a
+reason to refuse the list. Before importing, `tci.country_risk_import_preview`
+(admin) shows what the list changes against the one in use — the one
+comparison is `tci.country_risk_changes` (internal): direction worse/better
+with «not classified» worse than 7, the buyers with in-force limits on bound
+policies there and their limits in UZS, and an approved internal category
+that keeps decisions where they are. An import that takes effect answers the
+admin reminder and, when it makes countries with in-force limits worse (not
+masked by an internal category), opens ONE `country_downgrade_review` for
+credit underwriting listing them (manual close, the tenth manual type). The
+reminder `oecd_review_due` is lazy (`refresh_country_risk_tasks`, called by
+`refresh_agenda`): one open task for admin while the list in use is older
+than the setting or there is none (object = the list, nil uuid for none).
+An older file is stored but changes nothing and tells nobody. An automatic
+«check OECD now» needs the analytics service (the browser cannot reach
+oecd.org) and waits for it to be hosted.
 
 **Sanctions mean no cover, in SQL, on every path.** A live flag (effective,
 not lifted) on a country or a company makes `tci.cover_block_internal` answer

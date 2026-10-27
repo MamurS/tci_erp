@@ -22,7 +22,7 @@
  * bad categories and duplicates by itself (0085).
  */
 
-export const OECD_FILE_TYPES = '.csv,.txt,.xlsx,.xls'
+export const OECD_FILE_TYPES = '.pdf,.csv,.txt,.xlsx,.xls'
 
 /** One classified country of the file. `row` is the spreadsheet row (1-based). */
 export interface OecdRow {
@@ -30,10 +30,14 @@ export interface OecdRow {
   country_code: string
   category: number
   warnings: OecdWarning[]
+  /** The OECD PDF's footnotes on the row (oecdPdf.ts), e.g. [6, 7]. */
+  notes?: number[]
 }
 
-/** Non-blocking: the row is imported, as shown. */
-export type OecdWarning = 'lowercase'
+/** Non-blocking: the row is imported, as shown. `highIncomeZero`: the OECD
+ * leaves a high-income country without a category and the import reads it
+ * as 0, as export credit practice does (oecdPdf.ts). */
+export type OecdWarning = 'lowercase' | 'highIncomeZero'
 
 export type OecdErrorKind =
   | 'empty'
@@ -44,6 +48,7 @@ export type OecdErrorKind =
   | 'alpha3'
   | 'category_invalid'
   | 'duplicate'
+  | 'dash_unexplained'
 
 export interface OecdError {
   kind: OecdErrorKind

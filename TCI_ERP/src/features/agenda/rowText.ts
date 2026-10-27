@@ -262,6 +262,26 @@ export function rowFacts(
     case 'country_override_approval':
       facts.push(num(p.category) !== null ? t('agenda.facts.countryCategory', { category: p.category }) : null)
       break
+    case 'oecd_review_due':
+      // the list in use, if any (0087)
+      facts.push(str(p.effective_date) ? t('agenda.facts.oecdListOf', { date: formatDate(String(p.effective_date), locale) }) : null)
+      break
+    case 'country_downgrade_review': {
+      // the countries the new list made worse, with their buyers (0087)
+      const list = Array.isArray(p.countries) ? (p.countries as { code?: unknown; from?: unknown; to?: unknown }[]) : []
+      facts.push(
+        ...list.slice(0, 3).map((c) =>
+          t('agenda.facts.countryWorse', {
+            code: str(c.code) ?? '—',
+            from: num(c.from) ?? '—',
+            to: num(c.to) ?? t('risk.country.unclassifiedShort'),
+          }),
+        ),
+        list.length > 3 ? t('agenda.facts.moreCountries', { count: list.length - 3 }) : null,
+        num(p.buyers) !== null ? t('agenda.facts.buyersAffected', { count: p.buyers }) : null,
+      )
+      break
+    }
     case 'group_exposure_near_limit':
     case 'group_limit_missing':
       // Their system note already states the exposure and the members.

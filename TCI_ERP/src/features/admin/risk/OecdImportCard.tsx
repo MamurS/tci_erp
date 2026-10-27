@@ -1,15 +1,21 @@
 /**
- * Admin › Риски › «Импорт классификации ОЭСР» (migration 0085,
- * tci.import_country_risk): a CSV or Excel file of the OECD Country Risk
- * Classification is read in the browser (oecdImport.ts, the workbook reader
- * loaded on first use), shown as a preview with every problem named, and
- * imported as a whole list with its effective date. The history of imports
- * stays below; the latest one is what decisions use, and an old one is
- * flagged in amber.
+ * Admin › Риски › «Импорт классификации ОЭСР» (migrations 0085, 0087,
+ * tci.import_country_risk): the OECD's own PDF as published (oecdPdf.ts, the
+ * PDF reader loaded on first use) or a CSV / Excel file (oecdImport.ts) is
+ * read in the browser, shown as a preview with every problem named and with
+ * what it CHANGES against the list in use (tci.country_risk_import_preview:
+ * each country whose category moves, worse or better, with the buyers and
+ * limits there), and imported as a whole list with its effective date.
+ * Countries the reference list does not hold are left out and named. After
+ * the import the screen says whether the list is now in use and whether
+ * credit underwriting got a task for countries that got worse. The history
+ * of imports stays below; the latest one is what decisions use, and an old
+ * one is flagged in amber.
  */
 
 import { useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import { FileUp } from 'lucide-react'
 
 import {
@@ -29,9 +35,11 @@ import {
 import { todayIso } from '../../../components/ui/dateEntry'
 import { formatDate, formatMoment } from '../../../lib/format'
 import { refusalOr } from '../../../lib/optimistic'
+import { DEEP_LINK_SCROLL_MARGIN, useDeepLinkFocus } from '../../../lib/useDeepLinkFocus'
 import { useCountries } from '../../entities/api'
 import { useCountryName } from '../../portfolio/useCountryName'
-import { useCountryImports, useImportCountryRisk, useRiskSettings } from '../../risk/api'
+import { useCountryImports, useCountryRiskPreview, useImportCountryRisk, useRiskSettings } from '../../risk/api'
+import type { CountryImportResult } from '../../risk/api'
 import { CountryCategoryBadge } from '../../risk/badges'
 import { importStale } from '../../risk/rules'
 import {
@@ -44,7 +52,12 @@ import {
   unknownCodes,
 } from './oecdImport'
 import type { OecdError, OecdParse } from './oecdImport'
+import { parseOecdPdfLines } from './oecdPdf'
+import { OecdChangesPreview } from './OecdChangesPreview'
 import { usePersonName } from './usePersonName'
+
+/** The card's anchor: the Agenda's «check the OECD list» lands here (?focus=oecd). */
+const OECD_ANCHOR_ID = 'oecd-import'
 
 /** How many problems are listed before «and N more». */
 const ERRORS_SHOWN = 15
@@ -53,6 +66,8 @@ interface ReadFile {
   name: string
   parse: OecdParse
   fileDate: string | null
+  /** The OECD's own PDF (footnote rules applied) or a prepared CSV / Excel file. */
+  source: 'pdf' | 'table'
 }
 
 export function OecdImportCard() {
@@ -65,6 +80,8 @@ export function OecdImportCard() {
   const imports = useCountryImports()
   const settings = useRiskSettings()
   const importRisk = useImportCountryRisk()
+  const [searchParams] = useSearchParams()
+  useDeepLinkFocus(searchParams.get('focus') === 'oecd' ? OECD_ANCHOR_ID : null)
 
   const [file, setFile] = useState<ReadFile | null>(null)
   const [reading, setReading] = useState(false)
@@ -72,18 +89,20 @@ export function OecdImportCard() {
   const [effective, setEffective] = useState('')
   const [note, setNote] = useState('')
   const [refusal, setRefusal] = useState<{ key: string; codes: string[] } | null>(null)
-  const [done, setDone] = useState<{ rows: number; effective: string } | null>(null)
+  const [done, setDone] = useState<(CountryImportResult & { effective: string }) | null>(null)
 
   const known = useMemo(() => new Set((countries ?? []).map((c) => c.code)), [countries])
+  // A country the reference list does not hold (Kosovo today) is left out
+  // and named, not a reason to refuse the whole list.
   const unknown = file && countries ? unknownCodes(file.parse, known) : []
-  const payload = file ? importPayload(file.parse) : []
+  const payload = useMemo(
+    () => (file && countries ? importPayload(file.parse).filter((r) => known.has(r.country_code)) : []),
+    [file, countries, known],
+  )
+  const dateValid = /^\d{4}-\d{2}-\d{2}$/.test(effective)
   const ready =
-    file !== null &&
-    countries !== undefined &&
-    file.parse.errors.length === 0 &&
-    payload.length > 0 &&
-    unknown.length === 0 &&
-    /^\d{4}-\d{2}-\d{2}$/.test(effective)
+    file !== null && countries !== undefined && file.parse.errors.length === 0 && payload.length > 0 && dateValid
+  const preview = useCountryRiskPreview(effective, payload, ready)
 
   const onFile = async (picked: File | undefined) => {
     if (!picked) return
@@ -92,11 +111,19 @@ export function OecdImportCard() {
     setRefusal(null)
     setDone(null)
     try {
-      const rows = await readOecdFile(await picked.arrayBuffer(), picked.name)
-      const parse = parseOecdRows(rows)
-      const fileDate = findFileDate(rows, parse.headerIndex, picked.name)
-      setFile({ name: picked.name, parse, fileDate })
-      setEffective(fileDate ?? todayIso())
+      const bytes = await picked.arrayBuffer()
+      if (/\.pdf$/i.test(picked.name)) {
+        const { readPdfLines } = await import('./oecdPdfReader')
+        const read = parseOecdPdfLines(await readPdfLines(bytes))
+        setFile({ name: picked.name, parse: read.parse, fileDate: read.fileDate, source: 'pdf' })
+        setEffective(read.fileDate ?? todayIso())
+      } else {
+        const rows = await readOecdFile(bytes, picked.name)
+        const parse = parseOecdRows(rows)
+        const fileDate = findFileDate(rows, parse.headerIndex, picked.name)
+        setFile({ name: picked.name, parse, fileDate, source: 'table' })
+        setEffective(fileDate ?? todayIso())
+      }
     } catch {
       setFile(null)
       setReadFailed(true)
@@ -113,7 +140,7 @@ export function OecdImportCard() {
       { effectiveDate: effective, fileName: file.name, rows: payload, note: note.trim() || null },
       {
         onSuccess: (res) => {
-          setDone({ rows: res.rows, effective })
+          setDone({ ...res, effective })
           setFile(null)
           setNote('')
           setEffective('')
@@ -131,11 +158,11 @@ export function OecdImportCard() {
 
   const history = imports.data ?? []
   const latest = history[0] ?? null
-  const staleMonths = settings.data?.oecd_stale_months ?? 6
+  const staleMonths = settings.data?.oecd_stale_months ?? 4
   const stale = latest ? importStale(latest.effective_date, staleMonths) : true
 
   return (
-    <Card className="flex flex-col gap-5 p-5">
+    <Card id={OECD_ANCHOR_ID} className={`flex flex-col gap-5 p-5 ${DEEP_LINK_SCROLL_MARGIN}`}>
       <SectionTitle hint={t('admin.risk.oecd.hint')}>{t('admin.risk.oecd.title')}</SectionTitle>
 
       {/* The list in force: prominent, amber when old or missing. */}
@@ -166,6 +193,7 @@ export function OecdImportCard() {
       <div className="rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-small text-slate-700">
         <p className="font-medium text-slate-800">{t('admin.risk.oecd.format.title')}</p>
         <ul className="mt-1 list-disc space-y-0.5 pl-5">
+          <li>{t('admin.risk.oecd.format.pdf')}</li>
           <li>{t('admin.risk.oecd.format.file')}</li>
           <li>{t('admin.risk.oecd.format.columns')}</li>
           <li>{t('admin.risk.oecd.format.unclassified')}</li>
@@ -221,9 +249,12 @@ export function OecdImportCard() {
             </Callout>
           )}
           {unknown.length > 0 && (
-            <Callout tone="neg" title={t('admin.risk.oecd.unknownTitle')}>
-              {t('admin.risk.oecd.unknownBody', { codes: unknown.join(', ') })}
+            <Callout tone="warn" title={t('admin.risk.oecd.unknownTitle')}>
+              {t('admin.risk.oecd.unknownLeftOut', { codes: unknown.join(', ') })}
             </Callout>
+          )}
+          {file.source === 'pdf' && file.parse.errors.length === 0 && (
+            <p className="text-small text-slate-600">{t('admin.risk.oecd.pdfRules')}</p>
           )}
 
           {payload.length > 0 && (
@@ -269,9 +300,15 @@ export function OecdImportCard() {
                         </td>
                         <td className={missing ? 'font-medium text-danger-700' : 'text-slate-600'}>
                           {missing
-                            ? t('admin.risk.oecd.warnings.unknown')
+                            ? t('admin.risk.oecd.warnings.unknownLeftOut')
                             : r.warnings.length
-                              ? r.warnings.map((w) => t(`admin.risk.oecd.warnings.${w}`)).join(' · ')
+                              ? r.warnings
+                                  .map((w) =>
+                                    t(`admin.risk.oecd.warnings.${w}`, {
+                                      notes: (r.notes ?? []).map((n) => `(${n})`).join(' '),
+                                    }),
+                                  )
+                                  .join(' · ')
                               : '—'}
                         </td>
                       </tr>
@@ -282,6 +319,8 @@ export function OecdImportCard() {
             </div>
           )}
 
+          {ready && <OecdChangesPreview preview={preview} />}
+
           <Field label={t('admin.risk.oecd.note')} hint={t('admin.risk.oecd.noteHint')}>
             <Input value={note} maxLength={500} onChange={(e) => setNote(e.target.value)} />
           </Field>
@@ -290,7 +329,7 @@ export function OecdImportCard() {
             <Button disabled={!ready} loading={importRisk.isPending} onClick={onImport}>
               {t('admin.risk.oecd.import', { count: payload.length })}
             </Button>
-            {!ready && file.parse.errors.length === 0 && unknown.length === 0 && payload.length > 0 && (
+            {!ready && file.parse.errors.length === 0 && payload.length > 0 && (
               <span className="text-small text-slate-600">{t('admin.risk.oecd.needDate')}</span>
             )}
           </div>
@@ -304,9 +343,15 @@ export function OecdImportCard() {
       )}
       {done && (
         <Callout
-          tone="pos"
+          tone={done.takes_effect === false ? 'warn' : 'pos'}
           title={t('admin.risk.oecd.imported', { count: done.rows, date: formatDate(done.effective, lang) })}
-        />
+        >
+          {done.takes_effect === false
+            ? t('admin.risk.oecd.importedNotInUse')
+            : (done.downgrades ?? 0) > 0
+              ? t('admin.risk.oecd.importedDowngrades', { count: done.downgrades })
+              : t('admin.risk.oecd.importedNoDowngrades')}
+        </Callout>
       )}
 
       <div className="flex flex-col gap-2">
