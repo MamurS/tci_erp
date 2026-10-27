@@ -45,6 +45,8 @@ export interface StubOptions {
   /** The person's colour theme and light / dark mode (0082). */
   uiTheme?: string
   uiMode?: string
+  /** The person's text on coloured badges (0089); null = the app default. */
+  uiBadgeInk?: 'white' | 'dark' | null
 }
 
 /** A REST call as the stub sees it. */
@@ -106,6 +108,7 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
     uiTextScale = 100,
     uiTheme = 'blue',
     uiMode = 'light',
+    uiBadgeInk = null,
   } = options
   const session = fakeSession(user?.id, user?.email, sessionId)
 
@@ -163,6 +166,10 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
     }
     if (resource === 'user_profiles' && request.method() === 'GET' && url.searchParams.get('select') === 'ui_theme,ui_mode') {
       const row = { ui_theme: uiTheme, ui_mode: uiMode }
+      return route.fulfill({ json: single ? row : [row] })
+    }
+    if (resource === 'user_profiles' && request.method() === 'GET' && url.searchParams.get('select') === 'ui_badge_ink') {
+      const row = { ui_badge_ink: uiBadgeInk }
       return route.fulfill({ json: single ? row : [row] })
     }
 

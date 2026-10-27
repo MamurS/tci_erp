@@ -3144,6 +3144,12 @@
         "dark": "Qorong‘i",
         "auto": "Avto"
       }
+    },
+    "uiBadgeInk": {
+      "title": "Rangli belgilardagi matn",
+      "hint": "To‘q rang ustida oq matn yoki och rang ustida to‘q matn. Qorong‘i rejim va chop etilgan sahifalar avvalgidek ko‘rinadi.",
+      "white": "Oq",
+      "dark": "To‘q"
     }
   },
   "provisioning": {

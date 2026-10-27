@@ -1084,6 +1084,13 @@ is fine for internal test accounts and not fine for customers.
   histories, staff-read, and never read by a decision, the cover matrix or the
   engine (asserted in the migration). See **External ratings rules** below.
   **Not yet applied to canonical.**
+- [x] Text on coloured badges (migration 0089, owner 2026-10-27): each
+  person chooses WHITE (the default) or DARK text on the coloured status,
+  tone and grade badges, beside the colour theme on the account page and in
+  the user menu (`tci.user_profiles.ui_badge_ink`, NULL = white). White fills
+  the badge with the ramp's 700 shade (a grade's ink) — the same 4.5 : 1 pair
+  reversed; dark mode and paper keep their look. See **Colour theme rules**
+  and DESIGN.md «Badges». **Not yet applied to canonical.**
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2515,6 +2522,14 @@ the theme's navy. A brand surface (`data-brand-surface`) and a document on
 screen (`data-paper`) keep their light colours; a new navy surface or a
 document view must carry one of them, and a new hex colour in a screen
 component is a bug (use a token, or `var(--color-…)` for Recharts / SVG).
+
+**The badge text is a third attribute (0089).** `data-badge-ink` on <html>
+(`white` | `dark`, `ui_badge_ink`, NULL = white) switches the coloured
+badges between the 700 fill with white text and the tint with the 700 ink;
+it is set only in light mode and never on paper (`effectiveBadgeInk`), so the
+dark-mode audit skips the `in-data-[badge-ink=white]:` classes and the light
+one pairs them with the fill of the same variant. A new coloured badge tone
+carries both, written out literally.
 
 **Paper is the house colours.** Print routes pin blue / light while open
 (`pinPaperColours`, through `usePrintScale`) and the dark rules are

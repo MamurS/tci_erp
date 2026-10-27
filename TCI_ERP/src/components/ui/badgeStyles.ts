@@ -16,15 +16,19 @@ export type BadgeTone = 'neutral' | 'accent' | 'pos' | 'neg' | 'negStrong' | 'wa
 
 export const BADGE_TONES: Record<BadgeTone, string> = {
   // One rule for every tone (Prompt 30): the ramp's 100 tint with its 700
-  // ink and a 200 hairline — six steps apart, so text clears 4.5 : 1.
+  // ink and a 200 hairline — six steps apart, so text clears 4.5 : 1. With
+  // white text (0089: `data-badge-ink` on <html>, light mode only —
+  // src/lib/uiTheme.ts) the 700 becomes the fill, the same pair reversed.
+  // The grey neutral tone is not a colour and keeps its tint. Literal class
+  // names, so Tailwind generates them.
   neutral: 'bg-slate-100 text-slate-700 ring-slate-200',
-  accent: 'bg-accent-100 text-accent-700 ring-accent-200',
-  pos: 'bg-success-100 text-success-700 ring-success-200',
-  neg: 'bg-danger-100 text-danger-700 ring-danger-200',
+  accent: 'bg-accent-100 text-accent-700 ring-accent-200 in-data-[badge-ink=white]:bg-accent-700 in-data-[badge-ink=white]:text-white in-data-[badge-ink=white]:ring-accent-700',
+  pos: 'bg-success-100 text-success-700 ring-success-200 in-data-[badge-ink=white]:bg-success-700 in-data-[badge-ink=white]:text-white in-data-[badge-ink=white]:ring-success-700',
+  neg: 'bg-danger-100 text-danger-700 ring-danger-200 in-data-[badge-ink=white]:bg-danger-700 in-data-[badge-ink=white]:text-white in-data-[badge-ink=white]:ring-danger-700',
   // Solid danger for statuses that must not be mistaken for ordinary
   // termination (e.g. policy annulment vs cancellation).
   negStrong: 'bg-danger-600 text-white ring-danger-600',
-  warn: 'bg-warning-100 text-warning-700 ring-warning-200',
+  warn: 'bg-warning-100 text-warning-700 ring-warning-200 in-data-[badge-ink=white]:bg-warning-700 in-data-[badge-ink=white]:text-white in-data-[badge-ink=white]:ring-warning-700',
 }
 
 export type BadgeSize = 'sm' | 'md'

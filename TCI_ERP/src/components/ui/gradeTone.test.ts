@@ -6,7 +6,10 @@ import { gradeBadgeTone, gradeKey, gradeSolid } from './gradeTone'
 describe('grade colours', () => {
   it('cover every grade of the scale', () => {
     for (const code of GRADE_CODES) {
-      expect(gradeBadgeTone(code)).toBe(`bg-grade-${code.toLowerCase()}-tint text-grade-${code.toLowerCase()}-ink`)
+      const g = code.toLowerCase()
+      expect(gradeBadgeTone(code)).toBe(
+        `bg-grade-${g}-tint text-grade-${g}-ink in-data-[badge-ink=white]:bg-grade-${g}-ink in-data-[badge-ink=white]:text-white`,
+      )
       expect(gradeSolid(code)).toBe(`bg-grade-${code.toLowerCase()}`)
     }
   })

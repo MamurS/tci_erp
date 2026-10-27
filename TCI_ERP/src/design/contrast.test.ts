@@ -114,6 +114,13 @@ const VARIANT = /^(?:\[[^\]]*\]:|[a-z0-9@*_-]+(?:\[[^\]]*\])?:)*/
 /** Variants whose state is not something a reader must read (WCAG exempts
  * disabled controls; placeholders are hints, checked by their own rule). */
 const EXEMPT_VARIANTS = /(^|:)(disabled|placeholder|group-disabled|aria-disabled):/
+/** White text on coloured badges (0089): set on <html> in light mode only
+ * (src/lib/uiTheme.ts effectiveBadgeInk), so dark mode never draws it. Its
+ * colours pair with the background under the same variant. */
+const BADGE_WHITE = 'in-data-[badge-ink=white]:'
+/** A variant that names its own background: an arbitrary structural one
+ * (`[&_th]:`) or the badge ink. */
+const pairsOwnBackground = (prefix: string) => prefix.startsWith('[') || prefix === BADGE_WHITE
 
 /**
  * `light`: the colours of a theme in light mode. `dark`: its dark-mode
@@ -150,9 +157,10 @@ function audit(
         tokens.some((t) => /^text-(title|headline|display)$/.test(t))
       for (const token of tokens) {
         if (EXEMPT_VARIANTS.test(token)) continue
+        if (dark && token.startsWith(BADGE_WHITE)) continue
         const base = token.replace(VARIANT, '')
         const prefix = token.slice(0, token.length - base.length)
-        const last = bgOf(prefix.startsWith('[') ? prefix : '') ?? bgOf('')
+        const last = bgOf(pairsOwnBackground(prefix) ? prefix : '') ?? bgOf('')
         const m = /^(text|fill|stroke)-([a-z0-9-]+(?:\/\d+)?)$/.exec(base)
         if (!m) continue
         const color = resolve(m[2])
