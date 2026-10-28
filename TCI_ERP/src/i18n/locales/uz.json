@@ -4030,8 +4030,8 @@
     "buyerGrade": "Bayer reytingi: {{grade}}",
     "transfer": {
       "action": "Hamkasbga topshirish",
-      "bulk": "Vazifalarni hamkasbga topshirish",
-      "title": "Vazifalarni hamkasbga topshirish",
+      "bulk": "Hamkasbga topshirish",
+      "title": "Hamkasbga topshirish",
       "intro": "Vazifalar shaxsan hamkasbga, o‘sha bo‘linmada o‘tadi; izohingizni u izoh sifatida ko‘radi. Validatsiya bosqichlari va reyting takliflarini qoidalar belgilagan shaxslar oladi — ularni topshirib bo‘lmaydi.",
       "tasks": "Belgilangan vazifalar: {{count}}",
       "all": "Hammasi",
@@ -7319,10 +7319,10 @@
       "hint": "Ulardan istalganini nashr etuvchilarning o‘z qidiruv vositalarida qo‘lda tekshirish mumkin: nomni nusxalang va vositani oching."
     },
     "owners": {
-      "title": "Benefitsiar egalar va rahbarlar",
+      "title": "Benefitsiar mulkdorlar va rahbarlar",
       "hint": "Tashkilot ortidagi shaxslar, u bilan birga tekshiriladi. Axborot bo‘limi va kredit tahlilchilar kiritadi; yozuv sababi ko‘rsatilib tugatiladi, o‘chirilmaydi.",
       "add": "Shaxs qo‘shish",
-      "addTitle": "Benefitsiar ega yoki rahbar qo‘shish",
+      "addTitle": "Benefitsiar mulkdor yoki rahbar qo‘shish",
       "addIntro": "Shaxs saqlanishi bilan tashkilot qayta tekshiriladi.",
       "addSubmit": "Qo‘shish",
       "end": "Tugatish",
@@ -7331,7 +7331,7 @@
       "endSubmit": "Tugatish",
       "showEnded": "Tugatilganlarni ko‘rsatish",
       "hideEnded": "Tugatilganlarni yashirish",
-      "empty": "Benefitsiar egalar kiritilmagan",
+      "empty": "Benefitsiar mulkdorlar kiritilmagan",
       "emptyHint": "Ularni axborot bo‘limi yoki kredit tahlilchi reestrdan ko‘chirma yoki tashkilot hujjatlari asosida kiritadi.",
       "emptyHintWriter": "Ularni reestrdan ko‘chirma yoki tashkilot hujjatlari asosida kiriting — ular tashkilot bilan birga tekshiriladi.",
       "person": "Shaxs",
@@ -7340,7 +7340,7 @@
       "sourceOf": "Manba: {{source}}",
       "endedOn": "{{date}} tugatilgan: {{reason}}",
       "role": {
-        "beneficial_owner": "Benefitsiar ega",
+        "beneficial_owner": "Benefitsiar mulkdor",
         "shareholder": "Aksiyador (ishtirokchi)",
         "director": "Rahbar"
       },
