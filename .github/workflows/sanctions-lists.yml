@@ -1,0 +1,84 @@
+name: Sanctions lists
+
+# The daily feed of the official sanctions lists (migration 0095): downloads
+# OFAC SDN, UN, EU and UK lists from their publishers and imports each one
+# that changed into canonical, signed in as the FEED ACCOUNT (no role; may only
+# import lists). Then the companies due are screened against them. A list that
+# shrank by more than a tenth is not imported: the run fails and a credit
+# analyst checks the file on the Sanctions screen.
+#
+# Needs three repository secrets (Settings → Secrets and variables → Actions):
+#   SANCTIONS_FEED_EMAIL      the feed account's e-mail
+#   SANCTIONS_FEED_PASSWORD   its password
+#   SUPABASE_PUBLISHABLE_KEY  the project's publishable (anon) key
+# Without any of them the import is SKIPPED with a notice, never failed.
+# Runner and rules: tools/sanctions-feed/run.mjs.
+on:
+  schedule:
+    # 02:43 UTC = 07:43 in Tashkent: after the overnight publications in the
+    # US and Europe, before the working day; off the top of the hour.
+    - cron: '43 2 * * *'
+  workflow_dispatch:
+    inputs:
+      lists:
+        description: 'Lists to import, space-separated (empty = all): ofac_sdn un eu uk'
+        required: false
+        default: ''
+
+concurrency:
+  group: sanctions-lists
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check feed secrets
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.secrets.outputs.ready }}
+    steps:
+      - id: secrets
+        env:
+          SANCTIONS_FEED_EMAIL: ${{ secrets.SANCTIONS_FEED_EMAIL }}
+          SANCTIONS_FEED_PASSWORD: ${{ secrets.SANCTIONS_FEED_PASSWORD }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          missing=''
+          [ -n "$SANCTIONS_FEED_EMAIL" ] || missing="$missing SANCTIONS_FEED_EMAIL"
+          [ -n "$SANCTIONS_FEED_PASSWORD" ] || missing="$missing SANCTIONS_FEED_PASSWORD"
+          [ -n "$SUPABASE_PUBLISHABLE_KEY" ] || missing="$missing SUPABASE_PUBLISHABLE_KEY"
+          if [ -n "$missing" ]; then
+            echo "::notice title=Sanctions lists skipped::Repository secret(s) not set:$missing. See tools/sanctions-feed/run.mjs."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  import:
+    name: Download → parse → import → screen
+    needs: check
+    if: needs.check.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: TCI_ERP
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      # No npm install: the runner and the parsers it imports have no
+      # dependencies; Node strips the TypeScript types itself.
+      - name: Import the lists
+        env:
+          SUPABASE_URL: https://reunqrpeumokqgarknge.supabase.co
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+          SANCTIONS_FEED_EMAIL: ${{ secrets.SANCTIONS_FEED_EMAIL }}
+          SANCTIONS_FEED_PASSWORD: ${{ secrets.SANCTIONS_FEED_PASSWORD }}
+          LISTS: ${{ github.event.inputs.lists }}
+        run: node --experimental-strip-types --disable-warning=ExperimentalWarning tools/sanctions-feed/run.mjs $LISTS
