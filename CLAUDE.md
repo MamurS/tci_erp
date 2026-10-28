@@ -234,6 +234,11 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 | change a limit request (portal, 0075) | **Изменить запрос** — owner-decided 2026-10-25 | **So‘rovni o‘zgartirish** |
 | withdraw a limit request (portal action, 0075) | **Отозвать запрос** — owner-decided 2026-10-25 | **So‘rovni qaytarib olish** |
 | the policyholder's changes (staff section, 0075) | **Изменения страхователя** — owner-decided 2026-10-25 | **Sug‘urtalanuvchining o‘zgartirishlari** |
+| sanctions (section, column, 0091) | **Санкции** — owner-decided 2026-10-28 | **Sanksiyalar** (uz chosen by Claude at the owner's request, 2026-10-28) |
+| possible match (sanctions screening, 0091) | **Возможное совпадение** — owner-decided 2026-10-28 | **Ehtimoliy moslik** (as above) |
+| beneficial owner (0091) | **Бенефициарный владелец** — owner-decided 2026-10-28 | **Benefitsiar mulkdor** — the term of Uzbekistan's AML law (NOT «benefitsiar ega»); as above |
+| hand a task to a colleague (Agenda, 0092 — one task and many) | **Передать коллеге** (NOT «Передать задачи коллеге») — owner-decided 2026-10-28 | **Hamkasbga topshirish** (as above) |
+| portal search placeholder (0094 batch) | «Поиск по байеру, полису, сумме или статусу — условия через запятую» and its siblings — owner-approved 2026-10-28 | «Bayer, polis, summa yoki holat bo‘yicha qidirish — shartlarni vergul bilan ajrating» — owner-approved 2026-10-28 |
 | overdue notification (NOA) | Уведомление о просрочке | **xabarnoma** in every form and suffix (NOT «bildirishnoma») — owner-decided 2026-10-22 |
 | discretionary limit | Дискреционный лимит | **Diskretsion limit** |
 | deductible | Франшиза | **Franshiza** |
@@ -1140,6 +1145,21 @@ is fine for internal test accounts and not fine for customers.
   against the committed file (0091 sent in four chunks into its ledger row,
   each prefix md5-checked); 0091's and 0094's closing checks passed on
   canonical; six policyholders tiered at once (four silver, two gold)
+- [x] Live data set up on canonical at the owner's request (2026-10-28, no
+  migration): the four official sanctions lists imported through the app's
+  own functions as published — OFAC SDN of 21.10.2026 (19 471 parties),
+  UN of 27.10.2026 (1 007), EU of 23.10.2026 (6 269), UK of 27.10.2026
+  (6 420) — every company screened, no match; mock staff on the shared demo
+  password (`@demo.invalid`): credit analysts Gulnora Ergasheva (senior)
+  and Jasur Khodjaev (the 21 sectors split between them), credit
+  underwriters Akmal Rashidov and Shahnoza Mirzaeva, commercial
+  underwriter Timur Abdullaev; authority levels ranks 1–4 with band
+  grants in USD and both committees with chairs; year-end FX rates
+  2020–2025 for AED CHF CNY EUR GBP JPY KRW KZT RUB TRY as cross rates
+  (CBU USD/UZS × ECB / Bank of Russia / National Bank of Kazakhstan, AED
+  peg) — cbu.uz refuses connections from abroad, so not the CBU's own
+  quotes; the demo seed's 31.12.2025 guesses replaced, the owner's USD
+  rows untouched
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 

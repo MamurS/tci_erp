@@ -4030,8 +4030,8 @@
     "buyerGrade": "Buyer's grade: {{grade}}",
     "transfer": {
       "action": "Hand to a colleague",
-      "bulk": "Hand tasks to a colleague",
-      "title": "Hand tasks to a colleague",
+      "bulk": "Hand to a colleague",
+      "title": "Hand to a colleague",
       "intro": "The tasks become the colleague's by name, in the same department; your note reaches them as a comment. Validation steps and rating proposals go to whoever the rules make eligible and are not handed on.",
       "tasks": "Tasks ticked: {{count}}",
       "all": "All",
