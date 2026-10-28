@@ -33,7 +33,9 @@ import {
   Table,
   Truncate,
 } from '../../components/ui'
+import { usePageSearch } from '../../components/layout/usePageSearch'
 import { formatAmount, formatDate, formatMoment } from '../../lib/format'
+import { searchRows } from '../../lib/pageSearch'
 import { isReportedLate, noaDeadline } from '../overdue/noa'
 import {
   useClientDeclarableBuyers,
@@ -41,6 +43,7 @@ import {
   useClientOverdues,
   useMyPolicies,
 } from './api'
+import { PortalNoMatches, PortalSearch } from './PortalSearch'
 import type { ClientPolicy } from './types'
 import { refusalKey } from '../../lib/refusals'
 
@@ -60,6 +63,16 @@ export function PortalOverduesPage() {
   // under the policy; with none the form says so and stays inactive.
   const noBuyers = buyers !== undefined && buyers.length === 0
 
+  // The page search over the reported accounts (PortalSearch).
+  const { query, setQuery } = usePageSearch('portal-overdues')
+  const shown = searchRows(overdues ?? [], query, (n) => [
+    n.buyer_name,
+    n.overdue_amount,
+    formatAmount(Number(n.overdue_amount), locale),
+    n.currency_code,
+    t(`overdues.statuses.${n.status}`),
+    n.limit_suspended ? t('portal.overdues.suspended') : null,
+  ])
   const [buyerId, setBuyerId] = useState('')
   const [firstDue, setFirstDue] = useState('')
   const [amount, setAmount] = useState('')
@@ -92,6 +105,9 @@ export function PortalOverduesPage() {
     <div className="space-y-6">
       <PageHeader title={t('portal.overdues.title')} subtitle={t('portal.overdues.subtitle')} />
 
+      {/* The page's one search, in the same place as on every portal list. */}
+      <PortalSearch query={query} onChange={setQuery} placeholder={t('portal.search.overdues')} />
+
       {error && <Callout tone="neg" title={error} />}
 
       {activePolicy && (
@@ -114,8 +130,9 @@ export function PortalOverduesPage() {
             </div>
           )}
           <div className="grid items-end gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
-            {/* A client's own buyers with a limit are a short list, so the
-                plain Select primitive is the right picker here. */}
+            {/* A form field, not a search: a client's own buyers with a limit
+                are a short list, so the plain Select is the picker here. The
+                page's one search is the field under the header. */}
             <Field label={t('limits.fields.buyer')}>
               <Select value={buyerId} disabled={noBuyers} onChange={(e) => setBuyerId(e.target.value)}>
                 <option value="">
@@ -189,6 +206,8 @@ export function PortalOverduesPage() {
           <Spinner label={t('common.loading')} />
         ) : !overdues?.length ? (
           <EmptyState title={t('portal.overdues.empty')} hint={t('portal.overdues.emptyHint')} />
+        ) : !shown.length ? (
+          <PortalNoMatches onClear={() => setQuery('')} />
         ) : (
           <Table
             columns={[COL.fill, COL.money, '7.5rem', COL.moment, labelCol('portalCover'), labelCol('overdueStatus')]}
@@ -205,7 +224,7 @@ export function PortalOverduesPage() {
               </tr>
             </thead>
             <tbody>
-              {overdues.map((n) => (
+              {shown.map((n) => (
                 <tr key={n.id}>
                   <td className="font-medium">
                     <Truncate text={n.buyer_name} className="max-w-none" />

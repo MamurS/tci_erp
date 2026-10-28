@@ -4394,6 +4394,12 @@
     "errors": {
       "coverCountry": "Cover is not available for this country.",
       "coverCompany": "Cover is not available for this buyer."
+    },
+    "search": {
+      "limits": "Search by buyer, policy, amount or status — separate terms with commas",
+      "overdues": "Search by buyer, amount or status — separate terms with commas",
+      "claims": "Search by claim number, buyer, policy or status — separate terms with commas",
+      "declarations": "Search by period, policy, amount or status — separate terms with commas"
     }
   },
   "declarations": {

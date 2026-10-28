@@ -4394,6 +4394,12 @@
     "errors": {
       "coverCountry": "Bu mamlakat uchun qoplash mumkin emas.",
       "coverCompany": "Bu bayer uchun qoplash mumkin emas."
+    },
+    "search": {
+      "limits": "Bayer, polis, summa yoki holat bo‘yicha qidirish — shartlarni vergul bilan ajrating",
+      "overdues": "Bayer, summa yoki holat bo‘yicha qidirish — shartlarni vergul bilan ajrating",
+      "claims": "Da’vo raqami, bayer, polis yoki holat bo‘yicha qidirish — shartlarni vergul bilan ajrating",
+      "declarations": "Davr, polis, summa yoki holat bo‘yicha qidirish — shartlarni vergul bilan ajrating"
     }
   },
   "declarations": {
