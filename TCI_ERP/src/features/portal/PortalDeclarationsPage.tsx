@@ -18,6 +18,7 @@ import {
   Callout,
   Card,
   COL,
+  Combobox,
   EmptyState,
   Field,
   labelCol,
@@ -25,12 +26,13 @@ import {
   parseAmount,
   RowActions,
   SectionTitle,
-  Select,
   Spinner,
   Table,
   Truncate,
 } from '../../components/ui'
+import { usePageSearch } from '../../components/layout/usePageSearch'
 import { EM_DASH, formatAmount, formatPeriod } from '../../lib/format'
+import { searchRows } from '../../lib/pageSearch'
 import { classifyLine } from '../declarations/coverage'
 import { lastClosedPeriodStart } from '../declarations/period'
 import type { DeclarationFrequency } from '../declarations/types'
@@ -44,6 +46,7 @@ import {
   useSaveClientLine,
   useSubmitClientDeclaration,
 } from './api'
+import { PortalNoMatches, PortalSearch } from './PortalSearch'
 import type { ClientDeclaration, ClientPolicy } from './types'
 import { refusalKey } from '../../lib/refusals'
 
@@ -66,6 +69,18 @@ export function PortalDeclarationsPage() {
 
   const open = useOpenDeclaration()
   const submit = useSubmitClientDeclaration()
+  // The page search (PortalSearch): period, policy, amounts, status.
+  const { query, setQuery } = usePageSearch('portal-declarations')
+  const shown = searchRows(declarations ?? [], query, (d) => [
+    formatPeriod(d.period_start, d.period_end, locale),
+    d.period_start,
+    d.period_end,
+    d.policy_number,
+    d.total_insurable_turnover,
+    formatAmount(Number(d.total_insurable_turnover), locale),
+    d.currency_code,
+    t(`declarations.statuses.${d.status}`),
+  ])
 
   const activePolicy = useMemo(
     () => (policies ?? []).find((p: ClientPolicy) => p.status === 'active') ?? null,
@@ -104,6 +119,10 @@ export function PortalDeclarationsPage() {
         }
       />
 
+      {(declarations?.length ?? 0) > 0 && (
+        <PortalSearch query={query} onChange={setQuery} placeholder={t('portal.search.declarations')} />
+      )}
+
       {error && <Callout tone="neg" title={error} />}
 
       {isLoading ? (
@@ -113,6 +132,8 @@ export function PortalDeclarationsPage() {
           title={t('portal.declarations.empty')}
           hint={t('portal.declarations.emptyHint')}
         />
+      ) : !shown.length ? (
+        <PortalNoMatches onClear={() => setQuery('')} />
       ) : (
         <Table columns={[COL.fill, COL.money, COL.money, COL.money, labelCol('declarationStatus')]}>
           <thead>
@@ -125,7 +146,7 @@ export function PortalDeclarationsPage() {
             </tr>
           </thead>
           <tbody>
-            {declarations.map((d) => {
+            {shown.map((d) => {
               const excess = d.uncovered_excess === null ? null : Number(d.uncovered_excess)
               return (
                 // The row opens the declaration below, as every register does.
@@ -302,15 +323,20 @@ function DeclarationEditor({
         {editable && (
           <div className="mt-4 space-y-3 border-t border-slate-200 pt-4">
             <div className="flex flex-wrap items-end gap-3">
-              <Field label={t('limits.fields.buyer')}>
-                <Select value={buyerId} onChange={(e) => setBuyerId(e.target.value)}>
-                  <option value="">{t('portal.declarations.pickBuyer')}</option>
-                  {(buyers ?? []).map((b) => (
-                    <option key={b.entity_id} value={b.entity_id}>
-                      {b.entity_name} · {formatAmount(Number(b.approved_amount), locale)} {b.currency_code}
-                    </option>
-                  ))}
-                </Select>
+              {/* The search-as-you-type picker used for every company in
+                  the system; the list opens on focus. */}
+              <Field label={t('limits.fields.buyer')} className="w-full sm:w-[28rem]">
+                <Combobox
+                  value={buyerId || null}
+                  onChange={(id) => setBuyerId(id ?? '')}
+                  options={(buyers ?? []).map((b) => ({
+                    id: b.entity_id,
+                    label: b.entity_name,
+                    meta: `${formatAmount(Number(b.approved_amount), locale)} ${b.currency_code}`,
+                  }))}
+                  openOnFocus
+                  placeholder={t('portal.declarations.pickBuyer')}
+                />
               </Field>
               <Field label={t('declarations.fields.insurableTurnover')}>
                 <AmountInput value={turnover} onChange={setTurnover} suffix={declaration?.currency_code} />

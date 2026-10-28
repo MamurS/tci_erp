@@ -4398,7 +4398,8 @@
     "search": {
       "limits": "Search by buyer, policy, amount or status — separate terms with commas",
       "overdues": "Search by buyer, amount or status — separate terms with commas",
-      "claims": "Search by claim number, buyer, policy or status — separate terms with commas"
+      "claims": "Search by claim number, buyer, policy or status — separate terms with commas",
+      "declarations": "Search by period, policy, amount or status — separate terms with commas"
     }
   },
   "declarations": {
