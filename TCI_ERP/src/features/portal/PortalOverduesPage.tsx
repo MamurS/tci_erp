@@ -20,7 +20,6 @@ import {
   Callout,
   Card,
   COL,
-  Combobox,
   DateInput,
   EmptyState,
   Field,
@@ -29,6 +28,7 @@ import {
   PageHeader,
   parseAmount,
   SectionTitle,
+  Select,
   Spinner,
   Table,
   Truncate,
@@ -73,11 +73,6 @@ export function PortalOverduesPage() {
     t(`overdues.statuses.${n.status}`),
     n.limit_suspended ? t('portal.overdues.suspended') : null,
   ])
-  const buyerOptions = useMemo(
-    () => (buyers ?? []).map((b) => ({ id: b.entity_id, label: b.entity_name })),
-    [buyers],
-  )
-
   const [buyerId, setBuyerId] = useState('')
   const [firstDue, setFirstDue] = useState('')
   const [amount, setAmount] = useState('')
@@ -110,6 +105,9 @@ export function PortalOverduesPage() {
     <div className="space-y-6">
       <PageHeader title={t('portal.overdues.title')} subtitle={t('portal.overdues.subtitle')} />
 
+      {/* The page's one search, in the same place as on every portal list. */}
+      <PortalSearch query={query} onChange={setQuery} placeholder={t('portal.search.overdues')} />
+
       {error && <Callout tone="neg" title={error} />}
 
       {activePolicy && (
@@ -132,18 +130,20 @@ export function PortalOverduesPage() {
             </div>
           )}
           <div className="grid items-end gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
-            {/* The same search-as-you-type picker as every company picker
-                in the system; the list opens on focus — a client's own
-                buyers with a limit are a short list. */}
+            {/* A form field, not a search: a client's own buyers with a limit
+                are a short list, so the plain Select is the picker here. The
+                page's one search is the field under the header. */}
             <Field label={t('limits.fields.buyer')}>
-              <Combobox
-                value={buyerId || null}
-                onChange={(id) => setBuyerId(id ?? '')}
-                options={buyerOptions}
-                openOnFocus
-                disabled={noBuyers}
-                placeholder={noBuyers ? t('portal.overdues.noBuyersOption') : t('portal.declarations.pickBuyer')}
-              />
+              <Select value={buyerId} disabled={noBuyers} onChange={(e) => setBuyerId(e.target.value)}>
+                <option value="">
+                  {noBuyers ? t('portal.overdues.noBuyersOption') : t('portal.declarations.pickBuyer')}
+                </option>
+                {(buyers ?? []).map((b) => (
+                  <option key={b.entity_id} value={b.entity_id}>
+                    {b.entity_name}
+                  </option>
+                ))}
+              </Select>
             </Field>
             <Field label={t('overdues.fields.firstDueDate')}>
               <DateInput value={firstDue} max={today} onChange={setFirstDue} disabled={noBuyers} />
@@ -202,11 +202,6 @@ export function PortalOverduesPage() {
 
       <Card className="p-5">
         <SectionTitle className="mb-3">{t('portal.overdues.listTitle')}</SectionTitle>
-        {(overdues?.length ?? 0) > 0 && (
-          <div className="mb-4">
-            <PortalSearch query={query} onChange={setQuery} placeholder={t('portal.search.overdues')} />
-          </div>
-        )}
         {isLoading ? (
           <Spinner label={t('common.loading')} />
         ) : !overdues?.length ? (

@@ -129,7 +129,6 @@ export function PortalLimitsPage() {
     r.currency_code,
     isWithdrawn(r.outcome) ? t(`limits.outcomes.${r.outcome}`) : t('limits.lifecycles.effective'),
   ])
-  const searchable = allPending.length + rows.length > 0
 
   const confirmWithdraw = async () => {
     if (!withdrawing) return
@@ -163,9 +162,7 @@ export function PortalLimitsPage() {
         }
       />
 
-      {searchable && (
-        <PortalSearch query={query} onChange={setQuery} placeholder={t('portal.search.limits')} />
-      )}
+      <PortalSearch query={query} onChange={setQuery} placeholder={t('portal.search.limits')} />
 
       {!activePolicies.length && <Callout tone="info" title={t('portal.limits.needsActivePolicy')} />}
       {actionError && <Callout tone="neg" title={actionError} />}

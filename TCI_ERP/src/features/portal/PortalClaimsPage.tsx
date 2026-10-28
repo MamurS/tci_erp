@@ -105,9 +105,7 @@ export function PortalClaimsPage() {
     <div className="space-y-6">
       <PageHeader title={t('portal.claims.title')} subtitle={t('portal.claims.subtitle')} />
 
-      {allReady.length + allClaims.length > 0 && (
-        <PortalSearch query={query} onChange={setQuery} placeholder={t('portal.search.claims')} />
-      )}
+      <PortalSearch query={query} onChange={setQuery} placeholder={t('portal.search.claims')} />
 
       {error && <Callout tone="neg" title={error} />}
 

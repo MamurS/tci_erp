@@ -18,7 +18,6 @@ import {
   Callout,
   Card,
   COL,
-  Combobox,
   EmptyState,
   Field,
   labelCol,
@@ -26,6 +25,7 @@ import {
   parseAmount,
   RowActions,
   SectionTitle,
+  Select,
   Spinner,
   Table,
   Truncate,
@@ -119,9 +119,7 @@ export function PortalDeclarationsPage() {
         }
       />
 
-      {(declarations?.length ?? 0) > 0 && (
-        <PortalSearch query={query} onChange={setQuery} placeholder={t('portal.search.declarations')} />
-      )}
+      <PortalSearch query={query} onChange={setQuery} placeholder={t('portal.search.declarations')} />
 
       {error && <Callout tone="neg" title={error} />}
 
@@ -323,20 +321,15 @@ function DeclarationEditor({
         {editable && (
           <div className="mt-4 space-y-3 border-t border-slate-200 pt-4">
             <div className="flex flex-wrap items-end gap-3">
-              {/* The search-as-you-type picker used for every company in
-                  the system; the list opens on focus. */}
-              <Field label={t('limits.fields.buyer')} className="w-full sm:w-[28rem]">
-                <Combobox
-                  value={buyerId || null}
-                  onChange={(id) => setBuyerId(id ?? '')}
-                  options={(buyers ?? []).map((b) => ({
-                    id: b.entity_id,
-                    label: b.entity_name,
-                    meta: `${formatAmount(Number(b.approved_amount), locale)} ${b.currency_code}`,
-                  }))}
-                  openOnFocus
-                  placeholder={t('portal.declarations.pickBuyer')}
-                />
+              <Field label={t('limits.fields.buyer')}>
+                <Select value={buyerId} onChange={(e) => setBuyerId(e.target.value)}>
+                  <option value="">{t('portal.declarations.pickBuyer')}</option>
+                  {(buyers ?? []).map((b) => (
+                    <option key={b.entity_id} value={b.entity_id}>
+                      {b.entity_name} · {formatAmount(Number(b.approved_amount), locale)} {b.currency_code}
+                    </option>
+                  ))}
+                </Select>
               </Field>
               <Field label={t('declarations.fields.insurableTurnover')}>
                 <AmountInput value={turnover} onChange={setTurnover} suffix={declaration?.currency_code} />
