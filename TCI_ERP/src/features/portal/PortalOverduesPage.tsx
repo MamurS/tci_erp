@@ -20,6 +20,7 @@ import {
   Callout,
   Card,
   COL,
+  Combobox,
   DateInput,
   EmptyState,
   Field,
@@ -28,12 +29,13 @@ import {
   PageHeader,
   parseAmount,
   SectionTitle,
-  Select,
   Spinner,
   Table,
   Truncate,
 } from '../../components/ui'
+import { usePageSearch } from '../../components/layout/usePageSearch'
 import { formatAmount, formatDate, formatMoment } from '../../lib/format'
+import { searchRows } from '../../lib/pageSearch'
 import { isReportedLate, noaDeadline } from '../overdue/noa'
 import {
   useClientDeclarableBuyers,
@@ -41,6 +43,7 @@ import {
   useClientOverdues,
   useMyPolicies,
 } from './api'
+import { PortalNoMatches, PortalSearch } from './PortalSearch'
 import type { ClientPolicy } from './types'
 import { refusalKey } from '../../lib/refusals'
 
@@ -59,6 +62,21 @@ export function PortalOverduesPage() {
   // An account can be reported only on a buyer with a credit limit in force
   // under the policy; with none the form says so and stays inactive.
   const noBuyers = buyers !== undefined && buyers.length === 0
+
+  // The page search over the reported accounts (PortalSearch).
+  const { query, setQuery } = usePageSearch('portal-overdues')
+  const shown = searchRows(overdues ?? [], query, (n) => [
+    n.buyer_name,
+    n.overdue_amount,
+    formatAmount(Number(n.overdue_amount), locale),
+    n.currency_code,
+    t(`overdues.statuses.${n.status}`),
+    n.limit_suspended ? t('portal.overdues.suspended') : null,
+  ])
+  const buyerOptions = useMemo(
+    () => (buyers ?? []).map((b) => ({ id: b.entity_id, label: b.entity_name })),
+    [buyers],
+  )
 
   const [buyerId, setBuyerId] = useState('')
   const [firstDue, setFirstDue] = useState('')
@@ -114,19 +132,18 @@ export function PortalOverduesPage() {
             </div>
           )}
           <div className="grid items-end gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">
-            {/* A client's own buyers with a limit are a short list, so the
-                plain Select primitive is the right picker here. */}
+            {/* The same search-as-you-type picker as every company picker
+                in the system; the list opens on focus — a client's own
+                buyers with a limit are a short list. */}
             <Field label={t('limits.fields.buyer')}>
-              <Select value={buyerId} disabled={noBuyers} onChange={(e) => setBuyerId(e.target.value)}>
-                <option value="">
-                  {noBuyers ? t('portal.overdues.noBuyersOption') : t('portal.declarations.pickBuyer')}
-                </option>
-                {(buyers ?? []).map((b) => (
-                  <option key={b.entity_id} value={b.entity_id}>
-                    {b.entity_name}
-                  </option>
-                ))}
-              </Select>
+              <Combobox
+                value={buyerId || null}
+                onChange={(id) => setBuyerId(id ?? '')}
+                options={buyerOptions}
+                openOnFocus
+                disabled={noBuyers}
+                placeholder={noBuyers ? t('portal.overdues.noBuyersOption') : t('portal.declarations.pickBuyer')}
+              />
             </Field>
             <Field label={t('overdues.fields.firstDueDate')}>
               <DateInput value={firstDue} max={today} onChange={setFirstDue} disabled={noBuyers} />
@@ -185,10 +202,17 @@ export function PortalOverduesPage() {
 
       <Card className="p-5">
         <SectionTitle className="mb-3">{t('portal.overdues.listTitle')}</SectionTitle>
+        {(overdues?.length ?? 0) > 0 && (
+          <div className="mb-4">
+            <PortalSearch query={query} onChange={setQuery} placeholder={t('portal.search.overdues')} />
+          </div>
+        )}
         {isLoading ? (
           <Spinner label={t('common.loading')} />
         ) : !overdues?.length ? (
           <EmptyState title={t('portal.overdues.empty')} hint={t('portal.overdues.emptyHint')} />
+        ) : !shown.length ? (
+          <PortalNoMatches onClear={() => setQuery('')} />
         ) : (
           <Table
             columns={[COL.fill, COL.money, '7.5rem', COL.moment, labelCol('portalCover'), labelCol('overdueStatus')]}
@@ -205,7 +229,7 @@ export function PortalOverduesPage() {
               </tr>
             </thead>
             <tbody>
-              {overdues.map((n) => (
+              {shown.map((n) => (
                 <tr key={n.id}>
                   <td className="font-medium">
                     <Truncate text={n.buyer_name} className="max-w-none" />

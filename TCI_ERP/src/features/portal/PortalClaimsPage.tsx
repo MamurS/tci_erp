@@ -31,7 +31,9 @@ import {
   Truncate,
 } from '../../components/ui'
 import { claimErrorKey } from '../claims/errors'
+import { usePageSearch } from '../../components/layout/usePageSearch'
 import { EM_DASH, formatAmount, formatDate, formatMoment } from '../../lib/format'
+import { searchRows } from '../../lib/pageSearch'
 import {
   useClientOpenClaim,
   useClientRespondToInfoRequest,
@@ -41,6 +43,7 @@ import {
   useMyClaims,
 } from './api'
 import { PortalClaimDetail } from './PortalClaimDetail'
+import { PortalNoMatches, PortalSearch } from './PortalSearch'
 import type { ClientClaim, ClientClaimable } from './types'
 
 const TONE: Record<ClientClaim['status'], 'neutral' | 'accent' | 'pos' | 'neg' | 'warn'> = {
@@ -68,10 +71,29 @@ export function PortalClaimsPage() {
   const [error, setError] = useState<string | null>(null)
   const submit = useClientSubmitClaim()
   const withdraw = useClientWithdrawClaim()
+  // The page search (PortalSearch): number, buyer, policy, amount, status.
+  const { query, setQuery } = usePageSearch('portal-claims')
 
   if (isLoading) return <Spinner label={t('common.loading')} />
 
-  const ready = (claimable ?? []).filter((c) => !c.claim_exists)
+  const allReady = (claimable ?? []).filter((c) => !c.claim_exists)
+  const ready = searchRows(allReady, query, (c) => [
+    c.buyer_name,
+    c.policy_number,
+    c.overdue_amount,
+    formatAmount(Number(c.overdue_amount), locale),
+    c.currency_code,
+  ])
+  const allClaims = claims ?? []
+  const shownClaims = searchRows(allClaims, query, (c) => [
+    c.claim_number,
+    c.buyer_name,
+    c.policy_number,
+    c.claimed_amount,
+    formatAmount(Number(c.claimed_amount), locale),
+    c.currency_code,
+    t(`claims.statuses.${c.status}`),
+  ])
   const openClaim = (claims ?? []).find((c) => c.id === open) ?? null
 
   function fail(e: unknown) {
@@ -83,11 +105,15 @@ export function PortalClaimsPage() {
     <div className="space-y-6">
       <PageHeader title={t('portal.claims.title')} subtitle={t('portal.claims.subtitle')} />
 
+      {allReady.length + allClaims.length > 0 && (
+        <PortalSearch query={query} onChange={setQuery} placeholder={t('portal.search.claims')} />
+      )}
+
       {error && <Callout tone="neg" title={error} />}
 
       {/* Nothing to claim yet: say where a claim comes from, whether or not
           there are claims below (the empty state alone said it only once). */}
-      {ready.length === 0 && (
+      {allReady.length === 0 && (
         <Callout
           tone="info"
           title={t('portal.claims.howTo.title')}
@@ -148,8 +174,10 @@ export function PortalClaimsPage() {
 
       <Card className="p-5">
         <SectionTitle className="mb-3">{t('portal.claims.listTitle')}</SectionTitle>
-        {(claims ?? []).length === 0 ? (
+        {allClaims.length === 0 ? (
           <EmptyState title={t('portal.claims.emptyTitle')} hint={t('portal.claims.emptyHint')} />
+        ) : shownClaims.length === 0 ? (
+          <PortalNoMatches onClear={() => setQuery('')} />
         ) : (
           <Table columns={[COL.code, COL.fill, COL.money, COL.money, labelCol('claimStatus'), actionsCol(['claimNextStep'], 1)]}>
             <thead>
@@ -163,7 +191,7 @@ export function PortalClaimsPage() {
               </tr>
             </thead>
             <tbody>
-              {(claims ?? []).map((c) => (
+              {shownClaims.map((c) => (
                 // The whole row opens the claim below, like every register in
                 // the application; the buttons in it stop the click.
                 <tr

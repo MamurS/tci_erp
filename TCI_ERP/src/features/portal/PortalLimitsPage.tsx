@@ -33,7 +33,9 @@ import {
   Table,
   Truncate,
 } from '../../components/ui'
+import { usePageSearch } from '../../components/layout/usePageSearch'
 import { EM_DASH, formatAmount, formatDate, formatMoment } from '../../lib/format'
+import { searchRows } from '../../lib/pageSearch'
 import { clientRefusalOr } from '../risk/integration'
 import {
   useMyLimitConditions,
@@ -44,6 +46,7 @@ import {
   useWithdrawLimitRequest,
 } from './api'
 import { ChangeLimitRequestModal } from './ChangeLimitRequestModal'
+import { PortalNoMatches, PortalSearch } from './PortalSearch'
 import { RequestLimitModal } from './RequestLimitModal'
 import { changeMode, clientRequestOpen } from './requestChanges'
 import type { ClientLimit, ClientLimitHistoryRow, ClientLimitRequest } from './types'
@@ -75,6 +78,8 @@ export function PortalLimitsPage() {
   const [notice, setNotice] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
   const withdraw = useWithdrawLimitRequest()
+  // The page search (PortalSearch): buyer, policy, amount, currency, status.
+  const { query, setQuery } = usePageSearch('portal-limits')
 
   const conditionsByDecision = useMemo(() => {
     const map = new Map<string, string[]>()
@@ -105,8 +110,26 @@ export function PortalLimitsPage() {
 
   const activePolicies = (policies ?? []).filter((p) => p.status === 'active')
   // What still waits on the insurer (0075's open statuses, plus a draft).
-  const pending = (requests ?? []).filter((r) => r.status === 'draft' || clientRequestOpen(r.status))
+  const allPending = (requests ?? []).filter((r) => r.status === 'draft' || clientRequestOpen(r.status))
   const policyOf = (id: string) => (policies ?? []).find((p) => p.id === id)
+  const pending = searchRows(allPending, query, (r) => [
+    r.buyer_name,
+    r.proposed_name,
+    policyOf(r.policy_id)?.policy_number,
+    r.requested_amount,
+    formatAmount(r.requested_amount, locale),
+    r.currency_code,
+    t(`portal.limits.requestStatuses.${r.status}`),
+  ])
+  const shown = searchRows(rows, query, (r) => [
+    r.buyer_name,
+    r.policy_number,
+    r.approved_amount,
+    r.approved_amount === null ? null : formatAmount(r.approved_amount, locale),
+    r.currency_code,
+    isWithdrawn(r.outcome) ? t(`limits.outcomes.${r.outcome}`) : t('limits.lifecycles.effective'),
+  ])
+  const searchable = allPending.length + rows.length > 0
 
   const confirmWithdraw = async () => {
     if (!withdrawing) return
@@ -139,6 +162,10 @@ export function PortalLimitsPage() {
           </Button>
         }
       />
+
+      {searchable && (
+        <PortalSearch query={query} onChange={setQuery} placeholder={t('portal.search.limits')} />
+      )}
 
       {!activePolicies.length && <Callout tone="info" title={t('portal.limits.needsActivePolicy')} />}
       {actionError && <Callout tone="neg" title={actionError} />}
@@ -220,6 +247,8 @@ export function PortalLimitsPage() {
         <SectionTitle className="mb-3">{t('portal.limits.limitsTitle')}</SectionTitle>
         {!rows.length ? (
           <EmptyState title={t('portal.limits.empty')} hint={t('portal.limits.emptyHint')} />
+        ) : !shown.length ? (
+          <PortalNoMatches onClear={() => setQuery('')} />
         ) : (
           <Table columns={[COL.fill, ...(manyPolicies ? [COL.code] : []), COL.money, COL.period, COL.days, ...(anyConditions ? ['14rem'] : []), labelCol('limitLifecycle'), actionsCol(['limitHistory'])]}>
             <thead>
@@ -235,7 +264,7 @@ export function PortalLimitsPage() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((limit) => {
+              {shown.map((limit) => {
                 const withdrawn = isWithdrawn(limit.outcome)
                 const rowConditions = withdrawn ? [] : (conditionsByDecision.get(limit.decision_id) ?? [])
                 return (
