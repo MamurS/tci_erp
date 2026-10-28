@@ -1160,6 +1160,24 @@ is fine for internal test accounts and not fine for customers.
   peg) — cbu.uz refuses connections from abroad, so not the CBU's own
   quotes; the demo seed's 31.12.2025 guesses replaced, the owner's USD
   rows untouched
+- [x] Sanctions lists update themselves (migration 0095, owner request
+  2026-10-28): `.github/workflows/sanctions-lists.yml` runs daily at 07:43
+  Tashkent (and on demand), downloads OFAC SDN (+ aliases), UN, EU and UK
+  from their publishers, parses them with the import screen's own parsers
+  (`tools/sanctions-feed/run.mjs`, Node strips the types — no npm install)
+  and imports each changed list, signed in as a FEED ACCOUNT
+  (`tci.feed_accounts`: a sign-in with NO role that may only import lists;
+  it cannot confirm a shrunken list). Skipped with a notice until the three
+  repository secrets exist. See **Sanctions feed rules** below.
+  **Canonical: 0095 applied 2026-10-28** before merge (backward-compatible:
+  staff gates unchanged): the four functions it rebuilds verified identical
+  to a local replay of 0094 first, the file through `apply_migration`, all
+  five functions fingerprint-identical to a local replay afterwards;
+  `tests/db/sanctions_feed.sql` run on canonical with role impersonation
+  (forced rollback, nothing left behind); no new advisor finding. The feed
+  account `sanctions.feed@tci-erp.invalid` created and run once end to end
+  from a container (OFAC re-imported unchanged — the fingerprint now covers
+  the alias file — 0 delisted, no match; UN, EU, UK unchanged)
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2827,6 +2845,42 @@ per company goes to the least-loaded active credit analyst
 (`pick_credit_analyst`), who confirms — a sanctions flag through
 `set_sanction_flag`, with its limit reviews — or clears, with a note.
 `may_manage_sanctions` is credit analysts only (admin reads).
+
+### Sanctions feed rules (migration 0095)
+
+**A feed account holds no role.** `tci.is_feed_account(scope)` is true only
+for a row of `tci.feed_accounts` whose user is not banned or deleted, need not
+change its password and holds NO role in `tci.user_roles` — give it a role and
+it stops being a feed. With no role, `has_role`, `is_staff` and
+`acting_role` answer false / NULL for it, so every policy, gate and picker
+(the least-loaded analyst, colleagues, hand-over) already leaves it out; it
+reads nothing. The four import functions (begin, add, finish, rescreen) accept
+it in place of their staff gate — rebuilt from their own text by one
+replacement each, asserted to apply once — and nothing else does. A feed may
+NOT pass `p_confirm_shrink` (`sanctions_shrink_needs_person`, 42501): a list
+that shrank by more than a tenth waits for a credit analyst. Feed accounts are
+written only in SQL by the owner (no API write grant); admin reads them; the
+check is closed to every API role.
+
+**The job is the import screen without a person.** `tools/sanctions-feed/run.mjs`
+imports `src/features/sanctions/lists/parse.ts` and `feed.ts` directly (pure,
+no imports but types, so `node --experimental-strip-types` runs them), signs
+in through the gate like the sign-in page (`login_begin` → password →
+`record_sign_in`) and signs out at the end. The publication date is the one
+the file states, else the HTTP `Last-Modified` (OFAC's CSV states none),
+never later than today. The fingerprint is the file's SHA-256 (OFAC: SDN then
+ALT), so an unchanged file is answered `sanctions_list_same` and skipped; an
+older one likewise. Any failure marks the run red (GitHub mails the owner)
+and the list in use stays.
+
+**Secrets, and what will break it.** `SANCTIONS_FEED_EMAIL`,
+`SANCTIONS_FEED_PASSWORD`, `SUPABASE_PUBLISHABLE_KEY` are repository secrets;
+without them the job is skipped with a notice. A password grant cannot solve
+a CAPTCHA: once Turnstile is enforced on sign-in (dashboard), the feed's
+sign-in is refused and the run goes red — move the feed into the analytics
+service (service role, no CAPTCHA) when it is hosted, or keep CAPTCHA off.
+Rotating the password = the reset snippet of `docs/create-user.sql` + the
+secret.
 
 ### Task hand-over rules (migration 0092)
 
