@@ -14,6 +14,8 @@ import { Button, Field, Input, LinkButton, PageHeader, Panel, PanelGrid, Spinner
 import { tci } from '../../lib/supabase'
 import { useMyEntity } from './api'
 import { MfaSection, SessionsSection } from '../account'
+import { startTour } from '../tour/registry'
+import { Compass } from 'lucide-react'
 
 interface ProfileRow {
   user_id: string
@@ -137,6 +139,14 @@ export function PortalAccountPage() {
           <div className="mt-4">
             <DemoModeSwitch offerSwitch={false} />
           </div>
+        </Panel>
+
+        {/* The portal's guided tour, again (features/tour). */}
+        <Panel title={t('tour.ui.portalPanel')} hint={t('tour.ui.portalPanelHint')}>
+          <Button variant="secondary" data-tour="tour-replay" onClick={() => startTour()}>
+            <Compass aria-hidden />
+            {t('tour.ui.takeTour')}
+          </Button>
         </Panel>
 
         <MfaSection />

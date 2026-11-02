@@ -4,9 +4,10 @@ import { DisplaySettings } from '../../features/account/UiScalePicker'
 import { DemoMark, DemoModeSwitch } from '../../features/demo'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ChevronDown, LogOut, UserRound } from 'lucide-react'
+import { ChevronDown, Compass, LogOut, UserRound } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
+import { startTour } from '../../features/tour/registry'
 import { GlobalSearch } from './GlobalSearch'
 import type { GlobalSearchHandle } from './GlobalSearch'
 import { LanguageSwitcher } from './LanguageSwitcher'
@@ -94,7 +95,7 @@ export function Header({ searchRef, toggleSlot, onShowSidebar, sidebarId }: Head
       <HelpButton />
       <LanguageSwitcher />
 
-      <div className="relative" ref={menuRef}>
+      <div className="relative" ref={menuRef} data-tour="user-menu">
         <button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
@@ -155,6 +156,20 @@ export function Header({ searchRef, toggleSlot, onShowSidebar, sidebarId }: Head
               <UserRound className="size-4 text-slate-400" />
               {t('account.title')}
             </Link>
+            {/* The acting role's guided tour, again (features/tour). */}
+            <button
+              type="button"
+              role="menuitem"
+              data-tour="tour-replay"
+              onClick={() => {
+                setMenuOpen(false)
+                startTour()
+              }}
+              className="flex w-full items-center gap-3 px-4 py-2 text-small text-slate-700 hover:bg-slate-50"
+            >
+              <Compass className="size-4 text-slate-400" />
+              {t('tour.ui.takeTour')}
+            </button>
             <button
               type="button"
               role="menuitem"

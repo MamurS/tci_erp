@@ -235,141 +235,143 @@ export function EntitiesPage() {
         </div>
       </div>
 
-      {isLoading ? (
-        <Table id="entities" columns={tableColumns}>
-          {tableHead}
-          <tbody>
-            <SkeletonRows columns={tableColumns.length} />
-          </tbody>
-        </Table>
-      ) : notFound ? (
-        // A search that finds nothing is where a missing company is noticed:
-        // offer to have it registered by an information manager (0054), or
-        // to add it now for those whose work that is.
-        <Card className="p-6">
+      <div data-tour="entities-registry">
+        {isLoading ? (
+          <Table id="entities" columns={tableColumns}>
+            {tableHead}
+            <tbody>
+              <SkeletonRows columns={tableColumns.length} />
+            </tbody>
+          </Table>
+        ) : notFound ? (
+          // A search that finds nothing is where a missing company is noticed:
+          // offer to have it registered by an information manager (0054), or
+          // to add it now for those whose work that is.
+          <Card className="p-6">
+            <EmptyState
+              pictogram="search"
+              title={t('data.notFound.title', { query: firstTerm })}
+              hint={t(dataDesk ? 'data.notFound.hintDesk' : 'data.notFound.hint')}
+              action={
+                // One action, the one that fits the person: the data desk
+                // registers the company itself (pre-filled with the name),
+                // everyone else asks the data desk to.
+                dataDesk ? (
+                  <Button onClick={() => setModalOpen(true)}>
+                    <Plus />
+                    {t('data.notFound.add', { query: firstTerm })}
+                  </Button>
+                ) : (
+                  <Button onClick={() => setRequesting(true)}>{t('data.notFound.request')}</Button>
+                )
+              }
+            />
+          </Card>
+        ) : filtered.length === 0 && (filtersActive || firstTerm !== '') ? (
+          // Emptied by the filters (or by a search too short to call the
+          // company missing): say so and offer the way back, never «create».
           <EmptyState
             pictogram="search"
-            title={t('data.notFound.title', { query: firstTerm })}
-            hint={t(dataDesk ? 'data.notFound.hintDesk' : 'data.notFound.hint')}
+            title={t('common.noMatches')}
+            hint={t('common.noMatchesHint')}
             action={
-              // One action, the one that fits the person: the data desk
-              // registers the company itself (pre-filled with the name),
-              // everyone else asks the data desk to.
-              dataDesk ? (
-                <Button onClick={() => setModalOpen(true)}>
-                  <Plus />
-                  {t('data.notFound.add', { query: firstTerm })}
-                </Button>
-              ) : (
-                <Button onClick={() => setRequesting(true)}>{t('data.notFound.request')}</Button>
-              )
+              <Button
+                variant="secondary"
+                onClick={() => {
+                  resetFilters()
+                  setSearch('')
+                }}
+              >
+                {t('common.resetFilters')}
+              </Button>
             }
           />
-        </Card>
-      ) : filtered.length === 0 && (filtersActive || firstTerm !== '') ? (
-        // Emptied by the filters (or by a search too short to call the
-        // company missing): say so and offer the way back, never «create».
-        <EmptyState
-          pictogram="search"
-          title={t('common.noMatches')}
-          hint={t('common.noMatchesHint')}
-          action={
-            <Button
-              variant="secondary"
-              onClick={() => {
-                resetFilters()
-                setSearch('')
-              }}
-            >
-              {t('common.resetFilters')}
-            </Button>
-          }
-        />
-      ) : filtered.length === 0 ? (
-        // «Add company» is in the page header; the empty state does not repeat it.
-        <EmptyState
-          pictogram="companies"
-          title={t('entities.empty')}
-          hint={t('entities.emptyHint')}
-        />
-      ) : (
-        <Table id="entities" columns={tableColumns} stickyHead freezeFirst>
-          {tableHead}
-          <tbody>
-            {filtered.map((entity) => {
-              const latest = latestPeriod(entity.financial_statements)
-              const grade = grades.data?.get(entity.id)
-              const industry = refName(entity.industries, locale)
-              return (
-                <LinkRow key={entity.id} to={`/entities/${entity.id}`} className="transition-colors hover:bg-slate-50">
-                  <td className="font-medium text-slate-800">
-                    <span className="flex min-w-0 items-start gap-3">
-                      <SelectCheckbox
-                        row
-                        label={t('ui.bulk.select', { name: entity.name })}
-                        checked={selected.has(entity.id)}
-                        onChange={() => toggle(entity.id)}
-                      />
-                      <span className="min-w-0 flex-1">
-                        <Truncate text={entity.name} className="max-w-none">
-                          <Highlight text={entity.name} query={search} />
-                        </Truncate>
-                        <span className="flex min-w-0 items-center gap-2">
-                          {entity.registration_number && (
-                            // A registration number is one token: never broken.
-                            <span className="truncate text-caption font-normal whitespace-nowrap text-slate-500 tabular-nums">
-                              <Highlight text={entity.registration_number} query={search} />
-                            </span>
-                          )}
-                          {/* 0094: a policyholder's tier, under the name */}
-                          <TierMark entityId={entity.id} size="sm" />
+        ) : filtered.length === 0 ? (
+          // «Add company» is in the page header; the empty state does not repeat it.
+          <EmptyState
+            pictogram="companies"
+            title={t('entities.empty')}
+            hint={t('entities.emptyHint')}
+          />
+        ) : (
+          <Table id="entities" columns={tableColumns} stickyHead freezeFirst>
+            {tableHead}
+            <tbody>
+              {filtered.map((entity) => {
+                const latest = latestPeriod(entity.financial_statements)
+                const grade = grades.data?.get(entity.id)
+                const industry = refName(entity.industries, locale)
+                return (
+                  <LinkRow key={entity.id} to={`/entities/${entity.id}`} className="transition-colors hover:bg-slate-50">
+                    <td className="font-medium text-slate-800">
+                      <span className="flex min-w-0 items-start gap-3">
+                        <SelectCheckbox
+                          row
+                          label={t('ui.bulk.select', { name: entity.name })}
+                          checked={selected.has(entity.id)}
+                          onChange={() => toggle(entity.id)}
+                        />
+                        <span className="min-w-0 flex-1">
+                          <Truncate text={entity.name} className="max-w-none">
+                            <Highlight text={entity.name} query={search} />
+                          </Truncate>
+                          <span className="flex min-w-0 items-center gap-2">
+                            {entity.registration_number && (
+                              // A registration number is one token: never broken.
+                              <span className="truncate text-caption font-normal whitespace-nowrap text-slate-500 tabular-nums">
+                                <Highlight text={entity.registration_number} query={search} />
+                              </span>
+                            )}
+                            {/* 0094: a policyholder's tier, under the name */}
+                            <TierMark entityId={entity.id} size="sm" />
+                          </span>
                         </span>
                       </span>
-                    </span>
-                  </td>
-                  <td>
-                    <Truncate text={refName(entity.countries, locale)} className="max-w-none">
-                      <CountryFlag code={entity.country_code} className="mr-2" />
-                      {refName(entity.countries, locale)}
-                    </Truncate>
-                    {/* Prompt 31: the country's category, or the sanctions
-                        badge (the company's or its country's), on a line of
-                        its own that is reserved whether or not one arrives. */}
-                    <RiskSubline>
-                      <CountryRiskCompact countryCode={entity.country_code} entityId={entity.id} />
-                    </RiskSubline>
-                  </td>
-                  <td className="text-slate-500">
-                    {industry ? <Truncate text={industry} className="max-w-none" /> : EM_DASH}
-                    <RiskSubline>
-                      <IndustrySectorBadge industryCode={entity.industry_id} />
-                    </RiskSubline>
-                  </td>
-                  <td>
-                    <RoleBadges roles={roles.data?.get(entity.id)} />
-                  </td>
-                  <td className="whitespace-nowrap text-slate-500">
-                    {latest ? formatDate(latest, locale) : EM_DASH}
-                  </td>
-                  <td>
-                    {grade ? (
-                      <GradeBadge grade={grade} />
-                    ) : (
-                      <span className="text-slate-500">{EM_DASH}</span>
-                    )}
-                  </td>
-                  <td className={SANCTIONS_CELL}>
-                    <SanctionsCell entityId={entity.id} />
-                  </td>
-                  <RowActions reveal>
-                    <QuickViewButton name={entity.name} onClick={() => setPeekId(entity.id)} />
-                  </RowActions>
-                </LinkRow>
-              )
-            })}
-          </tbody>
-        </Table>
-      )}
+                    </td>
+                    <td>
+                      <Truncate text={refName(entity.countries, locale)} className="max-w-none">
+                        <CountryFlag code={entity.country_code} className="mr-2" />
+                        {refName(entity.countries, locale)}
+                      </Truncate>
+                      {/* Prompt 31: the country's category, or the sanctions
+                          badge (the company's or its country's), on a line of
+                          its own that is reserved whether or not one arrives. */}
+                      <RiskSubline>
+                        <CountryRiskCompact countryCode={entity.country_code} entityId={entity.id} />
+                      </RiskSubline>
+                    </td>
+                    <td className="text-slate-500">
+                      {industry ? <Truncate text={industry} className="max-w-none" /> : EM_DASH}
+                      <RiskSubline>
+                        <IndustrySectorBadge industryCode={entity.industry_id} />
+                      </RiskSubline>
+                    </td>
+                    <td>
+                      <RoleBadges roles={roles.data?.get(entity.id)} />
+                    </td>
+                    <td className="whitespace-nowrap text-slate-500">
+                      {latest ? formatDate(latest, locale) : EM_DASH}
+                    </td>
+                    <td>
+                      {grade ? (
+                        <GradeBadge grade={grade} />
+                      ) : (
+                        <span className="text-slate-500">{EM_DASH}</span>
+                      )}
+                    </td>
+                    <td className={SANCTIONS_CELL}>
+                      <SanctionsCell entityId={entity.id} />
+                    </td>
+                    <RowActions reveal>
+                      <QuickViewButton name={entity.name} onClick={() => setPeekId(entity.id)} />
+                    </RowActions>
+                  </LinkRow>
+                )
+              })}
+            </tbody>
+          </Table>
+        )}
+      </div>
 
       <BulkBar count={selected.size} onClear={clear}>
         <Button variant="secondary" size="sm" onClick={exportSelected}>

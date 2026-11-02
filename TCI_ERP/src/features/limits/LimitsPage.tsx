@@ -210,7 +210,7 @@ export function LimitsPage() {
     )
 
   return (
-    <div>
+    <div data-tour="limits-queue">
       {/* No view hint: the section subtitle above already says what this is,
           and repeating it word for word read as a mistake. */}
       <div className="overflow-x-auto">

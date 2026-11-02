@@ -12,6 +12,7 @@ import type { SidebarState } from './shell'
 import { PageLoading } from './PageLoading'
 import { SignInNotice } from '../../auth/SignInNotice'
 import { NewVersionNotice } from './NewVersionNotice'
+import { TourHost } from '../../features/tour/TourHost'
 import { useNewVersion } from '../../lib/useNewVersion'
 import { DemoBanner, useDemoModeTabSync } from '../../features/demo'
 import { useUiScaleValue } from '../../lib/uiScale'
@@ -289,6 +290,7 @@ export function AppShell() {
         </main>
       </div>
       <NewVersionNotice stale={newVersion} />
+      <TourHost />
     </div>
     </PageSearchProvider>
   )

@@ -153,6 +153,7 @@ export function PortalLimitsPage() {
         subtitle={t('portal.limits.subtitle')}
         actions={
           <Button
+            data-tour="portal-request-limit"
             disabled={!activePolicies.length}
             title={activePolicies.length ? undefined : t('portal.limits.needsActivePolicy')}
             onClick={() => setAsking(true)}

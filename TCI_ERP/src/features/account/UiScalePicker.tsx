@@ -109,7 +109,7 @@ export function DisplaySettings({ compact = false }: { compact?: boolean }) {
     : 'text-body font-medium text-slate-800'
 
   return (
-    <div className={`flex flex-col ${compact ? 'gap-4' : 'gap-5'}`}>
+    <div className={`flex flex-col ${compact ? 'gap-4' : 'gap-5'}`} data-tour="display-settings">
       <div className="flex flex-col gap-2">
         <span className={heading}>{t('account.uiTheme.title')}</span>
         {!compact && <span className="text-small text-slate-600">{t('account.uiTheme.hint')}</span>}

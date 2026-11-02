@@ -974,3 +974,41 @@ on the other. `e2e/layout/switches.spec.ts` clicks every view switch on every
 screen and fails on a moved cell, column or tab; `cardTops.spec.ts` fails
 on cards that start at different heights.
 
+## Guided tour (`src/features/tour`, Prompt 32)
+
+A short walk over the real screen for the person's ACTING role (sales,
+commercial underwriting, credit analysis, credit underwriting, data
+management, claims, administration) and a shorter one for the portal; «What's
+new» tours ride on the same mechanism (`steps/releases.ts`). Modelled on the
+sister app's welcome tour — no library.
+
+* **Steps are data** (`steps/*.ts`): `{ id, anchor, route?, titleKey,
+  textKey, needsData?, openFirst? }`. An anchor is a `data-tour="…"`
+  attribute on a real component, never a class; `tour.test.ts` fails on a
+  step whose anchor no component carries (the Help «?» `help` and the Demo
+  switch `demo-mode` belong to other workstreams and may be absent). A step
+  whose anchor is not on screen is skipped (a `console.debug` in
+  development); «Step n of N» leaves skipped steps out.
+* **An empty list is explained, not highlighted.** `EmptyState` (and a
+  list's own empty card) carries `data-tour-empty`; a `needsData` step on it
+  shows a centred card with a note suggesting Demo mode. `openFirst` opens
+  the first row of a list (`LinkRow`'s `data-link-row`) to show the form
+  behind it — the credit decision form.
+* **Fixed, in a portal on `<body>`**: the scrim is the highlight's 200 vmax
+  box-shadow, the card sits below / above / beside the anchor inside the
+  viewport, so nothing under it moves (`e2e/shell/tour.spec.ts` measures the
+  header, sidebar and main before and after). An off-screen anchor is
+  scrolled into view (instantly under reduced motion).
+* **Keyboard**: focus on the card at every step, Tab stays inside it, Enter
+  or → next, ← back, Esc ends it (recorded skipped); the page's own
+  shortcuts are held while it is open. `role="dialog"`, labelled by the
+  title, described by the text.
+* **When it starts**: by itself for a tour the person has no record of (the
+  acting role's on the first sign-in or in a newly held role; a «What's
+  new» for someone whose first tour is older than the release), and on the
+  `window` event `tci:tour:start` (`startTour()`: «Take the tour» in the user
+  menu and on the portal profile, the Help page). The record is
+  `tci.user_profiles.ui_tour_state` (0098), read in its own query; without
+  the column the tour shows once per browser session. The e2e stub records
+  every tour as completed by default, so no other spec sees it.
+

@@ -83,6 +83,7 @@ export function DemoModeChip() {
       type="button"
       aria-pressed={on}
       data-testid="demo-mode-chip"
+      data-tour="demo-mode"
       disabled={save.isPending}
       onClick={() => save.mutate(!on)}
       className="inline-flex h-9 items-center gap-2 rounded-md border border-white/40 px-3 text-small font-semibold text-white hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white focus-visible:outline-none disabled:opacity-60"

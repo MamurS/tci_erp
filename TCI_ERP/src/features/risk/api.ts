@@ -735,10 +735,13 @@ export function useBuyerRiskContext(entityId: string | null | undefined) {
   return useQuery({
     queryKey: RISK_KEYS.context(entityId ?? ''),
     enabled: staff && Boolean(entityId),
-    queryFn: async (): Promise<BuyerRiskContext> => {
+    queryFn: async (): Promise<BuyerRiskContext | null> => {
       const { data, error } = await tci().rpc('buyer_risk_context', { p_entity: entityId! })
       if (error) throw error
-      return data as BuyerRiskContext
+      // No company (or an older database) answers no object: nothing to show.
+      if (!data || typeof data !== 'object') return null
+      const ctx = data as BuyerRiskContext
+      return { ...ctx, sanctions: Array.isArray(ctx.sanctions) ? ctx.sanctions : [] }
     },
   })
 }

@@ -10,6 +10,7 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { PageLoading } from '../../components/layout/PageLoading'
 import { SignInNotice } from '../../auth/SignInNotice'
 import { NewVersionNotice } from '../../components/layout/NewVersionNotice'
+import { TourHost } from '../tour/TourHost'
 import { useNewVersion } from '../../lib/useNewVersion'
 import { DemoBanner, useDemoModeTabSync } from '../demo'
 import { useTranslation } from 'react-i18next'
@@ -86,7 +87,7 @@ export function PortalShell() {
             {t('auth.signOut')}
           </button>
         </div>
-        <nav className="mx-auto flex w-full max-w-[96rem] flex-wrap gap-1 px-4">
+        <nav className="mx-auto flex w-full max-w-[96rem] flex-wrap gap-1 px-4" data-tour="portal-nav">
           {PORTAL_NAV_ITEMS.map((item) => (
             <NavLink
               key={item.key}
@@ -118,6 +119,7 @@ export function PortalShell() {
         </TablePrefsContext.Provider>
       </main>
       <NewVersionNotice stale={newVersion} />
+      <TourHost />
     </div>
   )
 }

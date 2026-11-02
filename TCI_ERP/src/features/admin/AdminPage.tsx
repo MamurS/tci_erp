@@ -51,20 +51,23 @@ export function AdminPage() {
         }
       />
 
-      <Tabs
-        tabs={[
-          { key: 'users', label: t('admin.tabs.users') },
-          { key: 'authorities', label: t('admin.tabs.authorities') },
-          { key: 'risk', label: t('admin.tabs.risk') },
-          { key: 'tiers', label: t('admin.tabs.tiers') },
-          { key: 'security', label: t('admin.tabs.security') },
-          { key: 'demo', label: t('admin.tabs.demo') },
-        ]}
-        active={activeTab}
-        onChange={(key) => setSearchParams({ tab: key }, { replace: true })}
-      />
+      <div data-tour="admin-tabs">
+        <Tabs
+          tabs={[
+            { key: 'users', label: t('admin.tabs.users') },
+            { key: 'authorities', label: t('admin.tabs.authorities') },
+            { key: 'risk', label: t('admin.tabs.risk') },
+            { key: 'tiers', label: t('admin.tabs.tiers') },
+            { key: 'security', label: t('admin.tabs.security') },
+            { key: 'demo', label: t('admin.tabs.demo') },
+          ]}
+          active={activeTab}
+          onChange={(key) => setSearchParams({ tab: key }, { replace: true })}
+        />
+      </div>
 
-      <div className="mt-5">
+      {/* One anchor per tab, so a tour step knows the tab it opened has rendered. */}
+      <div className="mt-5" data-tour={`admin-${activeTab}`}>
         {activeTab === 'users' && (
           <UsersRolesTab
             selectedUserId={selectedUserId}
