@@ -88,7 +88,7 @@ export function QueueView() {
   )
 
   return (
-    <div>
+    <div data-tour="data-requests">
       <ViewBar
         hint={t('data.queue.hint')}
         actions={
@@ -118,7 +118,7 @@ export function QueueView() {
       ) : !rows.length ? (
         // Compact: an empty scope is a fact, not a page — it must not push the
         // list of unresolved buyers below the fold. Each scope says its own.
-        <Card className="px-5 py-4">
+        <Card className="px-5 py-4" data-tour-empty>
           <p className="text-body font-semibold text-slate-800">{t(`data.queue.empty.${scope}`)}</p>
           <p className="mt-0.5 text-small text-slate-500">{t(`data.queue.emptyHints.${scope}`)}</p>
         </Card>

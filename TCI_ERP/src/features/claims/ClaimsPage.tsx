@@ -187,36 +187,38 @@ export function ClaimsPage() {
         <TableSettings table="claims" columns={columnLabels} />
       </div>
 
-      {isLoading ? (
-        <Table id="claims" columns={COLUMNS}>
-          {tableHead}
-          <tbody>
-            <SkeletonRows columns={COLUMNS.length} />
-          </tbody>
-        </Table>
-      ) : rows.length === 0 ? (
-        <EmptyState
-          pictogram="claims"
-          title={scope === 'open' ? t('claims.empty.openTitle') : t('claims.empty.allTitle')}
-          hint={t('claims.empty.hint')}
-        />
-      ) : (
-        <Table id="claims" columns={COLUMNS} stickyHead freezeFirst>
-          {tableHead}
-          <tbody>
-            {rows.map((c) => (
-              <ClaimRow
-                key={c.id}
-                claim={c}
-                locale={locale}
-                selected={selected.has(c.id)}
-                onToggle={() => toggle(c.id)}
-                onPeek={() => setPeekId(c.id)}
-              />
-            ))}
-          </tbody>
-        </Table>
-      )}
+      <div data-tour="claims-queue">
+        {isLoading ? (
+          <Table id="claims" columns={COLUMNS}>
+            {tableHead}
+            <tbody>
+              <SkeletonRows columns={COLUMNS.length} />
+            </tbody>
+          </Table>
+        ) : rows.length === 0 ? (
+          <EmptyState
+            pictogram="claims"
+            title={scope === 'open' ? t('claims.empty.openTitle') : t('claims.empty.allTitle')}
+            hint={t('claims.empty.hint')}
+          />
+        ) : (
+          <Table id="claims" columns={COLUMNS} stickyHead freezeFirst>
+            {tableHead}
+            <tbody>
+              {rows.map((c) => (
+                <ClaimRow
+                  key={c.id}
+                  claim={c}
+                  locale={locale}
+                  selected={selected.has(c.id)}
+                  onToggle={() => toggle(c.id)}
+                  onPeek={() => setPeekId(c.id)}
+                />
+              ))}
+            </tbody>
+          </Table>
+        )}
+      </div>
 
       <BulkBar count={selected.size} onClear={clear}>
         <Button variant="secondary" size="sm" onClick={exportSelected}>

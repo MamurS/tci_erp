@@ -531,7 +531,7 @@ export function SectionPage({ title, subtitle, tabs, active, onChange, children,
       ) : (
         <PageHeader band title={title} subtitle={subtitle} />
       )}
-      <div className="mb-5">
+      <div className="mb-5" data-tour="section-tabs">
         <Tabs tabs={tabs} active={active} onChange={onChange} />
       </div>
       {/* Views load lazily; the header and the tabs must not blink while one does. */}
@@ -588,6 +588,8 @@ export function EmptyState({ title, hint, action, icon, pictogram = 'inbox' }: E
   const framed = useContext(FramedContext)
   return (
     <div
+      // The guided tour reads an empty list from this (features/tour/dom.ts).
+      data-tour-empty
       className={`flex flex-col items-center justify-center gap-2 text-center ${
         framed ? 'px-4 py-8' : 'rounded-lg border border-dashed border-slate-300 bg-white/70 px-6 py-14'
       }`}

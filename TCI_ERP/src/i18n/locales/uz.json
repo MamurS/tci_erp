@@ -7530,5 +7530,206 @@
       "noOverride": "Daraja allaqachon avtomatik.",
       "thresholdsInvalid": "Har bir chegara noldan katta bo‘lishi va kumushdan platinagacha o‘sib borishi kerak."
     }
+  },
+  "tour": {
+    "ui": {
+      "step": "{{n}}-qadam, jami {{total}}",
+      "next": "Keyingi",
+      "back": "Orqaga",
+      "skip": "Tanishuvni o‘tkazib yuborish",
+      "done": "Tayyor",
+      "takeTour": "Tanishuvni boshlash",
+      "noData": "Bu yerda hozircha hech narsa yo‘q, shuning uchun ko‘rsatadigan narsa ham yo‘q. Ushbu ekranni namunaviy ma’lumotlar bilan ko‘rish uchun demo rejimni yoqing.",
+      "portalPanel": "Portal bilan tanishuv",
+      "portalPanelHint": "Portal bo‘limlari bo‘ylab qisqa tanishuv — uni istalgan vaqtda qayta boshlash mumkin."
+    },
+    "shared": {
+      "welcome": {
+        "title": "TCI ERP ga xush kelibsiz"
+      },
+      "workspace": {
+        "title": "Ish maydoni",
+        "text": "Ish maydoni — hozir qaysi rolda ishlayotganingiz. Bir nechta rolingiz bo‘lsa, shu yerda almashtiring: menyu, kun tartibi va bajarishingiz mumkin bo‘lgan amallar tanlangan rolga mos keladi."
+      },
+      "sidebar": {
+        "title": "Menyu",
+        "text": "Yuqorida umumiy vositalar — boshqaruv paneli, kun tartibi, tashkilotlar, sanksiyalar, — pastda ish maydoningiz bo‘limlari. Ctrl/⌘ B menyuni yashiradi va ko‘rsatadi."
+      },
+      "search": {
+        "title": "Yagona qidiruv",
+        "text": "Bu yerdan tashkilot, polis, da’vo yoki bo‘limni topasiz. Ro‘yxat sahifasida shu maydon ro‘yxatni filtrlaydi — shartlarni vergul bilan ajratib, uni toraytiring. Ctrl/⌘ K kursorni shu yerga qo‘yadi."
+      },
+      "agenda": {
+        "title": "Kun tartibi: ishingiz",
+        "text": "Tizim siz yoki bo‘limingiz uchun ochadigan har bir vazifa shu yerga tushadi — muddati o‘tganlari birinchi. «Ro‘yxat» har bir ish uchun bitta qatorni, «Saralash» esa tanlangan vazifa yonida navbatni ko‘rsatadi. Vazifa tugmasi uni bajarish ekraniga olib boradi."
+      },
+      "agendaFilters": {
+        "title": "Navbatni toraytirish",
+        "text": "Filtrlar vazifalarni ish turi bo‘yicha saralaydi; «Menga biriktirilgan» shaxsan sizga yuborilganlarini qoldiradi. Hozircha bajarib bo‘lmaydigan vazifani kechiktirish yoki hamkasbga topshirish mumkin."
+      },
+      "userMenu": {
+        "title": "Sozlamalaringiz",
+        "text": "Rang mavzusi, yorug‘ yoki qorong‘i rejim, matn o‘lchami va masshtab, hisobingiz — hamda bu tanishuvni qayta ko‘rish uchun «Tanishuvni boshlash»."
+      },
+      "help": {
+        "title": "Yordam",
+        "text": "«?» tugmasi yordam markazini ochadi: har bir ekran bo‘yicha qo‘llanma, o‘z tilingizda."
+      },
+      "finish": {
+        "title": "Hammasi tayyor",
+        "text": "Tanishuv shu bilan tugadi. Uni istalgan vaqtda foydalanuvchi menyusi yoki yordam markazidan qayta boshlash mumkin."
+      }
+    },
+    "sales": {
+      "welcome": {
+        "text": "Sotuv ish maydoni bo‘yicha qisqa tanishuv: sug‘urta arizalari, polislar va mijozlaringiz bayerlariga kredit limiti so‘rovlari. Tugmalar yoki ← va → bilan o‘ting; Esc tanishuvni tugatadi."
+      },
+      "requests": {
+        "title": "Sug‘urta arizalari",
+        "text": "Yangi biznesingiz. Ariza qoralamadan anderrayting va mijoz javobi orqali rasmiylashtirilgan polisgacha boradi; qator arizani ochadi."
+      },
+      "policies": {
+        "title": "Polislar",
+        "text": "Polislar reyestri va ularning shartnomalari — ko‘rinishlar shu yorliqlar bilan almashtiriladi."
+      },
+      "limits": {
+        "title": "Limit so‘rovlari",
+        "text": "Mijozlaringiz bayerlariga kredit limiti so‘rovlari va har birining holati. So‘rov polis yoki sug‘urta arizasidan yaratiladi."
+      }
+    },
+    "commercial": {
+      "welcome": {
+        "text": "Tijorat anderraytingi ish maydoni bo‘yicha qisqa tanishuv: polislar va ularning shartlari, ko‘rib chiqishingizni kutayotgan sug‘urta arizalari hamda limit qarorlarining tijorat bosqichi. Tugmalar yoki ← va → bilan o‘ting; Esc tanishuvni tugatadi."
+      },
+      "policies": {
+        "title": "Polislar va portfelingiz",
+        "text": "Umumiy ko‘rinishda portfelingiz ko‘rsatkichlari; reyestr, shartnomalar va ularning shablonlari — boshqa ko‘rinishlarda."
+      },
+      "requests": {
+        "title": "Ko‘rib chiqiladigan arizalar",
+        "text": "Tijorat ko‘rib chiqishida ariza sizning shartlaringizni kutadi: mukofot stavkasi, sug‘urta qoplamasi foizi, qoplanmaydigan zarar, javobgarlikning maksimal limiti."
+      },
+      "limits": {
+        "title": "Limitlar: tijorat bosqichi",
+        "text": "Kredit qaroridan keyin siz faqat summa va to‘lov shartlarini o‘z vakolatingiz doirasida o‘zgartira olasiz; reyting va qaror shartlari kredit anderraytingi belgilaganidek qoladi."
+      }
+    },
+    "creditUnderwriter": {
+      "welcome": {
+        "text": "Kredit anderraytingi ish maydoni bo‘yicha qisqa tanishuv: ish joyingiz, qarorlar navbati va qaror shakli. Tugmalar yoki ← va → bilan o‘ting; Esc tanishuvni tugatadi."
+      },
+      "workbench": {
+        "title": "Kredit limitlari: ish joyingiz",
+        "text": "Bitta bo‘lim, bir nechta ko‘rinish: umumiy ko‘rinish, qarorlar navbati, amaldagi limitlar, monitoring, reytinglar, guruhlar, avtoqarorlar va vakolatlaringiz."
+      },
+      "queue": {
+        "title": "Qarorlar navbati",
+        "text": "Ochiq so‘rovlar: har biri qaysi reyting diapazonida hal qilinishi va vakolatingiz yetarli yoki yetarli emasligi. Qator so‘rovni ochadi."
+      },
+      "decision": {
+        "title": "Qaror",
+        "text": "Tasdiqlash, qisman tasdiqlash yoki rad etish — shartlar va to‘lov shartlari bilan. Summa vakolatingizdan yuqori bo‘lsa, qaror bitta shaxsga emas, vakolat darajalari bo‘yicha tasdiqlashga yuboriladi."
+      }
+    },
+    "creditAnalyst": {
+      "welcome": {
+        "text": "Kredit tahlili ish maydoni bo‘yicha qisqa tanishuv: bayerlar reytingi, reytinglarni tasdiqlash, sektor baholari va mamlakat riski. Tugmalar yoki ← va → bilan o‘ting; Esc tanishuvni tugatadi."
+      },
+      "ratings": {
+        "title": "Reytinglar ish ro‘yxati",
+        "text": "Reyting kerak bo‘lgan bayerlar tartib bilan: hisobot yo‘q, reytingsiz, yangi hisobot bor, bir yildan eski."
+      },
+      "sectors": {
+        "title": "Sektorlar va mamlakat riski toifalari",
+        "text": "A–D sektor baholari va ularning choraklik qayta ko‘rib chiqilishi hamda IHTT mamlakat riski toifalari."
+      }
+    },
+    "information": {
+      "welcome": {
+        "text": "Ma’lumotlarni boshqarish ish maydoni bo‘yicha qisqa tanishuv: tashkilot va hisobot so‘rovlari, ma’lumotlar dolzarbligi va tashkilotlar reyestri. Tugmalar yoki ← va → bilan o‘ting; Esc tanishuvni tugatadi."
+      },
+      "requests": {
+        "title": "So‘rovlar",
+        "text": "Hamkasblar bu yerda tashkilot yoki uning hisobotini so‘rashadi; har bir so‘rov eng kam band axborot menejeriga tushadi. Uni ishga oling, bajaring yoki sababini ko‘rsatib rad eting."
+      },
+      "views": {
+        "title": "Ma’lumotlar dolzarbligi va taklif qilingan bayerlar",
+        "text": "Boshqa ko‘rinishlarda — faol biznesi bor, lekin ma’lumotlari yo‘q yoki eskirgan tashkilotlar hamda sug‘urtalanuvchilar taklif qilgan bayerlar."
+      },
+      "entities": {
+        "title": "Tashkilotlar",
+        "text": "Bayerlar va sug‘urtalanuvchilar reyestri. Reytinglar va qarorlar siz shu yerda yuritadigan ma’lumotlarga tayanadi."
+      }
+    },
+    "claims": {
+      "welcome": {
+        "text": "Sug‘urta da’volari ish maydoni bo‘yicha qisqa tanishuv: da’volar, ularning qoplanishi va tovon hisobi hamda ulardan oldin keladigan muddati o‘tgan qarz to‘g‘risidagi xabarnomalar. Tugmalar yoki ← va → bilan o‘ting; Esc tanishuvni tugatadi."
+      },
+      "queue": {
+        "title": "Sug‘urta da’volari",
+        "text": "Barcha da’volar va ularning holati. Da’vo sahifasida — hisob-fakturalar va qoplash, tovon hisobi, to‘lovlar va undirishlar hamda hujjatlar."
+      },
+      "overdues": {
+        "title": "Muddati o‘tgan qarz to‘g‘risida xabarnomalar",
+        "text": "To‘lov muddatini o‘tkazib yuborgan bayerlar haqidagi xabarnomalar — da’vodan oldingi qadam."
+      }
+    },
+    "admin": {
+      "welcome": {
+        "text": "Administratsiya bo‘yicha qisqa tanishuv: foydalanuvchilar va rollar, vakolatlar, ma’lumotnomalar va sozlamalar. Administrator — texnik rol: u biznes ekranlarini ko‘radi, lekin biznes qarorlarini qabul qilmaydi. Tugmalar yoki ← va → bilan o‘ting; Esc tanishuvni tugatadi."
+      },
+      "tabs": {
+        "title": "Administratsiya",
+        "text": "Foydalanuvchilar va rollar, vakolatlar, risklar, sug‘urtalanuvchilar darajalari va xavfsizlik — har biri alohida yorliqda."
+      },
+      "users": {
+        "title": "Foydalanuvchilar va rollar",
+        "text": "Kim qaysi rolga ega. Bir kishida bir nechta rol bo‘lishi mumkin, lekin u bir vaqtda bittasida ishlaydi; mijoz hisobida faqat mijoz roli bo‘ladi."
+      },
+      "authorities": {
+        "title": "Vakolatlar",
+        "text": "Yo‘nalishlar va reyting diapazonlari bo‘yicha vakolatlar, vakolat darajalari va qo‘mita, qaror sozlamalari."
+      }
+    },
+    "portal": {
+      "welcome": {
+        "title": "Portalga xush kelibsiz",
+        "text": "Portalingiz bo‘yicha qisqa tanishuv: polislaringiz, kredit limitlari va bizga yuboradigan ma’lumotlaringiz. Tugmalar yoki ← va → bilan o‘ting; Esc tanishuvni tugatadi."
+      },
+      "sections": {
+        "title": "Bo‘limlaringiz",
+        "text": "Polislar, kredit limitlari, deklaratsiyalar, sug‘urta mukofoti, muddati o‘tgan qarzlar, da’volar, arizalar, takliflar va shartnomalar — har biri alohida yorliqda."
+      },
+      "requestLimit": {
+        "title": "Kredit limitini so‘rash",
+        "text": "Bayerga limit so‘rang. So‘rov ochiq ekan, uni o‘zgartirish yoki qaytarib olish mumkin."
+      },
+      "profile": {
+        "title": "Profil va ko‘rinish",
+        "text": "Aloqa ma’lumotlari, parol, ikki bosqichli kirish va portal ko‘rinishi — rang mavzusi, matn o‘lchami va masshtab."
+      },
+      "help": {
+        "title": "Yordam",
+        "text": "«?» tugmasi portal bo‘yicha yordamni o‘z tilingizda ochadi."
+      },
+      "finish": {
+        "title": "Hammasi shu",
+        "text": "Tanishuvni istalgan vaqtda profilingizdan qayta boshlashingiz mumkin."
+      }
+    },
+    "release202611": {
+      "intro": {
+        "title": "Nima yangilik",
+        "text": "Bu oy ikkita yangilik — ularni ko‘rish uchun bir daqiqa."
+      },
+      "help": {
+        "title": "Yordam markazi",
+        "text": "«?» tugmasi har bir ekran bo‘yicha qo‘llanmani ochadi — o‘zbek, rus va ingliz tillarida."
+      },
+      "demo": {
+        "title": "Demo rejim",
+        "text": "Demo rejim ekranlarni namunaviy ma’lumotlar bilan ko‘rsatadi — shunda ekranni haqiqiy ish paydo bo‘lishidan oldin o‘rganib olasiz."
+      }
+    }
   }
 }

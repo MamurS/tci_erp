@@ -106,6 +106,7 @@ export function Sidebar({
     <aside
       id={id}
       data-brand-surface
+      data-tour="sidebar"
       className="flex h-full w-[calc(16rem*var(--ui-text,1))] flex-col bg-gradient-to-b from-accent-800 to-accent-900 text-white"
       aria-label={t('nav.title')}
     >
@@ -122,7 +123,7 @@ export function Sidebar({
       </div>
 
       {current && (
-        <div className="shrink-0 border-b border-white/10 px-3 py-3">
+        <div className="shrink-0 border-b border-white/10 px-3 py-3" data-tour="workspace-switcher">
           <WorkspaceSwitcher workspaces={workspaces} current={current.key} onSwitch={onSwitchWorkspace} />
         </div>
       )}

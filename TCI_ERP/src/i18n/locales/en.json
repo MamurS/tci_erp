@@ -7530,5 +7530,206 @@
       "noOverride": "The tier is already automatic.",
       "thresholdsInvalid": "Every threshold must be above zero and rise from silver to platinum."
     }
+  },
+  "tour": {
+    "ui": {
+      "step": "Step {{n}} of {{total}}",
+      "next": "Next",
+      "back": "Back",
+      "skip": "Skip the tour",
+      "done": "Done",
+      "takeTour": "Take the tour",
+      "noData": "There is nothing here yet, so there is nothing to point at. Switch on Demo mode to see this screen with example data.",
+      "portalPanel": "Portal tour",
+      "portalPanelHint": "A short walk through the portal’s sections — run it again whenever you like."
+    },
+    "shared": {
+      "welcome": {
+        "title": "Welcome to TCI ERP"
+      },
+      "workspace": {
+        "title": "Your workspace",
+        "text": "The workspace is the role you act in. If you hold several roles, switch here: the menu, the Agenda and what you may do all follow the role you choose."
+      },
+      "sidebar": {
+        "title": "The menu",
+        "text": "Shared tools on top — dashboard, Agenda, companies, sanctions — then your workspace’s own sections. Ctrl/⌘ B hides or shows it."
+      },
+      "search": {
+        "title": "One search",
+        "text": "Find a company, a policy, a claim or a section from here. On a list page the same field filters the list — separate terms with commas to narrow it. Ctrl/⌘ K puts the cursor here."
+      },
+      "agenda": {
+        "title": "Agenda: your work",
+        "text": "Every task the system opens for you or your department lands here, overdue first. List shows one row per piece of work; Triage shows the queue beside the selected task. A task’s button takes you to the screen where it is done."
+      },
+      "agendaFilters": {
+        "title": "Narrow the queue",
+        "text": "The chips filter by kind of work; «Assigned to me» keeps what is addressed to you by name. A task you cannot do yet can be snoozed or handed to a colleague."
+      },
+      "userMenu": {
+        "title": "Your settings",
+        "text": "Colour theme, light or dark mode, text size and zoom, your account — and «Take the tour» to see this tour again."
+      },
+      "help": {
+        "title": "Help",
+        "text": "The «?» opens the help centre: a guide to every screen, in your language."
+      },
+      "finish": {
+        "title": "You are ready",
+        "text": "That is the tour. Run it again any time from the user menu or the help centre."
+      }
+    },
+    "sales": {
+      "welcome": {
+        "text": "A short tour of the Sales workspace: submissions, policies and the credit limit requests on your clients’ buyers. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "requests": {
+        "title": "Submissions",
+        "text": "Your new business. A submission goes from draft through underwriting and the client’s answer to a bound policy; a row opens it."
+      },
+      "policies": {
+        "title": "Policies",
+        "text": "The register of policies and their contracts — switch views with these tabs."
+      },
+      "limits": {
+        "title": "Credit limit requests",
+        "text": "The limit requests on your clients’ buyers and where each stands. A request is raised from the policy or the submission."
+      }
+    },
+    "commercial": {
+      "welcome": {
+        "text": "A short tour of the Commercial underwriting workspace: policies and their terms, submissions waiting for your review, and the commercial stage of limit decisions. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "policies": {
+        "title": "Policies and your book",
+        "text": "The overview carries your book’s figures; the register, the contracts and their templates are the other views."
+      },
+      "requests": {
+        "title": "Submissions to review",
+        "text": "At commercial review a submission waits for your terms: premium rate, insured percentage, non-qualifying loss, maximum liability."
+      },
+      "limits": {
+        "title": "Limits: the commercial stage",
+        "text": "After the credit decision you may change only the amount and the payment terms, within your own authority; the rating and the conditions stay as credit underwriting decided."
+      }
+    },
+    "creditUnderwriter": {
+      "welcome": {
+        "text": "A short tour of the Credit underwriting workspace: your workbench, the decision queue and the decision form. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "workbench": {
+        "title": "Credit limits: your workbench",
+        "text": "One section, several views: overview, decision queue, active limits, monitoring, ratings, groups, auto decisions and your authority."
+      },
+      "queue": {
+        "title": "The decision queue",
+        "text": "Open requests, with the rating band each would be decided in and whether it is within your authority. A row opens the request."
+      },
+      "decision": {
+        "title": "The decision",
+        "text": "Approve, partially approve or decline — with conditions and payment terms. Above your authority the decision goes up the authority levels for validation, never to one named person."
+      }
+    },
+    "creditAnalyst": {
+      "welcome": {
+        "text": "A short tour of the Credit analysis workspace: rating buyers, confirming ratings, sector grades and country risk. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "ratings": {
+        "title": "The rating worklist",
+        "text": "Buyers waiting for a rating, in order: no financials, not rated, newer statements, older than a year."
+      },
+      "sectors": {
+        "title": "Sectors & Country Risk Categories",
+        "text": "Sector grades A–D with their quarterly reviews, and the OECD country risk categories."
+      }
+    },
+    "information": {
+      "welcome": {
+        "text": "A short tour of the Data management workspace: requests for companies and statements, data freshness and the company registry. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "requests": {
+        "title": "Data requests",
+        "text": "Colleagues ask for a company or its statements here; each request goes to the least-loaded information manager. Take it, resolve it, or reject it with a reason."
+      },
+      "views": {
+        "title": "Freshness and proposed buyers",
+        "text": "The other views list companies with live business whose data is missing or out of date, and the buyers policyholders proposed."
+      },
+      "entities": {
+        "title": "Companies",
+        "text": "The registry of buyers and policyholders. Ratings and decisions rest on the data you keep here."
+      }
+    },
+    "claims": {
+      "welcome": {
+        "text": "A short tour of the Claims workspace: claims with their coverage and indemnity, and the overdue accounts reported before them. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "queue": {
+        "title": "Claims",
+        "text": "Every claim and its status. A claim’s page holds its invoices and coverage, the indemnity, payments and recoveries, and documents."
+      },
+      "overdues": {
+        "title": "Overdue accounts",
+        "text": "Notifications of buyers past their payment terms — the step before a claim."
+      }
+    },
+    "admin": {
+      "welcome": {
+        "text": "A short tour of Administration: users and roles, authority, reference data and settings. Admin is a technical role — it reads the business screens and makes no business decisions. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "tabs": {
+        "title": "Administration",
+        "text": "Users and roles, authorities, risk, policyholder tiers and security — a tab each."
+      },
+      "users": {
+        "title": "Users and roles",
+        "text": "Who holds which role. A person may hold several roles and acts in one at a time; a client account holds the client role alone."
+      },
+      "authorities": {
+        "title": "Authority",
+        "text": "Authority by stream and rating band, the authority levels and the committee, and the decision settings."
+      }
+    },
+    "portal": {
+      "welcome": {
+        "title": "Welcome to the portal",
+        "text": "A short tour of your portal: your policies, credit limits and what you report to us. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "sections": {
+        "title": "Your sections",
+        "text": "Policies, credit limits, declarations, premium, overdue accounts, claims, submissions, offers and contracts — a tab each."
+      },
+      "requestLimit": {
+        "title": "Request a credit limit",
+        "text": "Ask for a limit on a buyer. While a request is open you can change it or withdraw it."
+      },
+      "profile": {
+        "title": "Your profile and display",
+        "text": "Contact details, password, two-factor sign-in and how the portal looks — colour theme, text size and zoom."
+      },
+      "help": {
+        "title": "Help",
+        "text": "The «?» opens help for the portal, in your language."
+      },
+      "finish": {
+        "title": "That is all",
+        "text": "Run this tour again from your profile whenever you like."
+      }
+    },
+    "release202611": {
+      "intro": {
+        "title": "What’s new",
+        "text": "Two additions this month — a minute to see them."
+      },
+      "help": {
+        "title": "The help centre",
+        "text": "The «?» opens a guide to every screen, in English, Russian and Uzbek."
+      },
+      "demo": {
+        "title": "Demo mode",
+        "text": "Demo mode shows the screens with example data, so you can learn a screen before real work reaches it."
+      }
+    }
   }
 }

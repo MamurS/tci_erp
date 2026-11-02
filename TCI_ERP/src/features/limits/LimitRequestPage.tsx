@@ -411,7 +411,7 @@ export function LimitRequestPage() {
               own; `empty:hidden` keeps the commercial one out of the column's
               gap while the section renders itself away. */}
           {showDecisionForm ? (
-            <div id="decision" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
+            <div id="decision" data-tour="limit-decision" className={`rounded-lg ${DEEP_LINK_SCROLL_MARGIN}`}>
               <DecisionForm request={request} onNotice={setNotice} />
             </div>
           ) : (

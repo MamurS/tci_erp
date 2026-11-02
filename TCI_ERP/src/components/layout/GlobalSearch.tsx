@@ -210,7 +210,7 @@ export const GlobalSearch = forwardRef<GlobalSearchHandle>(function GlobalSearch
     : t('search.placeholder')
 
   return (
-    <div className="relative flex h-11 min-w-0 shrink-0 sm:w-full sm:max-w-3xl sm:shrink">
+    <div className="relative flex h-11 min-w-0 shrink-0 sm:w-full sm:max-w-3xl sm:shrink" data-tour="search">
       <Search
         aria-hidden
         className="pointer-events-none absolute top-1/2 left-4 size-[1.125rem] -translate-y-1/2 text-slate-500"
