@@ -1,0 +1,124 @@
+{
+ "files": {
+  "en/quick-start-admin.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 6
+  },
+  "en/quick-start-claims.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 6
+  },
+  "en/quick-start-client.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 3
+  },
+  "en/quick-start-commercial_underwriter.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 6
+  },
+  "en/quick-start-credit_analyst.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 7
+  },
+  "en/quick-start-credit_underwriter.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 7
+  },
+  "en/quick-start-information_manager.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 7
+  },
+  "en/quick-start-sales.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 6
+  },
+  "ru/quick-start-admin.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 6
+  },
+  "ru/quick-start-claims.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 6
+  },
+  "ru/quick-start-client.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 3
+  },
+  "ru/quick-start-commercial_underwriter.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 6
+  },
+  "ru/quick-start-credit_analyst.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 7
+  },
+  "ru/quick-start-credit_underwriter.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 7
+  },
+  "ru/quick-start-information_manager.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 7
+  },
+  "ru/quick-start-sales.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 6
+  },
+  "uz/quick-start-admin.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 6
+  },
+  "uz/quick-start-claims.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 6
+  },
+  "uz/quick-start-client.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 3
+  },
+  "uz/quick-start-commercial_underwriter.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 6
+  },
+  "uz/quick-start-credit_analyst.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 7
+  },
+  "uz/quick-start-credit_underwriter.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 7
+  },
+  "uz/quick-start-information_manager.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 7
+  },
+  "uz/quick-start-sales.pdf": {
+   "version": "0.1.0",
+   "date": "2026-11-02",
+   "pages": 6
+  }
+ }
+}

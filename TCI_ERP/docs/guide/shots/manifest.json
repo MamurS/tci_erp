@@ -1,0 +1,274 @@
+{
+ "shots": {
+  "admin-users": {
+   "alt": {
+    "en": "Admin: the Users & roles, Authorities and Security tabs",
+    "ru": "Администрирование: вкладки «Пользователи и роли», «Полномочия», «Безопасность»",
+    "uz": "Administratsiya: «Foydalanuvchilar va rollar», «Vakolatlar», «Xavfsizlik» varaqlari"
+   },
+   "langs": {
+    "en": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "ru": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "uz": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    }
+   }
+  },
+  "analysis-ratings": {
+   "alt": {
+    "en": "Credit limits › Ratings: the buyers that need a rating, with the reason",
+    "ru": "Кредитные лимиты › Рейтинги: байеры, которым нужен рейтинг, с причиной",
+    "uz": "Kredit limitlari › Reytinglar: reyting kerak bo‘lgan bayerlar va sababi"
+   },
+   "langs": {
+    "en": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "ru": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "uz": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    }
+   }
+  },
+  "claims-queue": {
+   "alt": {
+    "en": "Claims: the claims queue by status",
+    "ru": "Претензии: очередь претензий по статусам",
+    "uz": "Sug‘urta da’volari: holat bo‘yicha da’volar navbati"
+   },
+   "langs": {
+    "en": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "ru": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "uz": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    }
+   }
+  },
+  "commercial-policies": {
+   "alt": {
+    "en": "Policies: the policy register and the section’s views",
+    "ru": "Полисы: реестр полисов с видами раздела",
+    "uz": "Polislar: polislar reyestri va bo‘lim ko‘rinishlari"
+   },
+   "langs": {
+    "en": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "ru": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "uz": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    }
+   }
+  },
+  "credit-queue": {
+   "alt": {
+    "en": "The decision queue: limit requests with their rating band and authority",
+    "ru": "Очередь решений: заявки на лимиты с диапазоном рейтинга и полномочиями",
+    "uz": "Qarorlar navbati: reyting diapazoni va vakolat bilan limit so‘rovlari"
+   },
+   "langs": {
+    "en": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "ru": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "uz": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    }
+   }
+  },
+  "data-requests": {
+   "alt": {
+    "en": "Data management: requests for companies and statements",
+    "ru": "Управление данными: запросы на организации и отчётность",
+    "uz": "Ma’lumotlarni boshqarish: tashkilot va hisobot so‘rovlari"
+   },
+   "langs": {
+    "en": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "ru": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "uz": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    }
+   }
+  },
+  "portal-home": {
+   "alt": {
+    "en": "The policyholder portal: my policies",
+    "ru": "Портал страхователя: мои полисы",
+    "uz": "Sug‘urtalanuvchi portali: mening polislarim"
+   },
+   "langs": {
+    "en": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "ru": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "uz": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    }
+   }
+  },
+  "sales-submissions": {
+   "alt": {
+    "en": "Submissions: the sales queue with each submission’s status",
+    "ru": "Заявки на страхование: очередь продаж со статусами заявок",
+    "uz": "Sug‘urta arizalari: arizalar holati bilan sotuv navbati"
+   },
+   "langs": {
+    "en": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "ru": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "uz": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    }
+   }
+  },
+  "start-agenda": {
+   "alt": {
+    "en": "A credit underwriter’s Agenda: tasks grouped by due date",
+    "ru": "Повестка кредитного андеррайтера: задачи, сгруппированные по сроку",
+    "uz": "Kredit anderrayterining kun tartibi: muddat bo‘yicha guruhlangan vazifalar"
+   },
+   "langs": {
+    "en": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "ru": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "uz": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    }
+   }
+  },
+  "start-sign-in": {
+   "alt": {
+    "en": "The sign-in page: the Email and Password fields and the Sign in button",
+    "ru": "Страница входа: поля «Эл. почта» и «Пароль» и кнопка «Войти»",
+    "uz": "Kirish sahifasi: elektron pochta va parol maydonlari hamda «Kirish» tugmasi"
+   },
+   "langs": {
+    "en": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "ru": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    },
+    "uz": {
+     "version": "0.1.0",
+     "takenAt": "2026-11-02",
+     "width": 2880,
+     "height": 1800
+    }
+   }
+  }
+ }
+}
