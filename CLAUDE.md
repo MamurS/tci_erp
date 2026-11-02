@@ -246,7 +246,6 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 | rating scorecard (0079) | — | **Reyting baholash kartasi** — owner-approved 2026-11-02 |
 | credit analysis mode combined / separate (0069) | — | **birgalikdagi** / **alohida** — owner-approved 2026-11-02 |
 | authority routing direct / sequential (0071) | — | **to‘g‘ridan-to‘g‘ri** / **ketma-ket** — owner-approved 2026-11-02 |
-| demo mode / demo data (0096) | **Демо-режим** / **Демо-данные** | **Demo rejim** / **Demo ma’lumotlar** — owner-approved 2026-11-02 |
 | overdue notification (NOA) | Уведомление о просрочке | **xabarnoma** in every form and suffix (NOT «bildirishnoma») — owner-decided 2026-10-22 |
 | discretionary limit | Дискреционный лимит | **Diskretsion limit** |
 | deductible | Франшиза | **Franshiza** |
