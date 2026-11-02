@@ -9,6 +9,7 @@ import { useAuth } from '../../auth/AuthContext'
 import { GlobalSearch } from './GlobalSearch'
 import type { GlobalSearchHandle } from './GlobalSearch'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { HelpButton } from '../../features/help/HelpButton'
 import { SidebarToggle } from './SidebarToggle'
 import { navIcon } from './navIcons'
 import { sectionFor } from './shell'
@@ -87,6 +88,8 @@ export function Header({ searchRef, toggleSlot, onShowSidebar, sidebarId }: Head
       <GlobalSearch ref={searchRef} />
 
       <div className="flex-1" />
+      {/* The user guide for this page (F1 does the same). */}
+      <HelpButton />
       <LanguageSwitcher />
 
       <div className="relative" ref={menuRef}>

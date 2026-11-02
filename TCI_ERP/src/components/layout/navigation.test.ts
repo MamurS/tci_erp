@@ -7,14 +7,24 @@ import { NAV_ITEMS, canAccessPath, matchNavItem, navItemsForRoles } from './navi
 import type { UserRole } from '../../lib/roles'
 
 const keys = (roles: UserRole[]) => navItemsForRoles(roles).map((i) => i.key)
+/** The departments' screens, without the user guide every staff role has (tested apart). */
+const screens = (roles: UserRole[]) => keys(roles).filter((k) => k !== 'help')
 
 describe('role → screen map', () => {
+  it('every staff role opens the user guide; a client reads it in the portal instead', () => {
+    for (const role of ['admin', 'sales', 'commercial_underwriter', 'credit_underwriter', 'credit_analyst', 'claims', 'information_manager'] as const) {
+      expect(keys([role])).toContain('help')
+      expect(canAccessPath([role], '/help/credit-decide')).toBe(true)
+    }
+    expect(keys(['client'])).not.toContain('help')
+  })
+
   it('admin sees everything', () => {
     expect(keys(['admin'])).toEqual(NAV_ITEMS.map((i) => i.key))
   })
 
   it('matches the documented map per role', () => {
-    expect(keys(['credit_underwriter'])).toEqual([
+    expect(screens(['credit_underwriter'])).toEqual([
       'dashboard',
       'agenda',
       'entities',
@@ -26,7 +36,7 @@ describe('role → screen map', () => {
       'overdues',
       'claims',
     ])
-    expect(keys(['commercial_underwriter'])).toEqual([
+    expect(screens(['commercial_underwriter'])).toEqual([
       'dashboard',
       'agenda',
       'entities',
@@ -40,7 +50,7 @@ describe('role → screen map', () => {
     ])
     // Sales chases declarations (the declaration_due tasks are theirs) and
     // sees the overdue queue, but does not accept or dispute.
-    expect(keys(['sales'])).toEqual([
+    expect(screens(['sales'])).toEqual([
       'dashboard',
       'agenda',
       'entities',
@@ -51,9 +61,9 @@ describe('role → screen map', () => {
       'declarations',
       'overdues',
     ])
-    expect(keys(['information_manager'])).toEqual(['dashboard', 'agenda', 'entities', 'sanctions', 'data'])
-    expect(keys(['credit_analyst'])).toEqual(['dashboard', 'agenda', 'entities', 'limits', 'sectors', 'sanctions'])
-    expect(keys(['claims'])).toEqual([
+    expect(screens(['information_manager'])).toEqual(['dashboard', 'agenda', 'entities', 'sanctions', 'data'])
+    expect(screens(['credit_analyst'])).toEqual(['dashboard', 'agenda', 'entities', 'limits', 'sectors', 'sanctions'])
+    expect(screens(['claims'])).toEqual([
       'dashboard',
       'agenda',
       'entities',
@@ -77,7 +87,7 @@ describe('role → screen map', () => {
   })
 
   it('multi-role users get the union', () => {
-    expect(keys(['claims', 'sales'])).toEqual([
+    expect(screens(['claims', 'sales'])).toEqual([
       'dashboard',
       'agenda',
       'entities',
@@ -107,7 +117,7 @@ describe('role → screen map', () => {
   })
 
   it('a user with no roles sees nothing', () => {
-    expect(keys([])).toEqual([])
+    expect(screens([])).toEqual([])
   })
 })
 

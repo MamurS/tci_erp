@@ -97,6 +97,9 @@ export const NAV_ITEMS: readonly NavItem[] = [
   // approved offer template (src/features/offers/kp); /brochure redirects to
   // the submissions.
   { key: 'admin', path: '/admin', roles: ['admin'] },
+  // The user guide (docs/guide): every staff role, like the Agenda. The
+  // portal has its own, client-only face at /portal/help.
+  { key: 'help', path: '/help', roles: STAFF },
 ]
 
 export function navItemsForRoles(roles: readonly UserRole[]): readonly NavItem[] {

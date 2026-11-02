@@ -64,7 +64,8 @@
     },
     "data": "Data management",
     "sectors": "Sectors & Country Risk Categories",
-    "sanctions": "Sanctions"
+    "sanctions": "Sanctions",
+    "help": "Help"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -7530,5 +7531,43 @@
       "noOverride": "The tier is already automatic.",
       "thresholdsInvalid": "Every threshold must be above zero and rise from silver to platinum."
     }
+  },
+  "help": {
+    "title": "Help centre",
+    "version": "User guide · version {{version}}",
+    "welcome": "How to work in TCI ERP",
+    "welcomeText": "Step-by-step instructions for every role: what the role does, its working day, its screens and the rules the system enforces. Press F1 or «?» on any screen to open the topic about that screen.",
+    "welcomeTextPortal": "How to use the policyholder portal: your policies, credit limits, declarations, premium, overdue accounts, claims and offers.",
+    "searchPlaceholder": "Search the guide",
+    "searchLabel": "Search the user guide",
+    "home": "Help home",
+    "contents": "Contents",
+    "forYourRole": "For your role",
+    "forEveryone": "For everyone",
+    "otherRoles": "Other roles",
+    "resultsCount_one": "{{count}} topic found",
+    "resultsCount_other": "{{count}} topics found",
+    "noResults": "Nothing in the guide matches «{{q}}».",
+    "noResultsHint": "Check the spelling or try a shorter word: every word of the query must appear in the topic.",
+    "notFound": "This topic is not in the guide.",
+    "notFoundHint": "It may have been renamed. Open the Help home and use the search.",
+    "openForPage": "Help for this page",
+    "inThisTopic": "In this topic",
+    "onThisPage": "Also for this page",
+    "prevTopic": "Previous topic",
+    "nextTopic": "Next topic",
+    "print": "Print",
+    "glossary": "Glossary",
+    "faq": "Questions and answers",
+    "replayTour": "Replay the tour",
+    "quickStart": "Quick start (PDF)",
+    "quickStartHint": "A few printable pages per role: the first steps and the working day. Yours comes first.",
+    "pdf": {
+      "title": "Quick start: {{role}}",
+      "subtitle": "TCI ERP user guide",
+      "version": "Version {{version}}",
+      "page": "Page {{page}} of {{pages}}"
+    },
+    "openHome": "Open the Help home"
   }
 }
