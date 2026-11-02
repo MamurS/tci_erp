@@ -239,6 +239,14 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 | beneficial owner (0091) | **Бенефициарный владелец** — owner-decided 2026-10-28 | **Benefitsiar mulkdor** — the term of Uzbekistan's AML law (NOT «benefitsiar ega»); as above |
 | hand a task to a colleague (Agenda, 0092 — one task and many) | **Передать коллеге** (NOT «Передать задачи коллеге») — owner-decided 2026-10-28 | **Hamkasbga topshirish** (as above) |
 | portal search placeholder (0094 batch) | «Поиск по байеру, полису, сумме или статусу — условия через запятую» and its siblings — owner-approved 2026-10-28 | «Bayer, polis, summa yoki holat bo‘yicha qidirish — shartlarni vergul bilan ajrating» — owner-approved 2026-10-28 |
+| insured percentage (uz, user guide) | — | **qoplash foizi** — owner-approved 2026-11-02 (the locale's «Sug‘urta qoplamasi» on the policy terms is left as is) |
+| aggregate first loss, short form (uz) | — | **agregat franshiza** (full: «Birinchi zarar bo‘yicha agregat franshiza») — owner-approved 2026-11-02 |
+| maximum liability | **Максимальный лимит ответственности** — owner-approved 2026-11-02 | — |
+| waiting period | **Период ожидания** — owner-approved 2026-11-02 | — |
+| rating scorecard (0079) | — | **Reyting baholash kartasi** — owner-approved 2026-11-02 |
+| credit analysis mode combined / separate (0069) | — | **birgalikdagi** / **alohida** — owner-approved 2026-11-02 |
+| authority routing direct / sequential (0071) | — | **to‘g‘ridan-to‘g‘ri** / **ketma-ket** — owner-approved 2026-11-02 |
+| demo mode / demo data (0096) | **Демо-режим** / **Демо-данные** | **Demo rejim** / **Demo ma’lumotlar** — owner-approved 2026-11-02 |
 | overdue notification (NOA) | Уведомление о просрочке | **xabarnoma** in every form and suffix (NOT «bildirishnoma») — owner-decided 2026-10-22 |
 | discretionary limit | Дискреционный лимит | **Diskretsion limit** |
 | deductible | Франшиза | **Franshiza** |
