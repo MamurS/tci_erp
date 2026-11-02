@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from 'react'
 import { DisplaySettings } from '../account/UiScalePicker'
+import { DemoModeSwitch } from '../demo'
 import { useTranslation } from 'react-i18next'
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -133,6 +134,9 @@ export function PortalAccountPage() {
 
         <Panel title={t('account.display.title')}>
           <DisplaySettings />
+          <div className="mt-4">
+            <DemoModeSwitch offerSwitch={false} />
+          </div>
         </Panel>
 
         <MfaSection />

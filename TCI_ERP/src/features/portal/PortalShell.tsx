@@ -11,6 +11,7 @@ import { PageLoading } from '../../components/layout/PageLoading'
 import { SignInNotice } from '../../auth/SignInNotice'
 import { NewVersionNotice } from '../../components/layout/NewVersionNotice'
 import { useNewVersion } from '../../lib/useNewVersion'
+import { DemoBanner, useDemoModeTabSync } from '../demo'
 import { useTranslation } from 'react-i18next'
 import { LogOut } from 'lucide-react'
 
@@ -22,6 +23,7 @@ import { useMyEntity } from './api'
 
 export function PortalShell() {
   const newVersion = useNewVersion()
+  useDemoModeTabSync()
   const { t } = useTranslation()
   const { session, signOut } = useAuth()
   // A policyholder reads a few rows at a time: relaxed rows by default.
@@ -98,6 +100,7 @@ export function PortalShell() {
         </nav>
       </header>
 
+      <DemoBanner />
       <main className="mx-auto w-full max-w-[96rem] flex-1 px-6 py-7">
         <SignInNotice accountPath="/portal/account" />
         <TablePrefsContext.Provider value={tablePrefs}>

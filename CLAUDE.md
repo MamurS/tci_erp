@@ -1721,6 +1721,12 @@ statement the check objects to; still never disguise it.
 «deleted» in a comment and `deleted_at` passed. Keep guards BEFORE UPDATE
 only (no API role holds DELETE) and build batches without temporary tables.
 
+*Update 2026-11-02:* the hold is LIFTED — a statement containing DELETE (and
+DROP) ran through `execute_sql` and `apply_migration` without an approval
+prompt (probed 2026-11-02, before the demo-data migrations, whose unload deletes). If a call
+ever times out again, the rules above still apply: check that nothing
+reached the database, then hand the statement to the owner.
+
 ### Sign-in notice rules (migration 0062)
 
 **A success must be recorded, or every success is a failure.** `login_begin`
@@ -2912,6 +2918,70 @@ underwriting, a reason, optionally until a date) ends the previous one and
 wins while live; `end_policyholder_tier_override` returns to automatic. Rows
 are ended once, never changed. Thresholds are admin's
 (`set_policyholder_tier_thresholds`, rising from silver to platinum).
+
+### Demo data rules (migrations 0096–0097, Prompt 32)
+
+**Demo data is a world of its own, chosen per person** (as in
+mig-inward-re). The 67 business tables of `tci.demo_world_tables()` carry
+`is_demo` (default `tci.demo_mode()`); a RESTRICTIVE policy «<table>: demo
+world» on each lets a person read and write only the rows of their world.
+`tci.demo_mode()` (security invoker, the caller's own profile) = a demo
+account (`user_profiles.is_demo_user`, the `@demo.invalid` accounts) or a
+real person who switched demo mode on (`ui_demo_mode`, column grant, own
+row). Nothing is global: one admin loading demo data changes nothing for a
+colleague in normal mode. New accounts start in normal mode unless admin
+sets `workflow_settings.new_users_demo_mode` (`set_new_users_demo_mode`).
+A real client has nothing in the demo world, so the portal shows the banner
+to demo clients but offers real clients no switch.
+
+**The guard trigger keeps the worlds apart** (`tci.demo_guard`, `zz_demo_guard`
+BEFORE every write on the 67 tables). A row takes the world of what it links
+to — every FK in `tci.demo_links` (`refresh_demo_links`, internal) and, for
+`tasks` / `workflow_events`, the object (`tci.demo_object_table`); links into
+both worlds raise `demo_world_mixed` (23514); `is_demo` never changes
+(`demo_world_immutable`); outside trusted workflow code a person writes only
+their own world (`demo_world_wrong_mode`, 42501). Demo companies are named
+«DEMO …» and demo policy numbers «DEMO-…» BY THE DATABASE, and the prefixes
+are reserved for demo rows (`demo_name_reserved`; checks
+`legal_entities_demo_name`, `policies_demo_number`). Tasks and events on the
+SHARED objects — the sanctions lists, the OECD lists — are real, and a real
+task is never addressed to a demo account (it falls back to the
+department). `tci.demo_link_violations()` (admin) lists any mixed link; it
+must stay empty.
+
+**Readers inside SECURITY DEFINER functions are world-aware.** A definer
+function reads as the owner, past RLS, so 0096 patched each one that picks
+or counts across companies — country overrides and flags, the sector grade,
+the cover matrix and concentration, the client search, the duplicate check
+of `request_entity`, the sector tasks — and every person picker
+(`pick_information_manager`, `pick_credit_analyst`, `underwriters_covering`,
+validators, level members, colleagues, hand-over candidates) adds
+`tci.user_in_world(id)`: demo accounts never receive real work. A new
+definer reader of business rows needs the same filter.
+
+**Load and unload are admin's, and they go through the workflow.**
+`tci.seed_demo_data(password?)` creates 13 demo accounts (one per role,
+`demo.<key>@demo.invalid`, a password only if given, ≥ 12), seats them on
+the authority levels where nobody sits, and builds the book by IMPERSONATING
+them through the real workflow functions (`_demo_act` sets the JWT claims)
+— so every task, event, validation step and supersede is the one a person
+would have produced; dates are relative to today; loading twice answers
+`already_loaded`. `tci.delete_demo_data()` removes every demo row — the
+append-only tables included, their guards letting a demo row pass only under
+the unload's marker (`tci.demo_unload` + the internal token) — in one
+statement, deletes the demo accounts (or bans one still referenced),
+refuses to remove any real row, asserts zero demo rows afterwards, and
+returns the counts before and after. The `_demo_*` helpers are executable by
+no API role (asserted). `tests/db/demo_worlds.sql`, `tests/db/demo_seed.sql`.
+
+**The screens.** Admin › «Демо-данные» (`DemoDataTab`: counts per area, load
+with an optional password, check links, unload after typing «DEMO», the
+new-accounts setting); the switch in the user menu, on the account page and
+as a chip on the dashboard band; while in the demo world a slim bar above
+every page («Вернуться к настоящим данным», not for demo accounts) and a
+«DEMO» mark in the top bar. A switch resets the query cache and is followed
+by other tabs (`tci-erp-demo-mode`). `demo/model.ts` mirrors the table list
+and the rules (contract-tested).
 
 ### Credit workbench rules (migration 0053)
 

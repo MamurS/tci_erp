@@ -13,6 +13,7 @@ import { PageLoading } from './PageLoading'
 import { SignInNotice } from '../../auth/SignInNotice'
 import { NewVersionNotice } from './NewVersionNotice'
 import { useNewVersion } from '../../lib/useNewVersion'
+import { DemoBanner, useDemoModeTabSync } from '../../features/demo'
 import { useUiScaleValue } from '../../lib/uiScale'
 import { useAuth } from '../../auth/AuthContext'
 import { TablePrefsContext } from '../ui/tablePrefs'
@@ -97,6 +98,7 @@ const SIDEBAR_ID = 'app-sidebar'
  */
 export function AppShell() {
   const newVersion = useNewVersion()
+  useDemoModeTabSync()
   const { session } = useAuth()
   const userId = session?.user.id ?? 'anonymous'
   const tablePrefs = useMemo(() => ({ user: userId, defaultDensity: 'regular' as const }), [userId])
@@ -262,6 +264,8 @@ export function AppShell() {
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
+        {/* Demo world (0096): a slim bar for the whole session, so nothing moves. */}
+        <DemoBanner />
         <Header
           searchRef={searchRef}
           toggleSlot={pinned ? 'none' : isDesktop ? 'spacer' : 'button'}

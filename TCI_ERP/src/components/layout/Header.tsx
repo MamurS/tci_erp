@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { RefObject } from 'react'
 import { DisplaySettings } from '../../features/account/UiScalePicker'
+import { DemoMark, DemoModeSwitch } from '../../features/demo'
 import { Link, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ChevronDown, LogOut, UserRound } from 'lucide-react'
@@ -84,6 +85,7 @@ export function Header({ searchRef, toggleSlot, onShowSidebar, sidebarId }: Head
           <span className="truncate">{t(`nav.${section.key}`)}</span>
         </Link>
       )}
+      <DemoMark />
       <GlobalSearch ref={searchRef} />
 
       <div className="flex-1" />
@@ -135,6 +137,10 @@ export function Header({ searchRef, toggleSlot, onShowSidebar, sidebarId }: Head
             {/* Text size (0081) and zoom (0076), one click away. */}
             <div className="border-b border-slate-100 px-4 py-3">
               <DisplaySettings compact />
+            </div>
+            {/* Demo data (0096): the person's own world, one click away. */}
+            <div className="border-b border-slate-100 px-4 py-3">
+              <DemoModeSwitch compact />
             </div>
             {/* Password, second factor and sessions live on the account page. */}
             <Link

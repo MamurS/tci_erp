@@ -18,8 +18,9 @@ import { RiskTab } from './risk/RiskTab'
 import { SecurityTab } from './SecurityTab'
 import { UsersRolesTab } from './UsersRolesTab'
 import { useAdminUsers } from './api'
+import { DemoDataTab } from '../demo'
 
-type TabKey = 'users' | 'authorities' | 'risk' | 'tiers' | 'security'
+type TabKey = 'users' | 'authorities' | 'risk' | 'tiers' | 'security' | 'demo'
 
 export function AdminPage() {
   const { t } = useTranslation()
@@ -29,7 +30,11 @@ export function AdminPage() {
 
   const requested = searchParams.get('tab')
   const activeTab: TabKey =
-    requested === 'authorities' || requested === 'risk' || requested === 'tiers' || requested === 'security'
+    requested === 'authorities' ||
+    requested === 'risk' ||
+    requested === 'tiers' ||
+    requested === 'security' ||
+    requested === 'demo'
       ? requested
       : 'users'
   const selectedUser = users?.find((u) => u.user_id === selectedUserId) ?? null
@@ -53,6 +58,7 @@ export function AdminPage() {
           { key: 'risk', label: t('admin.tabs.risk') },
           { key: 'tiers', label: t('admin.tabs.tiers') },
           { key: 'security', label: t('admin.tabs.security') },
+          { key: 'demo', label: t('admin.tabs.demo') },
         ]}
         active={activeTab}
         onChange={(key) => setSearchParams({ tab: key }, { replace: true })}
@@ -87,6 +93,8 @@ export function AdminPage() {
         {/* Policyholder tier thresholds (0094). */}
         {activeTab === 'tiers' && <TierThresholdsCard />}
         {activeTab === 'security' && <SecurityTab />}
+        {/* Demo data: load, check, unload (0096–0097). */}
+        {activeTab === 'demo' && <DemoDataTab />}
       </div>
     </div>
   )

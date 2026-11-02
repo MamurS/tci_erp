@@ -2429,7 +2429,8 @@
       "authorities": "Vakolatlar",
       "security": "Xavfsizlik",
       "risk": "Risklar",
-      "tiers": "Sug‘urtalanuvchilar darajalari"
+      "tiers": "Sug‘urtalanuvchilar darajalari",
+      "demo": "Demo ma’lumotlar"
     },
     "noUsers": "Hozircha foydalanuvchilar yo‘q",
     "editRoles": "Rollar",
@@ -7529,6 +7530,70 @@
       "notPolicyholder": "Tashkilotda polis yo‘q, shuning uchun uning darajasi yo‘q.",
       "noOverride": "Daraja allaqachon avtomatik.",
       "thresholdsInvalid": "Har bir chegara noldan katta bo‘lishi va kumushdan platinagacha o‘sib borishi kerak."
+    }
+  },
+  "demo": {
+    "mark": "DEMO",
+    "mode": {
+      "title": "Demo ma’lumotlar",
+      "label": "Demo rejim",
+      "hint": "Haqiqiy ma’lumotlar o‘rniga namoyish ma’lumotlarini ko‘rsatadi: «DEMO» belgisi bilan to‘qima tashkilotlar, polislar va limitlar. Demo rejimda qilgan ishlaringiz demo ma’lumotlarda qoladi.",
+      "demoAccount": "Bu namoyish hisobi: u faqat demo ma’lumotlarni ko‘radi va o‘zgartiradi.",
+      "saveFailed": "Demo rejimni almashtirib bo‘lmadi. Qayta urinib ko‘ring.",
+      "enter": "Demo ma’lumotlarni ko‘rsatish",
+      "leave": "Demo rejimdan chiqish"
+    },
+    "banner": {
+      "title": "Demo rejim.",
+      "body": "Siz namoyish ma’lumotlarini ko‘ryapsiz; bu yerda haqiqiy operatsiyalar yo‘q.",
+      "leave": "Haqiqiy ma’lumotlarga qaytish"
+    },
+    "areas": {
+      "companies": "Tashkilotlar va guruhlar",
+      "credit": "Reytinglar va limitlar",
+      "policies": "Polislar, mukofot va takliflar",
+      "claims": "Muddati o‘tganlar va da’volar",
+      "agenda": "Kun tartibi va hodisalar"
+    },
+    "admin": {
+      "title": "Demo ma’lumotlar",
+      "hint": "O‘qitish va namoyish uchun to‘liq to‘qima portfel. U haqiqiy ma’lumotlardan alohida saqlanadi: uni faqat demo rejimni yoqqanlar ko‘radi.",
+      "state": "Holat",
+      "loaded": "Yuklangan",
+      "notLoaded": "Yuklanmagan",
+      "loadedAt": "{{at}} dan beri",
+      "rows": "Qatorlar",
+      "users": "Demo hisoblar",
+      "load": "Demo ma’lumotlarni yuklash",
+      "check": "Bog‘lanishlarni tekshirish",
+      "unload": "Demo ma’lumotlarni o‘chirish",
+      "loadedNote": "Sanalarni yangilash uchun demo ma’lumotlarni o‘chiring va qayta yuklang.",
+      "alreadyLoaded": "Demo ma’lumotlar allaqachon yuklangan",
+      "loadDone": "Demo ma’lumotlar yuklandi",
+      "loadDoneBody": "Qatorlar: {{rows}}, demo hisoblar: {{users}}.",
+      "unloadDone": "Demo ma’lumotlar o‘chirildi",
+      "unloadDoneBody": "O‘chirishdan oldin qatorlar: {{before}}, keyin: {{after}}. O‘chirilgan demo hisoblar: {{users}}.",
+      "usersBanned_one": "{{count}} ta demo hisob hali ma’lumotlarda tilga olinadi va o‘chirish o‘rniga bloklandi.",
+      "usersBanned_other": "{{count}} ta demo hisob hali ma’lumotlarda tilga olinadi va o‘chirish o‘rniga bloklandi.",
+      "checkClean": "Hech bir qator demo ma’lumotlarni haqiqiylari bilan bog‘lamaydi.",
+      "checkFound_one": "Demo va haqiqiy ma’lumotlar o‘rtasida {{count}} ta bog‘lanish topildi",
+      "checkFound_other": "Demo va haqiqiy ma’lumotlar o‘rtasida {{count}} ta bog‘lanish topildi",
+      "newUsers": "Yangi hisoblar boshlanadi",
+      "newUsersHint": "Hisob yaratilgandan so‘ng kishi qaysi ma’lumotlarni ko‘radi. Keyinchalik har kim o‘zi almashtira oladi.",
+      "newUsersReal": "Haqiqiy ma’lumotlar bilan",
+      "newUsersDemo": "Demo rejimda",
+      "loadTitle": "Demo ma’lumotlarni yuklash",
+      "loadBody": "Bugungi kunga nisbatan sanali namoyish tashkilotlari, polislar, limitlar, da’volar va vazifalarni hamda har bir rol uchun demo hisoblarni (@demo.invalid manzillari) yaratadi. Haqiqiy ma’lumotlarga tegilmaydi.",
+      "loadConfirm": "Demo ma’lumotlarni yuklash",
+      "loadFailed": "Demo ma’lumotlarni yuklab bo‘lmadi.",
+      "password": "Demo hisoblar paroli",
+      "passwordHint": "Ixtiyoriy, kamida 12 belgi. Demo hisoblarga kirib bo‘lmasligi uchun bo‘sh qoldiring.",
+      "passwordTooShort": "Parol kamida 12 belgidan iborat bo‘lishi kerak.",
+      "unloadTitle": "Demo ma’lumotlarni o‘chirish",
+      "unloadBody": "Barcha demo qatorlarni ({{rows}}) va demo hisoblarni ({{users}}), demo ma’lumotlar tarixi bilan birga o‘chiradi. Haqiqiy ma’lumotlarga tegilmaydi. Bu amal qaytarilmas.",
+      "unloadType": "Tasdiqlash uchun {{word}} deb yozing",
+      "unloadConfirm": "Demo ma’lumotlarni o‘chirish",
+      "unloadFailed": "Demo ma’lumotlarni o‘chirib bo‘lmadi."
     }
   }
 }

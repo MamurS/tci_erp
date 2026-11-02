@@ -71,6 +71,7 @@ import {
 import { todayIso } from '../components/ui/dateEntry'
 import { buildSignals, dayPart, gradeExposure, gradeMix } from './dashboard'
 import type { Signal } from './dashboard'
+import { DemoModeChip } from '../features/demo'
 
 const TASKS_SHOWN = 7
 
@@ -172,6 +173,7 @@ export function DashboardPage() {
         subtitle={
           roles.length ? roles.map((r) => t(`roles.${r}`)).join(' · ') : t('roles.unassigned')
         }
+        actions={isStaff(roles) ? <DemoModeChip /> : undefined}
       >
         <Kpi
           to="/policies?view=registry"

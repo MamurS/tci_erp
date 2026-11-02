@@ -2429,7 +2429,8 @@
       "authorities": "Authorities",
       "security": "Security",
       "risk": "Risk",
-      "tiers": "Policyholder tiers"
+      "tiers": "Policyholder tiers",
+      "demo": "Demo data"
     },
     "noUsers": "No users yet",
     "editRoles": "Roles",
@@ -7529,6 +7530,70 @@
       "notPolicyholder": "This company holds no policy, so it has no tier.",
       "noOverride": "The tier is already automatic.",
       "thresholdsInvalid": "Every threshold must be above zero and rise from silver to platinum."
+    }
+  },
+  "demo": {
+    "mark": "DEMO",
+    "mode": {
+      "title": "Demo data",
+      "label": "Demo mode",
+      "hint": "Shows the demonstration data instead of the real data: made-up companies, policies and limits named «DEMO». What you do in demo mode stays in the demo data.",
+      "demoAccount": "This is a demonstration account: it sees and changes demo data only.",
+      "saveFailed": "Demo mode could not be switched. Try again.",
+      "enter": "Show demo data",
+      "leave": "Leave demo mode"
+    },
+    "banner": {
+      "title": "Demo mode.",
+      "body": "You are looking at demonstration data; nothing here is real business.",
+      "leave": "Back to real data"
+    },
+    "areas": {
+      "companies": "Companies and groups",
+      "credit": "Ratings and limits",
+      "policies": "Policies, premium and offers",
+      "claims": "Overdues and claims",
+      "agenda": "Agenda and events"
+    },
+    "admin": {
+      "title": "Demo data",
+      "hint": "A complete, made-up book for training and demonstrations. It lives apart from the real data: only people in demo mode see it.",
+      "state": "State",
+      "loaded": "Loaded",
+      "notLoaded": "Not loaded",
+      "loadedAt": "since {{at}}",
+      "rows": "Rows",
+      "users": "Demo accounts",
+      "load": "Load demo data",
+      "check": "Check links",
+      "unload": "Remove demo data",
+      "loadedNote": "To refresh the dates, remove the demo data and load it again.",
+      "alreadyLoaded": "The demo data is already loaded",
+      "loadDone": "Demo data loaded",
+      "loadDoneBody": "{{rows}} rows and {{users}} demo accounts.",
+      "unloadDone": "Demo data removed",
+      "unloadDoneBody": "Rows before: {{before}}, after: {{after}}. Demo accounts removed: {{users}}.",
+      "usersBanned_one": "{{count}} demo account is still referenced and was blocked instead of removed.",
+      "usersBanned_other": "{{count}} demo accounts are still referenced and were blocked instead of removed.",
+      "checkClean": "No row links demo data with real data.",
+      "checkFound_one": "{{count}} link between demo and real data found",
+      "checkFound_other": "{{count}} links between demo and real data found",
+      "newUsers": "New accounts start in",
+      "newUsersHint": "Which data a person sees right after their account is created. Each person can switch later.",
+      "newUsersReal": "Real data",
+      "newUsersDemo": "Demo mode",
+      "loadTitle": "Load demo data",
+      "loadBody": "Creates demo companies, policies, limits, claims and tasks, dated relative to today, and demo accounts for each role (e-mail addresses ending in @demo.invalid). Real data is not touched.",
+      "loadConfirm": "Load demo data",
+      "loadFailed": "The demo data could not be loaded.",
+      "password": "Password for the demo accounts",
+      "passwordHint": "Optional, at least 12 characters. Leave it empty to keep the accounts without a usable password.",
+      "passwordTooShort": "The password needs at least 12 characters.",
+      "unloadTitle": "Remove demo data",
+      "unloadBody": "Removes all {{rows}} demo rows and {{users}} demo accounts, including the history of the demo data. Real data is not touched. This cannot be undone.",
+      "unloadType": "Type {{word}} to confirm",
+      "unloadConfirm": "Remove demo data",
+      "unloadFailed": "The demo data could not be removed."
     }
   }
 }
