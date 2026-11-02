@@ -1728,11 +1728,12 @@ statement the check objects to; still never disguise it.
 «deleted» in a comment and `deleted_at` passed. Keep guards BEFORE UPDATE
 only (no API role holds DELETE) and build batches without temporary tables.
 
-*Update 2026-11-02:* the hold is LIFTED — a statement containing DELETE (and
-DROP) ran through `execute_sql` and `apply_migration` without an approval
-prompt (probed 2026-11-02, before the demo-data migrations, whose unload deletes). If a call
-ever times out again, the rules above still apply: check that nothing
-reached the database, then hand the statement to the owner.
+*Update 2026-11-02:* NOT lifted. A short probe statement containing DELETE
+and DROP ran without a prompt, but the first canonical call of the demo-data
+migrations (0096's text, ~34 KB, with DELETE / DROP inside function bodies)
+was held for an approval question and timed out unanswered. Treat the hold as
+in force: check that nothing reached the database, then hand the statement to
+the owner (or have them answer the connector's question).
 
 ### Sign-in notice rules (migration 0062)
 
