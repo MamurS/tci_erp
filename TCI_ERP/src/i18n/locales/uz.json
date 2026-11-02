@@ -64,7 +64,8 @@
     },
     "data": "Ma’lumotlarni boshqarish",
     "sectors": "Sektorlar va mamlakat riski toifalari",
-    "sanctions": "Sanksiyalar"
+    "sanctions": "Sanksiyalar",
+    "help": "Yordam"
   },
   "auth": {
     "signInTitle": "Tizimga kirish",
@@ -7595,5 +7596,43 @@
       "unloadConfirm": "Demo ma’lumotlarni o‘chirish",
       "unloadFailed": "Demo ma’lumotlarni o‘chirib bo‘lmadi."
     }
+  },
+  "help": {
+    "title": "Yordam markazi",
+    "version": "Foydalanuvchi qo‘llanmasi · {{version}} versiya",
+    "welcome": "TCI ERP bilan qanday ishlash kerak",
+    "welcomeText": "Har bir rol uchun bosqichma-bosqich ko‘rsatmalar: rol nima bilan shug‘ullanadi, uning ish kuni, ekranlari va tizim amal qiladigan qoidalar. Istalgan ekranda F1 yoki «?» tugmasini bosing — shu ekran haqidagi maqola ochiladi.",
+    "welcomeTextPortal": "Sug‘urtalanuvchi portalidan qanday foydalanish: polislaringiz, kredit limitlari, deklaratsiyalar, sug‘urta mukofoti, muddati o‘tgan qarzlar, da’volar va takliflar.",
+    "searchPlaceholder": "Qo‘llanmadan qidirish",
+    "searchLabel": "Foydalanuvchi qo‘llanmasidan qidirish",
+    "home": "Yordam bosh sahifasi",
+    "contents": "Mundarija",
+    "forYourRole": "Sizning rolingiz uchun",
+    "forEveryone": "Hamma uchun",
+    "otherRoles": "Boshqa rollar",
+    "resultsCount_one": "{{count}} ta maqola topildi",
+    "resultsCount_other": "{{count}} ta maqola topildi",
+    "noResults": "Qo‘llanmada «{{q}}» bo‘yicha hech narsa topilmadi.",
+    "noResultsHint": "Yozilishini tekshiring yoki qisqaroq so‘z bilan urinib ko‘ring: maqolada so‘rovning barcha so‘zlari bo‘lishi kerak.",
+    "notFound": "Qo‘llanmada bunday maqola yo‘q.",
+    "notFoundHint": "Ehtimol, u qayta nomlangan. Yordam bosh sahifasini oching va qidiruvdan foydalaning.",
+    "openForPage": "Ushbu sahifa bo‘yicha yordam",
+    "inThisTopic": "Ushbu maqolada",
+    "onThisPage": "Shu sahifa bo‘yicha yana",
+    "prevTopic": "Oldingi maqola",
+    "nextTopic": "Keyingi maqola",
+    "print": "Chop etish",
+    "glossary": "Lug‘at",
+    "faq": "Savol-javoblar",
+    "replayTour": "Tanishtiruvni qayta ko‘rish",
+    "quickStart": "Tezkor boshlash (PDF)",
+    "quickStartHint": "Har bir rol uchun chop etiladigan bir necha sahifa: dastlabki qadamlar va ish kuni. Sizning rolingiz birinchi.",
+    "pdf": {
+      "title": "Tezkor boshlash: {{role}}",
+      "subtitle": "TCI ERP foydalanuvchi qo‘llanmasi",
+      "version": "{{version}} versiya",
+      "page": "{{pages}} betdan {{page}}-bet"
+    },
+    "openHome": "Yordam bosh sahifasini ochish"
   }
 }

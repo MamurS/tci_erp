@@ -68,6 +68,9 @@ const PortalOfferPage = lazyPage(offers, 'PortalOfferPage')
 const AdminPage = lazyPage(() => import('./features/admin'), 'AdminPage')
 const TokensPage = lazyPage(() => import('./features/admin'), 'TokensPage')
 const AgendaPage = lazyPage(() => import('./features/agenda'), 'AgendaPage')
+const help = () => import('./features/help')
+const HelpPage = lazyPage(help, 'HelpPage')
+const PortalHelpPage = lazyPage(help, 'PortalHelpPage')
 const account = () => import('./features/account')
 const AccountPage = lazyPage(account, 'AccountPage')
 const ChangePasswordPage = lazyPage(account, 'ChangePasswordPage')
@@ -128,6 +131,10 @@ export default function App() {
               <Route path="offers" element={<PortalOffersPage />} />
               <Route path="offers/:offerId" element={<PortalOfferPage />} />
               <Route path="account" element={<PortalAccountPage />} />
+              {/* The user guide, portal face: the client topics only. */}
+              <Route path="help" element={<PortalHelpPage />} />
+              <Route path="help/:topicId" element={<PortalHelpPage />} />
+              <Route path="help/term/:termId" element={<PortalHelpPage />} />
             </Route>
           </Route>
           </Route>
@@ -155,6 +162,10 @@ export default function App() {
               <Route element={<RoleGuard />}>
                 <Route index element={<DashboardPage />} />
                 <Route path="agenda" element={<AgendaPage />} />
+                {/* The user guide (docs/guide, compiled by scripts/guide): a shared tool like the Agenda. */}
+                <Route path="help" element={<HelpPage />} />
+                <Route path="help/:topicId" element={<HelpPage />} />
+                <Route path="help/term/:termId" element={<HelpPage />} />
                 <Route path="entities" element={<EntitiesPage />} />
                 <Route path="entities/:id" element={<EntityDetailPage />} />
                 <Route path="entities/:id/statements/new" element={<StatementFormPage />} />

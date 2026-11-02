@@ -3,6 +3,7 @@ import {
   BriefcaseBusiness,
   Building2,
   ChartColumnBig,
+  CircleHelp,
   ClipboardList,
   DatabaseZap,
   FileText,
@@ -33,6 +34,7 @@ export const NAV_ICONS: Record<string, LucideIcon> = {
   claims: FileWarning,
   data: DatabaseZap,
   admin: Settings,
+  help: CircleHelp,
 }
 
 export function navIcon(key: string): LucideIcon {

@@ -24,6 +24,7 @@ export interface RouteEntry {
 
 const FORM = 'a form: no table or list, nothing in rows to interact with'
 const REDIRECT = 'a redirect to another route, which is covered under its own path'
+const HELP = 'the Help centre: the compiled user guide, text and links only (no table or list to guard)'
 const CONCURRENT =
   'contract drafts, added in the same round by another workstream: record them (tools/layout-fixtures/record.mjs) and give them a role once they land'
 
@@ -105,6 +106,14 @@ export const ROUTES: Record<string, RouteEntry> = {
   '/policies/contracts/:draftId/edit': { skip: CONCURRENT },
   '/policies/contracts/:draftId/compare': { skip: CONCURRENT },
   '*': { skip: 'not-found page' },
+  // The user guide (docs/guide, compiled by scripts/guide): text, no table or
+  // list and no backend call; e2e/guide/help.spec.ts opens it.
+  '/help': { skip: HELP },
+  '/help/:topicId': { skip: HELP },
+  '/help/term/:termId': { skip: 'redirects to the glossary entry' },
+  '/portal/help': { skip: HELP },
+  '/portal/help/:topicId': { skip: HELP },
+  '/portal/help/term/:termId': { skip: 'redirects to the glossary entry' },
 }
 
 /**

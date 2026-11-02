@@ -1,0 +1,402 @@
+{
+ "/login": [
+  {
+   "id": "start-sign-in",
+   "roles": [
+    "all"
+   ]
+  }
+ ],
+ "/mfa/verify": [
+  {
+   "id": "start-sign-in",
+   "roles": [
+    "all"
+   ]
+  }
+ ],
+ "/change-password": [
+  {
+   "id": "start-sign-in",
+   "roles": [
+    "all"
+   ]
+  }
+ ],
+ "/account": [
+  {
+   "id": "start-sign-in",
+   "roles": [
+    "all"
+   ]
+  }
+ ],
+ "/": [
+  {
+   "id": "start-layout",
+   "roles": [
+    "all"
+   ]
+  }
+ ],
+ "/agenda": [
+  {
+   "id": "start-agenda",
+   "roles": [
+    "all"
+   ]
+  }
+ ],
+ "/entities": [
+  {
+   "id": "start-companies",
+   "roles": [
+    "all"
+   ]
+  }
+ ],
+ "/entities/:id": [
+  {
+   "id": "start-companies",
+   "roles": [
+    "all"
+   ]
+  }
+ ],
+ "/sanctions": [
+  {
+   "id": "start-sanctions",
+   "roles": [
+    "all"
+   ]
+  }
+ ],
+ "/requests": [
+  {
+   "id": "sales-submissions",
+   "roles": [
+    "sales"
+   ]
+  }
+ ],
+ "/requests/:id": [
+  {
+   "id": "sales-submissions",
+   "roles": [
+    "sales"
+   ]
+  }
+ ],
+ "/requests/offers/:offerId/edit": [
+  {
+   "id": "sales-offers",
+   "roles": [
+    "sales",
+    "commercial_underwriter"
+   ]
+  }
+ ],
+ "/limits": [
+  {
+   "id": "sales-limit-requests",
+   "roles": [
+    "sales",
+    "commercial_underwriter"
+   ]
+  }
+ ],
+ "/policies": [
+  {
+   "id": "commercial-policies",
+   "roles": [
+    "commercial_underwriter",
+    "sales"
+   ]
+  }
+ ],
+ "/policies/new": [
+  {
+   "id": "commercial-policies",
+   "roles": [
+    "commercial_underwriter",
+    "sales"
+   ]
+  }
+ ],
+ "/policies/:id": [
+  {
+   "id": "commercial-policies",
+   "roles": [
+    "commercial_underwriter",
+    "sales"
+   ]
+  }
+ ],
+ "/policies/:id/edit": [
+  {
+   "id": "commercial-policies",
+   "roles": [
+    "commercial_underwriter",
+    "sales"
+   ]
+  }
+ ],
+ "/policies/contracts/:draftId": [
+  {
+   "id": "commercial-contracts",
+   "roles": [
+    "commercial_underwriter",
+    "sales"
+   ]
+  }
+ ],
+ "/policies/contracts/:draftId/edit": [
+  {
+   "id": "commercial-contracts",
+   "roles": [
+    "commercial_underwriter",
+    "sales"
+   ]
+  }
+ ],
+ "/policies/contracts/:draftId/compare": [
+  {
+   "id": "commercial-contracts",
+   "roles": [
+    "commercial_underwriter",
+    "sales"
+   ]
+  }
+ ],
+ "/declarations": [
+  {
+   "id": "commercial-declarations",
+   "roles": [
+    "commercial_underwriter",
+    "sales"
+   ]
+  }
+ ],
+ "/declarations/:id": [
+  {
+   "id": "commercial-declarations",
+   "roles": [
+    "commercial_underwriter",
+    "sales"
+   ]
+  }
+ ],
+ "/entities/:id/statements/new": [
+  {
+   "id": "analysis-statements",
+   "roles": [
+    "credit_analyst",
+    "information_manager"
+   ]
+  }
+ ],
+ "/entities/:id/statements/:statementId/edit": [
+  {
+   "id": "analysis-statements",
+   "roles": [
+    "credit_analyst",
+    "information_manager"
+   ]
+  }
+ ],
+ "/entities/:id/report": [
+  {
+   "id": "analysis-report",
+   "roles": [
+    "credit_analyst",
+    "credit_underwriter"
+   ]
+  }
+ ],
+ "/sectors": [
+  {
+   "id": "analysis-sectors",
+   "roles": [
+    "credit_analyst",
+    "credit_underwriter",
+    "admin"
+   ]
+  }
+ ],
+ "/sectors/:sectorId": [
+  {
+   "id": "analysis-sectors",
+   "roles": [
+    "credit_analyst",
+    "credit_underwriter",
+    "admin"
+   ]
+  }
+ ],
+ "/limits/:id": [
+  {
+   "id": "credit-decide",
+   "roles": [
+    "credit_underwriter"
+   ]
+  }
+ ],
+ "/overdues": [
+  {
+   "id": "credit-monitoring",
+   "roles": [
+    "credit_underwriter",
+    "commercial_underwriter",
+    "claims",
+    "sales"
+   ]
+  }
+ ],
+ "/overdues/:id": [
+  {
+   "id": "credit-monitoring",
+   "roles": [
+    "credit_underwriter",
+    "commercial_underwriter",
+    "claims",
+    "sales"
+   ]
+  }
+ ],
+ "/data": [
+  {
+   "id": "data-requests",
+   "roles": [
+    "information_manager",
+    "all"
+   ]
+  }
+ ],
+ "/data/requests/:id": [
+  {
+   "id": "data-requests",
+   "roles": [
+    "information_manager",
+    "all"
+   ]
+  }
+ ],
+ "/claims": [
+  {
+   "id": "claims-claim",
+   "roles": [
+    "claims"
+   ]
+  }
+ ],
+ "/claims/:id": [
+  {
+   "id": "claims-claim",
+   "roles": [
+    "claims"
+   ]
+  }
+ ],
+ "/admin": [
+  {
+   "id": "admin-users",
+   "roles": [
+    "admin"
+   ]
+  }
+ ],
+ "/portal/account": [
+  {
+   "id": "portal-sign-in",
+   "roles": [
+    "client"
+   ]
+  }
+ ],
+ "/portal": [
+  {
+   "id": "portal-policies",
+   "roles": [
+    "client"
+   ]
+  }
+ ],
+ "/portal/limits": [
+  {
+   "id": "portal-policies",
+   "roles": [
+    "client"
+   ]
+  },
+  {
+   "id": "portal-limits",
+   "roles": [
+    "client"
+   ]
+  }
+ ],
+ "/portal/declarations": [
+  {
+   "id": "portal-declarations",
+   "roles": [
+    "client"
+   ]
+  }
+ ],
+ "/portal/premium": [
+  {
+   "id": "portal-declarations",
+   "roles": [
+    "client"
+   ]
+  }
+ ],
+ "/portal/overdues": [
+  {
+   "id": "portal-claims",
+   "roles": [
+    "client"
+   ]
+  }
+ ],
+ "/portal/claims": [
+  {
+   "id": "portal-claims",
+   "roles": [
+    "client"
+   ]
+  }
+ ],
+ "/portal/submissions": [
+  {
+   "id": "portal-offers",
+   "roles": [
+    "client"
+   ]
+  }
+ ],
+ "/portal/offers": [
+  {
+   "id": "portal-offers",
+   "roles": [
+    "client"
+   ]
+  }
+ ],
+ "/portal/offers/:offerId": [
+  {
+   "id": "portal-offers",
+   "roles": [
+    "client"
+   ]
+  }
+ ],
+ "/portal/contracts": [
+  {
+   "id": "portal-offers",
+   "roles": [
+    "client"
+   ]
+  }
+ ]
+}

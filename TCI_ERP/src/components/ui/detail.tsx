@@ -6,10 +6,12 @@
  * from these is what keeps them looking like one application.
  */
 import { AlertTriangle, CheckCircle2, Info, OctagonAlert } from 'lucide-react'
+import { useContext } from 'react'
 import type { ReactNode } from 'react'
 
 import { BadgeSizeContext } from './badgeStyles'
 import { Card } from './primitives'
+import { PageHelpContext } from './pageHelp'
 
 // ---------------------------------------------------------------------------
 // DetailHeader
@@ -29,6 +31,7 @@ interface DetailHeaderProps {
 
 export function DetailHeader({ eyebrow, title, status, meta, actions }: DetailHeaderProps) {
   const parts = (meta ?? []).filter((m) => m !== null && m !== undefined && m !== false && m !== '')
+  const Help = useContext(PageHelpContext)
   return (
     <header className="mb-6 flex flex-wrap items-start justify-between gap-x-8 gap-y-4">
       <div className="min-w-0">
@@ -41,6 +44,7 @@ export function DetailHeader({ eyebrow, title, status, meta, actions }: DetailHe
           <h1 className="font-display text-headline leading-tight font-bold tracking-wide text-accent-700 uppercase">
             {title}
           </h1>
+          {Help && <Help />}
           {status && (
             // Header badges are `md` (DESIGN.md «Badges»).
             <BadgeSizeContext.Provider value="md">
