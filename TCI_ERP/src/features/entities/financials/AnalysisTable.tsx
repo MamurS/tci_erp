@@ -62,7 +62,7 @@ export function AnalysisTable<K extends string>({
         <table className="w-full border-separate border-spacing-0 text-small">
           <thead>
             <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
-              <th className="sticky left-0 z-10 min-w-64 bg-slate-50 text-left">{t('fin.lineHeader')}</th>
+              <th className="sticky left-0 z-[1] min-w-64 bg-slate-50 text-left">{t('fin.lineHeader')}</th>
               {columns.map((col) => (
                 <th
                   key={col.statement.id}
@@ -114,7 +114,7 @@ export function AnalysisTable<K extends string>({
                   {visible.map((line) => (
                     <tr key={line.key} className={rowClasses(line)}>
                       <td
-                        className={`sticky left-0 z-10 border-b border-slate-100 px-3 py-2 text-slate-700 ${
+                        className={`sticky left-0 z-[1] border-b border-slate-100 px-3 py-2 text-slate-700 ${
                           line.level === 'line' ? 'bg-white' : 'bg-slate-50'
                         }`}
                       >

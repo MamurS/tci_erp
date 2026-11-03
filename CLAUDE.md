@@ -1219,6 +1219,27 @@ is fine for internal test accounts and not fine for customers.
   (forced rollback, nothing left behind, counts unchanged); the advisor's
   new entries are the five admin-gated demo functions and the internal
   `demo_links` table
+- [x] Overlays portalled, one z-index scale (bug 2026-11-03, NO migration):
+  «Запросить организацию» opened from the top-bar search showed inside the
+  top bar — the bar's `backdrop-filter` made it the containing block of the
+  fixed dialog, so the backdrop covered the 64 px bar only and the dialog was
+  cut off. Every overlay — dialogs and confirmations (`Modal`, ~100 uses),
+  the side panel, the sidebar drawer, menus (`ActionsMenu`, the user menu,
+  the workspace switcher), listboxes (search results, `Combobox`), popovers
+  (table settings, the calendar), the sidebar-toggle tooltip, the «new
+  version» toast and the tour — is now portalled to `<body>` (`Portal`,
+  `src/components/ui/Overlay.tsx`) on ONE z-index scale (base · raised ·
+  sticky · dropdown · drawer · modal · toast · tour, `--z-*` in `index.css`,
+  `layers.ts`; a popover inside a dialog goes one step above it). Dialogs are
+  centred below the demo banner, at most the viewport high with the body
+  scrolling, the backdrop spans the whole window (`w-screen`: `inset-0` stops
+  at the reserved scrollbar gutter), focus is trapped and returned, Esc closes
+  the top one; popovers flip above near the bottom and never cross an edge.
+  `LinkRow` ignores clicks bubbling from a portalled dialog. Guarded by
+  `layers.test.ts` (no bare z-index, no `fixed` without `Portal`, no
+  `createPortal` elsewhere) and `e2e/layout/overlays.spec.ts` (15 overlays ×
+  banner on/off × 1280×720 / 1920×1080 × en/ru/uz). See DESIGN.md «Layers
+  and overlays»
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 

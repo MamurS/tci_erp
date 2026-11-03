@@ -42,7 +42,7 @@ export function StickyTableFrame({ children }: { children: ReactNode }) {
       className={`rounded-lg border border-slate-200 bg-white ${
         overflows
           ? 'overflow-x-auto'
-          : '[&_thead]:sticky [&_thead]:top-[calc(4rem+var(--card-sticky-h,0px)+var(--fin-tabs-h,0px))] [&_thead]:z-20 [&_thead]:shadow-[0_1px_0_var(--color-slate-200)]'
+          : '[&_thead]:sticky [&_thead]:top-[calc(4rem+var(--card-sticky-h,0px)+var(--fin-tabs-h,0px))] [&_thead]:z-raised [&_thead]:shadow-[0_1px_0_var(--color-slate-200)]'
       }`}
     >
       {children}

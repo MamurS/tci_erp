@@ -190,7 +190,7 @@ function RowView({ row, ctx }: { row: AgendaRow; ctx: ListContext }) {
             onClick={() => setExpanded((v) => !v)}
             aria-expanded={expanded}
             aria-label={expanded ? t('agenda.collapse') : t('agenda.expand')}
-            className={`${TRACK.chevron} relative z-10 flex size-6 items-center justify-center rounded border border-slate-200 bg-white text-slate-500 hover:text-slate-800 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none`}
+            className={`${TRACK.chevron} relative z-[1] flex size-6 items-center justify-center rounded border border-slate-200 bg-white text-slate-500 hover:text-slate-800 focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:outline-none`}
           >
             {expanded ? <ChevronDown className="size-3.5" /> : <ChevronRight className="size-3.5" />}
           </button>
@@ -242,7 +242,7 @@ function RowView({ row, ctx }: { row: AgendaRow; ctx: ListContext }) {
           {/* Revealed by OPACITY, never display: the buttons' space is always
               taken, so hovering a row never moves its title, due date or owner. */}
           <div
-            className={`relative z-10 flex shrink-0 items-center gap-2 transition-opacity ${
+            className={`relative z-[1] flex shrink-0 items-center gap-2 transition-opacity ${
               focused || commenting
                 ? ''
                 : 'pointer-events-none opacity-0 group-focus-within/row:pointer-events-auto group-focus-within/row:opacity-100 group-hover/row:pointer-events-auto group-hover/row:opacity-100'
@@ -262,10 +262,10 @@ function RowView({ row, ctx }: { row: AgendaRow; ctx: ListContext }) {
             <ActionsMenu trigger="icon" size="sm" label={t('agenda.more')} actions={rowActions(row, ctx, t, navigate)} />
           </div>
         </div>
-        <span className={`${TRACK.due} relative z-10 flex min-w-0 justify-end`}>
+        <span className={`${TRACK.due} relative z-[1] flex min-w-0 justify-end`}>
           <DueLabel dueAt={row.dueAt} bucket={bucket} now={ctx.now} />
         </span>
-        <span className={`${TRACK.owner} relative z-10 flex`}>
+        <span className={`${TRACK.owner} relative z-[1] flex`}>
           <OwnerAvatar task={row.lead} staff={ctx.staff} />
         </span>
       </div>

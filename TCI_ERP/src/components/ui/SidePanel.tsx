@@ -14,6 +14,9 @@ import { useEffect, useId, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Portal } from './Overlay'
+import { useLayerZ } from './overlayHooks'
+
 interface SidePanelProps {
   open: boolean
   title: ReactNode
@@ -28,6 +31,7 @@ interface SidePanelProps {
 export function SidePanel({ open, title, meta, onClose, footer, children }: SidePanelProps) {
   const { t } = useTranslation()
   const titleId = useId()
+  const zIndex = useLayerZ('drawer')
   const closeRef = useRef(onClose)
   useEffect(() => {
     closeRef.current = onClose
@@ -43,40 +47,46 @@ export function SidePanel({ open, title, meta, onClose, footer, children }: Side
   }, [open])
 
   if (!open) return null
+  // Portalled to <body> on the drawer layer (Overlay.tsx): whatever list it
+  // was opened from cannot clip it.
   return (
-    <aside
-      role="complementary"
-      aria-labelledby={titleId}
-      data-side-panel
-      className="animate-panel-in fixed top-0 right-0 bottom-0 z-40 flex w-full max-w-[28rem] flex-col border-l border-slate-200 bg-white shadow-pop"
-    >
-      <header className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
-        <div className="min-w-0">
-          <h2 id={titleId} className="truncate text-lead font-semibold text-slate-900">
-            {title}
-          </h2>
-          {meta && (
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-small text-slate-500">
-              {meta}
-            </div>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={t('common.close')}
-          className="-mr-1 inline-flex size-8 shrink-0 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-2 focus-visible:outline-sky-500"
-        >
-          <X className="size-4" aria-hidden />
-        </button>
-      </header>
-      <div className="scrollbar-thin flex-1 overflow-y-auto px-5 py-4">{children}</div>
-      {footer && (
-        <footer className="flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 px-5 py-3">
-          {footer}
-        </footer>
-      )}
-    </aside>
+    <Portal layer="drawer">
+      <aside
+        role="complementary"
+        aria-labelledby={titleId}
+        data-side-panel
+        data-overlay="drawer"
+        style={{ zIndex }}
+        className="animate-panel-in fixed top-0 right-0 bottom-0 flex w-full max-w-[28rem] flex-col border-l border-slate-200 bg-white shadow-pop"
+      >
+        <header className="flex items-start justify-between gap-3 border-b border-slate-100 px-5 py-4">
+          <div className="min-w-0">
+            <h2 id={titleId} className="truncate text-lead font-semibold text-slate-900">
+              {title}
+            </h2>
+            {meta && (
+              <div className="mt-1 flex flex-wrap items-center gap-2 text-small text-slate-500">
+                {meta}
+              </div>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label={t('common.close')}
+            className="-mr-1 inline-flex size-8 shrink-0 items-center justify-center rounded-md text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-2 focus-visible:outline-sky-500"
+          >
+            <X className="size-4" aria-hidden />
+          </button>
+        </header>
+        <div className="scrollbar-thin flex-1 overflow-y-auto px-5 py-4">{children}</div>
+        {footer && (
+          <footer className="flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 px-5 py-3">
+            {footer}
+          </footer>
+        )}
+      </aside>
+    </Portal>
   )
 }
 

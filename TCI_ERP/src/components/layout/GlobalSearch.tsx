@@ -34,6 +34,8 @@ import { matchesQuery, paletteSources, sanitizeSearchTerm } from './commandPalet
 import type { PaletteSource } from './commandPalette'
 import { useEntitySearch, useRecordSearch } from './globalSearchApi'
 import { SEARCH_FIELD_CLASS } from '../ui/searchField'
+import { Portal } from '../ui/Overlay'
+import { anchoredStyle, remToPx, useAnchoredPlacement, useLayerZ } from '../ui/overlayHooks'
 import { canAccessPath, navItemsForRoles } from './navigation'
 import { usePageSearchScope } from './usePageSearch'
 import { rememberEntity } from './recentEntities'
@@ -60,6 +62,8 @@ export const GlobalSearch = forwardRef<GlobalSearchHandle>(function GlobalSearch
   const [params, setParams] = useSearchParams()
   const scope = usePageSearchScope()
   const inputRef = useRef<HTMLInputElement>(null)
+  const fieldRef = useRef<HTMLDivElement>(null)
+  const zIndex = useLayerZ('dropdown')
   const query = params.get('q') ?? ''
   const [open, setOpen] = useState(false)
   const [cursor, setCursor] = useState(-1)
@@ -209,11 +213,18 @@ export const GlobalSearch = forwardRef<GlobalSearchHandle>(function GlobalSearch
     ? t('search.placeholderPage', { page: t(`nav.${scope}`) })
     : t('search.placeholder')
 
+  // The list is portalled to <body> (Overlay.tsx): the top bar has
+  // backdrop-filter, the containing block of anything fixed inside it.
+  const place = useAnchoredPlacement(fieldRef, showList || showSummary, {
+    align: 'stretch',
+    minWidth: remToPx(22),
+  })
+
   // Below `sm` (a phone, or a laptop at 200 % zoom) the field gives way to
   // the help, language and user buttons, down to 8 rem, so the top bar never
   // scrolls the page sideways.
   return (
-    <div className="relative flex h-11 min-w-32 shrink sm:w-full sm:max-w-3xl" data-tour="search">
+    <div ref={fieldRef} className="relative flex h-11 min-w-32 shrink sm:w-full sm:max-w-3xl" data-tour="search">
       <Search
         aria-hidden
         className="pointer-events-none absolute top-1/2 left-4 size-[1.125rem] -translate-y-1/2 text-slate-500"
@@ -273,23 +284,30 @@ export const GlobalSearch = forwardRef<GlobalSearchHandle>(function GlobalSearch
           <X className="size-4" />
         </button>
       )}
-      {showSummary && (
+      {showSummary && place && (
+        <Portal layer="dropdown">
         <button
           type="button"
+          data-overlay="popover"
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => setExpanded(true)}
-          className="absolute top-full left-0 z-50 mt-2 flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-small text-slate-700 shadow-pop hover:bg-slate-50"
+          style={{ ...anchoredStyle(place, zIndex), width: undefined, maxHeight: undefined }}
+          className="flex items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-2 text-small text-slate-700 shadow-pop hover:bg-slate-50"
         >
           <Search aria-hidden className="size-4 text-slate-500" />
           {t('search.elsewhere', { count: hits.length })}
           <kbd className="rounded border border-slate-200 px-1 text-caption text-slate-500">↓</kbd>
         </button>
+        </Portal>
       )}
-      {showList && (
+      {showList && place && (
+        <Portal layer="dropdown">
         <ul
           id="global-search-list"
           role="listbox"
-          className="animate-fade-in scrollbar-thin absolute top-full left-0 z-50 mt-2 max-h-[60vh] w-full min-w-[22rem] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-pop"
+          data-overlay="listbox"
+          style={{ ...anchoredStyle(place, zIndex), maxHeight: Math.min(place.maxHeight, window.innerHeight * 0.6) }}
+          className="animate-fade-in scrollbar-thin overflow-y-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-pop"
         >
           {hits.length === 0 && (
             <li className="px-3 py-4 text-small text-slate-500">{t('common.loading')}</li>
@@ -336,6 +354,7 @@ export const GlobalSearch = forwardRef<GlobalSearchHandle>(function GlobalSearch
             </li>
           ))}
         </ul>
+        </Portal>
       )}
       <RequestEntityModal
         open={requestName !== null}

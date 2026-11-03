@@ -166,7 +166,7 @@ export function TriageView(props: TriageProps) {
             return (
               <div key={group}>
                 <div
-                  className={`sticky top-0 z-10 border-b border-slate-100 bg-slate-50 px-4 py-2 text-caption font-semibold tracking-[0.08em] uppercase ${
+                  className={`sticky top-0 z-raised border-b border-slate-100 bg-slate-50 px-4 py-2 text-caption font-semibold tracking-[0.08em] uppercase ${
                     kind === 'due' && group === 'overdue' ? 'text-neg-600' : 'text-slate-700'
                   }`}
                 >

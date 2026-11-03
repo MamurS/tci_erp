@@ -7,7 +7,13 @@ import { Header } from './Header'
 import { Sidebar } from './Sidebar'
 import { SidebarToggle } from './SidebarToggle'
 import { isPaletteShortcut } from './commandPalette'
-import { PEEK_CLOSE_MS, PEEK_OPEN_MS, SIDEBAR_KEY, isSidebarShortcut, parseSidebarState } from './shell'
+import {
+  PEEK_CLOSE_MS,
+  PEEK_OPEN_MS,
+  SIDEBAR_KEY,
+  isSidebarShortcut,
+  parseSidebarState,
+} from './shell'
 import type { SidebarState } from './shell'
 import { PageLoading } from './PageLoading'
 import { SignInNotice } from '../../auth/SignInNotice'
@@ -17,11 +23,17 @@ import { useNewVersion } from '../../lib/useNewVersion'
 import { DemoBanner, useDemoModeTabSync } from '../../features/demo'
 import { useUiScaleValue } from '../../lib/uiScale'
 import { useAuth } from '../../auth/AuthContext'
+import { LayerScope, Portal } from '../ui/Overlay'
 import { TablePrefsContext } from '../ui/tablePrefs'
 import { PageHelpContext } from '../ui/pageHelp'
 import { PageHelpLink } from '../../features/help/HelpButton'
 import { useHelpHotkey } from '../../features/help/useHelpHotkey'
-import { availableWorkspaces, rememberWorkspace, workspaceForRole, workspaceHome } from './workspaces'
+import {
+  availableWorkspaces,
+  rememberWorkspace,
+  workspaceForRole,
+  workspaceHome,
+} from './workspaces'
 import type { WorkspaceKey } from './workspaces'
 
 /** The `lg` breakpoint (index.css): 64rem of the ROOT font size, so it moves
@@ -200,98 +212,115 @@ export function AppShell() {
 
   return (
     <PageSearchProvider>
-    <div className="flex min-h-screen">
-      {isDesktop && (
-        // The one toggle. It comes BEFORE the panel in the document, so Tab
-        // goes from it straight into the menu while the panel is shown.
-        <div
-          ref={toggleRef}
-          // Over the menu it is part of the brand surface (dark mode keeps it light on navy).
-          data-brand-surface={pinned || showPeek ? '' : undefined}
-          className="fixed top-4 left-5 z-[60]"
-          onMouseEnter={schedulePeek}
-          onMouseLeave={collapsed ? scheduleUnpeek : undefined}
-        >
-          <SidebarToggle
-            action={pinned ? 'hide' : 'show'}
-            tone={pinned || showPeek ? 'inverse' : 'plain'}
-            expanded={pinned || showPeek}
-            controls={SIDEBAR_ID}
-            onClick={() => dock(pinned ? 'closed' : 'open')}
-          />
-        </div>
-      )}
-
-      {pinned && (
-        <div className="sticky top-0 z-40 h-screen shrink-0">
-          <Sidebar id={SIDEBAR_ID} variant="docked" {...workspaceProps} />
-        </div>
-      )}
-
-      {collapsed && !showPeek && (
-        // The hot strip along the left window edge.
-        <div aria-hidden className="fixed inset-y-0 left-0 z-[45] w-2" onMouseEnter={schedulePeek} onMouseLeave={scheduleUnpeek} />
-      )}
-
-      {showPeek && (
-        // The same panel as pinned, flush with the left edge and over the
-        // top bar and the content, which do not move.
-        <div
-          ref={peekRef}
-          className="fixed inset-y-0 left-0 z-50 shadow-2xl shadow-accent-900/40"
-          onMouseEnter={schedulePeek}
-          onMouseLeave={scheduleUnpeek}
-          onBlur={(e) => {
-            const next = e.relatedTarget as Node | null
-            if (next && !peekRef.current?.contains(next) && !toggleRef.current?.contains(next)) setPeeking(false)
-          }}
-        >
-          <Sidebar id={SIDEBAR_ID} variant="peek" {...workspaceProps} />
-        </div>
-      )}
-
-      {!isDesktop && drawerOpen && (
-        <>
+      <div className="flex min-h-screen">
+        {isDesktop && (
+          // The one toggle. It comes BEFORE the panel in the document, so Tab
+          // goes from it straight into the menu while the panel is shown.
           <div
-            className="fixed inset-0 z-40 bg-scrim/40 backdrop-blur-[2px]"
-            onClick={() => setDrawerOpen(false)}
-            aria-hidden="true"
-          />
-          <div className="fixed inset-y-0 left-0 z-50 shadow-2xl shadow-accent-900/40">
-            <Sidebar
-              id={SIDEBAR_ID}
-              variant="drawer"
-              onToggle={() => setDrawerOpen(false)}
-              onNavigate={() => setDrawerOpen(false)}
-              {...workspaceProps}
-            />
+            ref={toggleRef}
+            // Over the menu it is part of the brand surface (dark mode keeps it light on navy).
+            data-brand-surface={pinned || showPeek ? '' : undefined}
+            // Above the panel it opens (the drawer layer), below any dialog.
+            className="fixed top-4 left-5 z-[calc(var(--z-drawer)_+_1)]"
+            onMouseEnter={schedulePeek}
+            onMouseLeave={collapsed ? scheduleUnpeek : undefined}
+          >
+            <LayerScope layer="drawer">
+              <SidebarToggle
+                action={pinned ? 'hide' : 'show'}
+                tone={pinned || showPeek ? 'inverse' : 'plain'}
+                expanded={pinned || showPeek}
+                controls={SIDEBAR_ID}
+                onClick={() => dock(pinned ? 'closed' : 'open')}
+              />
+            </LayerScope>
           </div>
-        </>
-      )}
+        )}
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        {/* Demo world (0096): a slim bar for the whole session, so nothing moves. */}
-        <DemoBanner />
-        <Header
-          searchRef={searchRef}
-          toggleSlot={pinned ? 'none' : isDesktop ? 'spacer' : 'button'}
-          onShowSidebar={() => setDrawerOpen(true)}
-          sidebarId={SIDEBAR_ID}
-        />
-        <main className="mx-auto w-full max-w-[160rem] flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-7">
-          <SignInNotice accountPath="/account" />
-          <TablePrefsContext.Provider value={tablePrefs}>
-            <PageHelpContext.Provider value={PageHelpLink}>
-              <Suspense fallback={<PageLoading />}>
-                <Outlet />
-              </Suspense>
-            </PageHelpContext.Provider>
-          </TablePrefsContext.Provider>
-        </main>
+        {pinned && (
+          <div className="sticky top-0 z-sticky h-screen shrink-0">
+            <Sidebar id={SIDEBAR_ID} variant="docked" {...workspaceProps} />
+          </div>
+        )}
+
+        {collapsed && !showPeek && (
+          // The hot strip along the left window edge.
+          <div
+            aria-hidden
+            className="fixed inset-y-0 left-0 z-[calc(var(--z-drawer)_-_1)] w-2"
+            onMouseEnter={schedulePeek}
+            onMouseLeave={scheduleUnpeek}
+          />
+        )}
+
+        {showPeek && (
+          // The same panel as pinned, flush with the left edge and over the
+          // top bar and the content, which do not move.
+          <div
+            ref={peekRef}
+            className="fixed inset-y-0 left-0 z-drawer shadow-2xl shadow-accent-900/40"
+            onMouseEnter={schedulePeek}
+            onMouseLeave={scheduleUnpeek}
+            onBlur={(e) => {
+              const next = e.relatedTarget as Node | null
+              if (next && !peekRef.current?.contains(next) && !toggleRef.current?.contains(next))
+                setPeeking(false)
+            }}
+          >
+            {/* The peeking panel stays in the shell (Tab goes from the toggle
+              straight into it) but is a layer: what opens in it goes above. */}
+            <LayerScope layer="drawer">
+              <Sidebar id={SIDEBAR_ID} variant="peek" {...workspaceProps} />
+            </LayerScope>
+          </div>
+        )}
+
+        {!isDesktop && drawerOpen && (
+          <Portal layer="drawer">
+            <div
+              data-backdrop
+              className="fixed inset-y-0 left-0 z-drawer w-screen bg-scrim/40 backdrop-blur-[2px]"
+              onClick={() => setDrawerOpen(false)}
+              aria-hidden="true"
+            />
+            <div
+              data-overlay="drawer"
+              className="fixed inset-y-0 left-0 z-drawer shadow-2xl shadow-accent-900/40"
+            >
+              <Sidebar
+                id={SIDEBAR_ID}
+                variant="drawer"
+                onToggle={() => setDrawerOpen(false)}
+                onNavigate={() => setDrawerOpen(false)}
+                {...workspaceProps}
+              />
+            </div>
+          </Portal>
+        )}
+
+        <div className="flex min-w-0 flex-1 flex-col">
+          {/* Demo world (0096): a slim bar for the whole session, so nothing moves. */}
+          <DemoBanner />
+          <Header
+            searchRef={searchRef}
+            toggleSlot={pinned ? 'none' : isDesktop ? 'spacer' : 'button'}
+            onShowSidebar={() => setDrawerOpen(true)}
+            sidebarId={SIDEBAR_ID}
+          />
+          <main className="mx-auto w-full max-w-[160rem] flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-7">
+            <SignInNotice accountPath="/account" />
+            <TablePrefsContext.Provider value={tablePrefs}>
+              <PageHelpContext.Provider value={PageHelpLink}>
+                <Suspense fallback={<PageLoading />}>
+                  <Outlet />
+                </Suspense>
+              </PageHelpContext.Provider>
+            </TablePrefsContext.Provider>
+          </main>
+        </div>
+        <NewVersionNotice stale={newVersion} />
+        <TourHost />
       </div>
-      <NewVersionNotice stale={newVersion} />
-      <TourHost />
-    </div>
     </PageSearchProvider>
   )
 }

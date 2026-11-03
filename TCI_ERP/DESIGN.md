@@ -118,6 +118,62 @@ them, instead of borders. Radii `rounded-sm` 4 · `rounded-md` 6 ·
 lift at rest) and `shadow-pop` (overlays); borders are neutral 200, rows
 divided by neutral 100.
 
+### Layers and overlays (bug 2026-11-03)
+
+**One z-index scale**, lowest first (`--z-*` in `index.css`, mirrored by
+`src/components/ui/layers.ts`, checked by `layers.test.ts`):
+
+| layer | value | what sits there |
+|---|---|---|
+| `base` | 0 | the page; inside ONE component `z-[1]`…`z-[3]` order its own parts (a frozen column under a sticky table head) and reach nothing outside it |
+| `raised` | 10 | a page's own sticky parts: table heads, tab rows, toolbars, the bulk bar, a form's sticky footer |
+| `sticky` | 20 | the top bar, the company card's sticky name bar, the docked sidebar |
+| `dropdown` | 30 | menus, listboxes, popovers, the calendar, tooltips, the search results |
+| `drawer` | 40 | the side panel (quick view), the sidebar drawer and the peeking sidebar (the one sidebar toggle sits a step above it) |
+| `modal` | 50 | dialogs and confirmations |
+| `toast` | 60 | the «new version» notice |
+| `tour` | 70 | the guided tour |
+
+Never a bare number (`z-50`, `z-[60]`, `z-index: 20`): the test refuses it. A
+popover opened inside a dialog or a drawer goes one step above THAT layer
+(`useLayerZ`, `LayerScope`), so a company picker or a calendar in a form is
+never drawn under the dialog that opened it.
+
+**Every overlay is portalled to `<body>`** (`Portal`, `Overlay.tsx`) on its
+layer — wherever it is opened from. The cause of the bug: an ancestor with
+`backdrop-filter` (the top bar), `filter` or `transform` becomes the
+containing block of every `position: fixed` descendant, and `overflow:
+hidden` clips it; «Запросить организацию» opened from the search was sized
+to the 64 px top bar and cut off. `layers.test.ts` refuses a `fixed` element
+in a file without `<Portal>` and any `createPortal` outside Overlay.tsx; the
+shell's own fixed layers (the sidebar toggle, the hot strip, the peeking
+panel — Tab must go from the toggle straight into the panel) are listed
+there with their reason. A click inside a portalled overlay still bubbles
+through React to whatever opened it: `LinkRow` ignores a click whose target
+is not inside the row.
+
+**Popovers** are placed by `useAnchoredPlacement` (pure rule
+`placeAnchored`): under the anchor, above it when the room below is short
+(< 200 px) and the room above larger, moved in from the left / right edge,
+their height capped by the room on their side (they scroll inside); they
+follow the anchor while the page scrolls. `useDismiss` closes one on a press
+outside the anchor AND outside its portalled body, and on Esc before a
+dialog under it sees the key.
+
+**Dialogs** (`Modal`, and everything built on it): centred in the viewport
+below the demo banner (`--demo-banner-bottom`, the banner's live bottom
+edge — under the portal's header, nothing once scrolled away), at most the
+viewport less 1 rem margins, head and buttons fixed and the body scrolling
+between them — never off-screen at 1280×720, whatever the zoom. The
+backdrop spans the whole window (`w-screen`, not `inset-0`, which stops at
+the reserved scrollbar gutter). Focus moves into the dialog when it opens
+(to the dialog itself, or to a field it focuses), Tab and Shift+Tab go
+round inside it, Esc closes the top dialog only, and focus returns to what
+opened it. Guarded by `e2e/layout/overlays.spec.ts`: every overlay, banner
+on and off, 1280×720 and 1920×1080, en / ru / uz — portalled, wholly inside
+the viewport, on top, and (dialogs) a full backdrop, below the banner,
+focus inside, Tab kept, Esc closing.
+
 ### Motion
 
 IBM Carbon's two modes. **Productive** (≈ 95 %: hover, press, menus, row

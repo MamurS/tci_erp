@@ -13,11 +13,12 @@
 
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent as ReactKeyboardEvent, ReactNode } from 'react'
-import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { Check, Search, X } from 'lucide-react'
 
 import { SEARCH_FIELD_CLASS } from './searchField'
+import { Portal } from './Overlay'
+import { useLayerZ } from './overlayHooks'
 
 import { highlight, matchOptions } from './combobox'
 import type { ComboMatchable } from './combobox'
@@ -88,6 +89,7 @@ export function Combobox({
   const [query, setQuery] = useState('')
   const [editing, setEditing] = useState(false)
   const [open, setOpen] = useState(false)
+  const zIndex = useLayerZ('dropdown')
   const [active, setActive] = useState(0)
   const [placement, setPlacement] = useState<Placement | null>(null)
 
@@ -203,7 +205,10 @@ export function Combobox({
 
   return (
     <div className="relative">
-      <Search aria-hidden className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-slate-500" />
+      <Search
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-slate-500"
+      />
       <input
         ref={inputRef}
         type="text"
@@ -239,29 +244,33 @@ export function Combobox({
         }`}
       />
       {showBadge && (
-        <span className="pointer-events-none absolute top-1/2 right-8 -translate-y-1/2">{freeTextBadge}</span>
+        <span className="pointer-events-none absolute top-1/2 right-8 -translate-y-1/2">
+          {freeTextBadge}
+        </span>
       )}
-      {!disabled && (selected || (freeText && (text ?? '') !== '') || (editing && query !== '')) && (
-        <button
-          type="button"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={clear}
-          aria-label={t('picker.clear')}
-          className="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-        >
-          <X className="size-3.5" />
-        </button>
-      )}
+      {!disabled &&
+        (selected || (freeText && (text ?? '') !== '') || (editing && query !== '')) && (
+          <button
+            type="button"
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={clear}
+            aria-label={t('picker.clear')}
+            className="absolute top-1/2 right-2 flex size-6 -translate-y-1/2 items-center justify-center rounded text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+          >
+            <X className="size-3.5" />
+          </button>
+        )}
 
-      {open &&
-        placement &&
-        createPortal(
+      {open && placement && (
+        <Portal layer="dropdown">
           <div
             ref={listRef}
             id={listId}
             role="listbox"
+            data-overlay="listbox"
             style={{
               position: 'fixed',
+              zIndex,
               left: placement.left,
               width: placement.width,
               maxHeight: placement.maxHeight,
@@ -269,7 +278,7 @@ export function Combobox({
                 ? { bottom: window.innerHeight - placement.top }
                 : { top: placement.top }),
             }}
-            className="animate-fade-in z-[60] flex flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-pop"
+            className="animate-fade-in flex flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-pop"
             onMouseDown={(e) => e.preventDefault()}
           >
             <div className="scrollbar-thin overflow-y-auto py-1">
@@ -297,9 +306,15 @@ export function Combobox({
                         ),
                       )}
                     </div>
-                    {option.meta && <div className="mt-0.5 truncate text-caption text-slate-500">{option.meta}</div>}
+                    {option.meta && (
+                      <div className="mt-0.5 truncate text-caption text-slate-500">
+                        {option.meta}
+                      </div>
+                    )}
                   </div>
-                  {option.id === value && <Check className="mt-0.5 size-4 shrink-0 text-accent-600" />}
+                  {option.id === value && (
+                    <Check className="mt-0.5 size-4 shrink-0 text-accent-600" />
+                  )}
                 </div>
               ))}
               {result.shown.length === 0 && (
@@ -311,10 +326,12 @@ export function Combobox({
                 </div>
               )}
             </div>
-            {footer && <div className="shrink-0 border-t border-slate-100 bg-slate-50/70">{footer}</div>}
-          </div>,
-          document.body,
-        )}
+            {footer && (
+              <div className="shrink-0 border-t border-slate-100 bg-slate-50/70">{footer}</div>
+            )}
+          </div>
+        </Portal>
+      )}
     </div>
   )
 }

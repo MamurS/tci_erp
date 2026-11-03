@@ -13,11 +13,10 @@
  */
 
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { Button } from '../../components/ui'
+import { Button, Portal } from '../../components/ui'
 import { findAnchor, firstRowPath, isEmpty, isLoading, placeCard, visibleRect, waitFor } from './dom'
 import type { Rect } from './dom'
 import { routeMatches, stepPosition } from './state'
@@ -319,8 +318,9 @@ export function TourOverlay({ tour, onClose }: TourOverlayProps) {
     GAP,
   )
 
-  return createPortal(
-    <div className="fixed inset-0 z-[90] print:hidden" data-testid="tour" data-tour-id={tour.id}>
+  return (
+    <Portal layer="tour">
+    <div className="fixed inset-y-0 left-0 z-tour w-screen print:hidden" data-testid="tour" data-tour-id={tour.id}>
       {highlight ? (
         <div
           aria-hidden
@@ -382,7 +382,7 @@ export function TourOverlay({ tour, onClose }: TourOverlayProps) {
           </div>
         </div>
       )}
-    </div>,
-    document.body,
+    </div>
+    </Portal>
   )
 }

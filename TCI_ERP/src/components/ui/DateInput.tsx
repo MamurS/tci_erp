@@ -6,10 +6,12 @@
  * ('2026-10-21', '' when empty); dateEntry.ts holds the rules.
  */
 
-import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
+
+import { Portal } from './Overlay'
+import { anchoredStyle, remToPx, useAnchoredPlacement, useLayerZ } from './overlayHooks'
 
 import {
   datePattern,
@@ -58,7 +60,6 @@ export function DateInput({
   })
   const wrapRef = useRef<HTMLDivElement>(null)
   const popRef = useRef<HTMLDivElement>(null)
-  const [pos, setPos] = useState<{ left: number; top: number } | null>(null)
   const gridId = useId()
 
   // The value changed from outside (a reset, a prefill, a new language).
@@ -71,26 +72,10 @@ export function DateInput({
   const incomplete = text !== '' && parseDate(text) === null
   const bad = invalid || incomplete || Boolean(value && outOfRange(value))
 
-  useLayoutEffect(() => {
-    if (!open) return
-    const place = () => {
-      const r = wrapRef.current?.getBoundingClientRect()
-      if (!r) return
-      // The calendar is 18rem wide and about 20rem tall: in px at the
-      // interface text size (lib/uiScale.ts).
-      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
-      const height = 20 * rem
-      const below = window.innerHeight - r.bottom
-      setPos({ left: Math.min(r.left, window.innerWidth - 18.5 * rem), top: below < height && r.top > height ? r.top - height - 4 : r.bottom + 4 })
-    }
-    place()
-    window.addEventListener('resize', place)
-    window.addEventListener('scroll', place, true)
-    return () => {
-      window.removeEventListener('resize', place)
-      window.removeEventListener('scroll', place, true)
-    }
-  }, [open])
+  // The calendar (18rem wide) is portalled to <body> (Overlay.tsx), under
+  // the field or above it near the bottom of the screen, never past an edge.
+  const zIndex = useLayerZ('dropdown')
+  const pos = useAnchoredPlacement(wrapRef, open, { align: 'start', width: remToPx(18), gap: 4 })
 
   useEffect(() => {
     if (!open) return
@@ -140,7 +125,10 @@ export function DateInput({
         onChange={(e) => {
           const masked = maskDate(e.target.value, locale)
           // Deleting a separator deletes the digit before it, not nothing.
-          const next = e.target.value.length < text.length && masked === text ? maskDate(text.replace(/\D/g, '').slice(0, -1), locale) : masked
+          const next =
+            e.target.value.length < text.length && masked === text
+              ? maskDate(text.replace(/\D/g, '').slice(0, -1), locale)
+              : masked
           setText(next)
           const iso = parseDate(next)
           onChange(iso ?? '')
@@ -171,16 +159,16 @@ export function DateInput({
         <CalendarDays className="size-4" />
       </button>
 
-      {open &&
-        pos &&
-        createPortal(
+      {open && pos && (
+        <Portal layer="dropdown">
           <div
             ref={popRef}
             id={gridId}
             role="dialog"
             aria-label={t('date.openCalendar')}
-            style={{ position: 'fixed', left: pos.left, top: pos.top, width: '18rem' }}
-            className="animate-fade-in z-[60] rounded-lg border border-slate-200 bg-white p-3 shadow-pop"
+            data-overlay="popover"
+            style={anchoredStyle(pos, zIndex)}
+            className="animate-fade-in scrollbar-thin overflow-y-auto rounded-lg border border-slate-200 bg-white p-3 shadow-pop"
             onKeyDown={(e) => {
               if (e.key === 'Escape') {
                 e.stopPropagation()
@@ -198,7 +186,9 @@ export function DateInput({
               >
                 <ChevronLeft className="size-4" />
               </button>
-              <span className="text-small font-semibold text-slate-800">{monthTitle(view.year, view.month0, locale)}</span>
+              <span className="text-small font-semibold text-slate-800">
+                {monthTitle(view.year, view.month0, locale)}
+              </span>
               <button
                 type="button"
                 onClick={() => shift(1)}
@@ -259,9 +249,9 @@ export function DateInput({
                 </button>
               )}
             </div>
-          </div>,
-          document.body,
-        )}
+          </div>
+        </Portal>
+      )}
     </div>
   )
 }

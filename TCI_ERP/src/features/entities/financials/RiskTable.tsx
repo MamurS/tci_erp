@@ -96,7 +96,7 @@ export function RiskTable({ periods }: { periods: RiskPeriod[] }) {
       <table className="w-full border-separate border-spacing-0 text-small">
         <thead>
           <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
-            <th className="sticky left-0 z-10 min-w-56 bg-slate-50 text-left">
+            <th className="sticky left-0 z-[1] min-w-56 bg-slate-50 text-left">
               {t('fin.risk.header')}
             </th>
             {periods.map((period) => (
@@ -128,7 +128,7 @@ export function RiskTable({ periods }: { periods: RiskPeriod[] }) {
                 const norm = normLabel(row)
                 return (
                   <tr key={row.key}>
-                    <td className="sticky left-0 z-10 border-b border-slate-100 bg-white px-3 py-2 text-slate-700">
+                    <td className="sticky left-0 z-[1] border-b border-slate-100 bg-white px-3 py-2 text-slate-700">
                       {t(`fin.risk.rows.${row.key}`)}
                       {norm && (
                         <span className="ml-1 text-caption text-slate-500">

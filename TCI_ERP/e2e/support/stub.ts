@@ -53,6 +53,9 @@ export interface StubOptions {
    * 0098). By default EVERY tour is recorded as completed, so no tour covers
    * the screens a test looks at; e2e/shell/tour.spec.ts passes its own. */
   tourState?: Record<string, unknown> | null
+  /** The person's demo world (0096): true shows the demo banner above every
+   * page. Undefined: the default reply (no profile row, normal mode). */
+  demoMode?: boolean
 }
 
 /** Every tour completed early in 2026: nothing starts by itself. */
@@ -123,6 +126,7 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
     uiMode = 'light',
     uiBadgeInk = null,
     tourState = allToursCompleted(),
+    demoMode,
   } = options
   const session = fakeSession(user?.id, user?.email, sessionId)
 
@@ -188,6 +192,16 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
     }
     if (resource === 'user_profiles' && request.method() === 'GET' && url.searchParams.get('select') === 'ui_tour_state') {
       const row = { ui_tour_state: tourState }
+      return route.fulfill({ json: single ? row : [row] })
+    }
+
+    if (
+      demoMode !== undefined &&
+      resource === 'user_profiles' &&
+      request.method() === 'GET' &&
+      url.searchParams.get('select') === 'ui_demo_mode,is_demo_user'
+    ) {
+      const row = { ui_demo_mode: demoMode, is_demo_user: false }
       return route.fulfill({ json: single ? row : [row] })
     }
 
