@@ -1185,6 +1185,40 @@ is fine for internal test accounts and not fine for customers.
   account `sanctions.feed@tci-erp.invalid` created and run once end to end
   from a container (OFAC re-imported unchanged — the fingerprint now covers
   the alias file — 0 delisted, no match; UN, EU, UK unchanged)
+- [x] Demo data, user guide and guided tour (Prompt 32, migrations
+  0096–0098, owner 2026-11-02, as in mig-inward-re): **demo data** is a
+  world of its own, chosen per person — `is_demo` on 66 business tables,
+  a restrictive policy per table, the guard trigger that keeps the worlds
+  apart and names demo rows «DEMO …» / «DEMO-…», 13 demo accounts (one per
+  role), a date-relative demo book built through the real workflow
+  functions (`seed_demo_data`) and an unload that removes demo rows only
+  (`delete_demo_data`), Admin › «Демо-данные», the switch in the user menu,
+  on the account page and on the dashboard band, the DEMO bar and mark;
+  sector grades are SHARED by both worlds (owner 2026-11-03). The existing
+  test data became the demo world. **User guide**: the in-app Help centre
+  (`/help`, `/portal/help`, «?» and F1 on every page, the topic for the
+  acting role first, search in en/ru/uz whatever the apostrophe, glossary),
+  73 topics × 3 languages compiled from `docs/guide/` (`npm run guide:*`,
+  a test that every route has an article), screenshots and quick-start
+  PDFs per role. **Guided tour** per role and for the portal, started once
+  on first sign-in, progress kept per person in
+  `tci.user_profiles.ui_tour_state` (0098), `data-tour` anchors, keyboard
+  and screen-reader friendly, and «What's new» release tours. See **Demo
+  data rules** below. **Canonical: 0096–0098 applied 2026-11-03 by the
+  owner** with `docs/deploy/canonical-apply-0096-0098.sql` (since removed —
+  in git history; the connector held 0096 for an approval nobody saw): a
+  dry run first, then the commit, the same per-table result both times
+  (every business row demo, the 21 sector reviews, 3 tasks and 27 events on
+  shared objects real, 13 demo accounts, 2 staff accounts in demo mode);
+  verified afterwards — the three ledger rows; every tci function (with its
+  grants), policy, trigger, column, column grant, constraint, index and
+  table grant identical to a local replay (function bodies once the
+  editor's CR line endings are stripped; the six views over `auth.*` differ
+  from the stub as before); `tests/db/demo_worlds.sql` and
+  `tests/db/tour_progress.sql` run on canonical with role impersonation
+  (forced rollback, nothing left behind, counts unchanged); the advisor's
+  new entries are the five admin-gated demo functions and the internal
+  `demo_links` table
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1734,6 +1768,13 @@ migrations (0096's text, ~34 KB, with DELETE / DROP inside function bodies)
 was held for an approval question and timed out unanswered. Treat the hold as
 in force: check that nothing reached the database, then hand the statement to
 the owner (or have them answer the connector's question).
+
+**An owner script pasted into the SQL Editor arrives with CR LF line
+endings**, so the function bodies it creates carry `\r` and their text
+differs from a local replay by that alone (0046–0048 and 0096–0098 did). Compare
+fingerprints with `replace(pg_get_functiondef(oid), chr(13), '')`. The editor
+shows only the LAST result set and no NOTICE lines, so an owner script ends
+with a `select` of what the owner must check.
 
 ### Sign-in notice rules (migration 0062)
 
