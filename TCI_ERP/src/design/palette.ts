@@ -425,10 +425,11 @@ export function renderThemeCss(): string[] {
   for (const theme of THEME_NAMES) {
     if (theme === DEFAULT_THEME) continue
     lines.push(...block(`:root:not([data-mode='dark'])[data-theme='${theme}'] [data-brand-surface]`, Object.entries(lightChromeTokens(theme))))
-    // A band's action buttons keep the theme's ordinary colours.
+    // A band's action buttons, and every badge and counter (data-badge), keep
+    // the theme's ordinary colours: mirrored, a pastel badge turned dark.
     lines.push(
       ...block(
-        `:root:not([data-mode='dark'])[data-theme='${theme}'] [data-brand-surface] [data-chrome-actions]`,
+        `:root:not([data-mode='dark'])[data-theme='${theme}'] [data-brand-surface] :is([data-chrome-actions], [data-badge])`,
         Object.entries(colorTokens(theme)),
       ),
     )

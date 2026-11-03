@@ -22,6 +22,8 @@ import { PageHelpContext } from './pageHelp'
 import { Pictogram } from './pictograms'
 import type { PictogramName } from './pictogramNames'
 import { DENSITY_CELL, hiddenColumnsCss, useDensity, useHiddenColumns } from './tablePrefs'
+import { Portal } from './Overlay'
+import { useFocusTrap, useLayerZ } from './overlayHooks'
 import type { ColumnWidth } from './columns'
 import type {
   ButtonHTMLAttributes,
@@ -738,9 +740,22 @@ interface ModalProps {
 /** Open modals, innermost last: Escape closes only the one on top. */
 const openModals: string[] = []
 
+/**
+ * A dialog. It is portalled to <body> on the modal layer (layers.ts), so it
+ * is never clipped or sized by whatever opened it — the top bar, a table row,
+ * an Agenda row. Centred in the viewport below the demo banner
+ * (`--demo-banner-bottom`), at most the viewport's height less a margin: a long
+ * form scrolls between the fixed head and buttons. The backdrop covers the
+ * whole viewport — `w-screen`, not `inset-0`: a fixed box stops at the page's
+ * reserved scrollbar gutter (`scrollbar-gutter: stable`), which would leave a
+ * strip uncovered where scrollbars are hidden or overlaid; Tab stays inside; Escape (the top dialog only) and a press
+ * on the backdrop close it; focus returns to what opened it.
+ */
 export function Modal({ open, title, onClose, children, footer, wide = false }: ModalProps) {
   const { t } = useTranslation()
   const titleId = useId()
+  const zIndex = useLayerZ('modal')
+  const dialogRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef(onClose)
   useEffect(() => {
     closeRef.current = onClose
@@ -750,7 +765,7 @@ export function Modal({ open, title, onClose, children, footer, wide = false }: 
     if (!open) return
     openModals.push(titleId)
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && openModals[openModals.length - 1] === titleId) closeRef.current()
+      if (e.key === 'Escape' && !e.defaultPrevented && openModals[openModals.length - 1] === titleId) closeRef.current()
     }
     window.addEventListener('keydown', onKey)
     return () => {
@@ -760,48 +775,60 @@ export function Modal({ open, title, onClose, children, footer, wide = false }: 
     }
   }, [open, titleId])
 
+  // Focus moves to the dialog (or to the field it focuses itself): a picker
+  // that opens its list on focus must not open by itself.
+  useFocusTrap(dialogRef, open)
+
   if (!open) return null
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-scrim/45 p-4 pt-[8vh] backdrop-blur-[2px]"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
-    >
+    <Portal layer="modal">
       <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        // The head and the buttons stay put; a long form scrolls between them.
-        className={`animate-fade-in flex max-h-[calc(100dvh-12vh)] w-full flex-col ${wide ? 'max-w-2xl' : 'max-w-md'} overflow-hidden rounded-xl bg-white shadow-pop ring-1 ring-slate-900/5`}
+        data-overlay="modal"
+        data-backdrop
+        style={{ zIndex, paddingTop: 'calc(var(--demo-banner-bottom, 0px) + 1rem)' }}
+        className="fixed inset-y-0 left-0 flex w-screen items-center justify-center overflow-hidden bg-scrim/45 px-4 pb-4 backdrop-blur-[2px]"
+        onMouseDown={(e) => {
+          if (e.target === e.currentTarget) onClose()
+        }}
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-5 py-4">
-          <h2
-            id={titleId}
-            className="text-lead font-semibold text-slate-900"
-          >
-            {title}
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label={t('common.close')}
-            className="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-600"
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
-        {/* Fields placed directly in a dialog are spaced evenly, never touching. */}
-        <div className="scrollbar-thin flex min-h-0 flex-col gap-4 overflow-y-auto px-5 py-4">{children}</div>
-        {footer && (
-          <div className="flex shrink-0 justify-end gap-2 border-t border-slate-200 bg-slate-50/70 px-5 py-3">
-            {footer}
+        <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={titleId}
+          tabIndex={-1}
+          data-dialog
+          // The head and the buttons stay put; a long form scrolls between them.
+          className={`animate-fade-in flex max-h-full w-full flex-col ${wide ? 'max-w-2xl' : 'max-w-md'} overflow-hidden rounded-xl bg-white shadow-pop ring-1 ring-slate-900/5 focus:outline-none`}
+        >
+          <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-5 py-4">
+            <h2
+              id={titleId}
+              className="text-lead font-semibold text-slate-900"
+            >
+              {title}
+            </h2>
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label={t('common.close')}
+              className="rounded-md p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-600"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </button>
           </div>
-        )}
+          {/* Fields placed directly in a dialog are spaced evenly, never touching. */}
+          <div className="scrollbar-thin flex min-h-0 flex-col gap-4 overflow-y-auto px-5 py-4">{children}</div>
+          {footer && (
+            <div className="flex shrink-0 justify-end gap-2 border-t border-slate-200 bg-slate-50/70 px-5 py-3">
+              {footer}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </Portal>
   )
 }
 

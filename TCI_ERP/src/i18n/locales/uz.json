@@ -7196,7 +7196,8 @@
       "limit_request": "Limit so‘rovi",
       "list_import": "Yangi ro‘yxat",
       "owners_changed": "Egalar o‘zgardi",
-      "manual": "Qo‘lda tekshirish"
+      "manual": "Qo‘lda tekshirish",
+      "entity_created": "Reyestrga qo‘shildi"
     },
     "lists": {
       "title": "Amaldagi sanksiya ro‘yxatlari",
@@ -7260,7 +7261,7 @@
       "progress": {
         "loading": "Shaxslar saqlanmoqda: {{done}} / {{total}}…",
         "finishing": "Ro‘yxat amalga kiritilmoqda…",
-        "screening": "Nazoratdagi tashkilotlar tekshirilmoqda: {{done}} / {{total}}…"
+        "screening": "Reyestrdagi tashkilotlar tekshirilmoqda: {{done}} / {{total}}…"
       },
       "format": {
         "format": "Fayl tanlangan ro‘yxat formatida emas.",
@@ -7270,7 +7271,7 @@
     },
     "card": {
       "title": "Sanksiyaviy skrining",
-      "hint": "Tashkilot, undan yuqoridagi tashkilotlar va ularning ortidagi shaxslar reyting berilganda, limit so‘ralganda, egalar o‘zgarganda va yangi ro‘yxat import qilinganda rasmiy ro‘yxatlar bo‘yicha tekshiriladi.",
+      "hint": "Tashkilot, undan yuqoridagi tashkilotlar va ularning ortidagi shaxslar tashkilot reyestrga qo‘shilganda, reyting berilganda, limit so‘ralganda hamda egalar yoki nom o‘zgarganda rasmiy ro‘yxatlar bo‘yicha tekshiriladi, yangi ro‘yxat import qilinganda esa reyestrdagi barcha tashkilotlar qayta tekshiriladi.",
       "screenNow": "Hozir tekshirish",
       "lastScreened": "{{when}} tekshirilgan, ro‘yxatlar: {{lists}}",
       "neverScreened": "Hali tekshirilmagan",

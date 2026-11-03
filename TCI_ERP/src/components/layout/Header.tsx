@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import type { RefObject } from 'react'
 import { DisplaySettings } from '../../features/account/UiScalePicker'
 import { DemoMark, DemoModeSwitch } from '../../features/demo'
@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { ChevronDown, Compass, LogOut, UserRound } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
+import { Portal, anchoredStyle, remToPx, useAnchoredPlacement, useDismiss, useLayerZ } from '../ui'
 import { startTour } from '../../features/tour/registry'
 import { GlobalSearch } from './GlobalSearch'
 import type { GlobalSearchHandle } from './GlobalSearch'
@@ -36,7 +37,9 @@ function initials(email: string | undefined): string {
   if (!email) return '·'
   const local = email.split('@')[0] ?? ''
   const parts = local.split(/[._-]+/).filter(Boolean)
-  return ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || local[0]?.toUpperCase() || '·'
+  return (
+    ((parts[0]?.[0] ?? '') + (parts[1]?.[0] ?? '')).toUpperCase() || local[0]?.toUpperCase() || '·'
+  )
 }
 
 export function Header({ searchRef, toggleSlot, onShowSidebar, sidebarId }: HeaderProps) {
@@ -49,29 +52,26 @@ export function Header({ searchRef, toggleSlot, onShowSidebar, sidebarId }: Head
   const menuRef = useRef<HTMLDivElement>(null)
   const email = session?.user.email
 
-  useEffect(() => {
-    if (!menuOpen) return
-    const onDown = (e: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(e.target as Node)) setMenuOpen(false)
-    }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setMenuOpen(false)
-    }
-    window.addEventListener('mousedown', onDown)
-    window.addEventListener('keydown', onKey)
-    return () => {
-      window.removeEventListener('mousedown', onDown)
-      window.removeEventListener('keydown', onKey)
-    }
-  }, [menuOpen])
+  const popupRef = useRef<HTMLDivElement>(null)
+  const zIndex = useLayerZ('dropdown')
+  // The top bar has backdrop-filter, which makes it the containing block of
+  // anything fixed inside it: the menu is portalled to <body> (Overlay.tsx).
+  const place = useAnchoredPlacement(menuRef, menuOpen, { align: 'end', width: remToPx(19) })
+  useDismiss(menuOpen, [menuRef, popupRef], () => setMenuOpen(false))
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200/80 bg-white/85 px-4 backdrop-blur sm:gap-4 sm:px-6">
+    <header className="sticky top-0 z-sticky flex h-16 items-center gap-3 border-b border-slate-200/80 bg-white/85 px-4 backdrop-blur sm:gap-4 sm:px-6">
       {/* 20px in and centred 32px down — the toggle's one position. */}
       {toggleSlot === 'spacer' && <span aria-hidden className="-ml-1 size-9 shrink-0" />}
       {toggleSlot === 'button' && (
         <div className="-ml-1">
-          <SidebarToggle action="show" tone="plain" expanded={false} controls={sidebarId} onClick={onShowSidebar} />
+          <SidebarToggle
+            action="show"
+            tone="plain"
+            expanded={false}
+            controls={sidebarId}
+            onClick={onShowSidebar}
+          />
         </div>
       )}
       {section && SectionIcon && (
@@ -122,64 +122,71 @@ export function Header({ searchRef, toggleSlot, onShowSidebar, sidebarId }: Head
           <ChevronDown className="size-4 text-slate-400" />
         </button>
 
-        {menuOpen && (
-          <div
-            role="menu"
-            className="animate-fade-in absolute right-0 mt-2 w-[19rem] overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-pop"
-          >
-            <div className="border-b border-slate-100 px-4 py-3">
-              <div className="truncate text-small font-semibold text-slate-800">{email}</div>
-              <div className="mt-0.5 text-caption leading-snug text-slate-500">
-                {actingRole ? t('roles.actingAs', { role: t(`roles.${actingRole}`) }) : t('roles.unassigned')}
-              </div>
-              {heldRoles.length > 1 && (
-                <div className="mt-1 text-caption leading-snug text-slate-500">
-                  {t('roles.held', { roles: heldRoles.map((r) => t(`roles.${r}`)).join(', ') })}
+        {menuOpen && place && (
+          <Portal layer="dropdown">
+            <div
+              ref={popupRef}
+              role="menu"
+              data-overlay="menu"
+              style={anchoredStyle(place, zIndex)}
+              className="animate-fade-in scrollbar-thin overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-pop"
+            >
+              <div className="border-b border-slate-100 px-4 py-3">
+                <div className="truncate text-small font-semibold text-slate-800">{email}</div>
+                <div className="mt-0.5 text-caption leading-snug text-slate-500">
+                  {actingRole
+                    ? t('roles.actingAs', { role: t(`roles.${actingRole}`) })
+                    : t('roles.unassigned')}
                 </div>
-              )}
+                {heldRoles.length > 1 && (
+                  <div className="mt-1 text-caption leading-snug text-slate-500">
+                    {t('roles.held', { roles: heldRoles.map((r) => t(`roles.${r}`)).join(', ') })}
+                  </div>
+                )}
+              </div>
+              {/* Text size (0081) and zoom (0076), one click away. */}
+              <div className="border-b border-slate-100 px-4 py-3">
+                <DisplaySettings compact />
+              </div>
+              {/* Demo data (0096): the person's own world, one click away. */}
+              <div className="border-b border-slate-100 px-4 py-3">
+                <DemoModeSwitch compact />
+              </div>
+              {/* Password, second factor and sessions live on the account page. */}
+              <Link
+                to="/account"
+                role="menuitem"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-2 text-small text-slate-700 hover:bg-slate-50"
+              >
+                <UserRound className="size-4 text-slate-400" />
+                {t('account.title')}
+              </Link>
+              {/* The acting role's guided tour, again (features/tour). */}
+              <button
+                type="button"
+                role="menuitem"
+                data-tour="tour-replay"
+                onClick={() => {
+                  setMenuOpen(false)
+                  startTour()
+                }}
+                className="flex w-full items-center gap-3 px-4 py-2 text-small text-slate-700 hover:bg-slate-50"
+              >
+                <Compass className="size-4 text-slate-400" />
+                {t('tour.ui.takeTour')}
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => void signOut()}
+                className="flex w-full items-center gap-3 px-4 py-2 text-small text-slate-700 hover:bg-slate-50"
+              >
+                <LogOut className="size-4 text-slate-400" />
+                {t('auth.signOut')}
+              </button>
             </div>
-            {/* Text size (0081) and zoom (0076), one click away. */}
-            <div className="border-b border-slate-100 px-4 py-3">
-              <DisplaySettings compact />
-            </div>
-            {/* Demo data (0096): the person's own world, one click away. */}
-            <div className="border-b border-slate-100 px-4 py-3">
-              <DemoModeSwitch compact />
-            </div>
-            {/* Password, second factor and sessions live on the account page. */}
-            <Link
-              to="/account"
-              role="menuitem"
-              onClick={() => setMenuOpen(false)}
-              className="flex items-center gap-3 px-4 py-2 text-small text-slate-700 hover:bg-slate-50"
-            >
-              <UserRound className="size-4 text-slate-400" />
-              {t('account.title')}
-            </Link>
-            {/* The acting role's guided tour, again (features/tour). */}
-            <button
-              type="button"
-              role="menuitem"
-              data-tour="tour-replay"
-              onClick={() => {
-                setMenuOpen(false)
-                startTour()
-              }}
-              className="flex w-full items-center gap-3 px-4 py-2 text-small text-slate-700 hover:bg-slate-50"
-            >
-              <Compass className="size-4 text-slate-400" />
-              {t('tour.ui.takeTour')}
-            </button>
-            <button
-              type="button"
-              role="menuitem"
-              onClick={() => void signOut()}
-              className="flex w-full items-center gap-3 px-4 py-2 text-small text-slate-700 hover:bg-slate-50"
-            >
-              <LogOut className="size-4 text-slate-400" />
-              {t('auth.signOut')}
-            </button>
-          </div>
+          </Portal>
         )}
       </div>
     </header>

@@ -95,7 +95,7 @@ export function Sidebar({
             {agenda.overdue > 0 && (
               <Count value={agenda.overdue} digits={1} className="bg-danger-100 text-danger-700 in-data-[badge-ink=white]:bg-neg-500 in-data-[badge-ink=white]:text-white" title={t('agenda.groups.overdue')} />
             )}
-            <Count value={agenda.open} digits={1} className="bg-accent-100 text-accent-800 in-data-[badge-ink=white]:bg-white/15 in-data-[badge-ink=white]:text-white" title={t('agenda.openCount')} />
+            <Count value={agenda.open} digits={1} className="bg-accent-100 text-accent-800 in-data-[badge-ink=white]:bg-accent-600 in-data-[badge-ink=white]:text-white" title={t('agenda.openCount')} />
           </span>
         )}
       </NavLink>

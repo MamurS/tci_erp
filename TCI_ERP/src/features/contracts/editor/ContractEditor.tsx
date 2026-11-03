@@ -236,7 +236,7 @@ function Toolbar({ editor, context }: { editor: Editor; context: Record<string, 
     <div
       role="toolbar"
       aria-label={t('contractDrafts.editor.toolbar')}
-      className="sticky top-0 z-10 flex flex-wrap items-center gap-0.5 rounded-lg border border-slate-200 bg-white/95 px-2 py-2 shadow-card backdrop-blur"
+      className="sticky top-0 z-raised flex flex-wrap items-center gap-0.5 rounded-lg border border-slate-200 bg-white/95 px-2 py-2 shadow-card backdrop-blur"
     >
       <ToolButton label={t('contractDrafts.editor.undo')} disabled={!state.canUndo} onClick={() => editor.chain().focus().undo().run()}>
         <Undo2 />

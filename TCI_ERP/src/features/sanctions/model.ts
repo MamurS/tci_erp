@@ -26,7 +26,9 @@ export type MatchStatus = (typeof MATCH_STATUSES)[number]
 export const SUBJECT_KINDS = ['entity', 'owner', 'beneficial_owner'] as const
 export type SubjectKind = (typeof SUBJECT_KINDS)[number]
 
-export const SCREENING_REASONS = ['rating', 'limit_request', 'list_import', 'owners_changed', 'manual'] as const
+/** Why a screening ran (0091; 'entity_created' since 0099: a company added
+ * to the registry is screened at once). */
+export const SCREENING_REASONS = ['rating', 'limit_request', 'list_import', 'owners_changed', 'manual', 'entity_created'] as const
 export type ScreeningReason = (typeof SCREENING_REASONS)[number]
 
 export const OWNER_ROLES = ['beneficial_owner', 'shareholder', 'director'] as const

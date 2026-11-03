@@ -56,7 +56,7 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
         <table className="w-full border-separate border-spacing-0 text-small">
           <thead>
             <tr className="[&>th]:border-b [&>th]:border-slate-200 [&>th]:bg-slate-50 [&>th]:px-3 [&>th]:py-2 [&>th]:font-medium [&>th]:text-slate-500">
-              <th className="sticky left-0 z-10 bg-slate-50 text-left">
+              <th className="sticky left-0 z-[1] bg-slate-50 text-left">
                 {t('fin.cashflow.header')}
               </th>
               {columns.map((column) => (
@@ -89,7 +89,7 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
                 </tr>
                 {linesOf(section.key).map((lineKey) => (
                   <tr key={lineKey}>
-                    <td className="sticky left-0 z-10 border-b border-slate-100 bg-white px-3 py-2 text-slate-700">
+                    <td className="sticky left-0 z-[1] border-b border-slate-100 bg-white px-3 py-2 text-slate-700">
                       {t(`fin.cashflow.lines.${lineKey}`)}
                     </td>
                     {columns.map((column) => {
@@ -110,7 +110,7 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
                   </tr>
                 ))}
                 <tr className="bg-slate-50 font-medium">
-                  <td className="sticky left-0 z-10 border-b border-slate-200 bg-slate-50 px-3 py-2 text-slate-800">
+                  <td className="sticky left-0 z-[1] border-b border-slate-200 bg-slate-50 px-3 py-2 text-slate-800">
                     {t(`fin.cashflow.subtotals.${section.subtotalKey}`)}
                   </td>
                   {columns.map((column) => (
@@ -126,7 +126,7 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
             ))}
 
             <tr className="bg-slate-100 font-semibold [&>td]:border-t [&>td]:border-slate-300">
-              <td className="sticky left-0 z-10 bg-slate-100 px-3 py-2">
+              <td className="sticky left-0 z-[1] bg-slate-100 px-3 py-2">
                 {t('fin.cashflow.netChange')}
               </td>
               {columns.map((column) => (
@@ -136,7 +136,7 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
               ))}
             </tr>
             <tr>
-              <td className="sticky left-0 z-10 bg-white px-3 py-2 text-slate-500">
+              <td className="sticky left-0 z-[1] bg-white px-3 py-2 text-slate-500">
                 {t('fin.cashflow.deltaCash')}
               </td>
               {columns.map((column) => (
@@ -150,7 +150,7 @@ export function CashFlowTable({ columns }: { columns: CashFlowColumn[] }) {
               ))}
             </tr>
             <tr>
-              <td className="sticky left-0 z-10 bg-white px-3 py-2 text-slate-500">
+              <td className="sticky left-0 z-[1] bg-white px-3 py-2 text-slate-500">
                 {t('fin.cashflow.reconciliation')}
               </td>
               {columns.map((column) => (

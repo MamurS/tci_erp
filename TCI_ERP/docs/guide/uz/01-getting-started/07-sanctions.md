@@ -14,7 +14,7 @@ order: 7
 2. Shaxs yoki tashkilot nomini kiriting.
 3. Tizim ro‘yxatlarning eng yaqin yozuvlarini o‘xshashlik bahosi bilan ko‘rsatadi. Registr, kirill yoki lotin yozuvi, huquqiy shakl («MChJ», «OOO») ahamiyatga ega emas.
 
-Tashkilotlar va ularning {{term:beneficial-owner|benefitsiar mulkdorlari}} avtomatik tekshiriladi — reyting yaratilganda, limit so‘rovi yuborilganda, mulkdorlar yoki nom o‘zgarganda va yangi ro‘yxat yuklangandan keyin. Mosliklarni kredit tahlilchi ko‘rib chiqadi ({{link:analysis-sanctions}} ga qarang).
+Tashkilotlar va ularning {{term:beneficial-owner|benefitsiar mulkdorlari}} avtomatik tekshiriladi — tashkilot reyestrga qo‘shilganda, reyting yaratilganda, limit so‘rovi yuborilganda, mulkdorlar yoki nom o‘zgarganda; yangi ro‘yxat yuklangandan keyin esa reyestrdagi barcha tashkilotlar qayta tekshiriladi. Mosliklarni kredit tahlilchi ko‘rib chiqadi ({{link:analysis-sanctions}} ga qarang).
 
 > [!WARNING]
 > Sanksiya belgisi **qoplash yo‘qligini** bildiradi: ma’lumotlar bazasi belgilangan tashkilot yoki mamlakat bo‘yicha yangi limit so‘rovini, limitni tasdiqlashni, sug‘urta arizasini va polisni rad etadi — kim urinishidan qat’i nazar.

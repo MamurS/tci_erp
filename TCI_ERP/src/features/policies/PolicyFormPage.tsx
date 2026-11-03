@@ -440,7 +440,7 @@ export function PolicyFormPage() {
         </Card>
       </div>
 
-      <div className="sticky bottom-0 z-20 -mx-4 mt-6 -mb-6 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-4px_12px_-6px_rgb(0_36_60/0.12)] backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:-mb-7 lg:px-8">
+      <div className="sticky bottom-0 z-raised -mx-4 mt-6 -mb-6 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-4px_12px_-6px_rgb(0_36_60/0.12)] backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:-mb-7 lg:px-8">
         {saveError ? (
           <p className="mr-auto text-small text-neg-500" role="alert">
             {t(saveError)}

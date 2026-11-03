@@ -28,6 +28,9 @@ export function LinkRow({ to, children, className = '', ...rest }: LinkRowProps)
   const href = useHref(to)
 
   const handle = (event: MouseEvent<HTMLTableRowElement>) => {
+    // A dialog or a menu opened from the row is portalled to <body>; React
+    // still bubbles its clicks through the row — they are not the row's.
+    if (!event.currentTarget.contains(event.target as Node)) return
     const action = rowClickAction({
       ownClick: ownClick(event),
       selection: window.getSelection()?.toString() ?? '',

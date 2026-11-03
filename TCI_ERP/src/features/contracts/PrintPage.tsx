@@ -69,7 +69,7 @@ export function ContractPrintPage() {
           pageOf={docT.t('report.pageOf', { page: PAGE, pages: PAGES })}
         />
       )}
-      <div className="cd-print-toolbar sticky top-0 z-10 flex items-center gap-3 bg-accent-600 px-4 py-2 text-white">
+      <div className="cd-print-toolbar sticky top-0 z-raised flex items-center gap-3 bg-accent-600 px-4 py-2 text-white">
         {draftId && (
           <Link
             to={draftPath(draftId)}

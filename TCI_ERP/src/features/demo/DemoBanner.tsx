@@ -2,6 +2,7 @@
  * the shell, and a «DEMO» mark in the top bar. Both are there for the whole
  * session in demo mode, so nothing moves while the person works. */
 
+import { useLayoutEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { FlaskConical } from 'lucide-react'
 
@@ -12,9 +13,39 @@ export function DemoBanner() {
   const { t } = useTranslation()
   const { data: state } = useDemoState()
   const save = useSetDemoMode()
-  if (!inDemoWorld(state)) return null
+  const shown = inDemoWorld(state)
+  const ref = useRef<HTMLDivElement>(null)
+  // Dialogs are centred BELOW the bar (Modal reads --demo-banner-bottom):
+  // where its bottom edge is on screen now — under the portal's header, or
+  // nothing once the page has scrolled it away — kept up to date.
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!shown || !el) return
+    const root = document.documentElement
+    let frame = 0
+    const write = () =>
+      root.style.setProperty('--demo-banner-bottom', `${Math.max(0, el.getBoundingClientRect().bottom)}px`)
+    const schedule = () => {
+      cancelAnimationFrame(frame)
+      frame = requestAnimationFrame(write)
+    }
+    write()
+    window.addEventListener('scroll', schedule, { capture: true, passive: true })
+    window.addEventListener('resize', schedule)
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(schedule)
+    observer?.observe(el)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', schedule, { capture: true })
+      window.removeEventListener('resize', schedule)
+      observer?.disconnect()
+      root.style.removeProperty('--demo-banner-bottom')
+    }
+  }, [shown])
+  if (!shown) return null
   return (
     <div
+      ref={ref}
       role="status"
       data-testid="demo-banner"
       className="flex min-h-9 items-center justify-center gap-3 border-b border-warning-300 bg-warning-100 px-4 py-2 text-small text-slate-900"

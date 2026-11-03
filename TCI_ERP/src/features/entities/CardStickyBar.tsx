@@ -61,7 +61,7 @@ export function CardStickyBar({
     <>
       {/* Zero tall; its negative margin lays the bar over the hero's foot. */}
       <div ref={sentinel} aria-hidden className="-mt-12 h-0" />
-      <div ref={bar} data-card-sticky className="sticky top-16 z-30">
+      <div ref={bar} data-card-sticky className="sticky top-16 z-sticky">
         <div
           aria-hidden={!stuck}
           data-brand-surface

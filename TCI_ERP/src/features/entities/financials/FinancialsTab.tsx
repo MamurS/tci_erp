@@ -189,7 +189,7 @@ export function FinancialsTab({ entityId }: { entityId: string }) {
           anchor's negative margin takes it back, so nothing moves where
           nothing sticks, and the anchor is the block's own top. */}
       <div ref={sheetAnchor} aria-hidden className="-mt-3" />
-      <div ref={setTabsRow} className="sticky top-[calc(4rem+var(--card-sticky-h,0px))] z-20 bg-canvas pt-3">
+      <div ref={setTabsRow} className="sticky top-[calc(4rem+var(--card-sticky-h,0px))] z-raised bg-canvas pt-3">
         <div className="flex flex-wrap items-center gap-x-5 gap-y-3 pb-4">
           <PeriodSelector
             all={filteredAll}

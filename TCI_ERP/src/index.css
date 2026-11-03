@@ -40,6 +40,49 @@
   --font-report: 'Arimo', 'Liberation Sans', Arial, Helvetica, sans-serif;
 }
 
+/*
+ * Layers — the one z-index scale (DESIGN.md «Layers», mirrored by
+ * src/components/ui/layers.ts and checked by layers.test.ts). Never a bare
+ * number: a page's own sticky parts are `z-raised`, the top bar and the
+ * docked sidebar `z-sticky`; every overlay is portalled to <body> on its
+ * layer (Overlay.tsx). Inside one component, `z-[1]`…`z-[3]` order its own
+ * parts (a frozen column under a sticky head) and reach nothing outside it.
+ */
+:root {
+  --z-base: 0;
+  --z-raised: 10;
+  --z-sticky: 20;
+  --z-dropdown: 30;
+  --z-drawer: 40;
+  --z-modal: 50;
+  --z-toast: 60;
+  --z-tour: 70;
+}
+@utility z-base {
+  z-index: var(--z-base);
+}
+@utility z-raised {
+  z-index: var(--z-raised);
+}
+@utility z-sticky {
+  z-index: var(--z-sticky);
+}
+@utility z-dropdown {
+  z-index: var(--z-dropdown);
+}
+@utility z-drawer {
+  z-index: var(--z-drawer);
+}
+@utility z-modal {
+  z-index: var(--z-modal);
+}
+@utility z-toast {
+  z-index: var(--z-toast);
+}
+@utility z-tour {
+  z-index: var(--z-tour);
+}
+
 @layer base {
   /* The browser's own focus outline follows the same rule (elements with no
      focus style of their own); text entry keeps it, as above. */

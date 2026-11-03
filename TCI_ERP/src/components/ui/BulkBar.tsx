@@ -25,7 +25,7 @@ export function BulkBar({
       role="region"
       aria-label={t('ui.bulk.label')}
       data-bulk-bar
-      className="animate-fade-in sticky bottom-4 z-20 mx-auto mt-4 flex w-fit max-w-full flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-pop"
+      className="animate-fade-in sticky bottom-4 z-raised mx-auto mt-4 flex w-fit max-w-full flex-wrap items-center gap-3 rounded-lg border border-slate-200 bg-white px-4 py-2 shadow-pop"
     >
       <span className="text-body font-semibold text-slate-800 tabular-nums">
         {t('ui.bulk.selected', { count })}

@@ -50,7 +50,7 @@ function PrintView({
 
   return (
     <div className="min-h-screen bg-slate-200">
-      <div className="sticky top-0 z-10 flex items-center gap-3 bg-accent-600 px-4 py-2 text-white">
+      <div className="sticky top-0 z-raised flex items-center gap-3 bg-accent-600 px-4 py-2 text-white">
         <Link
           to={backTo}
           className="inline-flex items-center gap-2 rounded-md px-2 py-1 text-small text-white/85 hover:bg-white/10 hover:text-white"
