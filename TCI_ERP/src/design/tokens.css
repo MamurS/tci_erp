@@ -574,7 +574,7 @@
   --color-seq-8: #98d79a;
   --color-seq-9: #cdf9cc;
 }
-:root:not([data-mode='dark'])[data-theme='salad'] [data-brand-surface] [data-chrome-actions] {
+:root:not([data-mode='dark'])[data-theme='salad'] [data-brand-surface] :is([data-chrome-actions], [data-badge]) {
   --color-white: #ffffff;
   --color-black: #000000;
   --color-canvas: #f8f6f5;
@@ -958,7 +958,7 @@
   --color-seq-8: #98d1df;
   --color-seq-9: #d2f5ff;
 }
-:root:not([data-mode='dark'])[data-theme='teal'] [data-brand-surface] [data-chrome-actions] {
+:root:not([data-mode='dark'])[data-theme='teal'] [data-brand-surface] :is([data-chrome-actions], [data-badge]) {
   --color-white: #ffffff;
   --color-black: #000000;
   --color-canvas: #f8f6f5;
@@ -1342,7 +1342,7 @@
   --color-seq-8: #d9bbff;
   --color-seq-9: #f3eaff;
 }
-:root:not([data-mode='dark'])[data-theme='plum'] [data-brand-surface] [data-chrome-actions] {
+:root:not([data-mode='dark'])[data-theme='plum'] [data-brand-surface] :is([data-chrome-actions], [data-badge]) {
   --color-white: #ffffff;
   --color-black: #000000;
   --color-canvas: #f8f6f5;
@@ -1726,7 +1726,7 @@
   --color-seq-8: #98cfee;
   --color-seq-9: #daf2ff;
 }
-:root:not([data-mode='dark'])[data-theme='graphite'] [data-brand-surface] [data-chrome-actions] {
+:root:not([data-mode='dark'])[data-theme='graphite'] [data-brand-surface] :is([data-chrome-actions], [data-badge]) {
   --color-white: #ffffff;
   --color-black: #000000;
   --color-canvas: #f8f6f5;
