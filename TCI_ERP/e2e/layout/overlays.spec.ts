@@ -261,18 +261,16 @@ const SCENARIOS: Scenario[] = [
     },
   },
   {
-    name: 'portal › request a limit › company picker (above the dialog)',
-    fixture: 'client',
-    path: '/portal/limits',
+    // The portal's own picker lists its results inside the dialog; the
+    // staff forms pick with the Combobox, whose list is a portalled popover.
+    name: 'registry › new company › country picker (above the dialog)',
+    fixture: 'info',
+    path: '/entities',
     kind: 'popover',
     open: async (page, lang) => {
-      await page
-        .getByRole('button', { name: text(lang, 'portal.limits.request') })
-        .first()
-        .click()
+      await page.getByRole('button', { name: text(lang, 'entities.add') }).first().click()
       const picker = dialog(page).locator('input[role="combobox"]').first()
       await picker.click()
-      await picker.fill('dem')
       const list = page.locator('[role="listbox"][data-overlay="listbox"]').last()
       await expect(list).toBeVisible({ timeout: 10_000 })
       return list
