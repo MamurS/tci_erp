@@ -6,17 +6,19 @@
 -- bodies) for an approval question that got no answer (2026-11-02).
 --
 -- What it does: applies 0096 (every business table gets is_demo; the existing
--- mock data — anything linked to the @demo.invalid accounts — becomes the DEMO
--- world, its companies renamed «DEMO …» and policy numbers «DEMO-…»), 0097 (the
--- load / unload functions; it LOADS NOTHING — admin loads the demo book from
--- Admin › «Демо-данные») and 0098 (tour progress column), checks that no row
--- was added or lost, prints per table how many rows are now demo, and records
--- the three files in the migration ledger.
+-- test data becomes the DEMO world — its companies renamed «DEMO …», policy
+-- numbers «DEMO-…»; the 13 @demo.invalid accounts become demo accounts and the
+-- two staff accounts start in demo mode; the SECTOR GRADES stay real and are
+-- shared by both worlds), 0097 (the load / unload functions — it LOADS NOTHING;
+-- admin loads the demo book from Admin › «Демо-данные») and 0098 (tour
+-- progress), checks that no row was added or lost, records the three files in
+-- the migration ledger, and ends with ONE RESULT TABLE: per table, the rows and
+-- how many of them are now demo (the editor shows only the last result).
 --
 -- HOW TO RUN:
---   1. Run it AS IS. It ends in ROLLBACK: a dry run. Read the NOTICE lines
---      (Messages tab): rows per table, demo rows per table.
---   2. If they look right, change the LAST LINE from `rollback;` to `commit;`
+--   1. Run it AS IS. It ends in ROLLBACK: a dry run, nothing is kept. Read the
+--      result table.
+--   2. If it looks right, change the LAST LINE from `rollback;` to `commit;`
 --      and run it again.
 -- One transaction: if any check fails, nothing is changed. Delete this file
 -- once it has been committed and verified.
@@ -39,7 +41,7 @@ select c.relname::text as tbl, (xpath('/row/n/text()', query_to_xml(format('sele
  where s.nspname = 'tci' and c.relkind in ('r', 'p');
 
 -- ======================================================================
--- 0096_demo_worlds.sql  (md5 c2570da90bb9b515929f3f34cba41816)
+-- 0096_demo_worlds.sql  (md5 4cb62666617f28d50ed56973d3135c84)
 -- ======================================================================
 -- What: DEMO DATA kept apart from real data in the one canonical project, as
 --       the owner's sister app (mig-inward-re) does it:
@@ -66,7 +68,10 @@ select c.relname::text as tbl, (xpath('/row/n/text()', query_to_xml(format('sele
 --         6. Everything already in the database is TEST data (owner,
 --            2026-11-02): it becomes demo data — the @demo.invalid accounts are
 --            demo users, and the two real staff accounts start in demo mode so
---            they keep seeing it until they leave demo mode.
+--            they keep seeing it until they leave demo mode. The sector
+--            grades are the exception (owner, 2026-11-03): sector reviews are
+--            SHARED, like the sanctions and OECD lists — both worlds read the
+--            same grade, and nobody writes one from the demo world.
 -- Why:  Prompt 32 (owner 2026-11-02): demo data that can be switched on and off,
 --       never mixed with real data, so the system can be emptied for real use
 --       with one switch and trained on safely.
@@ -148,7 +153,7 @@ language sql immutable set search_path = '' as $$
     'credit_limit_requests', 'credit_limit_decisions', 'decision_conditions', 'limit_validations',
     'committee_votes', 'committee_conflicts', 'limit_information_waivers', 'limit_request_amendments',
     'rating_proposals', 'rating_proposal_steps', 'rating_votes', 'rating_conflicts',
-    'sector_reviews', 'country_risk_overrides',
+    'country_risk_overrides',
     'tasks', 'task_comments', 'task_transfers', 'workflow_events']
 $$;
 revoke all on function tci.demo_world_tables() from public, anon;
@@ -164,12 +169,19 @@ begin
   end loop;
 end $$;
 
--- Shared objects (lists, sectors, OECD imports) are nobody's demo: their
--- reminders and their imports' events are real.
+-- Shared objects (the sanctions lists, the OECD lists, the sectors and their
+-- reviews) are nobody's demo: both worlds read them, and their reminders and
+-- events are real. A real task is never addressed to a demo account (see the
+-- guard): the ones already addressed to one go back to their department.
 update tci.workflow_events set is_demo = false
- where object_type in ('sanctions_list', 'country_risk_import', 'country_risk_list') and is_demo;
+ where object_type in ('sanctions_list', 'country_risk_import', 'country_risk_list', 'sector') and is_demo;
 update tci.tasks set is_demo = false
- where object_type in ('sanctions_list', 'country_risk_import', 'country_risk_list') and is_demo;
+ where object_type in ('sanctions_list', 'country_risk_import', 'country_risk_list', 'sector') and is_demo;
+update tci.tasks t set target_user = null
+  from auth.users u
+ where u.id = t.target_user and lower(u.email) like '%@demo.invalid'
+   and t.object_type in ('sanctions_list', 'country_risk_import', 'country_risk_list', 'sector')
+   and t.target_role is not null;
 
 -- ---------------------------------------------------------------------------
 -- 3. The links the guard follows
@@ -237,7 +249,6 @@ language sql immutable set search_path = '' as $$
     when 'limit_validation' then 'limit_validations'
     when 'sanction_flag' then 'sanction_flags'
     when 'sanctions_match' then 'sanctions_matches'
-    when 'sector_review' then 'sector_reviews'
     when 'country_risk_override' then 'country_risk_overrides'
     when 'bank_statement_import' then 'bank_statement_imports'
   end
@@ -313,8 +324,8 @@ begin
         end if;
         v_world := v_w;
       end if;
-    elsif v_row ->> 'object_type' in ('sanctions_list', 'country_risk_import', 'country_risk_list') then
-      v_world := false;      -- the official lists and the OECD list are real
+    elsif v_row ->> 'object_type' in ('sanctions_list', 'country_risk_import', 'country_risk_list', 'sector') then
+      v_world := false;      -- the official lists, the OECD list and the sectors are shared, so real
     end if;
   end if;
 
@@ -429,7 +440,6 @@ begin
     'tci.refuse_contract_history_change()'::regprocedure,
     'tci.guard_limit_request_amendment()'::regprocedure,
     'tci.guard_sanction_flag()'::regprocedure,
-    'tci.guard_sector_review()'::regprocedure,
     'tci.guard_country_override()'::regprocedure,
     'tci.task_comments_immutable()'::regprocedure]
   loop
@@ -463,9 +473,6 @@ begin
 end $$;
 
 -- the grade / category / flag in force is the caller's world's
-select pg_temp.patch('tci.sector_current_review(uuid)',
-  'where r.sector_id = p_sector and r.status = ''approved''',
-  'where r.sector_id = p_sector and r.status = ''approved'' and r.is_demo = tci.demo_mode()');
 select pg_temp.patch('tci.country_risk(character)',
   'where o.country_code = p_country and o.status = ''approved'')',
   'where o.country_code = p_country and o.status = ''approved'' and o.is_demo = tci.demo_mode())');
@@ -491,24 +498,32 @@ select pg_temp.patch('tci.buyer_risk_context(uuid)',
 select pg_temp.patch('tci.set_sanction_flag(text, character, uuid, text, text, text, date, text)',
   'where v.outcome in (''approved'', ''partial'') and v.policy_id is not null',
   'where v.outcome in (''approved'', ''partial'') and v.policy_id is not null and e.is_demo = v_flag.is_demo');
--- a sector downgrade lists the buyers of its own world
+-- Sector reviews are SHARED (owner 2026-11-03): both worlds read the same
+-- grade. Their downgrade task is real, so it lists real buyers only; the
+-- quarterly task goes to a real analyst (a demo account is never routed real work).
 select pg_temp.patch('tci.sector_review_in_force(tci.sector_reviews, text)',
   'join tci.legal_entities e on e.id = v.entity_id',
-  'join tci.legal_entities e on e.id = v.entity_id and e.is_demo = p_review.is_demo', 2);
--- the quarterly sector task, per world (the demo world only while demo data is loaded)
-select pg_temp.patch('tci.refresh_sector_tasks()',
-  'where t.task_type = ''sector_review_due'' and t.status = ''open''',
-  'where t.task_type = ''sector_review_due'' and t.status = ''open'' and t.is_demo = tci.demo_mode()');
-select pg_temp.patch('tci.refresh_sector_tasks()',
-  'where r.sector_id = t.object_id and r.quarter_start = v_q',
-  'where r.sector_id = t.object_id and r.quarter_start = v_q and r.is_demo = t.is_demo');
+  'join tci.legal_entities e on e.id = v.entity_id and not e.is_demo', 2);
 select pg_temp.patch('tci.refresh_sector_tasks()',
   'where s.analyst_id is not null',
-  'where s.analyst_id is not null and tci.user_in_world(s.analyst_id)'
-  || E'\n       and (not tci.demo_mode() or exists (select 1 from tci.legal_entities d where d.is_demo))');
-select pg_temp.patch('tci.refresh_sector_tasks()',
-  'where r.sector_id = s.id and r.quarter_start = v_q',
-  'where r.sector_id = s.id and r.quarter_start = v_q and r.is_demo = tci.demo_mode()');
+  'where s.analyst_id is not null'
+  || E'\n       and not coalesce((select p.is_demo_user from tci.user_profiles p where p.user_id = s.analyst_id), false)');
+
+-- A sector review is real data: nobody writes one from the demo world, where
+-- it would look like demo data and change the grade every real decision reads.
+create function tci.sector_review_real_only() returns trigger
+language plpgsql security invoker set search_path = '' as $$
+begin
+  if (select auth.uid()) is not null and tci.demo_mode() then
+    raise exception 'demo_shared_write: sector grades are shared with real data; leave demo mode to review a sector'
+      using errcode = '42501';
+  end if;
+  return new;
+end $$;
+revoke all on function tci.sector_review_real_only() from public, anon;
+grant execute on function tci.sector_review_real_only() to authenticated, service_role;
+create trigger sector_reviews_real_only before insert or update on tci.sector_reviews
+  for each row execute function tci.sector_review_real_only();
 -- registry searches that run as the owner
 select pg_temp.patch('tci.client_search_entities(text, integer)',
   'where tci.has_role(''client'')',
@@ -692,7 +707,7 @@ begin
   select string_agg(p.proname, ', ') into v_bad from pg_proc p
    where p.pronamespace = 'tci'::regnamespace
      and p.proname in ('guard_workflow_write', 'refuse_contract_history_change', 'guard_limit_request_amendment',
-                       'guard_sanction_flag', 'guard_sector_review', 'guard_country_override', 'task_comments_immutable')
+                       'guard_sanction_flag', 'guard_country_override', 'task_comments_immutable')
      and p.prosrc not like '%old.is_demo and tci.demo_unload_active()%';
   if v_bad is not null then
     raise exception '0096: no unload passage in %', v_bad;
@@ -700,7 +715,7 @@ begin
 end $$;
 
 -- ======================================================================
--- 0097_demo_seed.sql  (md5 bce4b1c9e6bfaa16fbd30c1b3af5ce7e)
+-- 0097_demo_seed.sql  (md5 f8c1fa20d087caad6f05e0033d52033b)
 -- ======================================================================
 -- What: LOAD and UNLOAD the demo data (admin, Администрирование › Демо-данные).
 --         * tci.seed_demo_data(p_password) builds a coherent demo world
@@ -708,7 +723,7 @@ end $$;
 --           (one per role, @demo.invalid, created when missing): companies in
 --           several countries and sectors with three years of statements,
 --           ratings (confirmed, unconfirmed, a manual proposal at a colleague),
---           a sector review per industry, a country override waiting for the
+--           (sector grades are shared, not seeded), a country override waiting for the
 --           head of credit analysis, policies in every status with premium
 --           paid / partly paid / overdue and declarations, limit requests at
 --           every stage — decided within authority, escalated up the levels
@@ -1137,7 +1152,7 @@ declare
   r uuid; r2 uuid; v jsonb; v_step uuid; v_dec uuid; v_noa uuid; v_claim uuid; v_decl uuid; v_sub uuid;
   v_offer uuid; v_tpl uuid; v_draft uuid; a_alm uuid; a_ist uuid; a_mos uuid; a_ham uuid; a_sha uuid;
   a_dub uuid; a_bis uuid; a_kyi uuid; a_lon uuid; a_del uuid; a_par uuid; a_log uuid; a_con uuid;
-  v_sector record; v_grade text; v_inst record; n int := 0;
+  v_inst record; n int := 0;
 begin
   -- ---------------------------------------------------------- companies
   perform tci._demo_act('info');
@@ -1166,26 +1181,8 @@ begin
   perform tci.save_entity_relationship(g_par, g_log, 'ownership', 100, current_date - 900, null, 'manual', 'Demo group');
   perform tci.save_entity_relationship(g_par, g_con, 'ownership', 75, current_date - 900, null, 'manual', 'Demo group');
 
-  -- ---------------------------------------------------------- sectors: a review per industry, this quarter
-  for v_sector in select s.id, s.industry_code from tci.sectors s order by s.industry_code loop
-    v_grade := case v_sector.industry_code
-      when 'PHAR' then 'A' when 'ICTS' then 'A' when 'FOOD' then 'B' when 'RETL' then 'B' when 'TEXT' then 'B'
-      when 'AGRI' then 'B' when 'METL' then 'C' when 'CNST' then 'C' when 'TRAN' then 'B' when 'OILG' then 'C'
-      when 'AUTO' then 'C' when 'PAPR' then 'C' when 'WOOD' then 'C' else 'B' end;
-    perform tci._demo_act(case when n % 2 = 0 then 'analyst.senior' else 'analyst' end);
-    begin
-      perform tci.submit_sector_review(v_sector.id, v_grade,
-        case v_grade when 'C' then 'negative' when 'A' then 'positive' else 'stable' end,
-        (select jsonb_object_agg(k, jsonb_build_object('score', case when v_grade = 'C' then 'adverse' else 'neutral' end,
-                                                       'note', 'Demo assessment'))
-           from unnest(tci.sector_factor_keys()) k),
-        'Demo sector review: the grade reflects demand, margins and payment behaviour in the sector this quarter.',
-        jsonb_build_array(jsonb_build_object('title', 'Demo source', 'url', 'https://example.org')));
-    exception when others then
-      raise notice 'demo seed: %', sqlerrm;
-    end;
-    n := n + 1;
-  end loop;
+  -- sectors: none of their own — sector grades are shared with real data
+  -- (owner 2026-11-03), so the demo book is rated against the real grades
 
   -- ---------------------------------------------------------- country override waiting for the head of credit analysis
   perform tci._demo_act('analyst');
@@ -1617,7 +1614,6 @@ begin
     d61 as (delete from tci.income_statements where is_demo returning 1),
     d62 as (delete from tci.balance_sheets where is_demo returning 1),
     d63 as (delete from tci.financial_statements where is_demo returning 1),
-    d64 as (delete from tci.sector_reviews where is_demo returning 1),
     d65 as (delete from tci.country_risk_overrides where is_demo returning 1),
     d66 as (delete from tci.legal_entities where is_demo returning 1)
   select null into v_after;
@@ -1753,33 +1749,28 @@ end;
 $$;
 
 -- ======================================================================
--- checks and the ledger
+-- checks
 -- ======================================================================
 do $$
 declare
   r record;
   v_total bigint;
-  v_demo bigint;
   v_changed int := 0;
 begin
   for r in select b.tbl, b.n from _rows_before b order by b.tbl loop
     execute format('select count(*) from tci.%I', r.tbl) into v_total;
-    if v_total <> r.n then
-      v_changed := v_changed + 1;
-      raise notice 'ROWS CHANGED  %: % -> %', r.tbl, r.n, v_total;
-    end if;
+    if v_total <> r.n then v_changed := v_changed + 1; end if;
   end loop;
   if v_changed > 0 then
     raise exception 'row counts changed in % table(s) — nothing applied', v_changed;
   end if;
-
-  for r in select t from unnest(tci.demo_world_tables()) t order by 1 loop
-    execute format('select count(*), count(*) filter (where is_demo) from tci.%I', r.t) into v_total, v_demo;
-    raise notice 'demo world  %: % rows, % demo', rpad(r.t, 34), v_total, v_demo;
-  end loop;
   if (select count(*) from information_schema.columns where table_schema = 'tci' and column_name = 'is_demo')
      <> cardinality(tci.demo_world_tables()) then
     raise exception 'is_demo is not on every demo-world table';
+  end if;
+  if exists (select 1 from information_schema.columns
+              where table_schema = 'tci' and table_name = 'sector_reviews' and column_name = 'is_demo') then
+    raise exception 'sector reviews must stay shared';
   end if;
   if not exists (select 1 from information_schema.columns
                   where table_schema = 'tci' and table_name = 'user_profiles' and column_name = 'ui_tour_state') then
@@ -1789,16 +1780,35 @@ begin
      or exists (select 1 from tci.legal_entities where not is_demo and name like 'DEMO %') then
     raise exception 'DEMO prefix and is_demo disagree on legal_entities';
   end if;
-  raise notice 'demo accounts: %', (select count(*) from tci.user_profiles where is_demo_user);
+end $$;
+
+create temp table _report (ord int, item text, total_rows bigint, demo_rows bigint) on commit drop;
+do $$
+declare r record; v_total bigint; v_demo bigint; i int := 0;
+begin
+  for r in select t from unnest(tci.demo_world_tables()) t order by 1 loop
+    execute format('select count(*), count(*) filter (where is_demo) from tci.%I', r.t) into v_total, v_demo;
+    if v_total > 0 then
+      i := i + 1;
+      insert into _report values (i, r.t, v_total, v_demo);
+    end if;
+  end loop;
+  insert into _report values
+    (1000, 'sector_reviews (shared, stay real)', (select count(*) from tci.sector_reviews), 0),
+    (1001, 'demo accounts', (select count(*) from tci.user_profiles where is_demo_user), null),
+    (1002, 'staff accounts now in demo mode', (select count(*) from tci.user_profiles where ui_demo_mode and not is_demo_user), null);
 end $$;
 
 insert into supabase_migrations.schema_migrations (version, name, statements) values
   ('20261102130000', '0096_demo_worlds',
-   array['-- applied by the owner with docs/deploy/canonical-apply-0096-0098.sql; the committed file is the authoritative text (md5 c2570da90bb9b515929f3f34cba41816)']),
+   array['-- applied by the owner with docs/deploy/canonical-apply-0096-0098.sql; the committed file is the authoritative text (md5 4cb62666617f28d50ed56973d3135c84)']),
   ('20261102140000', '0097_demo_seed',
-   array['-- applied by the owner with docs/deploy/canonical-apply-0096-0098.sql; the committed file is the authoritative text (md5 bce4b1c9e6bfaa16fbd30c1b3af5ce7e)']),
+   array['-- applied by the owner with docs/deploy/canonical-apply-0096-0098.sql; the committed file is the authoritative text (md5 f8c1fa20d087caad6f05e0033d52033b)']),
   ('20261102150000', '0098_tour_progress',
    array['-- applied by the owner with docs/deploy/canonical-apply-0096-0098.sql; the committed file is the authoritative text (md5 af4c3b5ff954819a01e853dd9dcd660f)']);
+
+-- the result table the editor shows
+select item, total_rows, demo_rows from _report order by ord;
 
 -- DRY RUN: change this last line to `commit;` for the real run.
 rollback;

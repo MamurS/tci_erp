@@ -2930,7 +2930,7 @@ are ended once, never changed. Thresholds are admin's
 ### Demo data rules (migrations 0096–0097, Prompt 32)
 
 **Demo data is a world of its own, chosen per person** (as in
-mig-inward-re). The 67 business tables of `tci.demo_world_tables()` carry
+mig-inward-re). The 66 business tables of `tci.demo_world_tables()` carry
 `is_demo` (default `tci.demo_mode()`); a RESTRICTIVE policy «<table>: demo
 world» on each lets a person read and write only the rows of their world.
 `tci.demo_mode()` (security invoker, the caller's own profile) = a demo
@@ -2943,7 +2943,7 @@ A real client has nothing in the demo world, so the portal shows the banner
 to demo clients but offers real clients no switch.
 
 **The guard trigger keeps the worlds apart** (`tci.demo_guard`, `zz_demo_guard`
-BEFORE every write on the 67 tables). A row takes the world of what it links
+BEFORE every write on the 66 tables). A row takes the world of what it links
 to — every FK in `tci.demo_links` (`refresh_demo_links`, internal) and, for
 `tasks` / `workflow_events`, the object (`tci.demo_object_table`); links into
 both worlds raise `demo_world_mixed` (23514); `is_demo` never changes
@@ -2956,6 +2956,13 @@ SHARED objects — the sanctions lists, the OECD lists — are real, and a real
 task is never addressed to a demo account (it falls back to the
 department). `tci.demo_link_violations()` (admin) lists any mixed link; it
 must stay empty.
+
+**Sector grades are shared (owner 2026-11-03).** `tci.sector_reviews` is not
+a demo table: both worlds read the same grade, the load writes no review and
+the unload removes none, the sector tasks and events are real (object
+`sector`), the downgrade task lists real buyers only, and nobody writes a
+review from the demo world (`sector_reviews_real_only`, `demo_shared_write`).
+The 21 initial grades of 2026-10-27 therefore stay real.
 
 **Readers inside SECURITY DEFINER functions are world-aware.** A definer
 function reads as the owner, past RLS, so 0096 patched each one that picks

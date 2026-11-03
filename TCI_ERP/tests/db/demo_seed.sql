@@ -106,7 +106,7 @@ begin
   foreach k in array array['legal_entities', 'financial_statements', 'credit_assessments', 'credit_limit_requests',
                            'credit_limit_decisions', 'limit_validations', 'committee_votes', 'policies',
                            'declarations', 'premium_payments', 'overdue_notifications', 'claims', 'claim_invoices',
-                           'group_limits', 'entity_relationships', 'sector_reviews', 'insurance_requests',
+                           'group_limits', 'entity_relationships', 'insurance_requests',
                            'commercial_offers', 'rating_proposals', 'entity_requests', 'client_buyer_proposals',
                            'country_risk_overrides', 'tasks', 'workflow_events'] loop
     if coalesce((v1 -> 'tables' ->> k)::int, 0) = 0 then
@@ -131,9 +131,9 @@ begin
   if v_n = 0 then raise exception 'demo_seed: no group over its limit'; end if;
   select count(*) into v_n from tci.claims c where c.is_demo and c.overdue_notification_id is not null;
   if v_n = 0 then raise exception 'demo_seed: no claim from an overdue notification'; end if;
-  if exists (select 1 from tci.sectors s where not exists (
-               select 1 from tci.sector_reviews r where r.sector_id = s.id and r.is_demo)) then
-    raise exception 'demo_seed: a sector has no demo review';
+  -- sector grades are shared: the load writes none
+  if exists (select 1 from tci.sector_reviews r where r.created_at >= now()) then
+    raise exception 'demo_seed: the load wrote a sector review';
   end if;
   foreach k in array array['sales', 'commercial_underwriter', 'credit_underwriter', 'credit_analyst',
                            'information_manager', 'claims'] loop

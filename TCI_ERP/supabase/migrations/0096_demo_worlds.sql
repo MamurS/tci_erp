@@ -23,7 +23,10 @@
 --         6. Everything already in the database is TEST data (owner,
 --            2026-11-02): it becomes demo data — the @demo.invalid accounts are
 --            demo users, and the two real staff accounts start in demo mode so
---            they keep seeing it until they leave demo mode.
+--            they keep seeing it until they leave demo mode. The sector
+--            grades are the exception (owner, 2026-11-03): sector reviews are
+--            SHARED, like the sanctions and OECD lists — both worlds read the
+--            same grade, and nobody writes one from the demo world.
 -- Why:  Prompt 32 (owner 2026-11-02): demo data that can be switched on and off,
 --       never mixed with real data, so the system can be emptied for real use
 --       with one switch and trained on safely.
@@ -105,7 +108,7 @@ language sql immutable set search_path = '' as $$
     'credit_limit_requests', 'credit_limit_decisions', 'decision_conditions', 'limit_validations',
     'committee_votes', 'committee_conflicts', 'limit_information_waivers', 'limit_request_amendments',
     'rating_proposals', 'rating_proposal_steps', 'rating_votes', 'rating_conflicts',
-    'sector_reviews', 'country_risk_overrides',
+    'country_risk_overrides',
     'tasks', 'task_comments', 'task_transfers', 'workflow_events']
 $$;
 revoke all on function tci.demo_world_tables() from public, anon;
@@ -121,12 +124,19 @@ begin
   end loop;
 end $$;
 
--- Shared objects (lists, sectors, OECD imports) are nobody's demo: their
--- reminders and their imports' events are real.
+-- Shared objects (the sanctions lists, the OECD lists, the sectors and their
+-- reviews) are nobody's demo: both worlds read them, and their reminders and
+-- events are real. A real task is never addressed to a demo account (see the
+-- guard): the ones already addressed to one go back to their department.
 update tci.workflow_events set is_demo = false
- where object_type in ('sanctions_list', 'country_risk_import', 'country_risk_list') and is_demo;
+ where object_type in ('sanctions_list', 'country_risk_import', 'country_risk_list', 'sector') and is_demo;
 update tci.tasks set is_demo = false
- where object_type in ('sanctions_list', 'country_risk_import', 'country_risk_list') and is_demo;
+ where object_type in ('sanctions_list', 'country_risk_import', 'country_risk_list', 'sector') and is_demo;
+update tci.tasks t set target_user = null
+  from auth.users u
+ where u.id = t.target_user and lower(u.email) like '%@demo.invalid'
+   and t.object_type in ('sanctions_list', 'country_risk_import', 'country_risk_list', 'sector')
+   and t.target_role is not null;
 
 -- ---------------------------------------------------------------------------
 -- 3. The links the guard follows
@@ -194,7 +204,6 @@ language sql immutable set search_path = '' as $$
     when 'limit_validation' then 'limit_validations'
     when 'sanction_flag' then 'sanction_flags'
     when 'sanctions_match' then 'sanctions_matches'
-    when 'sector_review' then 'sector_reviews'
     when 'country_risk_override' then 'country_risk_overrides'
     when 'bank_statement_import' then 'bank_statement_imports'
   end
@@ -270,8 +279,8 @@ begin
         end if;
         v_world := v_w;
       end if;
-    elsif v_row ->> 'object_type' in ('sanctions_list', 'country_risk_import', 'country_risk_list') then
-      v_world := false;      -- the official lists and the OECD list are real
+    elsif v_row ->> 'object_type' in ('sanctions_list', 'country_risk_import', 'country_risk_list', 'sector') then
+      v_world := false;      -- the official lists, the OECD list and the sectors are shared, so real
     end if;
   end if;
 
@@ -386,7 +395,6 @@ begin
     'tci.refuse_contract_history_change()'::regprocedure,
     'tci.guard_limit_request_amendment()'::regprocedure,
     'tci.guard_sanction_flag()'::regprocedure,
-    'tci.guard_sector_review()'::regprocedure,
     'tci.guard_country_override()'::regprocedure,
     'tci.task_comments_immutable()'::regprocedure]
   loop
@@ -420,9 +428,6 @@ begin
 end $$;
 
 -- the grade / category / flag in force is the caller's world's
-select pg_temp.patch('tci.sector_current_review(uuid)',
-  'where r.sector_id = p_sector and r.status = ''approved''',
-  'where r.sector_id = p_sector and r.status = ''approved'' and r.is_demo = tci.demo_mode()');
 select pg_temp.patch('tci.country_risk(character)',
   'where o.country_code = p_country and o.status = ''approved'')',
   'where o.country_code = p_country and o.status = ''approved'' and o.is_demo = tci.demo_mode())');
@@ -448,24 +453,32 @@ select pg_temp.patch('tci.buyer_risk_context(uuid)',
 select pg_temp.patch('tci.set_sanction_flag(text, character, uuid, text, text, text, date, text)',
   'where v.outcome in (''approved'', ''partial'') and v.policy_id is not null',
   'where v.outcome in (''approved'', ''partial'') and v.policy_id is not null and e.is_demo = v_flag.is_demo');
--- a sector downgrade lists the buyers of its own world
+-- Sector reviews are SHARED (owner 2026-11-03): both worlds read the same
+-- grade. Their downgrade task is real, so it lists real buyers only; the
+-- quarterly task goes to a real analyst (a demo account is never routed real work).
 select pg_temp.patch('tci.sector_review_in_force(tci.sector_reviews, text)',
   'join tci.legal_entities e on e.id = v.entity_id',
-  'join tci.legal_entities e on e.id = v.entity_id and e.is_demo = p_review.is_demo', 2);
--- the quarterly sector task, per world (the demo world only while demo data is loaded)
-select pg_temp.patch('tci.refresh_sector_tasks()',
-  'where t.task_type = ''sector_review_due'' and t.status = ''open''',
-  'where t.task_type = ''sector_review_due'' and t.status = ''open'' and t.is_demo = tci.demo_mode()');
-select pg_temp.patch('tci.refresh_sector_tasks()',
-  'where r.sector_id = t.object_id and r.quarter_start = v_q',
-  'where r.sector_id = t.object_id and r.quarter_start = v_q and r.is_demo = t.is_demo');
+  'join tci.legal_entities e on e.id = v.entity_id and not e.is_demo', 2);
 select pg_temp.patch('tci.refresh_sector_tasks()',
   'where s.analyst_id is not null',
-  'where s.analyst_id is not null and tci.user_in_world(s.analyst_id)'
-  || E'\n       and (not tci.demo_mode() or exists (select 1 from tci.legal_entities d where d.is_demo))');
-select pg_temp.patch('tci.refresh_sector_tasks()',
-  'where r.sector_id = s.id and r.quarter_start = v_q',
-  'where r.sector_id = s.id and r.quarter_start = v_q and r.is_demo = tci.demo_mode()');
+  'where s.analyst_id is not null'
+  || E'\n       and not coalesce((select p.is_demo_user from tci.user_profiles p where p.user_id = s.analyst_id), false)');
+
+-- A sector review is real data: nobody writes one from the demo world, where
+-- it would look like demo data and change the grade every real decision reads.
+create function tci.sector_review_real_only() returns trigger
+language plpgsql security invoker set search_path = '' as $$
+begin
+  if (select auth.uid()) is not null and tci.demo_mode() then
+    raise exception 'demo_shared_write: sector grades are shared with real data; leave demo mode to review a sector'
+      using errcode = '42501';
+  end if;
+  return new;
+end $$;
+revoke all on function tci.sector_review_real_only() from public, anon;
+grant execute on function tci.sector_review_real_only() to authenticated, service_role;
+create trigger sector_reviews_real_only before insert or update on tci.sector_reviews
+  for each row execute function tci.sector_review_real_only();
 -- registry searches that run as the owner
 select pg_temp.patch('tci.client_search_entities(text, integer)',
   'where tci.has_role(''client'')',
@@ -649,7 +662,7 @@ begin
   select string_agg(p.proname, ', ') into v_bad from pg_proc p
    where p.pronamespace = 'tci'::regnamespace
      and p.proname in ('guard_workflow_write', 'refuse_contract_history_change', 'guard_limit_request_amendment',
-                       'guard_sanction_flag', 'guard_sector_review', 'guard_country_override', 'task_comments_immutable')
+                       'guard_sanction_flag', 'guard_country_override', 'task_comments_immutable')
      and p.prosrc not like '%old.is_demo and tci.demo_unload_active()%';
   if v_bad is not null then
     raise exception '0096: no unload passage in %', v_bad;

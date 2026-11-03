@@ -19,6 +19,8 @@ While it is on, a yellow bar runs above every page and the top bar shows a **{{u
 
 Demo records are easy to spot: company names start with "DEMO", policy numbers with "DEMO-". The mode is yours alone: colleagues do not see it.
 
+Sector grades are the exception: they are shared. The demo data is rated against the same sector grades as the working data, and a sector is reviewed with demo mode off.
+
 ## Demonstration accounts
 
 Every role has a demo account (an address ending in @demo.invalid). It always works in the demo data and cannot switch the mode off.

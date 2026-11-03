@@ -19,6 +19,8 @@ Rejim yoqilgan ekan, har bir sahifa ustida sariq chiziq, yuqori panelda esa **{{
 
 Demo yozuvlarni oson tanib olish mumkin: tashkilotlar nomlari «DEMO», polis raqamlari «DEMO-» bilan boshlanadi. Rejim faqat siz uchun saqlanadi: hamkasblar uni ko‘rmaydi.
 
+Sektor reytinglari bundan mustasno: ular umumiy. Demo ma’lumotlar ishchi ma’lumotlar bilan bir xil sektor reytinglari bo‘yicha baholanadi, sektor esa demo rejim o‘chirilgan holda ko‘rib chiqiladi.
+
 ## Namoyish hisoblari
 
 Har bir rol uchun demo hisob bor (@demo.invalid manzili). U doim demo ma’lumotlarda ishlaydi va rejimni o‘chira olmaydi.

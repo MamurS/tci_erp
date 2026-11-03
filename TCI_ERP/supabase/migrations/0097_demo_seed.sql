@@ -4,7 +4,7 @@
 --           (one per role, @demo.invalid, created when missing): companies in
 --           several countries and sectors with three years of statements,
 --           ratings (confirmed, unconfirmed, a manual proposal at a colleague),
---           a sector review per industry, a country override waiting for the
+--           (sector grades are shared, not seeded), a country override waiting for the
 --           head of credit analysis, policies in every status with premium
 --           paid / partly paid / overdue and declarations, limit requests at
 --           every stage — decided within authority, escalated up the levels
@@ -433,7 +433,7 @@ declare
   r uuid; r2 uuid; v jsonb; v_step uuid; v_dec uuid; v_noa uuid; v_claim uuid; v_decl uuid; v_sub uuid;
   v_offer uuid; v_tpl uuid; v_draft uuid; a_alm uuid; a_ist uuid; a_mos uuid; a_ham uuid; a_sha uuid;
   a_dub uuid; a_bis uuid; a_kyi uuid; a_lon uuid; a_del uuid; a_par uuid; a_log uuid; a_con uuid;
-  v_sector record; v_grade text; v_inst record; n int := 0;
+  v_inst record; n int := 0;
 begin
   -- ---------------------------------------------------------- companies
   perform tci._demo_act('info');
@@ -462,26 +462,8 @@ begin
   perform tci.save_entity_relationship(g_par, g_log, 'ownership', 100, current_date - 900, null, 'manual', 'Demo group');
   perform tci.save_entity_relationship(g_par, g_con, 'ownership', 75, current_date - 900, null, 'manual', 'Demo group');
 
-  -- ---------------------------------------------------------- sectors: a review per industry, this quarter
-  for v_sector in select s.id, s.industry_code from tci.sectors s order by s.industry_code loop
-    v_grade := case v_sector.industry_code
-      when 'PHAR' then 'A' when 'ICTS' then 'A' when 'FOOD' then 'B' when 'RETL' then 'B' when 'TEXT' then 'B'
-      when 'AGRI' then 'B' when 'METL' then 'C' when 'CNST' then 'C' when 'TRAN' then 'B' when 'OILG' then 'C'
-      when 'AUTO' then 'C' when 'PAPR' then 'C' when 'WOOD' then 'C' else 'B' end;
-    perform tci._demo_act(case when n % 2 = 0 then 'analyst.senior' else 'analyst' end);
-    begin
-      perform tci.submit_sector_review(v_sector.id, v_grade,
-        case v_grade when 'C' then 'negative' when 'A' then 'positive' else 'stable' end,
-        (select jsonb_object_agg(k, jsonb_build_object('score', case when v_grade = 'C' then 'adverse' else 'neutral' end,
-                                                       'note', 'Demo assessment'))
-           from unnest(tci.sector_factor_keys()) k),
-        'Demo sector review: the grade reflects demand, margins and payment behaviour in the sector this quarter.',
-        jsonb_build_array(jsonb_build_object('title', 'Demo source', 'url', 'https://example.org')));
-    exception when others then
-      raise notice 'demo seed: %', sqlerrm;
-    end;
-    n := n + 1;
-  end loop;
+  -- sectors: none of their own — sector grades are shared with real data
+  -- (owner 2026-11-03), so the demo book is rated against the real grades
 
   -- ---------------------------------------------------------- country override waiting for the head of credit analysis
   perform tci._demo_act('analyst');
@@ -913,7 +895,6 @@ begin
     d61 as (delete from tci.income_statements where is_demo returning 1),
     d62 as (delete from tci.balance_sheets where is_demo returning 1),
     d63 as (delete from tci.financial_statements where is_demo returning 1),
-    d64 as (delete from tci.sector_reviews where is_demo returning 1),
     d65 as (delete from tci.country_risk_overrides where is_demo returning 1),
     d66 as (delete from tci.legal_entities where is_demo returning 1)
   select null into v_after;

@@ -26,7 +26,7 @@ describe('demo areas mirror the migration', () => {
     const grouped = Object.values(DEMO_AREAS).flat()
     expect(new Set(grouped).size).toBe(grouped.length)
     expect([...grouped].sort()).toEqual(migrationTables().sort())
-    expect(grouped).toHaveLength(67)
+    expect(grouped).toHaveLength(66)
   })
 
   it('name the rules the database enforces', () => {

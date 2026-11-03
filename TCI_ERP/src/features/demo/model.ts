@@ -7,7 +7,7 @@
  * groups the counts and names the rules the screens repeat.
  */
 
-/** The 67 tables of `tci.demo_world_tables()`, grouped for the admin screen. */
+/** The 66 tables of `tci.demo_world_tables()`, grouped for the admin screen. */
 export const DEMO_AREAS = {
   companies: [
     'legal_entities',
@@ -43,7 +43,6 @@ export const DEMO_AREAS = {
     'buyer_adt',
     'buyer_adt_blocks',
     'auto_decision_attempts',
-    'sector_reviews',
     'country_risk_overrides',
     'sanction_flags',
     'sanctions_screenings',

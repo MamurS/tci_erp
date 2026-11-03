@@ -55,6 +55,8 @@ import { ReviewFormModal } from './ReviewForm'
 import { ExposureChart, GradeHistoryChart } from './SectorCharts'
 import { GradeDistribution, SectorBuyersTable } from './SectorBuyers'
 import { SectorStateBadges } from './SectorStateBadges'
+import { useDemoState } from '../demo/api'
+import { inDemoWorld } from '../demo/model'
 
 const STATUS_TONE: Record<SectorReview['status'], 'pos' | 'accent' | 'neg'> = {
   approved: 'pos',
@@ -68,6 +70,7 @@ export function SectorPage() {
   const locale = i18n.resolvedLanguage ?? 'en'
   const lang = uiLang(locale)
   const { actingRole } = useAuth()
+  const demoState = useDemoState()
   const sectors = useSectorGrades()
   const sector = sectors.data?.find((s) => s.sector_id === sectorId)
   const reviews = useSectorReviews(sectorId)
@@ -103,6 +106,8 @@ export function SectorPage() {
   const name = industryName(sector, lang)
   const weak = isWeakGrade(sector.grade)
   const writer = mayWriteReview(actingRole)
+  // sector grades are shared with real data (0096): never written from the demo world
+  const inDemo = inDemoWorld(demoState.data)
   const fourEyes = settings.data?.sector_review_four_eyes ?? false
   const name_ = (id: string | null) => staffName(staff.data, id)
 
@@ -147,8 +152,14 @@ export function SectorPage() {
           writer ? (
             <Button
               onClick={() => setWriting(true)}
-              disabled={sector.pending || Boolean(pending)}
-              title={sector.pending || pending ? t('risk.sectors.page.writeBlocked') : undefined}
+              disabled={inDemo || sector.pending || Boolean(pending)}
+              title={
+                inDemo
+                  ? t('demo.errors.sharedWrite')
+                  : sector.pending || pending
+                    ? t('risk.sectors.page.writeBlocked')
+                    : undefined
+              }
             >
               {t('risk.sectors.page.write')}
             </Button>
@@ -290,6 +301,7 @@ function PendingReview({ review, sectorName }: { review: SectorReview; sectorNam
   const [rejecting, setRejecting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const state = reviewDecisionState({ actingRole, userId: session?.user.id, review })
+  const inDemo = inDemoWorld(useDemoState().data)
 
   const approve = () => {
     setError(null)
@@ -312,10 +324,15 @@ function PendingReview({ review, sectorName }: { review: SectorReview; sectorNam
         footer={
           state === 'decide' ? (
             <div className="flex flex-wrap justify-end gap-2">
-              <Button variant="dangerOutline" onClick={() => setRejecting(true)}>
+              <Button variant="dangerOutline" disabled={inDemo} onClick={() => setRejecting(true)}>
                 {t('risk.sectors.pending.reject')}
               </Button>
-              <Button loading={decide.isPending && !rejecting} onClick={approve}>
+              <Button
+                loading={decide.isPending && !rejecting}
+                disabled={inDemo}
+                title={inDemo ? t('demo.errors.sharedWrite') : undefined}
+                onClick={approve}
+              >
                 {t('risk.sectors.pending.approve')}
               </Button>
             </div>

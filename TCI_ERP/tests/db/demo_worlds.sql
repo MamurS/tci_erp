@@ -8,6 +8,8 @@
 --   4. Real work is never routed to a demo account.
 --   5. Only the person flips their own demo mode; nobody makes an account a
 --      demo account through the API; the admin functions are admin's.
+--   6. Sector grades are shared (owner 2026-11-03): a real analyst's review
+--      is read in both worlds; nobody writes one from the demo world.
 \set ON_ERROR_STOP on
 begin;
 
@@ -16,13 +18,17 @@ insert into auth.users (id, email) values
   ('99999999-0000-4000-8000-0000000096a2', 'dw-sales@t'),
   ('99999999-0000-4000-8000-0000000096a3', 'dw-im@t'),
   ('99999999-0000-4000-8000-0000000096d1', 'dw-demo-im@demo.invalid'),
-  ('99999999-0000-4000-8000-0000000096d2', 'dw-demo-sales@demo.invalid');
+  ('99999999-0000-4000-8000-0000000096d2', 'dw-demo-sales@demo.invalid'),
+  ('99999999-0000-4000-8000-0000000096a4', 'dw-analyst@t'),
+  ('99999999-0000-4000-8000-0000000096d3', 'dw-demo-analyst@demo.invalid');
 insert into tci.user_roles (user_id, role) values
   ('99999999-0000-4000-8000-0000000096a1', 'admin'),
   ('99999999-0000-4000-8000-0000000096a2', 'sales'),
   ('99999999-0000-4000-8000-0000000096a3', 'information_manager'),
   ('99999999-0000-4000-8000-0000000096d1', 'information_manager'),
-  ('99999999-0000-4000-8000-0000000096d2', 'sales');
+  ('99999999-0000-4000-8000-0000000096d2', 'sales'),
+  ('99999999-0000-4000-8000-0000000096a4', 'credit_analyst'),
+  ('99999999-0000-4000-8000-0000000096d3', 'credit_analyst');
 insert into tci.user_profiles (user_id, full_name, must_change_password, is_demo_user, ui_demo_mode)
 select u.id, 'DW ' || split_part(u.email, '@', 1), false, u.email like '%demo.invalid', u.email like '%demo.invalid'
   from auth.users u where u.email like 'dw-%'
@@ -68,6 +74,10 @@ declare
   c_im     constant uuid := '99999999-0000-4000-8000-0000000096a3';
   c_dim    constant uuid := '99999999-0000-4000-8000-0000000096d1';
   c_dsales constant uuid := '99999999-0000-4000-8000-0000000096d2';
+  c_an     constant uuid := '99999999-0000-4000-8000-0000000096a4';
+  c_dan    constant uuid := '99999999-0000-4000-8000-0000000096d3';
+  v_sector uuid;
+  v_factors jsonb;
   v_real   uuid;
   v_demo   uuid;
   v_name   text;
@@ -163,8 +173,30 @@ begin
     raise exception 'demo_worlds: the new-users switch did not stick';
   end if;
 
+  -- 6. Sector grades are shared ------------------------------------------------
   perform pg_temp.owner();
-  raise notice 'demo_worlds: OK — each world writes and reads only its rows (demo mode switches the world), demo companies are named DEMO by the database and the prefix is reserved, a row never changes world or links the other one, children follow their parent, real work is never routed to a demo account, only admin reads counts and sets the new-users switch, nobody makes an account a demo account';
+  if exists (select 1 from information_schema.columns
+              where table_schema = 'tci' and table_name = 'sector_reviews' and column_name = 'is_demo') then
+    raise exception 'demo_worlds: sector reviews belong to a world';
+  end if;
+  select s.id into v_sector from tci.sectors s order by s.industry_code limit 1;
+  select jsonb_object_agg(k, jsonb_build_object('score', 'neutral', 'note', 'test'))
+    into v_factors from unnest(tci.sector_factor_keys()) k;
+  perform pg_temp.act(c_dan);
+  perform pg_temp.refused(format('select tci.submit_sector_review(%L, ''B'', ''stable'', %L, ''DW demo review of the sector'')',
+                                 v_sector, v_factors), '42501', 'a sector review from the demo world', 'demo_shared_write');
+  perform pg_temp.act(c_an);
+  perform tci.submit_sector_review(v_sector, 'C', 'negative', v_factors, 'DW real review of the sector', '[]'::jsonb, 'ad_hoc');
+  if tci.sector_current_review(v_sector) is null then
+    raise exception 'demo_worlds: the real analyst does not read the sector grade';
+  end if;
+  perform pg_temp.act(c_dsales);
+  if (select r.grade from tci.sector_reviews r where r.id = (tci.sector_current_review(v_sector)).id) is distinct from 'C' then
+    raise exception 'demo_worlds: the demo world does not read the shared sector grade';
+  end if;
+
+  perform pg_temp.owner();
+  raise notice 'demo_worlds: OK — each world writes and reads only its rows (demo mode switches the world), demo companies are named DEMO by the database and the prefix is reserved, a row never changes world or links the other one, children follow their parent, real work is never routed to a demo account, only admin reads counts and sets the new-users switch, nobody makes an account a demo account, sector grades are shared and never written from the demo world';
 end $$;
 
 rollback;

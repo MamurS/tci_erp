@@ -7595,6 +7595,12 @@
       "unloadType": "Type {{word}} to confirm",
       "unloadConfirm": "Remove demo data",
       "unloadFailed": "The demo data could not be removed."
+    },
+    "errors": {
+      "sharedWrite": "Sector grades are shared with real data. Leave demo mode to review a sector.",
+      "nameReserved": "Names starting with «DEMO» are reserved for demo data. Choose another name.",
+      "wrongMode": "This record belongs to the other world. Switch demo mode to work on it.",
+      "mixed": "Demo data and real data cannot be linked. Pick a record from the same world."
     }
   },
   "help": {

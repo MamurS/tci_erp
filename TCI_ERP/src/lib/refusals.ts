@@ -283,6 +283,11 @@ export const OPERATIONS_REFUSALS: readonly { fragment: string; key: string }[] =
   { fragment: 'amendment_terms_invalid', key: 'portal.limits.change.errors.termsInvalid' },
   // a currency with no rate cannot be weighed against an authority (0013)
   { fragment: 'no UZS rate for', key: 'limits.errors.noRate' },
+  // demo data is a world of its own; sector grades are shared (0096)
+  { fragment: 'demo_shared_write', key: 'demo.errors.sharedWrite' },
+  { fragment: 'demo_name_reserved', key: 'demo.errors.nameReserved' },
+  { fragment: 'demo_world_wrong_mode', key: 'demo.errors.wrongMode' },
+  { fragment: 'demo_world_mixed', key: 'demo.errors.mixed' },
 ]
 
 /** The i18n key for a refused operation. Never returns raw server text. */

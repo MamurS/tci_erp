@@ -7595,6 +7595,12 @@
       "unloadType": "Tasdiqlash uchun {{word}} deb yozing",
       "unloadConfirm": "Demo ma’lumotlarni o‘chirish",
       "unloadFailed": "Demo ma’lumotlarni o‘chirib bo‘lmadi."
+    },
+    "errors": {
+      "sharedWrite": "Sektor reytinglari haqiqiy ma’lumotlar bilan umumiy. Sektorni ko‘rib chiqish uchun demo rejimdan chiqing.",
+      "nameReserved": "«DEMO» bilan boshlanadigan nomlar demo ma’lumotlar uchun ajratilgan. Boshqa nom tanlang.",
+      "wrongMode": "Bu yozuv boshqa ma’lumotlar to‘plamiga tegishli. U bilan ishlash uchun demo rejimni almashtiring.",
+      "mixed": "Demo ma’lumotlarni haqiqiy ma’lumotlar bilan bog‘lab bo‘lmaydi. Xuddi shu to‘plamdan yozuv tanlang."
     }
   },
   "help": {
