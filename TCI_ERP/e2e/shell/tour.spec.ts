@@ -27,6 +27,9 @@ import { ROLE_TOURS } from '../../src/features/tour/registry'
 import type { UserRole } from '../../src/lib/roles'
 
 test.use({ viewport: { width: 1440, height: 900 } })
+// Every test walks the tour through several pages; a loaded CI runner needs
+// more than the default 30 s.
+test.describe.configure({ timeout: 120_000 })
 
 type Locale = Record<string, unknown>
 const LOCALES = Object.fromEntries(
@@ -187,6 +190,7 @@ test('an empty list is explained, never highlighted empty', async ({ browser }) 
   const context = await browser.newContext()
   try {
     const { page } = await open(context, ANALYST, 'en', {})
+    await expect(dialog(page)).toBeVisible({ timeout: 30_000 })
     for (let i = 0; i < 12 && (await settledStep(page)) !== 'ratings'; i++)
       await dialog(page).getByRole('button', { name: text('en', 'tour.ui.next'), exact: true }).click()
     expect(await settledStep(page)).toBe('ratings')
