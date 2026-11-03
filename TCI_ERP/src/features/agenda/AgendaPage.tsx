@@ -383,7 +383,7 @@ export function AgendaPage() {
       }
       actions={
         <>
-          <span data-agenda-views className="inline-flex">
+          <span data-agenda-views data-tour="agenda-views" className="inline-flex">
             <Segmented
               tone="solid"
               ariaLabel={t('agenda.views.label')}
@@ -441,6 +441,7 @@ export function AgendaPage() {
       className="mb-5 flex flex-wrap items-center gap-2"
       role="toolbar"
       aria-label={t('agenda.chips.label')}
+      data-tour="agenda-chips"
     >
       <Chip
         active={!filter.family && !filter.mine}

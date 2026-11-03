@@ -126,65 +126,67 @@ export function RequestsPage() {
         <TableSettings table="requests" columns={columnLabels} />
       </div>
 
-      {isLoading ? (
-        <Table id="requests" columns={COLUMNS}>
-          {tableHead}
-          <tbody>
-            <SkeletonRows columns={COLUMNS.length} />
-          </tbody>
-        </Table>
-      ) : filtered.length === 0 ? (
-        // A search that found nothing says so, and offers to clear it.
-        search.trim() ? (
-          <EmptyState
-            pictogram="search"
-            title={t('common.noMatches')}
-            hint={t('common.noMatchesHint')}
-            action={
-              <Button variant="secondary" onClick={() => setSearch('')}>
-                {t('common.resetFilters')}
-              </Button>
-            }
-          />
+      <div data-tour="requests-queue">
+        {isLoading ? (
+          <Table id="requests" columns={COLUMNS}>
+            {tableHead}
+            <tbody>
+              <SkeletonRows columns={COLUMNS.length} />
+            </tbody>
+          </Table>
+        ) : filtered.length === 0 ? (
+          // A search that found nothing says so, and offers to clear it.
+          search.trim() ? (
+            <EmptyState
+              pictogram="search"
+              title={t('common.noMatches')}
+              hint={t('common.noMatchesHint')}
+              action={
+                <Button variant="secondary" onClick={() => setSearch('')}>
+                  {t('common.resetFilters')}
+                </Button>
+              }
+            />
+          ) : (
+            <EmptyState pictogram="inbox" title={t('requests.queueEmpty')} hint={t('requests.queueEmptyHint')} />
+          )
         ) : (
-          <EmptyState pictogram="inbox" title={t('requests.queueEmpty')} hint={t('requests.queueEmptyHint')} />
-        )
-      ) : (
-        <Table id="requests" columns={COLUMNS} stickyHead freezeFirst>
-          {tableHead}
-          <tbody>
-            {filtered.map((r) => (
-              // The row opens the submission; the applicant opens the company.
-              <LinkRow key={r.id} to={`/requests/${r.id}`} className="transition-colors hover:bg-slate-50">
-                <td className="font-medium whitespace-nowrap text-slate-800 tabular-nums">
-                  <Highlight text={r.request_number} query={search} />
-                </td>
-                <td className="text-slate-700">
-                  <Truncate text={r.legal_entities?.name} className="max-w-none">
-                    {r.legal_entities?.name ? (
-                      <Link to={`/entities/${r.entity_id}`} className="text-accent-600 hover:text-accent-500">
-                        <Highlight text={r.legal_entities.name} query={search} />
-                      </Link>
-                    ) : (
-                      EM_DASH
-                    )}
-                  </Truncate>
-                </td>
-                <td className="num">{r.insurance_request_buyers?.length ?? 0}</td>
-                <td>
-                  <Badge tone={statusTone(r.status)}>{t(`requests.statuses.${r.status}`)}</Badge>
-                </td>
-                <td className="text-slate-500">
-                  <WaitingOn request={r} />
-                </td>
-                <td>
-                  <AgeCell days={requestAgeDays(r.submitted_at, nowIso)} />
-                </td>
-              </LinkRow>
-            ))}
-          </tbody>
-        </Table>
-      )}
+          <Table id="requests" columns={COLUMNS} stickyHead freezeFirst>
+            {tableHead}
+            <tbody>
+              {filtered.map((r) => (
+                // The row opens the submission; the applicant opens the company.
+                <LinkRow key={r.id} to={`/requests/${r.id}`} className="transition-colors hover:bg-slate-50">
+                  <td className="font-medium whitespace-nowrap text-slate-800 tabular-nums">
+                    <Highlight text={r.request_number} query={search} />
+                  </td>
+                  <td className="text-slate-700">
+                    <Truncate text={r.legal_entities?.name} className="max-w-none">
+                      {r.legal_entities?.name ? (
+                        <Link to={`/entities/${r.entity_id}`} className="text-accent-600 hover:text-accent-500">
+                          <Highlight text={r.legal_entities.name} query={search} />
+                        </Link>
+                      ) : (
+                        EM_DASH
+                      )}
+                    </Truncate>
+                  </td>
+                  <td className="num">{r.insurance_request_buyers?.length ?? 0}</td>
+                  <td>
+                    <Badge tone={statusTone(r.status)}>{t(`requests.statuses.${r.status}`)}</Badge>
+                  </td>
+                  <td className="text-slate-500">
+                    <WaitingOn request={r} />
+                  </td>
+                  <td>
+                    <AgeCell days={requestAgeDays(r.submitted_at, nowIso)} />
+                  </td>
+                </LinkRow>
+              ))}
+            </tbody>
+          </Table>
+        )}
+      </div>
 
       <RequestFormModal open={createOpen} onClose={() => setCreateOpen(false)} />
     </div>

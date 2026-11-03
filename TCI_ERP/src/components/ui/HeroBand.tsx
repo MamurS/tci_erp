@@ -10,9 +10,11 @@
  * light text tokens (`text-white`, `text-accent-100`) for anything else.
  */
 
+import { useContext } from 'react'
 import type { ReactNode } from 'react'
 
 import { OnBandContext } from './bandContext'
+import { PageHelpContext } from './pageHelp'
 import { HERO_MOSAIC_URI } from './heroMosaic'
 
 interface HeroBandProps {
@@ -70,6 +72,7 @@ export function HeroBand({
   compact = false,
   stats,
 }: HeroBandProps) {
+  const Help = useContext(PageHelpContext)
   return (
     <section
       data-hero
@@ -101,6 +104,7 @@ export function HeroBand({
                 >
                   {title}
                 </h1>
+                {Help && <Help inverse />}
                 {status}
               </div>
               {subtitle && <div className="mt-2 text-body text-accent-100">{subtitle}</div>}

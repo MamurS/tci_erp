@@ -105,71 +105,73 @@ export function OverduesPage() {
         }
       />
 
-      {isError ? (
-        <EmptyState pictogram="error" title={t('common.loadFailed')} hint={t('common.tryAgain')} />
-      ) : isLoading ? (
-        <Table id="overdues" columns={COLUMNS}>
-          {tableHead}
-          <tbody>
-            <SkeletonRows columns={COLUMNS.length} />
-          </tbody>
-        </Table>
-      ) : rows.length === 0 ? (
-        <EmptyState pictogram="inbox" title={t('overdues.empty')} hint={t('overdues.emptyHint')} />
-      ) : (
-        // Two names share what is left; each may narrow to 5.5rem before the
-        // table scrolls (the sticky head's scrollbar gutter takes the rest).
-        <Table id="overdues" columns={COLUMNS} fillMin="5.5rem" stickyHead freezeFirst>
-          {tableHead}
-          <tbody>
-            {rows.map((n) => (
-              // The row opens the notification; the buyer opens the company,
-              // the policyholder theirs.
-              <LinkRow key={n.id} to={`/overdues/${n.id}`} className="transition-colors hover:bg-slate-50">
-                <td className="font-medium">
-                  <Truncate text={n.buyer_name} className="max-w-none">
-                    <Link to={`/entities/${n.buyer_entity_id}`} className="text-accent-700 hover:underline">
-                      {n.buyer_name}
-                    </Link>
-                  </Truncate>
-                </td>
-                <td>
-                  <Truncate text={n.policyholder_name} className="max-w-none">
-                    <Link
-                      to={`/entities/${n.policyholder_entity_id}`}
-                      className="text-slate-500 hover:text-accent-600 hover:underline"
-                    >
-                      {n.policyholder_name}
-                    </Link>
-                  </Truncate>
-                </td>
-                <td>
-                  <span className="num block">
-                    {formatAmount(Number(n.overdue_amount), locale)} {n.currency_code}
-                  </span>
-                </td>
-                <td className="num font-medium" title={t('overdues.pastDueHint')}>
-                  {t('policies.terms.days', { count: Number(n.days_past_due) })}
-                </td>
-                <td>
-                  {n.reported_late ? (
-                    <Badge tone="negStrong">
-                      {t('overdues.lateBy', { days: n.days_late })}
-                    </Badge>
-                  ) : (
-                    <span className="text-small text-slate-500">
-                      {t('overdues.onTime')}
+      <div data-tour="overdues-list">
+        {isError ? (
+          <EmptyState pictogram="error" title={t('common.loadFailed')} hint={t('common.tryAgain')} />
+        ) : isLoading ? (
+          <Table id="overdues" columns={COLUMNS}>
+            {tableHead}
+            <tbody>
+              <SkeletonRows columns={COLUMNS.length} />
+            </tbody>
+          </Table>
+        ) : rows.length === 0 ? (
+          <EmptyState pictogram="inbox" title={t('overdues.empty')} hint={t('overdues.emptyHint')} />
+        ) : (
+          // Two names share what is left; each may narrow to 5.5rem before the
+          // table scrolls (the sticky head's scrollbar gutter takes the rest).
+          <Table id="overdues" columns={COLUMNS} fillMin="5.5rem" stickyHead freezeFirst>
+            {tableHead}
+            <tbody>
+              {rows.map((n) => (
+                // The row opens the notification; the buyer opens the company,
+                // the policyholder theirs.
+                <LinkRow key={n.id} to={`/overdues/${n.id}`} className="transition-colors hover:bg-slate-50">
+                  <td className="font-medium">
+                    <Truncate text={n.buyer_name} className="max-w-none">
+                      <Link to={`/entities/${n.buyer_entity_id}`} className="text-accent-700 hover:underline">
+                        {n.buyer_name}
+                      </Link>
+                    </Truncate>
+                  </td>
+                  <td>
+                    <Truncate text={n.policyholder_name} className="max-w-none">
+                      <Link
+                        to={`/entities/${n.policyholder_entity_id}`}
+                        className="text-slate-500 hover:text-accent-600 hover:underline"
+                      >
+                        {n.policyholder_name}
+                      </Link>
+                    </Truncate>
+                  </td>
+                  <td>
+                    <span className="num block">
+                      {formatAmount(Number(n.overdue_amount), locale)} {n.currency_code}
                     </span>
-                  )}
-                </td>
-                <td>
-                  <Badge tone={STATUS_TONE[n.status]}>{t(`overdues.statuses.${n.status}`)}</Badge>
-                </td>
-              </LinkRow>
-            ))}
-          </tbody>
-        </Table>
-      )}
+                  </td>
+                  <td className="num font-medium" title={t('overdues.pastDueHint')}>
+                    {t('policies.terms.days', { count: Number(n.days_past_due) })}
+                  </td>
+                  <td>
+                    {n.reported_late ? (
+                      <Badge tone="negStrong">
+                        {t('overdues.lateBy', { days: n.days_late })}
+                      </Badge>
+                    ) : (
+                      <span className="text-small text-slate-500">
+                        {t('overdues.onTime')}
+                      </span>
+                    )}
+                  </td>
+                  <td>
+                    <Badge tone={STATUS_TONE[n.status]}>{t(`overdues.statuses.${n.status}`)}</Badge>
+                  </td>
+                </LinkRow>
+              ))}
+            </tbody>
+          </Table>
+        )}
+      </div>
     </div>
   )
 }

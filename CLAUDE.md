@@ -239,6 +239,13 @@ Use these exact uz terms everywhere (UI, reports, narratives, validation). The a
 | beneficial owner (0091) | **Бенефициарный владелец** — owner-decided 2026-10-28 | **Benefitsiar mulkdor** — the term of Uzbekistan's AML law (NOT «benefitsiar ega»); as above |
 | hand a task to a colleague (Agenda, 0092 — one task and many) | **Передать коллеге** (NOT «Передать задачи коллеге») — owner-decided 2026-10-28 | **Hamkasbga topshirish** (as above) |
 | portal search placeholder (0094 batch) | «Поиск по байеру, полису, сумме или статусу — условия через запятую» and its siblings — owner-approved 2026-10-28 | «Bayer, polis, summa yoki holat bo‘yicha qidirish — shartlarni vergul bilan ajrating» — owner-approved 2026-10-28 |
+| insured percentage (uz, user guide) | — | **qoplash foizi** — owner-approved 2026-11-02 (the locale's «Sug‘urta qoplamasi» on the policy terms is left as is) |
+| aggregate first loss, short form (uz) | — | **agregat franshiza** (full: «Birinchi zarar bo‘yicha agregat franshiza») — owner-approved 2026-11-02 |
+| maximum liability | **Максимальный лимит ответственности** — owner-approved 2026-11-02 | — |
+| waiting period | **Период ожидания** — owner-approved 2026-11-02 | — |
+| rating scorecard (0079) | — | **Reyting baholash kartasi** — owner-approved 2026-11-02 |
+| credit analysis mode combined / separate (0069) | — | **birgalikdagi** / **alohida** — owner-approved 2026-11-02 |
+| authority routing direct / sequential (0071) | — | **to‘g‘ridan-to‘g‘ri** / **ketma-ket** — owner-approved 2026-11-02 |
 | overdue notification (NOA) | Уведомление о просрочке | **xabarnoma** in every form and suffix (NOT «bildirishnoma») — owner-decided 2026-10-22 |
 | discretionary limit | Дискреционный лимит | **Diskretsion limit** |
 | deductible | Франшиза | **Franshiza** |
@@ -1178,6 +1185,40 @@ is fine for internal test accounts and not fine for customers.
   account `sanctions.feed@tci-erp.invalid` created and run once end to end
   from a container (OFAC re-imported unchanged — the fingerprint now covers
   the alias file — 0 delisted, no match; UN, EU, UK unchanged)
+- [x] Demo data, user guide and guided tour (Prompt 32, migrations
+  0096–0098, owner 2026-11-02, as in mig-inward-re): **demo data** is a
+  world of its own, chosen per person — `is_demo` on 66 business tables,
+  a restrictive policy per table, the guard trigger that keeps the worlds
+  apart and names demo rows «DEMO …» / «DEMO-…», 13 demo accounts (one per
+  role), a date-relative demo book built through the real workflow
+  functions (`seed_demo_data`) and an unload that removes demo rows only
+  (`delete_demo_data`), Admin › «Демо-данные», the switch in the user menu,
+  on the account page and on the dashboard band, the DEMO bar and mark;
+  sector grades are SHARED by both worlds (owner 2026-11-03). The existing
+  test data became the demo world. **User guide**: the in-app Help centre
+  (`/help`, `/portal/help`, «?» and F1 on every page, the topic for the
+  acting role first, search in en/ru/uz whatever the apostrophe, glossary),
+  73 topics × 3 languages compiled from `docs/guide/` (`npm run guide:*`,
+  a test that every route has an article), screenshots and quick-start
+  PDFs per role. **Guided tour** per role and for the portal, started once
+  on first sign-in, progress kept per person in
+  `tci.user_profiles.ui_tour_state` (0098), `data-tour` anchors, keyboard
+  and screen-reader friendly, and «What's new» release tours. See **Demo
+  data rules** below. **Canonical: 0096–0098 applied 2026-11-03 by the
+  owner** with `docs/deploy/canonical-apply-0096-0098.sql` (since removed —
+  in git history; the connector held 0096 for an approval nobody saw): a
+  dry run first, then the commit, the same per-table result both times
+  (every business row demo, the 21 sector reviews, 3 tasks and 27 events on
+  shared objects real, 13 demo accounts, 2 staff accounts in demo mode);
+  verified afterwards — the three ledger rows; every tci function (with its
+  grants), policy, trigger, column, column grant, constraint, index and
+  table grant identical to a local replay (function bodies once the
+  editor's CR line endings are stripped; the six views over `auth.*` differ
+  from the stub as before); `tests/db/demo_worlds.sql` and
+  `tests/db/tour_progress.sql` run on canonical with role impersonation
+  (forced rollback, nothing left behind, counts unchanged); the advisor's
+  new entries are the five admin-gated demo functions and the internal
+  `demo_links` table
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -1720,6 +1761,20 @@ statement the check objects to; still never disguise it.
 `tg_op = 'DELETE'` branch, sent as a ledger row's text) was held too, while
 «deleted» in a comment and `deleted_at` passed. Keep guards BEFORE UPDATE
 only (no API role holds DELETE) and build batches without temporary tables.
+
+*Update 2026-11-02:* NOT lifted. A short probe statement containing DELETE
+and DROP ran without a prompt, but the first canonical call of the demo-data
+migrations (0096's text, ~34 KB, with DELETE / DROP inside function bodies)
+was held for an approval question and timed out unanswered. Treat the hold as
+in force: check that nothing reached the database, then hand the statement to
+the owner (or have them answer the connector's question).
+
+**An owner script pasted into the SQL Editor arrives with CR LF line
+endings**, so the function bodies it creates carry `\r` and their text
+differs from a local replay by that alone (0046–0048 and 0096–0098 did). Compare
+fingerprints with `replace(pg_get_functiondef(oid), chr(13), '')`. The editor
+shows only the LAST result set and no NOTICE lines, so an owner script ends
+with a `select` of what the owner must check.
 
 ### Sign-in notice rules (migration 0062)
 
@@ -2912,6 +2967,77 @@ underwriting, a reason, optionally until a date) ends the previous one and
 wins while live; `end_policyholder_tier_override` returns to automatic. Rows
 are ended once, never changed. Thresholds are admin's
 (`set_policyholder_tier_thresholds`, rising from silver to platinum).
+
+### Demo data rules (migrations 0096–0097, Prompt 32)
+
+**Demo data is a world of its own, chosen per person** (as in
+mig-inward-re). The 66 business tables of `tci.demo_world_tables()` carry
+`is_demo` (default `tci.demo_mode()`); a RESTRICTIVE policy «<table>: demo
+world» on each lets a person read and write only the rows of their world.
+`tci.demo_mode()` (security invoker, the caller's own profile) = a demo
+account (`user_profiles.is_demo_user`, the `@demo.invalid` accounts) or a
+real person who switched demo mode on (`ui_demo_mode`, column grant, own
+row). Nothing is global: one admin loading demo data changes nothing for a
+colleague in normal mode. New accounts start in normal mode unless admin
+sets `workflow_settings.new_users_demo_mode` (`set_new_users_demo_mode`).
+A real client has nothing in the demo world, so the portal shows the banner
+to demo clients but offers real clients no switch.
+
+**The guard trigger keeps the worlds apart** (`tci.demo_guard`, `zz_demo_guard`
+BEFORE every write on the 66 tables). A row takes the world of what it links
+to — every FK in `tci.demo_links` (`refresh_demo_links`, internal) and, for
+`tasks` / `workflow_events`, the object (`tci.demo_object_table`); links into
+both worlds raise `demo_world_mixed` (23514); `is_demo` never changes
+(`demo_world_immutable`); outside trusted workflow code a person writes only
+their own world (`demo_world_wrong_mode`, 42501). Demo companies are named
+«DEMO …» and demo policy numbers «DEMO-…» BY THE DATABASE, and the prefixes
+are reserved for demo rows (`demo_name_reserved`; checks
+`legal_entities_demo_name`, `policies_demo_number`). Tasks and events on the
+SHARED objects — the sanctions lists, the OECD lists — are real, and a real
+task is never addressed to a demo account (it falls back to the
+department). `tci.demo_link_violations()` (admin) lists any mixed link; it
+must stay empty.
+
+**Sector grades are shared (owner 2026-11-03).** `tci.sector_reviews` is not
+a demo table: both worlds read the same grade, the load writes no review and
+the unload removes none, the sector tasks and events are real (object
+`sector`), the downgrade task lists real buyers only, and nobody writes a
+review from the demo world (`sector_reviews_real_only`, `demo_shared_write`).
+The 21 initial grades of 2026-10-27 therefore stay real.
+
+**Readers inside SECURITY DEFINER functions are world-aware.** A definer
+function reads as the owner, past RLS, so 0096 patched each one that picks
+or counts across companies — country overrides and flags, the sector grade,
+the cover matrix and concentration, the client search, the duplicate check
+of `request_entity`, the sector tasks — and every person picker
+(`pick_information_manager`, `pick_credit_analyst`, `underwriters_covering`,
+validators, level members, colleagues, hand-over candidates) adds
+`tci.user_in_world(id)`: demo accounts never receive real work. A new
+definer reader of business rows needs the same filter.
+
+**Load and unload are admin's, and they go through the workflow.**
+`tci.seed_demo_data(password?)` creates 13 demo accounts (one per role,
+`demo.<key>@demo.invalid`, a password only if given, ≥ 12), seats them on
+the authority levels where nobody sits, and builds the book by IMPERSONATING
+them through the real workflow functions (`_demo_act` sets the JWT claims)
+— so every task, event, validation step and supersede is the one a person
+would have produced; dates are relative to today; loading twice answers
+`already_loaded`. `tci.delete_demo_data()` removes every demo row — the
+append-only tables included, their guards letting a demo row pass only under
+the unload's marker (`tci.demo_unload` + the internal token) — in one
+statement, deletes the demo accounts (or bans one still referenced),
+refuses to remove any real row, asserts zero demo rows afterwards, and
+returns the counts before and after. The `_demo_*` helpers are executable by
+no API role (asserted). `tests/db/demo_worlds.sql`, `tests/db/demo_seed.sql`.
+
+**The screens.** Admin › «Демо-данные» (`DemoDataTab`: counts per area, load
+with an optional password, check links, unload after typing «DEMO», the
+new-accounts setting); the switch in the user menu, on the account page and
+as a chip on the dashboard band; while in the demo world a slim bar above
+every page («Вернуться к настоящим данным», not for demo accounts) and a
+«DEMO» mark in the top bar. A switch resets the query cache and is followed
+by other tabs (`tci-erp-demo-mode`). `demo/model.ts` mirrors the table list
+and the rules (contract-tested).
 
 ### Credit workbench rules (migration 0053)
 

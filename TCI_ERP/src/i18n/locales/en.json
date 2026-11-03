@@ -64,7 +64,8 @@
     },
     "data": "Data management",
     "sectors": "Sectors & Country Risk Categories",
-    "sanctions": "Sanctions"
+    "sanctions": "Sanctions",
+    "help": "Help"
   },
   "auth": {
     "signInTitle": "Sign in",
@@ -2429,7 +2430,8 @@
       "authorities": "Authorities",
       "security": "Security",
       "risk": "Risk",
-      "tiers": "Policyholder tiers"
+      "tiers": "Policyholder tiers",
+      "demo": "Demo data"
     },
     "noUsers": "No users yet",
     "editRoles": "Roles",
@@ -7529,6 +7531,315 @@
       "notPolicyholder": "This company holds no policy, so it has no tier.",
       "noOverride": "The tier is already automatic.",
       "thresholdsInvalid": "Every threshold must be above zero and rise from silver to platinum."
+    }
+  },
+  "demo": {
+    "mark": "DEMO",
+    "mode": {
+      "title": "Demo data",
+      "label": "Demo mode",
+      "hint": "Shows the demonstration data instead of the real data: made-up companies, policies and limits named «DEMO». What you do in demo mode stays in the demo data.",
+      "demoAccount": "This is a demonstration account: it sees and changes demo data only.",
+      "saveFailed": "Demo mode could not be switched. Try again.",
+      "enter": "Show demo data",
+      "leave": "Leave demo mode"
+    },
+    "banner": {
+      "title": "Demo mode.",
+      "body": "You are looking at demonstration data; nothing here is real business.",
+      "leave": "Back to real data"
+    },
+    "areas": {
+      "companies": "Companies and groups",
+      "credit": "Ratings and limits",
+      "policies": "Policies, premium and offers",
+      "claims": "Overdues and claims",
+      "agenda": "Agenda and events"
+    },
+    "admin": {
+      "title": "Demo data",
+      "hint": "A complete, made-up book for training and demonstrations. It lives apart from the real data: only people in demo mode see it.",
+      "state": "State",
+      "loaded": "Loaded",
+      "notLoaded": "Not loaded",
+      "loadedAt": "since {{at}}",
+      "rows": "Rows",
+      "users": "Demo accounts",
+      "load": "Load demo data",
+      "check": "Check links",
+      "unload": "Remove demo data",
+      "loadedNote": "To refresh the dates, remove the demo data and load it again.",
+      "alreadyLoaded": "The demo data is already loaded",
+      "loadDone": "Demo data loaded",
+      "loadDoneBody": "{{rows}} rows and {{users}} demo accounts.",
+      "unloadDone": "Demo data removed",
+      "unloadDoneBody": "Rows before: {{before}}, after: {{after}}. Demo accounts removed: {{users}}.",
+      "usersBanned_one": "{{count}} demo account is still referenced and was blocked instead of removed.",
+      "usersBanned_other": "{{count}} demo accounts are still referenced and were blocked instead of removed.",
+      "checkClean": "No row links demo data with real data.",
+      "checkFound_one": "{{count}} link between demo and real data found",
+      "checkFound_other": "{{count}} links between demo and real data found",
+      "newUsers": "New accounts start in",
+      "newUsersHint": "Which data a person sees right after their account is created. Each person can switch later.",
+      "newUsersReal": "Real data",
+      "newUsersDemo": "Demo mode",
+      "loadTitle": "Load demo data",
+      "loadBody": "Creates demo companies, policies, limits, claims and tasks, dated relative to today, and demo accounts for each role (e-mail addresses ending in @demo.invalid). Real data is not touched.",
+      "loadConfirm": "Load demo data",
+      "loadFailed": "The demo data could not be loaded.",
+      "password": "Password for the demo accounts",
+      "passwordHint": "Optional, at least 12 characters. Leave it empty to keep the accounts without a usable password.",
+      "passwordTooShort": "The password needs at least 12 characters.",
+      "unloadTitle": "Remove demo data",
+      "unloadBody": "Removes all {{rows}} demo rows and {{users}} demo accounts, including the history of the demo data. Real data is not touched. This cannot be undone.",
+      "unloadType": "Type {{word}} to confirm",
+      "unloadConfirm": "Remove demo data",
+      "unloadFailed": "The demo data could not be removed."
+    },
+    "errors": {
+      "sharedWrite": "Sector grades are shared with real data. Leave demo mode to review a sector.",
+      "nameReserved": "Names starting with «DEMO» are reserved for demo data. Choose another name.",
+      "wrongMode": "This record belongs to the other world. Switch demo mode to work on it.",
+      "mixed": "Demo data and real data cannot be linked. Pick a record from the same world."
+    }
+  },
+  "help": {
+    "title": "Help centre",
+    "version": "User guide · version {{version}}",
+    "welcome": "How to work in TCI ERP",
+    "welcomeText": "Step-by-step instructions for every role: what the role does, its working day, its screens and the rules the system enforces. Press F1 or «?» on any screen to open the topic about that screen.",
+    "welcomeTextPortal": "How to use the policyholder portal: your policies, credit limits, declarations, premium, overdue accounts, claims and offers.",
+    "searchPlaceholder": "Search the guide",
+    "searchLabel": "Search the user guide",
+    "home": "Help home",
+    "contents": "Contents",
+    "forYourRole": "For your role",
+    "forEveryone": "For everyone",
+    "otherRoles": "Other roles",
+    "resultsCount_one": "{{count}} topic found",
+    "resultsCount_other": "{{count}} topics found",
+    "noResults": "Nothing in the guide matches «{{q}}».",
+    "noResultsHint": "Check the spelling or try a shorter word: every word of the query must appear in the topic.",
+    "notFound": "This topic is not in the guide.",
+    "notFoundHint": "It may have been renamed. Open the Help home and use the search.",
+    "openForPage": "Help for this page",
+    "inThisTopic": "In this topic",
+    "onThisPage": "Also for this page",
+    "prevTopic": "Previous topic",
+    "nextTopic": "Next topic",
+    "print": "Print",
+    "glossary": "Glossary",
+    "faq": "Questions and answers",
+    "replayTour": "Replay the tour",
+    "quickStart": "Quick start (PDF)",
+    "quickStartHint": "A few printable pages per role: the first steps and the working day. Yours comes first.",
+    "pdf": {
+      "title": "Quick start: {{role}}",
+      "subtitle": "TCI ERP user guide",
+      "version": "Version {{version}}",
+      "page": "Page {{page}} of {{pages}}"
+    },
+    "openHome": "Open the Help home"
+  },
+  "tour": {
+    "ui": {
+      "step": "Step {{n}} of {{total}}",
+      "next": "Next",
+      "back": "Back",
+      "skip": "Skip the tour",
+      "done": "Done",
+      "takeTour": "Take the tour",
+      "noData": "There is nothing here yet, so there is nothing to point at. Switch on Demo mode to see this screen with example data.",
+      "portalPanel": "Portal tour",
+      "portalPanelHint": "A short walk through the portal’s sections — run it again whenever you like."
+    },
+    "shared": {
+      "welcome": {
+        "title": "Welcome to TCI ERP"
+      },
+      "workspace": {
+        "title": "Your workspace",
+        "text": "The workspace is the role you act in. If you hold several roles, switch here: the menu, the Agenda and what you may do all follow the role you choose."
+      },
+      "sidebar": {
+        "title": "The menu",
+        "text": "Shared tools on top — dashboard, Agenda, companies, sanctions — then your workspace’s own sections. Ctrl/⌘ B hides or shows it."
+      },
+      "search": {
+        "title": "One search",
+        "text": "Find a company, a policy, a claim or a section from here. On a list page the same field filters the list — separate terms with commas to narrow it. Ctrl/⌘ K puts the cursor here."
+      },
+      "agenda": {
+        "title": "Agenda: your work",
+        "text": "Every task the system opens for you or your department lands here, overdue first. List shows one row per piece of work; Triage shows the queue beside the selected task. A task’s button takes you to the screen where it is done."
+      },
+      "agendaFilters": {
+        "title": "Narrow the queue",
+        "text": "The chips filter by kind of work; «Assigned to me» keeps what is addressed to you by name. A task you cannot do yet can be snoozed or handed to a colleague."
+      },
+      "userMenu": {
+        "title": "Your settings",
+        "text": "Colour theme, light or dark mode, text size and zoom, your account — and «Take the tour» to see this tour again."
+      },
+      "help": {
+        "title": "Help",
+        "text": "The «?» opens the help centre: a guide to every screen, in your language."
+      },
+      "finish": {
+        "title": "You are ready",
+        "text": "That is the tour. Run it again any time from the user menu or the help centre."
+      }
+    },
+    "sales": {
+      "welcome": {
+        "text": "A short tour of the Sales workspace: submissions, policies and the credit limit requests on your clients’ buyers. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "requests": {
+        "title": "Submissions",
+        "text": "Your new business. A submission goes from draft through underwriting and the client’s answer to a bound policy; a row opens it."
+      },
+      "policies": {
+        "title": "Policies",
+        "text": "The register of policies and their contracts — switch views with these tabs."
+      },
+      "limits": {
+        "title": "Credit limit requests",
+        "text": "The limit requests on your clients’ buyers and where each stands. A request is raised from the policy or the submission."
+      }
+    },
+    "commercial": {
+      "welcome": {
+        "text": "A short tour of the Commercial underwriting workspace: policies and their terms, submissions waiting for your review, and the commercial stage of limit decisions. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "policies": {
+        "title": "Policies and your book",
+        "text": "The overview carries your book’s figures; the register, the contracts and their templates are the other views."
+      },
+      "requests": {
+        "title": "Submissions to review",
+        "text": "At commercial review a submission waits for your terms: premium rate, insured percentage, non-qualifying loss, maximum liability."
+      },
+      "limits": {
+        "title": "Limits: the commercial stage",
+        "text": "After the credit decision you may change only the amount and the payment terms, within your own authority; the rating and the conditions stay as credit underwriting decided."
+      }
+    },
+    "creditUnderwriter": {
+      "welcome": {
+        "text": "A short tour of the Credit underwriting workspace: your workbench, the decision queue and the decision form. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "workbench": {
+        "title": "Credit limits: your workbench",
+        "text": "One section, several views: overview, decision queue, active limits, monitoring, ratings, groups, auto decisions and your authority."
+      },
+      "queue": {
+        "title": "The decision queue",
+        "text": "Open requests, with the rating band each would be decided in and whether it is within your authority. A row opens the request."
+      },
+      "decision": {
+        "title": "The decision",
+        "text": "Approve, partially approve or decline — with conditions and payment terms. Above your authority the decision goes up the authority levels for validation, never to one named person."
+      }
+    },
+    "creditAnalyst": {
+      "welcome": {
+        "text": "A short tour of the Credit analysis workspace: rating buyers, confirming ratings, sector grades and country risk. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "ratings": {
+        "title": "The rating worklist",
+        "text": "Buyers waiting for a rating, in order: no financials, not rated, newer statements, older than a year."
+      },
+      "sectors": {
+        "title": "Sectors & Country Risk Categories",
+        "text": "Sector grades A–D with their quarterly reviews, and the OECD country risk categories."
+      }
+    },
+    "information": {
+      "welcome": {
+        "text": "A short tour of the Data management workspace: requests for companies and statements, data freshness and the company registry. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "requests": {
+        "title": "Data requests",
+        "text": "Colleagues ask for a company or its statements here; each request goes to the least-loaded information manager. Take it, resolve it, or reject it with a reason."
+      },
+      "views": {
+        "title": "Freshness and proposed buyers",
+        "text": "The other views list companies with live business whose data is missing or out of date, and the buyers policyholders proposed."
+      },
+      "entities": {
+        "title": "Companies",
+        "text": "The registry of buyers and policyholders. Ratings and decisions rest on the data you keep here."
+      }
+    },
+    "claims": {
+      "welcome": {
+        "text": "A short tour of the Claims workspace: claims with their coverage and indemnity, and the overdue accounts reported before them. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "queue": {
+        "title": "Claims",
+        "text": "Every claim and its status. A claim’s page holds its invoices and coverage, the indemnity, payments and recoveries, and documents."
+      },
+      "overdues": {
+        "title": "Overdue accounts",
+        "text": "Notifications of buyers past their payment terms — the step before a claim."
+      }
+    },
+    "admin": {
+      "welcome": {
+        "text": "A short tour of Administration: users and roles, authority, reference data and settings. Admin is a technical role — it reads the business screens and makes no business decisions. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "tabs": {
+        "title": "Administration",
+        "text": "Users and roles, authorities, risk, policyholder tiers and security — a tab each."
+      },
+      "users": {
+        "title": "Users and roles",
+        "text": "Who holds which role. A person may hold several roles and acts in one at a time; a client account holds the client role alone."
+      },
+      "authorities": {
+        "title": "Authority",
+        "text": "Authority by stream and rating band, the authority levels and the committee, and the decision settings."
+      }
+    },
+    "portal": {
+      "welcome": {
+        "title": "Welcome to the portal",
+        "text": "A short tour of your portal: your policies, credit limits and what you report to us. Use the buttons or ← and →; Esc ends the tour."
+      },
+      "sections": {
+        "title": "Your sections",
+        "text": "Policies, credit limits, declarations, premium, overdue accounts, claims, submissions, offers and contracts — a tab each."
+      },
+      "requestLimit": {
+        "title": "Request a credit limit",
+        "text": "Ask for a limit on a buyer. While a request is open you can change it or withdraw it."
+      },
+      "profile": {
+        "title": "Your profile and display",
+        "text": "Contact details, password, two-factor sign-in and how the portal looks — colour theme, text size and zoom."
+      },
+      "help": {
+        "title": "Help",
+        "text": "The «?» opens help for the portal, in your language."
+      },
+      "finish": {
+        "title": "That is all",
+        "text": "Run this tour again from your profile whenever you like."
+      }
+    },
+    "release202611": {
+      "intro": {
+        "title": "What’s new",
+        "text": "Two additions this month — a minute to see them."
+      },
+      "help": {
+        "title": "The help centre",
+        "text": "The «?» opens a guide to every screen, in English, Russian and Uzbek."
+      },
+      "demo": {
+        "title": "Demo mode",
+        "text": "Demo mode shows the screens with example data, so you can learn a screen before real work reaches it. Switch it here, in the user menu or on the account page; the yellow bar takes you back."
+      }
     }
   }
 }

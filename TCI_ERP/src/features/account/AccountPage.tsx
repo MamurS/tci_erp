@@ -5,6 +5,7 @@
 
 import { useTranslation } from 'react-i18next'
 import { DisplaySettings } from './UiScalePicker'
+import { DemoModeSwitch } from '../demo'
 
 import { useAuth } from '../../auth/AuthContext'
 import { Card, LinkButton, PageHeader, SectionTitle } from '../../components/ui'
@@ -37,6 +38,11 @@ export function AccountPage() {
         <Card className="p-5">
           <SectionTitle className="mb-3">{t('account.display.title')}</SectionTitle>
           <DisplaySettings />
+        </Card>
+
+        <Card className="p-5">
+          <SectionTitle className="mb-3">{t('demo.mode.title')}</SectionTitle>
+          <DemoModeSwitch />
         </Card>
 
         <MfaSection />

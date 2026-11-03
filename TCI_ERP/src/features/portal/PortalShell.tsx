@@ -10,18 +10,25 @@ import { NavLink, Outlet } from 'react-router-dom'
 import { PageLoading } from '../../components/layout/PageLoading'
 import { SignInNotice } from '../../auth/SignInNotice'
 import { NewVersionNotice } from '../../components/layout/NewVersionNotice'
+import { TourHost } from '../tour/TourHost'
 import { useNewVersion } from '../../lib/useNewVersion'
+import { DemoBanner, useDemoModeTabSync } from '../demo'
 import { useTranslation } from 'react-i18next'
 import { LogOut } from 'lucide-react'
 
 import { useAuth } from '../../auth/AuthContext'
-import { BrandMark, TablePrefsContext } from '../../components/ui'
+import { BrandMark, PageHelpContext, TablePrefsContext } from '../../components/ui'
+import { HelpButton, PageHelpLink } from '../help/HelpButton'
+import { useHelpHotkey } from '../help/useHelpHotkey'
 import { LanguageSwitcher } from '../../components/layout/LanguageSwitcher'
 import { PORTAL_NAV_ITEMS } from './navigation'
 import { useMyEntity } from './api'
 
 export function PortalShell() {
   const newVersion = useNewVersion()
+  useDemoModeTabSync()
+  // F1: the guide's topic for the portal page that is open.
+  useHelpHotkey()
   const { t } = useTranslation()
   const { session, signOut } = useAuth()
   // A policyholder reads a few rows at a time: relaxed rows by default.
@@ -60,6 +67,8 @@ export function PortalShell() {
             </span>
           </div>
           <div className="flex-1" />
+          {/* The user guide, portal face (/portal/help); F1 does the same. */}
+          <HelpButton inverse />
           <div className="rounded-md bg-white/95 p-0.5">
             <LanguageSwitcher />
           </div>
@@ -78,7 +87,7 @@ export function PortalShell() {
             {t('auth.signOut')}
           </button>
         </div>
-        <nav className="mx-auto flex w-full max-w-[96rem] flex-wrap gap-1 px-4">
+        <nav className="mx-auto flex w-full max-w-[96rem] flex-wrap gap-1 px-4" data-tour="portal-nav">
           {PORTAL_NAV_ITEMS.map((item) => (
             <NavLink
               key={item.key}
@@ -98,15 +107,19 @@ export function PortalShell() {
         </nav>
       </header>
 
+      <DemoBanner />
       <main className="mx-auto w-full max-w-[96rem] flex-1 px-6 py-7">
         <SignInNotice accountPath="/portal/account" />
         <TablePrefsContext.Provider value={tablePrefs}>
-          <Suspense fallback={<PageLoading />}>
-            <Outlet />
-          </Suspense>
+          <PageHelpContext.Provider value={PageHelpLink}>
+            <Suspense fallback={<PageLoading />}>
+              <Outlet />
+            </Suspense>
+          </PageHelpContext.Provider>
         </TablePrefsContext.Provider>
       </main>
       <NewVersionNotice stale={newVersion} />
+      <TourHost />
     </div>
   )
 }

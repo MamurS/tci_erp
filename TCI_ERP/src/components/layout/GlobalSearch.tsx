@@ -209,8 +209,11 @@ export const GlobalSearch = forwardRef<GlobalSearchHandle>(function GlobalSearch
     ? t('search.placeholderPage', { page: t(`nav.${scope}`) })
     : t('search.placeholder')
 
+  // Below `sm` (a phone, or a laptop at 200 % zoom) the field gives way to
+  // the help, language and user buttons, down to 8 rem, so the top bar never
+  // scrolls the page sideways.
   return (
-    <div className="relative flex h-11 min-w-0 shrink-0 sm:w-full sm:max-w-3xl sm:shrink">
+    <div className="relative flex h-11 min-w-32 shrink sm:w-full sm:max-w-3xl" data-tour="search">
       <Search
         aria-hidden
         className="pointer-events-none absolute top-1/2 left-4 size-[1.125rem] -translate-y-1/2 text-slate-500"

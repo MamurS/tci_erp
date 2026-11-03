@@ -11,7 +11,9 @@
 
 import { defineConfig, devices } from '@playwright/test'
 
-const PORT = 4173
+// PW_PORT: another checkout's dev server may already hold 4173, and
+// reuseExistingServer would then test THAT checkout's code.
+const PORT = Number(process.env.PW_PORT) || 4173
 const executablePath = process.env.PW_CHROMIUM_PATH || undefined
 
 export default defineConfig({

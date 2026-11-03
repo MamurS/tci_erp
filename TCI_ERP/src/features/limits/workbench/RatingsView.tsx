@@ -58,7 +58,7 @@ export function RatingsView() {
   const rows = reason === 'all' ? all : all.filter((r) => r.reason === reason)
 
   return (
-    <div>
+    <div data-tour="ratings-worklist">
       <ViewBar
         hint={t('limits.workbench.ratings.subtitle')}
         actions={

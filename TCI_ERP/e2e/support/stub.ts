@@ -10,6 +10,8 @@
 
 import type { BrowserContext } from '@playwright/test'
 
+import { ALL_TOUR_IDS } from '../../src/features/tour/registry'
+
 export const STUB_URL = 'https://stub.supabase.co'
 const STORAGE_KEY = 'sb-stub-auth-token'
 
@@ -47,6 +49,17 @@ export interface StubOptions {
   uiMode?: string
   /** The person's text on coloured badges (0089); null = the app default. */
   uiBadgeInk?: 'white' | 'dark' | null
+  /** The person's guided tour progress (tci.user_profiles.ui_tour_state,
+   * 0098). By default EVERY tour is recorded as completed, so no tour covers
+   * the screens a test looks at; e2e/shell/tour.spec.ts passes its own. */
+  tourState?: Record<string, unknown> | null
+}
+
+/** Every tour completed early in 2026: nothing starts by itself. */
+export function allToursCompleted(): Record<string, unknown> {
+  return Object.fromEntries(
+    ALL_TOUR_IDS.map((id) => [id, { status: 'completed', last_step: 0, at: '2026-01-01T00:00:00.000Z' }]),
+  )
 }
 
 /** A REST call as the stub sees it. */
@@ -109,6 +122,7 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
     uiTheme = 'blue',
     uiMode = 'light',
     uiBadgeInk = null,
+    tourState = allToursCompleted(),
   } = options
   const session = fakeSession(user?.id, user?.email, sessionId)
 
@@ -170,6 +184,10 @@ export async function stubBackend(context: BrowserContext, options: StubOptions 
     }
     if (resource === 'user_profiles' && request.method() === 'GET' && url.searchParams.get('select') === 'ui_badge_ink') {
       const row = { ui_badge_ink: uiBadgeInk }
+      return route.fulfill({ json: single ? row : [row] })
+    }
+    if (resource === 'user_profiles' && request.method() === 'GET' && url.searchParams.get('select') === 'ui_tour_state') {
+      const row = { ui_tour_state: tourState }
       return route.fulfill({ json: single ? row : [row] })
     }
 

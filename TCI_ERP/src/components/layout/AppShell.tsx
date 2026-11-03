@@ -12,10 +12,15 @@ import type { SidebarState } from './shell'
 import { PageLoading } from './PageLoading'
 import { SignInNotice } from '../../auth/SignInNotice'
 import { NewVersionNotice } from './NewVersionNotice'
+import { TourHost } from '../../features/tour/TourHost'
 import { useNewVersion } from '../../lib/useNewVersion'
+import { DemoBanner, useDemoModeTabSync } from '../../features/demo'
 import { useUiScaleValue } from '../../lib/uiScale'
 import { useAuth } from '../../auth/AuthContext'
 import { TablePrefsContext } from '../ui/tablePrefs'
+import { PageHelpContext } from '../ui/pageHelp'
+import { PageHelpLink } from '../../features/help/HelpButton'
+import { useHelpHotkey } from '../../features/help/useHelpHotkey'
 import { availableWorkspaces, rememberWorkspace, workspaceForRole, workspaceHome } from './workspaces'
 import type { WorkspaceKey } from './workspaces'
 
@@ -97,6 +102,9 @@ const SIDEBAR_ID = 'app-sidebar'
  */
 export function AppShell() {
   const newVersion = useNewVersion()
+  useDemoModeTabSync()
+  // F1: the user guide's topic for the page that is open.
+  useHelpHotkey()
   const { session } = useAuth()
   const userId = session?.user.id ?? 'anonymous'
   const tablePrefs = useMemo(() => ({ user: userId, defaultDensity: 'regular' as const }), [userId])
@@ -262,6 +270,8 @@ export function AppShell() {
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
+        {/* Demo world (0096): a slim bar for the whole session, so nothing moves. */}
+        <DemoBanner />
         <Header
           searchRef={searchRef}
           toggleSlot={pinned ? 'none' : isDesktop ? 'spacer' : 'button'}
@@ -271,13 +281,16 @@ export function AppShell() {
         <main className="mx-auto w-full max-w-[160rem] flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-7">
           <SignInNotice accountPath="/account" />
           <TablePrefsContext.Provider value={tablePrefs}>
-            <Suspense fallback={<PageLoading />}>
-              <Outlet />
-            </Suspense>
+            <PageHelpContext.Provider value={PageHelpLink}>
+              <Suspense fallback={<PageLoading />}>
+                <Outlet />
+              </Suspense>
+            </PageHelpContext.Provider>
           </TablePrefsContext.Provider>
         </main>
       </div>
       <NewVersionNotice stale={newVersion} />
+      <TourHost />
     </div>
     </PageSearchProvider>
   )

@@ -18,6 +18,7 @@ import type { ButtonVariant } from './buttonStyles'
 import { COL, tableMinWidth } from './columns'
 import { OnBandContext } from './bandContext'
 import { HeroBand } from './HeroBand'
+import { PageHelpContext } from './pageHelp'
 import { Pictogram } from './pictograms'
 import type { PictogramName } from './pictogramNames'
 import { DENSITY_CELL, hiddenColumnsCss, useDensity, useHiddenColumns } from './tablePrefs'
@@ -485,6 +486,7 @@ export function PageHeader({ title, status, subtitle, actions, eyebrow, band = f
           <h1 className="font-display text-headline leading-tight font-bold tracking-wide text-accent-700 uppercase">
             {title}
           </h1>
+          <PageHelpSlot />
           {status && (
             <BadgeSizeContext.Provider value="md">
               <span className="inline-flex flex-wrap items-center gap-2">{status}</span>
@@ -496,6 +498,12 @@ export function PageHeader({ title, status, subtitle, actions, eyebrow, band = f
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
   )
+}
+
+/** The user guide's «?» for the page, beside its title (pageHelp.ts). */
+function PageHelpSlot({ inverse = false }: { inverse?: boolean }) {
+  const Help = useContext(PageHelpContext)
+  return Help ? <Help inverse={inverse} /> : null
 }
 
 // ---------------------------------------------------------------------------
@@ -531,7 +539,7 @@ export function SectionPage({ title, subtitle, tabs, active, onChange, children,
       ) : (
         <PageHeader band title={title} subtitle={subtitle} />
       )}
-      <div className="mb-5">
+      <div className="mb-5" data-tour="section-tabs">
         <Tabs tabs={tabs} active={active} onChange={onChange} />
       </div>
       {/* Views load lazily; the header and the tabs must not blink while one does. */}
@@ -588,6 +596,8 @@ export function EmptyState({ title, hint, action, icon, pictogram = 'inbox' }: E
   const framed = useContext(FramedContext)
   return (
     <div
+      // The guided tour reads an empty list from this (features/tour/dom.ts).
+      data-tour-empty
       className={`flex flex-col items-center justify-center gap-2 text-center ${
         framed ? 'px-4 py-8' : 'rounded-lg border border-dashed border-slate-300 bg-white/70 px-6 py-14'
       }`}

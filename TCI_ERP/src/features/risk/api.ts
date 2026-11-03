@@ -735,10 +735,13 @@ export function useBuyerRiskContext(entityId: string | null | undefined) {
   return useQuery({
     queryKey: RISK_KEYS.context(entityId ?? ''),
     enabled: staff && Boolean(entityId),
-    queryFn: async (): Promise<BuyerRiskContext> => {
+    queryFn: async (): Promise<BuyerRiskContext | null> => {
       const { data, error } = await tci().rpc('buyer_risk_context', { p_entity: entityId! })
       if (error) throw error
-      return data as BuyerRiskContext
+      // No company (or an older database) answers no object: nothing to show.
+      if (!data || typeof data !== 'object') return null
+      const ctx = data as BuyerRiskContext
+      return { ...ctx, sanctions: Array.isArray(ctx.sanctions) ? ctx.sanctions : [] }
     },
   })
 }
@@ -749,13 +752,25 @@ export function useCoverConcentration(scope: 'policy' | 'submission', id: string
   return useQuery({
     queryKey: RISK_KEYS.concentration(scope, id ?? ''),
     enabled: staff && Boolean(id),
-    queryFn: async (): Promise<Concentration> => {
+    queryFn: async (): Promise<Concentration | null> => {
       const { data, error } = await tci().rpc('cover_concentration', {
         p_policy: scope === 'policy' ? id! : null,
         p_submission: scope === 'submission' ? id! : null,
       })
       if (error) throw error
-      return data as Concentration
+      return normaliseConcentration(data)
     },
   })
+}
+
+/** The answer with its lists always present; anything that is not an object is null. */
+export function normaliseConcentration(data: unknown): Concentration | null {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) return null
+  const c = data as Partial<Concentration>
+  return {
+    ...(c as Concentration),
+    by_sector: Array.isArray(c.by_sector) ? c.by_sector : [],
+    by_country: Array.isArray(c.by_country) ? c.by_country : [],
+    blocked: Array.isArray(c.blocked) ? c.blocked : [],
+  }
 }
