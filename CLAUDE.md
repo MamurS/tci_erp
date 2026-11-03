@@ -1240,6 +1240,13 @@ is fine for internal test accounts and not fine for customers.
   `createPortal` elsewhere) and `e2e/layout/overlays.spec.ts` (15 overlays ×
   banner on/off × 1280×720 / 1920×1080 × en/ru/uz). See DESIGN.md «Layers
   and overlays»
+- [x] Sanctions screening over the whole registry (migration 0099, owner
+  request 2026-11-03): a company is screened the moment it is added to the
+  registry (reason `entity_created`, while a list is in use), and every
+  company — not only those with live business — is screened again after a
+  new list takes effect (`sanctions_population()` = the whole registry). The
+  card hint, the import progress and the guide say so in en/ru/uz.
+  `tests/db/sanctions_registry.sql`
 - [ ] Audit Phase B — operational floor: replay harness `tools/db/` + PG17 CI (`db.yml`), nightly age-encrypted backup workflow + `docs/BACKUP-RESTORE.md`, schema fingerprint for the ledger check, `Fineye*`/samples/screenshots moved to `legacy/` — DONE; waiting for the owner: the two backup secrets and the first restore drill; later: the canonical diff and the ledger rewrite
 - [ ] Phase 7: Python analytics service (scoring/rating)
 
@@ -2908,11 +2915,14 @@ Uzbek Latin, diacritics, legal forms; the 300 nearest names by trigram
 distance; `sanctions_name_score` = similarity, or 0.9 when every word of one
 name is in the other), at or above `sanctions_match_threshold` (0.60). A
 match is unique per (company, subject, name, list entry): a cleared one is
-never raised again for the same name. It runs on `rating.created` and
-`limit.request_submitted` (before the information routing and the auto
-decision), when an owner, a link or a name changes, and lazily after an
-import (`rescreen_sanctions_due`, from `refresh_agenda` and the import
-screen).
+never raised again for the same name. It runs when a company is ADDED to the
+registry (0099, reason `entity_created`, while a list is in use), on
+`rating.created` and `limit.request_submitted` (before the information
+routing and the auto decision), when an owner, a link or a name changes, and
+lazily after an import (`rescreen_sanctions_due`, from `refresh_agenda`, the
+import screen and the feed) — for the WHOLE registry since 0099
+(`sanctions_population()` = every company; 0091 kept only those with live
+business).
 
 **A pending match blocks.** It is an ADT stop (`sanctions_match`, last) and a
 BEFORE INSERT trigger refuses an approving or partial credit decision for

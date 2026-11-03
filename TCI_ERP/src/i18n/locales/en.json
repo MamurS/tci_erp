@@ -7196,7 +7196,8 @@
       "limit_request": "Limit request",
       "list_import": "New list",
       "owners_changed": "Owners changed",
-      "manual": "Screened by hand"
+      "manual": "Screened by hand",
+      "entity_created": "Added to the registry"
     },
     "lists": {
       "title": "Sanctions lists in use",
@@ -7260,7 +7261,7 @@
       "progress": {
         "loading": "Saving the parties: {{done}} of {{total}}…",
         "finishing": "Putting the list into use…",
-        "screening": "Screening the companies kept screened: {{done}} of {{total}}…"
+        "screening": "Screening the companies in the registry: {{done}} of {{total}}…"
       },
       "format": {
         "format": "This file is not in the format of the list chosen.",
@@ -7270,7 +7271,7 @@
     },
     "card": {
       "title": "Sanctions screening",
-      "hint": "The company, the companies above it and the people behind them are screened against the official lists when it is rated, when a limit is requested, when its owners change and when a new list is imported.",
+      "hint": "The company, the companies above it and the people behind them are screened against the official lists when the company is added to the registry, when it is rated, when a limit is requested and when its owners or name change — and every company in the registry is screened again when a new list is imported.",
       "screenNow": "Screen now",
       "lastScreened": "Screened {{when}} against: {{lists}}",
       "neverScreened": "Not screened yet",

@@ -14,7 +14,7 @@ order: 7
 2. Type a person's or a company's name.
 3. The system shows the nearest list entries with a similarity score. Case, Cyrillic or Latin script and the legal form ("LLC", "MChJ") do not matter.
 
-Companies and their {{term:beneficial-owner|beneficial owners}} are screened automatically — when a rating is created, a limit request is submitted, owners or the name change, and after a new list is loaded. A credit analyst reviews the matches (see {{link:analysis-sanctions}}).
+Companies and their {{term:beneficial-owner|beneficial owners}} are screened automatically — when a company is added to the registry, a rating is created, a limit request is submitted, owners or the name change; and every company in the registry is screened again after a new list is loaded. A credit analyst reviews the matches (see {{link:analysis-sanctions}}).
 
 > [!WARNING]
 > A sanctions flag means **no cover**: the database refuses a new limit request, a limit approval, a submission and a policy for the flagged company or country — whoever tries.

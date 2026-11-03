@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import MIGRATION from '../../../supabase/migrations/0091_sanctions_screening.sql?raw'
+import WHOLE_REGISTRY from '../../../supabase/migrations/0099_sanctions_whole_registry.sql?raw'
 import { ENTRY_KINDS, LISTS, REQUIRED_LISTS } from './lists/parse'
 import {
   LIST_REGIME,
@@ -31,7 +32,8 @@ describe('vocabularies mirror 0091', () => {
     expect(MIGRATION).toContain(`check (kind in (${list(ENTRY_KINDS)}))`)
     expect(MIGRATION).toContain(`check (status in (${list(MATCH_STATUSES)}))`)
     expect(MIGRATION).toContain(`check (subject_kind in (${list(SUBJECT_KINDS)}))`)
-    expect(MIGRATION).toContain(`check (reason in (${list(SCREENING_REASONS)}))`)
+    // 0099 restates the reason list with 'entity_created'.
+    expect(WHOLE_REGISTRY).toContain(`check (reason in (${list(SCREENING_REASONS)}))`)
     expect(MIGRATION).toContain(`check (role in (${list(OWNER_ROLES)}))`)
     expect(MIGRATION).toContain(`default '{${REQUIRED_LISTS.join(',')}}'`)
   })
